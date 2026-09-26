@@ -25,6 +25,16 @@ O código-fonte e o script de compilação desta DLL ficam em
 `ModCarrerMode/source/career_native`. O artefato instalado continua sendo o
 `dinput8.dll` na raiz deste repositório.
 
+## Branches
+
+- `main` é a versão produtiva e mantém `mode=production`.
+- `dev` é a versão de desenvolvimento e mantém `mode=development`.
+
+Essa diferença é intencional: quem clonar `main` não recebe os dumps
+detalhados; quem clonar `dev` recebe os logs completos para investigação.
+Evite trocar manualmente o arquivo de configuração entre branches, porque ele
+é o que define o comportamento de cada pacote.
+
 Para desfazer somente esta troca da DLL, feche o jogo e execute
 `ModCarrerMode/source/career_native/restore_previous_dinput8.ps1`.
 
