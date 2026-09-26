@@ -12,3 +12,19 @@ Copie o conteúdo desta pasta para a raiz da instalação do FIFA 16, mantendo a
 - Ajustes de interface e localização
 - Plugins e configurações complementares
 
+## Diagnóstico nativo do modo carreira
+
+O arquivo `ModCarrerMode/career_native_mode.ini` controla a verbosidade dos
+logs nativos. O padrão é `mode=production`, que mantém somente diagnósticos
+críticos e não grava os dumps volumosos de cards e snapshots. Para investigar
+um problema, feche o jogo, altere para `mode=development`, reproduza o caso e
+volte para `mode=production` antes de jogar normalmente. `mode=trace` fica
+reservado para instrumentação adicional.
+
+O código-fonte e o script de compilação desta DLL ficam em
+`ModCarrerMode/source/career_native`. O artefato instalado continua sendo o
+`dinput8.dll` na raiz deste repositório.
+
+Para desfazer somente esta troca da DLL, feche o jogo e execute
+`ModCarrerMode/source/career_native/restore_previous_dinput8.ps1`.
+
