@@ -15,11 +15,16 @@ Copie o conteúdo desta pasta para a raiz da instalação do FIFA 16, mantendo a
 ## Diagnóstico nativo do modo carreira
 
 O arquivo `ModCarrerMode/career_native_mode.ini` controla a verbosidade dos
-logs nativos. O padrão é `mode=production`, que mantém somente diagnósticos
-críticos e não grava os dumps volumosos de cards e snapshots. Para investigar
-um problema, feche o jogo, altere para `mode=development`, reproduza o caso e
-volte para `mode=production` antes de jogar normalmente. `mode=trace` fica
-reservado para instrumentação adicional.
+logs nativos. O módulo é o mesmo nas duas branches; o arquivo de configuração
+define o ambiente do pacote:
+
+- `mode=production`: mantém somente diagnósticos críticos e não grava os dumps
+  volumosos de cards e snapshots.
+- `mode=development`: mantém os logs completos para investigação.
+- `mode=trace`: reservado para instrumentação adicional.
+
+A DLL lê esse modo quando o FIFA inicia. Depois de alterar a configuração,
+feche e reabra o jogo.
 
 O código-fonte e o script de compilação desta DLL ficam em
 `ModCarrerMode/source/career_native`. O artefato instalado continua sendo o
@@ -32,9 +37,8 @@ O código-fonte e o script de compilação desta DLL ficam em
 
 Essa diferença é intencional: quem clonar `main` não recebe os dumps
 detalhados; quem clonar `dev` recebe os logs completos para investigação.
-Evite trocar manualmente o arquivo de configuração entre branches, porque ele
-é o que define o comportamento de cada pacote.
-
-Para desfazer somente esta troca da DLL, feche o jogo e execute
-`ModCarrerMode/source/career_native/restore_previous_dinput8.ps1`.
+Ao integrar código de `dev` em `main`, preserve o arquivo de configuração da
+`main` com `mode=production`: código pode ser compartilhado, mas o ambiente de
+desenvolvimento não deve ser publicado no pacote produtivo. O mesmo vale para
+qualquer pacote ou cópia feita para a instalação do jogo.
 
