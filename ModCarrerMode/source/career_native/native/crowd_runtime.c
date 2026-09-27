@@ -887,3 +887,17 @@ void crowd_runtime_set_decision(const CrowdDecision *decision)
         }
     }
 }
+
+int crowd_runtime_attendance_percent(void)
+{
+    float factor;
+    int percent;
+    if (InterlockedCompareExchange(&g_enabled, 0, 0) == 0)
+        return -1;
+    factor = clamp_factor(bits_float(InterlockedCompareExchange(
+        &g_factor_bits, float_bits(CROWD_DEFAULT_FACTOR), 0)));
+    percent = (int)(factor * 100.0f + 0.5f);
+    if (percent < 1 || percent > 100)
+        return -1;
+    return percent;
+}

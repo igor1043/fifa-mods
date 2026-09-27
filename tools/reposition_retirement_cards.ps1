@@ -68,35 +68,13 @@ function Add-RetirementCard {
     [void](Add-XmlElement -Document $Document -Parent $subtile -Name 'data' -Attributes @{
         ID = 'RETIREMENT_TITLE'
         TYPE = 'title'
-        FORMAT = 'HS'
-        PARAM = $Title
-        TRANSLATE = 'FALSE'
-        WIDTH = '375'
-        HEIGHT = '38'
-        X = '22'
-        Y = '18'
-    })
-    [void](Add-XmlElement -Document $Document -Parent $subtile -Name 'data' -Attributes @{
-        ID = 'RETIREMENT_DESCRIPTION'
-        TYPE = 'text'
-        FORMAT = 'I'
-        PARAM = $Description
-        TRANSLATE = 'FALSE'
-        WIDTH = '370'
-        HEIGHT = '72'
-        X = '22'
-        Y = '70'
-    })
-    [void](Add-XmlElement -Document $Document -Parent $subtile -Name 'data' -Attributes @{
-        ID = 'RETIREMENT_STATUS'
-        TYPE = 'text'
         FORMAT = 'SS||center'
-        PARAM = 'PRIMEIRO SINAL: PODE SAIR SEM SALVAR'
-        TRANSLATE = 'FALSE'
+        PARAM = $Title
+        TRANSLATE = 'TRUE'
         WIDTH = '370'
-        HEIGHT = '38'
+        HEIGHT = '34'
         X = '22'
-        Y = '151'
+        Y = '85'
     })
 }
 
@@ -127,12 +105,12 @@ foreach ($file in $Path) {
     }
     Add-RetirementCard -Document $document -SettingsTile $settingsTile -ElementName 'subtile1' -Id '385' `
         -Destination 'RetirementRemove' -Mode 'remove_retirement' `
-        -Title 'REMOVER APOSENTADORIA' `
-        -Description 'Remove a aposentadoria dos jogadores marcados sem alterar a idade. Depois do primeiro sinal, voce pode sair do jogo sem salvar.'
+        -Title 'FIFA_MODS_RETIREMENT' `
+        -Description ''
     Add-RetirementCard -Document $document -SettingsTile $settingsTile -ElementName 'subtile2' -Id '386' `
         -Destination 'RetirementResetAge' -Mode 'remove_and_rejuvenate' `
-        -Title 'REMOVER E RENOVAR IDADE' `
-        -Description 'Remove a aposentadoria e ajusta a idade-alvo dos jogadores marcados. Depois do primeiro sinal, voce pode sair do jogo sem salvar.'
+        -Title 'FIFA_MODS_RETIREMENT_AGE' `
+        -Description ''
 
     $xmlSettings = [System.Xml.XmlWriterSettings]::new()
     $xmlSettings.Encoding = [System.Text.UTF8Encoding]::new($false)

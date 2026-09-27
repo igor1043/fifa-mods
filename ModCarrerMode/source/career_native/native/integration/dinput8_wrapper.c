@@ -3747,6 +3747,12 @@ static unsigned int apply_call_patches(
 {
     CallPatchSpec patches[] = {
         {
+            "career_startup_object_guard",
+            0x05F18BCF,
+            0x05573D20,
+            (void *)resolve_career_startup_object_guard,
+        },
+        {
             "calendar_competition_asset",
             0x058FB894,
             0x05BB8BE0,
@@ -4043,7 +4049,7 @@ static DWORD WINAPI patch_standings_provider(LPVOID unused)
         }
     }
     unsigned int call_patched = apply_call_patches(module_base, log);
-    if(call_patched!=18) { fclose(log); return 5; }
+    if(call_patched!=19) { fclose(log); return 5; }
     for (index = 0; index < sizeof(g_patches) / sizeof(g_patches[0]); index++)
     {
         if (apply_patch(module_base, &g_patches[index], log))
@@ -4051,11 +4057,11 @@ static DWORD WINAPI patch_standings_provider(LPVOID unused)
     }
     fprintf(log, "Patches de bytes=%u/%u\n", patched, (unsigned int)(
         sizeof(g_patches) / sizeof(g_patches[0])));
-    fprintf(log, "Patches de chamadas=%u/18\n", call_patched);
+    fprintf(log, "Patches de chamadas=%u/19\n", call_patched);
     fclose(log);
     return (
         patched == sizeof(g_patches) / sizeof(g_patches[0])
-        && call_patched == 18)
+        && call_patched == 19)
         ? 0
         : 5;
 }

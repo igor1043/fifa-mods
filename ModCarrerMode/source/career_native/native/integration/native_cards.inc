@@ -782,6 +782,7 @@ static void publish_next_match_card(void *provider) {
     char fallback_image[256];
     char home_manager[128],away_manager[128];
     int fallback_capacity=0,fallback_domestic=0,fallback_international=0;
+    int attendance_percent=-1;
     int fallback_ok=0;
     FceCompetition competition;
     int valid=g_next_match_fixture_valid && g_upcoming_count>0;
@@ -827,6 +828,20 @@ static void publish_next_match_card(void *provider) {
     publish_visibility_field(provider,"MYTEAM_NEXT_AWAY_KIT",FALSE);
     publish_string_field(provider,"MYTEAM_NEXT_AWAY_KIT","");
     if(!valid) return;
+
+    /* The crowd controller may not have a valid career context yet. Keep the
+     * optional Match Preview item hidden in that case instead of publishing a
+     * stale/default value or breaking the screen. */
+    attendance_percent=crowd_runtime_attendance_percent();
+    if(attendance_percent>0) {
+        snprintf(value,sizeof(value),"%d%%",attendance_percent);
+        publish_string_field(provider,"MYTEAM_NEXT_STADIUM_CAPACITY_LABEL",
+            "Attendance");
+        publish_string_field(provider,"MYTEAM_NEXT_STADIUM_CAPACITY",value);
+        publish_visibility_field(provider,"MYTEAM_NEXT_STADIUM_CAPACITY_LABEL",
+            TRUE);
+        publish_visibility_field(provider,"MYTEAM_NEXT_STADIUM_CAPACITY",TRUE);
+    }
 
     native_team_name(g_next_match_fixture.home,value,sizeof(value));
     publish_visibility_field(provider,"MYTEAM_NEXT_HOME_NAME",value[0]!=0);
@@ -927,14 +942,6 @@ static void publish_next_match_card(void *provider) {
             sizeof(stadium_image))) {
             publish_string_field(provider,"MYTEAM_NEXT_STADIUM_IMAGE",stadium_image);
             publish_visibility_field(provider,"MYTEAM_NEXT_STADIUM_IMAGE",TRUE);
-        }
-        if(fallback_ok && fallback_capacity>0 && fallback_name[0] &&
-           !lstrcmpiA(fallback_name,value)) {
-            snprintf(stadium_detail,sizeof(stadium_detail),"%d",fallback_capacity);
-            publish_string_field(provider,"MYTEAM_NEXT_STADIUM_CAPACITY_LABEL","Capacity");
-            publish_string_field(provider,"MYTEAM_NEXT_STADIUM_CAPACITY",stadium_detail);
-            publish_visibility_field(provider,"MYTEAM_NEXT_STADIUM_CAPACITY_LABEL",TRUE);
-            publish_visibility_field(provider,"MYTEAM_NEXT_STADIUM_CAPACITY",TRUE);
         }
     } else {
         publish_string_field(provider,"MYTEAM_NEXT_STADIUM_LABEL","Stadium_mixedcase");

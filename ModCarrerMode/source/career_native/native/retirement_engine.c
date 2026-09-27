@@ -95,6 +95,8 @@ static HANDLE g_retirement_feedback_ready;
 static HWND g_retirement_feedback_window;
 static char g_retirement_feedback_text[256];
 
+static void retirement_feedback_start(void);
+
 static uint16_t retirement_u16(const unsigned char *p)
 {
     return (uint16_t)p[0] | ((uint16_t)p[1] << 8);
@@ -1100,7 +1102,14 @@ void retirement_engine_show_feedback(const char *text, UINT beep_type)
     COPYDATASTRUCT copy;
     if (!text || !*text)
         return;
-    window = FindWindowA("FifaRetirementFeedbackWindow", NULL);
+    window = g_retirement_feedback_window;
+    if (!window || !IsWindow(window)) {
+        g_retirement_feedback_window = NULL;
+        retirement_feedback_start();
+        window = g_retirement_feedback_window;
+    }
+    if (!window)
+        window = FindWindowA("FifaRetirementFeedbackWindow", NULL);
     if (window) {
         memset(&copy, 0, sizeof(copy));
         copy.dwData = RETIREMENT_FEEDBACK_RESULT;

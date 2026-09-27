@@ -65,6 +65,15 @@ foreach ($node in $xml.SelectNodes('//data')) {
     }
 }
 
+foreach ($panel in $xml.SelectNodes('//panel_set/panel[@PANEL_ID="5"]')) {
+    $panel.NAME = 'CM_Competition'
+}
+
+foreach ($field in $xml.SelectNodes('//data[@ID="MYTEAM_NEXT_STADIUM_CAPACITY_LABEL"]')) {
+    $field.PARAM = 'Attendance'
+    $field.TRANSLATE = 'TRUE'
+}
+
 $settings = New-Object System.Xml.XmlWriterSettings
 $settings.Encoding = New-Object System.Text.UTF8Encoding($false)
 $settings.Indent = $false

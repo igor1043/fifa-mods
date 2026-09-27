@@ -42,5 +42,6 @@ float crowd_runtime_team_reputation(int team_id);
 int crowd_runtime_team_reputation_available(int team_id);
 float crowd_runtime_league_reputation(int team_id);
 float crowd_runtime_rivalry(int team_id, int opponent_id);
+int crowd_runtime_attendance_percent(void);
 
 #endif
