@@ -1,5 +1,6 @@
-/* Passive active-save probe. It observes FIFA's own successful file I/O and
- * publishes the DATA path to the mod runtime folder; it never edits save data. */
+/* Active-save bridge. It observes FIFA's successful file I/O, publishes the
+ * DATA path to the mod runtime folder, and notifies the optional background
+ * retirement worker after a successful save write. */
 typedef struct SaveReadHandle {
     HANDLE handle;
     char path[1024];
@@ -204,11 +205,24 @@ static BOOL WINAPI write_file_capture(HANDLE handle, LPCVOID buffer, DWORD lengt
     DWORD amount;
     if (!g_original_write_file)
         return FALSE;
-    result = g_original_write_file(handle, buffer, length, bytes_written, overlapped);
+    path[0] = '\0';
+    if (length >= 1024U * 1024U
+        && get_save_data_path(handle, path, sizeof(path))) {
+        /* Observation only.  The external worker owns the DATA replacement
+         * after the DATA/INDEX pair becomes stable; never copy or mutate the
+         * save buffer inside FIFA's WriteFile call. */
+    }
+    result = g_original_write_file(handle, buffer, length, bytes_written,
+        overlapped);
     amount = bytes_written ? *bytes_written : length;
-    if (result && amount > 0
-        && take_unreported_save_handle(handle, path, sizeof(path)))
+    if (result && amount > 0 && path[0]) {
         publish_active_save_access(path, "write", amount);
+        retirement_engine_note_write(path);
+    } else if (result && amount > 0
+        && take_unreported_save_handle(handle, path, sizeof(path))) {
+        publish_active_save_access(path, "write", amount);
+        retirement_engine_note_write(path);
+    }
     return result;
 }
 
@@ -274,6 +288,103 @@ static BOOL replace_import_address(HMODULE image, const char *function_name,
             return TRUE;
         }
     }
+    /* The FIFA executable is protected/relocated during startup.  In some
+     * builds the loader leaves a valid IAT pointer but no longer leaves the
+     * import-name thunk in the in-memory image.  Fall back to locating the
+     * system API pointer in writable image sections (normally .idata). */
+    {
+        HMODULE kernel32 = GetModuleHandleW(L"kernel32.dll");
+        HMODULE kernelbase = GetModuleHandleW(L"kernelbase.dll");
+        void *targets[2];
+        SIZE_T target_count = 0;
+        WORD section_index;
+        PIMAGE_SECTION_HEADER sections;
+        if (kernel32) {
+            void *target = (void *)GetProcAddress(kernel32, function_name);
+            if (target) targets[target_count++] = target;
+        }
+        if (kernelbase) {
+            void *target = (void *)GetProcAddress(kernelbase, function_name);
+            if (target && (target_count == 0 || targets[0] != target))
+                targets[target_count++] = target;
+        }
+        if (target_count == 0) return FALSE;
+        sections = IMAGE_FIRST_SECTION(nt);
+        for (section_index = 0; section_index < nt->FileHeader.NumberOfSections;
+             ++section_index) {
+            PIMAGE_SECTION_HEADER section = &sections[section_index];
+            SIZE_T section_size = section->Misc.VirtualSize;
+            SIZE_T offset;
+            unsigned char *start;
+            if (!(section->Characteristics & IMAGE_SCN_MEM_WRITE))
+                continue;
+            if (section_size < sizeof(void *)) continue;
+            if ((SIZE_T)section->VirtualAddress >= nt->OptionalHeader.SizeOfImage)
+                continue;
+            if ((SIZE_T)section->VirtualAddress + section_size
+                > nt->OptionalHeader.SizeOfImage)
+                section_size = nt->OptionalHeader.SizeOfImage
+                    - (SIZE_T)section->VirtualAddress;
+            start = (unsigned char *)image + section->VirtualAddress;
+            for (offset = 0; offset + sizeof(void *) <= section_size;
+                 offset += sizeof(void *)) {
+                void **slot = (void **)(start + offset);
+                void *current = *slot;
+                SIZE_T target_index;
+                for (target_index = 0; target_index < target_count;
+                     ++target_index) {
+                    DWORD previous_protection;
+                    if (current != targets[target_index]) continue;
+                    if (!VirtualProtect(slot, sizeof(*slot), PAGE_READWRITE,
+                            &previous_protection))
+                        return FALSE;
+                    *original = current;
+                    InterlockedExchangePointer((PVOID volatile *)slot,
+                        replacement);
+                    (void)VirtualProtect(slot, sizeof(*slot),
+                        previous_protection, &previous_protection);
+                    FlushInstructionCache(GetCurrentProcess(), slot,
+                        sizeof(*slot));
+                    append_loader_log("active_save_probe_pointer_scan_installed");
+                    return TRUE;
+                }
+            }
+        }
+    }
+    /* This mod targets the verified FIFA 16 executable build (SizeOfImage
+     * 0x09525000). Its four save-related IAT slots are stable even when the
+     * protected loader changes the import metadata. Validate the image size
+     * before using these RVAs so a different executable cannot be patched by
+     * accident. */
+    if (g_module_size == 0x09525000U) {
+        uintptr_t known_rva = 0;
+        if (strcmp(function_name, "CreateFileA") == 0)
+            known_rva = 0x05F682A8U;
+        else if (strcmp(function_name, "ReadFile") == 0)
+            known_rva = 0x05F682C8U;
+        else if (strcmp(function_name, "CreateFileW") == 0)
+            known_rva = 0x05F68328U;
+        else if (strcmp(function_name, "WriteFile") == 0)
+            known_rva = 0x05F68340U;
+        if (known_rva) {
+            void **slot = (void **)((unsigned char *)image + known_rva);
+            void *current = *slot;
+            DWORD previous_protection;
+            if (current && current != replacement
+                && VirtualProtect(slot, sizeof(*slot), PAGE_READWRITE,
+                    &previous_protection)) {
+                *original = current;
+                InterlockedExchangePointer((PVOID volatile *)slot,
+                    replacement);
+                (void)VirtualProtect(slot, sizeof(*slot),
+                    previous_protection, &previous_protection);
+                FlushInstructionCache(GetCurrentProcess(), slot,
+                    sizeof(*slot));
+                append_loader_log("active_save_probe_known_iat_installed");
+                return TRUE;
+            }
+        }
+    }
     return FALSE;
 }
 
@@ -283,21 +394,28 @@ static BOOL install_active_save_read_probe(HMODULE image)
     g_get_final_path_name_by_handle_w = kernel32
         ? (GetFinalPathNameByHandleWFn)GetProcAddress(
             kernel32, "GetFinalPathNameByHandleW") : NULL;
-    if (!replace_import_address(image, "CreateFileA",
+    if (replace_import_address(image, "CreateFileA",
             (void *)create_file_a_capture, (void **)&g_original_create_file_a))
-        goto incomplete;
-    InterlockedIncrement(&g_save_file_hook_count);
-    if (!replace_import_address(image, "CreateFileW",
+        InterlockedIncrement(&g_save_file_hook_count);
+    else
+        append_loader_log("active_save_probe_CreateFileA_not_found");
+    if (replace_import_address(image, "CreateFileW",
             (void *)create_file_w_capture, (void **)&g_original_create_file_w))
-        goto incomplete;
-    InterlockedIncrement(&g_save_file_hook_count);
-    if (!replace_import_address(image, "ReadFile",
+        InterlockedIncrement(&g_save_file_hook_count);
+    else
+        append_loader_log("active_save_probe_CreateFileW_not_found");
+    if (replace_import_address(image, "ReadFile",
             (void *)read_file_capture, (void **)&g_original_read_file))
-        goto incomplete;
-    InterlockedIncrement(&g_save_file_hook_count);
+        InterlockedIncrement(&g_save_file_hook_count);
+    else
+        append_loader_log("active_save_probe_ReadFile_not_found");
     if (replace_import_address(image, "WriteFile",
             (void *)write_file_capture, (void **)&g_original_write_file))
         InterlockedIncrement(&g_save_file_hook_count);
+    else
+        append_loader_log("active_save_probe_WriteFile_not_found");
+    if (!g_original_create_file_a && !g_original_create_file_w)
+        goto incomplete;
     append_loader_log("active_save_probe_iat_installed");
     return TRUE;
 

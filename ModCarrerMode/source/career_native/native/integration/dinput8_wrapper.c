@@ -15,6 +15,7 @@
 #include <wchar.h>
 #include "../fce_runtime.h"
 #include "../crowd_runtime.h"
+#include "../retirement_engine.h"
 static void native_prepare(void *owner);
 static void native_publish(void *provider);
 static void native_form(void *provider, int row, int club);
@@ -3932,9 +3933,9 @@ static DWORD WINAPI patch_standings_provider(LPVOID unused)
         return 2;
     }
 
-    /* Keep the passive probe present in the currently installed DLL. It
-     * observes the game's own DATA reads/writes and does not modify saves. */
-    (void)install_active_save_read_probe(executable);
+    /* The probe still only observes I/O. The optional retirement engine is
+     * separately disabled unless its explicit config enables it. */
+    (void)retirement_engine_start(g_mod_dir);
 
     unsigned char *module_base = (unsigned char *)module_info.lpBaseOfDll;
     g_module_base = module_base;
@@ -4021,6 +4022,15 @@ static DWORD WINAPI patch_standings_provider(LPVOID unused)
         fclose(log);
         return 4;
     }
+
+    /* FIFA's protected loader has finished materializing the executable at
+     * this point. Install the save I/O probe only after that barrier; doing
+     * it earlier can see an incomplete import table and miss DATA writes. */
+    (void)install_active_save_read_probe(executable);
+
+    /* Do not patch fifa16.bin here. Its loader-owned image has a different
+     * lifetime and replacing the same process-wide callbacks twice can
+     * destabilize Career Hub startup. */
 
     unsigned int patched = 0;
     unsigned int index;

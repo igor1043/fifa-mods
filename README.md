@@ -11,6 +11,7 @@ Copie o conteúdo desta pasta para a raiz da instalação do FIFA 16, mantendo a
 - Arquivos de suporte do modo carreira
 - Ajustes de interface e localização
 - Plugins e configurações complementares
+- Mod de aposentadoria com cards, worker externo e backup automático do save
 
 ## Diagnóstico nativo do modo carreira
 
@@ -41,4 +42,16 @@ Ao integrar código de `dev` em `main`, preserve o arquivo de configuração da
 `main` com `mode=production`: código pode ser compartilhado, mas o ambiente de
 desenvolvimento não deve ser publicado no pacote produtivo. O mesmo vale para
 qualquer pacote ou cópia feita para a instalação do jogo.
+
+## Aposentadoria e traduções
+
+O card dispara o autosave do modo carreira. O worker aguarda o FIFA fechar,
+aguarda `DATA`/`INDEX` estabilizarem, preserva os dois arquivos como backup,
+recalcula os CRCs do `DATA` e valida o resultado antes de concluir. Se a
+validação falhar, o `DATA` original é restaurado.
+
+As correções de textos ficam em `tools/localization/career-mode-labels.json` e
+nas bases `data/loc/*.db`. A configuração ativa está em
+`ModCarrerMode/career_retirement_background.ini`; a versão de referência fica
+em `career_retirement_background.ini.example`.
 
