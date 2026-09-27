@@ -66,15 +66,26 @@ function Add-RetirementCard {
         Y = '25'
     })
     [void](Add-XmlElement -Document $Document -Parent $subtile -Name 'data' -Attributes @{
-        ID = 'RETIREMENT_TITLE'
+        ID = 'TITLE'
         TYPE = 'title'
-        FORMAT = 'SS||center'
+        FORMAT = 'HS'
         PARAM = $Title
         TRANSLATE = 'TRUE'
+        WIDTH = '378'
+        HEIGHT = '40'
+        X = '20'
+        Y = '32'
+    })
+    [void](Add-XmlElement -Document $Document -Parent $subtile -Name 'data' -Attributes @{
+        ID = 'DESCRIPTION'
+        TYPE = 'text'
+        FORMAT = 'I'
+        PARAM = $Description
+        TRANSLATE = 'TRUE'
         WIDTH = '370'
-        HEIGHT = '34'
+        HEIGHT = '78'
         X = '22'
-        Y = '85'
+        Y = '84'
     })
 }
 
@@ -106,11 +117,11 @@ foreach ($file in $Path) {
     Add-RetirementCard -Document $document -SettingsTile $settingsTile -ElementName 'subtile1' -Id '385' `
         -Destination 'RetirementRemove' -Mode 'remove_retirement' `
         -Title 'FIFA_MODS_RETIREMENT' `
-        -Description ''
+        -Description 'FIFA_MODS_RETIREMENT_DESC'
     Add-RetirementCard -Document $document -SettingsTile $settingsTile -ElementName 'subtile2' -Id '386' `
         -Destination 'RetirementResetAge' -Mode 'remove_and_rejuvenate' `
         -Title 'FIFA_MODS_RETIREMENT_AGE' `
-        -Description ''
+        -Description 'FIFA_MODS_RETIREMENT_AGE_DESC'
 
     $xmlSettings = [System.Xml.XmlWriterSettings]::new()
     $xmlSettings.Encoding = [System.Text.UTF8Encoding]::new($false)
