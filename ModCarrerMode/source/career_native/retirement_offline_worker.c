@@ -5,6 +5,8 @@
 #include <string.h>
 #include "native/retirement_engine.h"
 
+#define RETIREMENT_FEEDBACK_RESULT 0x16401U
+
 static const char *argument_value(int argc, char **argv, const char *name)
 {
     int index;
@@ -82,6 +84,27 @@ static void worker_log_result(const char *mod_dir, const char *data_path,
         data_path ? data_path : "", mode && *mode ? mode : "",
         result->backup_data, result->backup_index);
     fclose(file);
+}
+
+static void worker_show_success_feedback(const char *mode,
+    const RetirementApplyResult *result)
+{
+    const char *text;
+    HWND window;
+    COPYDATASTRUCT copy;
+    (void)mode;
+    text = result && result->players_changed
+        ? "Aposentadoria concluida com sucesso.\nO save esta pronto para ser reaberto."
+        : "Aposentadoria concluida.\nNenhuma alteracao adicional era necessaria.";
+    window = FindWindowA("FifaRetirementFeedbackWindow", NULL);
+    if (window) {
+        memset(&copy, 0, sizeof(copy));
+        copy.dwData = RETIREMENT_FEEDBACK_RESULT;
+        copy.cbData = (DWORD)strlen(text) + 1U;
+        copy.lpData = (PVOID)text;
+        (void)SendMessageA(window, WM_COPYDATA, 0, (LPARAM)&copy);
+    }
+    MessageBeep(MB_OK);
 }
 
 static int parse_unsigned(const char *value, unsigned long *result)
@@ -263,12 +286,11 @@ int main(int argc, char **argv)
         print_result(data_path, &result);
         worker_log_result(mod_dir, data_path, mode, worker_elapsed_ms(started_at),
             &result);
-        MessageBeep(MB_ICONEXCLAMATION);
         return 5;
     }
     print_result(data_path, &result);
     worker_log_result(mod_dir, data_path, mode, worker_elapsed_ms(started_at),
         &result);
-    MessageBeep(MB_OK);
+    worker_show_success_feedback(mode, &result);
     return 0;
 }

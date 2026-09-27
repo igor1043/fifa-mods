@@ -70,7 +70,9 @@ static ULONGLONG g_retirement_watch_start_filetime;
 static char g_retirement_deferred_paths[RETIREMENT_WATCH_CAPACITY][1024];
 
 #define RETIREMENT_FEEDBACK_SHOW (WM_APP + 0x164)
+#define RETIREMENT_FEEDBACK_RESULT 0x16401U
 #define RETIREMENT_FEEDBACK_HIDE_TIMER 1U
+#define RETIREMENT_CARD_REQUEST_COOLDOWN_MS 500ULL
 
 static SRWLOCK g_retirement_feedback_lock = SRWLOCK_INIT;
 static HANDLE g_retirement_feedback_ready;
@@ -1040,13 +1042,18 @@ static void retirement_log_event(const char *event, const char *path)
     fclose(file);
 }
 
-static void retirement_set_requested_mode(const char *mode)
+static int retirement_set_requested_mode(const char *mode)
 {
-    if (!mode || !*mode) return;
+    int accepted = 0;
+    if (!mode || !*mode) return 0;
     AcquireSRWLockExclusive(&g_retirement_lock);
-    lstrcpynA(g_retirement_requested_mode, mode,
-        sizeof(g_retirement_requested_mode));
+    if (!g_retirement_requested_mode[0]) {
+        lstrcpynA(g_retirement_requested_mode, mode,
+            sizeof(g_retirement_requested_mode));
+        accepted = 1;
+    }
     ReleaseSRWLockExclusive(&g_retirement_lock);
+    return accepted;
 }
 
 static int retirement_take_requested_mode(char *mode, size_t capacity)
@@ -1108,6 +1115,23 @@ static LRESULT CALLBACK retirement_feedback_window_proc(HWND window,
         DeleteObject(font);
         EndPaint(window, &paint);
         return 0;
+    }
+    case WM_COPYDATA:
+    {
+        const COPYDATASTRUCT *copy = (const COPYDATASTRUCT *)lparam;
+        SIZE_T length;
+        if (!copy || copy->dwData != RETIREMENT_FEEDBACK_RESULT
+            || !copy->lpData || !copy->cbData)
+            return 0;
+        length = copy->cbData;
+        if (length >= sizeof(g_retirement_feedback_text))
+            length = sizeof(g_retirement_feedback_text) - 1U;
+        AcquireSRWLockExclusive(&g_retirement_feedback_lock);
+        memcpy(g_retirement_feedback_text, copy->lpData, length);
+        g_retirement_feedback_text[length] = '\0';
+        ReleaseSRWLockExclusive(&g_retirement_feedback_lock);
+        SendMessageA(window, RETIREMENT_FEEDBACK_SHOW, 0, 0);
+        return 1;
     }
     case RETIREMENT_FEEDBACK_SHOW:
     {
@@ -1196,33 +1220,6 @@ static void retirement_feedback_start(void)
     g_retirement_feedback_ready = NULL;
 }
 
-static void retirement_feedback_show(const char *mode)
-{
-    FLASHWINFO flash;
-    HWND foreground;
-    const char *text = _stricmp(mode, "remove_and_rejuvenate") == 0
-        ? "Aposentadoria\nRemover aposentadoria e renovar idade: autosave em andamento."
-        : "Aposentadoria\nRemover aposentadoria: autosave em andamento.";
-    AcquireSRWLockExclusive(&g_retirement_feedback_lock);
-    lstrcpynA(g_retirement_feedback_text, text,
-        sizeof(g_retirement_feedback_text));
-    ReleaseSRWLockExclusive(&g_retirement_feedback_lock);
-    foreground = GetForegroundWindow();
-    if (foreground) {
-        memset(&flash, 0, sizeof(flash));
-        flash.cbSize = sizeof(flash);
-        flash.hwnd = foreground;
-        flash.dwFlags = FLASHW_CAPTION | FLASHW_TRAY;
-        flash.uCount = 2;
-        flash.dwTimeout = 120;
-        FlashWindowEx(&flash);
-    }
-    MessageBeep(MB_OK);
-    if (g_retirement_feedback_window)
-        PostMessageA(g_retirement_feedback_window,
-            RETIREMENT_FEEDBACK_SHOW, 0, 0);
-}
-
 static int retirement_card_mode_at_cursor(char *mode, size_t capacity)
 {
     HWND foreground;
@@ -1261,27 +1258,32 @@ static int retirement_card_mode_at_cursor(char *mode, size_t capacity)
 static DWORD WINAPI retirement_input_worker(void *unused)
 {
     SHORT previous_left = 0;
-    SHORT previous_enter = 0;
     int input_armed = 0;
+    ULONGLONG last_card_request_tick = 0;
     (void)unused;
     while (InterlockedCompareExchange(&g_retirement_running, 0, 0)) {
         SHORT left = GetAsyncKeyState(VK_LBUTTON);
-        SHORT enter = GetAsyncKeyState(VK_RETURN);
         char mode[64];
+        char pending_mode[64];
+        ULONGLONG now = GetTickCount64();
+        int request_pending = retirement_peek_requested_mode(
+            pending_mode, sizeof(pending_mode));
         int pressed = input_armed
-            && (((left & 0x8000) && !(previous_left & 0x8000))
-            || ((enter & 0x8000) && !(previous_enter & 0x8000)));
-        if (!(left & 0x8000) && !(enter & 0x8000)) input_armed = 1;
-        if (pressed && retirement_card_mode_at_cursor(mode, sizeof(mode))) {
-            retirement_set_requested_mode(mode);
-            retirement_feedback_show(mode);
+            && ((left & 0x8000) && !(previous_left & 0x8000));
+        if (!(left & 0x8000)) input_armed = 1;
+        if (pressed && !request_pending
+            && (!last_card_request_tick
+                || now - last_card_request_tick
+                    >= RETIREMENT_CARD_REQUEST_COOLDOWN_MS)
+            && retirement_card_mode_at_cursor(mode, sizeof(mode))
+            && retirement_set_requested_mode(mode)) {
+            last_card_request_tick = now;
             retirement_log_event(
                 _stricmp(mode, "remove_and_rejuvenate") == 0
                     ? "card_reset_age_request" : "card_remove_request",
                 mode);
         }
         previous_left = left;
-        previous_enter = enter;
         Sleep(25U);
     }
     return 0;
