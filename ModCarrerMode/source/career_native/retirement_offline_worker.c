@@ -15,6 +15,18 @@ static const char *argument_value(int argc, char **argv, const char *name)
     return NULL;
 }
 
+/* Flags without a value cannot use argument_value(): the latter deliberately
+ * only visits argv entries that have a following value. */
+static int argument_present(int argc, char **argv, const char *name)
+{
+    int index;
+    for (index = 1; index < argc; ++index) {
+        if (_stricmp(argv[index], name) == 0)
+            return 1;
+    }
+    return 0;
+}
+
 static int parse_unsigned(const char *value, unsigned long *result)
 {
     char *end = NULL;
@@ -148,7 +160,7 @@ int main(int argc, char **argv)
     const char *age_text = argument_value(argc, argv, "--age");
     const char *quiet_text = argument_value(argc, argv, "--quiet-ms");
     const char *mod_dir = argument_value(argc, argv, "--mod-dir");
-    int wait_parent = argument_value(argc, argv, "--wait-parent-exit") != NULL;
+    int wait_parent = argument_present(argc, argv, "--wait-parent-exit");
     DWORD process_id;
     unsigned long age_value = 18UL;
     unsigned long quiet_value = 2500UL;
