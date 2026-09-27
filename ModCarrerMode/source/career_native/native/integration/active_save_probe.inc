@@ -166,6 +166,8 @@ static HANDLE WINAPI create_file_a_capture(
         return INVALID_HANDLE_VALUE;
     handle = g_original_create_file_a(name, access, share, security, creation,
                                       flags, template_file);
+    if (handle != INVALID_HANDLE_VALUE)
+        retirement_engine_note_ui_signal(name);
     track_save_data_handle(handle);
     return handle;
 }
@@ -179,6 +181,12 @@ static HANDLE WINAPI create_file_w_capture(
         return INVALID_HANDLE_VALUE;
     handle = g_original_create_file_w(name, access, share, security, creation,
                                       flags, template_file);
+    if (handle != INVALID_HANDLE_VALUE && name) {
+        char signal_path[1024];
+        if (WideCharToMultiByte(CP_UTF8, WC_ERR_INVALID_CHARS, name, -1,
+                signal_path, (int)sizeof(signal_path), NULL, NULL) > 0)
+            retirement_engine_note_ui_signal(signal_path);
+    }
     track_save_data_handle(handle);
     return handle;
 }
@@ -206,12 +214,10 @@ static BOOL WINAPI write_file_capture(HANDLE handle, LPCVOID buffer, DWORD lengt
     if (!g_original_write_file)
         return FALSE;
     path[0] = '\0';
-    if (length >= 1024U * 1024U
-        && get_save_data_path(handle, path, sizeof(path))) {
-        /* Observation only.  The external worker owns the DATA replacement
-         * after the DATA/INDEX pair becomes stable; never copy or mutate the
-         * save buffer inside FIFA's WriteFile call. */
-    }
+    /* Do not edit the buffer while Career Mode still owns the save.  Merely
+     * capture the DATA path; the worker applies the pending card action after
+     * FIFA releases the file on leaving the save. */
+    (void)get_save_data_path(handle, path, sizeof(path));
     result = g_original_write_file(handle, buffer, length, bytes_written,
         overlapped);
     amount = bytes_written ? *bytes_written : length;

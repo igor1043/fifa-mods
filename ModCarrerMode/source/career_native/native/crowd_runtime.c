@@ -4,6 +4,7 @@
 #include <stdio.h>
 #include <string.h>
 #include "crowd_runtime.h"
+#include "retirement_engine.h"
 
 #define CROWD_DEFAULT_FACTOR 0.90f
 #define CROWD_MIN_FACTOR 0.09f
@@ -71,6 +72,12 @@ static volatile LONG g_enabled;
 static volatile LONG g_factor_bits;
 static volatile LONG g_started;
 static volatile LONG g_last_logged_enabled = 0;
+static volatile LONG g_log_enabled;
+static volatile LONG g_last_feedback_valid;
+static int g_last_feedback_club;
+static int g_last_feedback_opponent;
+static int g_last_feedback_date;
+static int g_last_feedback_round;
 static DWORD g_last_scan_tick;
 static char g_log_dir[MAX_PATH];
 static CrowdReputation g_reputations[CROWD_REPUTATION_CAPACITY];
@@ -155,7 +162,8 @@ static BOOL write_factor(unsigned char *address, float value)
 static FILE *open_log(void)
 {
     char path[MAX_PATH];
-    if (!g_log_dir[0])
+    if (!g_log_dir[0]
+        || InterlockedCompareExchange(&g_log_enabled, 0, 0) == 0)
         return NULL;
     snprintf(path, sizeof(path), "%s\\crowd_attendance_runtime.log", g_log_dir);
     return fopen(path, "ab");
@@ -804,6 +812,8 @@ void crowd_runtime_start(const char *log_dir)
 {
     if (log_dir)
         lstrcpynA(g_log_dir, log_dir, sizeof(g_log_dir));
+    InterlockedExchange(&g_log_enabled,
+        retirement_engine_local_logging_enabled(g_log_dir));
     if (InterlockedCompareExchange(&g_started, 1, 0) != 0)
         return;
     InterlockedExchange(&g_factor_bits, float_bits(CROWD_DEFAULT_FACTOR));
@@ -823,6 +833,7 @@ void crowd_runtime_start(const char *log_dir)
 void crowd_runtime_disable(void)
 {
     InterlockedExchange(&g_enabled, 0);
+    InterlockedExchange(&g_last_feedback_valid, 0);
     if (InterlockedCompareExchange(&g_last_logged_enabled, 0, 1) == 1)
         log_decision(NULL);
 }
@@ -830,12 +841,34 @@ void crowd_runtime_disable(void)
 void crowd_runtime_set_decision(const CrowdDecision *decision)
 {
     CrowdDecision copy;
+    int feedback_changed;
+    int percent;
+    char feedback[256];
     if (!decision || !decision->enabled) {
         crowd_runtime_disable();
         return;
     }
     copy = *decision;
     copy.factor = clamp_factor(copy.factor);
+    feedback_changed = !InterlockedCompareExchange(&g_last_feedback_valid, 0, 0)
+        || g_last_feedback_club != copy.club_id
+        || g_last_feedback_opponent != copy.next_opponent
+        || g_last_feedback_date != copy.next_date
+        || g_last_feedback_round != copy.next_round;
+    if (feedback_changed && copy.next_opponent > 0 && copy.next_date > 0) {
+        percent = (int)(copy.factor * 100.0f + 0.5f);
+        if (percent < 9) percent = 9;
+        if (percent > 90) percent = 90;
+        snprintf(feedback, sizeof(feedback),
+            "Torcida calculada: %d%%.\nPesos aplicados para a proxima partida.",
+            percent);
+        retirement_engine_show_feedback(feedback, 0);
+        g_last_feedback_club = copy.club_id;
+        g_last_feedback_opponent = copy.next_opponent;
+        g_last_feedback_date = copy.next_date;
+        g_last_feedback_round = copy.next_round;
+        InterlockedExchange(&g_last_feedback_valid, 1);
+    }
     InterlockedExchange(&g_factor_bits, float_bits(copy.factor));
     InterlockedExchange(&g_enabled, 1);
     if (InterlockedCompareExchange(&g_last_logged_enabled, 1, 0) == 0)

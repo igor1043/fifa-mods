@@ -228,6 +228,24 @@
 							"back":"CareerHub"
 						}
 					}
+					,{
+						"name":"RetirementRemoveFlow"
+						,"type":"external"
+						,"file":"/retirementremoveflow.nav"
+						,"outputs":
+						{
+							"back":"MainMenuHub"
+						}
+					}
+					,{
+						"name":"RetirementResetAgeFlow"
+						,"type":"external"
+						,"file":"/retirementresetageflow.nav"
+						,"outputs":
+						{
+							"back":"MainMenuHub"
+						}
+					}
 					,{	
 						"let":{"tmMode":"offlineCareer"}
 						,"states":
@@ -332,13 +350,11 @@
 						,"actions":[ ["executeCMAction",["EndSeasonHubAdvance"]] ]
 					}					,{
 						"event":"RetirementRemove"
-						,"targets":["Autosave"]
-						,"actions":[ ["executeCMAction",["DoAutoSave"]] ]
+						,"targets":["RetirementRemoveFlow"]
 					}
 					,{
 						"event":"RetirementResetAge"
-						,"targets":["Autosave"]
-						,"actions":[ ["executeCMAction",["DoAutoSave"]] ]
+						,"targets":["RetirementResetAgeFlow"]
 					}
 					,{
 						"event":"MoveToNewClub"

@@ -48,9 +48,16 @@ static HANDLE g_retirement_thread;
 static char g_retirement_mod_dir[MAX_PATH];
 static char g_retirement_pending_path[1024];
 static char g_retirement_requested_mode[64];
+static ULONGLONG g_retirement_request_deadline_tick;
+/* One retirement action is allowed per visit to a retirement card flow.  The
+ * latch is released only when the Career Hub NAV is loaded again, which keeps
+ * repeated NAV/file opens and autosaves from rearming the same action. */
+static int g_retirement_card_flow_latched;
 static volatile LONG g_retirement_running;
 
 static void retirement_log_event(const char *event, const char *path);
+static int retirement_take_requested_mode(char *mode, size_t capacity);
+static int retirement_peek_requested_mode(char *mode, size_t capacity);
 
 #define RETIREMENT_WATCH_CAPACITY 64U
 
@@ -73,6 +80,15 @@ static char g_retirement_deferred_paths[RETIREMENT_WATCH_CAPACITY][1024];
 #define RETIREMENT_FEEDBACK_RESULT 0x16401U
 #define RETIREMENT_FEEDBACK_HIDE_TIMER 1U
 #define RETIREMENT_CARD_REQUEST_COOLDOWN_MS 500ULL
+#define RETIREMENT_CARD_REQUEST_WINDOW_MS 15000ULL
+/* Kept only for the legacy input helper below.  The helper is no longer
+ * started; retirement requests now come exclusively from the two NAV flows. */
+#define RETIREMENT_CARD_MARKER_X0 1790L
+#define RETIREMENT_CARD_MARKER_X1 1798L
+#define RETIREMENT_CARD_MARKER_X2 1806L
+#define RETIREMENT_CARD_MARKER_Y 472L
+#define RETIREMENT_CARD_MARKER_TOLERANCE 48
+#define RETIREMENT_CARD_SESSION_RELEASE_MS 1000ULL
 
 static SRWLOCK g_retirement_feedback_lock = SRWLOCK_INIT;
 static HANDLE g_retirement_feedback_ready;
@@ -929,6 +945,42 @@ int retirement_engine_backup_before_write(const char *data_path)
     return 1;
 }
 
+int retirement_engine_patch_write_buffer(void *buffer, SIZE_T size,
+    const char *data_path, RetirementApplyResult *result)
+{
+    char requested_mode[64];
+    char configured_mode[64];
+    const char *name;
+    int enabled;
+    int target_age;
+    unsigned quiet_ms;
+    int defer_until_game_exit;
+
+    if (!buffer || size < 1024ULL * 1024ULL || !data_path || !*data_path
+        || !result || !retirement_peek_requested_mode(requested_mode,
+            sizeof(requested_mode)))
+        return 0;
+    name = strrchr(data_path, '\\');
+    if (!name || _stricmp(name + 1, "DATA") != 0)
+        return 0;
+    if (!retirement_get_config(g_retirement_mod_dir, &enabled,
+            configured_mode, sizeof(configured_mode), &target_age, &quiet_ms,
+            &defer_until_game_exit) || !enabled)
+        return 0;
+
+    /* DATA/INDEX backups are made before the modified buffer is handed back
+     * to FIFA.  For a newly-created save folder this is a safe no-op; for an
+     * existing folder it preserves the pre-action pair. */
+    if (!retirement_engine_backup_before_write(data_path))
+        return 0;
+    if (!retirement_engine_apply_buffer(buffer, size, requested_mode,
+            target_age, result))
+        return 0;
+    if (result->players_changed == 0U)
+        return 0;
+    return 1;
+}
+
 void retirement_engine_set_mod_dir(const char *mod_dir)
 {
     if (!mod_dir || !*mod_dir) {
@@ -1042,29 +1094,150 @@ static void retirement_log_event(const char *event, const char *path)
     fclose(file);
 }
 
+void retirement_engine_show_feedback(const char *text, UINT beep_type)
+{
+    HWND window;
+    COPYDATASTRUCT copy;
+    if (!text || !*text)
+        return;
+    window = FindWindowA("FifaRetirementFeedbackWindow", NULL);
+    if (window) {
+        memset(&copy, 0, sizeof(copy));
+        copy.dwData = RETIREMENT_FEEDBACK_RESULT;
+        copy.cbData = (DWORD)strlen(text) + 1U;
+        copy.lpData = (PVOID)text;
+        (void)SendMessageA(window, WM_COPYDATA, 0, (LPARAM)&copy);
+    }
+    if (beep_type)
+        MessageBeep(beep_type);
+}
+
+static void retirement_feedback_show_result(const RetirementApplyResult *result)
+{
+    if (!result || result->status != 1 || result->players_changed == 0U)
+        return;
+    retirement_engine_show_feedback(
+        "Aposentadoria concluida com sucesso.\nO save esta pronto para ser reaberto.",
+        MB_OK);
+}
+
+static void retirement_feedback_show_ready(void)
+{
+    /* First tone: the card request is armed and the user may leave the save. */
+    retirement_engine_show_feedback(
+        "Aposentadoria preparada. Voce ja pode sair do save.",
+        MB_ICONINFORMATION);
+}
+
+void retirement_engine_note_buffer_write(const char *data_path,
+    const RetirementApplyResult *result)
+{
+    char consumed_mode[64];
+    if (!data_path || !result || result->status != 1
+        || result->players_changed == 0U)
+        return;
+    if (!retirement_take_requested_mode(consumed_mode,
+            sizeof(consumed_mode)))
+        return;
+    retirement_log_event("buffer_patch_written", data_path);
+    retirement_log_result(result, data_path);
+    retirement_feedback_show_result(result);
+}
+
 static int retirement_set_requested_mode(const char *mode)
 {
     int accepted = 0;
     if (!mode || !*mode) return 0;
     AcquireSRWLockExclusive(&g_retirement_lock);
-    if (!g_retirement_requested_mode[0]) {
+    if (!g_retirement_requested_mode[0]
+        && !g_retirement_card_flow_latched) {
         lstrcpynA(g_retirement_requested_mode, mode,
             sizeof(g_retirement_requested_mode));
+        g_retirement_request_deadline_tick = GetTickCount64()
+            + RETIREMENT_CARD_REQUEST_WINDOW_MS;
+        g_retirement_card_flow_latched = 1;
         accepted = 1;
     }
     ReleaseSRWLockExclusive(&g_retirement_lock);
     return accepted;
 }
 
+void retirement_engine_note_ui_signal(const char *path)
+{
+    const char *name;
+    const char *slash;
+    const char *mode = NULL;
+    const char *event = NULL;
+    char configured_mode[64];
+    int enabled;
+    int target_age;
+    unsigned quiet_ms;
+    int defer_until_game_exit;
+
+    if (!path || !*path)
+        return;
+    slash = strrchr(path, '\\');
+    {
+        const char *forward_slash = strrchr(path, '/');
+        if (forward_slash && (!slash || forward_slash > slash))
+            slash = forward_slash;
+    }
+    name = slash ? slash + 1 : path;
+
+    /* Returning to Career Hub is the boundary between card visits.  It is
+     * the only event that unlocks a previously consumed retirement action. */
+    if (_stricmp(name, "mainmenuhubflow.nav") == 0) {
+        AcquireSRWLockExclusive(&g_retirement_lock);
+        g_retirement_card_flow_latched = 0;
+        ReleaseSRWLockExclusive(&g_retirement_lock);
+        return;
+    }
+
+    /* These names are private to the two retirement-card transitions.  This
+     * is deliberately narrower than a screen, cursor rectangle or save I/O:
+     * opening any other NAV file cannot arm the retirement operation. */
+    if (_stricmp(name, "retirementremoveflow.nav") == 0) {
+        mode = "remove_retirement";
+        event = "nav_remove_request";
+    } else if (_stricmp(name, "retirementresetageflow.nav") == 0) {
+        mode = "remove_and_rejuvenate";
+        event = "nav_reset_age_request";
+    } else {
+        return;
+    }
+
+    if (!retirement_get_config(g_retirement_mod_dir, &enabled,
+            configured_mode, sizeof(configured_mode), &target_age, &quiet_ms,
+            &defer_until_game_exit) || !enabled) {
+        retirement_log_event("nav_signal_ignored_disabled", path);
+        return;
+    }
+    if (retirement_set_requested_mode(mode)) {
+        retirement_log_event(event, path);
+        retirement_feedback_show_ready();
+    } else
+        retirement_log_event("nav_request_ignored_latched", path);
+}
+
 static int retirement_take_requested_mode(char *mode, size_t capacity)
 {
     int ready;
+    ULONGLONG now;
     if (!mode || capacity == 0) return 0;
     AcquireSRWLockExclusive(&g_retirement_lock);
     ready = g_retirement_requested_mode[0] != '\0';
+    now = GetTickCount64();
+    if (ready && g_retirement_request_deadline_tick
+        && now >= g_retirement_request_deadline_tick) {
+        g_retirement_requested_mode[0] = '\0';
+        g_retirement_request_deadline_tick = 0;
+        ready = 0;
+        retirement_log_event("card_request_expired", "");
+    }
     if (ready) {
         lstrcpynA(mode, g_retirement_requested_mode, (int)capacity);
         g_retirement_requested_mode[0] = '\0';
+        g_retirement_request_deadline_tick = 0;
     }
     ReleaseSRWLockExclusive(&g_retirement_lock);
     return ready;
@@ -1073,12 +1246,20 @@ static int retirement_take_requested_mode(char *mode, size_t capacity)
 static int retirement_peek_requested_mode(char *mode, size_t capacity)
 {
     int ready;
+    ULONGLONG now;
     if (!mode || capacity == 0) return 0;
-    AcquireSRWLockShared(&g_retirement_lock);
+    AcquireSRWLockExclusive(&g_retirement_lock);
     ready = g_retirement_requested_mode[0] != '\0';
+    now = GetTickCount64();
+    if (ready && g_retirement_request_deadline_tick
+        && now >= g_retirement_request_deadline_tick) {
+        g_retirement_requested_mode[0] = '\0';
+        g_retirement_request_deadline_tick = 0;
+        ready = 0;
+    }
     if (ready)
         lstrcpynA(mode, g_retirement_requested_mode, (int)capacity);
-    ReleaseSRWLockShared(&g_retirement_lock);
+    ReleaseSRWLockExclusive(&g_retirement_lock);
     return ready;
 }
 
@@ -1097,9 +1278,26 @@ static LRESULT CALLBACK retirement_feedback_window_proc(HWND window,
         char text[256];
         HDC dc = BeginPaint(window, &paint);
         GetClientRect(window, &client);
-        background = CreateSolidBrush(RGB(20, 24, 32));
+        background = CreateSolidBrush(RGB(31, 37, 48));
         FillRect(dc, &client, background);
         DeleteObject(background);
+        {
+            HBRUSH accent = CreateSolidBrush(RGB(45, 183, 200));
+            RECT stripe = client;
+            stripe.bottom = stripe.top + 5;
+            FillRect(dc, &stripe, accent);
+            DeleteObject(accent);
+        }
+        {
+            HPEN border = CreatePen(PS_SOLID, 1, RGB(82, 94, 112));
+            HGDIOBJ previous_pen = SelectObject(dc, border);
+            HGDIOBJ previous_brush = SelectObject(dc, GetStockObject(HOLLOW_BRUSH));
+            Rectangle(dc, client.left, client.top, client.right - 1,
+                client.bottom - 1);
+            SelectObject(dc, previous_brush);
+            SelectObject(dc, previous_pen);
+            DeleteObject(border);
+        }
         SetBkMode(dc, TRANSPARENT);
         SetTextColor(dc, RGB(245, 247, 250));
         font = CreateFontA(20, 0, 0, 0, FW_SEMIBOLD, FALSE, FALSE, FALSE,
@@ -1220,6 +1418,78 @@ static void retirement_feedback_start(void)
     g_retirement_feedback_ready = NULL;
 }
 
+static int retirement_marker_matches(COLORREF pixel, COLORREF expected)
+{
+    int red;
+    int green;
+    int blue;
+    if (pixel == CLR_INVALID) return 0;
+    red = (int)GetRValue(pixel) - (int)GetRValue(expected);
+    green = (int)GetGValue(pixel) - (int)GetGValue(expected);
+    blue = (int)GetBValue(pixel) - (int)GetBValue(expected);
+    return abs(red) <= RETIREMENT_CARD_MARKER_TOLERANCE
+        && abs(green) <= RETIREMENT_CARD_MARKER_TOLERANCE
+        && abs(blue) <= RETIREMENT_CARD_MARKER_TOLERANCE;
+}
+
+static int retirement_card_marker_mode(HWND foreground, char *mode,
+    size_t capacity)
+{
+    HDC device_context;
+    RECT client;
+    LONG width;
+    LONG height;
+    LONG marker_x0;
+    LONG marker_x1;
+    LONG marker_x2;
+    LONG marker_y;
+    COLORREF marker0;
+    COLORREF marker1;
+    COLORREF marker2;
+
+    if (!mode || capacity == 0 || !foreground
+        || !GetClientRect(foreground, &client))
+        return 0;
+    width = client.right - client.left;
+    height = client.bottom - client.top;
+    if (width <= 0 || height <= 0) return 0;
+    marker_x0 = RETIREMENT_CARD_MARKER_X0 * width / 1920L;
+    marker_x1 = RETIREMENT_CARD_MARKER_X1 * width / 1920L;
+    marker_x2 = RETIREMENT_CARD_MARKER_X2 * width / 1920L;
+    marker_y = RETIREMENT_CARD_MARKER_Y * height / 1080L;
+    device_context = GetDC(foreground);
+    if (!device_context) return 0;
+    marker0 = GetPixel(device_context, marker_x0, marker_y);
+    marker1 = GetPixel(device_context, marker_x1, marker_y);
+    marker2 = GetPixel(device_context, marker_x2, marker_y);
+    ReleaseDC(foreground, device_context);
+    if (retirement_marker_matches(marker1, RGB(0, 0, 255))
+        && retirement_marker_matches(marker2, RGB(255, 255, 0))
+        && retirement_marker_matches(marker0, RGB(0, 255, 0))) {
+        lstrcpynA(mode, "remove_retirement", (int)capacity);
+        return 1;
+    }
+    if (retirement_marker_matches(marker1, RGB(0, 0, 255))
+        && retirement_marker_matches(marker2, RGB(0, 255, 255))
+        && retirement_marker_matches(marker0, RGB(255, 0, 255))) {
+        lstrcpynA(mode, "remove_and_rejuvenate", (int)capacity);
+        return 1;
+    }
+    return 0;
+}
+
+static int retirement_card_marker_visible(char *mode, size_t capacity)
+{
+    HWND foreground;
+    DWORD process_id = 0;
+    if (!mode || capacity == 0) return 0;
+    foreground = GetForegroundWindow();
+    if (!foreground) return 0;
+    GetWindowThreadProcessId(foreground, &process_id);
+    if (process_id != GetCurrentProcessId()) return 0;
+    return retirement_card_marker_mode(foreground, mode, capacity);
+}
+
 static int retirement_card_mode_at_cursor(char *mode, size_t capacity)
 {
     HWND foreground;
@@ -1245,39 +1515,52 @@ static int retirement_card_mode_at_cursor(char *mode, size_t capacity)
     logical_x = point.x * 1920L / width;
     logical_y = point.y * 1080L / height;
     if (logical_x < 965L || logical_x >= 1811L
-        || logical_y < 278L || logical_y >= 696L)
+        || logical_y < 278L || logical_y >= 482L)
         return 0;
-    if (logical_y < 492L) {
-        lstrcpynA(mode, "remove_retirement", (int)capacity);
-        return 1;
-    }
-    lstrcpynA(mode, "remove_and_rejuvenate", (int)capacity);
-    return 1;
+    return retirement_card_marker_mode(foreground, mode, capacity);
 }
 
 static DWORD WINAPI retirement_input_worker(void *unused)
 {
     SHORT previous_left = 0;
     int input_armed = 0;
+    int card_session_active = 0;
     ULONGLONG last_card_request_tick = 0;
+    ULONGLONG card_hidden_since = 0;
     (void)unused;
     while (InterlockedCompareExchange(&g_retirement_running, 0, 0)) {
         SHORT left = GetAsyncKeyState(VK_LBUTTON);
         char mode[64];
         char pending_mode[64];
+        char visible_mode[64];
         ULONGLONG now = GetTickCount64();
         int request_pending = retirement_peek_requested_mode(
             pending_mode, sizeof(pending_mode));
         int pressed = input_armed
             && ((left & 0x8000) && !(previous_left & 0x8000));
         if (!(left & 0x8000)) input_armed = 1;
-        if (pressed && !request_pending
+        if (card_session_active) {
+            if (!retirement_card_marker_visible(visible_mode,
+                    sizeof(visible_mode))) {
+                if (!card_hidden_since) card_hidden_since = now;
+                else if (now - card_hidden_since
+                    >= RETIREMENT_CARD_SESSION_RELEASE_MS) {
+                    card_session_active = 0;
+                    card_hidden_since = 0;
+                }
+            } else {
+                card_hidden_since = 0;
+            }
+        }
+        if (!card_session_active && pressed && !request_pending
             && (!last_card_request_tick
                 || now - last_card_request_tick
                     >= RETIREMENT_CARD_REQUEST_COOLDOWN_MS)
             && retirement_card_mode_at_cursor(mode, sizeof(mode))
             && retirement_set_requested_mode(mode)) {
             last_card_request_tick = now;
+            card_session_active = 1;
+            card_hidden_since = 0;
             retirement_log_event(
                 _stricmp(mode, "remove_and_rejuvenate") == 0
                     ? "card_reset_age_request" : "card_remove_request",
@@ -1464,8 +1747,6 @@ static DWORD WINAPI retirement_engine_worker(void *unused)
                     retirement_set_requested_mode(requested_mode);
             }
         }
-        retirement_watch_poll(mode, target_age, quiet_ms,
-            defer_until_game_exit);
     }
     return 0;
 }
@@ -1489,11 +1770,6 @@ int retirement_engine_start(const char *mod_dir)
         InterlockedExchange(&g_retirement_running, 0); return 0;
     }
     retirement_feedback_start();
-    {
-        HANDLE input_thread = CreateThread(NULL, 0,
-            retirement_input_worker, NULL, 0, NULL);
-        if (input_thread) CloseHandle(input_thread);
-    }
     CloseHandle(g_retirement_thread); g_retirement_thread = NULL;
     return 1;
 }
@@ -1509,6 +1785,20 @@ void retirement_engine_note_write(const char *data_path)
     if (!data_path || !*data_path || !g_retirement_event) return;
     name = strrchr(data_path, '\\');
     if (!name || _stricmp(name + 1, "DATA") != 0) return;
+    /* FIFA also writes small auxiliary DATA files while navigating Career
+     * Mode.  They do not contain the career database (CZUM), so never arm
+     * the retirement worker for anything below the real save size. */
+    {
+        WIN32_FILE_ATTRIBUTE_DATA attributes;
+        ULARGE_INTEGER size_value;
+        if (!GetFileAttributesExA(data_path, GetFileExInfoStandard,
+                &attributes))
+            return;
+        size_value.LowPart = attributes.nFileSizeLow;
+        size_value.HighPart = attributes.nFileSizeHigh;
+        if (size_value.QuadPart < 1024ULL * 1024ULL)
+            return;
+    }
     if (retirement_get_config(g_retirement_mod_dir, &enabled, mode,
             sizeof(mode), &target_age, &quiet_ms,
             &defer_until_game_exit) && enabled) {

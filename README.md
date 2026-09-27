@@ -6,6 +6,10 @@ Mods e ajustes para o modo carreira do FIFA 16.
 
 Copie o conteúdo desta pasta para a raiz da instalação do FIFA 16, mantendo a estrutura de diretórios. Faça um backup dos arquivos originais antes de substituir qualquer arquivo.
 
+Existe apenas uma DLL de entrada: `dinput8.dll` na raiz do jogo. Não copie
+outra `dinput8.dll` para `ModCarrerMode`; a cadeia `dinput8_career_chain.dll`
+continua sendo carregada pela DLL da raiz para preservar os demais mods.
+
 ## Conteúdo
 
 - Arquivos de suporte do modo carreira
@@ -45,10 +49,10 @@ qualquer pacote ou cópia feita para a instalação do jogo.
 
 ## Aposentadoria e traduções
 
-O card dispara o autosave do modo carreira. O worker aguarda o FIFA fechar,
-aguarda `DATA`/`INDEX` estabilizarem, preserva os dois arquivos como backup,
-recalcula os CRCs do `DATA` e valida o resultado antes de concluir. Se a
-validação falhar, o `DATA` original é restaurado.
+O card arma uma solicitação única para o modo carreira. Depois que o save é
+liberado ao sair da carreira, o worker aguarda `DATA`/`INDEX` estabilizarem,
+cria backups, corrige o `DATA`, recalcula os CRCs e valida o resultado. Arquivos
+`DATA` auxiliares pequenos são ignorados.
 
 As correções de textos ficam em `tools/localization/career-mode-labels.json` e
 nas bases `data/loc/*.db`. A configuração ativa está em

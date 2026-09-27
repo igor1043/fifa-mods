@@ -23,10 +23,18 @@ int retirement_engine_apply_buffer(void *buffer, SIZE_T size,
     const char *mode, int target_age, RetirementApplyResult *result);
 int retirement_engine_apply_buffer_from_config(void *buffer, SIZE_T size,
     RetirementApplyResult *result);
+int retirement_engine_patch_write_buffer(void *buffer, SIZE_T size,
+    const char *data_path, RetirementApplyResult *result);
 int retirement_engine_backup_before_write(const char *data_path);
 void retirement_engine_set_mod_dir(const char *mod_dir);
 int retirement_engine_local_logging_enabled(const char *mod_dir);
 int retirement_engine_start(const char *mod_dir);
+void retirement_engine_note_ui_signal(const char *path);
+void retirement_engine_note_buffer_write(const char *data_path,
+    const RetirementApplyResult *result);
 void retirement_engine_note_write(const char *data_path);
+/* Shared non-modal feedback surface used by other career features.  A zero
+ * beep_type keeps the notification visual-only. */
+void retirement_engine_show_feedback(const char *text, UINT beep_type);
 
 #endif

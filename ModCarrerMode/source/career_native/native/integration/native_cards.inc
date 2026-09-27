@@ -790,7 +790,7 @@ static void publish_next_match_card(void *provider) {
     int competition_asset=0,competition_id=0;
     if(!provider) return;
     publish_visibility_field(provider,"MYTEAM_NEXT_STATUS",!valid);
-    publish_string_field(provider,"MYTEAM_NEXT_STATUS",valid?"":"SEM PROXIMA PARTIDA");
+    publish_string_field(provider,"MYTEAM_NEXT_STATUS",valid?"":"CM_PA_NoMatch");
     publish_visibility_field(provider,"MYTEAM_NEXT_STATUS_DETAIL",FALSE);
     publish_string_field(provider,"MYTEAM_NEXT_STATUS_DETAIL","");
     publish_visibility_field(provider,"MYTEAM_NEXT_COMP_ICON",FALSE);
@@ -803,7 +803,7 @@ static void publish_next_match_card(void *provider) {
     publish_string_field(provider,"MYTEAM_NEXT_TIME","");
     publish_visibility_field(provider,"MYTEAM_NEXT_STADIUM",FALSE);
     publish_string_field(provider,"MYTEAM_NEXT_STADIUM","");
-    publish_string_field(provider,"MYTEAM_NEXT_STADIUM_LABEL","ESTADIO");
+    publish_string_field(provider,"MYTEAM_NEXT_STADIUM_LABEL","Stadium_mixedcase");
     publish_visibility_field(provider,"MYTEAM_NEXT_STADIUM_CAPACITY_LABEL",FALSE);
     publish_visibility_field(provider,"MYTEAM_NEXT_STADIUM_CAPACITY",FALSE);
     publish_string_field(provider,"MYTEAM_NEXT_STADIUM_CAPACITY_LABEL","");
@@ -907,7 +907,7 @@ static void publish_next_match_card(void *provider) {
         publish_visibility_field(provider,"MYTEAM_NEXT_STADIUM",TRUE);
         /* Keep the label short; the full stadium name belongs in the value
          * field and must remain on one line in the compact match card. */
-        publish_string_field(provider,"MYTEAM_NEXT_STADIUM_LABEL","ESTADIO");
+        publish_string_field(provider,"MYTEAM_NEXT_STADIUM_LABEL","Stadium_mixedcase");
         if(stadium_detail[0]) {
             publish_string_field(provider,"MYTEAM_NEXT_STATUS_DETAIL",stadium_detail);
             publish_visibility_field(provider,"MYTEAM_NEXT_STATUS_DETAIL",TRUE);
@@ -931,13 +931,13 @@ static void publish_next_match_card(void *provider) {
         if(fallback_ok && fallback_capacity>0 && fallback_name[0] &&
            !lstrcmpiA(fallback_name,value)) {
             snprintf(stadium_detail,sizeof(stadium_detail),"%d",fallback_capacity);
-            publish_string_field(provider,"MYTEAM_NEXT_STADIUM_CAPACITY_LABEL","CAPACIDADE");
+            publish_string_field(provider,"MYTEAM_NEXT_STADIUM_CAPACITY_LABEL","Capacity");
             publish_string_field(provider,"MYTEAM_NEXT_STADIUM_CAPACITY",stadium_detail);
             publish_visibility_field(provider,"MYTEAM_NEXT_STADIUM_CAPACITY_LABEL",TRUE);
             publish_visibility_field(provider,"MYTEAM_NEXT_STADIUM_CAPACITY",TRUE);
         }
     } else {
-        publish_string_field(provider,"MYTEAM_NEXT_STADIUM_LABEL","ESTADIO A DEFINIR");
+        publish_string_field(provider,"MYTEAM_NEXT_STADIUM_LABEL","Stadium_mixedcase");
     }
 }
 static void native_coach_record(int club) {

@@ -1,6 +1,6 @@
-; O worker espera o FIFA fechar e só depois troca o DATA de forma atomica.
+; O worker espera o FIFA liberar o save ao sair da carreira e troca o DATA de forma atomica.
 enabled=1
 mode=remove_retirement
 target_age=18
 quiet_ms=2500
-defer_until_game_exit=1
+defer_until_game_exit=0

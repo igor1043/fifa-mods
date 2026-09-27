@@ -188,7 +188,10 @@ static int wait_for_stable_data(const char *path, unsigned quiet_ms)
     lstrcpyA(slash + 1, "INDEX");
     if (quiet_ms < 1000U) quiet_ms = 2500U;
     if (quiet_ms > 10000U) quiet_ms = 10000U;
-    while (waited_ms < 120000U) {
+    /* Leaving Career Mode normally releases DATA while fifa16.exe remains
+     * open.  Keep waiting long enough for that transition, but still bound
+     * the worker so a malformed request cannot live forever. */
+    while (waited_ms < 600000U) {
         ULONGLONG size;
         ULONGLONG write_time;
         ULONGLONG index_size;

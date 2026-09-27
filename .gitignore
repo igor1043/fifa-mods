@@ -1,6 +1,9 @@
 # Runtime diagnostics stay local to the developer/game machine.
+compdata_patcher.log
 ModCarrerMode/*.log
 ModCarrerMode/**/*.log
 ModCarrerMode/*_status.ini
 ModCarrerMode/*_status.txt
 ModCarrerMode/career_retirement_background.local.ini
+_codex_reconcile_backup_*/
+ModCarrerMode/tools/**/__pycache__/
