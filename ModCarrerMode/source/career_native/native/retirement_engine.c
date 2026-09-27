@@ -69,6 +69,14 @@ static int g_retirement_save_root_ready;
 static ULONGLONG g_retirement_watch_start_filetime;
 static char g_retirement_deferred_paths[RETIREMENT_WATCH_CAPACITY][1024];
 
+#define RETIREMENT_FEEDBACK_SHOW (WM_APP + 0x164)
+#define RETIREMENT_FEEDBACK_HIDE_TIMER 1U
+
+static SRWLOCK g_retirement_feedback_lock = SRWLOCK_INIT;
+static HANDLE g_retirement_feedback_ready;
+static HWND g_retirement_feedback_window;
+static char g_retirement_feedback_text[256];
+
 static uint16_t retirement_u16(const unsigned char *p)
 {
     return (uint16_t)p[0] | ((uint16_t)p[1] << 8);
@@ -532,6 +540,29 @@ static int retirement_restore_backup(const char *data_path,
     return ok;
 }
 
+int retirement_engine_local_logging_enabled(const char *mod_dir)
+{
+    char path[MAX_PATH];
+    char line[256];
+    FILE *file;
+    int enabled = 0;
+    if (!mod_dir || !*mod_dir) return 0;
+    snprintf(path, sizeof(path), "%s\\career_retirement_background.local.ini",
+        mod_dir);
+    file = fopen(path, "rb");
+    if (!file) return 0;
+    while (fgets(line, sizeof(line), file)) {
+        char key[64];
+        char value[160];
+        if (sscanf(line, " %63[^=]= %159[^\r\n]", key, value) != 2)
+            continue;
+        if (_stricmp(key, "logging") == 0)
+            enabled = atoi(value) != 0;
+    }
+    fclose(file);
+    return enabled;
+}
+
 static int retirement_get_config(const char *mod_dir, int *enabled,
     char *mode, size_t mode_capacity, int *target_age, unsigned *quiet_ms,
     int *defer_until_game_exit)
@@ -983,6 +1014,7 @@ static void retirement_log_result(const RetirementApplyResult *result,
 {
     char log_path[MAX_PATH];
     FILE *file;
+    if (!retirement_engine_local_logging_enabled(g_retirement_mod_dir)) return;
     snprintf(log_path, sizeof(log_path), "%s\\career_retirement_background.log",
         g_retirement_mod_dir);
     file = fopen(log_path, "ab");
@@ -998,6 +1030,7 @@ static void retirement_log_event(const char *event, const char *path)
 {
     char log_path[MAX_PATH];
     FILE *file;
+    if (!retirement_engine_local_logging_enabled(g_retirement_mod_dir)) return;
     snprintf(log_path, sizeof(log_path), "%s\\career_retirement_background.log",
         g_retirement_mod_dir);
     file = fopen(log_path, "ab");
@@ -1040,6 +1073,154 @@ static int retirement_peek_requested_mode(char *mode, size_t capacity)
         lstrcpynA(mode, g_retirement_requested_mode, (int)capacity);
     ReleaseSRWLockShared(&g_retirement_lock);
     return ready;
+}
+
+static LRESULT CALLBACK retirement_feedback_window_proc(HWND window,
+    UINT message, WPARAM wparam, LPARAM lparam)
+{
+    (void)lparam;
+    switch (message) {
+    case WM_PAINT:
+    {
+        PAINTSTRUCT paint;
+        RECT client;
+        HBRUSH background;
+        HFONT font;
+        HFONT previous_font;
+        char text[256];
+        HDC dc = BeginPaint(window, &paint);
+        GetClientRect(window, &client);
+        background = CreateSolidBrush(RGB(20, 24, 32));
+        FillRect(dc, &client, background);
+        DeleteObject(background);
+        SetBkMode(dc, TRANSPARENT);
+        SetTextColor(dc, RGB(245, 247, 250));
+        font = CreateFontA(20, 0, 0, 0, FW_SEMIBOLD, FALSE, FALSE, FALSE,
+            DEFAULT_CHARSET, OUT_DEFAULT_PRECIS, CLIP_DEFAULT_PRECIS,
+            CLEARTYPE_QUALITY, DEFAULT_PITCH | FF_SWISS, "Arial");
+        previous_font = (HFONT)SelectObject(dc, font);
+        AcquireSRWLockShared(&g_retirement_feedback_lock);
+        lstrcpynA(text, g_retirement_feedback_text, sizeof(text));
+        ReleaseSRWLockShared(&g_retirement_feedback_lock);
+        DrawTextA(dc, text, -1, &client,
+            DT_CENTER | DT_VCENTER | DT_WORDBREAK | DT_NOPREFIX);
+        SelectObject(dc, previous_font);
+        DeleteObject(font);
+        EndPaint(window, &paint);
+        return 0;
+    }
+    case RETIREMENT_FEEDBACK_SHOW:
+    {
+        HWND foreground = GetForegroundWindow();
+        RECT target;
+        int x;
+        int y;
+        if (foreground && GetWindowRect(foreground, &target)) {
+            x = target.left + ((target.right - target.left) - 640) / 2;
+            y = target.top + 42;
+        } else {
+            x = (GetSystemMetrics(SM_CXSCREEN) - 640) / 2;
+            y = 42;
+        }
+        SetWindowPos(window, HWND_TOPMOST, x, y, 640, 96,
+            SWP_NOACTIVATE | SWP_SHOWWINDOW);
+        SetTimer(window, RETIREMENT_FEEDBACK_HIDE_TIMER, 7000U, NULL);
+        InvalidateRect(window, NULL, TRUE);
+        return 0;
+    }
+    case WM_TIMER:
+        if (wparam == RETIREMENT_FEEDBACK_HIDE_TIMER) {
+            KillTimer(window, RETIREMENT_FEEDBACK_HIDE_TIMER);
+            ShowWindow(window, SW_HIDE);
+            return 0;
+        }
+        break;
+    case WM_NCHITTEST:
+        return HTTRANSPARENT;
+    case WM_MOUSEACTIVATE:
+        return MA_NOACTIVATE;
+    }
+    return DefWindowProcA(window, message, wparam, lparam);
+}
+
+static DWORD WINAPI retirement_feedback_worker(void *unused)
+{
+    WNDCLASSA window_class;
+    MSG message;
+    HINSTANCE instance = GetModuleHandleA(NULL);
+    const char *class_name = "FifaRetirementFeedbackWindow";
+    (void)unused;
+    memset(&window_class, 0, sizeof(window_class));
+    window_class.lpfnWndProc = retirement_feedback_window_proc;
+    window_class.hInstance = instance;
+    window_class.hCursor = LoadCursorA(NULL, IDC_ARROW);
+    window_class.lpszClassName = class_name;
+    if (!RegisterClassA(&window_class)
+        && GetLastError() != ERROR_CLASS_ALREADY_EXISTS) {
+        SetEvent(g_retirement_feedback_ready);
+        return 0;
+    }
+    g_retirement_feedback_window = CreateWindowExA(
+        WS_EX_TOPMOST | WS_EX_TOOLWINDOW | WS_EX_NOACTIVATE
+            | WS_EX_LAYERED | WS_EX_TRANSPARENT,
+        class_name, "FIFA 16", WS_POPUP, 0, 0, 640, 96, NULL, NULL,
+        instance, NULL);
+    if (!g_retirement_feedback_window) {
+        SetEvent(g_retirement_feedback_ready);
+        return 0;
+    }
+    SetLayeredWindowAttributes(g_retirement_feedback_window, 0, 235, LWA_ALPHA);
+    SetEvent(g_retirement_feedback_ready);
+    while (GetMessageA(&message, NULL, 0, 0) > 0) {
+        TranslateMessage(&message);
+        DispatchMessageA(&message);
+    }
+    return 0;
+}
+
+static void retirement_feedback_start(void)
+{
+    HANDLE thread;
+    if (g_retirement_feedback_window) return;
+    g_retirement_feedback_ready = CreateEventA(NULL, FALSE, FALSE, NULL);
+    if (!g_retirement_feedback_ready) return;
+    thread = CreateThread(NULL, 0, retirement_feedback_worker, NULL, 0, NULL);
+    if (!thread) {
+        CloseHandle(g_retirement_feedback_ready);
+        g_retirement_feedback_ready = NULL;
+        return;
+    }
+    (void)WaitForSingleObject(g_retirement_feedback_ready, 500U);
+    CloseHandle(thread);
+    CloseHandle(g_retirement_feedback_ready);
+    g_retirement_feedback_ready = NULL;
+}
+
+static void retirement_feedback_show(const char *mode)
+{
+    FLASHWINFO flash;
+    HWND foreground;
+    const char *text = _stricmp(mode, "remove_and_rejuvenate") == 0
+        ? "Aposentadoria\nRemover aposentadoria e renovar idade: autosave em andamento."
+        : "Aposentadoria\nRemover aposentadoria: autosave em andamento.";
+    AcquireSRWLockExclusive(&g_retirement_feedback_lock);
+    lstrcpynA(g_retirement_feedback_text, text,
+        sizeof(g_retirement_feedback_text));
+    ReleaseSRWLockExclusive(&g_retirement_feedback_lock);
+    foreground = GetForegroundWindow();
+    if (foreground) {
+        memset(&flash, 0, sizeof(flash));
+        flash.cbSize = sizeof(flash);
+        flash.hwnd = foreground;
+        flash.dwFlags = FLASHW_CAPTION | FLASHW_TRAY;
+        flash.uCount = 2;
+        flash.dwTimeout = 120;
+        FlashWindowEx(&flash);
+    }
+    MessageBeep(MB_OK);
+    if (g_retirement_feedback_window)
+        PostMessageA(g_retirement_feedback_window,
+            RETIREMENT_FEEDBACK_SHOW, 0, 0);
 }
 
 static int retirement_card_mode_at_cursor(char *mode, size_t capacity)
@@ -1093,6 +1274,7 @@ static DWORD WINAPI retirement_input_worker(void *unused)
         if (!(left & 0x8000) && !(enter & 0x8000)) input_armed = 1;
         if (pressed && retirement_card_mode_at_cursor(mode, sizeof(mode))) {
             retirement_set_requested_mode(mode);
+            retirement_feedback_show(mode);
             retirement_log_event(
                 _stricmp(mode, "remove_and_rejuvenate") == 0
                     ? "card_reset_age_request" : "card_remove_request",
@@ -1304,6 +1486,7 @@ int retirement_engine_start(const char *mod_dir)
         CloseHandle(g_retirement_event); g_retirement_event = NULL;
         InterlockedExchange(&g_retirement_running, 0); return 0;
     }
+    retirement_feedback_start();
     {
         HANDLE input_thread = CreateThread(NULL, 0,
             retirement_input_worker, NULL, 0, NULL);

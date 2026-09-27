@@ -1,9 +1,10 @@
 # Mod de aposentadoria
 
 O motor acompanha o `DATA` que o FIFA acabou de salvar. Quando a operação é
-solicitada, ele espera o autosave e o par `DATA`/`INDEX` ficarem estáveis,
-aguarda o FIFA encerrar, cria backups dos dois arquivos e troca somente o
-`DATA` por uma cópia corrigida.
+solicitada, ele espera o autosave e o par `DATA`/`INDEX` ficarem estáveis e
+liberados pelo FIFA, cria backups dos dois arquivos e troca somente o `DATA`
+por uma cópia corrigida. O FIFA pode continuar aberto; depois do aviso de
+conclusão, o usuário pode sair da carreira sem salvar e entrar novamente.
 
 Antes da troca são verificados o CRC externo do container e a tabela `CZUM`.
 Depois da troca o worker relê o arquivo e valida novamente o CRC e a estrutura;
@@ -25,6 +26,12 @@ Na tela do Career Hub, o primeiro card cria uma solicitação
 de uma única execução e só é consumida quando o autosave daquele clique é
 detectado. O worker não altera saves de outros autosaves sem uma solicitação
 pendente.
+
+Ao clicar, a DLL mostra um aviso não bloqueante por alguns segundos e emite um
+beep. Ao terminar, o worker emite o beep de sucesso ou alerta. Diagnósticos
+com tempo (`elapsed_ms`) só são gravados quando existe, na instalação local,
+`ModCarrerMode/career_retirement_background.local.ini` com `logging=1`. Esse
+arquivo é ignorado pelo Git e não faz parte do pacote distribuído.
 
 Os testes nativos podem ser recompilados com `build_retirement_engine_test.cmd`
 e `build_retirement_offline_worker.cmd`. A DLL completa é recompilada com

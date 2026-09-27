@@ -25,6 +25,7 @@ int retirement_engine_apply_buffer_from_config(void *buffer, SIZE_T size,
     RetirementApplyResult *result);
 int retirement_engine_backup_before_write(const char *data_path);
 void retirement_engine_set_mod_dir(const char *mod_dir);
+int retirement_engine_local_logging_enabled(const char *mod_dir);
 int retirement_engine_start(const char *mod_dir);
 void retirement_engine_note_write(const char *data_path);
 

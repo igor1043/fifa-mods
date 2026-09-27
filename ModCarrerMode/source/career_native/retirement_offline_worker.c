@@ -27,6 +27,63 @@ static int argument_present(int argc, char **argv, const char *name)
     return 0;
 }
 
+static ULONGLONG worker_elapsed_ms(ULONGLONG started_at)
+{
+    ULONGLONG now = GetTickCount64();
+    return now >= started_at ? now - started_at : 0;
+}
+
+static void worker_log_event(const char *mod_dir, const char *event,
+    const char *data_path, const char *mode, ULONGLONG elapsed_ms)
+{
+    char log_path[MAX_PATH];
+    SYSTEMTIME now;
+    FILE *file;
+    if (!mod_dir || !*mod_dir || !event
+        || !retirement_engine_local_logging_enabled(mod_dir)) return;
+    snprintf(log_path, sizeof(log_path), "%s\\career_retirement_background.log",
+        mod_dir);
+    file = fopen(log_path, "ab");
+    if (!file) return;
+    GetLocalTime(&now);
+    fprintf(file,
+        "event=%s timestamp=%04u-%02u-%02uT%02u:%02u:%02u.%03u "
+        "elapsed_ms=%llu pid=%lu data=%s mode=%s\n",
+        event, now.wYear, now.wMonth, now.wDay, now.wHour, now.wMinute,
+        now.wSecond, now.wMilliseconds, (unsigned long long)elapsed_ms,
+        (unsigned long)GetCurrentProcessId(), data_path ? data_path : "",
+        mode && *mode ? mode : "");
+    fclose(file);
+}
+
+static void worker_log_result(const char *mod_dir, const char *data_path,
+    const char *mode, ULONGLONG elapsed_ms,
+    const RetirementApplyResult *result)
+{
+    char log_path[MAX_PATH];
+    SYSTEMTIME now;
+    FILE *file;
+    if (!mod_dir || !*mod_dir || !result
+        || !retirement_engine_local_logging_enabled(mod_dir)) return;
+    snprintf(log_path, sizeof(log_path), "%s\\career_retirement_background.log",
+        mod_dir);
+    file = fopen(log_path, "ab");
+    if (!file) return;
+    GetLocalTime(&now);
+    fprintf(file,
+        "event=worker_result timestamp=%04u-%02u-%02uT%02u:%02u:%02u.%03u "
+        "elapsed_ms=%llu status=%d changed=%u retiring=%u "
+        "crc_before=%08X crc_after=%08X message=%s data=%s mode=%s "
+        "backup_data=%s backup_index=%s\n",
+        now.wYear, now.wMonth, now.wDay, now.wHour, now.wMinute,
+        now.wSecond, now.wMilliseconds, (unsigned long long)elapsed_ms,
+        result->status, result->players_changed, result->players_retiring,
+        result->crc_before, result->crc_after, result->message,
+        data_path ? data_path : "", mode && *mode ? mode : "",
+        result->backup_data, result->backup_index);
+    fclose(file);
+}
+
 static int parse_unsigned(const char *value, unsigned long *result)
 {
     char *end = NULL;
@@ -164,6 +221,7 @@ int main(int argc, char **argv)
     DWORD process_id;
     unsigned long age_value = 18UL;
     unsigned long quiet_value = 2500UL;
+    ULONGLONG started_at;
     RetirementApplyResult result;
     if (!data_path || !*data_path || !parse_process_id(pid_text, &process_id)) {
         fprintf(stderr, "usage: retirement_offline_worker.exe --pid PID "
@@ -177,8 +235,24 @@ int main(int argc, char **argv)
         quiet_value = 2500UL;
     if (mod_dir && *mod_dir)
         retirement_engine_set_mod_dir(mod_dir);
-    if (wait_parent && !wait_for_parent_exit(process_id)) return 3;
+    started_at = GetTickCount64();
+    worker_log_event(mod_dir, "worker_started", data_path, mode, 0);
+    if (wait_parent) {
+        worker_log_event(mod_dir, "worker_waiting_game_exit", data_path,
+            mode, worker_elapsed_ms(started_at));
+        if (!wait_for_parent_exit(process_id)) {
+            worker_log_event(mod_dir, "worker_error_parent_wait", data_path,
+                mode, worker_elapsed_ms(started_at));
+            return 3;
+        }
+        worker_log_event(mod_dir, "worker_game_exited", data_path, mode,
+            worker_elapsed_ms(started_at));
+    }
+    worker_log_event(mod_dir, "worker_waiting_save_stability", data_path,
+        mode, worker_elapsed_ms(started_at));
     if (!wait_for_stable_data(data_path, (unsigned)quiet_value)) {
+        worker_log_event(mod_dir, "worker_error_save_not_stable", data_path,
+            mode, worker_elapsed_ms(started_at));
         fprintf(stderr, "DATA não estabilizou: %s\n", data_path);
         return 4;
     }
@@ -187,8 +261,14 @@ int main(int argc, char **argv)
             mode && *mode ? mode : "remove_retirement", (int)age_value,
             &result)) {
         print_result(data_path, &result);
+        worker_log_result(mod_dir, data_path, mode, worker_elapsed_ms(started_at),
+            &result);
+        MessageBeep(MB_ICONEXCLAMATION);
         return 5;
     }
     print_result(data_path, &result);
+    worker_log_result(mod_dir, data_path, mode, worker_elapsed_ms(started_at),
+        &result);
+    MessageBeep(MB_OK);
     return 0;
 }
