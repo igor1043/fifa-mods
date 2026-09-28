@@ -1440,6 +1440,8 @@ static void clear_standing_knockout_fields(void *provider)
     publish_int_field(provider, "KO_LOGO1", FORM_ASSET_EMPTY);
     publish_int_field(provider, "CM_KO_COMPETITION_ICON", FORM_ASSET_EMPTY);
     publish_int_field(provider, "TROPHYID", FORM_ASSET_EMPTY);
+    publish_string_field(provider, "CM_KO_CURRENT_LABEL", "");
+    publish_string_field(provider, "CM_KO_PREVIOUS_LABEL", "");
     publish_string_field(provider, "CM_KO_LEG_LABEL", "");
     publish_string_field(provider, "CM_KO_LEG_DIVIDER", "");
     publish_string_field(provider, "CM_KO_LEG_SCORE", "");
@@ -1500,6 +1502,9 @@ static void publish_standing_mode(
             knockout);
     publish_visibility_field(provider, "LEAGUELOGO", !knockout);
     publish_visibility_field(provider, "CM_KO_COMPETITION_ICON", FALSE);
+    publish_visibility_field(provider, "CM_KO_CURRENT_LABEL", FALSE);
+    publish_visibility_field(provider, "CM_KO_PREVIOUS_DIVIDER", FALSE);
+    publish_visibility_field(provider, "CM_KO_PREVIOUS_LABEL", FALSE);
     publish_knockout_leg_visibility(provider, FALSE);
     publish_visibility_field(provider, "CM_KO_LEG_VISIBLE", FALSE);
     publish_visibility_field(provider, "TROPHYID", FALSE);
@@ -3749,6 +3754,7 @@ static void publish_standing_knockout_details(void *provider)
 {
     CompetitionTabKnockout *current;
     CompetitionTabKnockout *previous = NULL;
+    const CompetitionSummary *summary;
     size_t index;
     int competition_id;
     int icon_id;
@@ -3764,7 +3770,17 @@ static void publish_standing_knockout_details(void *provider)
         &g_active_competition_id,
         0,
         0);
-    icon_id = native_logo(competition_id);
+    summary = g_competition_count > 0 ? &g_competition_rows[0] : NULL;
+    /* Some domestic cups do not expose their active ID as a renderable asset.
+     * Resolve through the summary and verify the .dds exists before exposing
+     * it; this preserves the layout when a cup has no supplied crest. */
+    icon_id = native_active_competition_logo(
+        competition_id,
+        summary ? summary->league_id : 0);
+    if (icon_id <= 0 && summary)
+        icon_id = native_active_competition_logo(
+            summary->competition_id,
+            summary->league_id);
     publish_int_field(
         provider,
         "CM_KO_COMPETITION_ICON",
@@ -3778,6 +3794,11 @@ static void publish_standing_knockout_details(void *provider)
         "TROPHYID",
         icon_id > 0 ? icon_id : FORM_ASSET_EMPTY);
     publish_visibility_field(provider, "TROPHYID", icon_id > 0);
+    publish_visibility_field(provider, "CM_KO_CURRENT_LABEL", FALSE);
+    publish_visibility_field(provider, "CM_KO_PREVIOUS_DIVIDER", FALSE);
+    publish_visibility_field(provider, "CM_KO_PREVIOUS_LABEL", FALSE);
+    publish_string_field(provider, "CM_KO_CURRENT_LABEL", "");
+    publish_string_field(provider, "CM_KO_PREVIOUS_LABEL", "");
     publish_visibility_field(provider, "CM_KO_LEG_VISIBLE", FALSE);
     publish_knockout_leg_visibility(provider, FALSE);
     publish_string_field(provider, "CM_KO_LEG_LABEL", "");
@@ -3822,6 +3843,15 @@ static void publish_standing_knockout_details(void *provider)
                 && candidate->time > previous->time))
             previous = candidate;
     }
+    snprintf(
+        value,
+        sizeof(value),
+        "%s  -  %s",
+        current->played ? "PARTIDA ATUAL" : "PROXIMA PARTIDA",
+        previous ? "JOGO DE VOLTA" : "JOGO DE IDA");
+    publish_string_field(provider, "CM_KO_CURRENT_LABEL", value);
+    publish_visibility_field(provider, "CM_KO_CURRENT_LABEL", TRUE);
+
     if (!previous)
         return;
 
@@ -3843,6 +3873,9 @@ static void publish_standing_knockout_details(void *provider)
     publish_string_field(provider, "CM_KO_LEG_HOME", value);
     native_team_name(previous->away_team, value, sizeof(value));
     publish_string_field(provider, "CM_KO_LEG_AWAY", value);
+    publish_string_field(provider, "CM_KO_PREVIOUS_LABEL", "RESULTADO ANTERIOR");
+    publish_visibility_field(provider, "CM_KO_PREVIOUS_DIVIDER", TRUE);
+    publish_visibility_field(provider, "CM_KO_PREVIOUS_LABEL", TRUE);
     publish_visibility_field(provider, "CM_KO_LEG_VISIBLE", TRUE);
     publish_knockout_leg_visibility(provider, TRUE);
 }

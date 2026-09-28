@@ -24,6 +24,8 @@ estão sendo tratadas neste pacote:
 - cards do modo carreira e estatísticas do Meu Time;
 - mensagens de ausência de dados somente quando o card está vazio;
 - separação visual entre Liga e Copa na aba Competição;
+- seleção de idioma iniciando com a bandeira do Brasil em primeiro lugar
+  (`data/loc/locale.big`);
 - card Próxima partida com data/hora alinhadas, estádio, imagem, capacidade
   total e percentual de público estimado quando o cálculo está disponível;
 - leitura do estádio e dos assets de kits/escudos;

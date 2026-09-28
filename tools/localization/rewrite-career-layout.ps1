@@ -174,6 +174,73 @@ foreach ($card in $emptyStatCards) {
     [void]$background.ParentNode.InsertAfter($empty, $background)
 }
 
+$knockoutLayout = [ordered]@{
+    'KO_STAGE' = @{ Y = '151'; HEIGHT = '24' }
+    'KO_RECT1' = @{ Y = '216' }
+    'KO_RECT2' = @{ Y = '298' }
+    'KO_LOGO0' = @{ Y = '228' }
+    'KO_TEAM0' = @{ Y = '234' }
+    'KO_LOGO1' = @{ Y = '310' }
+    'KO_TEAM1' = @{ Y = '316' }
+    'CM_KO_LEG_LABEL' = @{ X = '18'; Y = '431'; WIDTH = '100'; TRANSLATE = 'FALSE' }
+    'CM_KO_LEG_HOME' = @{ X = '126'; Y = '431'; WIDTH = '210' }
+    'CM_KO_LEG_DIVIDER' = @{ X = '342'; Y = '431'; WIDTH = '30' }
+    'CM_KO_LEG_SCORE' = @{ X = '374'; Y = '431'; WIDTH = '90' }
+    'CM_KO_LEG_AWAY' = @{ X = '474'; Y = '431'; WIDTH = '330' }
+}
+
+foreach ($entry in $knockoutLayout.GetEnumerator()) {
+    $field = $xml.SelectSingleNode("//data[@ID='$($entry.Key)']")
+    if (-not $field) {
+        throw "Missing knockout layout field: $($entry.Key)"
+    }
+    foreach ($attribute in $entry.Value.GetEnumerator()) {
+        $field.SetAttribute($attribute.Key, [string]$attribute.Value)
+    }
+}
+
+$knockoutAnchor = $xml.SelectSingleNode('//data[@ID="KO_STAGE"]')
+if (-not $knockoutAnchor) {
+    throw 'Missing knockout stage field'
+}
+
+$knockoutContextFields = @(
+    [pscustomobject]@{
+        ID = 'CM_KO_CURRENT_LABEL'
+        Attributes = [ordered]@{
+            TYPE = 'text'; FORMAT = 'SS||left'; TRANSLATE = 'FALSE'; HEIGHT = '24'
+            WIDTH = '800'; VISIBLE = 'FALSE'; Y = '181'; X = '18'
+        }
+    },
+    [pscustomobject]@{
+        ID = 'CM_KO_PREVIOUS_DIVIDER'
+        Attributes = [ordered]@{
+            TYPE = 'rectangle'; PARAM = '0x8EA6AD'; HEIGHT = '2'; WIDTH = '810'
+            VISIBLE = 'FALSE'; Y = '385'; X = '18'
+        }
+    },
+    [pscustomobject]@{
+        ID = 'CM_KO_PREVIOUS_LABEL'
+        Attributes = [ordered]@{
+            TYPE = 'text'; FORMAT = 'SS||left'; TRANSLATE = 'FALSE'; HEIGHT = '24'
+            WIDTH = '800'; VISIBLE = 'FALSE'; Y = '403'; X = '18'
+        }
+    }
+)
+
+foreach ($definition in $knockoutContextFields) {
+    $field = $xml.SelectSingleNode("//data[@ID='$($definition.ID)']")
+    if (-not $field) {
+        $field = $xml.CreateElement('data')
+        $field.SetAttribute('ID', $definition.ID)
+        [void]$knockoutAnchor.ParentNode.InsertAfter($field, $knockoutAnchor)
+    }
+    foreach ($attribute in $definition.Attributes.GetEnumerator()) {
+        $field.SetAttribute($attribute.Key, [string]$attribute.Value)
+    }
+    $knockoutAnchor = $field
+}
+
 $settings = New-Object System.Xml.XmlWriterSettings
 $settings.Encoding = New-Object System.Text.UTF8Encoding($false)
 $settings.Indent = $false
