@@ -1,0 +1,19 @@
+{
+	"name":"RetirementResetAgeFlow",
+	"initial":{"targets":["RetirementApply"]},
+	"states":[
+		{
+			"name":"RetirementApply",
+			"onEnter":[
+				["loadViewModel",["CareerAutosaveViewModel"]],
+				["executeCMAction",["DoAutoSave"]]
+			],
+			"onExit":[
+				["unloadViewModel",["CareerAutosaveViewModel"]]
+			],
+			"transitions":[
+				{"event":"Advance","targets":["back"]}
+			]
+		}
+	]
+}

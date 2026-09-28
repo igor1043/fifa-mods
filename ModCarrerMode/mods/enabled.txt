@@ -1,0 +1,8 @@
+# Each non-comment line is a plugin path relative to this folder.
+# The original DLL loader remains installed; this file is reversible.
+crowd\crowd_plugin.dll
+career_birthdate_2006\birthyear_range_2006_2012.dll
+bench12_global_limit_12_v2\global_limit_12_v2.dll
+substitution_all7_rulescan_native\substitution_all7_rulescan_native.dll
+# Disabled: the current crash dump confirmed 0xC0000005 in easfc_hide_plugin.dll+0x17620.
+# easfc_hide_plugin.dll

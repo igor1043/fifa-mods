@@ -1,0 +1,32 @@
+{
+	"name":"LeagueDashboardFlow",
+	"initial": { "targets":["LeagueDashboard"] },
+	"states":[
+		{
+			"name":"LeagueDashboard",
+			"onEnter":[
+				["loadScreenController", ["ViewOtherComps"]],
+				["loadView", ["screen", "game/screens/career/stats/LeagueDashboard"]],
+				["loadView", ["background", "BOOTFLOW"]],
+				["executeCMAction", ["ViewStatistics"]]
+			],
+			"onExit":[
+				["unloadView", ["screen", "game/screens/career/stats/LeagueDashboard"]],
+				["unloadScreenController", ["ViewOtherComps"]],
+				["unloadView", ["background"]]
+			],
+			"transitions":[
+				{
+					"event":"Back",
+					"targets":["Back"],
+					"actions":[["executeCMAction", ["ClearCountryCompList"]]]
+				},
+				{
+					"event":"SelectCompetition",
+					"targets":["Back"],
+					"actions":[["executeCMAction", ["ClearCountryCompList"]]]
+				}
+			]
+		}
+	]
+}
