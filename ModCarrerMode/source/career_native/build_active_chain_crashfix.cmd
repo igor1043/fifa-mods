@@ -12,5 +12,7 @@ cl /nologo /std:c11 /W3 /O2 /MT /D_CRT_SECURE_NO_WARNINGS /c ..\native\integrati
 if errorlevel 1 exit /b 1
 link /nologo /DLL /MAP:dinput8_my_team_height_fix.map /MAPINFO:EXPORTS /OUT:dinput8.dll /DEF:..\native\integration\dinput8_wrapper.def dinput8_wrapper.obj fce_contracts.obj fce_model.obj fce_runtime.obj crowd_runtime.obj retirement_engine.obj dinput8_active_chain_resource.res kernel32.lib user32.lib gdi32.lib psapi.lib bcrypt.lib
 if errorlevel 1 exit /b 1
+copy /Y dinput8.dll "%~dp0..\..\..\dinput8.dll" >nul
+if errorlevel 1 exit /b 1
 popd
 endlocal

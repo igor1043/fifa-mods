@@ -86,7 +86,10 @@ typedef NTSTATUS(NTAPI *NtCreateFileFn)(
     ULONG);
 
 static HMODULE g_self;
-static HMODULE g_legacy;
+/* The L9 module owns the low-level FIFA executable patches.  This wrapper
+ * remains the only dinput8.dll placed in the game root, so the Career UI,
+ * save workflow and optional plugins stay under this project's control. */
+static HMODULE g_l9_proxy;
 static DirectInput8CreateFn g_direct_input8_create;
 static DllCanUnloadNowFn g_dll_can_unload_now;
 static DllGetClassObjectFn g_dll_get_class_object;
@@ -1050,16 +1053,16 @@ static void append_loader_log(const char *event)
 /* prepare_career_session_markers: removed obsolete bridge/scanner path. */
 
 
-static BOOL load_legacy_proxy(void)
+static BOOL load_l9_proxy(void)
 {
     if (g_direct_input8_create)
         return TRUE;
 
     char path[MAX_PATH];
-    /* The pre-existing dinput8 patcher is stored inside this custom DLL as
-     * RCDATA resource 101.  Materialize it under a distinct name and forward
-     * DirectInput through it: the original patcher retains priority and the
-     * career hooks are merely layered over that established implementation. */
+    /* L9.65 is stored inside this custom DLL as RCDATA resource 101.  It is
+     * materialized under its own name and receives DirectInput first, so its
+     * database-capacity, scouting, formation and null-getter patches start
+     * from a single authoritative chain before the Career hooks are used. */
     HRSRC resource = FindResourceA(
         g_self,
         MAKEINTRESOURCEA(101),
@@ -1073,11 +1076,10 @@ static BOOL load_legacy_proxy(void)
         : NULL;
     if (resource_size > 0 && resource_bytes)
     {
-        wsprintfA(path, "%s\\dinput8_career_chain.dll", g_game_dir);
-        /* Reuse only an exact copy of the embedded original patcher. This
-         * avoids overwriting either dinput8_orig.dll or a system DirectInput
-         * module while supporting a read-only installation with the right
-         * materialized chain. */
+        wsprintfA(path, "%s\\dinput8_l9_chain.dll", g_game_dir);
+        /* Reuse only the exact embedded L9 build. This avoids modifying
+         * dinput8_orig.dll or the system DirectInput module and makes an old
+         * materialized chain self-heal on the next game start. */
         HANDLE existing = CreateFileA(path, GENERIC_READ, FILE_SHARE_READ,
             NULL, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL);
         if (existing != INVALID_HANDLE_VALUE) {
@@ -1095,9 +1097,9 @@ static BOOL load_legacy_proxy(void)
                 offset += length;
             }
             CloseHandle(existing);
-            if (matches) g_legacy = LoadLibraryA(path);
+            if (matches) g_l9_proxy = LoadLibraryA(path);
         }
-        if (!g_legacy) {
+        if (!g_l9_proxy) {
         HANDLE file = CreateFileA(
             path,
             GENERIC_WRITE,
@@ -1120,37 +1122,37 @@ static BOOL load_legacy_proxy(void)
                 FlushFileBuffers(file);
             CloseHandle(file);
             if (saved)
-                g_legacy = LoadLibraryA(path);
+                g_l9_proxy = LoadLibraryA(path);
         }
         }
     }
-    if (!g_legacy) {
-        append_loader_log("proxy_load_failed");
+    if (!g_l9_proxy) {
+        append_loader_log("l9_proxy_load_failed");
         return FALSE;
     }
 
     g_direct_input8_create = (DirectInput8CreateFn)GetProcAddress(
-        g_legacy,
+        g_l9_proxy,
         "DirectInput8Create");
     g_dll_can_unload_now = (DllCanUnloadNowFn)GetProcAddress(
-        g_legacy,
+        g_l9_proxy,
         "DllCanUnloadNow");
     g_dll_get_class_object = (DllGetClassObjectFn)GetProcAddress(
-        g_legacy,
+        g_l9_proxy,
         "DllGetClassObject");
     g_dll_register_server = (DllRegisterServerFn)GetProcAddress(
-        g_legacy,
+        g_l9_proxy,
         "DllRegisterServer");
     g_dll_unregister_server = (DllUnregisterServerFn)GetProcAddress(
-        g_legacy,
+        g_l9_proxy,
         "DllUnregisterServer");
     g_getdf_di_joystick = (GetdfDIJoystickFn)GetProcAddress(
-        g_legacy,
+        g_l9_proxy,
         "GetdfDIJoystick");
     append_loader_log(
         g_direct_input8_create
-            ? "proxy_chain_ready"
-            : "proxy_export_missing");
+            ? "l9_proxy_chain_ready"
+            : "l9_proxy_export_missing");
     return g_direct_input8_create != NULL;
 }
 
@@ -4291,7 +4293,7 @@ HRESULT WINAPI DirectInput8Create(
     LPVOID *output,
     LPUNKNOWN outer)
 {
-    if (!load_legacy_proxy())
+    if (!load_l9_proxy())
         return E_FAIL;
     return g_direct_input8_create(
         instance,
@@ -4304,7 +4306,7 @@ HRESULT WINAPI DirectInput8Create(
 
 HRESULT WINAPI proxy_DllCanUnloadNow(void)
 {
-    if (!load_legacy_proxy() || !g_dll_can_unload_now)
+    if (!load_l9_proxy() || !g_dll_can_unload_now)
         return E_FAIL;
     return g_dll_can_unload_now();
 }
@@ -4315,7 +4317,7 @@ HRESULT WINAPI proxy_DllGetClassObject(
     REFIID interface_id,
     LPVOID *output)
 {
-    if (!load_legacy_proxy() || !g_dll_get_class_object)
+    if (!load_l9_proxy() || !g_dll_get_class_object)
         return E_FAIL;
     return g_dll_get_class_object(class_id, interface_id, output);
 }
@@ -4323,7 +4325,7 @@ HRESULT WINAPI proxy_DllGetClassObject(
 
 HRESULT WINAPI proxy_DllRegisterServer(void)
 {
-    if (!load_legacy_proxy() || !g_dll_register_server)
+    if (!load_l9_proxy() || !g_dll_register_server)
         return E_FAIL;
     return g_dll_register_server();
 }
@@ -4331,7 +4333,7 @@ HRESULT WINAPI proxy_DllRegisterServer(void)
 
 HRESULT WINAPI proxy_DllUnregisterServer(void)
 {
-    if (!load_legacy_proxy() || !g_dll_unregister_server)
+    if (!load_l9_proxy() || !g_dll_unregister_server)
         return E_FAIL;
     return g_dll_unregister_server();
 }
@@ -4339,7 +4341,7 @@ HRESULT WINAPI proxy_DllUnregisterServer(void)
 
 LPCDIDATAFORMAT WINAPI proxy_GetdfDIJoystick(void)
 {
-    if (!load_legacy_proxy() || !g_getdf_di_joystick)
+    if (!load_l9_proxy() || !g_getdf_di_joystick)
         return NULL;
     return g_getdf_di_joystick();
 }

@@ -6,9 +6,10 @@ Mods e ajustes para o modo carreira do FIFA 16.
 
 Copie o conteúdo desta pasta para a raiz da instalação do FIFA 16, mantendo a estrutura de diretórios. Faça um backup dos arquivos originais antes de substituir qualquer arquivo.
 
-Existe apenas uma DLL de entrada: `dinput8.dll` na raiz do jogo. Não copie
-outra `dinput8.dll` para `ModCarrerMode`; a cadeia `dinput8_career_chain.dll`
-continua sendo carregada pela DLL da raiz para preservar os demais mods.
+Existe apenas uma DLL de entrada: `dinput8.dll` na raiz do jogo. Ela mantém
+os recursos deste projeto e materializa a cadeia interna `dinput8_l9_chain.dll`
+na primeira inicialização. Essa cadeia recebe os patches L9 antes do
+DirectInput do sistema; não substitua a DLL principal por uma DLL avulsa.
 
 ## Estado atual dos mods
 
@@ -32,6 +33,21 @@ estão sendo tratadas neste pacote:
 - fluxo de aposentadoria por idade, com backup, alteração restrita ao DATA,
   recomputação/validação dos CRCs e restauração automática se a validação
   falhar.
+
+### Integração L9
+
+O pacote incorpora o L9.65 como recurso da DLL de entrada. A configuração
+ativa fica em `dinput8_L9.ini` na raiz e o `winmm.dll` incluso executa o
+CompData Patcher correspondente. O conjunto cobre objetivos de temporada por
+liga, regiões de olheiros, IDs de jogadores gerados, blocos de ligas, limites
+de nomes, listas de torneios, cache de jogadores, guards de FCE/getter, pools
+de consulta e a nova fronteira de formações.
+
+As opções mantidas desligadas no arquivo de origem (`ScoutOhneLiga`,
+`Namensweiche` e `Poolwache`) continuam disponíveis no INI, porém não foram
+forçadas sem validação em uma carreira real. Veja
+`ModCarrerMode/l9/README.md` para os hashes, a arquitetura e o procedimento
+de verificação.
 
 ### Plugins ativos
 
