@@ -28,7 +28,6 @@ escreve `compdata_patcher.log`; o L9 escreve `dinput8_L9.log`. A DLL antiga
 `dinput8_career_chain.dll` é preservada no repositório como artefato de
 recuperação, mas não participa da cadeia ativa desta branch.
 
-Depois de compilar, execute `tools/validate-l9-integration.ps1` antes de
-copiar o pacote para o jogo. Em uma execução real, confirme no
-`dinput8_L9.log` que os patches críticos foram aplicados sem a mensagem
+Em uma execução real, confirme no `dinput8_L9.log` que os patches críticos
+foram aplicados sem a mensagem
 `NICHT weiterspielen`.
