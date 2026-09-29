@@ -71,12 +71,6 @@ foreach ($panel in $xml.SelectNodes('//panel_set/panel[@PANEL_ID="5"]')) {
     $panel.NAME = 'FIFA_MODS_CM_COMPETITION_TAB'
 }
 
-foreach ($field in $xml.SelectNodes('//data[@ID="MYTEAM_NEXT_STADIUM_CAPACITY_LABEL"]')) {
-    $field.PARAM = 'FIFA_MODS_CM_ESTIMATED_ATTENDANCE'
-    $field.TRANSLATE = 'TRUE'
-    $field.WIDTH = '320'
-}
-
 $nextMatchLayout = [ordered]@{
     'MYTEAM_NEXT_HORIZONTAL_DIVIDER' = @{ Y = '302' }
     'MYTEAM_NEXT_INFO_TITLE' = @{ Y = '314' }
@@ -84,6 +78,8 @@ $nextMatchLayout = [ordered]@{
     'MYTEAM_NEXT_DATE' = @{ Y = '350'; X = '110' }
     'MYTEAM_NEXT_TIME_LABEL' = @{ Y = '382' }
     'MYTEAM_NEXT_TIME' = @{ Y = '382'; X = '110' }
+    'MYTEAM_NEXT_STADIUM' = @{ HEIGHT = '52' }
+    'MYTEAM_NEXT_INFO_DIVIDER0' = @{ HEIGHT = '158' }
 }
 
 foreach ($entry in $nextMatchLayout.GetEnumerator()) {
@@ -104,7 +100,7 @@ $capacityLabel.PARAM = 'Capacity'
 $capacityLabel.TRANSLATE = 'TRUE'
 $capacityLabel.FORMAT = 'SS||left'
 $capacityLabel.X = '292'
-$capacityLabel.Y = '520'
+$capacityLabel.Y = '536'
 $capacityLabel.WIDTH = '160'
 $capacityLabel.HEIGHT = '18'
 $capacityLabel.VISIBLE = 'FALSE'
@@ -114,7 +110,7 @@ if (-not $capacityValue) {
     throw 'Missing next-match capacity value'
 }
 $capacityValue.X = '460'
-$capacityValue.Y = '520'
+$capacityValue.Y = '536'
 $capacityValue.FORMAT = 'SM||left'
 $capacityValue.WIDTH = '150'
 $capacityValue.HEIGHT = '24'
@@ -132,7 +128,7 @@ $attendanceLabel.SetAttribute('HEIGHT', '18')
 $attendanceLabel.SetAttribute('PARAM', 'Público estimado')
 $attendanceLabel.SetAttribute('WIDTH', '180')
 $attendanceLabel.SetAttribute('VISIBLE', 'FALSE')
-$attendanceLabel.SetAttribute('Y', '556')
+$attendanceLabel.SetAttribute('Y', '572')
 $attendanceLabel.SetAttribute('X', '292')
 
 $attendanceValue = $xml.SelectSingleNode('//data[@ID="MYTEAM_NEXT_STADIUM_ATTENDANCE"]')
@@ -147,7 +143,7 @@ $attendanceValue.SetAttribute('TRANSLATE', 'FALSE')
 $attendanceValue.SetAttribute('HEIGHT', '24')
 $attendanceValue.SetAttribute('WIDTH', '60')
 $attendanceValue.SetAttribute('VISIBLE', 'FALSE')
-$attendanceValue.SetAttribute('Y', '556')
+$attendanceValue.SetAttribute('Y', '572')
 $attendanceValue.SetAttribute('X', '480')
 
 foreach ($separator in @($xml.SelectNodes('//data[@ID="MYTEAM_NEXT_STADIUM_CAPACITY_SEPARATOR"]'))) {

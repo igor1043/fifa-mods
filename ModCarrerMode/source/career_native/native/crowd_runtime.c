@@ -10,30 +10,11 @@
 #define CROWD_DEFAULT_FACTOR 0.90f
 #define CROWD_MIN_FACTOR 0.09f
 #define CROWD_MAX_FACTOR 0.90f
-#define CROWD_TARGET_CAPACITY 64
 #define CROWD_REPUTATION_CAPACITY 2048
 #define CROWD_LEAGUE_LINK_CAPACITY 2048
 #define CROWD_LEAGUE_DEFINITION_CAPACITY 512
 #define CROWD_RIVAL_CAPACITY 4096
 #define CROWD_CONFIG_FILE_CAPACITY 16384
-
-/* The schema places this hash immediately before the known default value.
- * The full serialized record is useful as evidence, but FIFA can retain a
- * compact runtime copy with only this property key and its float value. */
-static const unsigned char g_crowd_signature[] = {
-    0x2E,0x4B,0x96,0xD2,0x25,0x96,0x20,0xA0,
-    0x66,0x66,0x66,0x3F,
-    0x00,0x00,0x00,0x00,
-    0x00,0x00,0x40,0x00,
-    0x00,0x00,0x00,0x00,
-    0x00,0x00,0x88,0xD3,0x25,0x9F,0xA9,0xB4,0x13,0x49
-};
-
-typedef struct CrowdTarget
-{
-    unsigned char *value_address;
-    float last_value;
-} CrowdTarget;
 
 typedef struct CrowdReputation
 {
@@ -67,21 +48,12 @@ typedef struct CrowdRival
     int type;
 } CrowdRival;
 
-static CrowdTarget g_targets[CROWD_TARGET_CAPACITY];
-static SIZE_T g_target_count;
-static SRWLOCK g_target_lock = SRWLOCK_INIT;
 static SRWLOCK g_crowd_config_lock = SRWLOCK_INIT;
 static volatile LONG g_enabled;
 static volatile LONG g_factor_bits;
 static volatile LONG g_started;
 static volatile LONG g_last_logged_enabled = 0;
 static volatile LONG g_log_enabled;
-static volatile LONG g_last_feedback_valid;
-static int g_last_feedback_club;
-static int g_last_feedback_opponent;
-static int g_last_feedback_date;
-static int g_last_feedback_round;
-static DWORD g_last_scan_tick;
 static char g_log_dir[MAX_PATH];
 static CrowdReputation g_reputations[CROWD_REPUTATION_CAPACITY];
 static SIZE_T g_reputation_count;
@@ -112,54 +84,6 @@ static float bits_float(LONG bits)
     float value;
     memcpy(&value, &bits, sizeof(value));
     return value;
-}
-
-static BOOL readable_protection(DWORD protection)
-{
-    if (protection & (PAGE_GUARD | PAGE_NOACCESS))
-        return FALSE;
-    protection &= 0xFF;
-    return protection == PAGE_READONLY
-        || protection == PAGE_READWRITE
-        || protection == PAGE_WRITECOPY
-        || protection == PAGE_EXECUTE_READ
-        || protection == PAGE_EXECUTE_READWRITE
-        || protection == PAGE_EXECUTE_WRITECOPY;
-}
-
-static BOOL readable_range(const void *address, SIZE_T size)
-{
-    MEMORY_BASIC_INFORMATION info;
-    uintptr_t start = (uintptr_t)address;
-    uintptr_t end;
-    if (!size || start > UINTPTR_MAX - size)
-        return FALSE;
-    end = start + size;
-    if (!VirtualQuery(address, &info, sizeof(info)))
-        return FALSE;
-    return info.State == MEM_COMMIT
-        && readable_protection(info.Protect)
-        && start >= (uintptr_t)info.BaseAddress
-        && end <= (uintptr_t)info.BaseAddress + info.RegionSize;
-}
-
-static BOOL write_factor(unsigned char *address, float value)
-{
-    DWORD old_protection;
-    DWORD ignored;
-    if (!readable_range(address, sizeof(value)))
-        return FALSE;
-    if (!VirtualProtect(address, sizeof(value), PAGE_READWRITE, &old_protection))
-        return FALSE;
-    __try {
-        memcpy(address, &value, sizeof(value));
-    } __except(EXCEPTION_EXECUTE_HANDLER) {
-        VirtualProtect(address, sizeof(value), old_protection, &ignored);
-        return FALSE;
-    }
-    FlushInstructionCache(GetCurrentProcess(), address, sizeof(value));
-    VirtualProtect(address, sizeof(value), old_protection, &ignored);
-    return TRUE;
 }
 
 static FILE *open_log(void)
@@ -860,162 +784,6 @@ static void log_decision(const CrowdDecision *decision)
     fclose(log);
 }
 
-static BOOL target_known(unsigned char *address)
-{
-    SIZE_T index;
-    for (index = 0; index < g_target_count; ++index)
-        if (g_targets[index].value_address == address)
-            return TRUE;
-    return FALSE;
-}
-
-static void scan_region_safe(unsigned char *base, SIZE_T size)
-{
-    SYSTEM_INFO system_info;
-    unsigned char page_buffer[0x1000 + 32];
-    SIZE_T page_size;
-    SIZE_T page_offset;
-    const SIZE_T key_size = 8;
-    GetSystemInfo(&system_info);
-    page_size = system_info.dwPageSize ? (SIZE_T)system_info.dwPageSize : 0x1000U;
-    if (page_size > 0x1000U)
-        page_size = 0x1000U;
-    for (page_offset = 0; page_offset < size
-        && g_target_count < CROWD_TARGET_CAPACITY;
-        page_offset += page_size) {
-        SIZE_T request = size - page_offset;
-        SIZE_T bytes_read = 0;
-        SIZE_T index;
-        if (request > page_size + key_size + sizeof(float) - 1U)
-            request = page_size + key_size + sizeof(float) - 1U;
-        /* Read through the OS into a private page buffer. If the game unloads
-         * the source between VirtualQuery calls, this fails safely instead of
-         * dereferencing the stale address in the scanner thread. */
-        if (!ReadProcessMemory(GetCurrentProcess(), base + page_offset,
-                page_buffer, request, &bytes_read) ||
-            bytes_read < key_size + sizeof(float))
-            continue;
-        for (index = 0; index + key_size + sizeof(float) <= bytes_read;
-            ++index) {
-            unsigned char *value = base + page_offset + index + key_size;
-            float loaded_value;
-            if (memcmp(page_buffer + index, g_crowd_signature, key_size) != 0)
-                continue;
-            /* The actual game record must contain a plausible multiplier. */
-            memcpy(&loaded_value, page_buffer + index + key_size,
-                sizeof(loaded_value));
-            if (!(loaded_value >= 0.05f && loaded_value <= 1.20f))
-                continue;
-            if (!target_known(value) && g_target_count < CROWD_TARGET_CAPACITY) {
-                g_targets[g_target_count].value_address = value;
-                g_targets[g_target_count].last_value = loaded_value;
-                ++g_target_count;
-            }
-            index += key_size - 1U;
-        }
-    }
-}
-
-static void scan_loaded_attribdb(void)
-{
-    SYSTEM_INFO system_info;
-    unsigned char *cursor;
-    uintptr_t maximum;
-    GetSystemInfo(&system_info);
-    cursor = (unsigned char *)system_info.lpMinimumApplicationAddress;
-    maximum = (uintptr_t)system_info.lpMaximumApplicationAddress;
-    while ((uintptr_t)cursor < maximum && g_target_count < CROWD_TARGET_CAPACITY) {
-        MEMORY_BASIC_INFORMATION info;
-        SIZE_T queried = VirtualQuery(cursor, &info, sizeof(info));
-        uintptr_t next;
-        if (!queried)
-            break;
-        next = (uintptr_t)info.BaseAddress + info.RegionSize;
-        if (next <= (uintptr_t)cursor)
-            break;
-        /* Resource sections can be MEM_IMAGE. Do not inspect executable
-         * image pages, but include non-executable read-only resource data. */
-        if (info.State == MEM_COMMIT && readable_protection(info.Protect)
-            && (info.Protect & (PAGE_EXECUTE | PAGE_EXECUTE_READ |
-                PAGE_EXECUTE_READWRITE | PAGE_EXECUTE_WRITECOPY)) == 0)
-            scan_region_safe((unsigned char *)info.BaseAddress, info.RegionSize);
-        cursor = (unsigned char *)next;
-    }
-}
-
-static void prune_targets(void)
-{
-    SIZE_T read = 0;
-    SIZE_T index;
-    for (index = 0; index < g_target_count; ++index) {
-        CrowdTarget target = g_targets[index];
-        if (!readable_range(target.value_address, sizeof(float)))
-            continue;
-        g_targets[read++] = target;
-    }
-    g_target_count = read;
-}
-
-static void restore_targets(void)
-{
-    SIZE_T index;
-    prune_targets();
-    for (index = 0; index < g_target_count; ++index) {
-        if (write_factor(g_targets[index].value_address, CROWD_DEFAULT_FACTOR))
-            g_targets[index].last_value = CROWD_DEFAULT_FACTOR;
-    }
-    g_target_count = 0;
-}
-
-static void apply_targets(float factor)
-{
-    SIZE_T index;
-    for (index = 0; index < g_target_count; ++index) {
-        if (write_factor(g_targets[index].value_address, factor))
-            g_targets[index].last_value = factor;
-    }
-}
-
-static void log_patch_state(float factor)
-{
-    FILE *log = open_log();
-    if (!log)
-        return;
-    fprintf(log, "patch targets=%llu factor=%.3f\\n",
-        (unsigned long long)g_target_count, factor);
-    fclose(log);
-}
-
-static DWORD WINAPI crowd_worker(void *unused)
-{
-    (void)unused;
-    for (;;) {
-        BOOL enabled = InterlockedCompareExchange(&g_enabled, 0, 0) != 0;
-        AcquireSRWLockExclusive(&g_target_lock);
-        if (!enabled) {
-            if (g_target_count)
-                restore_targets();
-        } else {
-            prune_targets();
-            if (!g_target_count
-                && GetTickCount() - g_last_scan_tick >= 500) {
-                g_last_scan_tick = GetTickCount();
-                scan_loaded_attribdb();
-                log_patch_state(bits_float(InterlockedCompareExchange(
-                    &g_factor_bits, float_bits(CROWD_DEFAULT_FACTOR), 0)));
-            }
-            if (g_target_count) {
-                float factor = clamp_factor(bits_float(
-                    InterlockedCompareExchange(&g_factor_bits,
-                        float_bits(CROWD_DEFAULT_FACTOR), 0)));
-                apply_targets(factor);
-            }
-        }
-        ReleaseSRWLockExclusive(&g_target_lock);
-        Sleep(750);
-    }
-}
-
 void crowd_runtime_start(const char *log_dir)
 {
     if (log_dir)
@@ -1025,10 +793,9 @@ void crowd_runtime_start(const char *log_dir)
     if (InterlockedCompareExchange(&g_started, 1, 0) != 0)
         return;
     InterlockedExchange(&g_factor_bits, float_bits(CROWD_DEFAULT_FACTOR));
-    /* The dump confirmed that the heuristic runtime memory write can select a
-     * false positive and corrupt a game object. Keep the career decision
-     * engine active, but do not scan or write arbitrary FIFA memory until a
-     * deterministic game-owned target is available. */
+    /* The former heuristic memory scanner was removed after a dump showed it
+     * could target unrelated game data. Dynamic attendance uses the config
+     * bridge instead; this module does not write arbitrary FIFA memory. */
     {
         FILE *log = open_log();
         if (log) {
@@ -1041,7 +808,6 @@ void crowd_runtime_start(const char *log_dir)
 void crowd_runtime_disable(void)
 {
     InterlockedExchange(&g_enabled, 0);
-    InterlockedExchange(&g_last_feedback_valid, 0);
     if (InterlockedCompareExchange(&g_last_logged_enabled, 0, 1) == 1)
         log_decision(NULL);
 }
@@ -1049,7 +815,6 @@ void crowd_runtime_disable(void)
 void crowd_runtime_set_decision(const CrowdDecision *decision)
 {
     CrowdDecision copy;
-    int feedback_changed;
     int automatic_controller;
     int static_percent;
     if (!decision || !decision->enabled) {
@@ -1079,20 +844,6 @@ void crowd_runtime_set_decision(const CrowdDecision *decision)
         copy.factor = (float)static_percent / 100.0f;
     } else {
         copy.factor = clamp_factor(copy.factor);
-    }
-    feedback_changed = !InterlockedCompareExchange(&g_last_feedback_valid, 0, 0)
-        || g_last_feedback_club != copy.club_id
-        || g_last_feedback_opponent != copy.next_opponent
-        || g_last_feedback_date != copy.next_date
-        || g_last_feedback_round != copy.next_round;
-    if (feedback_changed && copy.next_opponent > 0 && copy.next_date > 0) {
-        /* Keep the decision state for the next match, but do not display a
-         * crowd notification. Retirement feedback remains independent. */
-        g_last_feedback_club = copy.club_id;
-        g_last_feedback_opponent = copy.next_opponent;
-        g_last_feedback_date = copy.next_date;
-        g_last_feedback_round = copy.next_round;
-        InterlockedExchange(&g_last_feedback_valid, 1);
     }
     InterlockedExchange(&g_factor_bits, float_bits(copy.factor));
     InterlockedExchange(&g_enabled, 1);

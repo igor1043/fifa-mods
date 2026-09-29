@@ -152,11 +152,20 @@ FceResult fce_decode_comp_raw(const void *data, size_t size, FceCompNode *out) {
     v.stage_kind = v.type == 4 ? stage_kind_from_name(p, size) :
         FCE_STAGE_UNKNOWN;
     if (v.type == 3 && p[0x16] == 'C') {
+        int numeric_asset = 1;
+        size_t digits = 0;
+        asset = 0;
         for (i = 1; i < 6 && p[0x16 + i]; ++i) {
-            if (p[0x16 + i] < '0' || p[0x16 + i] > '9') return FCE_INVALID;
+            if (p[0x16 + i] < '0' || p[0x16 + i] > '9') {
+                numeric_asset = 0;
+                break;
+            }
             asset = asset * 10 + p[0x16 + i] - '0';
+            ++digits;
         }
-        if (i > 1) v.asset = asset;
+        /* Type-3 objects may carry non-logo identities such as CRTR.
+         * Preserve the competition; an unrecognized key only hides its icon. */
+        if (numeric_asset && digits) v.asset = (int32_t)asset;
     }
     /* The live object contains its display key at +0x1c. Some installed
      * databases reuse C100 while explicitly naming TrophyName_Abbr15_1009.

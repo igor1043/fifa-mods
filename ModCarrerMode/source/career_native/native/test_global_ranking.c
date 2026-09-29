@@ -31,6 +31,39 @@ int main(void) {
         memcpy(raw + 0x1c, "FCE_Quarter_Finals", 19);
         CHECK(fce_decode_comp_raw(raw, sizeof(raw), &node) == FCE_OK);
         CHECK(node.stage_kind == FCE_STAGE_QUARTER_FINAL);
+
+        memset(raw, 0, sizeof(raw));
+        raw[0x0a] = 1;
+        raw[0x10] = 0xd1; raw[0x11] = 0x08; /* pre-season object 2257 */
+        raw[0x12] = 3;
+        memcpy(raw + 0x16, "CRTR", 4);
+        CHECK(fce_decode_comp_raw(raw, sizeof(raw), &node) == FCE_OK);
+        CHECK(node.id == 2257);
+        CHECK(node.asset == -1);
+
+        {
+            FceRawTable tables[4] = {{0}};
+            FceModel model;
+            tables[0].bytes = raw;
+            tables[0].count = 1;
+            tables[0].stride = sizeof(raw);
+            tables[1].stride = 0x24;
+            tables[2].stride = 0x25;
+            tables[3].stride = 0x23;
+            CHECK(fce_model_build(tables, -1, &model) == FCE_OK);
+            CHECK(model.node_count == 1);
+            CHECK(model.nodes[0].id == 2257);
+            CHECK(model.nodes[0].asset == -1);
+            fce_model_free(&model);
+        }
+
+        memcpy(raw + 0x16, "C100", 4);
+        CHECK(fce_decode_comp_raw(raw, sizeof(raw), &node) == FCE_OK);
+        CHECK(node.asset == 100);
+
+        memcpy(raw + 0x16, "C1X", 3);
+        CHECK(fce_decode_comp_raw(raw, sizeof(raw), &node) == FCE_OK);
+        CHECK(node.asset == -1);
     }
 
     CHECK(fce_global_ranking_catalog_count() == 1305);
