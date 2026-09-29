@@ -187,7 +187,7 @@ static void *g_pending_stats_provider_owner;
 static void *g_pending_stats_provider_vtable;
 static unsigned long g_pending_stats_refresh_generation;
 static volatile LONG g_pending_stats_refresh_busy;
-static int g_last_requested_calendar_date;
+static volatile LONG g_last_requested_calendar_date;
 static char g_current_standing_field[32];
 
 typedef struct RankedPlayer
@@ -218,6 +218,9 @@ static volatile LONG g_full_stats_category_id;
 static volatile LONG g_last_logged_category_id = -999;
 static volatile LONG g_last_logged_vector_category = -999;
 static volatile LONG g_user_club_id;
+static volatile LONG g_crowd_api_last_live_club;
+static volatile LONG g_crowd_api_last_live_competition;
+static volatile LONG g_crowd_api_fallback_logged;
 static volatile LONG g_user_team_key = -1;
 static void *g_career_context_identity;
 static int g_career_context_club;
@@ -1440,8 +1443,6 @@ static void clear_standing_knockout_fields(void *provider)
     publish_int_field(provider, "KO_LOGO1", FORM_ASSET_EMPTY);
     publish_int_field(provider, "CM_KO_COMPETITION_ICON", FORM_ASSET_EMPTY);
     publish_int_field(provider, "TROPHYID", FORM_ASSET_EMPTY);
-    publish_string_field(provider, "CM_KO_CURRENT_LABEL", "");
-    publish_string_field(provider, "CM_KO_PREVIOUS_LABEL", "");
     publish_string_field(provider, "CM_KO_LEG_LABEL", "");
     publish_string_field(provider, "CM_KO_LEG_DIVIDER", "");
     publish_string_field(provider, "CM_KO_LEG_SCORE", "");
@@ -1502,9 +1503,6 @@ static void publish_standing_mode(
             knockout);
     publish_visibility_field(provider, "LEAGUELOGO", !knockout);
     publish_visibility_field(provider, "CM_KO_COMPETITION_ICON", FALSE);
-    publish_visibility_field(provider, "CM_KO_CURRENT_LABEL", FALSE);
-    publish_visibility_field(provider, "CM_KO_PREVIOUS_DIVIDER", FALSE);
-    publish_visibility_field(provider, "CM_KO_PREVIOUS_LABEL", FALSE);
     publish_knockout_leg_visibility(provider, FALSE);
     publish_visibility_field(provider, "CM_KO_LEG_VISIBLE", FALSE);
     publish_visibility_field(provider, "TROPHYID", FALSE);
@@ -3694,7 +3692,7 @@ static void stats_provider_with_diagnostics(void *provider_owner)
     if (fce_date_valid(observed_calendar_date)
         && observed_calendar_date != g_last_requested_calendar_date)
     {
-        g_last_requested_calendar_date = observed_calendar_date;
+        InterlockedExchange(&g_last_requested_calendar_date, observed_calendar_date);
         fce_runtime_request_refresh();
     }
     /* Let FIFA finish its own live statistics query first.  That query can
@@ -3754,7 +3752,6 @@ static void publish_standing_knockout_details(void *provider)
 {
     CompetitionTabKnockout *current;
     CompetitionTabKnockout *previous = NULL;
-    const CompetitionSummary *summary;
     size_t index;
     int competition_id;
     int icon_id;
@@ -3770,17 +3767,7 @@ static void publish_standing_knockout_details(void *provider)
         &g_active_competition_id,
         0,
         0);
-    summary = g_competition_count > 0 ? &g_competition_rows[0] : NULL;
-    /* Some domestic cups do not expose their active ID as a renderable asset.
-     * Resolve through the summary and verify the .dds exists before exposing
-     * it; this preserves the layout when a cup has no supplied crest. */
-    icon_id = native_active_competition_logo(
-        competition_id,
-        summary ? summary->league_id : 0);
-    if (icon_id <= 0 && summary)
-        icon_id = native_active_competition_logo(
-            summary->competition_id,
-            summary->league_id);
+    icon_id = native_logo(competition_id);
     publish_int_field(
         provider,
         "CM_KO_COMPETITION_ICON",
@@ -3794,11 +3781,6 @@ static void publish_standing_knockout_details(void *provider)
         "TROPHYID",
         icon_id > 0 ? icon_id : FORM_ASSET_EMPTY);
     publish_visibility_field(provider, "TROPHYID", icon_id > 0);
-    publish_visibility_field(provider, "CM_KO_CURRENT_LABEL", FALSE);
-    publish_visibility_field(provider, "CM_KO_PREVIOUS_DIVIDER", FALSE);
-    publish_visibility_field(provider, "CM_KO_PREVIOUS_LABEL", FALSE);
-    publish_string_field(provider, "CM_KO_CURRENT_LABEL", "");
-    publish_string_field(provider, "CM_KO_PREVIOUS_LABEL", "");
     publish_visibility_field(provider, "CM_KO_LEG_VISIBLE", FALSE);
     publish_knockout_leg_visibility(provider, FALSE);
     publish_string_field(provider, "CM_KO_LEG_LABEL", "");
@@ -3843,15 +3825,6 @@ static void publish_standing_knockout_details(void *provider)
                 && candidate->time > previous->time))
             previous = candidate;
     }
-    snprintf(
-        value,
-        sizeof(value),
-        "%s  -  %s",
-        current->played ? "PARTIDA ATUAL" : "PROXIMA PARTIDA",
-        previous ? "JOGO DE VOLTA" : "JOGO DE IDA");
-    publish_string_field(provider, "CM_KO_CURRENT_LABEL", value);
-    publish_visibility_field(provider, "CM_KO_CURRENT_LABEL", TRUE);
-
     if (!previous)
         return;
 
@@ -3873,9 +3846,6 @@ static void publish_standing_knockout_details(void *provider)
     publish_string_field(provider, "CM_KO_LEG_HOME", value);
     native_team_name(previous->away_team, value, sizeof(value));
     publish_string_field(provider, "CM_KO_LEG_AWAY", value);
-    publish_string_field(provider, "CM_KO_PREVIOUS_LABEL", "RESULTADO ANTERIOR");
-    publish_visibility_field(provider, "CM_KO_PREVIOUS_DIVIDER", TRUE);
-    publish_visibility_field(provider, "CM_KO_PREVIOUS_LABEL", TRUE);
     publish_visibility_field(provider, "CM_KO_LEG_VISIBLE", TRUE);
     publish_knockout_leg_visibility(provider, TRUE);
 }
@@ -4352,8 +4322,60 @@ unsigned int WINAPI Fifa16CareerApiVersion(void)
     return 1U;
 }
 
-BOOL WINAPI Fifa16CareerGetState(LONG *club_out, LONG *competition_out)
+typedef struct CrowdApiSnapshot
 {
+    FceLiveSnapshot *source;
+    FceModel model;
+} CrowdApiSnapshot;
+
+static int crowd_api_effective_date(const FceModel *model)
+{
+    int date = model ? model->date : -1;
+    if (!fce_date_valid(date))
+        date = (int)InterlockedCompareExchange(
+            &g_last_requested_calendar_date, 0, 0);
+    return fce_date_valid(date) ? date : -1;
+}
+
+static void log_crowd_api_snapshot(const char *stage, LONG club,
+    LONG competition, const FceModel *model)
+{
+    static volatile LONG state_logged, acquire_logged, model_logged;
+    volatile LONG *flag = strcmp(stage, "state") == 0 ? &state_logged
+        : strcmp(stage, "acquire") == 0 ? &acquire_logged : &model_logged;
+    char path[MAX_PATH];
+    FILE *log;
+    size_t club_standings = 0, club_fixtures = 0, i;
+    if (InterlockedCompareExchange(flag, 1, 0) != 0 || !g_mod_dir[0])
+        return;
+    if (model) {
+        for (i = 0; i < model->standing_count; ++i)
+            if (model->standings[i].team == club)
+                ++club_standings;
+        for (i = 0; i < model->fixture_count; ++i)
+            if (model->fixtures[i].home == club
+                || model->fixtures[i].away == club)
+                ++club_fixtures;
+    }
+    snprintf(path, sizeof(path), "%s\\crowd_api_debug.log", g_mod_dir);
+    log = fopen(path, "ab");
+    if (!log) return;
+    fprintf(log,
+        "stage=%s club=%ld competition=%ld model=%d date=%d nodes=%llu standings=%llu club_standings=%llu fixtures=%llu club_fixtures=%llu stats=%llu\n",
+        stage, club, competition, model != NULL,
+        model ? model->date : -1,
+        model ? (unsigned long long)model->node_count : 0ULL,
+        model ? (unsigned long long)model->standing_count : 0ULL,
+        (unsigned long long)club_standings,
+        model ? (unsigned long long)model->fixture_count : 0ULL,
+        (unsigned long long)club_fixtures,
+        model ? (unsigned long long)model->stat_count : 0ULL);
+    fclose(log);
+}
+
+static BOOL crowd_api_get_live_state(LONG *club_out, LONG *competition_out)
+{
+    FceLiveSnapshot *snapshot = NULL;
     void *owner = g_pending_stats_provider_owner;
     void *expected_vtable = g_pending_stats_provider_vtable;
     uintptr_t actual_vtable = 0;
@@ -4417,30 +4439,127 @@ BOOL WINAPI Fifa16CareerGetState(LONG *club_out, LONG *competition_out)
     if (current_club <= 0 || current_club > 2000000)
         return FALSE;
 
+    /* The plugin needs a settled FCE model and a valid career date. In this
+     * FIFA career the FCE date remains -1, while CalendarManager supplies
+     * TODAY to the card. Do not expose Career until that same date can be
+     * attached to the plugin's snapshot view. */
+    snapshot = fce_runtime_acquire();
+    if (!snapshot || !fce_runtime_is_stable()
+        || crowd_api_effective_date(fce_runtime_model(snapshot)) < 0) {
+        fce_runtime_release(snapshot);
+        return FALSE;
+    }
+    log_crowd_api_snapshot("state", current_club, competition,
+        fce_runtime_model(snapshot));
+    fce_runtime_release(snapshot);
+
     *club_out = current_club;
     *competition_out = competition > 0 && competition <= 65535
         ? competition : 0;
     return TRUE;
 }
 
+BOOL WINAPI Fifa16CareerGetState(LONG *club_out, LONG *competition_out)
+{
+    LONG club = 0;
+    LONG competition = 0;
+    LONG current_club;
+    LONG cached_club;
+    FceLiveSnapshot *snapshot;
+    const FceModel *model;
+
+    if (!club_out || !competition_out)
+        return FALSE;
+
+    if (crowd_api_get_live_state(&club, &competition)) {
+        InterlockedExchange(&g_crowd_api_last_live_club, club);
+        InterlockedExchange(&g_crowd_api_last_live_competition,
+            competition);
+        *club_out = club;
+        *competition_out = competition;
+        return TRUE;
+    }
+
+    /* FIFA tears down the Career statistics provider while opening a match.
+     * The user's club and the FCE snapshot remain valid, but the live service
+     * lookup above briefly fails. Keep the crowd plugin's Career gate open
+     * from the last verified club so it does not restore 0.90 at kickoff. */
+    current_club = InterlockedCompareExchange(&g_user_club_id, 0, 0);
+    cached_club = InterlockedCompareExchange(
+        &g_crowd_api_last_live_club, 0, 0);
+    if (current_club <= 0 || current_club > 2000000
+        || current_club != cached_club)
+        return FALSE;
+
+    snapshot = fce_runtime_acquire();
+    model = fce_runtime_model(snapshot);
+    if (!model || crowd_api_effective_date(model) < 0) {
+        fce_runtime_release(snapshot);
+        return FALSE;
+    }
+
+    competition = InterlockedCompareExchange(
+        &g_display_competition_id, 0, 0);
+    if (competition <= 0 || competition > 65535)
+        competition = InterlockedCompareExchange(
+            &g_crowd_api_last_live_competition, 0, 0);
+    *club_out = current_club;
+    *competition_out = competition;
+    fce_runtime_release(snapshot);
+    if (InterlockedCompareExchange(&g_crowd_api_fallback_logged, 1, 0) == 0)
+        append_loader_log("crowd_state_cached_fallback");
+    return TRUE;
+}
+
 void *WINAPI Fifa16CareerAcquireSnapshot(void)
 {
-    return fce_runtime_acquire();
+    FceLiveSnapshot *source = fce_runtime_acquire();
+    const FceModel *model = fce_runtime_model(source);
+    CrowdApiSnapshot *snapshot = NULL;
+    int date = crowd_api_effective_date(model);
+    if (model && date > 0) {
+        snapshot = (CrowdApiSnapshot *)calloc(1, sizeof(*snapshot));
+        if (snapshot) {
+            snapshot->source = source;
+            snapshot->model = *model;
+            /* FCE's own date is absent in this career. CalendarManager's
+             * verified TODAY value is already used by the matching card.
+             * Override only the exported, shallow model view; the shared
+             * FCE snapshot and its fixture/stat buffers stay unchanged. */
+            snapshot->model.date = date;
+        }
+    }
+    if (!snapshot)
+        fce_runtime_release(source);
+    log_crowd_api_snapshot("acquire",
+        InterlockedCompareExchange(&g_user_club_id, 0, 0),
+        InterlockedCompareExchange(&g_display_competition_id, 0, 0),
+        snapshot ? &snapshot->model : NULL);
+    return snapshot;
 }
 
 const FceModel *WINAPI Fifa16CareerGetSnapshotModel(const void *snapshot)
 {
-    return fce_runtime_model((const FceLiveSnapshot *)snapshot);
+    const FceModel *model = snapshot
+        ? &((const CrowdApiSnapshot *)snapshot)->model : NULL;
+    log_crowd_api_snapshot("model",
+        InterlockedCompareExchange(&g_user_club_id, 0, 0),
+        InterlockedCompareExchange(&g_display_competition_id, 0, 0), model);
+    return model;
 }
 
 unsigned long WINAPI Fifa16CareerGetSnapshotGeneration(const void *snapshot)
 {
-    return fce_runtime_generation((const FceLiveSnapshot *)snapshot);
+    return snapshot ? fce_runtime_generation(
+        ((const CrowdApiSnapshot *)snapshot)->source) : 0;
 }
 
 void WINAPI Fifa16CareerReleaseSnapshot(void *snapshot)
 {
-    fce_runtime_release((FceLiveSnapshot *)snapshot);
+    CrowdApiSnapshot *copy = (CrowdApiSnapshot *)snapshot;
+    if (!copy) return;
+    fce_runtime_release(copy->source);
+    free(copy);
 }
 
 

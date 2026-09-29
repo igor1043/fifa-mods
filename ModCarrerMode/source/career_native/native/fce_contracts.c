@@ -20,6 +20,48 @@ static int signed16(const uint8_t *p, size_t off) {
     unsigned v = u16(p, off);
     return v < 0x8000 ? (int)v : (int)v - 0x10000;
 }
+static int stage_kind_from_name(const uint8_t *p, size_t size) {
+    size_t pos = 0x1c;
+    if (!p || size <= pos) return FCE_STAGE_UNKNOWN;
+    if (size - pos >= sizeof("FCE_Setup_Stage") - 1 &&
+        memcmp(p + pos, "FCE_Setup_Stage",
+               sizeof("FCE_Setup_Stage") - 1) == 0)
+        return FCE_STAGE_SETUP;
+    if (size - pos >= sizeof("FCE_Group_Stage") - 1 &&
+        memcmp(p + pos, "FCE_Group_Stage",
+               sizeof("FCE_Group_Stage") - 1) == 0)
+        return FCE_STAGE_GROUP;
+    if (size - pos >= sizeof("FCE_Round_1") - 1 &&
+        memcmp(p + pos, "FCE_Round_1", sizeof("FCE_Round_1") - 1) == 0)
+        return FCE_STAGE_ROUND_1;
+    if (size - pos >= sizeof("FCE_Round_2") - 1 &&
+        memcmp(p + pos, "FCE_Round_2", sizeof("FCE_Round_2") - 1) == 0)
+        return FCE_STAGE_ROUND_2;
+    if (size - pos >= sizeof("FCE_Round_of_32") - 1 &&
+        memcmp(p + pos, "FCE_Round_of_32",
+               sizeof("FCE_Round_of_32") - 1) == 0)
+        return FCE_STAGE_ROUND_32;
+    if (size - pos >= sizeof("FCE_Round_of_16") - 1 &&
+        memcmp(p + pos, "FCE_Round_of_16",
+               sizeof("FCE_Round_of_16") - 1) == 0)
+        return FCE_STAGE_ROUND_16;
+    if (size - pos >= sizeof("FCE_Quarter_Finals") - 1 &&
+        memcmp(p + pos, "FCE_Quarter_Finals",
+               sizeof("FCE_Quarter_Finals") - 1) == 0)
+        return FCE_STAGE_QUARTER_FINAL;
+    if (size - pos >= sizeof("FCE_Semi_Finals") - 1 &&
+        memcmp(p + pos, "FCE_Semi_Finals",
+               sizeof("FCE_Semi_Finals") - 1) == 0)
+        return FCE_STAGE_SEMI_FINAL;
+    if (size - pos >= sizeof("FCE_Third_Place") - 1 &&
+        memcmp(p + pos, "FCE_Third_Place",
+               sizeof("FCE_Third_Place") - 1) == 0)
+        return FCE_STAGE_THIRD_PLACE;
+    if (size - pos >= sizeof("FCE_Final") - 1 &&
+        memcmp(p + pos, "FCE_Final", sizeof("FCE_Final") - 1) == 0)
+        return FCE_STAGE_FINAL;
+    return FCE_STAGE_UNKNOWN;
+}
 
 FceResult fce_stats_criteria(FceStatsCriteria *q, int32_t competition,
                             int32_t team, int32_t limit, FceStatSort field) {
@@ -107,6 +149,8 @@ FceResult fce_decode_comp_raw(const void *data, size_t size, FceCompNode *out) {
     if (p[0x0a] != 1) return FCE_UNKNOWN;
     v.id = (int32_t)u16(p, 0x10); v.type = p[0x12];
     v.parent = signed16(p, 0x14); v.asset = -1;
+    v.stage_kind = v.type == 4 ? stage_kind_from_name(p, size) :
+        FCE_STAGE_UNKNOWN;
     if (v.type == 3 && p[0x16] == 'C') {
         for (i = 1; i < 6 && p[0x16 + i]; ++i) {
             if (p[0x16 + i] < '0' || p[0x16 + i] > '9') return FCE_INVALID;

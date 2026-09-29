@@ -315,7 +315,7 @@ static void native_end(void) {
 static void native_context_reset(void) {
     crowd_runtime_disable();
     clear_pending_stats_refresh();
-    g_last_requested_calendar_date=0;
+    InterlockedExchange(&g_last_requested_calendar_date, 0);
     native_end();
     memset(g_assist_rows,0,sizeof(g_assist_rows)); g_assist_count=0;
     memset(g_club_goal_rows,0,sizeof(g_club_goal_rows)); g_club_goal_count=0;
@@ -372,6 +372,35 @@ static int native_logo(int object) {
         return 0;
     return c.asset>0 ? c.asset : 0;
 }
+
+/* Pre-season fixtures can be backed by a temporary competition object which
+ * is not present in the compact FCE competition index.  A resolved root is
+ * still preferred, but the fixture object is a safe local root when the
+ * fixture itself proves that the managed club participates in it. */
+static int native_fixture_root(const FceFixture *fixture) {
+    int root;
+    if(!fixture || fixture->competition_object<=0) return 0;
+    root=fce_model_ancestor(&native_view,fixture->competition_object,3);
+    return root>0?root:fixture->competition_object;
+}
+
+static int native_fixture_stage_matches(const FceFixture *fixture,int stage) {
+    if(!fixture || stage<0) return 0;
+    if(stage==0 || fixture->stage<=0) return 1;
+    return fixture->stage==stage || fixture->competition_object==stage;
+}
+
+static int native_fixture_object_for_club(int object,int club) {
+    size_t i;
+    if(object<=0 || club<=0) return 0;
+    for(i=0;i<native_view.fixture_count;++i) {
+        const FceFixture *fixture=native_view.fixtures+i;
+        if(fixture->competition_object==object &&
+           (fixture->home==club || fixture->away==club)) return 1;
+    }
+    return 0;
+}
+
 static int native_history_league_logo(int league_id) {
     size_t i;
     if(league_id<=0) return 0;
@@ -813,6 +842,8 @@ static void publish_next_match_card(void *provider) {
     publish_visibility_field(provider,"MYTEAM_NEXT_STADIUM_ATTENDANCE",FALSE);
     publish_string_field(provider,"MYTEAM_NEXT_STADIUM_ATTENDANCE_LABEL","");
     publish_string_field(provider,"MYTEAM_NEXT_STADIUM_ATTENDANCE","");
+    publish_visibility_field(provider,"MYTEAM_NEXT_STADIUM_CAPACITY_SEPARATOR",FALSE);
+    publish_string_field(provider,"MYTEAM_NEXT_STADIUM_CAPACITY_SEPARATOR","/");
     publish_visibility_field(provider,"MYTEAM_NEXT_STADIUM_IMAGE",FALSE);
     publish_string_field(provider,"MYTEAM_NEXT_STADIUM_IMAGE","");
     publish_visibility_field(provider,"MYTEAM_NEXT_HOME_CREST",FALSE);
@@ -922,11 +953,14 @@ static void publish_next_match_card(void *provider) {
     if(expected_percent>0 && expected_percent<=100) {
         snprintf(value,sizeof(value),"%d%%",expected_percent);
         publish_string_field(provider,"MYTEAM_NEXT_STADIUM_ATTENDANCE_LABEL",
-            "FIFA_MODS_CM_ESTIMATED_ATTENDANCE");
+            "Público estimado");
         publish_string_field(provider,"MYTEAM_NEXT_STADIUM_ATTENDANCE",value);
         publish_visibility_field(provider,"MYTEAM_NEXT_STADIUM_ATTENDANCE_LABEL",
             TRUE);
         publish_visibility_field(provider,"MYTEAM_NEXT_STADIUM_ATTENDANCE",TRUE);
+        if(fallback_ok && fallback_capacity>0)
+            publish_visibility_field(provider,
+                "MYTEAM_NEXT_STADIUM_CAPACITY_SEPARATOR",TRUE);
     }
     if(native_next_match_stadium(&g_next_match_fixture,competition_id,
         value,sizeof(value),stadium_label,sizeof(stadium_label),
@@ -1468,7 +1502,7 @@ static void native_movement_history(int comp) {
         for(j=0;j<native_view.fixture_count;++j) {
             const FceFixture *f=native_view.fixtures+j;
             if(!f->played_raw || f->date_raw>native_view.date || (f->home!=s->team && f->away!=s->team) ||
-                fce_model_ancestor(&native_view,f->competition_object,3)!=root) continue;
+                native_fixture_root(f)!=root) continue;
             if(!best || f->date_raw>best->date_raw || (f->date_raw==best->date_raw && f->id>best->id)) best=f;
         }
         if(!best) continue;
@@ -1488,8 +1522,7 @@ static int native_competition_has_club(int root,int club) {
     }
     for(i=0;i<native_view.fixture_count;++i) {
         const FceFixture *f=native_view.fixtures+i;
-        if((f->home==club || f->away==club) &&
-           fce_model_ancestor(&native_view,f->competition_object,3)==root)
+        if((f->home==club || f->away==club) && native_fixture_root(f)==root)
             return 1;
     }
     return 0;
@@ -1551,8 +1584,7 @@ static int native_current_stage(int root,int club,int fallback) {
     const FceFixture *next=NULL,*previous=NULL; size_t i;
     for(i=0;i<native_view.fixture_count;++i) {
         const FceFixture *f=native_view.fixtures+i;
-        if((f->home!=club && f->away!=club) ||
-           fce_model_ancestor(&native_view,f->competition_object,3)!=root) continue;
+        if((f->home!=club && f->away!=club) || native_fixture_root(f)!=root) continue;
         if(!f->played_raw && (!fce_date_valid(native_view.date) || f->date_raw>=native_view.date)) {
             if(!next || native_fixture_precedes(f,next)) next=f;
         } else if(f->played_raw && (!fce_date_valid(native_view.date) || f->date_raw<=native_view.date)) {
@@ -1574,8 +1606,7 @@ static int native_competition_is_active_for_club(int root,int club,int current_r
     if(root==current_root && native_competition_has_club(root,club)) return 1;
     for(i=0;i<native_view.fixture_count;++i) {
         const FceFixture *f=native_view.fixtures+i;
-        if((f->home==club || f->away==club) &&
-           fce_model_ancestor(&native_view,f->competition_object,3)==root) return 1;
+        if((f->home==club || f->away==club) && native_fixture_root(f)==root) return 1;
     }
     for(i=0;i<native_view.standing_count;++i) {
         const FceStanding *s=native_view.standings+i; int contains=0;
@@ -1586,11 +1617,21 @@ static int native_competition_is_active_for_club(int root,int club,int current_r
 }
 
 static void native_add_club_competition(int object,int club,int standing_stage) {
-    FceCompetition resolved; size_t i; int displayed_root;
+    FceCompetition resolved; size_t i; int displayed_root,resolved_ok;
     displayed_root=fce_model_ancestor(&native_view,(int)InterlockedCompareExchange(
         &g_active_competition_id,0,0),3);
+    resolved_ok=fce_resolve_competition(native_view.nodes,native_view.node_count,
+        object,&resolved)==FCE_OK;
+    /* A pre-season tour can use a temporary object which is absent from the
+     * compact competition index. Keep it only when this exact object owns a
+     * fixture for the managed club; never invent pages from a random object. */
+    if(!resolved_ok) {
+        if(!native_fixture_object_for_club(object,club)) return;
+        memset(&resolved,0,sizeof(resolved));
+        resolved.competition=object;
+        resolved.asset=native_logo(object);
+    }
     if(g_competition_count>=COMPETITION_TAB_CAPACITY ||
-       fce_resolve_competition(native_view.nodes,native_view.node_count,object,&resolved)!=FCE_OK ||
        resolved.competition<=0 || (!native_competition_has_club(resolved.competition,club) &&
        resolved.competition!=displayed_root)) return;
     for(i=0;i<g_competition_count;++i) {
@@ -1614,8 +1655,40 @@ static void native_add_club_competition(int object,int club,int standing_stage) 
     g_competition_rows[g_competition_count].stage=standing_stage>0?standing_stage:object;
     snprintf(g_competition_rows[g_competition_count].title_key,
         sizeof(g_competition_rows[g_competition_count].title_key),
-        "TrophyName_%d",resolved.asset);
+        "TrophyName_%d",resolved.asset>0?resolved.asset:resolved.competition);
     ++g_competition_count;
+}
+
+/* Add fixture-backed competitions by earliest participation date. Raw FCE
+ * order is grouped by internal service, so using it can fill all five slots
+ * before a pre-season tour is reached. */
+static void native_add_club_fixture_competitions(int club) {
+    const FceFixture *candidates[128]; int roots[128];
+    size_t candidate_count=0,i,j;
+    memset(roots,0,sizeof(roots));
+    for(i=0;i<native_view.fixture_count && candidate_count<sizeof(candidates)/sizeof(candidates[0]);++i) {
+        const FceFixture *fixture=native_view.fixtures+i;
+        int root;
+        if(fixture->home!=club && fixture->away!=club) continue;
+        root=native_fixture_root(fixture);
+        if(root<=0) continue;
+        for(j=0;j<candidate_count && roots[j]!=root;++j) {}
+        if(j==candidate_count) {
+            roots[candidate_count]=root;
+            candidates[candidate_count++]=fixture;
+        } else if(native_fixture_precedes(fixture,candidates[j])) {
+            candidates[j]=fixture;
+        }
+    }
+    for(i=0;i<candidate_count;++i) for(j=i+1;j<candidate_count;++j) {
+        if(native_fixture_precedes(candidates[j],candidates[i])) {
+            const FceFixture *fixture=candidates[i]; int root=roots[i];
+            candidates[i]=candidates[j]; roots[i]=roots[j];
+            candidates[j]=fixture; roots[j]=root;
+        }
+    }
+    for(i=0;i<candidate_count && g_competition_count<COMPETITION_TAB_CAPACITY;++i)
+        native_add_club_competition(candidates[i]->competition_object,club,0);
 }
 
 static int native_tab_row_precedes(const CompetitionTabRow *a,const CompetitionTabRow *b) {
@@ -1654,8 +1727,8 @@ static void native_build_competition_tab(size_t page,int club) {
         for(j=0;j<native_view.fixture_count;++j) {
             const FceFixture *f=native_view.fixtures+j;
             if(!f->played_raw || (fce_date_valid(native_view.date) && f->date_raw>native_view.date) ||
-               f->stage!=summary->stage ||
-               fce_model_ancestor(&native_view,f->competition_object,3)!=root ||
+               !native_fixture_stage_matches(f,summary->stage) ||
+               native_fixture_root(f)!=root ||
                (f->home!=row.team_id && f->away!=row.team_id)) continue;
             if(f->home==row.team_id) { row.goals_for+=f->home_score;row.goals_against+=f->away_score; }
             else { row.goals_for+=f->away_score;row.goals_against+=f->home_score; }
@@ -1679,8 +1752,8 @@ static void native_build_competition_tab(size_t page,int club) {
     for(i=0;i<native_view.fixture_count;++i) {
         const FceFixture *f=native_view.fixtures+i;
         if((f->home!=club && f->away!=club) ||
-           fce_model_ancestor(&native_view,f->competition_object,3)!=root ||
-           f->stage!=summary->stage) continue;
+           native_fixture_root(f)!=root ||
+           !native_fixture_stage_matches(f,summary->stage)) continue;
         if(!f->played_raw && (!next || f->date_raw<next->date_raw ||
            (f->date_raw==next->date_raw && f->time_raw<next->time_raw))) next=f;
         if(f->played_raw && (!previous || f->date_raw>previous->date_raw ||
@@ -1704,7 +1777,7 @@ static void native_build_competition_tab(size_t page,int club) {
         for(i=0;i<native_view.fixture_count;++i) {
             const FceFixture *f=native_view.fixtures+i; size_t k; int stage_contains=0;
             if(!f->played_raw || (f->home!=club && f->away!=club) ||
-               fce_model_ancestor(&native_view,f->competition_object,3)!=root ||
+               native_fixture_root(f)!=root ||
                (fce_date_valid(native_view.date) && f->date_raw>native_view.date)) continue;
             if(native_stage_team_count(f->stage,club,&stage_contains)>=3) continue;
             for(k=0;k<history_count;++k) if(native_fixture_precedes(history[k],f)) break;
@@ -1833,13 +1906,10 @@ static void native_prepare(void *owner) {
     /* The page selected by FIFA is always slot zero, even during the short
      * startup window before its draw/standings rows are materialized. */
     native_add_club_competition(comp,club,0);
-    /* Fixtures are the strongest participation evidence and therefore fill
-     * the dynamic pages before merely allocated standings slots. */
-    for(i=0;i<native_view.fixture_count && g_competition_count<COMPETITION_TAB_CAPACITY;++i) {
-        const FceFixture *fixture=native_view.fixtures+i;
-        if(fixture->home==club || fixture->away==club)
-            native_add_club_competition(fixture->competition_object,club,0);
-    }
+    /* Fixtures are the strongest participation evidence. Use the earliest
+     * fixture of each root so a pre-season tour cannot lose its page merely
+     * because the native service returned competitions in another order. */
+    native_add_club_fixture_competitions(club);
     for(i=0;i<native_view.standing_count && g_competition_count<COMPETITION_TAB_CAPACITY;++i) {
         const FceStanding *st=native_view.standings+i;
         int root=fce_model_ancestor(&native_view,st->competition_object,3);
@@ -1868,7 +1938,7 @@ static void native_form(void *provider,int row,int club) {
     if(comp>=0 && limit) for(i=0;i<native_view.fixture_count;++i) {
         const FceFixture *f=native_view.fixtures+i;
         if(!f->played_raw || (f->home!=club && f->away!=club) ||
-           fce_model_ancestor(&native_view,f->competition_object,3)!=comp ||
+           native_fixture_root(f)!=comp ||
            (fce_date_valid(native_view.date) && f->date_raw>native_view.date)) continue;
         for(j=0;j<count;++j) if(f->date_raw>best[j]->date_raw ||
             (f->date_raw==best[j]->date_raw && f->id>best[j]->id)) break;
@@ -2754,6 +2824,8 @@ static void publish_trophy_room(void *provider) {
     publish_active_competitions(provider);
 }
 
+#include "global_ranking.inc"
+
 static void native_publish(void *provider) {
     char path[MAX_PATH],club_name[128]; FILE *log; size_t i;
     size_t club_stat_rows=0,club_stat_roots=0,club_stat_unmapped=0;
@@ -2770,6 +2842,7 @@ static void native_publish(void *provider) {
     char kit_asset_ids[3][32];
     if(!provider) return;
     native_team_name(native_club,club_name,sizeof(club_name));
+    native_publish_global_ranking(provider);
     native_squad_refresh();
     g_club_overall_count=native_club_overall_leaders(native_club,g_club_overall_rows);
     g_club_oldest_count=native_club_oldest_players(native_club,g_club_oldest_rows);

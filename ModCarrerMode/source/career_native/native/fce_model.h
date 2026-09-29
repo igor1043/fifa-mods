@@ -25,6 +25,7 @@ int fce_format_time(int time, char *out, size_t capacity);
 FceResult fce_model_build(const FceRawTable tables[4], int date, FceModel *out);
 void fce_model_free(FceModel *);
 int fce_model_ancestor(const FceModel *, int object, int type);
+int fce_model_stage_kind(const FceModel *, int stage);
 FceResult fce_model_round(const FceModel *, int competition, int club,
                           int previous, FceFixture *, size_t capacity, size_t *count);
 FceResult fce_model_leaders(const FceModel *, int competition, int club,

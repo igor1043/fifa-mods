@@ -52,13 +52,6 @@ Estas quatro entradas estão habilitadas em
 O `retirement_offline_worker.exe` também faz parte do pacote e está habilitado
 pela configuração `ModCarrerMode/career_retirement_background.ini`.
 
-### Plugin desativado
-
-`easfc_hide_plugin.dll` permanece no pacote apenas para rollback/estudo e não
-é carregado. Ele foi desativado após o crash de acesso inválido registrado no
-processo do FIFA. A versão segura fica em `source/easfc_hide_plugin_safe` e
-continua fora da lista ativa até um teste separado.
-
 ## Diagnóstico nativo do modo carreira
 
 O arquivo `ModCarrerMode/career_native_mode.ini` controla a verbosidade dos

@@ -71,10 +71,6 @@ function Add-RetirementCard {
         FORMAT = 'HS'
         PARAM = $Title
         TRANSLATE = 'TRUE'
-        WIDTH = '378'
-        HEIGHT = '40'
-        X = '20'
-        Y = '32'
     })
     [void](Add-XmlElement -Document $Document -Parent $subtile -Name 'data' -Attributes @{
         ID = 'DESCRIPTION'
@@ -84,8 +80,9 @@ function Add-RetirementCard {
         TRANSLATE = 'TRUE'
         WIDTH = '370'
         HEIGHT = '78'
-        X = '22'
-        Y = '84'
+        X = '18'
+        REL_TARGET = 'TITLE'
+        REL_Y = '-17'
     })
 }
 
