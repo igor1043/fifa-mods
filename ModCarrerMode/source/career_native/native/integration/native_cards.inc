@@ -38,6 +38,8 @@ static RankedPlayer g_club_minutes_rows[5];
 static SIZE_T g_club_minutes_count;
 static FceFixture g_next_match_fixture;
 static int g_next_match_fixture_valid;
+static int g_next_match_date_fallback;
+static int g_next_match_selection_result = FCE_UNKNOWN;
 
 #define NATIVE_STARTING_XI_CAPACITY 11
 typedef struct NativeStartingXI
@@ -321,6 +323,8 @@ static void native_context_reset(void) {
     memset(g_club_goal_rows,0,sizeof(g_club_goal_rows)); g_club_goal_count=0;
     memset(g_club_assist_rows,0,sizeof(g_club_assist_rows)); g_club_assist_count=0;
     memset(g_upcoming_rows,0,sizeof(g_upcoming_rows)); g_upcoming_count=0;
+    g_next_match_date_fallback=0;
+    g_next_match_selection_result=FCE_UNKNOWN;
     memset(g_club_previous_rows,0,sizeof(g_club_previous_rows)); g_club_previous_count=0;
     memset(g_round_previous_rows,0,sizeof(g_round_previous_rows)); g_round_previous_count=0;
     memset(g_round_next_rows,0,sizeof(g_round_next_rows)); g_round_next_count=0;
@@ -842,8 +846,6 @@ static void publish_next_match_card(void *provider) {
     publish_visibility_field(provider,"MYTEAM_NEXT_STADIUM_ATTENDANCE",FALSE);
     publish_string_field(provider,"MYTEAM_NEXT_STADIUM_ATTENDANCE_LABEL","");
     publish_string_field(provider,"MYTEAM_NEXT_STADIUM_ATTENDANCE","");
-    publish_visibility_field(provider,"MYTEAM_NEXT_STADIUM_CAPACITY_SEPARATOR",FALSE);
-    publish_string_field(provider,"MYTEAM_NEXT_STADIUM_CAPACITY_SEPARATOR","/");
     publish_visibility_field(provider,"MYTEAM_NEXT_STADIUM_IMAGE",FALSE);
     publish_string_field(provider,"MYTEAM_NEXT_STADIUM_IMAGE","");
     publish_visibility_field(provider,"MYTEAM_NEXT_HOME_CREST",FALSE);
@@ -958,17 +960,14 @@ static void publish_next_match_card(void *provider) {
         publish_visibility_field(provider,"MYTEAM_NEXT_STADIUM_ATTENDANCE_LABEL",
             TRUE);
         publish_visibility_field(provider,"MYTEAM_NEXT_STADIUM_ATTENDANCE",TRUE);
-        if(fallback_ok && fallback_capacity>0)
-            publish_visibility_field(provider,
-                "MYTEAM_NEXT_STADIUM_CAPACITY_SEPARATOR",TRUE);
     }
     if(native_next_match_stadium(&g_next_match_fixture,competition_id,
         value,sizeof(value),stadium_label,sizeof(stadium_label),
         stadium_detail,sizeof(stadium_detail))) {
         publish_string_field(provider,"MYTEAM_NEXT_STADIUM",value);
         publish_visibility_field(provider,"MYTEAM_NEXT_STADIUM",TRUE);
-        /* Keep the label short; the full stadium name belongs in the value
-         * field and must remain on one line in the compact match card. */
+        /* Keep the label short; the value field reserves enough height for a
+         * long stadium name to wrap without colliding with attendance data. */
         publish_string_field(provider,"MYTEAM_NEXT_STADIUM_LABEL","Stadium_mixedcase");
         if(stadium_detail[0]) {
             publish_string_field(provider,"MYTEAM_NEXT_STATUS_DETAIL",stadium_detail);
@@ -1801,7 +1800,7 @@ static void native_build_competition_tab(size_t page,int club) {
     }
 }
 static void native_prepare(void *owner) {
-    const FceModel *model; unsigned long epoch; int club,comp,date,requested; size_t i,count=0;
+    const FceModel *model; unsigned long epoch; int club,comp,date,requested,selection_date; size_t i,count=0;
     FceFixture fixtures[10];
     native_end();
     requested=(int)g_active_competition_id; comp=requested;
@@ -1835,6 +1834,8 @@ static void native_prepare(void *owner) {
     g_club_yellow_count=g_club_red_count=0;
     g_upcoming_count=g_club_previous_count=g_round_previous_count=g_round_next_count=0;
     g_next_match_fixture_valid=0;
+    g_next_match_date_fallback=0;
+    g_next_match_selection_result=FCE_UNKNOWN;
     memset(&g_next_match_fixture,0,sizeof(g_next_match_fixture));
     g_form_match_count=0; g_competition_count=0;
     g_upcoming_club_id=g_club_previous_club_id=g_round_club_id=g_competition_club_id=club;
@@ -1872,9 +1873,20 @@ static void native_prepare(void *owner) {
     g_club_minutes_count=native_club_career_leaders(club,FCE_CAREER_MINUTES,g_club_minutes_rows);
     g_club_yellow_count=native_club_career_leaders(club,FCE_CAREER_YELLOW_CARDS,g_club_yellow_rows);
     g_club_red_count=native_club_career_leaders(club,FCE_CAREER_RED_CARDS,g_club_red_rows);
-    if(fce_date_valid(native_view.date)) {
-        if(fce_select_club_fixtures(native_view.fixtures,native_view.fixture_count,club,native_view.date,
-              FCE_UNPLAYED,fixtures,10,&count)==FCE_OK) {
+    g_next_match_selection_result=FCE_OK;
+    if(native_view.fixture_count>0) {
+        selection_date=native_view.date;
+        if(!fce_date_valid(selection_date)) {
+            /* Pre-season can publish its fixtures before CalendarManager's
+             * current date is ready. The snapshot itself is already scoped
+             * to this career, so choose its earliest unplayed club fixture. */
+            selection_date=0;
+            g_next_match_date_fallback=1;
+        }
+        g_next_match_selection_result=fce_select_club_fixtures(
+            native_view.fixtures,native_view.fixture_count,club,selection_date,
+            FCE_UNPLAYED,fixtures,10,&count);
+        if(g_next_match_selection_result==FCE_OK) {
             g_upcoming_count=count;
             if(count>0) {
                 g_next_match_fixture=fixtures[0];
@@ -1882,6 +1894,8 @@ static void native_prepare(void *owner) {
             }
             for(i=0;i<count;++i) native_fixture(fixtures+i,g_upcoming_rows+i);
         }
+    }
+    if(fce_date_valid(native_view.date)) {
         if(fce_select_club_fixtures(native_view.fixtures,native_view.fixture_count,club,native_view.date,
               FCE_PLAYED,fixtures,10,&count)==FCE_OK) {
             g_club_previous_count=count;
@@ -3029,6 +3043,16 @@ static void native_publish(void *provider) {
         (unsigned long long)g_club_assist_count,(unsigned long long)g_club_yellow_count,
         (unsigned long long)g_club_red_count);
     fprintf(log,"competition_tabs=%llu\n",(unsigned long long)g_competition_count);
+    fprintf(log,"next_match_probe result=%d club=%d date=%d date_source=%s date_fallback=%d fixtures=%llu unresolved=%llu selected=%llu valid=%d fixture_id=%d competition_object=%d stage=%d fixture_date=%d time=%d home=%d away=%d played=%d\n",
+        g_next_match_selection_result,native_club,native_view.date,
+        native_date_source?"CalendarManager.today":"SimManager.current",
+        g_next_match_date_fallback,(unsigned long long)native_view.fixture_count,
+        (unsigned long long)native_view.unresolved_fixtures,
+        (unsigned long long)g_upcoming_count,g_next_match_fixture_valid,
+        g_next_match_fixture.id,g_next_match_fixture.competition_object,
+        g_next_match_fixture.stage,g_next_match_fixture.date_raw,
+        g_next_match_fixture.time_raw,g_next_match_fixture.home,
+        g_next_match_fixture.away,g_next_match_fixture.played_raw);
     for(i=0;i<g_competition_count;++i) fprintf(log,
         "competition_tab[%llu] root=%d stage=%d asset=%d rows=%llu kind=%s\n",
         (unsigned long long)i,g_competition_rows[i].competition_id,g_competition_rows[i].stage,
