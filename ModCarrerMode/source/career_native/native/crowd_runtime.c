@@ -2,6 +2,7 @@
 #include <windows.h>
 #include <stdint.h>
 #include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
 #include "crowd_runtime.h"
 #include "retirement_engine.h"
@@ -14,6 +15,7 @@
 #define CROWD_LEAGUE_LINK_CAPACITY 2048
 #define CROWD_LEAGUE_DEFINITION_CAPACITY 512
 #define CROWD_RIVAL_CAPACITY 4096
+#define CROWD_CONFIG_FILE_CAPACITY 16384
 
 /* The schema places this hash immediately before the known default value.
  * The full serialized record is useful as evidence, but FIFA can retain a
@@ -68,6 +70,7 @@ typedef struct CrowdRival
 static CrowdTarget g_targets[CROWD_TARGET_CAPACITY];
 static SIZE_T g_target_count;
 static SRWLOCK g_target_lock = SRWLOCK_INIT;
+static SRWLOCK g_crowd_config_lock = SRWLOCK_INIT;
 static volatile LONG g_enabled;
 static volatile LONG g_factor_bits;
 static volatile LONG g_started;
@@ -167,6 +170,211 @@ static FILE *open_log(void)
         return NULL;
     snprintf(path, sizeof(path), "%s\\crowd_attendance_runtime.log", g_log_dir);
     return fopen(path, "ab");
+}
+
+static int crowd_config_int_from_section(const char *section,
+    const char *key, int fallback)
+{
+    char path[MAX_PATH];
+    char value[64];
+    DWORD length;
+    if (!section || !key || !g_log_dir[0])
+        return fallback;
+    snprintf(path, sizeof(path), "%s\\crowd.ini", g_log_dir);
+    length = GetPrivateProfileStringA(section, key, "", value,
+        (DWORD)sizeof(value), path);
+    return length ? atoi(value) : fallback;
+}
+
+static int crowd_config_int(const char *key, int fallback)
+{
+    return crowd_config_int_from_section("crowd", key, fallback);
+}
+
+static void crowd_dynamic_limits(int *minimum, int *maximum)
+{
+    int low = crowd_config_int_from_section(
+        "crowd_weights", "minimum_dynamic_percent", 9);
+    int high = crowd_config_int_from_section(
+        "crowd_weights", "maximum_dynamic_percent", 90);
+    if (low < 0 || low > 90)
+        low = 9;
+    if (high < 0 || high > 90 || high < low)
+        high = 90;
+    if (minimum)
+        *minimum = low;
+    if (maximum)
+        *maximum = high;
+}
+
+static float clamp_dynamic_factor(float value)
+{
+    int minimum, maximum;
+    float low, high;
+    crowd_dynamic_limits(&minimum, &maximum);
+    low = (float)minimum / 100.0f;
+    high = (float)maximum / 100.0f;
+    if (value < low)
+        return low;
+    if (value > high)
+        return high;
+    return value;
+}
+
+/* The crowd plugin's static path is the proven live writer: changing this
+ * integer while FIFA is running makes its validated AttribDB writer apply
+ * the value.  The career controller publishes the exact rounded factor from
+ * the card calculation here whenever that calculation has a real next
+ * fixture.  Replace only the digits so comments and all other weights stay
+ * byte-for-byte intact. */
+static int publish_static_factor_percent(int percent)
+{
+    char path[MAX_PATH];
+    char temporary[MAX_PATH];
+    char output[CROWD_CONFIG_FILE_CAPACITY];
+    unsigned char input[CROWD_CONFIG_FILE_CAPACITY];
+    HANDLE file = INVALID_HANDLE_VALUE;
+    HANDLE temp_file = INVALID_HANDLE_VALUE;
+    LARGE_INTEGER file_size;
+    DWORD bytes_read = 0;
+    DWORD bytes_written = 0;
+    SIZE_T line_start = 0;
+    SIZE_T value_start = 0;
+    SIZE_T value_end = 0;
+    SIZE_T input_size;
+    SIZE_T output_size;
+    char number[16];
+    BOOL in_crowd_section = FALSE;
+    int result = -1;
+
+    if (percent < 0 || percent > 90 || !g_log_dir[0])
+        return -1;
+    snprintf(path, sizeof(path), "%s\\crowd.ini", g_log_dir);
+    if (snprintf(temporary, sizeof(temporary), "%s.runtime.tmp", path)
+            >= (int)sizeof(temporary))
+        return -1;
+
+    file = CreateFileA(path, GENERIC_READ,
+        FILE_SHARE_READ | FILE_SHARE_WRITE | FILE_SHARE_DELETE,
+        NULL, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL);
+    if (file == INVALID_HANDLE_VALUE)
+        goto cleanup;
+    if (!GetFileSizeEx(file, &file_size) || file_size.QuadPart < 0
+        || file_size.QuadPart >= (LONGLONG)sizeof(input))
+        goto cleanup;
+    input_size = (SIZE_T)file_size.QuadPart;
+    if (!ReadFile(file, input, (DWORD)input_size, &bytes_read, NULL)
+        || bytes_read != (DWORD)input_size)
+        goto cleanup;
+    CloseHandle(file);
+    file = INVALID_HANDLE_VALUE;
+
+    while (line_start < input_size) {
+        SIZE_T line_end = line_start;
+        SIZE_T first = line_start;
+        while (line_end < input_size && input[line_end] != '\n')
+            ++line_end;
+        while (first < line_end
+            && (input[first] == ' ' || input[first] == '\t'
+                || input[first] == '\r'))
+            ++first;
+        if (first < line_end && input[first] == '[') {
+            static const char section[] = "[crowd]";
+            SIZE_T content_end = line_end;
+            while (content_end > first &&
+                (input[content_end - 1U] == ' ' || input[content_end - 1U] == '\t'
+                    || input[content_end - 1U] == '\r'))
+                --content_end;
+            in_crowd_section = content_end - first == sizeof(section) - 1U
+                && memcmp(input + first, section, sizeof(section) - 1U) == 0;
+        } else if (in_crowd_section) {
+            static const char key_prefix[] = "static_factor_percent";
+            SIZE_T key_end = first + sizeof(key_prefix) - 1U;
+            SIZE_T value_limit = line_end;
+            while (value_limit > first
+                && (input[value_limit - 1U] == ' ' || input[value_limit - 1U] == '\t'
+                    || input[value_limit - 1U] == '\r'))
+                --value_limit;
+            if (key_end < value_limit
+                && memcmp(input + first, key_prefix,
+                    sizeof(key_prefix) - 1U) == 0
+                && input[key_end] == '=') {
+                char current[32];
+                SIZE_T current_length;
+                value_start = key_end + 1U;
+                while (value_start < value_limit
+                    && (input[value_start] == ' ' || input[value_start] == '\t'))
+                    ++value_start;
+                value_end = value_start;
+                while (value_end < value_limit && input[value_end] != ';'
+                    && input[value_end] != ' ' && input[value_end] != '\t')
+                    ++value_end;
+                current_length = value_end - value_start;
+                if (current_length >= sizeof(current))
+                    goto cleanup;
+                memcpy(current, input + value_start, current_length);
+                current[current_length] = '\0';
+                if (atoi(current) == percent) {
+                    result = 0;
+                    goto cleanup;
+                }
+                break;
+            }
+        }
+        line_start = line_end < input_size ? line_end + 1U : input_size;
+    }
+    if (value_start == 0 || value_end < value_start)
+        goto cleanup;
+
+    snprintf(number, sizeof(number), "%d", percent);
+    output_size = value_start + strlen(number) + input_size - value_end;
+    if (output_size >= sizeof(output))
+        goto cleanup;
+    memcpy(output, input, value_start);
+    memcpy(output + value_start, number, strlen(number));
+    memcpy(output + value_start + strlen(number), input + value_end,
+        input_size - value_end);
+
+    temp_file = CreateFileA(temporary, GENERIC_WRITE, 0, NULL, CREATE_ALWAYS,
+        FILE_ATTRIBUTE_NORMAL, NULL);
+    if (temp_file == INVALID_HANDLE_VALUE)
+        goto cleanup;
+    if (!WriteFile(temp_file, output, (DWORD)output_size,
+            &bytes_written, NULL)
+        || bytes_written != (DWORD)output_size
+        || !FlushFileBuffers(temp_file))
+        goto cleanup;
+    CloseHandle(temp_file);
+    temp_file = INVALID_HANDLE_VALUE;
+    if (!MoveFileExA(temporary, path,
+            MOVEFILE_REPLACE_EXISTING | MOVEFILE_WRITE_THROUGH))
+        goto cleanup;
+    result = 1;
+
+cleanup:
+    if (file != INVALID_HANDLE_VALUE)
+        CloseHandle(file);
+    if (temp_file != INVALID_HANDLE_VALUE)
+        CloseHandle(temp_file);
+    if (result < 0)
+        DeleteFileA(temporary);
+    return result;
+}
+
+static void log_factor_bridge(const CrowdDecision *decision, int percent,
+    int publish_result)
+{
+    FILE *log = open_log();
+    if (!log || !decision)
+        return;
+    fprintf(log,
+        "dynamic_factor_bridge club=%d competition=%d opponent=%d date=%d round=%d factor=%.3f percent=%d result=%s\n",
+        decision->club_id, decision->competition_id,
+        decision->next_opponent, decision->next_date,
+        decision->next_round, decision->factor, percent,
+        publish_result > 0 ? "updated" :
+            (publish_result == 0 ? "unchanged" : "failed"));
+    fclose(log);
 }
 
 static uint16_t database_u16(const unsigned char *address)
@@ -842,12 +1050,36 @@ void crowd_runtime_set_decision(const CrowdDecision *decision)
 {
     CrowdDecision copy;
     int feedback_changed;
+    int automatic_controller;
+    int static_percent;
     if (!decision || !decision->enabled) {
         crowd_runtime_disable();
         return;
     }
     copy = *decision;
-    copy.factor = clamp_factor(copy.factor);
+    automatic_controller = crowd_config_int(
+        "automatic_dynamic_controller", 1) != 0;
+    static_percent = crowd_config_int("static_factor_percent", -1);
+    if (automatic_controller) {
+        int percent, minimum, maximum;
+        int publish_result = 0;
+        crowd_dynamic_limits(&minimum, &maximum);
+        copy.factor = clamp_dynamic_factor(copy.factor);
+        percent = (int)(copy.factor * 100.0f + 0.5f);
+        if (percent < minimum) percent = minimum;
+        if (percent > maximum) percent = maximum;
+        if (copy.next_opponent > 0 && copy.next_date > 0) {
+            AcquireSRWLockExclusive(&g_crowd_config_lock);
+            publish_result = publish_static_factor_percent(percent);
+            ReleaseSRWLockExclusive(&g_crowd_config_lock);
+            log_factor_bridge(&copy, percent, publish_result);
+        }
+    } else if (static_percent >= 0 && static_percent <= 90) {
+        /* Keep the preview card consistent with an explicit static test. */
+        copy.factor = (float)static_percent / 100.0f;
+    } else {
+        copy.factor = clamp_factor(copy.factor);
+    }
     feedback_changed = !InterlockedCompareExchange(&g_last_feedback_valid, 0, 0)
         || g_last_feedback_club != copy.club_id
         || g_last_feedback_opponent != copy.next_opponent
@@ -887,7 +1119,12 @@ int crowd_runtime_attendance_percent(void)
     int percent;
     if (InterlockedCompareExchange(&g_enabled, 0, 0) == 0)
         return -1;
-    factor = clamp_factor(bits_float(InterlockedCompareExchange(
+    if (!crowd_config_int("automatic_dynamic_controller", 1)) {
+        int static_percent = crowd_config_int("static_factor_percent", -1);
+        if (static_percent >= 0 && static_percent <= 90)
+            return static_percent;
+    }
+    factor = clamp_dynamic_factor(bits_float(InterlockedCompareExchange(
         &g_factor_bits, float_bits(CROWD_DEFAULT_FACTOR), 0)));
     percent = (int)(factor * 100.0f + 0.5f);
     if (percent < 1 || percent > 100)

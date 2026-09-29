@@ -40,7 +40,7 @@ static ReadyFn original_ready;
 static FceRuntimeReadyCallback ready_callback;
 
 static int parse_log_mode(const char *dir) {
-    char path[MAX_PATH], text[128];
+    char path[MAX_PATH], text[512];
     FILE *file;
     size_t count, i;
     if(!dir || !dir[0]) return FCE_RUNTIME_LOG_PRODUCTION;

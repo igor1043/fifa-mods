@@ -44,6 +44,14 @@ int fce_model_ancestor(const FceModel *m,int id,int type) {
     }
     return -1;
 }
+int fce_model_stage_kind(const FceModel *m, int stage) {
+    FceCompNode key;
+    const FceCompNode *node;
+    if (!m || stage < 0) return FCE_STAGE_UNKNOWN;
+    key.id = stage;
+    node = bsearch(&key, m->nodes, m->node_count, sizeof(key), node_cmp);
+    return node && node->type == 4 ? node->stage_kind : FCE_STAGE_UNKNOWN;
+}
 void fce_model_free(FceModel *m) {
     if(!m) return;
     free(m->nodes); free(m->standings); free(m->stats); free(m->fixtures);
@@ -54,7 +62,8 @@ static int table_ok(const FceRawTable *t,size_t min) {
         (!t->count || t->bytes);
 }
 FceResult fce_model_build(const FceRawTable t[4],int date,FceModel *m) {
-    size_t i; int *standing_by_id=NULL; FceResult result=FCE_INVALID;
+    size_t i; int *standing_by_id=NULL,*standing_any_by_id=NULL;
+    FceResult result=FCE_INVALID;
     if(!m) return FCE_INVALID;
     memset(m,0,sizeof(*m)); m->date=fce_date_valid(date) ? date : -1;
     if(!t || !table_ok(t,0x1c) || !table_ok(t+1,0x24) ||
@@ -70,8 +79,20 @@ FceResult fce_model_build(const FceRawTable t[4],int date,FceModel *m) {
      * physical slot number.  IDs happen to equal slots in several leagues,
      * which hid this bug until careers with sparse/reused IDs were loaded. */
     standing_by_id=malloc(65536*sizeof(*standing_by_id));
-    if(!standing_by_id) { result=FCE_NO_MEMORY; goto fail; }
+    standing_any_by_id=malloc(65536*sizeof(*standing_any_by_id));
+    if(!standing_by_id || !standing_any_by_id) { result=FCE_NO_MEMORY; goto fail; }
     memset(standing_by_id,0xff,65536*sizeof(*standing_by_id));
+    memset(standing_any_by_id,0xff,65536*sizeof(*standing_any_by_id));
+    /* Friendly/pre-season draws can reference a valid team row whose
+     * standing slot is not marked active. Keep a separate ID map for those
+     * rows; the public standings array remains filtered to active entries. */
+    for(i=0;i<t[1].count;++i) {
+        const uint8_t *p=t[1].bytes+i*t[1].stride;
+        unsigned id=(unsigned)r16(p,8); int team=r32(p,0x14);
+        if(team<0) continue;
+        if(standing_any_by_id[id]==-1) standing_any_by_id[id]=(int)i;
+        else standing_any_by_id[id]=-2;
+    }
     for(i=0;i<t[0].count;++i) {
         FceResult r=fce_decode_comp_raw(t[0].bytes+i*t[0].stride,t[0].stride,m->nodes+m->node_count);
         if(r==FCE_OK) ++m->node_count; else if(r!=FCE_UNKNOWN) goto fail;
@@ -106,13 +127,14 @@ FceResult fce_model_build(const FceRawTable t[4],int date,FceModel *m) {
         hi=rs16(p,0x1a); ai=rs16(p,0x1e);
         hslot=hi>=0?standing_by_id[hi]:-1;
         aslot=ai>=0?standing_by_id[ai]:-1;
+        if(hslot<0 && hi>=0) hslot=standing_any_by_id[hi];
+        if(aslot<0 && ai>=0) aslot=standing_any_by_id[ai];
         if(hi<0 || ai<0 || hslot<0 || aslot<0 ||
            (size_t)hslot>=t[1].count || (size_t)aslot>=t[1].count) {
             ++m->unresolved_fixtures; continue; /* draw has not resolved a team */
         }
         h=t[1].bytes+(size_t)hslot*t[1].stride;
         a=t[1].bytes+(size_t)aslot*t[1].stride;
-        if(h[10]!=1 || a[10]!=1) { ++m->unresolved_fixtures; continue; }
         f->id=(int)i; f->competition_object=r16(p,0x10); f->round=p[0x12];
         f->stage=fce_model_ancestor(m,f->competition_object,4);
         /* Real league fixtures also point directly to a type-3 competition,
@@ -128,9 +150,10 @@ FceResult fce_model_build(const FceRawTable t[4],int date,FceModel *m) {
         }
         ++m->fixture_count;
     }
-    free(standing_by_id); return FCE_OK;
+    free(standing_by_id); free(standing_any_by_id); return FCE_OK;
 fail:
     free(standing_by_id);
+    free(standing_any_by_id);
     fce_model_free(m); return result;
 }
 FceResult fce_model_leaders(const FceModel *m,int comp,int club,FceStatSort field,

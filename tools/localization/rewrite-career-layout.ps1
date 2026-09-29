@@ -102,15 +102,22 @@ if (-not $capacityLabel) {
 }
 $capacityLabel.PARAM = 'Capacity'
 $capacityLabel.TRANSLATE = 'TRUE'
-$capacityLabel.WIDTH = '320'
+$capacityLabel.FORMAT = 'SS||left'
+$capacityLabel.X = '292'
+$capacityLabel.Y = '520'
+$capacityLabel.WIDTH = '160'
+$capacityLabel.HEIGHT = '18'
+$capacityLabel.VISIBLE = 'FALSE'
 
 $capacityValue = $xml.SelectSingleNode('//data[@ID="MYTEAM_NEXT_STADIUM_CAPACITY"]')
 if (-not $capacityValue) {
     throw 'Missing next-match capacity value'
 }
-$capacityValue.X = '292'
-$capacityValue.Y = '552'
+$capacityValue.X = '460'
+$capacityValue.Y = '520'
 $capacityValue.FORMAT = 'SM||left'
+$capacityValue.WIDTH = '150'
+$capacityValue.HEIGHT = '24'
 
 $attendanceLabel = $xml.SelectSingleNode('//data[@ID="MYTEAM_NEXT_STADIUM_ATTENDANCE_LABEL"]')
 if (-not $attendanceLabel) {
@@ -120,12 +127,12 @@ if (-not $attendanceLabel) {
     [void]$capacityValue.ParentNode.InsertAfter($attendanceLabel, $capacityValue)
 }
 $attendanceLabel.SetAttribute('FORMAT', 'SS||left')
-$attendanceLabel.SetAttribute('TRANSLATE', 'TRUE')
+$attendanceLabel.SetAttribute('TRANSLATE', 'FALSE')
 $attendanceLabel.SetAttribute('HEIGHT', '18')
-$attendanceLabel.SetAttribute('PARAM', 'FIFA_MODS_CM_ESTIMATED_ATTENDANCE')
-$attendanceLabel.SetAttribute('WIDTH', '320')
+$attendanceLabel.SetAttribute('PARAM', 'Público estimado')
+$attendanceLabel.SetAttribute('WIDTH', '180')
 $attendanceLabel.SetAttribute('VISIBLE', 'FALSE')
-$attendanceLabel.SetAttribute('Y', '580')
+$attendanceLabel.SetAttribute('Y', '556')
 $attendanceLabel.SetAttribute('X', '292')
 
 $attendanceValue = $xml.SelectSingleNode('//data[@ID="MYTEAM_NEXT_STADIUM_ATTENDANCE"]')
@@ -138,10 +145,111 @@ if (-not $attendanceValue) {
 $attendanceValue.SetAttribute('FORMAT', 'SM||left')
 $attendanceValue.SetAttribute('TRANSLATE', 'FALSE')
 $attendanceValue.SetAttribute('HEIGHT', '24')
-$attendanceValue.SetAttribute('WIDTH', '220')
+$attendanceValue.SetAttribute('WIDTH', '60')
 $attendanceValue.SetAttribute('VISIBLE', 'FALSE')
-$attendanceValue.SetAttribute('Y', '602')
-$attendanceValue.SetAttribute('X', '292')
+$attendanceValue.SetAttribute('Y', '556')
+$attendanceValue.SetAttribute('X', '480')
+
+foreach ($separator in @($xml.SelectNodes('//data[@ID="MYTEAM_NEXT_STADIUM_CAPACITY_SEPARATOR"]'))) {
+    [void]$separator.ParentNode.RemoveChild($separator)
+}
+
+$nextMatchTile = $xml.SelectSingleNode("//tile[tileid[@NAME='NEXT_MATCH_CENTRAL']]")
+if (-not $nextMatchTile) {
+    throw 'Missing NEXT_MATCH_CENTRAL tile'
+}
+
+$subtileCount = $nextMatchTile.SelectSingleNode('./number_of_subtiles')
+if (-not $subtileCount) {
+    throw 'Missing next-match subtile count'
+}
+$subtileCount.LENGTH = '1'
+
+$rankingSubtile = $nextMatchTile.SelectSingleNode("./subtile1[@ID='728']")
+if ($rankingSubtile) {
+    $rankingSubtile.RemoveAll()
+} else {
+    $rankingSubtile = $xml.CreateElement('subtile1')
+    [void]$nextMatchTile.AppendChild($rankingSubtile)
+}
+$rankingSubtile.SetAttribute('ID', '728')
+$rankingSubtile.SetAttribute('DESTINATION', 'SquadRanking')
+$rankingSubtile.SetAttribute('FG_PATH', '')
+$rankingSubtile.SetAttribute('SUBTILE_TYPE', 'TILE')
+$rankingSubtile.SetAttribute('DATAPROVIDERID', 'CM_STATISTICS_DP')
+$rankingSubtile.SetAttribute('NEEDS_PUBLISH', '1')
+
+function Add-RankingCardData {
+    param(
+        [System.Xml.XmlElement]$Parent,
+        [hashtable]$Attributes
+    )
+    $node = $xml.CreateElement('data')
+    foreach ($key in $Attributes.Keys) {
+        $node.SetAttribute($key, [string]$Attributes[$key])
+    }
+    [void]$Parent.AppendChild($node)
+}
+
+Add-RankingCardData $rankingSubtile @{
+    ID = 'CLUB_RANK_CARD_BG'; TYPE = 'panel'; PARAM = 'STYLE_SEVEN'
+    WIDTH = '846'; HEIGHT = '632'; X = '0'; Y = '0'
+}
+Add-RankingCardData $rankingSubtile @{
+    ID = 'CLUB_RANK_CARD_TITLE'; TYPE = 'text'; FORMAT = 'HS'
+    PARAM = 'Ranking Mundial'; TRANSLATE = 'FALSE'; WIDTH = '786'
+    HEIGHT = '34'; X = '26'; Y = '14'
+}
+Add-RankingCardData $rankingSubtile @{
+    ID = 'CLUB_RANK_CARD_SUBTITLE'; TYPE = 'text'; FORMAT = 'SS||left'
+    PARAM = 'Top 5 + posição do meu time'; TRANSLATE = 'FALSE'
+    WIDTH = '786'; HEIGHT = '22'; X = '26'; Y = '56'
+}
+Add-RankingCardData $rankingSubtile @{
+    ID = 'CLUB_RANK_CARD_RANK_HEADER'; TYPE = 'text'; FORMAT = 'SS||center'
+    PARAM = '#'; TRANSLATE = 'FALSE'; WIDTH = '60'; HEIGHT = '18'
+    X = '42'; Y = '94'
+}
+Add-RankingCardData $rankingSubtile @{
+    ID = 'CLUB_RANK_CARD_CLUB_HEADER'; TYPE = 'text'; FORMAT = 'SS||left'
+    PARAM = 'Clube'; TRANSLATE = 'FALSE'; WIDTH = '480'; HEIGHT = '18'
+    X = '180'; Y = '94'
+}
+Add-RankingCardData $rankingSubtile @{
+    ID = 'CLUB_RANK_CARD_SCORE_HEADER'; TYPE = 'text'; FORMAT = 'SS||right'
+    PARAM = 'Pontuação'; TRANSLATE = 'FALSE'; WIDTH = '120'; HEIGHT = '18'
+    X = '670'; Y = '94'
+}
+
+for ($row = 0; $row -lt 6; $row++) {
+    $y = 122 + ($row * 72)
+    $alpha = if (($row % 2) -eq 0) { '60' } else { '0' }
+    Add-RankingCardData $rankingSubtile @{
+        ID = "CLUB_RANK_PREVIEW_ROW$row"; TYPE = 'panel'; PARAM = 'STYLE_ELEVEN'
+        WIDTH = '786'; HEIGHT = '60'; X = '30'; Y = [string]$y
+        VISIBLE = 'FALSE'; UHLALPHA = $alpha; HLALPHA = $alpha
+    }
+    Add-RankingCardData $rankingSubtile @{
+        ID = "CLUB_RANK_PREVIEW_RANK$row"; TYPE = 'text'; FORMAT = 'SM||center'
+        WIDTH = '60'; HEIGHT = '34'; X = '42'; Y = [string]($y + 13)
+        VISIBLE = 'FALSE'
+    }
+    Add-RankingCardData $rankingSubtile @{
+        ID = "CLUB_RANK_PREVIEW_LOGO$row"; TYPE = 'asset'; PATH = 'crest'
+        WIDTH = '42'; HEIGHT = '42'; X = '112'; Y = [string]($y + 9)
+        VISIBLE = 'FALSE'
+    }
+    Add-RankingCardData $rankingSubtile @{
+        ID = "CLUB_RANK_PREVIEW_NAME$row"; TYPE = 'text'; FORMAT = 'SM||left'
+        WIDTH = '470'; HEIGHT = '34'; X = '180'; Y = [string]($y + 13)
+        VISIBLE = 'FALSE'
+    }
+    Add-RankingCardData $rankingSubtile @{
+        ID = "CLUB_RANK_PREVIEW_SCORE$row"; TYPE = 'text'; FORMAT = 'SM||right'
+        WIDTH = '120'; HEIGHT = '34'; X = '670'; Y = [string]($y + 13)
+        VISIBLE = 'FALSE'
+    }
+}
 
 
 $emptyStatCards = @(
@@ -172,73 +280,6 @@ foreach ($card in $emptyStatCards) {
     $empty.SetAttribute('Y', '166')
     $empty.SetAttribute('X', '18')
     [void]$background.ParentNode.InsertAfter($empty, $background)
-}
-
-$knockoutLayout = [ordered]@{
-    'KO_STAGE' = @{ Y = '151'; HEIGHT = '24' }
-    'KO_RECT1' = @{ Y = '216' }
-    'KO_RECT2' = @{ Y = '298' }
-    'KO_LOGO0' = @{ Y = '228' }
-    'KO_TEAM0' = @{ Y = '234' }
-    'KO_LOGO1' = @{ Y = '310' }
-    'KO_TEAM1' = @{ Y = '316' }
-    'CM_KO_LEG_LABEL' = @{ X = '18'; Y = '431'; WIDTH = '100'; TRANSLATE = 'FALSE' }
-    'CM_KO_LEG_HOME' = @{ X = '126'; Y = '431'; WIDTH = '210' }
-    'CM_KO_LEG_DIVIDER' = @{ X = '342'; Y = '431'; WIDTH = '30' }
-    'CM_KO_LEG_SCORE' = @{ X = '374'; Y = '431'; WIDTH = '90' }
-    'CM_KO_LEG_AWAY' = @{ X = '474'; Y = '431'; WIDTH = '330' }
-}
-
-foreach ($entry in $knockoutLayout.GetEnumerator()) {
-    $field = $xml.SelectSingleNode("//data[@ID='$($entry.Key)']")
-    if (-not $field) {
-        throw "Missing knockout layout field: $($entry.Key)"
-    }
-    foreach ($attribute in $entry.Value.GetEnumerator()) {
-        $field.SetAttribute($attribute.Key, [string]$attribute.Value)
-    }
-}
-
-$knockoutAnchor = $xml.SelectSingleNode('//data[@ID="KO_STAGE"]')
-if (-not $knockoutAnchor) {
-    throw 'Missing knockout stage field'
-}
-
-$knockoutContextFields = @(
-    [pscustomobject]@{
-        ID = 'CM_KO_CURRENT_LABEL'
-        Attributes = [ordered]@{
-            TYPE = 'text'; FORMAT = 'SS||left'; TRANSLATE = 'FALSE'; HEIGHT = '24'
-            WIDTH = '800'; VISIBLE = 'FALSE'; Y = '181'; X = '18'
-        }
-    },
-    [pscustomobject]@{
-        ID = 'CM_KO_PREVIOUS_DIVIDER'
-        Attributes = [ordered]@{
-            TYPE = 'rectangle'; PARAM = '0x8EA6AD'; HEIGHT = '2'; WIDTH = '810'
-            VISIBLE = 'FALSE'; Y = '385'; X = '18'
-        }
-    },
-    [pscustomobject]@{
-        ID = 'CM_KO_PREVIOUS_LABEL'
-        Attributes = [ordered]@{
-            TYPE = 'text'; FORMAT = 'SS||left'; TRANSLATE = 'FALSE'; HEIGHT = '24'
-            WIDTH = '800'; VISIBLE = 'FALSE'; Y = '403'; X = '18'
-        }
-    }
-)
-
-foreach ($definition in $knockoutContextFields) {
-    $field = $xml.SelectSingleNode("//data[@ID='$($definition.ID)']")
-    if (-not $field) {
-        $field = $xml.CreateElement('data')
-        $field.SetAttribute('ID', $definition.ID)
-        [void]$knockoutAnchor.ParentNode.InsertAfter($field, $knockoutAnchor)
-    }
-    foreach ($attribute in $definition.Attributes.GetEnumerator()) {
-        $field.SetAttribute($attribute.Key, [string]$attribute.Value)
-    }
-    $knockoutAnchor = $field
 }
 
 $settings = New-Object System.Xml.XmlWriterSettings

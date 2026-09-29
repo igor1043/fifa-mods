@@ -15,6 +15,19 @@ typedef enum {
 } FceResult;
 typedef enum { FCE_PLAYED = 0, FCE_UNPLAYED = 1, FCE_ANY = 2 } FceFixtureFilter;
 typedef enum { FCE_SORT_GOALS = 2, FCE_SORT_ASSISTS = 4 } FceStatSort;
+typedef enum {
+    FCE_STAGE_UNKNOWN = 0,
+    FCE_STAGE_SETUP = 1,
+    FCE_STAGE_GROUP = 2,
+    FCE_STAGE_ROUND_1 = 3,
+    FCE_STAGE_ROUND_2 = 4,
+    FCE_STAGE_ROUND_32 = 5,
+    FCE_STAGE_ROUND_16 = 6,
+    FCE_STAGE_QUARTER_FINAL = 7,
+    FCE_STAGE_SEMI_FINAL = 8,
+    FCE_STAGE_THIRD_PLACE = 9,
+    FCE_STAGE_FINAL = 10
+} FceStageKind;
 
 /* Payload only, NOT a request object. Native requests also need their own
  * vtable, lifetime, allocator, correlation token and scheduling flags. */
@@ -39,7 +52,7 @@ typedef struct {
     int32_t round;
 } FceFixture;
 typedef struct {
-    int32_t id, parent, type, asset;
+    int32_t id, parent, type, asset, stage_kind;
 } FceCompNode;
 typedef struct { int32_t competition, asset; } FceCompetition;
 typedef struct {
