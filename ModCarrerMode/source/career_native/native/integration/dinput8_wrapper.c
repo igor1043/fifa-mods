@@ -49,6 +49,7 @@ typedef HRESULT(WINAPI *DllGetClassObjectFn)(
 typedef HRESULT(WINAPI *DllRegisterServerFn)(void);
 typedef HRESULT(WINAPI *DllUnregisterServerFn)(void);
 typedef LPCDIDATAFORMAT(WINAPI *GetdfDIJoystickFn)(void);
+typedef BOOL(WINAPI *Fifa16ModHostStartFn)(void);
 typedef HANDLE(WINAPI *CreateFileAFn)(
     LPCSTR,
     DWORD,
@@ -4316,6 +4317,46 @@ LPCDIDATAFORMAT WINAPI proxy_GetdfDIJoystick(void)
     return g_getdf_di_joystick();
 }
 
+/* The previous DirectInput chain also bootstrapped ModCarrerMode's optional
+ * plugin host.  The L9 chain only owns the low-level FIFA patches, so retain
+ * that host startup explicitly without loading the old patch chain.  Run this
+ * outside DllMain's loader lock; the host discovers enabled.txt beside itself
+ * and starts the configured plugins. */
+static DWORD WINAPI start_optional_mod_host(LPVOID unused)
+{
+    char path[MAX_PATH];
+    HMODULE host;
+    Fifa16ModHostStartFn start;
+    (void)unused;
+
+    host = GetModuleHandleA("mod_host.dll");
+    if (!host) {
+        if (_snprintf_s(path, sizeof(path), _TRUNCATE,
+                "%s\\mods\\mod_host.dll", g_mod_dir) < 0) {
+            append_loader_log("mod_host_path_too_long");
+            return 1;
+        }
+        host = LoadLibraryA(path);
+    }
+    if (!host) {
+        append_loader_log("mod_host_load_failed");
+        return 1;
+    }
+
+    start = (Fifa16ModHostStartFn)GetProcAddress(
+        host, "Fifa16ModHostStart");
+    if (!start) {
+        append_loader_log("mod_host_export_missing");
+        return 1;
+    }
+    if (!start()) {
+        append_loader_log("mod_host_start_failed");
+        return 1;
+    }
+    append_loader_log("mod_host_started");
+    return 0;
+}
+
 /* Small versioned surface for optional mods. Consumers resolve these exports
  * instead of depending on private DLL RVAs, so rebuilding the core does not
  * silently disable otherwise-independent plugins. */
@@ -4574,6 +4615,8 @@ BOOL WINAPI DllMain(HINSTANCE instance, DWORD reason, LPVOID reserved)
         initialize_paths(); fce_runtime_log_dir(g_mod_dir);
         fce_runtime_set_ready_callback(refresh_initial_competition_provider);
         worker=CreateThread(NULL,0,patch_standings_provider,NULL,0,NULL);
+        if(worker) CloseHandle(worker);
+        worker=CreateThread(NULL,0,start_optional_mod_host,NULL,0,NULL);
         if(worker) CloseHandle(worker);
     }
     return TRUE;
