@@ -1129,7 +1129,7 @@ static void draw_ranking_overlay(void)
             ImGui::EndTable();
         }
         if (g_table_font) ImGui::PopFont();
-        ImGui::PopStyleColor();
+        ImGui::PopStyleColor(2);
         ImGui::PopStyleVar();
         ImGui::PopStyleColor(2);
     }
@@ -1145,7 +1145,7 @@ static void draw_ranking_overlay(void)
 
     ImGui::End();
     ImGui::PopStyleVar();
-    ImGui::PopStyleColor(2);
+    ImGui::PopStyleColor();
     ImGui::PopStyleVar();
     ImGui::End();
     ImGui::PopStyleColor();
