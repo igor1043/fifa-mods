@@ -1,6 +1,7 @@
 /* Publish the top five plus the career user's own position when outside the
  * top five. Keep the legacy raw payload limited to its original first 20. */
 #include "../global_ranking.h"
+#include "ranking_overlay.h"
 
 enum {
     NATIVE_GLOBAL_RANKING_TOP_COUNT = 5,
@@ -67,6 +68,7 @@ static void native_publish_global_ranking_preview_row(
 
 static void native_publish_global_ranking(void *provider) {
     FceGlobalRankedClub *rows = NULL;
+    RankingOverlayRow *overlay_rows = NULL;
     size_t count = 0, raw_count, top_count, user_rank = 0;
     FceResult result;
 
@@ -75,8 +77,31 @@ static void native_publish_global_ranking(void *provider) {
     result = fce_global_ranking_build_all(&native_view, &rows, &count);
     if (result != FCE_OK || !rows || !count) {
         publish_int_field(provider, "CLUB_RANKING_COUNT", 0);
+        ranking_overlay_publish_rows(NULL, 0, native_club);
         fce_global_ranking_free(rows);
         return;
+    }
+    overlay_rows = (RankingOverlayRow *)calloc(count, sizeof(*overlay_rows));
+    if (overlay_rows) {
+        for (size_t i = 0; i < count; ++i) {
+            overlay_rows[i].rank = (int)(i + 1);
+            overlay_rows[i].team_id = rows[i].team;
+            overlay_rows[i].score_tenths = rows[i].score_tenths;
+            native_team_name(rows[i].team, overlay_rows[i].name,
+                sizeof(overlay_rows[i].name));
+            for (size_t j = 0; overlay_rows[i].name[j]; ++j)
+                if (overlay_rows[i].name[j] == '^' ||
+                    overlay_rows[i].name[j] == '\r' ||
+                    overlay_rows[i].name[j] == '\n')
+                    overlay_rows[i].name[j] = ' ';
+            if (!overlay_rows[i].name[0])
+                snprintf(overlay_rows[i].name,
+                    sizeof(overlay_rows[i].name), "Clube %d", rows[i].team);
+        }
+        ranking_overlay_publish_rows(overlay_rows, count, native_club);
+        free(overlay_rows);
+    } else {
+        ranking_overlay_publish_rows(NULL, 0, native_club);
     }
     raw_count = count < NATIVE_GLOBAL_RANKING_RAW_LIMIT
         ? count : NATIVE_GLOBAL_RANKING_RAW_LIMIT;

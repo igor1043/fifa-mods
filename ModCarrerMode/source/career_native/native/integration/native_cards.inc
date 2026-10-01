@@ -673,20 +673,78 @@ static int native_next_match_stadium_config(const FceFixture *fixture,
     if(native_competition_stadium_config(competition_id,out,size)) return 1;
     return native_team_stadium_config(fixture->home,out,size);
 }
+static int native_stadium_copy_reference_dds(const char *source,
+    const char *destination) {
+    WIN32_FILE_ATTRIBUTE_DATA source_info,destination_info;
+    DWORD destination_attributes;
+    if(!source || !destination ||
+       !GetFileAttributesExA(source,GetFileExInfoStandard,&source_info) ||
+       (source_info.dwFileAttributes&FILE_ATTRIBUTE_DIRECTORY)) return 0;
+    destination_attributes=GetFileAttributesA(destination);
+    if(destination_attributes==INVALID_FILE_ATTRIBUTES ||
+       (destination_attributes&FILE_ATTRIBUTE_DIRECTORY) ||
+       !GetFileAttributesExA(destination,GetFileExInfoStandard,
+        &destination_info) ||
+       source_info.nFileSizeHigh!=destination_info.nFileSizeHigh ||
+       source_info.nFileSizeLow!=destination_info.nFileSizeLow ||
+       CompareFileTime(&source_info.ftLastWriteTime,
+        &destination_info.ftLastWriteTime)!=0) {
+        if(!CopyFileA(source,destination,FALSE)) return 0;
+        return 2;
+    }
+    return 1;
+}
+static void native_stadium_log_image_lookup(const char *key,const char *result,
+    const char *source,const char *destination) {
+    char path[MAX_PATH];
+    FILE *log;
+    if(!fce_runtime_log_verbose() || !g_mod_dir[0]) return;
+    if(snprintf(path,sizeof(path),"%s\\career_stadium_images.log",g_mod_dir)<0)
+        return;
+    log=fopen(path,"ab");
+    if(!log) return;
+    fprintf(log,"stadium_image key=%s result=%s source=%s target=%s\n",
+        key?key:"",result?result:"",source?source:"",
+        destination?destination:"");
+    fclose(log);
+}
 static int native_stadium_image_key(const char *config_name,
     char *out,size_t size) {
-    char candidate[256],path[MAX_PATH];
+    char candidate[256],original[256],source[MAX_PATH],destination[MAX_PATH];
+    char destination_dir[MAX_PATH];
     size_t length;
-    if(!config_name || !config_name[0] || !out || !size) return 0;
+    int written,sync_result;
+    DWORD attributes;
+    if(!config_name || !config_name[0] || !out || !size || !g_game_dir[0])
+        return 0;
+    out[0]=0;
     lstrcpynA(candidate,config_name,(int)sizeof(candidate));
     native_trim_token(candidate);
-    if(strchr(candidate,'\\') || strchr(candidate,'/') || strchr(candidate,':'))
+    if(!candidate[0] || !strcmp(candidate,".") || !strcmp(candidate,"..") ||
+       strchr(candidate,'\\') || strchr(candidate,'/') || strchr(candidate,':'))
         return 0;
+    lstrcpynA(original,candidate,(int)sizeof(original));
+    written=snprintf(destination_dir,sizeof(destination_dir),
+        "%s\\data\\ui\\imgAssets\\stadium",g_game_dir);
+    if(written<0 || written>=(int)sizeof(destination_dir)) return 0;
+    attributes=GetFileAttributesA(destination_dir);
+    if(attributes==INVALID_FILE_ATTRIBUTES) {
+        if(!CreateDirectoryA(destination_dir,NULL) &&
+           GetLastError()!=ERROR_ALREADY_EXISTS) return 0;
+    } else if(!(attributes&FILE_ATTRIBUTE_DIRECTORY)) return 0;
     length=strlen(candidate);
     while(candidate[0] && length>0) {
-        snprintf(path,sizeof(path),"%s\\data\\ui\\imgAssets\\stadium\\%s.dds",
+        written=snprintf(source,sizeof(source),
+            "%s\\StadiumGBD\\render\\thumbnail\\stadium\\%s.dds",
             g_game_dir,candidate);
-        if(GetFileAttributesA(path)!=INVALID_FILE_ATTRIBUTES) {
+        if(written<0 || written>=(int)sizeof(source)) return 0;
+        written=snprintf(destination,sizeof(destination),
+            "%s\\stadium_%s.dds",destination_dir,candidate);
+        if(written<0 || written>=(int)sizeof(destination)) return 0;
+        sync_result=native_stadium_copy_reference_dds(source,destination);
+        if(sync_result) {
+            native_stadium_log_image_lookup(original,
+                sync_result==2?"copied":"current",source,destination);
             lstrcpynA(out,candidate,(int)size);
             return out[0]!=0;
         }
@@ -695,6 +753,7 @@ static int native_stadium_image_key(const char *config_name,
         candidate[--length]=0;
         native_trim_token(candidate);
     }
+    native_stadium_log_image_lookup(original,"missing",source,destination);
     return 0;
 }
 
@@ -973,18 +1032,22 @@ static void publish_next_match_card(void *provider) {
             publish_string_field(provider,"MYTEAM_NEXT_STATUS_DETAIL",stadium_detail);
             publish_visibility_field(provider,"MYTEAM_NEXT_STATUS_DETAIL",TRUE);
         }
-        if(fallback_ok && fallback_name[0] &&
-           native_stadium_image_key(fallback_image,stadium_image,
+        /* Match the thumbnail to the venue shown on this card. The FSW
+         * competition pool takes precedence over the club's default venue;
+         * when it has several options, its first entry is the representative
+         * thumbnail until the game selects the actual ground. */
+        if(native_next_match_stadium_config(&g_next_match_fixture,competition_id,
+            stadium_config,sizeof(stadium_config)) &&
+           native_stadium_image_key(stadium_config,stadium_image,
             sizeof(stadium_image))) {
             publish_string_field(provider,"MYTEAM_NEXT_STADIUM_IMAGE",stadium_image);
             publish_visibility_field(provider,"MYTEAM_NEXT_STADIUM_IMAGE",TRUE);
         }
-        /* If the club-id row has no matching DDS, retain the settings.ini or
-         * competition override image as a secondary fallback. */
+        /* If the selected settings entry has no matching DDS, fall back to
+         * the club-ID mapping generated from the career database. */
         if(!stadium_image[0] &&
-           native_next_match_stadium_config(&g_next_match_fixture,competition_id,
-            stadium_config,sizeof(stadium_config)) &&
-           native_stadium_image_key(stadium_config,stadium_image,
+           fallback_ok && fallback_image[0] &&
+           native_stadium_image_key(fallback_image,stadium_image,
             sizeof(stadium_image))) {
             publish_string_field(provider,"MYTEAM_NEXT_STADIUM_IMAGE",stadium_image);
             publish_visibility_field(provider,"MYTEAM_NEXT_STADIUM_IMAGE",TRUE);
@@ -2264,8 +2327,10 @@ static void native_publish_club_profile(void *provider) {
             sizeof(stadium_image))) {
         publish_string_field(provider,"MYTEAM_STADIUM_IMAGE",stadium_image);
         publish_visibility_field(provider,"MYTEAM_STADIUM_IMAGE",TRUE);
-    } else if(fallback_ok && fallback_image[0]) {
-        publish_string_field(provider,"MYTEAM_STADIUM_IMAGE",fallback_image);
+    } else if(fallback_ok && fallback_image[0] &&
+       native_stadium_image_key(fallback_image,stadium_image,
+            sizeof(stadium_image))) {
+        publish_string_field(provider,"MYTEAM_STADIUM_IMAGE",stadium_image);
         publish_visibility_field(provider,"MYTEAM_STADIUM_IMAGE",TRUE);
     }
     if(fallback_ok && fallback_capacity>0) {

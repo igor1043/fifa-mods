@@ -16,6 +16,8 @@
 #include "../fce_runtime.h"
 #include "../crowd_runtime.h"
 #include "../retirement_engine.h"
+#include "ranking_overlay.h"
+#include "ranking_input_gate.h"
 static void native_prepare(void *owner);
 static void native_publish(void *provider);
 static void native_log_transfer_card_context(void *provider);
@@ -3932,11 +3934,7 @@ static BOOL write_relative_call(
 }
 
 
-static unsigned int apply_call_patches(
-    unsigned char *module_base,
-    FILE *log)
-{
-    CallPatchSpec patches[] = {
+static const CallPatchSpec g_call_patches[] = {
         {
             "career_startup_object_guard",
             0x05F18BCF,
@@ -4051,20 +4049,45 @@ static unsigned int apply_call_patches(
             0x05A511E0,
             (void *)injury_set_string_capture,
         },
-    };
+};
 
-    {
-        SIZE_T i;
-        for(i=0;i<sizeof(patches)/sizeof(patches[0]);++i) {
-            const unsigned char *at=module_base+patches[i].call_rva;
-            int32_t displacement;
-            memcpy(&displacement,at+1,4);
-            if(at[0]!=0xE8 || at+5+displacement!=module_base+patches[i].expected_target_rva) {
-                fprintf(log,"PRECHECK REJECTED: %s; no call sites changed.\\n",patches[i].name);
-                return 0;
-            }
+/* The protected loader materializes different code regions separately. One
+ * decoded standings instruction is not a barrier for all Career call sites.
+ * Wait for every byte patch AND every original call target before writing. */
+static BOOL career_patch_sites_ready(unsigned char *module_base, FILE *log)
+{
+    SIZE_T i;
+    for (i = 0; i < sizeof(g_patches) / sizeof(g_patches[0]); ++i) {
+        const PatchSpec *p = &g_patches[i];
+        if (!bytes_equal(module_base + p->rva, p->expected, p->size) &&
+            !bytes_equal(module_base + p->rva, p->replacement, p->size)) {
+            if (log) fprintf(log, "PRECHECK REJECTED: %s; UI unchanged.\n", p->name);
+            return FALSE;
         }
     }
+    for (i = 0; i < sizeof(g_call_patches) / sizeof(g_call_patches[0]); ++i) {
+        const CallPatchSpec *p = &g_call_patches[i];
+        const unsigned char *at = module_base + p->call_rva;
+        int32_t displacement;
+        memcpy(&displacement, at + 1, sizeof(displacement));
+        if (at[0] != 0xE8 || at + 5 + displacement !=
+            module_base + p->expected_target_rva) {
+            if (log) fprintf(log,
+                "PRECHECK REJECTED: %s rva=0x%llX opcode=%02X actual=%p expected=%p; no call sites changed.\n",
+                p->name, (unsigned long long)p->call_rva, at[0],
+                (const void *)(at + 5 + displacement),
+                (const void *)(module_base + p->expected_target_rva));
+            return FALSE;
+        }
+    }
+    return TRUE;
+}
+
+static unsigned int apply_call_patches(
+    unsigned char *module_base,
+    FILE *log)
+{
+    if (!career_patch_sites_ready(module_base, log)) return 0;
     unsigned char *relay_page = (unsigned char *)VirtualAlloc(
         module_base + 0x09600000,
         0x1000,
@@ -4081,11 +4104,11 @@ static unsigned int apply_call_patches(
 
     unsigned int patched = 0;
     unsigned int index;
-    for (index = 0; index < sizeof(patches) / sizeof(patches[0]); index++)
+    for (index = 0; index < sizeof(g_call_patches) / sizeof(g_call_patches[0]); index++)
     {
         if (write_relative_call(
             module_base,
-            &patches[index],
+            &g_call_patches[index],
             relay_page + (index * 16),
             log))
             patched++;
@@ -4188,14 +4211,10 @@ static DWORD WINAPI patch_standings_provider(LPVOID unused)
         (ResolveCareerStartupObjectFn)(module_base + 0x05573D20);
     fce_runtime_install();
     crowd_runtime_start(g_mod_dir);
-    const PatchSpec *marker = &g_patches[0];
     unsigned int attempt;
     for (attempt = 0; attempt < 120; attempt++)
     {
-        unsigned char *address = module_base + marker->rva;
-        if (
-            bytes_equal(address, marker->expected, marker->size)
-            || bytes_equal(address, marker->replacement, marker->size))
+        if (career_patch_sites_ready(module_base, NULL))
             break;
         Sleep(500);
     }
@@ -4215,10 +4234,12 @@ static DWORD WINAPI patch_standings_provider(LPVOID unused)
 
     if (attempt == 120)
     {
-        fputs("ERRO: timeout aguardando o codigo descriptografado.\n", log);
+        fputs("ERRO: timeout aguardando todos os pontos nativos da carreira.\n", log);
+        (void)career_patch_sites_ready(module_base, log);
         fclose(log);
         return 4;
     }
+    append_loader_log("career_native_card_sites_ready");
 
     /* FIFA's protected loader has finished materializing the executable at
      * this point. Install the save I/O probe only after that barrier; doing
@@ -4231,14 +4252,6 @@ static DWORD WINAPI patch_standings_provider(LPVOID unused)
 
     unsigned int patched = 0;
     unsigned int index;
-    for(index=0;index<sizeof(g_patches)/sizeof(g_patches[0]);++index) {
-        const PatchSpec *p=&g_patches[index];
-        if(!bytes_equal(module_base+p->rva,p->expected,p->size) &&
-           !bytes_equal(module_base+p->rva,p->replacement,p->size)) {
-            fprintf(log,"PRECHECK REJECTED: %s; UI unchanged.\\n",p->name);
-            fclose(log); return 5;
-        }
-    }
     unsigned int call_patched = apply_call_patches(module_base, log);
     if(call_patched!=19) { fclose(log); return 5; }
     for (index = 0; index < sizeof(g_patches) / sizeof(g_patches[0]); index++)
@@ -4250,6 +4263,8 @@ static DWORD WINAPI patch_standings_provider(LPVOID unused)
         sizeof(g_patches) / sizeof(g_patches[0])));
     fprintf(log, "Patches de chamadas=%u/19\n", call_patched);
     fclose(log);
+    if (patched == sizeof(g_patches) / sizeof(g_patches[0]) && call_patched == 19)
+        append_loader_log("career_native_card_hooks_installed");
     return (
         patched == sizeof(g_patches) / sizeof(g_patches[0])
         && call_patched == 19)
@@ -4271,12 +4286,15 @@ HRESULT WINAPI DirectInput8Create(
 {
     if (!load_l9_proxy())
         return E_FAIL;
-    return g_direct_input8_create(
+    HRESULT result = g_direct_input8_create(
         instance,
         version,
         interface_id,
         output,
         outer);
+    if (SUCCEEDED(result) && output && *output)
+        ranking_input_attach_directinput(*output, interface_id);
+    return result;
 }
 
 
@@ -4622,6 +4640,8 @@ BOOL WINAPI DllMain(HINSTANCE instance, DWORD reason, LPVOID reserved)
         worker=CreateThread(NULL,0,patch_standings_provider,NULL,0,NULL);
         if(worker) CloseHandle(worker);
         worker=CreateThread(NULL,0,start_optional_mod_host,NULL,0,NULL);
+        if(worker) CloseHandle(worker);
+        worker=CreateThread(NULL,0,ranking_overlay_start_thread,NULL,0,NULL);
         if(worker) CloseHandle(worker);
     }
     return TRUE;

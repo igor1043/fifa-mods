@@ -386,6 +386,13 @@
 						,"actions":[ ["executeCMAction",["EnterPlayerContracts"]] ]
 					}
 					,{
+						"event":"FifaModsOpenRanking"
+						,"actions":[
+							["sendAction",["updateScreen", "RefreshCareerHub"]]
+							,["executeCMAction",["FifaModsOpenRanking"]]
+						]
+					}
+					,{
 						"event":"EnterSquadReport"
 						,"targets":["SquadReport"] 
 						,"actions":[ ["executeCMAction",["EnterSquadReport"]] ]
