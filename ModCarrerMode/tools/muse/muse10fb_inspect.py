@@ -1,10 +1,9 @@
 #!/usr/bin/env python3
-"""Read-only parser for the BIG4/MUSE/10FB laboratory format.
+"""Read-only BIG4/MUSE inspector with actual RefPack 10FB decompression.
 
-The active MUSE file contains a BIG4 directory whose entries use a six-byte
-10FB envelope followed by an uncompressed-looking payload.  The two 16-bit
-values in that envelope are reported but intentionally not regenerated: the
-checksum/codec contract is not proven yet.
+Correction 2026-09-30: FIVE-byte header = magic + 24-bit decoded size.
+The former six-byte/two-checksum interpretation was incorrect.
+Encoder/rebuilder: ../format_lab/fifa_formats.py (separate output only).
 """
 
 from __future__ import annotations
@@ -15,12 +14,20 @@ import json
 import struct
 import sys
 from pathlib import Path
+import xml.etree.ElementTree as ET
+
+sys.path.insert(0, str(Path(__file__).resolve().parents[1] / 'format_lab'))
+from fifa_formats import MAX_OUTPUT, identify, refpack_decode, unpack_big_bytes
 
 
 def parse_big4(path: Path) -> dict:
+    if path.stat().st_size > MAX_OUTPUT:
+        raise ValueError('MUSE inspection input exceeds 64 MiB')
     data = path.read_bytes()
     if data[:4] != b"BIG4":
         raise ValueError("not a BIG4 container")
+    # Validate directory and bounds before compatibility metadata below.
+    unpack_big_bytes(data)
     count, directory_size = struct.unpack_from(">II", data, 8)
     cursor = 16
     entries: list[dict] = []
@@ -45,15 +52,23 @@ def parse_big4(path: Path) -> dict:
             "sha256": hashlib.sha256(payload).hexdigest(),
         }
         if payload.startswith(b"\x10\xfb") and len(payload) >= 6:
-            body = payload[6:]
             entry["10fb"] = {
-                "header_hex": payload[:6].hex(" "),
-                "value_a_be": int.from_bytes(payload[2:4], "big"),
-                "value_b_be": int.from_bytes(payload[4:6], "big"),
-                "payload_size": len(body),
-                "payload_prefix_hex": body[:16].hex(" "),
-                "payload_ascii_prefix": body[:80].decode("latin1", "replace"),
+                "header_hex": payload[:5].hex(" "),
+                "header_size": 5,
+                "codec": "RefPack-10FB",
+                "decoded_size_declared": int.from_bytes(payload[2:5], "big"),
             }
+            try:
+                body = refpack_decode(payload)
+                entry['10fb'].update(decode_ok=True, decoded_size=len(body),
+                    decoded_sha256=hashlib.sha256(body).hexdigest(),
+                    decoded_format=identify(body[:8192], name),
+                    decoded_prefix=body[:120].decode('utf-8', 'replace'))
+                if name.lower().endswith('.xml'):
+                    ET.fromstring(body)
+                    entry['10fb']['xml_parsed'] = True
+            except (ValueError, ET.ParseError) as error:
+                entry['10fb']['error'] = str(error)
         entries.append(entry)
     return {
         "path": str(path),

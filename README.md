@@ -1,107 +1,99 @@
-# FIFA Mods
+# FIFA 16 Mods
 
-Mods e ajustes para o modo carreira do FIFA 16.
+Pacote de modificações e ajustes para o FIFA 16, com foco no modo carreira.
+Este README na raiz é a documentação central do repositório.
 
 ## Instalação
 
-Copie o conteúdo desta pasta para a raiz da instalação do FIFA 16, mantendo a estrutura de diretórios. Faça um backup dos arquivos originais antes de substituir qualquer arquivo.
+Instale somente os arquivos de execução, preservando a estrutura de pastas.
+Não copie `source`, `tools`, `backups`, logs ou documentação para a instalação
+do jogo. Antes de substituir arquivos, faça uma cópia externa em
+`J:\mods\backup`; não guarde backups de tentativa dentro da pasta do FIFA.
 
-Existe apenas uma DLL de entrada: `dinput8.dll` na raiz do jogo. Ela mantém
-os recursos deste projeto e materializa a cadeia interna `dinput8_l9_chain.dll`
-na primeira inicialização. Essa cadeia recebe os patches L9 antes do
-DirectInput do sistema; não substitua a DLL principal por uma DLL avulsa.
+O ponto de entrada é `dinput8.dll` na raiz do jogo. Ela incorpora o núcleo do
+Career Mode e materializa `dinput8_l9_chain.dll` no primeiro uso. O arquivo
+`dinput8_career_chain.dll` é mantido no repositório para recuperação e não
+participa da cadeia ativa.
 
-## Estado atual dos mods
+## Recursos do Career Mode
 
-Snapshot funcional conferido com a instalação em `U:\fifa 16` em
-28/09/2026. A DLL nativa e o layout do modo carreira estão com o mesmo
-SHA-256 no pacote e no jogo.
+A DLL nativa reúne os recursos já implementados neste pacote, incluindo:
 
-### Núcleo nativo do modo carreira
+- cards e estatísticas de Meu Time, com mensagem de ausência somente em cards
+  realmente vazios;
+- separação dos dados de Liga e Copa na aba Competição;
+- ranking mundial de clubes;
+- card Próxima partida com data/hora, estádio, imagem, capacidade e público
+  estimado quando os dados estão disponíveis;
+- início da seleção de idioma com a bandeira do Brasil;
+- fluxo de aposentadoria por idade, com alteração restrita ao banco necessário,
+  validação de CRC/estrutura e restauração do arquivo se a validação falhar.
 
-`dinput8.dll` é o ponto de entrada ativo. Ele reúne as implementações que
-estão sendo tratadas neste pacote:
+Os layouts e assets de interface ficam em `data/ui`; as bases de localização
+ficam em `data/loc`. As imagens de reputação usam os IDs de liga 9900–9905,
+com DDS em `data/ui/imgAssets/league/dark` e `league/light`.
 
-- cards do modo carreira e estatísticas do Meu Time;
-- mensagens de ausência de dados somente quando o card está vazio;
-- separação visual entre Liga e Copa na aba Competição;
-- seleção de idioma iniciando com a bandeira do Brasil em primeiro lugar
-  (`data/loc/locale.big`);
-- card Próxima partida com data/hora alinhadas, estádio, imagem, capacidade
-  total e percentual de público estimado quando o cálculo está disponível;
-- leitura do estádio e dos assets de kits/escudos;
-- fluxo de aposentadoria por idade, com backup, alteração restrita ao DATA,
-  recomputação/validação dos CRCs e restauração automática se a validação
-  falhar.
+## Plugins habilitados nesta branch
 
-### Integração L9
+A lista efetiva está em `ModCarrerMode/mods/enabled.txt`:
 
-O pacote incorpora o L9.65 como recurso da DLL de entrada. A configuração
-ativa fica em `dinput8_L9.ini` na raiz e o `winmm.dll` incluso executa o
-CompData Patcher correspondente. O conjunto cobre objetivos de temporada por
-liga, regiões de olheiros, IDs de jogadores gerados, blocos de ligas, limites
-de nomes, listas de torneios, cache de jogadores, guards de FCE/getter, pools
-de consulta e a nova fronteira de formações.
-
-As opções mantidas desligadas no arquivo de origem (`ScoutOhneLiga`,
-`Namensweiche` e `Poolwache`) continuam disponíveis no INI, porém não foram
-forçadas sem validação em uma carreira real. Veja
-`ModCarrerMode/l9/README.md` para os hashes, a arquitetura e o procedimento
-de verificação.
-
-### Plugins ativos
-
-Estas quatro entradas estão habilitadas em
-`ModCarrerMode/mods/enabled.txt`:
-
-- `crowd/crowd_plugin.dll` — cálculo/runtime de público e fator de presença;
-- `career_birthdate_2006/birthyear_range_2006_2012.dll` — faixa de ano
-  2006–2012 no Player Career. A persistência da data depende também do
-  watcher externo descrito no README do plugin;
-- `bench12_global_limit_12_v2/global_limit_12_v2.dll` — limite global de
-  banco relacionado ao pacote `bench12`;
+- `crowd/crowd_plugin.dll` — ajuste do fator de público;
+- `career_birthdate_2006/birthyear_range_2006_2012.dll` — faixa de ano no
+  Player Career. A confirmação de persistência deve ser feita no jogo e após
+  recarregar a carreira;
+- `bench12_global_limit_12_v2/global_limit_12_v2.dll` — plugin legado
+  relacionado ao limite do banco. Validar o resultado em uma partida antes de
+  considerá-lo confirmado;
 - `substitution_all7_rulescan_native/substitution_all7_rulescan_native.dll`
-  — regra nativa para sete substituições. O carregamento e a escrita foram
-  instrumentados, mas a confirmação final deve ser feita em uma partida
-  iniciada do zero.
+  — localiza o par de regras da partida e grava o limite de sete trocas nos
+  dois campos `A78C`. Não altera os contadores `B03C`; ainda é necessário
+  confirmar da quarta à sétima substituição numa partida nova.
 
-O `retirement_offline_worker.exe` também faz parte do pacote e está habilitado
-pela configuração `ModCarrerMode/career_retirement_background.ini`.
+O `retirement_offline_worker.exe` é usado pelo fluxo de aposentadoria e
+controlado por `ModCarrerMode/career_retirement_background.ini`. O plugin
+`easfc_hide_plugin.dll` não está habilitado.
 
-## Diagnóstico nativo do modo carreira
+## L9.65 e logs
 
-O arquivo `ModCarrerMode/career_native_mode.ini` controla a verbosidade dos
-logs nativos. O módulo é o mesmo nas duas branches; o arquivo de configuração
-define o ambiente do pacote:
+`dinput8_L9.ini` configura os patches L9.65 incorporados à DLL de entrada.
+As opções `ScoutOhneLiga`, `Namensweiche` e `Poolwache` permanecem desligadas
+(`0`). O recurso L9 importado tem SHA-256
+`B6583FC60B5058215B12E90E49E5F1D2A0B5069AA909EAB9B916621AD77AC6E2`.
+`winmm.dll` é o CompData Patcher e deve permanecer na raiz; seu SHA-256 é
+`B43513DDEAB5F9F0904EB76E4CB543596CA35B1AAAE3C60CE7993061B7AC1A0E`.
 
-- `mode=production`: mantém somente diagnósticos críticos e não grava os dumps
-  volumosos de cards e snapshots.
-- `mode=development`: mantém os logs completos para investigação.
-- `mode=trace`: reservado para instrumentação adicional.
+Os principais logs são `dinput8_L9.log`, `compdata_patcher.log` e os arquivos
+específicos em `ModCarrerMode/logs`. O modo de diagnóstico fica em
+`ModCarrerMode/career_native_mode.ini`: `production`, `development` ou `trace`.
+Feche e reabra o FIFA para a DLL reler essa configuração.
 
-A DLL lê esse modo quando o FIFA inicia. Depois de alterar a configuração,
-feche e reabra o jogo.
+## Aposentadoria e segurança do save
 
-O código-fonte e o script de compilação desta DLL ficam em
-`ModCarrerMode/source/career_native`. O artefato instalado continua sendo o
-`dinput8.dll` na raiz deste repositório.
+O worker só atua após uma solicitação explícita armada por um dos fluxos
+exclusivos de aposentadoria no Career Hub. Ele aguarda o FIFA liberar o par
+`DATA`/`INDEX`, faz cópias de segurança, modifica somente o `DATA`, recalcula
+os CRCs e valida novamente o container e a tabela `CZUM`. Se a validação
+falhar, restaura automaticamente o `DATA` original. Arquivos auxiliares
+pequenos não são tratados como o banco da carreira.
 
-## Branches
+Os modos são `remove_retirement` (limpa `isretiring`, sem alterar idade) e
+`remove_and_rejuvenate` (limpa `isretiring` e ajusta a idade, preservando mês
+e dia). O worker não varre nem modifica saves sem solicitação pendente. Não
+teste esse fluxo com a única cópia de um save importante.
 
-`main`, `dev` e `backup` são mantidas com o mesmo snapshot de arquivos neste
-momento, conforme a política de espelhamento do pacote. A branch `backup` é a
-referência de recuperação; a diferença entre desenvolvimento e produção deve
-ser controlada por configuração e validação, não por arquivos divergentes.
+## L9, nascimento e substituições: observações de validação
 
-## Aposentadoria e traduções
+- O L9 escreve `dinput8_L9.log`; confira a aplicação dos patches críticos e
+  não prossiga se aparecer `NICHT weiterspielen`.
+- A DLL de nascimento e seus RVAs dependem do executável/build identificado.
+  Nesta branch, confirme no jogo e recarregue a carreira para validar que o
+  ano escolhido foi realmente salvo.
+- A DLL de sete substituições não usa endereço absoluto de heap e rearma após
+  os contadores reiniciarem ou o par de regras ficar inativo. Log de carga ou
+  escrita, por si só, não comprova o funcionamento durante a partida.
 
-O card arma uma solicitação única para o modo carreira. Depois que o save é
-liberado ao sair da carreira, o worker aguarda `DATA`/`INDEX` estabilizarem,
-cria backups, corrige o `DATA`, recalcula os CRCs e valida o resultado. Arquivos
-`DATA` auxiliares pequenos são ignorados.
+## Traduções e arquivos de desenvolvimento
 
-As correções de textos ficam em `tools/localization/career-mode-labels.json` e
-nas bases `data/loc/*.db`. A configuração ativa está em
-`ModCarrerMode/career_retirement_background.ini`; a versão de referência fica
-em `career_retirement_background.ini.example`.
-
+Os textos efetivamente carregados pelo FIFA estão nas bases `data/loc/*.db`.
+Código-fonte, scripts de build e testes ficam em `ModCarrerMode/source` e não
+são necessários para a execução do jogo.
