@@ -1180,6 +1180,110 @@ static int native_calendar_date(void *owner) {
     return date;
 }
 
+static int native_read_active_save_path(char *path, size_t capacity)
+{
+    char bridge[MAX_PATH];
+    char line[1200];
+    FILE *file;
+    if (!path || !capacity || !g_mod_dir[0])
+        return 0;
+    path[0] = '\0';
+    snprintf(bridge, sizeof(bridge), "%s\\runtime\\career_active_save.tsv",
+        g_mod_dir);
+    file = fopen(bridge, "rb");
+    if (!file)
+        return 0;
+    while (fgets(line, sizeof(line), file)) {
+        char *value;
+        size_t length;
+        if (strncmp(line, "path=", 5) != 0)
+            continue;
+        value = line + 5;
+        length = strcspn(value, "\r\n");
+        if (!length || length >= capacity)
+            break;
+        memcpy(path, value, length);
+        path[length] = '\0';
+        fclose(file);
+        return 1;
+    }
+    fclose(file);
+    return 0;
+}
+
+static unsigned int native_find_layout_id_offsets(const void *object,
+    unsigned int expected, char *output, size_t capacity)
+{
+    const unsigned char *bytes = (const unsigned char *)object;
+    size_t offset;
+    unsigned int count = 0;
+    size_t used = 0;
+    if (!output || !capacity)
+        return 0;
+    output[0] = '\0';
+    if (!object || !is_readable_range(object, 0x400))
+        return 0;
+    for (offset = 0; offset + sizeof(unsigned int) <= 0x400;
+         offset += sizeof(unsigned int)) {
+        unsigned int value;
+        memcpy(&value, bytes + offset, sizeof(value));
+        if (value != expected)
+            continue;
+        if (count < 8) {
+            int written = snprintf(output + used, capacity - used,
+                "%s0x%03X", used ? "," : "", (unsigned int)offset);
+            if (written > 0 && (size_t)written < capacity - used)
+                used += (size_t)written;
+        }
+        ++count;
+    }
+    return count;
+}
+
+/* Diagnostic-only probe. The Central next-match tile, the ranking slide and
+ * the transfer slide share CM_STATISTICS_DP with other cards. Before changing
+ * LENGTH, capture the layout identity carried by FIFA's provider owner. */
+static void native_log_transfer_card_context(void *provider)
+{
+    char log_path[MAX_PATH];
+    char save_path[1024];
+    char owner_725[96], owner_728[96], owner_729[96];
+    char provider_725[96], provider_728[96], provider_729[96];
+    unsigned int end1 = 0, end2 = 0;
+    int calendar_ok = 0;
+    int today = native_calendar_date(g_current_stats_provider_owner);
+    FILE *log;
+    if (!fce_runtime_log_verbose() || !g_mod_dir[0])
+        return;
+    save_path[0] = '\0';
+    if (native_read_active_save_path(save_path, sizeof(save_path)))
+        calendar_ok = retirement_engine_get_transfer_window_ends(save_path,
+            &end1, &end2);
+    snprintf(log_path, sizeof(log_path), "%s\\transfer_card_gate_probe.log",
+        g_mod_dir);
+    log = fopen(log_path, "ab");
+    if (!log)
+        return;
+    fprintf(log,
+        "owner=%p provider=%p date=%d calendar=%d end1=%04u end2=%04u "
+        "owner725=%u[%s] owner728=%u[%s] owner729=%u[%s] "
+        "provider725=%u[%s] provider728=%u[%s] provider729=%u[%s]\n",
+        g_current_stats_provider_owner, provider, today, calendar_ok, end1, end2,
+        native_find_layout_id_offsets(g_current_stats_provider_owner, 725,
+            owner_725, sizeof(owner_725)), owner_725,
+        native_find_layout_id_offsets(g_current_stats_provider_owner, 728,
+            owner_728, sizeof(owner_728)), owner_728,
+        native_find_layout_id_offsets(g_current_stats_provider_owner, 729,
+            owner_729, sizeof(owner_729)), owner_729,
+        native_find_layout_id_offsets(provider, 725,
+            provider_725, sizeof(provider_725)), provider_725,
+        native_find_layout_id_offsets(provider, 728,
+            provider_728, sizeof(provider_728)), provider_728,
+        native_find_layout_id_offsets(provider, 729,
+            provider_729, sizeof(provider_729)), provider_729);
+    fclose(log);
+}
+
 typedef struct NativeCrowdMetric {
     int team;
     int played;

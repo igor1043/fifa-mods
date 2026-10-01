@@ -18,6 +18,7 @@
 #include "../retirement_engine.h"
 static void native_prepare(void *owner);
 static void native_publish(void *provider);
+static void native_log_transfer_card_context(void *provider);
 static void native_form(void *provider, int row, int club);
 static int native_logo(int object);
 static unsigned long native_generation(void);
@@ -187,6 +188,7 @@ static ResolveCareerStartupObjectFn g_resolve_career_startup_object;
 static void *g_current_standing_record;
 static void *g_current_stats_object;
 static void *g_current_stats_provider;
+static void *g_current_stats_provider_owner;
 static void *g_pending_stats_provider_owner;
 static void *g_pending_stats_provider_vtable;
 static unsigned long g_pending_stats_refresh_generation;
@@ -3704,6 +3706,7 @@ static void stats_provider_with_diagnostics(void *provider_owner)
      * populate StatisticsData synchronously; capturing before it produced an
      * empty assists card on the first screen after loading a save. */
     reset_stock_stat_capture();
+    g_current_stats_provider_owner = provider_owner;
     g_stats_provider(provider_owner);
     ui_provider = g_current_stats_provider;
     InterlockedExchange(&g_active_competition_id, requested);
@@ -3727,7 +3730,9 @@ static void stats_provider_with_diagnostics(void *provider_owner)
         g_set_int(ui_provider, "LENGTH", subtiles);
     }
     native_publish(ui_provider);
+    native_log_transfer_card_context(ui_provider);
     g_current_stats_provider = NULL;
+    g_current_stats_provider_owner = NULL;
     g_current_stats_object = NULL;
     native_end();
 }

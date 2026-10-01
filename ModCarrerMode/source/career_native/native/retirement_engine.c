@@ -15,6 +15,7 @@
 #define RETIREMENT_MAX_TABLES 4096U
 #define RETIREMENT_MAX_RECORD_SIZE 4096U
 #define RETIREMENT_CAREER_DATE_LOW 20080101U
+#define RETIREMENT_WINDOW_DAY_LOW 101U
 
 typedef struct RetirementField {
     uint32_t bit_offset;
@@ -40,6 +41,8 @@ typedef struct RetirementCalendar {
     uint16_t record_count;
     uint8_t field_count;
     RetirementField current_date;
+    RetirementField transfer_window_end1;
+    RetirementField transfer_window_end2;
 } RetirementCalendar;
 
 static SRWLOCK g_retirement_lock = SRWLOCK_INIT;
@@ -290,6 +293,10 @@ static int retirement_find_tables(const unsigned char *data, SIZE_T size,
                     calendar->field_count = field_count;
                     retirement_find_field(db, table_offset, field_count,
                         record_size, "aLZZ", &calendar->current_date);
+                    retirement_find_field(db, table_offset, field_count,
+                        record_size, "PpdA", &calendar->transfer_window_end1);
+                    retirement_find_field(db, table_offset, field_count,
+                        record_size, "igYC", &calendar->transfer_window_end2);
                     if (calendar->current_date.found)
                         calendar_found = 1;
                 }
@@ -298,7 +305,9 @@ static int retirement_find_tables(const unsigned char *data, SIZE_T size,
         cursor = db_offset + db_size;
         if (players_found && calendar_found) break;
     }
-    return players_found;
+    /* Callers that modify players still validate player_id explicitly.  A
+     * read-only UI query may legitimately need only the calendar table. */
+    return players_found || calendar_found;
 }
 
 /* Gregorian day conversion, relative to 1970-01-01. */
@@ -351,6 +360,23 @@ static int retirement_parse_date(int yyyymmdd, int *year, unsigned *month,
         || d != (unsigned)(yyyymmdd % 100))
         return 0;
     *year = y; *month = m; *day = d;
+    return 1;
+}
+
+/* transferwindowend1/2 are stored as the DBOFIELDTYPE_SHORT delta from
+ * the schema low value 101. They intentionally have no year: a career
+ * calendar defines recurring MMDD closing days. */
+static int retirement_window_day_valid(uint32_t raw, unsigned int *mmdd)
+{
+    unsigned int value = raw + RETIREMENT_WINDOW_DAY_LOW;
+    unsigned int month = value / 100U;
+    unsigned int day = value % 100U;
+    static const unsigned char days[] =
+        { 0, 31, 29, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31 };
+    if (month < 1U || month > 12U || day < 1U || day > days[month])
+        return 0;
+    if (mmdd)
+        *mmdd = value;
     return 1;
 }
 
@@ -451,6 +477,50 @@ static int retirement_read_file(const char *path, unsigned char **data,
     }
     CloseHandle(file);
     return 1;
+}
+
+/* Read-only calendar query shared by UI features. This deliberately uses
+ * the same table/CRC validation as the retirement writer but never changes
+ * the save or creates a backup. */
+int retirement_engine_get_transfer_window_ends(const char *data_path,
+    unsigned int *first_mmdd, unsigned int *second_mmdd)
+{
+    unsigned char *data = NULL;
+    SIZE_T size = 0;
+    RetirementTable players;
+    RetirementCalendar calendar;
+    unsigned int first = 0, second = 0;
+    SIZE_T start;
+
+    if (first_mmdd) *first_mmdd = 0;
+    if (second_mmdd) *second_mmdd = 0;
+    if (!data_path || !*data_path || !retirement_read_file(data_path, &data, &size))
+        return 0;
+    if (size < RETIREMENT_CRC_START || size < RETIREMENT_CRC_OFFSET + 4U)
+        goto done;
+    if (!retirement_find_tables(data, size, &players, &calendar)
+        || !calendar.record_count)
+        goto done;
+    start = calendar.records_offset;
+    if (calendar.transfer_window_end1.found) {
+        uint32_t raw = retirement_read_bits(data, start,
+            &calendar.transfer_window_end1, calendar.record_size);
+        (void)retirement_window_day_valid(raw, &first);
+    }
+    if (calendar.transfer_window_end2.found) {
+        uint32_t raw = retirement_read_bits(data, start,
+            &calendar.transfer_window_end2, calendar.record_size);
+        (void)retirement_window_day_valid(raw, &second);
+    }
+    if (!first && !second)
+        goto done;
+    if (first_mmdd) *first_mmdd = first;
+    if (second_mmdd) *second_mmdd = second;
+    HeapFree(GetProcessHeap(), 0, data);
+    return 1;
+done:
+    HeapFree(GetProcessHeap(), 0, data);
+    return 0;
 }
 
 static int retirement_write_atomic(const char *path, const unsigned char *data,

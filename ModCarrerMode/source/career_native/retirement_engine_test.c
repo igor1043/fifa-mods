@@ -6,6 +6,13 @@
 int main(int argc, char **argv)
 {
     RetirementApplyResult result;
+    if (argc == 3 && _stricmp(argv[2], "calendar") == 0) {
+        unsigned int first = 0, second = 0;
+        int ok = retirement_engine_get_transfer_window_ends(argv[1], &first, &second);
+        printf("calendar_ok=%d window_end1=%04u window_end2=%04u\n",
+            ok, first, second);
+        return ok ? 0 : 1;
+    }
     if (argc >= 3 && _stricmp(argv[2], "buffer") == 0) {
         FILE *file = fopen(argv[1], "rb");
         long file_size;
