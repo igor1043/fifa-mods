@@ -1,0 +1,2 @@
+Salve aqui seus presets XML de cenas, câmeras, objetos e poses.
+Eles afetam somente o visualizador. Cada sobrescrita preserva o XML anterior em .bak.

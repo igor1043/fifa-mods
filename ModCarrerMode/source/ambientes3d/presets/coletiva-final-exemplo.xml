@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<visualizador versao="1">
+  <origem jogo="U:\fifa 16"/>
+  <cena tipo="0" clube="1043" jogador="227275" pose="205" vistaAberta="nao"/>
+  <camera modo="orbita" x="0" y="193" z="95" alvoX="0" alvoY="167" alvoZ="-347" yaw="0" pitch="-0.058755822" fov="72" distancia="442.76404" velocidade="170"/>
+  <alvo tipo="tecnico"/>
+  <coletiva competicao="0" final="sim" plateia="sim">
+    <lugar numero="1" pessoa="227275"/>
+    <lugar numero="2" pessoa="247204"/>
+    <lugar numero="3" pessoa="-1"/>
+    <lugar numero="4" pessoa="233206"/>
+    <lugar numero="5" pessoa="222895"/>
+  </coletiva>
+</visualizador>

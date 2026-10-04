@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<visualizador versao="1">
+  <origem jogo="U:\fifa 16"/>
+  <cena tipo="3" clube="1043" jogador="227275" pose="101" vistaAberta="nao"/>
+  <camera modo="orbita" x="0" y="96.55442" z="284.92462" alvoX="0" alvoY="90" alvoZ="0" yaw="0" pitch="-0.023" fov="45" distancia="285" velocidade="160"/>
+  <alvo tipo="jogador"/>
+  <fbx arquivo="imports/Sad Idle.fbx" take="0" tempo="0" deslocamento="nao"/>
+  <mapa fifa="Hips" origem="mixamorig:Hips"/>
+  <mapa fifa="Spine" origem="mixamorig:Spine"/>
+  <mapa fifa="Spine2" origem="mixamorig:Spine1"/>
+  <mapa fifa="Spine3" origem="mixamorig:Spine2"/>
+  <mapa fifa="Neck" origem="mixamorig:Neck"/>
+  <mapa fifa="Head" origem="mixamorig:Head"/>
+  <mapa fifa="HeadEnd" origem="mixamorig:HeadTop_End"/>
+  <mapa fifa="LeftShoulder" origem="mixamorig:LeftShoulder"/>
+  <mapa fifa="LeftArm" origem="mixamorig:LeftArm"/>
+  <mapa fifa="LeftForeArm" origem="mixamorig:LeftForeArm"/>
+  <mapa fifa="LeftHand" origem="mixamorig:LeftHand"/>
+  <mapa fifa="LeftHandThumb1" origem="mixamorig:LeftHandThumb1"/>
+  <mapa fifa="LeftHandThumb2" origem="mixamorig:LeftHandThumb2"/>
+  <mapa fifa="LeftHandThumb3" origem="mixamorig:LeftHandThumb3"/>
+  <mapa fifa="LeftHandIndex1" origem="mixamorig:LeftHandIndex1"/>
+  <mapa fifa="LeftHandIndex2" origem="mixamorig:LeftHandIndex2"/>
+  <mapa fifa="LeftHandIndex3" origem="mixamorig:LeftHandIndex3"/>
+  <mapa fifa="LeftHandMiddle1" origem="mixamorig:LeftHandMiddle1"/>
+  <mapa fifa="LeftHandMiddle2" origem="mixamorig:LeftHandMiddle2"/>
+  <mapa fifa="LeftHandMiddle3" origem="mixamorig:LeftHandMiddle3"/>
+  <mapa fifa="LeftHandRing1" origem="mixamorig:LeftHandRing1"/>
+  <mapa fifa="LeftHandRing2" origem="mixamorig:LeftHandRing2"/>
+  <mapa fifa="LeftHandRing3" origem="mixamorig:LeftHandRing3"/>
+  <mapa fifa="LeftHandPinky1" origem="mixamorig:LeftHandPinky1"/>
+  <mapa fifa="LeftHandPinky2" origem="mixamorig:LeftHandPinky2"/>
+  <mapa fifa="LeftHandPinky3" origem="mixamorig:LeftHandPinky3"/>
+  <mapa fifa="RightShoulder" origem="mixamorig:RightShoulder"/>
+  <mapa fifa="RightArm" origem="mixamorig:RightArm"/>
+  <mapa fifa="RightForeArm" origem="mixamorig:RightForeArm"/>
+  <mapa fifa="RightHand" origem="mixamorig:RightHand"/>
+  <mapa fifa="RightHandThumb1" origem="mixamorig:RightHandThumb1"/>
+  <mapa fifa="RightHandThumb2" origem="mixamorig:RightHandThumb2"/>
+  <mapa fifa="RightHandThumb3" origem="mixamorig:RightHandThumb3"/>
+  <mapa fifa="RightHandIndex1" origem="mixamorig:RightHandIndex1"/>
+  <mapa fifa="RightHandIndex2" origem="mixamorig:RightHandIndex2"/>
+  <mapa fifa="RightHandIndex3" origem="mixamorig:RightHandIndex3"/>
+  <mapa fifa="RightHandMiddle1" origem="mixamorig:RightHandMiddle1"/>
+  <mapa fifa="RightHandMiddle2" origem="mixamorig:RightHandMiddle2"/>
+  <mapa fifa="RightHandMiddle3" origem="mixamorig:RightHandMiddle3"/>
+  <mapa fifa="RightHandRing1" origem="mixamorig:RightHandRing1"/>
+  <mapa fifa="RightHandRing2" origem="mixamorig:RightHandRing2"/>
+  <mapa fifa="RightHandRing3" origem="mixamorig:RightHandRing3"/>
+  <mapa fifa="RightHandPinky1" origem="mixamorig:RightHandPinky1"/>
+  <mapa fifa="RightHandPinky2" origem="mixamorig:RightHandPinky2"/>
+  <mapa fifa="RightHandPinky3" origem="mixamorig:RightHandPinky3"/>
+  <mapa fifa="LeftUpLeg" origem="mixamorig:LeftUpLeg"/>
+  <mapa fifa="LeftLeg" origem="mixamorig:LeftLeg"/>
+  <mapa fifa="LeftFoot" origem="mixamorig:LeftFoot"/>
+  <mapa fifa="LeftToeBase" origem="mixamorig:LeftToeBase"/>
+  <mapa fifa="RightUpLeg" origem="mixamorig:RightUpLeg"/>
+  <mapa fifa="RightLeg" origem="mixamorig:RightLeg"/>
+  <mapa fifa="RightFoot" origem="mixamorig:RightFoot"/>
+  <mapa fifa="RightToeBase" origem="mixamorig:RightToeBase"/>
+</visualizador>

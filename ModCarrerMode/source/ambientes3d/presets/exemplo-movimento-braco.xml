@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<visualizador versao="1">
+  <origem jogo="U:\fifa 16"/>
+  <cena tipo="3" clube="1043" jogador="227275" pose="101"/>
+  <camera modo="orbita" x="0" y="90" z="285" alvoX="0" alvoY="90" alvoZ="0" yaw="0" pitch="0" fov="45" distancia="285" velocidade="160"/>
+  <alvo tipo="jogador"/>
+  <quadro tempo="0">
+  </quadro>
+  <quadro tempo="1">
+    <articulacao nome="RightArm" rx="0" ry="0" rz="20" x="0" y="0" z="0" escala="1"/>
+    <articulacao nome="RightForeArm" rx="0" ry="0" rz="25" x="0" y="0" z="0" escala="1"/>
+  </quadro>
+  <quadro tempo="2">
+  </quadro>
+</visualizador>

@@ -1,0 +1,9 @@
+/build/
+/renders/
+/tests/resultados/
+/backups/
+*.log
+*.bak
+*.obj
+*.res
+*.pdb

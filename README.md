@@ -50,6 +50,12 @@ Antes de criar jogador com nascimento 2006–2012, inicie `ModCarrerMode/mods/ca
 
 Instale os arquivos de execução pelo instalador. Fontes, testes, galerias, objetos de compilação, documentação e backups ficam fora da instalação do FIFA.
 
+## Editor e visualizador 3D
+
+O [New Experience 3D](ModCarrerMode/source/ambientes3d/README.md) reúne os fontes e o EXE do editor externo. Seus ambientes de imprensa, vestiário, academia e CT, com objetos, poses, câmeras e presets, agora são gerenciados nesta branch. Execute `ModCarrerMode/source/ambientes3d/Ambientes3D.exe`; no computador de desenvolvimento, o acesso também fica em `J:\mods\fifa 16\ambientes 3d`.
+
+O editor busca malhas, esqueletos e texturas nativas na instalação do FIFA. Os ambientes são definidos pelos fontes do projeto. As versões ampliadas de imprensa, vestiário, academia e CT do editor precisam de integração específica para aparecerem nas telas da carreira; salvar presets não instala alterações automaticamente no jogo.
+
 ## Desenvolvimento e validação
 
 Branch: `fifa-friends-new-experience`. Pasta: `J:\mods\fifa 16\fifa-mods-dev\experiencia nova`.

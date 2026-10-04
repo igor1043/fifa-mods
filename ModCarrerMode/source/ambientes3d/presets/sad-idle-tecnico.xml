@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<visualizador versao="1">
+  <origem jogo="U:\fifa 16"/>
+  <cena tipo="4" clube="1043" jogador="227275" pose="201" vistaAberta="nao"/>
+  <camera modo="orbita" x="0" y="96.55442" z="284.92462" alvoX="0" alvoY="90" alvoZ="0" yaw="0" pitch="-0.023" fov="45" distancia="285" velocidade="160"/>
+  <alvo tipo="tecnico"/>
+  <fbx arquivo="imports/Sad Idle.fbx" take="0" tempo="0" deslocamento="nao"/>
+  <mapa fifa="Hips" origem="mixamorig:Hips"/>
+  <mapa fifa="RightUpLeg" origem="mixamorig:RightUpLeg"/>
+  <mapa fifa="RightLeg" origem="mixamorig:RightLeg"/>
+  <mapa fifa="RightFoot" origem="mixamorig:RightFoot"/>
+  <mapa fifa="RightToeBase" origem="mixamorig:RightToeBase"/>
+  <mapa fifa="LeftUpLeg" origem="mixamorig:LeftUpLeg"/>
+  <mapa fifa="LeftLeg" origem="mixamorig:LeftLeg"/>
+  <mapa fifa="LeftFoot" origem="mixamorig:LeftFoot"/>
+  <mapa fifa="LeftToeBase" origem="mixamorig:LeftToeBase"/>
+  <mapa fifa="Spine" origem="mixamorig:Spine"/>
+  <mapa fifa="Spine2" origem="mixamorig:Spine2"/>
+  <mapa fifa="Neck" origem="mixamorig:Neck"/>
+  <mapa fifa="Head" origem="mixamorig:Head"/>
+  <mapa fifa="HeadEnd" origem="mixamorig:HeadTop_End"/>
+  <mapa fifa="LeftShoulder" origem="mixamorig:LeftShoulder"/>
+  <mapa fifa="LeftArm" origem="mixamorig:LeftArm"/>
+  <mapa fifa="LeftForeArm" origem="mixamorig:LeftForeArm"/>
+  <mapa fifa="LeftHand" origem="mixamorig:LeftHand"/>
+  <mapa fifa="RightShoulder" origem="mixamorig:RightShoulder"/>
+  <mapa fifa="RightArm" origem="mixamorig:RightArm"/>
+  <mapa fifa="RightForeArm" origem="mixamorig:RightForeArm"/>
+  <mapa fifa="RightHand" origem="mixamorig:RightHand"/>
+</visualizador>

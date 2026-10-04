@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<visualizador versao="1">
+  <!-- Somente configuração de prévia. Nenhuma escrita na pasta do FIFA. -->
+  <origem jogo="U:\fifa 16"/>
+  <!-- 0 imprensa; 1 vestiário; 2 removido; 3 jogador; 4 técnico; 5 equipe; 6 academia; 7 CT -->
+  <cena tipo="0" clube="1043" jogador="0" pose="205"/>
+  <camera modo="orbita" x="0" y="155" z="650" alvoX="0" alvoY="140" alvoZ="0" yaw="0" pitch="-0.023" fov="45" distancia="650" velocidade="160"/>
+</visualizador>
