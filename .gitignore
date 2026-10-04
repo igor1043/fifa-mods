@@ -5,5 +5,13 @@ ModCarrerMode/**/*.log
 ModCarrerMode/*_status.ini
 ModCarrerMode/*_status.txt
 ModCarrerMode/career_retirement_background.local.ini
+ModCarrerMode/config/career_retirement_background.local.ini
 _codex_reconcile_backup_*/
 ModCarrerMode/tools/**/__pycache__/
+ModCarrerMode/source/localization/__pycache__/
+# Career-specific contracts/requests, never share saves/private slot paths.
+ModCarrerMode/runtime/operations/
+ModCarrerMode/runtime/career_active_save*
+ModCarrerMode/runtime/injury_snapshot.tsv
+# Local backup copies never belong in the published package.
+ModCarrerMode/backups/

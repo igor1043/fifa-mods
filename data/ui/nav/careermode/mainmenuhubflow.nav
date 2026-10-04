@@ -350,11 +350,11 @@
 						,"actions":[ ["executeCMAction",["EndSeasonHubAdvance"]] ]
 					}					,{
 						"event":"RetirementRemove"
-						,"targets":["RetirementRemoveFlow"]
+						,"actions":[ ["executeCMAction",["FifaModsOpenRetirement"]], ["sendAction",["updateScreen", "RefreshCareerHub"]] ]
 					}
 					,{
 						"event":"RetirementResetAge"
-						,"targets":["RetirementResetAgeFlow"]
+						,"actions":[ ["executeCMAction",["FifaModsOpenRetirement"]], ["sendAction",["updateScreen", "RefreshCareerHub"]] ]
 					}
 					,{
 						"event":"MoveToNewClub"
@@ -391,6 +391,65 @@
 							["sendAction",["updateScreen", "RefreshCareerHub"]]
 							,["executeCMAction",["FifaModsOpenRanking"]]
 						]
+					}
+					,{
+						"event":"FifaModsOpenClubPlayers"
+						,"actions":[
+							["sendAction",["updateScreen", "RefreshCareerHub"]]
+							,["executeCMAction",["FifaModsOpenClubPlayers"]]
+							]
+					}
+					,{
+						"event":"FifaModsOpenFullSquad"
+						,"actions":[
+							["sendAction",["updateScreen", "RefreshCareerHub"]]
+							,["executeCMAction",["FifaModsOpenFullSquad"]]
+							]
+					}
+					,{
+						"event":"FifaModsOpenRetirement"
+						,"actions":[ ["executeCMAction",["FifaModsOpenRetirement"]], ["sendAction",["updateScreen", "RefreshCareerHub"]] ]
+					}
+					,{
+						"event":"FifaModsOpenLoans"
+						,"actions":[ ["executeCMAction",["FifaModsOpenLoans"]], ["sendAction",["updateScreen", "RefreshCareerHub"]] ]
+					}
+					,{
+						"event":"FifaModsOpenTrophyRoom"
+						,"actions":[ ["executeCMAction",["FifaModsOpenTrophyRoom"]], ["sendAction",["updateScreen", "RefreshCareerHub"]] ]
+					}
+					,{
+						"event":"FifaModsOpenSponsors"
+						,"actions":[ ["executeCMAction",["FifaModsOpenSponsors"]], ["sendAction",["updateScreen", "RefreshCareerHub"]] ]
+					}
+					,{
+						"event":"FifaModsOpenCoachProfile"
+						,"actions":[ ["executeCMAction",["FifaModsOpenCoachProfile"]], ["sendAction",["updateScreen", "RefreshCareerHub"]] ]
+					}
+					,{
+						"event":"FifaModsOpenOtherClubs"
+						,"actions":[ ["executeCMAction",["FifaModsOpenOtherClubs"]], ["sendAction",["updateScreen", "RefreshCareerHub"]] ]
+					}
+					,{
+						"event":"FifaModsOpenLeagues"
+						,"actions":[ ["executeCMAction",["FifaModsOpenLeagues"]], ["sendAction",["updateScreen", "RefreshCareerHub"]] ]
+					}
+					,{
+						"event":"FifaModsOpenClubCompetitions"
+						,"actions":[ ["executeCMAction",["FifaModsOpenClubCompetitions"]], ["sendAction",["updateScreen", "RefreshCareerHub"]] ]
+					}
+					,{
+						"event":"FifaModsOpenMyOffice"
+						,"actions":[ ["executeCMAction",["FifaModsOpenMyOffice"]], ["sendAction",["updateScreen", "RefreshCareerHub"]] ]
+					}
+
+					,{
+						"event":"FifaModsOpenPressConference"
+						,"actions":[ ["executeCMAction",["FifaModsOpenPressConference"]], ["sendAction",["updateScreen", "RefreshCareerHub"]] ]
+					}
+					,{
+						"event":"FifaModsOpenNextMatch"
+						,"actions":[ ["executeCMAction",["FifaModsOpenNextMatch"]], ["sendAction",["updateScreen", "RefreshCareerHub"]] ]
 					}
 					,{
 						"event":"EnterSquadReport"

@@ -1,0 +1,3 @@
+# Cadastro opcional: ID do clube|nome exato do tecnico|ID de nacionalidade FIFA
+# Usado somente quando nao existe nacionalidade para essa identidade na carreira.
+# Nao deduzimos a nacionalidade do tecnico pela nacionalidade do clube.

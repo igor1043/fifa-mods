@@ -1,5 +1,0 @@
-# Build outputs are local artifacts; the resource inputs below are tracked.
-*
-!.gitignore
-!dinput8_active_chain_resource.rc
-!active_chain_resource.bin

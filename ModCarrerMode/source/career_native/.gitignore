@@ -1,5 +1,2 @@
-# Local compiler outputs. Runtime binaries are kept in ModCarrerMode/.
-/retirement_engine.obj
-/retirement_offline_worker.obj
-/retirement_engine_test.obj
-/retirement_engine_test.exe
+# Generated outputs only. Source inputs are in resources/, never build/.
+/build/
