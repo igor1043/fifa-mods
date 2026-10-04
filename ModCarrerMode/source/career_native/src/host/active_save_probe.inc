@@ -119,7 +119,6 @@ static void publish_active_save_access(const char *path, const char *operation,
     int length;
     if (!path || !*path || !operation || bytes_transferred == 0 || !g_mod_dir[0])
         return;
-    career_operations_note_access(path, operation);
     if (!GetProcessTimes(GetCurrentProcess(), &created, &exited, &kernel, &user))
         return;
     created_value.LowPart = created.dwLowDateTime;

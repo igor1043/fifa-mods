@@ -1344,7 +1344,8 @@ static void retirement_feedback_show_ready(void)
 {
     /* First tone: the card request is armed and the user may leave the save. */
     retirement_engine_show_feedback(
-        "Aposentadoria preparada. Voce ja pode sair do save.",
+        "Aposentadoria preparada. Feche o FIFA completamente.\n"
+        "Aguarde o processamento antes de reabrir a carreira.",
         MB_ICONINFORMATION);
 }
 

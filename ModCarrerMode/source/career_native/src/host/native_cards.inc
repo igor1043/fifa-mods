@@ -37,7 +37,6 @@ static SIZE_T g_club_oldest_count;
 static RankedPlayer g_club_minutes_rows[5];
 static SIZE_T g_club_minutes_count;
 static FceFixture g_next_match_fixture;
-static void native_next_details_refresh(void);
 static int g_next_match_fixture_valid;
 static int g_next_match_date_fallback;
 static int g_next_match_selection_result = FCE_UNKNOWN;
@@ -316,12 +315,6 @@ static void native_end(void) {
     native_name_cache_count=0;
 }
 static void native_context_reset(void) {
-    clubs_browser_invalidate();
-    player_search_screen_invalidate();
-    coach_profile_publish_career(NULL,NULL,0);
-    career_news_publish_facts(NULL);
-    career_news_publish_manager(NULL);
-    career_next_match_publish(NULL);
     crowd_runtime_disable();
     clear_pending_stats_refresh();
     InterlockedExchange(&g_last_requested_calendar_date, 0);
@@ -901,7 +894,6 @@ static void publish_next_match_card(void *provider) {
     int competition_icon=FORM_ASSET_EMPTY;
     int competition_asset=0,competition_id=0;
     if(!provider) return;
-    native_next_details_refresh();
     publish_visibility_field(provider,"MYTEAM_NEXT_STATUS",!valid);
     publish_string_field(provider,"MYTEAM_NEXT_STATUS",valid?"":"CM_PA_NoMatch");
     publish_visibility_field(provider,"MYTEAM_NEXT_STATUS_DETAIL",FALSE);
@@ -1986,111 +1978,6 @@ static void native_build_competition_tab(size_t page,int club) {
         g_competition_tab_knockout_history_counts[page]=history_count;
     }
 }
-#include "../screens/player/player_competition_provider.inc"
-#include "../screens/club/club_player_provider.inc"
-#include "../screens/player/player_search_provider.inc"
-#include "../screens/clubs/clubs_browser_provider.inc"
-#include "../screens/leagues/leagues_browser_provider.inc"
-#include "../screens/competitions/club_competitions_provider.inc"
-#include "../screens/coach/coach_profile_provider.inc"
-#include "../screens/next_match/next_match_provider.inc"
-#include "../screens/retirement/retirement_screen_provider.inc"
-
-static void native_news_snapshot(int club) {
-    CareerNewsFacts facts;const FceFixture *recent[5]={0};size_t recent_count=0,i,j;
-    CareerNextMatchFacts match={0};match.match_time=-1;match.home_rank=match.away_rank=-1;
-    memset(&facts,0,sizeof(facts));facts.club_id=club;facts.calendar_date=native_view.date;
-    facts.club_reputation=facts.next_opponent_reputation=-1;facts.next_opponent_rank=-1;
-    match.club_id=club;match.calendar_date=native_view.date;
-    if(club<=0){career_news_publish_facts(NULL);career_next_match_publish(NULL);return;}
-    if(!fce_date_valid(native_view.date)){career_news_publish_facts(NULL);career_next_match_publish(&match);return;}
-    native_team_name(club,facts.club_name,sizeof(facts.club_name));
-    if(crowd_runtime_team_reputation_available(club)) {
-        float reputation=crowd_runtime_team_reputation(club);
-        if(reputation>=0.0f&&reputation<=1.0f)facts.club_reputation=(int)(reputation*100.0f+0.5f);
-    }
-    if(g_next_match_fixture_valid&&g_next_match_fixture.played_raw==0) {
-        const FceFixture *next=&g_next_match_fixture;int opponent=next->home==club?next->away:next->home;
-        float rivalry,reputation;facts.next_valid=1;facts.next_date=next->date_raw;facts.next_home=next->home==club;
-        facts.next_opponent=opponent;native_team_name(opponent,facts.next_opponent_name,sizeof(facts.next_opponent_name));
-        match.valid=1;match.fixture=next->id;match.match_date=next->date_raw;match.home_team=next->home;match.away_team=next->away;
-        native_team_name(next->home,match.home_name,sizeof(match.home_name));native_team_name(next->away,match.away_name,sizeof(match.away_name));
-        {char formatted[16];if(fce_format_time(next->time_raw,formatted,sizeof(formatted))){int hour=0,minute=0;
-            if(sscanf(formatted,"%d:%d",&hour,&minute)==2&&hour>=0&&hour<24&&minute>=0&&minute<60)match.match_time=hour*100+minute;}}
-        {FceCompetition competition;if(fce_resolve_competition(native_view.nodes,native_view.node_count,next->competition_object,&competition)==FCE_OK)
-            match.competition_asset=competition.asset>0?competition.asset:competition.competition;}
-        {char stadium_detail[128]={0},config[256]={0},fallback[256]={0},fallback_key[256]={0};int capacity=0,domestic=0,international=0,competition_id=0;FceCompetition competition;
-            if(fce_resolve_competition(native_view.nodes,native_view.node_count,next->competition_object,&competition)==FCE_OK)competition_id=competition.competition;
-            if(native_next_match_stadium(next,competition_id,match.stadium,sizeof(match.stadium),NULL,0,stadium_detail,sizeof(stadium_detail))&&stadium_detail[0])match.venue_pending=1;
-            if(!match.stadium[0]&&native_game_stadium_fallback(next->home,fallback,sizeof(fallback),&capacity,fallback_key,sizeof(fallback_key),&domestic,&international))
-                lstrcpynA(match.stadium,fallback,sizeof(match.stadium));
-            if(!match.venue_pending&&native_next_match_stadium_config(next,competition_id,config,sizeof(config)))
-                native_stadium_location(config,match.location,sizeof(match.location));
-        }
-        if(fce_model_stage_kind(&native_view,next->stage)>=FCE_STAGE_ROUND_1)facts.next_knockout=1;
-        rivalry=crowd_runtime_rivalry(club,opponent);if(rivalry>=0.0f&&rivalry<=1.0f)facts.next_rivalry=(int)(rivalry*100.0f+0.5f);
-        if(crowd_runtime_team_reputation_available(opponent)) {reputation=crowd_runtime_team_reputation(opponent);
-            if(reputation>=0.0f&&reputation<=1.0f)facts.next_opponent_reputation=(int)(reputation*100.0f+0.5f);}
-    }
-    for(i=0;i<g_competition_count;++i) {
-        size_t count=g_competition_tab_row_counts[i];if(!g_competition_rows[i].kind||count<3)continue;
-        if(count>COMPETITION_TAB_ROW_CAPACITY)count=COMPETITION_TAB_ROW_CAPACITY;
-        for(j=0;j<count;++j)if(g_competition_tab_rows[i][j].team_id==club) {
-            const CompetitionTabRow *row=g_competition_tab_rows[i]+j;facts.table_valid=1;facts.table_rank=row->rank;
-            facts.table_count=(int)count;facts.table_played=row->played;facts.table_points=row->points;
-            facts.table_leader_points=g_competition_tab_rows[i][0].points;
-            if(facts.next_valid)for(size_t k=0;k<count;++k)if(g_competition_tab_rows[i][k].team_id==facts.next_opponent){facts.next_opponent_rank=g_competition_tab_rows[i][k].rank;break;}
-            if(match.valid){if(match.home_team==club){match.home_rank=row->rank;match.away_rank=facts.next_opponent_rank;}
-                else if(match.away_team==club){match.away_rank=row->rank;match.home_rank=facts.next_opponent_rank;}}
-            break;
-        }
-        if(facts.table_valid)break;
-    }
-    for(i=0;i<native_view.fixture_count;++i) {
-        const FceFixture *fixture=native_view.fixtures+i;size_t at;
-        if(fixture->id<=0||!fixture->played_raw||(fixture->home!=club&&fixture->away!=club)||fixture->home==fixture->away||fixture->date_raw>native_view.date||
-           fixture->date_raw<20080101||fixture->home_score<0||fixture->away_score<0||fixture->home_score>255||fixture->away_score>255)continue;
-        for(j=0;j<recent_count;++j)if(recent[j]->id==fixture->id)break;
-        if(j<recent_count)continue;
-        for(at=0;at<recent_count;++at)if(fixture->date_raw>recent[at]->date_raw||
-            (fixture->date_raw==recent[at]->date_raw&&(fixture->time_raw>recent[at]->time_raw||
-            (fixture->time_raw==recent[at]->time_raw&&fixture->id>recent[at]->id))))break;
-        if(at>=5)continue;size_t tail=recent_count<5?recent_count:4;
-        while(tail>at){recent[tail]=recent[tail-1];--tail;}recent[at]=fixture;if(recent_count<5)++recent_count;
-    }
-    facts.recent_games=(int)recent_count;
-    for(i=0;i<recent_count;++i) {
-        const FceFixture *fixture=recent[i];int gf=fixture->home==club?fixture->home_score:fixture->away_score;
-        int ga=fixture->home==club?fixture->away_score:fixture->home_score;int result=gf>ga?1:gf<ga?-1:0;
-        facts.recent_goals_for+=gf;facts.recent_goals_against+=ga;facts.recent_points+=result>0?3:result==0?1:0;
-        if(result>0)++facts.recent_wins;else if(result<0)++facts.recent_losses;else ++facts.recent_draws;
-        if(i==0){facts.last_valid=1;facts.last_date=fixture->date_raw;facts.last_home=fixture->home==club;facts.last_goals_for=gf;facts.last_goals_against=ga;
-            native_team_name(fixture->home==club?fixture->away:fixture->home,facts.last_opponent_name,sizeof(facts.last_opponent_name));}
-    }
-    if(recent_count>0) {
-        int first=recent[0]->home==club?(recent[0]->home_score>recent[0]->away_score?1:recent[0]->home_score<recent[0]->away_score?-1:0):
-            (recent[0]->away_score>recent[0]->home_score?1:recent[0]->away_score<recent[0]->home_score?-1:0);
-        int same=0,unbeaten=0,winless=0;
-        for(i=0;i<recent_count;++i){const FceFixture*f=recent[i];int gf=f->home==club?f->home_score:f->away_score,ga=f->home==club?f->away_score:f->home_score;
-            int result=gf>ga?1:gf<ga?-1:0;if(result==first&&i==(size_t)same)++same;if(result<0)break;++unbeaten;}
-        for(i=0;i<recent_count;++i){const FceFixture*f=recent[i];int gf=f->home==club?f->home_score:f->away_score,ga=f->home==club?f->away_score:f->home_score;
-            if(gf>ga)break;++winless;}
-        if(first==1){facts.streak_result=1;facts.streak_length=same;}
-        else if(unbeaten>=2){facts.streak_result=2;facts.streak_length=unbeaten;}
-        else if(winless>=2){facts.streak_result=-2;facts.streak_length=winless;}
-        else {facts.streak_result=first;facts.streak_length=same;}
-    }
-    if(g_club_goal_count>0&&g_club_goal_rows[0].value>=0&&g_club_goal_rows[0].name[0]) {
-        facts.goals_leader_valid=1;facts.goals_leader_goals=g_club_goal_rows[0].value;
-        lstrcpynA(facts.goals_leader_name,g_club_goal_rows[0].name,sizeof(facts.goals_leader_name));
-    }
-    if(g_club_assist_count>0&&g_club_assist_rows[0].value>=0&&g_club_assist_rows[0].name[0]) {
-        facts.assists_leader_valid=1;facts.assists_leader_assists=g_club_assist_rows[0].value;
-        lstrcpynA(facts.assists_leader_name,g_club_assist_rows[0].name,sizeof(facts.assists_leader_name));
-    }
-    career_news_publish_facts(&facts);career_next_match_publish(&match);
-}
-
 static void native_prepare(void *owner) {
     const FceModel *model; unsigned long epoch; int club,comp,date,requested,selection_date; size_t i,count=0;
     FceFixture fixtures[10];
@@ -2142,7 +2029,7 @@ static void native_prepare(void *owner) {
     memset(g_club_previous_rows,0,sizeof(g_club_previous_rows));
     memset(g_round_previous_rows,0,sizeof(g_round_previous_rows));
     memset(g_round_next_rows,0,sizeof(g_round_next_rows));
-    if(!model) {career_news_publish_facts(NULL);career_news_publish_manager(NULL);career_next_match_publish(NULL);player_profile_publish_competitions(NULL,0,0,0,epoch);club_competitions_publish(NULL);return;}
+    if(!model) return;
     native_view=*model;
     comp=native_display_context_competition(requested,club);
     if(comp<=0) comp=requested;
@@ -2155,19 +2042,11 @@ static void native_prepare(void *owner) {
     /* The CalendarManager TODAY field is the current career date, not the
      * month selected in its UI; the SimManager date is a native fallback. */
     if(fce_date_valid(date)) { native_view.date=date; native_date_source=1; }
-    career_operations_publish_context(club,native_view.date);
-    native_player_competitions_refresh();
-    native_retirement_refresh();
-    native_club_players_refresh();
-    native_player_search_refresh();
-    native_clubs_browser_refresh();
-    native_leagues_browser_refresh();
-    native_coach_profile_refresh();
     native_coach_record(club);
     native_movement_history(comp);
     native_update_crowd(&native_view,comp,club);
     g_assist_count=native_leaders(comp,-1,FCE_SORT_ASSISTS,g_assist_rows);
-    if(club<=0) {career_news_publish_facts(NULL);career_next_match_publish(NULL);club_competitions_publish(NULL);return;}
+    if(club<=0) return;
     g_club_goal_count=native_club_career_leaders(club,FCE_CAREER_GOALS,g_club_goal_rows);
     g_club_assist_count=native_club_career_leaders(club,FCE_CAREER_ASSISTS,g_club_assist_rows);
     g_club_minutes_count=native_club_career_leaders(club,FCE_CAREER_MINUTES,g_club_minutes_rows);
@@ -2231,8 +2110,6 @@ static void native_prepare(void *owner) {
             native_add_club_competition(st->competition_object,club,st->competition_object);
     }
     for(i=0;i<g_competition_count;++i) native_build_competition_tab(i,club);
-    native_club_competitions_refresh(club);
-    native_news_snapshot(club);
     if(g_competition_count>0) {
         size_t row_count=g_competition_tab_row_counts[0];
         size_t j;
@@ -2424,7 +2301,6 @@ static void native_publish_club_profile(void *provider) {
     char stadium_name[160],stadium_config[256],stadium_image[256];
     char fallback_name[160],fallback_image[256],capacity_text[64],key[64];
     char stadium_location[128];
-    CareerClubStadiumFacts stadium_facts;
     int fallback_capacity=0,domestic=0,international=0,fallback_ok;
     int reputation_stars=0,i;
     if(!provider) return;
@@ -2445,8 +2321,6 @@ static void native_publish_club_profile(void *provider) {
     publish_string_field(provider,"MYTEAM_STADIUM_IMAGE","");
     publish_visibility_field(provider,"MYTEAM_STADIUM_IMAGE",FALSE);
 
-    memset(&stadium_facts,0,sizeof(stadium_facts));
-    stadium_facts.club_id=native_club;
     stadium_name[0]=0; stadium_config[0]=0; stadium_image[0]=0;
     stadium_location[0]=0;
     fallback_name[0]=0; fallback_image[0]=0;
@@ -2461,24 +2335,16 @@ static void native_publish_club_profile(void *provider) {
         publish_string_field(provider,"MYTEAM_STADIUM_NAME",fallback_name);
         publish_visibility_field(provider,"MYTEAM_STADIUM_NAME",TRUE);
     }
-    if(stadium_name[0]) lstrcpynA(stadium_facts.name,stadium_name,sizeof(stadium_facts.name));
-    else if(fallback_ok && fallback_name[0]) lstrcpynA(stadium_facts.name,fallback_name,sizeof(stadium_facts.name));
-    stadium_facts.capacity=fallback_capacity;
     if(native_team_stadium_config(native_club,stadium_config,sizeof(stadium_config))) {
         native_stadium_location(stadium_config,stadium_location,sizeof(stadium_location));
-        lstrcpynA(stadium_facts.location,stadium_location,sizeof(stadium_facts.location));
         native_stadium_image_key(stadium_config,stadium_image,sizeof(stadium_image));
     }
     if(!stadium_image[0] && fallback_ok && fallback_image[0])
         native_stadium_image_key(fallback_image,stadium_image,sizeof(stadium_image));
     if(stadium_image[0]) {
-        lstrcpynA(stadium_facts.image_key,stadium_image,sizeof(stadium_facts.image_key));
         publish_string_field(provider,"MYTEAM_STADIUM_IMAGE",stadium_image);
         publish_visibility_field(provider,"MYTEAM_STADIUM_IMAGE",TRUE);
     }
-    stadium_facts.valid=stadium_facts.name[0]||stadium_facts.location[0]||
-        stadium_facts.capacity>0||stadium_facts.image_key[0];
-    career_club_stadium_publish(&stadium_facts);
     if(fallback_ok && fallback_capacity>0) {
         snprintf(capacity_text,sizeof(capacity_text),"%d",fallback_capacity);
         publish_string_field(provider,"MYTEAM_STADIUM_CAPACITY",capacity_text);
@@ -3140,31 +3006,6 @@ static void publish_trophy_room(void *provider) {
     }
     g_trophy_summary.trophy_count=g_trophy_summary.league_titles
         +g_trophy_summary.domestic_titles+g_trophy_summary.continental_titles;
-    {
-        TrophyRoomRow rows[64];NativeActiveCompetition active[48];ClubPlayerRow identity;SIZE_T count=0,active_count;
-        int unknown=g_trophy_summary.domestic_titles+g_trophy_summary.continental_titles,captain=0;
-        memset(rows,0,sizeof(rows));memset(active,0,sizeof(active));
-        memset(&identity,0,sizeof(identity));identity.team_id=native_club;
-        identity.club_colors_valid=native_club_player_identity(native_club,identity.club_colors,&captain);
-        active_count=native_collect_active_competitions(active,48);
-        for(i=0;i<active_count&&count<64;++i) {
-            int count_known=0,titles=native_history_title_count_for_competition(active+i,&count_known);
-            if(!count_known&&query_ok&&!unknown){count_known=1;titles=0;}
-            rows[count].competition=active[i].root;rows[count].title_asset=active[i].title_asset;
-            rows[count].logo=active[i].logo;rows[count].trophy=active[i].trophy_asset;
-            rows[count].count=count_known?titles:-1;++count;
-        }
-        /* Keep identified historical league conquests too, without duplicating
-         * an active wrapper/visual identity or allocating one mesh per title. */
-        for(i=0;query_ok&&i<history_count&&count<64;++i)if(league_counts[i]>0) {
-            SIZE_T j;int logo=native_history_league_logo(league_ids[i]);
-            for(j=0;j<count;++j)if(rows[j].competition==league_ids[i]||rows[j].title_asset==league_ids[i]||(logo>0&&rows[j].logo==logo))break;
-            if(j<count)continue;
-            rows[count].competition=league_ids[i];rows[count].title_asset=league_ids[i];rows[count].logo=logo;
-            rows[count].trophy=native_league_trophy_asset(league_ids[i]);rows[count].count=league_counts[i];++count;
-        }
-        trophy_room_publish(rows,count,&identity,query_ok,unknown);
-    }
     publish_int_field(provider,"MYTEAM_TROPHY_TOTAL",g_trophy_summary.trophy_count);
     publish_visibility_field(provider,"MYTEAM_TROPHY_TOTALS",g_trophy_summary.available);
     if(!g_trophy_summary.available)
@@ -3178,7 +3019,6 @@ static void publish_trophy_room(void *provider) {
     publish_active_competitions(provider);
 }
 
-#include "../catalogs/global_ranking.inc"
 
 static void native_publish(void *provider) {
     char path[MAX_PATH],club_name[128]; FILE *log; size_t i;
@@ -3196,7 +3036,6 @@ static void native_publish(void *provider) {
     char kit_asset_ids[3][32];
     if(!provider) return;
     native_team_name(native_club,club_name,sizeof(club_name));
-    native_publish_global_ranking(provider);
     native_squad_refresh();
     g_club_overall_count=native_club_overall_leaders(native_club,g_club_overall_rows);
     g_club_oldest_count=native_club_oldest_players(native_club,g_club_oldest_rows);
@@ -3292,10 +3131,6 @@ static void native_publish(void *provider) {
     native_publish_competition_stats(provider);
     publish_coach_record(provider);
     publish_upcoming_rows(provider); publish_next_match_card(provider);
-    publish_int_field(provider,"MY_OFFICE_CREST",native_club);
-    publish_visibility_field(provider,"MY_OFFICE_CREST",native_club>0);
-    publish_string_field(provider,"MY_OFFICE_CLUB",club_name);
-    publish_visibility_field(provider,"MY_OFFICE_CLUB",native_club>0);
     publish_club_previous_rows(provider); publish_round_rows(provider);
     publish_competitions(provider); native_publish_competition_tabs(provider); publish_bridge_status(provider);
     trophy_log_count=native_collect_active_competitions(trophy_log_rows,

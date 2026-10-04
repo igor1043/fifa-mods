@@ -17,22 +17,6 @@
 #include "../core/fce_runtime.h"
 #include "../features/crowd/crowd_runtime.h"
 #include "../features/retirement/retirement_engine.h"
-#include "../screens/ranking/ranking_overlay.h"
-#include "../screens/club/club_player_screen.h"
-#include "../screens/clubs/clubs_browser.h"
-#include "../screens/leagues/leagues_browser.h"
-#include "../screens/competitions/club_competitions_screen.h"
-#include "../screens/player/player_search_screen.h"
-void clubs_browser_request_native_refresh(void){fce_runtime_request_refresh();}
-void player_search_screen_request_native_refresh(void){fce_runtime_request_refresh();}
-#include "../screens/operations/career_operations.h"
-void career_operations_request_native_refresh(void){fce_runtime_request_refresh();}
-#include "../screens/trophies/trophy_room_screen.h"
-#include "../screens/sponsors/sponsor_screen.h"
-#include "../screens/coach/coach_profile_screen.h"
-#include "../screens/office/career_news_feed.h"
-#include "../screens/next_match/next_match_screen.h"
-#include "../platform/input/ranking_input_gate.h"
 static void native_prepare(void *owner);
 static void native_publish(void *provider);
 static void native_log_transfer_card_context(void *provider);
@@ -4314,8 +4298,6 @@ HRESULT WINAPI DirectInput8Create(
         interface_id,
         output,
         outer);
-    if (SUCCEEDED(result) && output && *output)
-        ranking_input_attach_directinput(*output, interface_id);
     return result;
 }
 
@@ -4662,8 +4644,6 @@ BOOL WINAPI DllMain(HINSTANCE instance, DWORD reason, LPVOID reserved)
         worker=CreateThread(NULL,0,patch_standings_provider,NULL,0,NULL);
         if(worker) CloseHandle(worker);
         worker=CreateThread(NULL,0,start_optional_mod_host,NULL,0,NULL);
-        if(worker) CloseHandle(worker);
-        worker=CreateThread(NULL,0,ranking_overlay_start_thread,NULL,0,NULL);
         if(worker) CloseHandle(worker);
     }
     return TRUE;
