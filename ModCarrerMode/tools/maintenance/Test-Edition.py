@@ -29,7 +29,23 @@ for required in ('MY_TEAM_LEADERS', 'MY_TEAM_CARDS', 'MY_TEAM_INJURIES', 'MY_TEA
 binary = (repo / 'dinput8.dll').read_bytes()
 actions = (b'FifaModsOpenRanking', b'FifaModsOpenMyOffice', b'FifaModsOpenClubPlayers', b'FifaModsOpenRetirement')
 if edition == 'v12':
-    assert not subtiles
+    assert next_card.find('settings').get('ENABLE_CYCLING') == 'TRUE'
+    registered_types = {e.get('TILE_NAME') for e in root.find('hub_settings').findall('tile_path')}
+    assert all(s.get('SUBTILE_TYPE') in registered_types for s in subtiles)
+    assert any(s.get('DATAPROVIDERID') == 'CM_EXTENDED_NEWS_DP' for s in subtiles)
+    assert len([s for s in subtiles if s.get('DATAPROVIDERID') == 'CM_DEALS_DP']) == 2
+    # The full-size Central carousel must own its entire screen region.
+    # Independent contextual tiles in that rectangle paint over its pages.
+    bounds = next_card.find('settings')
+    x, y, width, height = (int(bounds.get(k)) for k in ('X', 'Y', 'WIDTH', 'HEIGHT'))
+    panel = root.find('panel_0')
+    assert int(panel.find('entries').get('numberoftiles')) == len(panel.findall('tile'))
+    for other in panel.findall('tile'):
+        if other is next_card:
+            continue
+        settings = other.find('settings')
+        ox, oy, ow, oh = (int(settings.get(k)) for k in ('X', 'Y', 'WIDTH', 'HEIGHT'))
+        assert not (x < ox + ow and ox < x + width and y < oy + oh and oy < y + height), other.find('tileid').get('NAME')
     assert next_card.find('main_tile').get('DESTINATION') == ''
     assert club.find('main_tile').get('DESTINATION') == ''
     assert not any(e.get('DESTINATION', '').startswith('FifaModsOpen') for e in root.iter())
@@ -46,7 +62,7 @@ if edition == 'v12':
     assert all(action not in binary for action in actions), 'New Experience action leaked into V12 DLL'
     assert not (repo / 'ModCarrerMode/career_operations_worker.exe').exists()
     retirement_source = (native / 'src/features/retirement/retirement_engine.c').read_text(encoding='utf-8')
-    assert 'Feche o FIFA completamente' in retirement_source
+    assert 'feche o fifa completamente' in retirement_source.lower()
 else:
     assert len(subtiles) == 1 and subtiles[0].get('DESTINATION') == 'FifaModsOpenMyOffice'
     assert next_card.find('main_tile').get('DESTINATION') == 'FifaModsOpenNextMatch'

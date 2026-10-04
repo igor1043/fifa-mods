@@ -1348,9 +1348,24 @@ static unsigned int native_find_layout_id_offsets(const void *object,
     return count;
 }
 
-/* Diagnostic-only probe. The Central next-match tile, the ranking slide and
- * the transfer slide share CM_STATISTICS_DP with other cards. Before changing
- * LENGTH, capture the layout identity carried by FIFA's provider owner. */
+static int native_is_competition_round_provider(void *owner, void *provider)
+{
+    static const unsigned int layout_ids[] = { 656, 657, 658, 660 };
+    size_t i;
+    char offsets[32];
+    for (i = 0; i < sizeof(layout_ids) / sizeof(layout_ids[0]); ++i) {
+        if (native_find_layout_id_offsets(owner, layout_ids[i], offsets,
+                sizeof(offsets))
+            || native_find_layout_id_offsets(provider, layout_ids[i], offsets,
+                sizeof(offsets)))
+            return 1;
+    }
+    return 0;
+}
+
+/* Diagnostic-only probe for the stats-provider owner and the active transfer
+ * window. The IDs are recorded from live objects when verbose logging is on;
+ * the probe itself does not make assumptions about which slide is active. */
 static void native_log_transfer_card_context(void *provider)
 {
     char log_path[MAX_PATH];

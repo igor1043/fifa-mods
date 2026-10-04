@@ -2,7 +2,7 @@
 
 A DLL exclui o host ImGui, os hooks de abertura/captura das telas extras, o renderer 3D e seus provedores. O código exclusivo foi separado para a branch New Experience. Os provedores nativos de Meu Time, Competição e Próxima partida permanecem na V12, com os dados e correções mais recentes da integração.
 
-Os eventos `FifaModsOpen*` foram retirados do NAV e dos cards. Clube e Próxima partida são informativos. A Central não tem o subcard Meu escritório nem slot adicional vazio.
+Os eventos `FifaModsOpen*` foram retirados do NAV e dos cards. Clube e Próxima partida são informativos. A Central não tem o subcard Meu escritório nem slot adicional vazio. O card `NEXT_MATCH_CENTRAL` (725) reúne Próxima partida, `NEWS_EXTENDED` (728), Maiores transferências (529) e Últimas transferências (530) em um carrossel. Os tiles independentes de notícias estendidas e `DEALS` foram removidos porque seus retângulos sobrepunham a próxima partida. As páginas preservam os provedores nativos de notícias e transferências. `ADVANCE_DEADLINEDAY` (544) substitui o avanço no espaço grande da esquerda durante o prazo final.
 
 ## Aposentadoria pelos cards nativos
 
@@ -10,7 +10,7 @@ Os subcards de Configurações e os eventos `RetirementRemove`/`RetirementResetA
 
 `enabled=1`, `quiet_ms=2500`, `target_age=18` e `defer_until_game_exit=1` são os padrões. O fluxo global afeta jogadores marcados com `isretiring=1`; no segundo card ajusta também suas idades, mantendo mês/dia. Não há seleção de atleta/time pela interface dessa edição.
 
-O aviso pede para fechar o FIFA completamente e aguardar antes de reabrir. `retirement_offline_worker.exe` espera o processo encerrar e DATA/INDEX estabilizarem, guarda backups, altera somente o DATA e verifica estrutura/CRCs. O INDEX é preservado. Falha de validação restaura o DATA anterior. Os testes de leitura/patch usam cópias isoladas, nunca a única carreira real.
+Ao selecionar um dos cards, um diálogo sobreposto com sinal sonoro instrui o usuário antes de o NAV iniciar o autosave. Aguarde o autosave, feche o FIFA completamente e escolha não salvar se outra pergunta aparecer ao sair. `retirement_offline_worker.exe` espera o processo encerrar e DATA/INDEX estabilizarem, guarda backups, altera somente o DATA e verifica estrutura/CRCs. O INDEX é preservado. Depois do processamento, o worker mostra uma confirmação e um sinal sonoro mesmo com o FIFA fechado; falhas também exibem o motivo. Reabra a carreira só depois da confirmação de conclusão. Falha de validação restaura o DATA anterior. Os testes de leitura/patch usam cópias isoladas, nunca a única carreira real.
 
 ## Componentes e instalação
 

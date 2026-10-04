@@ -26,6 +26,7 @@ static unsigned long native_generation(void);
 static int native_calendar_date(void *owner);
 static int native_competition_from_asset(int asset, int club, int hint);
 static int native_display_context_competition(int requested, int club);
+static int native_is_competition_round_provider(void *owner, void *provider);
 static void native_end(void);
 static void refresh_initial_competition_provider(unsigned long generation);
 static void clear_pending_stats_refresh(void);
@@ -3722,17 +3723,19 @@ static void stats_provider_with_diagnostics(void *provider_owner)
      * published FCE generation (including calendar advancement) can then
      * redraw the card immediately, without requiring screen navigation. */
     remember_pending_stats_refresh(provider_owner);
-    /* This header belongs to the nested classification card provider.  The
-     * original CM_STANDINGS_DP remains untouched and continues to build the
-     * first page.  Flux interprets LENGTH as the number of subtiles after the
-     * main page, exactly like the native nested career cards. */
-    if (ui_provider)
+    /* CM_STATISTICS_DP is shared by cards across several hub panels.  Only
+     * the custom competition-round tile owns the dynamic competition pages;
+     * changing LENGTH on another owner can manufacture pages over unrelated
+     * content such as the Central next-match card. */
+    if (ui_provider
+        && native_is_competition_round_provider(provider_owner, ui_provider))
     {
         int subtiles = g_competition_count > 1
             ? (int)g_competition_count - 1
             : 0;
-        if (subtiles > COMPETITION_TAB_CAPACITY - 1)
-            subtiles = COMPETITION_TAB_CAPACITY - 1;
+        /* The layout currently defines one main page and two subtile pages. */
+        if (subtiles > 2)
+            subtiles = 2;
         g_set_int(ui_provider, "LENGTH", subtiles);
     }
     native_publish(ui_provider);
@@ -4648,4 +4651,3 @@ BOOL WINAPI DllMain(HINSTANCE instance, DWORD reason, LPVOID reserved)
     }
     return TRUE;
 }
-

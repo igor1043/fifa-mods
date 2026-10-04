@@ -89,25 +89,57 @@ static void worker_log_result(const char *mod_dir, const char *data_path,
     fclose(file);
 }
 
-static void worker_show_success_feedback(const char *mode,
-    const RetirementApplyResult *result)
+static void worker_show_feedback(const char *text, UINT beep_type)
 {
-    const char *text;
     HWND window;
     COPYDATASTRUCT copy;
-    (void)mode;
-    text = result && result->players_changed
-        ? "Aposentadoria concluida com sucesso.\nO save esta pronto para ser reaberto."
-        : "Aposentadoria concluida.\nNenhuma alteracao adicional era necessaria.";
+    DWORD_PTR ignored = 0;
+    if (!text || !*text)
+        return;
+    MessageBeep(beep_type);
     window = FindWindowA("FifaRetirementFeedbackWindow", NULL);
     if (window) {
         memset(&copy, 0, sizeof(copy));
         copy.dwData = RETIREMENT_FEEDBACK_RESULT;
         copy.cbData = (DWORD)strlen(text) + 1U;
         copy.lpData = (PVOID)text;
-        (void)SendMessageA(window, WM_COPYDATA, 0, (LPARAM)&copy);
+        if (SendMessageTimeoutA(window, WM_COPYDATA, 0, (LPARAM)&copy,
+                SMTO_ABORTIFHUNG | SMTO_BLOCK, 1500U, &ignored))
+            return;
     }
-    MessageBeep(MB_OK);
+    /* The DLL overlay belongs to FIFA and disappears when its process exits.
+     * The worker runs after that exit, so report completion on the desktop. */
+    (void)MessageBoxA(NULL, text, "FIFA Friends - Aposentadoria",
+        MB_OK | MB_SETFOREGROUND | MB_TOPMOST);
+}
+
+static void worker_show_success_feedback(const char *mode, int target_age,
+    const RetirementApplyResult *result)
+{
+    char text[512];
+    if (mode && _stricmp(mode, "remove_and_rejuvenate") == 0) {
+        if (result && result->players_changed > 0U)
+            snprintf(text, sizeof(text),
+                "Aposentadoria removida e idade redefinida para %d anos em "
+                "%u jogador(es).\nO save foi validado e esta pronto para "
+                "reabrir a carreira.", target_age, result->players_changed);
+        else
+            lstrcpyA(text,
+                "Processamento de aposentadoria por idade concluido.\n"
+                "Nenhuma alteracao adicional era necessaria; o save esta "
+                "pronto para reabrir.");
+    } else if (result && result->players_changed > 0U) {
+        snprintf(text, sizeof(text),
+            "Aposentadoria removida de %u jogador(es).\n"
+            "O save foi validado e esta pronto para reabrir a carreira.",
+            result->players_changed);
+    } else {
+        lstrcpyA(text,
+            "Processamento concluido sem alteracoes.\n"
+            "Nenhuma alteracao adicional era necessaria; o save esta "
+            "pronto para reabrir.");
+    }
+    worker_show_feedback(text, MB_OK);
 }
 
 static int parse_unsigned(const char *value, unsigned long *result)
@@ -252,6 +284,7 @@ int main(int argc, char **argv)
     unsigned long quiet_value = 2500UL;
     ULONGLONG started_at;
     RetirementApplyResult result;
+    char feedback[512];
     if (!data_path || !*data_path || !parse_process_id(pid_text, &process_id)) {
         fprintf(stderr, "usage: retirement_offline_worker.exe --pid PID "
             "--data DATA --mode MODE --age AGE --quiet-ms MS --mod-dir DIR\n");
@@ -272,6 +305,10 @@ int main(int argc, char **argv)
         if (!wait_for_parent_exit(process_id)) {
             worker_log_event(mod_dir, "worker_error_parent_wait", data_path,
                 mode, worker_elapsed_ms(started_at));
+            worker_show_feedback(
+                "Nao foi possivel confirmar o fechamento completo do FIFA.\n"
+                "A operacao foi interrompida; verifique o save antes de reabrir.",
+                MB_ICONERROR);
             return 3;
         }
         worker_log_event(mod_dir, "worker_game_exited", data_path, mode,
@@ -283,6 +320,11 @@ int main(int argc, char **argv)
         worker_log_event(mod_dir, "worker_error_save_not_stable", data_path,
             mode, worker_elapsed_ms(started_at));
         fprintf(stderr, "DATA não estabilizou: %s\n", data_path);
+        snprintf(feedback, sizeof(feedback),
+            "O save nao ficou livre e estavel apos fechar o FIFA.\n"
+            "Nenhuma alteracao foi aplicada. Confira se o FIFA fechou "
+            "completamente e tente novamente.\nArquivo: %s", data_path);
+        worker_show_feedback(feedback, MB_ICONERROR);
         return 4;
     }
     memset(&result, 0, sizeof(result));
@@ -292,11 +334,16 @@ int main(int argc, char **argv)
         print_result(data_path, &result);
         worker_log_result(mod_dir, data_path, mode, worker_elapsed_ms(started_at),
             &result);
+        snprintf(feedback, sizeof(feedback),
+            "Nao foi possivel aplicar a operacao no save.\n%s\n"
+            "Confira o backup antes de abrir ou salvar esta carreira.",
+            result.message[0] ? result.message : "Erro sem detalhes adicionais.");
+        worker_show_feedback(feedback, MB_ICONERROR);
         return 5;
     }
     print_result(data_path, &result);
     worker_log_result(mod_dir, data_path, mode, worker_elapsed_ms(started_at),
         &result);
-    worker_show_success_feedback(mode, &result);
+    worker_show_success_feedback(mode, (int)age_value, &result);
     return 0;
 }

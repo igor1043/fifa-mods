@@ -83,6 +83,9 @@ static char g_retirement_deferred_paths[RETIREMENT_WATCH_CAPACITY][1024];
 #define RETIREMENT_FEEDBACK_SHOW (WM_APP + 0x164)
 #define RETIREMENT_FEEDBACK_RESULT 0x16401U
 #define RETIREMENT_FEEDBACK_HIDE_TIMER 1U
+#define RETIREMENT_FEEDBACK_WIDTH 780
+#define RETIREMENT_FEEDBACK_HEIGHT 176
+#define RETIREMENT_FEEDBACK_DURATION_MS 30000U
 #define RETIREMENT_CARD_REQUEST_COOLDOWN_MS 500ULL
 #define RETIREMENT_CARD_REQUEST_WINDOW_MS 15000ULL
 /* Kept only for the legacy input helper below.  The helper is no longer
@@ -97,7 +100,7 @@ static char g_retirement_deferred_paths[RETIREMENT_WATCH_CAPACITY][1024];
 static SRWLOCK g_retirement_feedback_lock = SRWLOCK_INIT;
 static HANDLE g_retirement_feedback_ready;
 static HWND g_retirement_feedback_window;
-static char g_retirement_feedback_text[256];
+static char g_retirement_feedback_text[512];
 
 static void retirement_feedback_start(void);
 
@@ -1308,27 +1311,14 @@ static void retirement_log_event(const char *event, const char *path)
 
 void retirement_engine_show_feedback(const char *text, UINT beep_type)
 {
-    HWND window;
-    COPYDATASTRUCT copy;
     if (!text || !*text)
         return;
-    window = g_retirement_feedback_window;
-    if (!window || !IsWindow(window)) {
-        g_retirement_feedback_window = NULL;
-        retirement_feedback_start();
-        window = g_retirement_feedback_window;
-    }
-    if (!window)
-        window = FindWindowA("FifaRetirementFeedbackWindow", NULL);
-    if (window) {
-        memset(&copy, 0, sizeof(copy));
-        copy.dwData = RETIREMENT_FEEDBACK_RESULT;
-        copy.cbData = (DWORD)strlen(text) + 1U;
-        copy.lpData = (PVOID)text;
-        (void)SendMessageA(window, WM_COPYDATA, 0, (LPARAM)&copy);
-    }
     if (beep_type)
         MessageBeep(beep_type);
+    /* A modal topmost prompt also works when FIFA uses exclusive fullscreen;
+     * the NAV flow continues after the user has read and dismissed it. */
+    (void)MessageBoxA(NULL, text, "FIFA Friends - Aposentadoria",
+        MB_OK | MB_SETFOREGROUND | MB_TOPMOST);
 }
 
 static void retirement_feedback_show_result(const RetirementApplyResult *result)
@@ -1342,10 +1332,13 @@ static void retirement_feedback_show_result(const RetirementApplyResult *result)
 
 static void retirement_feedback_show_ready(void)
 {
-    /* First tone: the card request is armed and the user may leave the save. */
+    /* The NAV prompt runs before the flow starts its automatic save.
+     * Dismissing it lets the autosave flow continue. */
     retirement_engine_show_feedback(
-        "Aposentadoria preparada. Feche o FIFA completamente.\n"
-        "Aguarde o processamento antes de reabrir a carreira.",
+        "Pedido de aposentadoria recebido. Aguarde o autosave da acao.\n"
+        "Depois, feche o FIFA completamente. Se aparecer outra pergunta\n"
+        "de salvamento ao sair, escolha NAO salvar. Aguarde a mensagem\n"
+        "e o sinal sonoro de conclusao antes de reabrir a carreira.",
         MB_ICONINFORMATION);
 }
 
@@ -1495,7 +1488,7 @@ static LRESULT CALLBACK retirement_feedback_window_proc(HWND window,
         HBRUSH background;
         HFONT font;
         HFONT previous_font;
-        char text[256];
+        char text[512];
         HDC dc = BeginPaint(window, &paint);
         GetClientRect(window, &client);
         background = CreateSolidBrush(RGB(31, 37, 48));
@@ -1558,15 +1551,17 @@ static LRESULT CALLBACK retirement_feedback_window_proc(HWND window,
         int x;
         int y;
         if (foreground && GetWindowRect(foreground, &target)) {
-            x = target.left + ((target.right - target.left) - 640) / 2;
+            x = target.left + ((target.right - target.left) - RETIREMENT_FEEDBACK_WIDTH) / 2;
             y = target.top + 42;
         } else {
-            x = (GetSystemMetrics(SM_CXSCREEN) - 640) / 2;
+            x = (GetSystemMetrics(SM_CXSCREEN) - RETIREMENT_FEEDBACK_WIDTH) / 2;
             y = 42;
         }
-        SetWindowPos(window, HWND_TOPMOST, x, y, 640, 96,
+        SetWindowPos(window, HWND_TOPMOST, x, y,
+            RETIREMENT_FEEDBACK_WIDTH, RETIREMENT_FEEDBACK_HEIGHT,
             SWP_NOACTIVATE | SWP_SHOWWINDOW);
-        SetTimer(window, RETIREMENT_FEEDBACK_HIDE_TIMER, 7000U, NULL);
+        SetTimer(window, RETIREMENT_FEEDBACK_HIDE_TIMER,
+            RETIREMENT_FEEDBACK_DURATION_MS, NULL);
         InvalidateRect(window, NULL, TRUE);
         return 0;
     }
