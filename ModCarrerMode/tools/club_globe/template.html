@@ -1,0 +1,292 @@
+<link rel="stylesheet" href="season_charts.css"><script src="season_charts.js"></script>
+<div id="ff-club-globe">
+  <style>
+    html,body{width:100%;height:100%;margin:0;overflow:hidden!important;overscroll-behavior:none}
+    @font-face{font-family:Manrope;src:url("fonts/Manrope-Variable.ttf") format("truetype");font-style:normal;font-weight:200 800;font-display:swap}
+    @font-face{font-family:"Barlow Condensed";src:url("fonts/BarlowCondensed-SemiBold.ttf") format("truetype");font-style:normal;font-weight:600;font-display:swap}
+    @font-face{font-family:"Barlow Condensed";src:url("fonts/BarlowCondensed-Bold.ttf") format("truetype");font-style:normal;font-weight:700;font-display:swap}
+    #ff-club-globe{--ff-bg:#080e18;--ff-panel:#101a27;--ff-panel-raised:#142234;--ff-line:#25394b;--ff-text:#ecf4fb;--ff-muted:#8ca3b6;--ff-blue:#59a9e8;font-family:Manrope,"Segoe UI",Arial,sans-serif;color:var(--ff-text);background:var(--ff-bg);max-width:1600px;width:100%;height:100vh;height:100dvh;min-height:0;margin:0 auto;display:flex;flex-direction:column;overflow:hidden;overscroll-behavior:none;font-size:15px;line-height:1.4;color-scheme:dark}
+    #ff-club-globe *{box-sizing:border-box}
+    #ff-club-globe .ff-header{flex:none;padding:clamp(10px,2.4vh,22px) 28px clamp(8px,2vh,18px);border-bottom:1px solid #1d2c3b;padding-right:112px;background:linear-gradient(110deg,#0b1420,#0a111b)}
+    #ff-club-globe .ff-brand{font-family:"Barlow Condensed",Manrope,sans-serif;font-size:13px;font-weight:600;letter-spacing:2px;color:#7e9bb3;margin-bottom:5px}
+    #ff-club-globe h1{font-family:"Barlow Condensed",Manrope,sans-serif;font-size:31px;font-weight:600;margin:0;color:#eef6fd;line-height:1.1}
+    #ff-club-globe .ff-subtitle{margin:5px 0 0;color:var(--ff-muted);font-size:13px}
+    #ff-club-globe .ff-main{display:grid;grid-template-columns:minmax(280px,1fr) minmax(0,2fr);flex:1;min-height:0;overflow:hidden}
+    #ff-club-globe .ff-selector{padding:clamp(8px,2.2vh,20px);display:flex;flex-direction:column;gap:clamp(6px,1.4vh,12px);min-width:0;min-height:0;overflow:hidden;background:#0a121d;border-right:1px solid #1a2a39}
+    #ff-club-globe .ff-choice{background:linear-gradient(145deg,#111d2b,#0f1925);border:1px solid var(--ff-line);border-radius:8px;padding:14px 15px;min-width:0;box-shadow:0 8px 20px #0002;transition:border-color .15s,box-shadow .15s,transform .15s;cursor:pointer}
+    #ff-club-globe .ff-choice:focus-within,#ff-club-globe .ff-choice[data-active="true"]{border-color:#6bb9f3;box-shadow:0 0 0 2px #315f7e,0 8px 24px #0005;transform:translateX(2px)}
+    #ff-club-globe .ff-choice:focus-visible{outline:2px solid #9ad8ff;outline-offset:3px}
+    #ff-club-globe .ff-choice-top{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:9px}
+    #ff-club-globe .ff-label{font-family:"Barlow Condensed",Manrope,sans-serif;font-size:13px;letter-spacing:1.65px;font-weight:700;color:#8aabc4}
+    #ff-club-globe .ff-arrows{display:flex;gap:6px}
+    #ff-club-globe button{font:inherit;border:1px solid #2a4054;background:#17283a;color:#dceaf5;border-radius:5px;min-width:34px;min-height:32px;font-size:21px;line-height:1;padding:2px 8px;transition:background .15s,border-color .15s,transform .15s}
+    #ff-club-globe button:hover{background:#203b53;border-color:#4b7697}
+    #ff-club-globe button:active{transform:scale(.96)}
+    #ff-club-globe button:focus-visible{outline:2px solid #6bb9f3;outline-offset:2px}
+    #ff-club-globe .ff-choice-content{display:flex;align-items:center;gap:14px;min-width:0;min-height:60px}
+    #ff-club-globe .ff-country-icon{width:56px;height:42px;object-fit:contain;flex:none;border-radius:4px;background:#09121c;box-shadow:0 2px 8px #0006}
+    #ff-club-globe .ff-league-icon{width:54px;height:54px;object-fit:contain;flex:none;filter:drop-shadow(0 2px 4px #0009)}
+    #ff-club-globe .ff-choice-name{font-family:"Barlow Condensed",Manrope,sans-serif;font-size:22px;font-weight:600;line-height:1.12;overflow-wrap:anywhere;color:#edf5fb}
+    #ff-club-globe .ff-choice-meta{font-size:12px;color:var(--ff-muted);margin-top:5px}
+    #ff-club-globe .ff-team-choice{flex:1;min-height:0;display:flex;flex-direction:column;justify-content:space-between;background:radial-gradient(ellipse at 68% 22%,#19334a 0%,#111e2c 54%,#0e1722 100%)}
+    #ff-club-globe .ff-team-content{flex:1;min-height:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;text-align:center;padding:4px 5px 12px}
+    #ff-club-globe .ff-team-emblem{width:100px;height:100px;object-fit:contain;filter:drop-shadow(0 8px 12px #0009)}
+    #ff-club-globe .ff-monogram{width:100px;height:100px;display:grid;place-items:center;border:1px solid #35506a;border-radius:50%;font-size:40px;letter-spacing:-3px;color:#a3c3dd;background:#0c1723}
+    #ff-club-globe .ff-monogram[hidden]{display:none}
+    #ff-club-globe .ff-team-name{font-family:"Barlow Condensed",Manrope,sans-serif;font-size:27px;font-weight:600;line-height:1.12;max-width:100%;overflow-wrap:anywhere;color:#f2f7fb}
+    #ff-club-globe .ff-team-location{font-size:13px;color:#a8bfd2;margin-top:1px}
+    #ff-club-globe .ff-team-location[hidden]{display:none}
+    #ff-club-globe .ff-team-stars{display:flex;align-items:center;justify-content:center;gap:5px;min-height:23px;margin-top:1px}
+    #ff-club-globe .ff-star{font-size:21px;line-height:1;background:linear-gradient(90deg,#83ceff var(--ff-star-fill),#30485d var(--ff-star-fill));background-clip:text;-webkit-background-clip:text;-webkit-text-fill-color:transparent;filter:drop-shadow(0 1px 4px #78c7ff30)}
+    #ff-club-globe .ff-team-attributes{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));width:min(100%,280px);border-top:1px solid #2b4154;margin-top:3px;padding-top:8px}
+    #ff-club-globe .ff-team-attribute{display:flex;flex-direction:column;align-items:center;gap:1px}
+    #ff-club-globe .ff-team-attribute+.ff-team-attribute{border-left:1px solid #293c4e}
+    #ff-club-globe .ff-team-attribute span{font-family:"Barlow Condensed",Manrope,sans-serif;font-size:12px;line-height:1.1;letter-spacing:1.3px;font-weight:700;color:#8ba8be}
+    #ff-club-globe .ff-team-attribute strong{font-family:"Barlow Condensed",Manrope,sans-serif;font-size:25px;line-height:1.05;font-weight:700;color:#eaf5fc;font-variant-numeric:tabular-nums}
+    #ff-club-globe .ff-team-bottom{border-top:1px solid #293c4e;padding-top:10px;display:flex;align-items:center;justify-content:space-between;gap:10px}
+    #ff-club-globe .ff-count{font-size:11px;color:#829bb0}
+    #ff-club-globe .ff-world{position:relative;isolation:isolate;min-width:0;min-height:0;overflow:hidden;background:radial-gradient(ellipse at 48% 44%,#142a3d 0%,#091421 58%,#050b13 100%);color:#e7f3ff}
+    #ff-club-globe .ff-world-head{position:absolute;top:21px;left:25px;right:20px;z-index:2;pointer-events:none;text-shadow:0 2px 12px #000b}
+    #ff-club-globe .ff-world-kicker{font-size:10px;letter-spacing:2px;color:#8caec8}
+    #ff-club-globe .ff-world-title-row{display:flex;align-items:center;gap:10px;margin-top:5px}
+    #ff-club-globe .ff-world-league-icon{width:34px;height:34px;flex:none;object-fit:contain;filter:drop-shadow(0 2px 5px #000b)}
+    #ff-club-globe .ff-world-league-icon[hidden]{display:none}
+    #ff-club-globe .ff-world-title{font-family:"Barlow Condensed",Manrope,sans-serif;font-size:29px;font-weight:600;line-height:1.1;margin:0;color:#edf6ff}
+    #ff-club-globe canvas{position:absolute;inset:0;display:block;width:100%;height:100%;touch-action:none;cursor:grab}
+    #ff-club-globe canvas:active{cursor:grabbing}
+    #ff-club-globe .ff-pin{position:absolute;z-index:3;pointer-events:none;width:64px;height:64px;transform:translate(-50%,-100%)}
+    #ff-club-globe .ff-pin[hidden]{display:none}
+    #ff-club-globe .ff-pin img{width:64px;height:64px;object-fit:contain;filter:drop-shadow(0 3px 8px #000f)}
+    #ff-club-globe .ff-pin-stem{height:16px;width:2px;background:#a2d7ff;margin:auto}
+    #ff-club-globe .ff-sr{position:absolute;width:1px;height:1px;padding:0;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap}
+    #ff-club-globe .ff-feedback{position:absolute;right:22px;bottom:20px;z-index:4;max-width:70%;border:1px solid #4e8db8;border-radius:999px;padding:8px 13px;background:#0a1723ed;color:#e9f6ff;font-size:12px;box-shadow:0 5px 20px #0008}
+    #ff-club-globe .ff-feedback[hidden]{display:none}
+    #ff-club-globe>ff-control-hints{display:block;position:relative;flex:none;z-index:8}
+    @media(max-width:760px){#ff-club-globe .ff-main{grid-template-columns:minmax(145px,42%) minmax(0,58%)}#ff-club-globe .ff-selector{padding:8px;gap:7px}#ff-club-globe .ff-choice{padding:9px 8px}#ff-club-globe .ff-choice-top{gap:5px;margin-bottom:6px}#ff-club-globe .ff-choice-content{gap:7px;min-height:42px}#ff-club-globe .ff-country-icon{width:35px;height:28px}#ff-club-globe .ff-league-icon{width:34px;height:34px}#ff-club-globe .ff-choice-name{font-size:16px}#ff-club-globe .ff-choice-meta{font-size:10px;margin-top:3px}#ff-club-globe .ff-arrows{gap:3px}#ff-club-globe button{min-width:28px;min-height:27px;font-size:18px;padding:1px 5px}#ff-club-globe .ff-team-content{gap:5px;padding:2px 2px 6px}#ff-club-globe .ff-team-emblem,#ff-club-globe .ff-monogram{width:64px;height:64px}#ff-club-globe .ff-team-name{font-size:19px}#ff-club-globe .ff-team-location{font-size:11px}#ff-club-globe .ff-team-stars{gap:2px;min-height:18px}#ff-club-globe .ff-star{font-size:17px}#ff-club-globe .ff-team-attributes{padding-top:5px;width:min(100%,210px)}#ff-club-globe .ff-team-attribute strong{font-size:20px}#ff-club-globe .ff-team-bottom{padding-top:6px}#ff-club-globe .ff-world-head{top:12px;left:12px;right:10px}#ff-club-globe .ff-world-title-row{gap:6px}#ff-club-globe .ff-world-league-icon{width:26px;height:26px}#ff-club-globe .ff-world-title{font-size:20px}#ff-club-globe .ff-header{padding:10px 18px 8px;padding-right:100px}#ff-club-globe h1{font-size:23px}#ff-club-globe .ff-subtitle{font-size:11px;margin-top:3px}#ff-club-globe ff-control-hints .bar{padding:4px 5px;gap:4px 0}#ff-club-globe ff-control-hints .item{gap:4px;padding:0 4px;font-size:9px}#ff-club-globe ff-control-hints kbd{min-width:20px;min-height:19px;font-size:9px;padding:1px 3px}#ff-club-globe ff-control-hints .controller-key{width:21px;height:21px;font-size:10px}}
+    @media(max-height:760px){#ff-club-globe .ff-header{padding-top:8px;padding-bottom:7px}#ff-club-globe .ff-subtitle{display:none}#ff-club-globe .ff-team-content{gap:6px;padding-bottom:7px}#ff-club-globe .ff-team-emblem,#ff-club-globe .ff-monogram{width:76px;height:76px}#ff-club-globe .ff-team-name{font-size:23px}#ff-club-globe .ff-team-stars{min-height:19px}#ff-club-globe .ff-star{font-size:18px}#ff-club-globe .ff-team-attributes{padding-top:5px}#ff-club-globe .ff-team-attribute strong{font-size:21px}#ff-club-globe ff-control-hints .bar{min-height:40px;padding-top:4px;padding-bottom:4px}}
+    @media(max-height:600px){#ff-club-globe .ff-header{padding:5px 18px}#ff-club-globe h1{font-size:21px}#ff-club-globe .ff-selector{padding:6px;gap:5px}#ff-club-globe .ff-choice{padding:7px}#ff-club-globe .ff-choice-content{min-height:34px}#ff-club-globe .ff-country-icon{width:30px;height:24px}#ff-club-globe .ff-league-icon{width:29px;height:29px}#ff-club-globe .ff-team-emblem,#ff-club-globe .ff-monogram{width:55px;height:55px}#ff-club-globe .ff-team-content{gap:3px;padding-bottom:4px}#ff-club-globe .ff-team-name{font-size:19px}#ff-club-globe .ff-team-stars{min-height:16px}#ff-club-globe .ff-star{font-size:15px}#ff-club-globe .ff-team-attributes{padding-top:3px}#ff-club-globe .ff-team-attribute span{font-size:10px}#ff-club-globe .ff-team-attribute strong{font-size:17px}#ff-club-globe .ff-world-title-row{margin-top:2px}#ff-club-globe .ff-world-title{font-size:22px}#ff-club-globe .ff-world-league-icon{width:24px;height:24px}}
+    @media(max-height:760px){#ff-club-globe .ff-choice{padding-top:9px;padding-bottom:9px}#ff-club-globe .ff-choice-content{min-height:48px}#ff-club-globe .ff-country-icon{width:48px;height:36px}#ff-club-globe .ff-league-icon{width:44px;height:44px}#ff-club-globe .ff-choice-top{margin-bottom:5px}}
+    @media(max-height:420px){#ff-club-globe .ff-header{padding:3px 12px}#ff-club-globe .ff-brand{display:none}#ff-club-globe h1{font-size:18px}#ff-club-globe .ff-selector{padding:4px;gap:3px}#ff-club-globe .ff-choice{padding:5px}#ff-club-globe .ff-choice-top{margin-bottom:2px}#ff-club-globe .ff-label{font-size:10px;letter-spacing:1px}#ff-club-globe .ff-arrows{gap:2px}#ff-club-globe button{min-width:24px;min-height:23px;font-size:16px}#ff-club-globe .ff-choice-content{min-height:28px;gap:5px}#ff-club-globe .ff-country-icon{width:26px;height:21px}#ff-club-globe .ff-league-icon{width:24px;height:24px}#ff-club-globe .ff-choice-name{font-size:16px}#ff-club-globe .ff-choice-meta{font-size:9px}#ff-club-globe .ff-team-emblem,#ff-club-globe .ff-monogram{width:42px;height:42px}#ff-club-globe .ff-team-content{gap:2px;padding:0}#ff-club-globe .ff-team-name{font-size:16px}#ff-club-globe .ff-team-location{font-size:9px}#ff-club-globe .ff-team-stars{min-height:13px;gap:1px}#ff-club-globe .ff-star{font-size:12px}#ff-club-globe .ff-team-attributes{padding-top:2px}#ff-club-globe .ff-team-attribute span{font-size:8px}#ff-club-globe .ff-team-attribute strong{font-size:14px}#ff-club-globe .ff-team-bottom{padding-top:3px}}
+  </style>
+  <style>
+    #ff-club-globe[data-view="club-info"] .ff-header,#ff-club-globe[data-view="club-info"] .ff-main{display:none}
+    #ff-club-globe .ff-info-view{display:flex;flex:1;flex-direction:column;gap:clamp(6px,1vh,10px);min-height:0;overflow:hidden;padding:10px 16px 12px;background:radial-gradient(ellipse at 78% 14%,#14253a 0%,#0a121d 58%,#080e18 100%)}
+    #ff-club-globe .ff-info-view[hidden],#ff-club-globe .ff-info-top[hidden]{display:none}
+    #ff-club-globe .ff-info-top{height:34px;flex:none;display:flex;align-items:center;gap:12px;min-width:0}
+    #ff-club-globe .ff-info-back{min-width:34px;width:34px;height:30px;padding:0;border-radius:50%;font-size:19px;color:#d8e8f5}
+    #ff-club-globe .ff-info-crumb{font-family:"Barlow Condensed",Manrope,sans-serif;font-size:11px;letter-spacing:1.8px;color:#86a2ba}
+    #ff-club-globe .ff-info-hero{height:clamp(68px,10vh,94px);flex:none;display:flex;align-items:center;gap:16px;padding:12px 20px;border-radius:9px;overflow:hidden;background:var(--club-primary,#1b3764);color:var(--club-ink,#fff);box-shadow:0 12px 30px #0004;position:relative}
+    #ff-club-globe .ff-info-hero:after{content:"";position:absolute;inset:0;background:linear-gradient(105deg,transparent 42%,#fff0 60%,#fff1 100%);pointer-events:none}
+    #ff-club-globe .ff-info-crest{width:58px;height:58px;object-fit:contain;flex:none;filter:drop-shadow(0 3px 5px #0005)}
+    #ff-club-globe .ff-info-title{min-width:0;position:relative;z-index:1}
+    #ff-club-globe .ff-info-title h2{font-family:"Barlow Condensed",Manrope,sans-serif;font-size:clamp(22px,3.3vh,34px);line-height:1.02;margin:0;font-weight:700;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+    #ff-club-globe .ff-info-meta{display:flex;align-items:center;gap:7px;margin-top:5px;font-size:11px;opacity:.85}
+    #ff-club-globe .ff-info-league-logo{width:18px;height:18px;object-fit:contain}
+    #ff-club-globe .ff-rating-strip{height:clamp(54px,8vh,76px);flex:none;display:grid;grid-template-columns:1.35fr repeat(3,1fr);gap:8px;min-height:0}
+    #ff-club-globe .ff-rating-overall,#ff-club-globe .ff-rating-stat{display:flex;align-items:center;gap:10px;min-width:0;padding:8px 13px;background:linear-gradient(140deg,#122235,#0e1926);border:1px solid #263b4e;border-radius:8px}
+    #ff-club-globe .ff-rating-overall strong{font-family:"Barlow Condensed",Manrope,sans-serif;font-size:clamp(26px,4.4vh,42px);line-height:1;color:#f2f8fc}
+    #ff-club-globe .ff-rating-overall small,#ff-club-globe .ff-rating-stat small{font-size:9px;letter-spacing:1.5px;color:#8ca6bc;text-transform:uppercase}
+    #ff-club-globe .ff-info-stars{color:#77c9ff;letter-spacing:1px;font-size:15px;white-space:nowrap}
+    #ff-club-globe .ff-rating-stat{justify-content:space-between}
+    #ff-club-globe .ff-rating-stat strong{font-family:"Barlow Condensed",Manrope,sans-serif;font-size:clamp(20px,3.2vh,31px);line-height:1;color:#e9f4fb}
+    #ff-club-globe .ff-info-dashboard{flex:1;min-height:0;display:grid;grid-template-columns:minmax(0,1.42fr) minmax(300px,.88fr);gap:clamp(6px,1vh,10px);overflow:hidden}
+    #ff-club-globe .ff-info-left,#ff-club-globe .ff-info-right{display:grid;gap:clamp(6px,1vh,10px);min-width:0;min-height:0;overflow:hidden}
+    #ff-club-globe .ff-info-left{grid-template-rows:minmax(0,1.4fr) minmax(0,.72fr)}
+    #ff-club-globe .ff-info-right{grid-template-rows:minmax(0,.72fr) minmax(0,.9fr) minmax(0,.65fr)}
+    #ff-club-globe .ff-info-card{position:relative;min-width:0;min-height:0;overflow:hidden;border:1px solid #263b4e;border-radius:8px;background:linear-gradient(145deg,#111d2b,#0b1420);box-shadow:0 8px 20px #0002;padding:10px 12px}
+    #ff-club-globe .ff-info-card-head{display:flex;align-items:center;justify-content:space-between;gap:8px;min-height:20px;margin-bottom:6px}
+    #ff-club-globe .ff-info-card h3{font-family:"Barlow Condensed",Manrope,sans-serif;font-size:14px;line-height:1.1;letter-spacing:.55px;margin:0;color:#e9f4fb}
+    #ff-club-globe .ff-info-kicker{font-size:9px;color:#84a0b7;letter-spacing:.8px;white-space:nowrap}
+    #ff-club-globe .ff-xi-card{display:flex;flex-direction:column;padding:10px 12px 8px}
+    #ff-club-globe .ff-xi-card .ff-info-card-head{flex:none}
+    #ff-club-globe .ff-xi-scene{position:relative;flex:1;min-height:0;overflow:hidden;border-radius:6px;background:radial-gradient(ellipse at 50% 54%,#254a43,#101f27 71%,#0b131c);touch-action:none;cursor:grab}
+    #ff-club-globe .ff-xi-scene:active{cursor:grabbing}
+    #ff-club-globe .ff-xi-scene canvas{position:absolute;inset:0;width:100%;height:100%;display:block}
+    #ff-club-globe .ff-xi-empty{position:absolute;inset:0;display:grid;place-items:center;padding:20px;text-align:center;color:#aac0d0;font-size:12px;line-height:1.45;background:radial-gradient(ellipse,#112531ad,#08131ad9)}
+    #ff-club-globe .ff-xi-empty[hidden]{display:none}
+    #ff-club-globe .ff-xi-summary{display:flex;align-items:center;justify-content:space-between;gap:8px;flex:none;height:22px;padding-top:4px;color:#95adbf;font-size:9px}
+    #ff-club-globe .ff-xi-summary strong{color:#d8eafa;font-size:9px;letter-spacing:.6px}
+    #ff-club-globe .ff-highlights{display:flex;flex-direction:column}
+    #ff-club-globe .ff-highlight-list{flex:1;min-height:0;display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:7px}
+    #ff-club-globe .ff-highlight{position:relative;display:flex;flex-direction:column;justify-content:flex-end;min-width:0;overflow:hidden;border:1px solid #344757;border-radius:6px;background:linear-gradient(160deg,#263b4d,#121e29 62%,#0b131c);padding:5px 6px}
+    #ff-club-globe .ff-highlight img{position:absolute;right:-4px;top:0;width:54%;height:75%;object-fit:cover;object-position:center top;opacity:.84;mask-image:linear-gradient(#000 55%,transparent 100%)}
+    #ff-club-globe .ff-highlight-rating{position:relative;z-index:1;font-family:"Barlow Condensed",Manrope,sans-serif;font-size:18px;font-weight:700;line-height:1;color:#f2f8fc;text-shadow:0 1px 5px #000}
+    #ff-club-globe .ff-highlight-pos{font-size:8px;color:#8bbadc;letter-spacing:1px}
+    #ff-club-globe .ff-highlight-name{position:relative;z-index:1;font-size:9px;font-weight:700;line-height:1.1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color:#e8f3fb}
+    #ff-club-globe .ff-career-card{display:grid;grid-template-columns:1fr auto;align-items:center;gap:8px}
+    #ff-club-globe .ff-career-stats{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:4px}
+    #ff-club-globe .ff-career-stat{text-align:center;border-right:1px solid #293d4e}
+    #ff-club-globe .ff-career-stat:last-child{border:0}
+    #ff-club-globe .ff-career-stat strong{display:block;font-family:"Barlow Condensed",Manrope,sans-serif;font-size:19px;line-height:1.05;color:#eaf5fc}
+    #ff-club-globe .ff-career-stat span{display:block;font-size:8px;color:#8ca6bb;white-space:nowrap}
+    #ff-club-globe .ff-title-badge{width:48px;height:48px;border:1px solid #2e4860;border-radius:50%;display:grid;place-items:center;color:#a9cff0;font-size:20px;background:radial-gradient(circle,#23445e,#111e2c 70%)}
+    #ff-club-globe .ff-stadium-card{display:flex;flex-direction:column}
+    #ff-club-globe .ff-stadium-image{width:100%;flex:1;min-height:0;object-fit:cover;border-radius:5px;filter:saturate(.84) brightness(.82)}
+    #ff-club-globe .ff-stadium-placeholder{flex:1;min-height:24px;border-radius:5px;background:linear-gradient(180deg,#192e3c,#101a25);display:grid;place-items:center;color:#6d899e;font-size:9px}
+    #ff-club-globe .ff-stadium-placeholder[hidden]{display:none}
+    #ff-club-globe .ff-stadium-info{display:flex;align-items:center;justify-content:space-between;gap:8px;padding-top:6px;font-size:10px;color:#a5b9c8}
+    #ff-club-globe .ff-stadium-info strong{font-size:11px;color:#e8f4fb;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+    #ff-club-globe .ff-kit-card{display:flex;flex-direction:column}
+    #ff-club-globe .ff-kit-list{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:7px;flex:1;min-height:0}
+    #ff-club-globe .ff-kit{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;min-width:0;border-radius:5px;background:#0b1520;border:1px solid #1c3042}
+    #ff-club-globe .ff-kit img,#ff-club-globe .ff-kit svg{height:min(70%,90px);width:80%;max-width:94px;filter:drop-shadow(0 4px 5px #0007)}
+    #ff-club-globe .ff-kit img,#ff-club-globe .ff-kit svg{height:clamp(40px,7vh,72px);width:auto;max-width:94px;flex:none}
+    #ff-club-globe .ff-kit img{object-fit:contain}
+    #ff-club-globe .ff-kit span{font-size:8px;color:#9ab0c2;white-space:nowrap}
+    #ff-club-globe[data-view="club-info"] .ff-info-top{padding:0 2px}
+    #ff-club-globe[data-view="club-info"] ff-control-hints .bar{min-height:36px}
+    @media(max-width:850px){#ff-club-globe .ff-info-view{padding:7px}#ff-club-globe .ff-info-dashboard{grid-template-columns:minmax(0,1.15fr) minmax(220px,.85fr)}#ff-club-globe .ff-info-hero{padding:8px 12px}#ff-club-globe .ff-info-crest{width:46px;height:46px}#ff-club-globe .ff-info-card{padding:8px}#ff-club-globe .ff-highlight-list{gap:4px}}
+    @media(max-height:680px){#ff-club-globe .ff-info-view{gap:5px;padding:5px 10px 7px}#ff-club-globe .ff-info-top{height:26px}#ff-club-globe .ff-info-back{height:24px;min-width:28px;width:28px;font-size:16px}#ff-club-globe .ff-info-hero{height:56px;padding:6px 12px;gap:10px}#ff-club-globe .ff-info-crest{width:40px;height:40px}#ff-club-globe .ff-info-title h2{font-size:23px}#ff-club-globe .ff-info-meta{margin-top:2px;font-size:9px}#ff-club-globe .ff-rating-strip{height:43px;gap:5px}#ff-club-globe .ff-rating-overall,#ff-club-globe .ff-rating-stat{padding:4px 8px;gap:5px}#ff-club-globe .ff-rating-overall strong{font-size:26px}#ff-club-globe .ff-info-stars{font-size:11px}#ff-club-globe .ff-rating-stat strong{font-size:21px}#ff-club-globe .ff-info-dashboard{gap:5px}#ff-club-globe .ff-info-left,#ff-club-globe .ff-info-right{gap:5px}#ff-club-globe .ff-info-card{padding:6px 8px}#ff-club-globe .ff-info-card-head{min-height:16px;margin-bottom:3px}#ff-club-globe .ff-info-card h3{font-size:12px}#ff-club-globe .ff-xi-summary{height:16px;font-size:8px}#ff-club-globe .ff-highlight{padding:3px}#ff-club-globe .ff-highlight-rating{font-size:14px}#ff-club-globe .ff-highlight-name{font-size:8px}#ff-club-globe .ff-career-stat strong{font-size:15px}#ff-club-globe .ff-title-badge{width:36px;height:36px}#ff-club-globe .ff-stadium-info{padding-top:3px;font-size:9px}#ff-club-globe .ff-kit img,#ff-club-globe .ff-kit svg{height:min(66%,70px)}}
+    @media(max-width:620px){#ff-club-globe .ff-info-dashboard{grid-template-columns:minmax(0,1fr) minmax(190px,.78fr)}#ff-club-globe .ff-info-left{grid-template-rows:minmax(0,1fr) minmax(0,.55fr)}#ff-club-globe .ff-info-right{grid-template-rows:minmax(0,.65fr) minmax(0,.85fr) minmax(0,.55fr)}#ff-club-globe .ff-info-hero{gap:8px;padding:6px 8px}#ff-club-globe .ff-info-meta{gap:4px}#ff-club-globe .ff-info-crest{width:36px;height:36px}#ff-club-globe .ff-rating-overall,#ff-club-globe .ff-rating-stat{padding:3px 5px}#ff-club-globe .ff-rating-overall small,#ff-club-globe .ff-rating-stat small{font-size:7px}#ff-club-globe .ff-highlight-list{gap:3px}}
+    @media(max-height:500px){#ff-club-globe .ff-info-view{gap:3px;padding:3px 6px}#ff-club-globe .ff-info-top{height:21px}#ff-club-globe .ff-info-hero{height:42px}#ff-club-globe .ff-info-title h2{font-size:18px}#ff-club-globe .ff-info-meta{display:none}#ff-club-globe .ff-info-crest{width:30px;height:30px}#ff-club-globe .ff-rating-strip{height:34px}#ff-club-globe .ff-rating-overall strong{font-size:20px}#ff-club-globe .ff-info-stars{font-size:9px}#ff-club-globe .ff-rating-stat strong{font-size:16px}#ff-club-globe .ff-info-dashboard,#ff-club-globe .ff-info-left,#ff-club-globe .ff-info-right{gap:3px}#ff-club-globe .ff-info-left{grid-template-rows:minmax(0,1fr) minmax(0,.4fr)}#ff-club-globe .ff-info-right{grid-template-rows:minmax(0,.55fr) minmax(0,.7fr) minmax(0,.45fr)}#ff-club-globe .ff-info-card{padding:4px 5px}#ff-club-globe .ff-info-card h3{font-size:10px}#ff-club-globe .ff-info-card-head{min-height:12px;margin-bottom:2px}#ff-club-globe .ff-xi-summary{height:13px}#ff-club-globe .ff-highlight img{height:65%}#ff-club-globe .ff-highlight-rating{font-size:11px}#ff-club-globe .ff-highlight-name{font-size:6px}#ff-club-globe .ff-career-stat strong{font-size:12px}#ff-club-globe .ff-career-stat span{font-size:6px}#ff-club-globe .ff-title-badge{width:27px;height:27px;font-size:14px}#ff-club-globe .ff-stadium-info{padding-top:2px;font-size:7px}#ff-club-globe .ff-stadium-info strong{font-size:8px}#ff-club-globe .ff-kit-list{gap:3px}#ff-club-globe .ff-kit span{font-size:6px}#ff-club-globe[data-view="club-info"] ff-control-hints .bar{min-height:26px}}
+  </style>
+  <style>
+    #ff-club-globe .ff-info-view{overflow-x:hidden;overflow-y:auto;overscroll-behavior:contain;scrollbar-color:#38546b #09121c;scrollbar-width:thin}
+    #ff-club-globe .ff-info-dashboard{flex:none;align-items:start;overflow:visible}
+    #ff-club-globe .ff-info-left,#ff-club-globe .ff-info-right{display:flex;flex-direction:column;gap:10px;min-height:0;overflow:visible}
+    #ff-club-globe .ff-info-card[data-nav-card]{outline:none;transition:border-color .14s,box-shadow .14s}
+    #ff-club-globe .ff-info-card[data-nav-card]:focus-visible,#ff-club-globe .ff-info-card[data-nav-card][data-focused="true"]{border-color:#75c4fa;box-shadow:0 0 0 2px #3c88b65c,0 10px 25px #0004}
+    #ff-club-globe .ff-info-hero{margin-bottom:2px}
+    #ff-club-globe .ff-rating-strip{margin-bottom:2px}
+    #ff-club-globe .ff-xi-card{height:clamp(260px,42vh,430px);flex:none}
+    #ff-club-globe .ff-xi-scene{cursor:default;touch-action:auto;background:radial-gradient(ellipse at 50% 60%,#284e46,#101e25 72%,#0a1119)}
+    #ff-club-globe .ff-xi-scene img{position:absolute;inset:0;width:100%;height:100%;object-fit:contain;display:block}
+    #ff-club-globe .ff-pitch-card{height:clamp(250px,38vh,390px);flex:none;display:flex;flex-direction:column}
+    #ff-club-globe .ff-pitch-surface{position:relative;flex:1;min-height:175px;overflow:hidden;border:1px solid #6c9d8b;border-radius:7px;background:repeating-linear-gradient(0deg,#21543e 0 11.11%,#1c4938 11.11% 22.22%);box-shadow:inset 0 0 35px #07130d8c}
+    #ff-club-globe .ff-pitch-surface:before{content:"";position:absolute;inset:5%;border:1px solid #b6d9c077;border-radius:2px;background:linear-gradient(90deg,transparent 49.8%,#b6d9c055 49.8% 50.2%,transparent 50.2%)}
+    #ff-club-globe .ff-pitch-surface:after{content:"";position:absolute;width:18%;aspect-ratio:1;border:1px solid #b6d9c055;border-radius:50%;left:41%;top:41%;pointer-events:none}
+    #ff-club-globe .ff-pitch-player{position:absolute;z-index:1;display:flex;flex-direction:column;align-items:center;gap:2px;transform:translate(-50%,-50%);width:clamp(43px,7vw,68px);text-align:center}
+    #ff-club-globe .ff-pitch-player img{width:clamp(25px,4vh,38px);height:clamp(25px,4vh,38px);object-fit:cover;border:1px solid #e9f6ef;border-radius:50%;background:#07121b;box-shadow:0 2px 5px #0008}
+    #ff-club-globe .ff-pitch-player b{max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;padding:1px 4px;border-radius:3px;background:#07131edb;color:#f1f8f3;font-size:8px;line-height:1.2}
+    #ff-club-globe .ff-pitch-player small{padding:0 3px;border-radius:2px;background:#07131edb;color:#a5d9ff;font-size:7px;font-weight:800}
+    #ff-club-globe .ff-pitch-empty{position:absolute;inset:0;display:grid;place-items:center;padding:16px;text-align:center;color:#b2c7ba;font-size:11px}
+    #ff-club-globe .ff-pitch-empty[hidden]{display:none}
+    #ff-club-globe .ff-coach-card{flex:none;min-height:250px;display:flex;flex-direction:column}
+    #ff-club-globe .ff-coach-body{display:grid;grid-template-columns:minmax(0,.78fr) minmax(130px,1.22fr);gap:12px;align-items:center;min-height:190px;flex:1}
+    #ff-club-globe .ff-coach-identity{display:flex;align-items:center;gap:10px;min-width:0}
+    #ff-club-globe .ff-coach-photo{width:clamp(60px,8vw,94px);height:clamp(72px,15vh,136px);object-fit:cover;object-position:center 22%;border:1px solid #39556b;border-radius:7px;background:radial-gradient(ellipse,#2a4051,#0a121c);box-shadow:0 6px 16px #0005;flex:none}
+    #ff-club-globe .ff-coach-photo[hidden],#ff-club-globe .ff-coach-model[hidden]{display:none}
+    #ff-club-globe .ff-coach-name{font-family:"Barlow Condensed",Manrope,sans-serif;font-size:clamp(17px,2.2vh,23px);line-height:1.05;font-weight:700;color:#eef6fb;overflow-wrap:anywhere}
+    #ff-club-globe .ff-coach-country{display:flex;align-items:center;gap:5px;margin-top:7px;color:#a9bdce;font-size:10px}
+    #ff-club-globe .ff-coach-flag{font-size:15px;line-height:1}
+    #ff-club-globe .ff-coach-photo-note{margin-top:6px;color:#71899d;font-size:8px;line-height:1.35}
+    #ff-club-globe .ff-coach-model-wrap{position:relative;min-width:0;height:clamp(155px,25vh,235px);overflow:hidden;border-radius:6px;background:radial-gradient(ellipse at 50% 65%,#233b50,#0c1520 72%)}
+    #ff-club-globe .ff-coach-model{width:100%;height:100%;object-fit:contain;display:block}
+    #ff-club-globe .ff-coach-model-label{position:absolute;left:7px;bottom:6px;padding:3px 6px;border:1px solid #ffffff1c;border-radius:4px;background:#07111cd9;color:#a8c2d4;font-size:8px;letter-spacing:.5px}
+    #ff-club-globe .ff-coach-empty{min-height:130px;display:grid;place-items:center;padding:18px;text-align:center;color:#8ea5b8;font-size:11px}
+    #ff-club-globe .ff-history-card{flex:none;min-height:170px}
+    #ff-club-globe .ff-history-list{display:flex;flex-direction:column;gap:5px}
+    #ff-club-globe .ff-history-entry{width:100%;display:grid;grid-template-columns:minmax(95px,.7fr) minmax(105px,1fr) auto;align-items:center;gap:8px;min-height:37px;padding:6px 8px;border:1px solid #23394a;border-radius:5px;background:#0b1622;color:#e7f0f6;text-align:left;cursor:pointer}
+    #ff-club-globe .ff-history-entry:focus-visible{outline:2px solid #75c4fa;outline-offset:1px}
+    #ff-club-globe .ff-history-entry strong{font-size:10px}
+    #ff-club-globe .ff-history-entry span{color:#9db2c3;font-size:9px}
+    #ff-club-globe .ff-history-entry .ff-history-result{color:#dcebf5;text-align:right;white-space:nowrap}
+    #ff-club-globe .ff-history-detail{grid-column:1/-1;display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:5px;padding-top:5px;border-top:1px solid #21374a}
+    #ff-club-globe .ff-history-detail[hidden]{display:none}
+    #ff-club-globe .ff-history-detail span{display:flex;flex-direction:column;gap:2px;text-align:center;color:#7893a8;font-size:8px}
+    #ff-club-globe .ff-history-detail b{color:#dcebf5;font-size:11px}
+    #ff-club-globe .ff-history-empty{padding:16px;color:#8299ad;font-size:10px;text-align:center}
+    #ff-club-globe .ff-info-top{height:30px}
+    #ff-club-globe .ff-info-back{display:none}
+    #ff-club-globe .ff-choice-heading{display:flex;align-items:center;gap:8px;min-width:0}
+    #ff-club-globe .ff-strength-badge{width:29px;height:29px;flex:none;display:grid;place-items:center;border:1px solid #ffffff25;border-radius:5px;background:#354657;color:#f5f9fc;box-shadow:0 2px 7px #0004;font-family:"Barlow Condensed",Manrope,sans-serif;font-size:13px;font-weight:700;line-height:1;letter-spacing:0}
+    #ff-club-globe .ff-strength-badge[data-score=""]{color:#a9bdcc;background:#253443}
+    @media(max-width:760px){#ff-club-globe .ff-info-dashboard{grid-template-columns:minmax(0,1fr)}#ff-club-globe .ff-info-left,#ff-club-globe .ff-info-right{display:flex}#ff-club-globe .ff-coach-body{grid-template-columns:minmax(0,.9fr) minmax(120px,1.1fr)}#ff-club-globe .ff-pitch-player b{font-size:7px}}
+    @media(max-height:520px){#ff-club-globe .ff-xi-card{height:250px}#ff-club-globe .ff-pitch-card{height:250px}#ff-club-globe .ff-coach-card{min-height:210px}#ff-club-globe .ff-coach-body{min-height:150px}#ff-club-globe .ff-coach-model-wrap{height:165px}}
+  </style>
+  <header class="ff-header">
+    <div class="ff-brand">FIFA FRIENDS · NEW EXPERIENCE</div>
+    <h1>Outros clubes</h1>
+    <p class="ff-subtitle">Selecione país, liga e clube para explorar o mapa.</p>
+  </header>
+  <div class="ff-info-top" data-info-top hidden>
+    <span class="ff-info-crumb">FIFA FRIENDS&nbsp; / &nbsp;INFORMAÇÕES DO CLUBE</span>
+  </div>
+  <main class="ff-info-view" data-info-view hidden aria-label="Informações do clube">
+    <section class="ff-info-hero" data-club-hero>
+      <img class="ff-info-crest" data-info-crest alt="">
+      <div class="ff-info-title"><h2 data-info-name></h2><div class="ff-info-meta"><img class="ff-info-league-logo" data-info-league alt=""><span data-info-league-name></span><span>·</span><span data-info-country></span><span data-info-city-wrap hidden>· <span data-info-city></span></span></div></div>
+    </section>
+    <section class="ff-rating-strip" aria-label="Avaliação do clube">
+      <div class="ff-rating-overall"><div><small>GERAL</small><strong data-info-overall>—</strong></div><span class="ff-info-stars" data-info-stars aria-label="Reputação"></span></div>
+      <div class="ff-rating-stat"><small>ATAQUE</small><strong data-info-attack>—</strong></div>
+      <div class="ff-rating-stat"><small>MEIO-CAMPO</small><strong data-info-midfield>—</strong></div>
+      <div class="ff-rating-stat"><small>DEFESA</small><strong data-info-defense>—</strong></div>
+    </section>
+    <div class="ff-info-dashboard">
+      <div class="ff-info-left">
+        <section class="ff-info-card ff-xi-card" data-nav-card tabindex="-1" aria-label="Cena 3D do onze titular">
+          <div class="ff-info-card-head"><h3>Onze titular · cena 3D</h3><span class="ff-info-kicker" data-info-formation>FORMAÇÃO DO SAVE</span></div>
+          <div class="ff-xi-scene" data-xi-scene><img data-xi-image alt="Cena 3D nativa dos onze titulares"><div class="ff-xi-empty" data-xi-empty hidden></div></div>
+          <div class="ff-xi-summary"><span data-xi-caption>Escalação titular do save</span><strong data-xi-count>11 JOGADORES</strong></div>
+        </section>
+        <section class="ff-info-card ff-pitch-card" data-nav-card tabindex="-1" aria-label="Formação salva no campo">
+          <div class="ff-info-card-head"><h3>Time titular · formação do save</h3><span class="ff-info-kicker" data-pitch-formation>FORMAÇÃO REAL</span></div>
+          <div class="ff-pitch-surface" data-pitch-surface><div data-pitch-list></div><div class="ff-pitch-empty" data-pitch-empty hidden></div></div>
+        </section>
+        <section class="ff-info-card ff-highlights" data-nav-card tabindex="-1">
+          <div class="ff-info-card-head"><h3>Destaques do elenco</h3><span class="ff-info-kicker">MELHORES AVALIAÇÕES</span></div>
+          <div class="ff-highlight-list" data-highlight-list></div>
+        </section>
+      </div>
+      <div class="ff-info-right">
+        <section class="ff-info-card ff-coach-card" data-nav-card tabindex="-1" aria-label="Técnico do clube">
+          <div class="ff-info-card-head"><h3>Técnico</h3><span class="ff-info-kicker">COMISSÃO DO CLUBE</span></div>
+          <div class="ff-coach-body" data-coach-body>
+            <div class="ff-coach-identity"><img class="ff-coach-photo" data-coach-photo alt="Retrato do técnico" hidden><div><div class="ff-coach-name" data-coach-name>—</div><div class="ff-coach-country"><span class="ff-coach-flag" data-coach-flag></span><span data-coach-country>País não informado</span></div><div class="ff-coach-photo-note" data-coach-photo-note></div></div></div>
+            <div class="ff-coach-model-wrap"><img class="ff-coach-model" data-coach-model alt="Modelo 3D nativo do técnico" hidden><span class="ff-coach-model-label">MODELO 3D DO JOGO</span><div class="ff-coach-empty" data-coach-empty hidden>Modelo 3D indisponível para este clube.</div></div>
+          </div>
+        </section>
+        <section class="ff-info-card ff-career-card" data-nav-card tabindex="-1">
+          <div><div class="ff-info-card-head"><h3>Temporada no save</h3><span class="ff-info-kicker" data-season-label>CARREIRA</span></div><div class="ff-career-stats"><div class="ff-career-stat"><strong data-stat-games>—</strong><span>JOGOS</span></div><div class="ff-career-stat"><strong data-stat-wins>—</strong><span>VITÓRIAS</span></div><div class="ff-career-stat"><strong data-stat-draws>—</strong><span>EMPATES</span></div><div class="ff-career-stat"><strong data-stat-losses>—</strong><span>DERROTAS</span></div></div></div>
+          <div class="ff-title-badge" title="Títulos registrados no save">♜</div>
+        </section>
+        <section class="ff-info-card" data-nav-card tabindex="-1"><div class="ff-info-card-head"><h3>Competições da temporada</h3></div><div data-club-competitions></div></section>
+        <section class="ff-info-card" data-nav-card tabindex="-1"><div data-season-charts></div></section>
+        <section class="ff-info-card ff-stadium-card" data-nav-card tabindex="-1">
+          <div class="ff-info-card-head"><h3>Estádio</h3><span class="ff-info-kicker">CASA DO CLUBE</span></div>
+          <img class="ff-stadium-image" data-stadium-image alt="">
+          <div class="ff-stadium-placeholder" data-stadium-placeholder hidden>Imagem do estádio indisponível</div>
+          <div class="ff-stadium-info"><strong data-stadium-name>—</strong><span data-stadium-capacity>Capacidade —</span></div>
+        </section>
+        <section class="ff-info-card ff-kit-card" data-nav-card tabindex="-1">
+          <div class="ff-info-card-head"><h3>Uniformes</h3><span class="ff-info-kicker">GOLEIRO · 1 · 2</span></div>
+          <div class="ff-kit-list" data-kit-list></div>
+        </section>
+        <section class="ff-info-card ff-history-card" data-nav-card tabindex="-1" aria-label="Retrospecto do clube">
+          <div class="ff-info-card-head"><h3>Retrospecto</h3><span class="ff-info-kicker">TEMPORADAS DO SAVE · SELECIONE PARA EXPANDIR</span></div>
+          <div class="ff-history-list" data-history-list></div>
+        </section>
+      </div>
+    </div>
+  </main>
+  <div class="ff-main">
+    <section class="ff-selector" aria-label="Seleção de clube">
+      <article class="ff-choice" data-choice="country" role="group" aria-label="Selecionar país" tabindex="-1">
+        <div class="ff-choice-top"><div class="ff-choice-heading"><span class="ff-label">PAÍS</span><span class="ff-strength-badge" data-country-strength title="Média geral dos clubes do país" aria-label="Força média dos clubes do país">—</span></div><div class="ff-arrows"><button type="button" class="cursor-interaction" data-step-country="-1" aria-label="País anterior">‹</button><button type="button" class="cursor-interaction" data-step-country="1" aria-label="Próximo país">›</button></div></div>
+        <div class="ff-choice-content"><img class="ff-country-icon" alt=""><div><div class="ff-choice-name" data-country-name></div><div class="ff-choice-meta" data-country-meta></div></div></div>
+      </article>
+      <article class="ff-choice" data-choice="league" role="group" aria-label="Selecionar liga ou divisão" tabindex="-1">
+        <div class="ff-choice-top"><div class="ff-choice-heading"><span class="ff-label">LIGA / DIVISÃO</span><span class="ff-strength-badge" data-league-strength title="Média geral dos clubes da liga" aria-label="Força média dos clubes da liga">—</span></div><div class="ff-arrows"><button type="button" class="cursor-interaction" data-step-league="-1" aria-label="Liga anterior">‹</button><button type="button" class="cursor-interaction" data-step-league="1" aria-label="Próxima liga">›</button></div></div>
+        <div class="ff-choice-content"><img class="ff-league-icon" alt=""><div><div class="ff-choice-name" data-league-name></div><div class="ff-choice-meta" data-league-meta></div></div></div>
+      </article>
+      <article class="ff-choice ff-team-choice" data-choice="team" role="group" aria-label="Selecionar clube" tabindex="0">
+        <div class="ff-choice-top"><span class="ff-label">CLUBE</span><div class="ff-arrows"><button type="button" class="cursor-interaction" data-step-team="-1" aria-label="Clube anterior">‹</button><button type="button" class="cursor-interaction" data-step-team="1" aria-label="Próximo clube">›</button></div></div>
+        <div class="ff-team-content"><span class="ff-monogram" aria-hidden="true">FF</span><img class="ff-team-emblem" hidden alt=""><div class="ff-team-name" data-team-name></div><div class="ff-team-location" data-team-location hidden></div><div class="ff-team-stars" data-team-stars aria-label="Reputação do clube"></div><div class="ff-team-attributes" aria-label="Avaliações do elenco"><div class="ff-team-attribute"><span>ATA</span><strong data-team-attack>—</strong></div><div class="ff-team-attribute"><span>MEI</span><strong data-team-midfield>—</strong></div><div class="ff-team-attribute"><span>DEF</span><strong data-team-defense>—</strong></div></div></div>
+        <div class="ff-team-bottom"><span class="ff-count" data-team-count></span></div>
+      </article>
+    </section>
+    <section class="ff-world" aria-label="Globo terrestre">
+      <div class="ff-world-head"><div class="ff-world-kicker">GLOBO DE CLUBES</div><div class="ff-world-title-row"><img class="ff-world-league-icon" data-world-league-icon hidden alt=""><div class="ff-world-title" data-world-title></div></div></div>
+      <canvas role="img" aria-label="Globo de clubes">Globo terrestre e clubes.</canvas>
+      <div class="ff-pin" hidden><img alt=""></div>
+      <div class="ff-feedback" role="status" data-feedback hidden></div>
+    </section>
+  </div>
+  <div class="ff-sr" aria-live="polite" data-announcement></div>
+  <ff-control-hints aria-label="Comandos do globo" data-control-hints></ff-control-hints>
+  __FF_CONTROLS__
+  <script type="application/json" id="ff-globe-data">__FF_DATA__</script>
+  __FF_D3__
+  <script>__FF_APP__</script>
+</div>

@@ -1,0 +1,11 @@
+__pycache__/
+clubes.json
+vendor/cities15000.zip
+vendor/atlas-module.js
+vendor/world.mjs
+vendor/topojson-client.min.js
+# Per-save outputs are recreated locally; they can contain career-specific data.
+/assets/runtime-cache/
+/assets/interactive-models/
+/assets/player-poses/
+/assets/club-details/

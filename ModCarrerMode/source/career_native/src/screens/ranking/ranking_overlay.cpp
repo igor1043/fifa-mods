@@ -27,6 +27,7 @@
 #include "../../platform/input/ranking_card_action.h"
 #include "../../platform/input/ranking_input_gate.h"
 #include "../../platform/overlay/mod_overlay_screens.h"
+#include "../../platform/overlay/webview2_overlay_host.h"
 #include "../../platform/input/mod_xinput_gate.h"
 #include "../../../third_party/imgui/imgui.h"
 #include "../../../third_party/imgui/backends/imgui_impl_dx11.h"
@@ -546,6 +547,9 @@ static void overlay_f10_pressed(void)
 static LRESULT CALLBACK overlay_window_proc(HWND window, UINT message,
     WPARAM wparam, LPARAM lparam)
 {
+    LRESULT webview_result = 0;
+    if (fifa_webview::handle_window_message(window,message,wparam,lparam,
+        &webview_result)) return webview_result;
     LONG is_open = mod_screen_is_open();
     BOOL capture = mod_screen_captures_input();
     if ((message == WM_KEYDOWN || message == WM_SYSKEYDOWN) &&
@@ -577,7 +581,7 @@ static LRESULT CALLBACK overlay_window_proc(HWND window, UINT message,
         wparam == VK_ESCAPE && InterlockedExchange(&g_suppressed_escape, 0)) {
         return 0;
     }
-    if (is_open && message == WM_SETCURSOR && LOWORD(lparam) == HTCLIENT) {
+    if (is_open && !fifa_webview::visible() && message == WM_SETCURSOR && LOWORD(lparam) == HTCLIENT) {
         /* The software cursor stays visible even when FIFA hides the OS
          * cursor through ShowCursor/SetCursor during controller navigation. */
         SetCursor(NULL);
@@ -835,7 +839,7 @@ static bool ensure_imgui(IDXGISwapChain *chain)
     ImGui::CreateContext();
     ImGuiIO &io = ImGui::GetIO();
     io.ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad;
-    io.MouseDrawCursor = GetSystemMetrics(SM_MOUSEPRESENT) != 0;
+    io.MouseDrawCursor = !fifa_webview::visible() && GetSystemMetrics(SM_MOUSEPRESENT) != 0;
     io.BackendFlags |= ImGuiBackendFlags_HasGamepad;
     {
         char windows_dir[MAX_PATH];
@@ -1218,6 +1222,8 @@ static bool register_builtin_screens(void)
     const ModOverlayScreen ranking = {"ranking", FIFA16_RANKING_CARD_ACTION_NAME,
         ranking_screen_opened, ranking_screen_draw, NULL, NULL};
     if (!mod_screen_register(&ranking)) return false;
+    if (!fifa_webview::configure(g_game_root,overlay_log))
+        overlay_log("New Experience HTML host path setup failed");
     if (!club_player_screen_register(g_game_root, overlay_log))
         overlay_log("Club3D unavailable: existing ranking host remains enabled");
     if (!player_search_screen_register(g_game_root, overlay_log))
@@ -1312,7 +1318,7 @@ static void render_overlay(IDXGISwapChain *chain)
     {
         ImGuiIO &io = ImGui::GetIO();
         POINT mouse;
-        io.MouseDrawCursor = GetSystemMetrics(SM_MOUSEPRESENT) != 0;
+        io.MouseDrawCursor = !fifa_webview::visible() && GetSystemMetrics(SM_MOUSEPRESENT) != 0;
         if (GetForegroundWindow() == g_game_window && GetCursorPos(&mouse) &&
             ScreenToClient(g_game_window, &mouse))
             io.AddMousePosEvent((float)mouse.x, (float)mouse.y);

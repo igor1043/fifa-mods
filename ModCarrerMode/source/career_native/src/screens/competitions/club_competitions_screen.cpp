@@ -363,6 +363,12 @@ extern "C" void club_competitions_publish(const ClubCompetitionsSnapshot*data){s
             for(size_t t=0;t<e.bracket_tie_count;++t){auto&tie=e.bracket_ties[t];if(tie.leg_count>2)tie.leg_count=2;}
             for(size_t t=0;t<e.bracket_team_count;++t)e.bracket_teams[t].name[sizeof(e.bracket_teams[t].name)-1]=0;}}
     ++revision;}
+extern "C" size_t club_competitions_table_read(int club,int competition,ClubCompetitionTableRow*out,size_t capacity){
+    if(!out||!capacity)return 0;std::lock_guard<std::mutex>lock(guard);if(published.club!=club)return 0;
+    for(size_t i=0;i<published.count;++i){const auto&e=published.entries[i];if(e.competition!=competition)continue;const ClubCompetitionTableRow*rows=e.table;size_t count=e.table_count;
+        if(e.has_group_phase&&e.group_count){size_t g=e.preferred_group>=0&&(size_t)e.preferred_group<e.group_count?(size_t)e.preferred_group:0;rows=e.groups[g].rows;count=e.groups[g].row_count;}
+        count=std::min(count,capacity);std::copy(rows,rows+count,out);return count;}return 0;
+}
 extern "C" int club_competitions_social_read(int club,ClubCompetitionSocialSnapshot*out){
     if(!out)return 0;*out={};std::lock_guard<std::mutex>lock(guard);
     if(club<=0||published.club!=club)return 0;out->club=published.club;out->date=published.date;

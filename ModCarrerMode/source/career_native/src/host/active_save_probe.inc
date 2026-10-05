@@ -46,15 +46,22 @@ static BOOL get_save_data_path(HANDLE handle, char *path, size_t capacity)
     wchar_t wide_path[2048];
     DWORD length;
     int converted;
+    LARGE_INTEGER size;
     if (!g_get_final_path_name_by_handle_w || !path || capacity == 0)
         return FALSE;
+    path[0] = '\0';
     length = g_get_final_path_name_by_handle_w(handle, wide_path,
         (DWORD)(sizeof(wide_path) / sizeof(wide_path[0])), 0);
     if (length == 0 || length >= sizeof(wide_path) / sizeof(wide_path[0]))
         return FALSE;
     converted = WideCharToMultiByte(CP_UTF8, WC_ERR_INVALID_CHARS, wide_path,
         -1, path, (int)capacity, NULL, NULL);
-    return converted > 0 && is_fifa_save_data_path(path);
+    if (converted <= 0 || !is_fifa_save_data_path(path)
+        || !GetFileSizeEx(handle, &size) || size.QuadPart < 1048576) {
+        path[0] = '\0';
+        return FALSE;
+    }
+    return TRUE;
 }
 
 static void track_save_data_handle(HANDLE handle)
@@ -64,7 +71,8 @@ static void track_save_data_handle(HANDLE handle)
     SIZE_T target = SAVE_READ_HANDLE_CAPACITY;
     if (handle == NULL || handle == INVALID_HANDLE_VALUE)
         return;
-    (void)get_save_data_path(handle, path, sizeof(path));
+    if (!get_save_data_path(handle, path, sizeof(path)))
+        path[0] = '\0';
     AcquireSRWLockExclusive(&g_save_read_handles_lock);
     for (index = 0; index < SAVE_READ_HANDLE_CAPACITY; ++index) {
         if (g_save_read_handles[index].handle == handle) {
@@ -117,7 +125,7 @@ static void publish_active_save_access(const char *path, const char *operation,
     HANDLE file;
     DWORD written = 0;
     int length;
-    if (!path || !*path || !operation || bytes_transferred == 0 || !g_mod_dir[0])
+    if (!is_fifa_save_data_path(path) || !operation || bytes_transferred == 0 || !g_mod_dir[0])
         return;
     career_operations_note_access(path, operation);
     if (!GetProcessTimes(GetCurrentProcess(), &created, &exited, &kernel, &user))

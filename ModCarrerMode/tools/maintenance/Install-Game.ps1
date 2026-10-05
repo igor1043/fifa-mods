@@ -1,4 +1,4 @@
-[CmdletBinding()]
+﻿[CmdletBinding()]
 param(
     [string]$GameDirectory = 'U:\fifa 16',
     [string]$BackupDirectory = 'J:\mods\backup',
@@ -37,6 +37,27 @@ function Add-File([string]$Source,[string]$Relative) {
     $files.Add([pscustomobject]@{Source=$Source;Relative=$Relative;Target=$target;Hash=(Get-Sha256 $Source)})
 }
 foreach($name in @('dinput8.dll','dinput8_orig.dll','dinput8_L9.ini','dinput8_patch.ini','winmm.dll','Server16Python.exe')) { Add-File (Join-Path $repoSource $name) $name }
+if ($edition -eq 'new-experience') {
+    Add-File (Join-Path $repoSource 'Abrir Nova Experiencia.cmd') 'Abrir Nova Experiencia.cmd'
+    Add-File (Join-Path $repoSource 'WebView2Loader.dll') 'WebView2Loader.dll'
+    $webRoot = Join-Path $modSource 'tools\club_globe'
+    foreach($name in @('home.html','save.html','central.html','scene.html','player.html','coach.html','coach_profile.js','season_charts.js','season_charts.css','career_dashboard.js','career_calendar.js','career_news_demo.js','career_dashboard.css','player_profile.js','player_3d.js','web_model.py','spatial_navigation.js','club_data_client.js','preview_server.py','launch_preview.ps1','fifa_db.py','club_save_details.py','clubes.ini','Abrir Nova Experiencia.cmd','index.html','experience.css','experience.js','control_hints.js','pointer_cursor.js','preview-data.js')) {
+        Add-File (Join-Path $webRoot $name) ('ModCarrerMode\tools\club_globe\'+$name)
+    }
+    $previewGenerator = Join-Path $modSource 'source\career_native\build\previews\generate_club_details_preview\generate_club_details_preview.exe'
+    if (-not (Test-Path -LiteralPath $previewGenerator -PathType Leaf)) { $previewGenerator = Join-Path $webRoot 'native\generate_club_details_preview.exe' }
+    Add-File $previewGenerator 'ModCarrerMode\tools\club_globe\native\generate_club_details_preview.exe'
+    Add-File (Join-Path $modSource 'tools\career_birthdate_2006\birthdate_editor.py') 'ModCarrerMode\tools\career_birthdate_2006\birthdate_editor.py'
+    foreach($folder in @('assets','crests','fonts','icons')) {
+        $base=Join-Path $webRoot $folder
+        foreach($file in Get-ChildItem -LiteralPath $base -Recurse -File) {
+            $assetRelative=$file.FullName.Substring($base.Length+1)
+            if ($folder -eq 'assets' -and @('runtime-cache','interactive-models','player-poses','club-details') -contains $assetRelative.Split('\')[0]) { continue }
+            $relative='ModCarrerMode\tools\club_globe\'+$folder+'\'+$assetRelative
+            Add-File $file.FullName $relative
+        }
+    }
+}
 $runtimeFiles = @('retirement_offline_worker.exe','crowd.ini')
 if ($edition -eq 'new-experience') { $runtimeFiles += 'career_operations_worker.exe' }
 foreach($name in $runtimeFiles) { Add-File (Join-Path $modSource $name) ('ModCarrerMode\'+$name) }

@@ -2,6 +2,7 @@
 #define FIFA16_CAREER_NEWS_FEED_H
 
 #include <stddef.h>
+#include "career_web_dashboard.h"
 
 #define CAREER_NEWS_CAPACITY 5
 #define CAREER_NEWS_TEXT_CAPACITY 256

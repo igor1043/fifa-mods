@@ -24,7 +24,7 @@ namespace {
 std::mutex guard;
 std::string root,mod,active_path,snapshot_path,snapshot_message;
 CareerLoanSnapshot snapshot={};bool snapshot_valid=false;
-unsigned int window_end1=0,window_end2=0;bool window_ends_valid=false;
+unsigned int window_start1=0,window_end1=0,window_start2=0,window_end2=0;bool window_ends_valid=false;
 int live_club=0,live_date=0;
 HANDLE refresh_event=nullptr;
 volatile LONG roster_requested=0;
@@ -146,9 +146,9 @@ DWORD WINAPI refresh_worker(void*){
         {std::lock_guard<std::mutex>lock(guard);path=active_path;club=live_club;date=live_date;}
         if(path.empty())continue;CareerLoanSnapshot s={};std::vector<unsigned char>data;std::string message;
         bool valid=career_ops::read_save(path,data,s,message);
-        unsigned int end1=0,end2=0;bool ends_valid=valid&&retirement_engine_get_transfer_window_ends(path.c_str(),&end1,&end2)!=0;
+        unsigned int start1=0,end1=0,start2=0,end2=0;bool ends_valid=valid&&retirement_engine_get_transfer_windows(path.c_str(),&start1,&end1,&start2,&end2)!=0;
         {std::lock_guard<std::mutex>lock(guard);if(path!=active_path)continue;snapshot=s;snapshot_path=path;snapshot_valid=valid;snapshot_message=message;
-            window_end1=ends_valid?end1:0;window_end2=ends_valid?end2:0;window_ends_valid=ends_valid;}
+            window_start1=ends_valid?start1:0;window_end1=ends_valid?end1:0;window_start2=ends_valid?start2:0;window_end2=ends_valid?end2:0;window_ends_valid=ends_valid;}
         if(!valid||club<=0||s.club!=(unsigned)club||s.date>(unsigned)date)continue;
         std::string ledger=career_ops::ledger_path(mod,path,s.setup_date,s.manager);
         if((career_ops::exists(ledger)||career_ops::exists(ledger+".journal"))&&!automatic.count(ledger)){
@@ -402,7 +402,7 @@ extern "C" BOOL career_operations_get_transfer_context(CareerTransferUiContext*o
         snapshot.club==(uint32_t)live_club&&snapshot.date<=(uint32_t)live_date;
     out->save_valid=snapshot_matches?1:0;if(snapshot_matches){out->transfer_budget=snapshot.transfer_budget;out->wage_budget=snapshot.wage_budget;out->currency=snapshot.currency;}
     out->window_ends_valid=snapshot_matches&&window_ends_valid?1:0;
-    if(out->window_ends_valid){out->first_window_end_mmdd=window_end1;out->second_window_end_mmdd=window_end2;}
+    if(out->window_ends_valid){out->first_window_start_mmdd=window_start1;out->first_window_end_mmdd=window_end1;out->second_window_start_mmdd=window_start2;out->second_window_end_mmdd=window_end2;}
     return out->club&&out->date?TRUE:FALSE;}
 extern "C" BOOL retirement_screen_take_refresh(){return InterlockedExchange(&roster_requested,0)!=0;}
 extern "C" void retirement_screen_publish(const RetirementUiPlayer*rows,size_t count,int club,int date,int valid){std::lock_guard<std::mutex>lock(guard);

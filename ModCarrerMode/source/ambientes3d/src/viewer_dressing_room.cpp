@@ -291,7 +291,7 @@ void print_digit(Builder&b,const Part&shirt,const std::string&name,int texture,f
     Part p;p.name=name;p.asset="studio/dressing/kit-number/native-digit";p.texture=texture;p.blend=true;p.native_normals=true;
     std::vector<Vec3>local;local.reserve(shirt.vertices.size());for(auto&v:shirt.vertices)local.push_back(b.local(v.position));
     constexpr int nx=8,ny=16;
-    for(int y=0;y<ny;++y)for(int x=0;x<nx;++x){float u=float(x)/nx,U=float(x+1)/nx,v=float(y)/ny,V=float(y+1)/ny;float X=center-width*.5f+u*width,XX=center-width*.5f+U*width,Y=top-v*height,YY=top-V*height;Vec3 points[]={{X,Y,0},{XX,Y,0},{XX,YY,0},{X,YY,0}};bool valid=true;for(auto&q:points){float depth;if(!back_surface(local,shirt,q.x,q.y,depth)){valid=false;break;}q.z=depth+.16f;}if(!valid)continue;
+    for(int y=0;y<ny;++y)for(int x=0;x<nx;++x){float u=float(x)/nx,U=float(x+1)/nx,v=float(y)/ny,V=float(y+1)/ny;float X=center-width*.5f+u*width,XX=center-width*.5f+U*width,Y=top-v*height,YY=top-V*height;Vec3 points[]={{X,Y,0},{XX,Y,0},{XX,YY,0},{X,YY,0}};bool valid=true;for(auto&q:points){float depth;if(!back_surface(local,shirt,q.x,q.y,depth)){valid=false;break;}q.z=depth+.9f;}if(!valid)continue;
         uint32_t offset=uint32_t(p.vertices.size());float uv[][2]={{u,v},{U,v},{U,V},{u,V}};auto normal=normalized(cross(sub(points[3],points[0]),sub(points[1],points[0])));if(normal.z<0)normal=mul(normal,-1);
         for(int k=0;k<4;++k){Vertex q={};q.position=b.point(points[k]);q.normal=b.direction(normal);q.u=uv[k][0];q.v=uv[k][1];p.vertices.push_back(q);}for(auto i:{0,1,2,0,2,3})p.indices.push_back(offset+unsigned(i));
     }if(!p.indices.empty())b.room.parts.push_back(std::move(p));

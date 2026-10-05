@@ -125,10 +125,15 @@ bool Renderer::model(std::shared_ptr<const Model> model){
         if(tex.bytes.empty()){textures_.push_back(nullptr);continue;}
         D3D11_TEXTURE2D_DESC d={};d.Width=tex.width;d.Height=tex.height;d.MipLevels=d.ArraySize=1;
         d.Format=tex.format==0?DXGI_FORMAT_BC1_UNORM:tex.format==1?DXGI_FORMAT_BC2_UNORM:DXGI_FORMAT_BC3_UNORM;
+        if(tex.format==3)d.Format=DXGI_FORMAT_R8G8B8A8_UNORM;
         d.SampleDesc.Count=1;d.BindFlags=D3D11_BIND_SHADER_RESOURCE;d.Usage=D3D11_USAGE_IMMUTABLE;
         D3D11_SUBRESOURCE_DATA data={tex.bytes.data(),((tex.width+3)/4)*(tex.format?16:8),(UINT)tex.bytes.size()};
+        if(tex.format==3)data.SysMemPitch=tex.width*4;
         ID3D11Texture2D *t=nullptr;ID3D11ShaderResourceView *view=nullptr;
-        if(SUCCEEDED(device_->CreateTexture2D(&d,&data,&t)))device_->CreateShaderResourceView(t,nullptr,&view);
+        if(model->scene_camera_valid&&tex.format==3&&tex.width>1&&tex.height>1){
+            d.MipLevels=0;d.Usage=D3D11_USAGE_DEFAULT;d.BindFlags|=D3D11_BIND_RENDER_TARGET;d.MiscFlags=D3D11_RESOURCE_MISC_GENERATE_MIPS;
+            if(SUCCEEDED(device_->CreateTexture2D(&d,nullptr,&t))){ID3D11DeviceContext*ctx=nullptr;device_->GetImmediateContext(&ctx);ctx->UpdateSubresource(t,0,nullptr,tex.bytes.data(),tex.width*4,0);if(SUCCEEDED(device_->CreateShaderResourceView(t,nullptr,&view)))ctx->GenerateMips(view);ctx->Release();}
+        }else if(SUCCEEDED(device_->CreateTexture2D(&d,&data,&t)))device_->CreateShaderResourceView(t,nullptr,&view);
         drop(t);textures_.push_back(view);
     }
     for(const auto &p:model->parts){
@@ -238,6 +243,7 @@ bool Renderer::render(UINT w,UINT h,float yaw,float zoom,bool portrait,float pan
     float scene_low=portrait?low_+(high_-low_)*portrait_crop:low_;
     float aspect=(float)w/h;
     XMMATRIX world=model_->room==RoomStadium&&free_stadium_?XMMatrixIdentity():XMMatrixRotationY(yaw);
+    if(model_->scene_camera_valid)world=XMMatrixIdentity();
     /* Native actor coordinates face +Z. A LH look-at from +Z reverses screen
      * X and mirrors every kit/boot label. Use matching RH view/projection for
      * the scene, without modifying native geometry or UVs. */
@@ -299,6 +305,11 @@ bool Renderer::render(UINT w,UINT h,float yaw,float zoom,bool portrait,float pan
             view=XMMatrixLookAtRH(eye,eye+direction,XMVectorSet(0,1,0,0));
         }
     }else view=XMMatrixLookAtRH(XMVectorSet(camera_x,center,distance,1),XMVectorSet(camera_x,center,0,1),XMVectorSet(0,1,0,0));
+    if(model_->scene_camera_valid){auto&p=model_->scene_camera_position;float y=model_->scene_camera_yaw,t=model_->scene_camera_pitch;
+        auto eye=XMVectorSet(p.x,p.y,p.z,1),direction=XMVectorSet(sinf(y)*cosf(t),sinf(t),-cosf(y)*cosf(t),0);
+        view=XMMatrixLookAtRH(eye,eye+direction,XMVectorSet(0,1,0,0));
+        proj=XMMatrixPerspectiveFovRH(XMConvertToRadians(model_->scene_camera_fov),aspect,model_->room==RoomTraining?100.f:(model_->room==RoomGym?20.f:2.f),60000.f);
+    }
     /* Pan a photograph's framing, never its models. Keep this outside the
      * automatic default fit and outside the shadow camera. */
     proj=proj*XMMatrixTranslation(std::max(-.45f,std::min(.45f,pan_x))*2,

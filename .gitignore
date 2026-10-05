@@ -13,5 +13,6 @@ ModCarrerMode/source/localization/__pycache__/
 ModCarrerMode/runtime/operations/
 ModCarrerMode/runtime/career_active_save*
 ModCarrerMode/runtime/injury_snapshot.tsv
+ModCarrerMode/runtime/webview2/
 # Local backup copies never belong in the published package.
 ModCarrerMode/backups/

@@ -2142,7 +2142,7 @@ static void native_prepare(void *owner) {
     memset(g_club_previous_rows,0,sizeof(g_club_previous_rows));
     memset(g_round_previous_rows,0,sizeof(g_round_previous_rows));
     memset(g_round_next_rows,0,sizeof(g_round_next_rows));
-    if(!model) {career_news_publish_facts(NULL);career_news_publish_manager(NULL);career_next_match_publish(NULL);player_profile_publish_competitions(NULL,0,0,0,epoch);club_competitions_publish(NULL);return;}
+    if(!model) {career_web_dashboard_publish(NULL);career_news_publish_facts(NULL);career_news_publish_manager(NULL);career_next_match_publish(NULL);player_profile_publish_competitions(NULL,0,0,0,epoch);club_competitions_publish(NULL);return;}
     native_view=*model;
     comp=native_display_context_competition(requested,club);
     if(comp<=0) comp=requested;
@@ -2232,6 +2232,33 @@ static void native_prepare(void *owner) {
     }
     for(i=0;i<g_competition_count;++i) native_build_competition_tab(i,club);
     native_club_competitions_refresh(club);
+    {CareerWebDashboard web={0};size_t page,j;web.club=club;web.date=native_view.date;web.current=comp;
+     web.count=g_competition_count<5?g_competition_count:5;
+     for(page=0;page<web.count;++page){CareerWebCompetition *entry=web.competitions+page;RankedPlayer leaders[5]={0};
+      entry->root=g_competition_rows[page].competition_id;entry->asset=g_competition_rows[page].league_id;
+      entry->row_count=g_competition_tab_row_counts[page]<20?g_competition_tab_row_counts[page]:20;
+      for(j=0;j<entry->row_count;++j){CompetitionTabRow *row=g_competition_tab_rows[page]+j;CareerWebStanding *out=entry->rows+j;
+       out->team=row->team_id;out->rank=row->rank;out->games=row->played;out->wins=row->won;out->draws=row->drawn;out->losses=row->lost;out->goals_for=row->goals_for;out->goals_against=row->goals_against;out->points=row->points;native_team_name(out->team,out->name,sizeof(out->name));}
+      if(!entry->row_count){ClubCompetitionTableRow fallback[20]={0};entry->row_count=club_competitions_table_read(club,entry->root,fallback,20);for(j=0;j<entry->row_count;++j){ClubCompetitionTableRow*r=fallback+j;CareerWebStanding*out=entry->rows+j;out->team=r->team;out->rank=r->rank;out->games=r->played;out->wins=r->won;out->draws=r->drawn;out->losses=r->lost;out->goals_for=r->goals_for;out->goals_against=r->goals_against;out->points=r->points;lstrcpynA(out->name,r->name,sizeof(out->name));}}
+      entry->goal_count=native_leaders(entry->root,-1,FCE_SORT_GOALS,leaders);if(entry->goal_count>5)entry->goal_count=5;
+      for(j=0;j<entry->goal_count;++j){entry->goals[j].player=leaders[j].head;entry->goals[j].club=leaders[j].logo;entry->goals[j].value=leaders[j].value;lstrcpynA(entry->goals[j].name,leaders[j].name,sizeof(entry->goals[j].name));}
+      memset(leaders,0,sizeof(leaders));entry->assist_count=native_leaders(entry->root,-1,FCE_SORT_ASSISTS,leaders);if(entry->assist_count>5)entry->assist_count=5;
+      for(j=0;j<entry->assist_count;++j){entry->assists[j].player=leaders[j].head;entry->assists[j].club=leaders[j].logo;entry->assists[j].value=leaders[j].value;lstrcpynA(entry->assists[j].name,leaders[j].name,sizeof(entry->assists[j].name));}}
+     web.upcoming_count=g_upcoming_count<10?g_upcoming_count:10;web.previous_count=g_club_previous_count<10?g_club_previous_count:10;
+     for(page=0;page<2;++page){size_t count=page?web.previous_count:web.upcoming_count;FixtureRow *rows=page?g_club_previous_rows:g_upcoming_rows;CareerWebMatch *matches=page?web.previous:web.upcoming;
+      for(j=0;j<count;++j){CareerWebMatch *out=matches+j;out->home=rows[j].home_logo;out->away=rows[j].away_logo;out->asset=native_logo(rows[j].competition_id);lstrcpynA(out->home_name,rows[j].home,sizeof(out->home_name));lstrcpynA(out->away_name,rows[j].away,sizeof(out->away_name));lstrcpynA(out->date,rows[j].date,sizeof(out->date));lstrcpynA(out->time,rows[j].time,sizeof(out->time));lstrcpynA(out->score,rows[j].score,sizeof(out->score));}}
+     {RankedPlayer *sources[5]={g_club_goal_rows,g_club_assist_rows,g_club_minutes_rows,g_club_yellow_rows,g_club_red_rows};size_t counts[5]={g_club_goal_count,g_club_assist_count,g_club_minutes_count,g_club_yellow_count,g_club_red_count};
+      for(page=0;page<5;++page){web.metric_counts[page]=counts[page]<5?counts[page]:5;for(j=0;j<web.metric_counts[page];++j){web.metrics[page][j].player=sources[page][j].head;web.metrics[page][j].club=sources[page][j].logo;web.metrics[page][j].value=sources[page][j].value;lstrcpynA(web.metrics[page][j].name,sources[page][j].name,sizeof(web.metrics[page][j].name));}}
+      if(g_injury_club_id==club){web.injury_count=g_injury_count<10?g_injury_count:10;for(j=0;j<web.injury_count;++j){web.injuries[j].player=g_injury_rows[j].head;lstrcpynA(web.injuries[j].name,g_injury_rows[j].name,sizeof(web.injuries[j].name));lstrcpynA(web.injuries[j].injury,g_injury_rows[j].injury,sizeof(web.injuries[j].injury));lstrcpynA(web.injuries[j].return_label,g_injury_rows[j].length,sizeof(web.injuries[j].return_label));}}}
+     web.capacity=web.attendance=-1;if(g_next_match_fixture_valid){char name[256]={0},key[256]={0};int domestic=0,international=0;web.next_fixture=g_next_match_fixture.id;native_game_stadium_fallback(g_next_match_fixture.home,name,sizeof(name),&web.capacity,key,sizeof(key),&domestic,&international);web.attendance=crowd_runtime_attendance_percent();if(web.attendance<=0||web.attendance>100)web.attendance=-1;}
+     web.season_valid=fce_date_valid(native_view.date)&&native_view.fixture_count>0;
+     for(j=0;j<native_view.fixture_count;++j){const FceFixture *fixture=native_view.fixtures+j;CareerWebRecord *record;int scored,conceded;size_t duplicate;
+      if(!fixture->played_raw||(fixture->home!=club&&fixture->away!=club)||fixture->home==fixture->away||fixture->date_raw>native_view.date||!fce_date_valid(fixture->date_raw)||fixture->home_score<0||fixture->away_score<0)continue;
+      for(duplicate=0;duplicate<j;++duplicate)if(native_view.fixtures[duplicate].id==fixture->id)break;if(duplicate<j)continue;
+      record=fixture->home==club?&web.home_record:&web.away_record;scored=fixture->home==club?fixture->home_score:fixture->away_score;conceded=fixture->home==club?fixture->away_score:fixture->home_score;
+      ++record->games;record->goals_for+=scored;record->goals_against+=conceded;if(scored>conceded){++record->wins;record->points+=3;}else if(scored==conceded){++record->draws;++record->points;}else ++record->losses;
+      ++web.season.games;web.season.goals_for+=scored;web.season.goals_against+=conceded;if(scored>conceded){++web.season.wins;web.season.points+=3;}else if(scored==conceded){++web.season.draws;++web.season.points;}else ++web.season.losses;}
+     career_web_dashboard_publish(&web);}
     native_news_snapshot(club);
     if(g_competition_count>0) {
         size_t row_count=g_competition_tab_row_counts[0];

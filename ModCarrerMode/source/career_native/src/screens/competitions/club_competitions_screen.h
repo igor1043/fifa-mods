@@ -71,6 +71,7 @@ struct ID3D11Device;
 extern "C" {
 #endif
 void club_competitions_publish(const ClubCompetitionsSnapshot*);
+size_t club_competitions_table_read(int club,int competition,ClubCompetitionTableRow*out,size_t capacity);
 int club_competitions_social_read(int club,ClubCompetitionSocialSnapshot*out);
 #ifdef __cplusplus
 }

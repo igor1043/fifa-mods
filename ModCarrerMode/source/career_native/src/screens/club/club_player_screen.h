@@ -54,6 +54,9 @@ bool club_player_screen_register(const char *game_root, void (*log)(const char *
 void club_player_screen_set_device(ID3D11Device *device);
 void club_player_screen_set_number_font(ImFont *font);
 bool club_player_screen_open_search_profile(const ClubPlayerRow *row,const char *team_name);
+/* Open an existing game-rendered room from the New Experience HTML host. */
+void club_player_screen_request_web_room(int room_kind);
+void club_player_screen_request_web_player(int player_id);
 /* Other clubs share the modal host but NEVER replace the career-owned roster. */
 bool club_player_begin_embedded(const ClubPlayerRow*,size_t,int,const char*);
 void club_player_draw_embedded();
@@ -83,3 +86,5 @@ bool club_player_screen_test_resample_press_player();
 #endif
 #endif
 #endif
+
+void club_player_screen_request_web_pose(int id);

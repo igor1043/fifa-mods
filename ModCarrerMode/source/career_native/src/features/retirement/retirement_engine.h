@@ -36,6 +36,9 @@ int retirement_engine_apply_buffer_from_config(void *buffer, SIZE_T size,
  * save. Read-only: it never repacks, writes, or backs up DATA. */
 int retirement_engine_get_transfer_window_ends(const char *data_path,
     unsigned int *first_mmdd, unsigned int *second_mmdd);
+int retirement_engine_get_transfer_windows(const char *data_path,
+    unsigned int *start1_mmdd, unsigned int *end1_mmdd,
+    unsigned int *start2_mmdd, unsigned int *end2_mmdd);
 int retirement_engine_patch_write_buffer(void *buffer, SIZE_T size,
     const char *data_path, RetirementApplyResult *result);
 int retirement_engine_backup_before_write(const char *data_path);

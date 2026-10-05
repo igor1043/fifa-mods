@@ -14,6 +14,8 @@
 #include "../office/office_social_feed.h"
 #include "../office/career_news_feed.h"
 #include "../competitions/club_competitions_screen.h"
+#include "../../platform/overlay/webview2_overlay_host.h"
+#include "../../render/scenes/new_experience_rooms.h"
 #include "../../ui/common/native_loc_names.h"
 #include "../../../third_party/imgui/imgui.h"
 #include <algorithm>
@@ -69,6 +71,8 @@ bool club_home=true,coach_child=false,from_home=false;
 bool office_mode=false,office_home=false;
 bool uniforms_open=false;
 bool full_squad_mode=false;
+volatile LONG web_room_requested=0,web_player_requested=0,web_pose_requested=0;
+bool html_player_available=true;
 int office_focus=0,office_menu=-1,office_item=0,office_slide=0,office_main_page=0,office_training_row=0;
 DWORD office_repeat=0,office_last_advance=0,office_transition_started=0;
 int office_transition_from=-1,office_transition_direction=1;
@@ -77,12 +81,14 @@ office_social::Runtime office_social_runtime;
 std::mutex career_news_lock;
 CareerNewsFacts career_news_facts={};
 CareerNewsManagerFacts career_news_manager={};
+CareerWebDashboard career_web_dashboard={};
 CareerNewsItem career_news_items[CAREER_NEWS_CAPACITY]={};
 size_t career_news_item_count=0;
 CareerNextMatchFacts career_next_match_facts={};
 CareerClubStadiumFacts career_club_stadium_facts={};
 fifa_player::Renderer office_coach_renderer,office_lineup_renderer;
 std::shared_ptr<const fifa_player::Model>office_lineup_source,office_lineup_model;
+std::shared_ptr<const fifa_player::Model>html_preview_source;
 int card_focus=0;
 float card_coach_yaw=0,card_coach_zoom=1,card_coach_pan=0;
 DWORD card_repeat=0;
@@ -256,7 +262,7 @@ DWORD WINAPI worker(void *) {
                     model=std::make_shared<fifa_player::Model>(fifa_player::build_full_squad_photo(models,icons->coach.model));
                 }else if(room==fifa_player::RoomPhoto){
                     model=std::make_shared<fifa_player::Model>(fifa_player::assemble_starting_eleven(models,pose));
-                }else model=std::make_shared<fifa_player::Model>(fifa_player::build_club_room(models,room,icons->coach.model,press_pose));
+                }else model=std::make_shared<fifa_player::Model>(fifa_player::build_new_experience_room(assets,root,models,roster,icons->coach,room));
             }
             else if(!models.empty()){auto individual=std::make_shared<fifa_player::Model>(*models.front());
                 fifa_player::apply_presentation_pose(*individual,false,nullptr,pose);model=individual;}
@@ -464,6 +470,8 @@ void opened(void *context) {
     club_home=!database_profile_child&&(context==nullptr||office_mode);coach_child=from_home=false;uniforms_open=false;full_squad_mode=context==(void*)4;card_focus=0;card_coach_yaw=card_coach_pan=0;card_coach_zoom=1;card_repeat=0;
     mouse_card_press=-1;mouse_card_travel=0;
     room_kind=context==(void*)1?fifa_player::RoomPressPair:full_squad_mode?fifa_player::RoomFullSquadPhoto:fifa_player::RoomPhoto;press_player=0;press_resample=context==(void*)1;
+    int requested_room=(int)InterlockedExchange(&web_room_requested,0);
+    if(context==(void*)1&&(requested_room==1||requested_room==2)){room_kind=requested_room==1?fifa_player::RoomPress:fifa_player::RoomDressing;press_resample=false;}
     back_ready_at=input_ready_at=GetTickCount()+250;
     sync_rows();if(database_profile_child){group_mode=false;selected=0;room_kind=fifa_player::RoomPhoto;random_individual_pose();queue_preview();yaw=-.12f;}
     if(logger)logger(database_profile_child?"Club3D: generic player profile opened from database search":office_mode?"Club3D: office opened; owned current-club scenes, fixed cameras":context==(void*)1?"Club3D: press conference opened; sample from current club only":"Club3D: opened by native Clube card action");
@@ -474,9 +482,79 @@ void closed(void *) {
     {std::lock_guard<std::mutex>guard(lock);request_rows.clear();request_roster.clear();++request_serial;ready_model.reset();ready_icons.reset();}
     clear_icon_views();
     requested_player=0;renderer.clear();visible.clear();lineup.clear();loading=false;
+    html_preview_source.reset();
     if(database_profile_child){database_profile_child=false;embedded_club=false;external_rows.clear();external_team.clear();external_club=0;visible_revision=~0u;}
     if(logger)logger("Club3D: closed; shared modal input release delay active");
 }
+void html_office_open(void *) {
+    opened((void*)3);
+    html_preview_source.reset();
+    fifa_webview::clear_scene_preview();
+    fifa_webview::show();
+}
+std::string html_json_text(const char*text){std::string out="\"";if(text)for(auto*p=text;*p;++p){if(*p=='"'||*p=='\\')out+='\\';if((unsigned char)*p>=32)out+=*p;else out+=' ';}return out+"\"";}
+void html_office_draw(void *) {
+    static ULONGLONG last_web_context=0;
+    const ULONGLONG web_now=GetTickCount64();
+    if(fifa_webview::status()==1&&web_now-last_web_context<500
+        &&!InterlockedCompareExchange(&web_room_requested,0,0)
+        &&!InterlockedCompareExchange(&web_player_requested,0,0)
+        &&!InterlockedCompareExchange(&web_pose_requested,0,0))return;
+    last_web_context=web_now;
+    int requested=(int)InterlockedExchange(&web_room_requested,0);
+    if(requested>0){group_mode=true;room_kind=requested==1?fifa_player::RoomPress:requested==2?fifa_player::RoomDressing:requested==3?fifa_player::RoomGym:fifa_player::RoomTraining;html_preview_source.reset();fifa_webview::clear_scene_preview();}
+    if(fifa_webview::page_is_home()&&(!group_mode||room_kind!=fifa_player::RoomPhoto)){group_mode=true;room_kind=fifa_player::RoomPhoto;queue_preview();html_preview_source.reset();fifa_webview::clear_scene_preview();}
+    sync_rows();sync_icons();
+    int wanted=(int)InterlockedExchange(&web_player_requested,0);
+    if(wanted>0){html_player_available=false;auto found=std::find_if(visible.begin(),visible.end(),[&](const auto&r){return r.player_id==wanted;});if(found!=visible.end()){html_player_available=true;group_mode=false;selected=(int)(found-visible.begin());room_kind=fifa_player::RoomPhoto;random_individual_pose();html_preview_source.reset();fifa_webview::clear_scene_preview();}}
+    int wanted_pose=(int)InterlockedExchange(&web_pose_requested,0);if(wanted_pose>=101&&wanted_pose<=114&&html_player_available&&!group_mode){pose_id=(unsigned)wanted_pose;html_preview_source.reset();}
+    if(fifa_webview::status()!=1){
+        screen_visuals::begin_fullscreen("Experiência Nova##WebViewStatus",ImGuiWindowFlags_NoDecoration);
+        ImGui::TextUnformatted(fifa_webview::status()<0?"WebView2 indisponível. Confira o runtime e WebView2Loader.dll.":"Abrindo Experiência Nova...");
+        ImGui::End();return;
+    }
+    std::string data="{\"players\":[";
+    const char*positions[]={"GOL","LIB","ALA D","LD","ZAG D","ZAG","ZAG E","LE","ALA E","VOL D","VOL","VOL E","MD","MC D","MC","MC E","ME","MEI D","MEI","MEI E","SA D","SA","SA E","PD","ATA D","ATA","ATA E","PE"};
+    for(size_t i=0;i<visible.size();++i){auto&r=visible[i];if(i)data+=",";data+="{\"id\":"+std::to_string(r.player_id)+",\"name\":"+html_json_text(utf8(r.name).c_str())+",\"overall\":"+std::to_string(r.overall)+",\"position\":"+html_json_text(r.position>=0&&r.position<28?positions[r.position]:"JOG")+",\"number\":"+std::to_string(r.number)+",\"height\":"+std::to_string(r.height)+",\"weight\":"+std::to_string(r.weight)+",\"potential\":"+std::to_string(r.attributes[33]);
+        if(visible_icons&&visible_icons->club==visible_club){auto age=visible_icons->ages.find(r.player_id);if(age!=visible_icons->ages.end())data+=",\"age\":"+std::to_string(age->second);auto foot=visible_icons->feet.find(r.player_id);if(foot!=visible_icons->feet.end())data+=",\"foot\":"+std::to_string(foot->second);}
+        data+=",\"positionId\":"+std::to_string(r.position)+",\"secondaryPositionIds\":[";if(r.secondary_positions_valid)for(int sp=0;sp<3;++sp){if(sp)data+=",";data+=std::to_string(r.secondary_positions[sp]);}data+="]";if(visible_icons){auto nation=visible_icons->nations.find(r.player_id);if(nation!=visible_icons->nations.end())data+=",\"nationId\":"+std::to_string(nation->second);}
+        data+=",\"squadPosition\":"+std::to_string(r.squad_position);
+        data+=",\"captain\":"+std::string(r.captain?"true":"false");
+        if(r.career_data_valid){data+=",\"weeklyWage\":"+std::to_string(r.weekly_wage)+",\"retiring\":"+std::to_string(r.retiring)+",\"birthDate\":"+html_json_text(club_profile::raw_date_label(r.birthdate_raw).c_str())+",\"joinDate\":"+html_json_text(club_profile::raw_date_label(r.join_team_date_raw).c_str());}
+        auto stats=fifa_player::profile_competitions(r.player_id,visible_club);if(stats.available){data+=",\"competitions\":[";for(size_t k=0;k<stats.rows.size();++k){auto&v=stats.rows[k];if(k)data+=",";std::string label; if(visible_icons)for(auto&identity:visible_icons->competition_names)if(identity.root==v.root){label=identity.name;break;}data+="{\"root\":"+std::to_string(v.root)+",\"asset\":"+std::to_string(v.asset)+",\"name\":"+html_json_text(label.c_str())+",\"games\":"+std::to_string(v.games)+",\"goals\":"+std::to_string(v.goals)+",\"assists\":"+std::to_string(v.assists)+",\"cleanSheets\":"+((v.valid&1)?std::to_string(v.clean_sheets):"null")+",\"average\":"+std::to_string(player_competitions::average(v))+"}";}data+="]";}
+        data+=",\"attributes\":{";for(size_t j=0;j<CLUB_PLAYER_ATTRIBUTE_COUNT;++j){if(j)data+=",";data+=html_json_text(fields[j])+":"+std::to_string(r.attributes[j]);}data+="}}";}
+    data+="],\"news\":[";CareerNewsItem items[CAREER_NEWS_CAPACITY]={};size_t count=career_news_copy(visible_club,items,CAREER_NEWS_CAPACITY);
+    for(size_t i=0;i<count;++i){if(i)data+=",";data+="{\"title\":"+html_json_text(items[i].title)+",\"subtitle\":"+html_json_text(items[i].subtitle)+"}";}data+="]";
+    if(visible_icons&&visible_icons->club==visible_club){auto&card=visible_icons->card;std::string name=card.context.name;{std::lock_guard<std::mutex>guard(career_news_lock);if(career_news_manager.valid&&career_news_manager.club_id==visible_club)name=career_news_manager.name;}data+=",\"coach\":{\"name\":"+html_json_text(name.c_str())+",\"country\":"+html_json_text(card.nationality_name.c_str())+",\"nationId\":"+std::to_string(card.context.nationality)+",\"reputation\":"+std::to_string(coach_profile::reputation_score(card.context))+",\"confidence\":"+std::to_string(card.context.confidence)+",\"weeklyWage\":"+std::to_string(card.context.wage)+",\"league\":"+html_json_text(card.league_name.c_str())+"}";}
+    if(!visible.empty()){auto competitions=fifa_player::profile_competitions(visible.front().player_id,visible_club);if(competitions.available){data+=",\"competitions\":[";for(size_t k=0;k<competitions.rows.size();++k){auto&entry=competitions.rows[k];if(k)data+=",";std::string name; if(visible_icons)for(auto&identity:visible_icons->competition_names)if(identity.root==entry.root){name=identity.name;break;}data+="{\"root\":"+std::to_string(entry.root)+",\"asset\":"+std::to_string(entry.asset)+",\"name\":"+html_json_text(name.c_str())+",\"recorded\":false}";}data+="]";}}
+    {CareerNewsManagerFacts manager={};{std::lock_guard<std::mutex>guard(career_news_lock);if(career_news_manager.club_id==visible_club)manager=career_news_manager;}
+     if(manager.valid&&manager.season_record_valid)data+=" ,\"season\":{\"games\":"+std::to_string(manager.games)+",\"wins\":"+std::to_string(manager.wins)+",\"draws\":"+std::to_string(manager.draws)+",\"losses\":"+std::to_string(manager.losses)+",\"goalsFor\":"+std::to_string(manager.goals_for)+",\"goalsAgainst\":"+std::to_string(manager.goals_against)+"}";
+     if(manager.valid&&manager.confidence>=0)data+=",\"boardConfidence\":"+std::to_string(manager.confidence);}
+    auto identity=[&](int asset,int root_id){std::string name;if(visible_icons){for(const auto&item:visible_icons->competition_names)if(item.asset==asset||item.root==root_id){name=item.name;break;}if(name.empty()&&visible_icons->office_next_match.competition_asset==asset)name=utf8(visible_icons->office_next_competition_name.c_str());}return name.empty()?std::string("Competição ")+std::to_string(asset):name;};
+    auto match_json=[&](const CareerWebMatch&m){return std::string("{\"home\":")+std::to_string(m.home)+",\"away\":"+std::to_string(m.away)+",\"asset\":"+std::to_string(m.asset)+",\"competition\":"+html_json_text(identity(m.asset,0).c_str())+",\"homeName\":"+html_json_text(utf8(m.home_name).c_str())+",\"awayName\":"+html_json_text(utf8(m.away_name).c_str())+",\"date\":"+html_json_text(m.date)+",\"time\":"+html_json_text(m.time)+",\"score\":"+html_json_text(m.score)+"}";};
+    auto dashboard=std::make_unique<CareerWebDashboard>();if(career_web_dashboard_copy(visible_club,dashboard.get())){auto&w=*dashboard;CareerTransferUiContext calendar_context={};BOOL calendar_context_valid=career_operations_get_transfer_context(&calendar_context);data+=",\"webDashboard\":{\"current\":"+std::to_string(w.current)+",\"careerDate\":"+std::to_string(w.date)+",\"windowEndsValid\":"+std::string(calendar_context_valid&&calendar_context.window_ends_valid?"true":"false")+",\"windowStart1\":"+std::to_string(calendar_context.first_window_start_mmdd)+",\"windowEnd1\":"+std::to_string(calendar_context.first_window_end_mmdd)+",\"windowStart2\":"+std::to_string(calendar_context.second_window_start_mmdd)+",\"windowEnd2\":"+std::to_string(calendar_context.second_window_end_mmdd)+",\"competitions\":[";
+      for(size_t i=0;i<std::min(w.count,size_t(5));++i){auto&e=w.competitions[i];if(i)data+=",";data+="{\"root\":"+std::to_string(e.root)+",\"asset\":"+std::to_string(e.asset)+",\"name\":"+html_json_text(identity(e.asset,e.root).c_str())+",\"table\":[";
+       for(size_t j=0;j<std::min(e.row_count,size_t(20));++j){auto&r=e.rows[j];if(j)data+=",";data+="{\"team\":"+std::to_string(r.team)+",\"name\":"+html_json_text(utf8(r.name).c_str())+",\"rank\":"+std::to_string(r.rank)+",\"games\":"+std::to_string(r.games)+",\"wins\":"+std::to_string(r.wins)+",\"draws\":"+std::to_string(r.draws)+",\"losses\":"+std::to_string(r.losses)+",\"goalsFor\":"+std::to_string(r.goals_for)+",\"goalsAgainst\":"+std::to_string(r.goals_against)+",\"points\":"+std::to_string(r.points)+"}";}data+="]";
+       for(int k=0;k<2;++k){data+=k?",\"assists\":[":",\"goals\":[";auto*rows=k?e.assists:e.goals;size_t count=k?e.assist_count:e.goal_count;for(size_t j=0;j<std::min(count,size_t(5));++j){auto&r=rows[j];if(j)data+=",";data+="{\"player\":"+std::to_string(r.player)+",\"club\":"+std::to_string(r.club)+",\"value\":"+std::to_string(r.value)+",\"name\":"+html_json_text(utf8(r.name).c_str())+"}";}data+="]";}data+="}";}data+="]";
+      for(int k=0;k<2;++k){data+=k?",\"previous\":[":",\"upcoming\":[";auto*matches=k?w.previous:w.upcoming;size_t count=k?w.previous_count:w.upcoming_count;for(size_t j=0;j<std::min(count,size_t(10));++j){if(j)data+=",";data+=match_json(matches[j]);}data+="]";}
+      if(w.season_valid){auto record_json=[](const CareerWebRecord&r){return std::string("{\"games\":")+std::to_string(r.games)+",\"wins\":"+std::to_string(r.wins)+",\"draws\":"+std::to_string(r.draws)+",\"losses\":"+std::to_string(r.losses)+",\"goalsFor\":"+std::to_string(r.goals_for)+",\"goalsAgainst\":"+std::to_string(r.goals_against)+",\"points\":"+std::to_string(r.points)+"}";};auto total=record_json(w.season);total.pop_back();data+=",\"season\":"+total+",\"home\":"+record_json(w.home_record)+",\"away\":"+record_json(w.away_record)+"}";}
+      const char*metric_keys[]={"goals","assists","minutes","yellow","red"};data+=",\"clubStats\":{";for(int k=0;k<5;++k){if(k)data+=",";data+=html_json_text(metric_keys[k])+":"+"[";for(size_t j=0;j<std::min(w.metric_counts[k],size_t(5));++j){auto&r=w.metrics[k][j];if(j)data+=",";data+="{\"player\":"+std::to_string(r.player)+",\"club\":"+std::to_string(r.club)+",\"value\":"+std::to_string(r.value)+",\"name\":"+html_json_text(utf8(r.name).c_str())+"}";}data+="]";}data+="},\"injuries\":[";for(size_t j=0;j<std::min(w.injury_count,size_t(10));++j){auto&r=w.injuries[j];if(j)data+=",";data+="{\"player\":"+std::to_string(r.player)+",\"name\":"+html_json_text(utf8(r.name).c_str())+",\"injury\":"+html_json_text(utf8(r.injury).c_str())+",\"returnLabel\":"+html_json_text(utf8(r.return_label).c_str())+"}";}data+="]}";}
+    {CareerNextMatchFacts next={};if(career_next_match_copy(visible_club,&next)&&next.valid){char date[24]={},time[12]={};sprintf_s(date,"%02d/%02d/%04d",next.match_date%100,next.match_date/100%100,next.match_date/10000);if(next.match_time>=0)sprintf_s(time,"%02d:%02d",next.match_time/100,next.match_time%100);
+     data+=",\"nextMatch\":{\"home\":"+std::to_string(next.home_team)+",\"away\":"+std::to_string(next.away_team)+",\"homeName\":"+html_json_text(utf8(next.home_name).c_str())+",\"awayName\":"+html_json_text(utf8(next.away_name).c_str())+",\"date\":"+html_json_text(date)+",\"time\":"+html_json_text(time)+",\"asset\":"+std::to_string(next.competition_asset)+",\"competition\":"+html_json_text(identity(next.competition_asset,0).c_str())+",\"stadium\":"+html_json_text(utf8(next.stadium).c_str())+",\"capacity\":"+std::to_string(dashboard->next_fixture==next.fixture?dashboard->capacity:-1)+",\"attendance\":"+std::to_string(dashboard->next_fixture==next.fixture?dashboard->attendance:-1)+"}";}}
+    data+="}";
+    std::string current_name=utf8(visible_team.c_str());fifa_webview::set_career_context(visible_club,current_name.c_str(),(int)visible.size(),lineup_valid,data.c_str());
+    if(!fifa_webview::page_is_home())return;
+    if(fifa_webview::page_is_player()&&!html_player_available)return;
+    if(!fifa_webview::page_is_player()&&!lineup_valid)return;
+    std::shared_ptr<const fifa_player::Model>model;{std::lock_guard<std::mutex>guard(lock);if(ready_serial==request_serial)model=ready_model;}
+    if(!model||model==html_preview_source)return;
+    auto scene=std::make_shared<fifa_player::Model>(*model);
+    if(fifa_webview::page_is_home()){if(scene->player_count!=11)return;scene->room=fifa_player::RoomOfficeLineup;}
+    if(!office_lineup_renderer.model(scene)||!office_lineup_renderer.render(fifa_webview::page_is_player()?900:1280,fifa_webview::page_is_player()?1100:720,0,1.f,false,0,0,fifa_webview::page_is_player()))return;
+    if(fifa_webview::publish_scene(office_lineup_renderer.image()))html_preview_source=model;
+}
+void html_office_close(void *) {fifa_webview::hide();closed(nullptr);}
+BOOL html_office_back(void *) {return FALSE;}
 void open_home_card(int index){
     if(index==0){if(!visible_icons||!visible_icons->card.context.valid)return;
         if(coach_profile_begin_embedded(visible_icons->card)){coach_child=true;club_home=false;office_home=false;}}
@@ -950,6 +1028,8 @@ void career_news_rebuild_locked(){
     for(size_t i=0;i<career_news_item_count;++i)career_news_items[i]=items[i];
 }
 }
+extern "C" void career_web_dashboard_publish(const CareerWebDashboard*value){std::lock_guard<std::mutex>guard(career_news_lock);career_web_dashboard=value?*value:CareerWebDashboard{};}
+extern "C" int career_web_dashboard_copy(int club,CareerWebDashboard*out){if(!out)return 0;std::lock_guard<std::mutex>guard(career_news_lock);if(career_web_dashboard.club!=club){*out={};return 0;}*out=career_web_dashboard;return 1;}
 extern "C" void career_news_publish_facts(const CareerNewsFacts*facts){std::lock_guard<std::mutex>guard(career_news_lock);if(!facts){memset(&career_news_facts,0,sizeof(career_news_facts));career_news_rebuild_locked();return;}career_news_facts=*facts;career_news_facts.club_name[sizeof(career_news_facts.club_name)-1]=0;career_news_facts.next_opponent_name[sizeof(career_news_facts.next_opponent_name)-1]=0;career_news_facts.last_opponent_name[sizeof(career_news_facts.last_opponent_name)-1]=0;career_news_facts.goals_leader_name[sizeof(career_news_facts.goals_leader_name)-1]=0;career_news_facts.assists_leader_name[sizeof(career_news_facts.assists_leader_name)-1]=0;career_news_rebuild_locked();}
 extern "C" void career_news_publish_manager(const CareerNewsManagerFacts*manager){std::lock_guard<std::mutex>guard(career_news_lock);if(!manager)memset(&career_news_manager,0,sizeof(career_news_manager));else{career_news_manager=*manager;career_news_manager.name[sizeof(career_news_manager.name)-1]=0;}career_news_rebuild_locked();}
 extern "C" size_t career_news_copy(int club,CareerNewsItem*out,size_t capacity){if(!out||!capacity||club<=0)return 0;std::lock_guard<std::mutex>guard(career_news_lock);if(career_news_facts.club_id!=club)return 0;size_t count=std::min(capacity,career_news_item_count);for(size_t i=0;i<count;++i)out[i]=career_news_items[i];return count;}
@@ -989,9 +1069,15 @@ bool club_player_screen_register(const char *game_root,void (*log)(const char *)
     const ModOverlayScreen press_screen={"press_conference",FIFA16_PRESS_CONFERENCE_ACTION,opened,draw,closed,(void*)1,back};
     const ModOverlayScreen squad_screen={"club_squad",FIFA16_CLUB_SQUAD_ACTION,opened,draw,closed,(void*)2,back};
     const ModOverlayScreen full_squad_screen={"full-squad-photo",FIFA16_FULL_SQUAD_ACTION,opened,draw,closed,(void*)4,back};
-    const ModOverlayScreen office_screen={"my-office",FIFA16_MY_OFFICE_ACTION,opened,draw,closed,(void*)3,back};
+    const ModOverlayScreen office_screen={"native-office","FifaModsOpenNativeOffice",opened,draw,closed,(void*)3,back};
+    const ModOverlayScreen html_office_screen={"my-office",FIFA16_MY_OFFICE_ACTION,html_office_open,html_office_draw,html_office_close,nullptr,html_office_back};
     if(logger)logger("Club3D: renderer_revision=20261002_light_profile_complete_native_XI_guard");
-    return mod_screen_register(&screen)!=FALSE&&mod_screen_register(&press_screen)!=FALSE&&mod_screen_register(&squad_screen)!=FALSE&&mod_screen_register(&office_screen)!=FALSE&&mod_screen_register(&full_squad_screen)!=FALSE;
+    return mod_screen_register(&screen)!=FALSE&&mod_screen_register(&press_screen)!=FALSE&&mod_screen_register(&squad_screen)!=FALSE&&mod_screen_register(&office_screen)!=FALSE&&mod_screen_register(&html_office_screen)!=FALSE&&mod_screen_register(&full_squad_screen)!=FALSE;
+}
+void club_player_screen_request_web_pose(int id){InterlockedExchange(&web_pose_requested,id);}
+void club_player_screen_request_web_player(int id){InterlockedExchange(&web_player_requested,id>0?id:0);}
+void club_player_screen_request_web_room(int room){
+    InterlockedExchange(&web_room_requested,room>=1&&room<=4?room:0);
 }
 bool club_player_begin_embedded(const ClubPlayerRow*rows,size_t count,int club,const char*name){
     if(!mod_screen_is_active("other-clubs")||!rows||!count||count>CLUB_PLAYER_CAPACITY||club<=0||club>200000)return false;

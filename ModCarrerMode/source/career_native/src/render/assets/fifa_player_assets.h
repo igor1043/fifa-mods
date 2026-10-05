@@ -48,7 +48,7 @@ enum PresentationPoseMode {
     PoseCoachAny=PoseStandingCoach|PoseSeatedCoach,
     PoseSeatedPlayer=16,PoseFullSquad=32
 };
-enum ClubRoomKind {RoomPhoto=0,RoomPress=1,RoomDressing=2,RoomTrophies=3,RoomPressPair=4,RoomArtifact=5,RoomStadium=6,RoomOfficeLineup=7,RoomFullSquadPhoto=8};
+enum ClubRoomKind {RoomPhoto=0,RoomPress=1,RoomDressing=2,RoomTrophies=3,RoomPressPair=4,RoomArtifact=5,RoomStadium=6,RoomOfficeLineup=7,RoomFullSquadPhoto=8,RoomGym=9,RoomTraining=10};
 struct PresentationPoseInfo {
     unsigned id,modes;const char*name;float column_spacing,back_z,front_z;
     unsigned back_count=6;int contact_pattern=0; /* 0 alternating, 1 none, 2 front back-links. */
@@ -60,6 +60,9 @@ struct Model {
     std::vector<Part> parts;
     std::vector<Texture> textures;
     std::string diagnostic;
+    bool scene_camera_valid=false;
+    Vec3 scene_camera_position={};
+    float scene_camera_yaw=0,scene_camera_pitch=0,scene_camera_fov=60;
     bool specific_head=false;
     size_t player_count=1;
     std::shared_ptr<const Skeleton> skeleton;

@@ -42,7 +42,9 @@ typedef struct RetirementCalendar {
     uint16_t record_count;
     uint8_t field_count;
     RetirementField current_date;
+    RetirementField transfer_window_start1;
     RetirementField transfer_window_end1;
+    RetirementField transfer_window_start2;
     RetirementField transfer_window_end2;
 } RetirementCalendar;
 
@@ -295,7 +297,11 @@ static int retirement_find_tables(const unsigned char *data, SIZE_T size,
                     retirement_find_field(db, table_offset, field_count,
                         record_size, "aLZZ", &calendar->current_date);
                     retirement_find_field(db, table_offset, field_count,
+                        record_size, "sUgA", &calendar->transfer_window_start1);
+                    retirement_find_field(db, table_offset, field_count,
                         record_size, "PpdA", &calendar->transfer_window_end1);
+                    retirement_find_field(db, table_offset, field_count,
+                        record_size, "Jdde", &calendar->transfer_window_start2);
                     retirement_find_field(db, table_offset, field_count,
                         record_size, "igYC", &calendar->transfer_window_end2);
                     if (calendar->current_date.found)
@@ -483,18 +489,21 @@ static int retirement_read_file(const char *path, unsigned char **data,
 /* Read-only calendar query shared by UI features. This deliberately uses
  * the same table/CRC validation as the retirement writer but never changes
  * the save or creates a backup. */
-int retirement_engine_get_transfer_window_ends(const char *data_path,
-    unsigned int *first_mmdd, unsigned int *second_mmdd)
+int retirement_engine_get_transfer_windows(const char *data_path,
+    unsigned int *start1_mmdd, unsigned int *end1_mmdd,
+    unsigned int *start2_mmdd, unsigned int *end2_mmdd)
 {
     unsigned char *data = NULL;
     SIZE_T size = 0;
     RetirementTable players;
     RetirementCalendar calendar;
-    unsigned int first = 0, second = 0;
+    unsigned int first_start = 0, first_end = 0, second_start = 0, second_end = 0;
     SIZE_T start;
 
-    if (first_mmdd) *first_mmdd = 0;
-    if (second_mmdd) *second_mmdd = 0;
+    if (start1_mmdd) *start1_mmdd = 0;
+    if (end1_mmdd) *end1_mmdd = 0;
+    if (start2_mmdd) *start2_mmdd = 0;
+    if (end2_mmdd) *end2_mmdd = 0;
     if (!data_path || !*data_path || !retirement_read_file(data_path, &data, &size))
         return 0;
     if (size < RETIREMENT_CRC_START || size < RETIREMENT_CRC_OFFSET + 4U)
@@ -503,26 +512,23 @@ int retirement_engine_get_transfer_window_ends(const char *data_path,
         || !calendar.record_count)
         goto done;
     start = calendar.records_offset;
-    if (calendar.transfer_window_end1.found) {
-        uint32_t raw = retirement_read_bits(data, start,
-            &calendar.transfer_window_end1, calendar.record_size);
-        (void)retirement_window_day_valid(raw, &first);
-    }
-    if (calendar.transfer_window_end2.found) {
-        uint32_t raw = retirement_read_bits(data, start,
-            &calendar.transfer_window_end2, calendar.record_size);
-        (void)retirement_window_day_valid(raw, &second);
-    }
-    if (!first && !second)
-        goto done;
-    if (first_mmdd) *first_mmdd = first;
-    if (second_mmdd) *second_mmdd = second;
+    if (calendar.transfer_window_start1.found) (void)retirement_window_day_valid(retirement_read_bits(data,start,&calendar.transfer_window_start1,calendar.record_size),&first_start);
+    if (calendar.transfer_window_end1.found) (void)retirement_window_day_valid(retirement_read_bits(data,start,&calendar.transfer_window_end1,calendar.record_size),&first_end);
+    if (calendar.transfer_window_start2.found) (void)retirement_window_day_valid(retirement_read_bits(data,start,&calendar.transfer_window_start2,calendar.record_size),&second_start);
+    if (calendar.transfer_window_end2.found) (void)retirement_window_day_valid(retirement_read_bits(data,start,&calendar.transfer_window_end2,calendar.record_size),&second_end);
+    if (!first_start && !first_end && !second_start && !second_end) goto done;
+    if (start1_mmdd) *start1_mmdd = first_start;
+    if (end1_mmdd) *end1_mmdd = first_end;
+    if (start2_mmdd) *start2_mmdd = second_start;
+    if (end2_mmdd) *end2_mmdd = second_end;
     HeapFree(GetProcessHeap(), 0, data);
     return 1;
 done:
     HeapFree(GetProcessHeap(), 0, data);
     return 0;
 }
+
+int retirement_engine_get_transfer_window_ends(const char *path, unsigned int *first, unsigned int *second) { return retirement_engine_get_transfer_windows(path, NULL, first, NULL, second); }
 
 static int retirement_write_atomic(const char *path, const unsigned char *data,
     SIZE_T size)

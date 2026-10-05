@@ -13,7 +13,8 @@
 typedef struct RetirementUiPlayer {unsigned int id;int age,retiring,in_club;char name[128];int team_id;char club_name[128];} RetirementUiPlayer;
 typedef struct CareerTransferUiContext {
     uint32_t club,date,transfer_budget,wage_budget,currency;
-    uint32_t first_window_end_mmdd,second_window_end_mmdd;
+    uint32_t first_window_start_mmdd,first_window_end_mmdd;
+    uint32_t second_window_start_mmdd,second_window_end_mmdd;
     int save_valid,window_ends_valid;
 } CareerTransferUiContext;
 #ifdef __cplusplus

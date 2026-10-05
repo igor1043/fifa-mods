@@ -32,7 +32,11 @@ As telas extras e operações financeiras são experimentais. Ausência de asset
 
 O `Server16Python.exe` acompanha as duas edições. Ele mantém os ajustes de escolha de estádio, público ao iniciar e volume da torcida. Os estádios disponíveis dependem do conteúdo instalado no FIFA/FSW/StadiumGBD; o pacote não contém os arquivos completos do jogo ou todos os estádios.
 
-O ajuste manual do servidor e a estimativa automática do mod são controles diferentes. O mod usa `ModCarrerMode/crowd.ini`; `automatic_dynamic_controller=1` mantém o cálculo automático. Para usar um percentual manual, desative esse controlador e configure o modo manual adequado à sua instalação.
+O público escolhido no painel do Server16Python vale somente para a partida atual. Ao voltar ao menu da carreira, esse ajuste é descartado; na próxima partida, o mod dinâmico volta a determinar o público. Para alterar novamente, aplique um novo percentual no painel antes dessa partida. O servidor não salva esse percentual no `ModCarrerMode/crowd.ini`.
+
+Mantenha `automatic_dynamic_controller=1` para o cálculo automático do mod. Não é necessário desativá-lo para fazer uma escolha temporária no painel do servidor. O modo manual permanente do `crowd.ini` é uma configuração diferente.
+
+Revisão de 04/10/2026: conferida a liberação do público manual entre partidas, inclusive quando o próximo confronto tem os mesmos times. O `Server16Python.exe` deste pacote contém também os ajustes recentes de tamanho do painel, navegação por F2/controle e cursor visível. A revisão automatizada não substitui a confirmação dentro do FIFA.
 
 ## Instalação
 
@@ -62,6 +66,18 @@ Branch: `fifa-friends-new-experience`. Pasta: `J:\mods\fifa 16\fifa-mods-dev\exp
 
 Esta edição mantém o host das telas extras, os provedores, o renderer 3D, ImGui e as ferramentas de prévia. [Guia técnico](ModCarrerMode/docs/TECHNICAL.md) e [mapa das telas e renderização](ModCarrerMode/source/career_native/README.md).
 
-A nova edição foi separada da base `integracao-new-screens`; a validação feita anteriormente nessa base não substitui o teste das edições após a divisão. O jogo atual recebe a V12. Compile e instale a New Experience pelo seu próprio diretório quando quiser testá-la.
+O card **Meu escritório** abre a apresentação HTML dentro do FIFA por WebView2. **Começar** leva à central Início/Ligas/Times/Jogadores/Transferências, com navegação por mouse, teclado e controle. Os onze titulares, o perfil individual e os ambientes atualizados de coletiva, vestiário, academia e CT são renderizados nativamente e enviados ao HTML. O clique num jogador abre o perfil no mesmo tema. Para visualizar sem abrir o FIFA, execute `Abrir Nova Experiencia.cmd`; `ModCarrerMode/tools/club_globe/Atualizar.cmd` recompõe os dados do save configurado e os renders. A prévia offline reflete o último save em disco. O runtime WebView2 do Edge é necessário para a interface dentro do jogo.
+
+A nova edição foi separada da base `integracao-new-screens`; a validação feita anteriormente nessa base não substitui o teste das edições após a divisão. A ponte HTML/Direct3D está instalada como build experimental no jogo de desenvolvimento; confirme o fluxo dentro do FIFA antes de distribuir a edição.
 
 As referências `dev` e `integracao-new-screens` são preservadas no Git. [Registro técnico da integração original](ModCarrerMode/docs/INTEGRACAO_NEW_SCREENS_REFERENCIA.md).
+
+### Perfis HTML e visualização 3D
+
+A central abre os perfis de jogador e treinador pelos cards. A tela de clube abre sobre a liga; B/Esc fecha essa página e preserva a seleção. O foco usa a posição visual dos cards nas quatro direções, por teclado, direcional e analógico esquerdo.
+
+Nos perfis, mantenha Y pressionado para manipular o 3D: analógico direito gira, analógico esquerdo desloca, LT/RT dão zoom e Y + R3 + analógico direito permite a inclinação lateral. Soltar Y devolve os analógicos à navegação. X troca para outra pose sorteada; F ou o botão da tela alterna retrato/modelo. Mouse: arrastar gira, Shift + arrastar inclina lateralmente, roda aproxima quando a área 3D está em foco e duplo clique restaura a câmera.
+
+A visualização interativa usa malhas e texturas reais do FIFA, exportadas pelo motor nativo para WebGL. Funciona com o FIFA fechado, a partir do save configurado em `ModCarrerMode/tools/club_globe/clubes.ini`, usando `Abrir Nova Experiencia.cmd`. Não reproduz as animações em execução do motor do jogo. As poses são as do catálogo do mod.
+
+O servidor é local (127.0.0.1:8876), lê o save sem alterá-lo e mantém o leitor nativo aberto. Reaproveita modelos e texturas entre poses. As estatísticas por competição dos jogadores usam a fonte nativa na carreira aberta; campos não encontrados no save ficam indisponíveis, sem valores simulados. O instalador inclui o servidor, o leitor e as telas na instalação do jogo.
