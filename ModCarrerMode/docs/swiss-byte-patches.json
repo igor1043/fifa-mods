@@ -1,0 +1,418 @@
+[
+  {
+    "group": "kit_keys",
+    "descriptor_rva": 143424,
+    "rva": 62787240,
+    "length": 4,
+    "before": "41c1fc0e",
+    "after": "41c1ec0e"
+  },
+  {
+    "group": "kit_keys",
+    "descriptor_rva": 143448,
+    "rva": 62796861,
+    "length": 4,
+    "before": "41c1fe0e",
+    "after": "41c1ee0e"
+  },
+  {
+    "group": "kit_keys",
+    "descriptor_rva": 143472,
+    "rva": 64839992,
+    "length": 3,
+    "before": "c1f90e",
+    "after": "c1e90e"
+  },
+  {
+    "group": "kit_keys",
+    "descriptor_rva": 143496,
+    "rva": 64900537,
+    "length": 4,
+    "before": "41c1fe0e",
+    "after": "41c1ee0e"
+  },
+  {
+    "group": "kit_keys",
+    "descriptor_rva": 143520,
+    "rva": 64907543,
+    "length": 4,
+    "before": "41c1fe0e",
+    "after": "41c1ee0e"
+  },
+  {
+    "group": "kit_keys",
+    "descriptor_rva": 143544,
+    "rva": 64911395,
+    "length": 3,
+    "before": "c1fe0e",
+    "after": "c1ee0e"
+  },
+  {
+    "group": "kit_keys",
+    "descriptor_rva": 143568,
+    "rva": 64912413,
+    "length": 3,
+    "before": "c1fe0e",
+    "after": "c1ee0e"
+  },
+  {
+    "group": "kit_keys",
+    "descriptor_rva": 143592,
+    "rva": 64921745,
+    "length": 4,
+    "before": "41c1fc0e",
+    "after": "41c1ec0e"
+  },
+  {
+    "group": "kit_keys",
+    "descriptor_rva": 143616,
+    "rva": 67068533,
+    "length": 4,
+    "before": "41c1f90e",
+    "after": "41c1e90e"
+  },
+  {
+    "group": "kit_keys",
+    "descriptor_rva": 143640,
+    "rva": 67068693,
+    "length": 3,
+    "before": "c1fa0e",
+    "after": "c1ea0e"
+  },
+  {
+    "group": "kit_keys",
+    "descriptor_rva": 143664,
+    "rva": 67069216,
+    "length": 3,
+    "before": "c1fa0e",
+    "after": "c1ea0e"
+  },
+  {
+    "group": "kit_keys",
+    "descriptor_rva": 143688,
+    "rva": 67096024,
+    "length": 3,
+    "before": "c1ff0e",
+    "after": "c1ef0e"
+  },
+  {
+    "group": "kit_keys",
+    "descriptor_rva": 143712,
+    "rva": 67255553,
+    "length": 3,
+    "before": "c1f80e",
+    "after": "c1e80e"
+  },
+  {
+    "group": "kit_keys",
+    "descriptor_rva": 143736,
+    "rva": 67624819,
+    "length": 3,
+    "before": "c1ff0e",
+    "after": "c1ef0e"
+  },
+  {
+    "group": "kit_keys",
+    "descriptor_rva": 143760,
+    "rva": 67717368,
+    "length": 3,
+    "before": "c1ff0e",
+    "after": "c1ef0e"
+  },
+  {
+    "group": "kit_keys",
+    "descriptor_rva": 143784,
+    "rva": 67737598,
+    "length": 3,
+    "before": "c1ff0e",
+    "after": "c1ef0e"
+  },
+  {
+    "group": "kit_keys",
+    "descriptor_rva": 143808,
+    "rva": 67738975,
+    "length": 3,
+    "before": "c1ff0e",
+    "after": "c1ef0e"
+  },
+  {
+    "group": "kit_keys",
+    "descriptor_rva": 143832,
+    "rva": 67740594,
+    "length": 3,
+    "before": "c1ff0e",
+    "after": "c1ef0e"
+  },
+  {
+    "group": "kit_keys",
+    "descriptor_rva": 143856,
+    "rva": 67742984,
+    "length": 3,
+    "before": "c1ff0e",
+    "after": "c1ef0e"
+  },
+  {
+    "group": "kit_keys",
+    "descriptor_rva": 143880,
+    "rva": 67817058,
+    "length": 4,
+    "before": "41c1f80e",
+    "after": "41c1e80e"
+  },
+  {
+    "group": "kit_keys",
+    "descriptor_rva": 143904,
+    "rva": 67938632,
+    "length": 3,
+    "before": "c1ff0e",
+    "after": "c1ef0e"
+  },
+  {
+    "group": "kit_keys",
+    "descriptor_rva": 143928,
+    "rva": 68322796,
+    "length": 3,
+    "before": "c1ff0e",
+    "after": "c1ef0e"
+  },
+  {
+    "group": "kit_keys",
+    "descriptor_rva": 143952,
+    "rva": 68326533,
+    "length": 3,
+    "before": "c1ff0e",
+    "after": "c1ef0e"
+  },
+  {
+    "group": "kit_keys",
+    "descriptor_rva": 143976,
+    "rva": 68326595,
+    "length": 3,
+    "before": "c1fe0e",
+    "after": "c1ee0e"
+  },
+  {
+    "group": "kit_keys",
+    "descriptor_rva": 144000,
+    "rva": 68348746,
+    "length": 4,
+    "before": "41c1f90e",
+    "after": "41c1e90e"
+  },
+  {
+    "group": "kit_keys",
+    "descriptor_rva": 144024,
+    "rva": 68349252,
+    "length": 4,
+    "before": "41c1f80e",
+    "after": "41c1e80e"
+  },
+  {
+    "group": "kit_keys",
+    "descriptor_rva": 144048,
+    "rva": 68503511,
+    "length": 3,
+    "before": "c1ff0e",
+    "after": "c1ef0e"
+  },
+  {
+    "group": "kit_keys",
+    "descriptor_rva": 144072,
+    "rva": 68587289,
+    "length": 3,
+    "before": "c1fe0e",
+    "after": "c1ee0e"
+  },
+  {
+    "group": "kit_keys",
+    "descriptor_rva": 144096,
+    "rva": 68849479,
+    "length": 3,
+    "before": "c1f90e",
+    "after": "c1e90e"
+  },
+  {
+    "group": "kit_keys",
+    "descriptor_rva": 144120,
+    "rva": 68849546,
+    "length": 3,
+    "before": "c1f90e",
+    "after": "c1e90e"
+  },
+  {
+    "group": "kit_keys",
+    "descriptor_rva": 144144,
+    "rva": 69538425,
+    "length": 4,
+    "before": "41c1f90e",
+    "after": "41c1e90e"
+  },
+  {
+    "group": "kit_keys",
+    "descriptor_rva": 144168,
+    "rva": 73376322,
+    "length": 3,
+    "before": "c1f80e",
+    "after": "c1e80e"
+  },
+  {
+    "group": "kit_keys",
+    "descriptor_rva": 144192,
+    "rva": 73518731,
+    "length": 3,
+    "before": "c1f80e",
+    "after": "c1e80e"
+  },
+  {
+    "group": "kit_keys",
+    "descriptor_rva": 144216,
+    "rva": 73518914,
+    "length": 3,
+    "before": "c1fb0e",
+    "after": "c1eb0e"
+  },
+  {
+    "group": "kit_keys",
+    "descriptor_rva": 144240,
+    "rva": 73521048,
+    "length": 4,
+    "before": "41c1ff0e",
+    "after": "41c1ef0e"
+  },
+  {
+    "group": "kit_keys",
+    "descriptor_rva": 144264,
+    "rva": 73529806,
+    "length": 3,
+    "before": "c1fe0e",
+    "after": "c1ee0e"
+  },
+  {
+    "group": "kit_keys",
+    "descriptor_rva": 144288,
+    "rva": 73530786,
+    "length": 3,
+    "before": "c1fe0e",
+    "after": "c1ee0e"
+  },
+  {
+    "group": "kit_keys",
+    "descriptor_rva": 144312,
+    "rva": 64900319,
+    "length": 3,
+    "before": "c1ff0e",
+    "after": "c1ef0e"
+  },
+  {
+    "group": "kit_keys",
+    "descriptor_rva": 144336,
+    "rva": 64901123,
+    "length": 4,
+    "before": "41c1fc0e",
+    "after": "41c1ec0e"
+  },
+  {
+    "group": "kit_keys",
+    "descriptor_rva": 144360,
+    "rva": 67068893,
+    "length": 4,
+    "before": "41c1f90e",
+    "after": "41c1e90e"
+  },
+  {
+    "group": "kit_keys",
+    "descriptor_rva": 144384,
+    "rva": 70663739,
+    "length": 4,
+    "before": "41c1fa0e",
+    "after": "41c1ea0e"
+  },
+  {
+    "group": "kit_keys",
+    "descriptor_rva": 144408,
+    "rva": 64909239,
+    "length": 4,
+    "before": "41c1fe0e",
+    "after": "41c1ee0e"
+  },
+  {
+    "group": "kit_keys",
+    "descriptor_rva": 144432,
+    "rva": 68322663,
+    "length": 3,
+    "before": "c1fb0e",
+    "after": "c1eb0e"
+  },
+  {
+    "group": "kit_keys",
+    "descriptor_rva": 144456,
+    "rva": 67717291,
+    "length": 7,
+    "before": "85db7e06c1fb0e",
+    "after": "85db7406c1eb0e"
+  },
+  {
+    "group": "kit_keys",
+    "descriptor_rva": 144480,
+    "rva": 67737505,
+    "length": 7,
+    "before": "85db7e05c1fb0e",
+    "after": "85db7405c1eb0e"
+  },
+  {
+    "group": "kit_keys",
+    "descriptor_rva": 144504,
+    "rva": 67738862,
+    "length": 7,
+    "before": "85db7e05c1fb0e",
+    "after": "85db7405c1eb0e"
+  },
+  {
+    "group": "kit_keys",
+    "descriptor_rva": 144528,
+    "rva": 67740474,
+    "length": 7,
+    "before": "85db7e05c1fb0e",
+    "after": "85db7405c1eb0e"
+  },
+  {
+    "group": "kit_keys",
+    "descriptor_rva": 144552,
+    "rva": 67742907,
+    "length": 7,
+    "before": "85db7e05c1fb0e",
+    "after": "85db7405c1eb0e"
+  },
+  {
+    "group": "kit_keys",
+    "descriptor_rva": 144576,
+    "rva": 67938560,
+    "length": 7,
+    "before": "85db7e06c1fb0e",
+    "after": "85db7406c1eb0e"
+  },
+  {
+    "group": "league_capacity",
+    "descriptor_rva": 141280,
+    "rva": 94389625,
+    "length": 6,
+    "before": "41be1e000000",
+    "after": "41be66000000"
+  },
+  {
+    "group": "league_capacity",
+    "descriptor_rva": 141312,
+    "rva": 94524434,
+    "length": 6,
+    "before": "483d08010000",
+    "after": "483d48030000"
+  },
+  {
+    "group": "league_capacity",
+    "descriptor_rva": 141344,
+    "rva": 94501110,
+    "length": 4,
+    "before": "4883f91e",
+    "after": "4883f966"
+  }
+]

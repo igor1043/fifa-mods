@@ -37,6 +37,31 @@ function Add-File([string]$Source,[string]$Relative) {
     $files.Add([pscustomobject]@{Source=$Source;Relative=$Relative;Target=$target;Hash=(Get-Sha256 $Source)})
 }
 foreach($name in @('dinput8.dll','dinput8_orig.dll','dinput8_L9.ini','dinput8_patch.ini','winmm.dll','Server16Python.exe')) { Add-File (Join-Path $repoSource $name) $name }
+$swissManifestPath = Join-Path $modSource 'docs\swiss-assets-manifest.json'
+$preparedMemory = $null
+if (Test-Path -LiteralPath $swissManifestPath -PathType Leaf) {
+    $swissManifest = Get-Content -LiteralPath $swissManifestPath -Raw | ConvertFrom-Json
+    # Existing presentation is owned by the working game. Refuse any unrelated
+    # variant instead of replacing it with a prepared or donor archive.
+    foreach($asset in $swissManifest) {
+        $target = Join-Path $game $asset.path
+        Assert-Child $game $target
+        if (Test-Path -LiteralPath $target -PathType Leaf) {
+            if ((Get-Sha256 $target) -ne $asset.output_sha256) {
+                throw "Apresentacao divergente; revise antes de instalar: $($asset.path)"
+            }
+        } elseif ($asset.action -ne 'added') {
+            throw "Arquivo original de apresentacao ausente: $($asset.path)"
+        }
+    }
+    Add-File (Join-Path $modSource 'source\career_native\resources\active_chain_resource.bin') 'dinput8_l9_chain.dll'
+    $memoryInput = Join-Path $game 'memoryfw.ini'
+    if (-not (Test-Path -LiteralPath $memoryInput -PathType Leaf)) { throw 'memoryfw.ini original ausente; preserve a configuracao do jogo.' }
+    $preparedMemory = Join-Path ([IO.Path]::GetTempPath()) ('fifa_swiss_memory_'+[guid]::NewGuid().ToString('N')+'.ini')
+    & py -3.12 (Join-Path $modSource 'tools\swiss_integration\prepare_memoryfw.py') $memoryInput $preparedMemory
+    if ($LASTEXITCODE -ne 0) { throw 'Falha ao preparar a reserva; nenhum arquivo do jogo foi alterado.' }
+    Add-File $preparedMemory 'memoryfw.ini'
+}
 $runtimeFiles = @('retirement_offline_worker.exe','crowd.ini')
 if ($edition -eq 'new-experience') { $runtimeFiles += 'career_operations_worker.exe' }
 foreach($name in $runtimeFiles) { Add-File (Join-Path $modSource $name) ('ModCarrerMode\'+$name) }
@@ -45,6 +70,7 @@ foreach($folder in @('config','data','mods','assets')) {
     if (-not (Test-Path -LiteralPath $base)) { continue }
     foreach($file in Get-ChildItem -LiteralPath $base -Recurse -File) {
         if ($file.Extension -in @('.md','.ps1','.example')) { continue }
+        if ($folder -eq 'assets' -and $file.FullName.StartsWith((Join-Path $base 'swiss\'),[StringComparison]::OrdinalIgnoreCase)) { continue }
         $relative='ModCarrerMode\'+$folder+'\'+$file.FullName.Substring($base.Length+1)
         Add-File $file.FullName $relative
     }
@@ -84,6 +110,7 @@ if ($VerifyOnly) {
     [pscustomobject]@{Edition=$edition;DevFiles=$files.Count;Identical=$same;Preserved=$skip.Count;ToInstall=$changes.Count;ToArchive=$obsoletePaths.Count}
     $changes | Select-Object Relative
     $obsoletePaths | ForEach-Object { [pscustomobject]@{Archive=$_} }
+    if ($preparedMemory) { Remove-Item -LiteralPath $preparedMemory }
     return
 }
 if (Get-Process FIFA16 -ErrorAction SilentlyContinue) { throw 'Feche o FIFA antes de instalar. Os arquivos Dev ja estao prontos.' }
@@ -99,6 +126,10 @@ function Backup-File([string]$Target,[string]$Relative) {
 }
 # Copy and verify every overwritten file BEFORE modifying the installation.
 foreach($file in $changes) { Backup-File $file.Target $file.Relative }
+$installManifest = @($changes | ForEach-Object {
+    [pscustomobject]@{Relative=$_.Relative;Before=$(if(Test-Path -LiteralPath $_.Target -PathType Leaf){Get-Sha256 $_.Target}else{$null});After=$_.Hash}
+})
+$installManifest | ConvertTo-Json -Depth 4 | Set-Content -LiteralPath (Join-Path $backup 'installed-files.json') -Encoding UTF8
 foreach($relative in $obsoletePaths) {
     $old=Join-Path $game $relative
     $dest=Join-Path $backup ('edition-switch\'+$relative)
@@ -125,7 +156,9 @@ foreach($item in $moves.PSObject.Properties) {
 foreach($log in Get-ChildItem -LiteralPath $gameMod -File -Filter '*.log') {
     $target=Join-Path $gameMod ('logs\'+$log.Name);Assert-Child $gameMod $log.FullName;Assert-Child $gameMod $target
     if (Test-Path -LiteralPath $target) { $target=Join-Path $gameMod ('logs\'+$log.BaseName+'_before_'+(Get-Date -Format 'yyyyMMdd_HHmmss')+'.log') }
-    Move-Item -LiteralPath $log.FullName -Destination $target
+    try { Move-Item -LiteralPath $log.FullName -Destination $target -ErrorAction Stop }
+    catch [UnauthorizedAccessException] { Write-Verbose "Log preservado no local original: $($log.Name)" }
+    catch [IO.IOException] { Write-Verbose "Log em uso preservado no local original: $($log.Name)" }
 }
 foreach($file in $changes) {
     New-Item -ItemType Directory -Force -Path ([IO.Path]::GetDirectoryName($file.Target)) | Out-Null
@@ -142,4 +175,5 @@ if ($ArchiveDevelopmentFiles) {
         Move-Item -LiteralPath $old -Destination $dest
     }
 }
+if ($preparedMemory) { Remove-Item -LiteralPath $preparedMemory }
 [pscustomobject]@{Edition=$edition;Installed=$changes.Count;Identical=$same;Preserved=$skip.Count;Archived=$obsoletePaths.Count;Backup=$backup;Game=$game}

@@ -17,6 +17,7 @@
 #include "../core/fce_runtime.h"
 #include "../features/crowd/crowd_runtime.h"
 #include "../features/retirement/retirement_engine.h"
+#include "swiss_delta.h"
 static void native_prepare(void *owner);
 static void native_publish(void *provider);
 static void native_log_transfer_card_context(void *provider);
@@ -4301,6 +4302,7 @@ HRESULT WINAPI DirectInput8Create(
         interface_id,
         output,
         outer);
+    if (SUCCEEDED(result)) (void)swiss_delta_start(g_self,g_game_dir,g_mod_dir);
     return result;
 }
 
