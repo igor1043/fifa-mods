@@ -7,6 +7,7 @@
 #include <stdarg.h>
 #include "swiss_delta.h"
 #include "swiss_byte_patches.h"
+#include "league_query_batches.h"
 
 /* The original L9.65 image is kept byte-for-byte. Resource 102 contains ONLY
  * eight selected Swiss patch routines, callbacks and supporting functions.
@@ -14,7 +15,7 @@
  * Worker addresses are pinned to the reviewed donor SHA in the extractor.
  * The V12 code owns configuration, import binding, startup and shared sites.
  * Kit-key and league-size byte changes are reconstructed in this C source.
- * Startup is requested only after the original DirectInput call succeeds.
+ * Startup requires BOTH the V12 native hooks and original DirectInput ready.
  */
 typedef struct DeltaState {
     HMODULE host;
@@ -27,14 +28,16 @@ typedef struct DeltaState {
 } DeltaState;
 static DeltaState g_delta;
 static volatile LONG g_started;
+static volatile LONG g_ready;
 static SRWLOCK g_log_lock=SRWLOCK_INIT;
 
 static void delta_log(const char *format, ...) {
-    char line[1024]; va_list args; FILE *out;
+    char line[1024]; va_list args; FILE *out; SYSTEMTIME now;
+    GetLocalTime(&now);
     va_start(args,format); vsnprintf(line,sizeof(line),format,args); va_end(args);
     AcquireSRWLockExclusive(&g_log_lock);
     out=fopen(g_delta.log,"ab");
-    if(out) { fprintf(out,"[V12 Swiss delta] %s\r\n",line); fclose(out); }
+    if(out) { fprintf(out,"[%04u-%02u-%02u %02u:%02u:%02u] [V12 Swiss pid=%lu] %s\r\n", now.wYear,now.wMonth,now.wDay,now.wHour,now.wMinute,now.wSecond,GetCurrentProcessId(),line); fclose(out); }
     ReleaseSRWLockExclusive(&g_log_lock);
 }
 static BOOL range_valid(DWORD rva, DWORD size) {
@@ -328,9 +331,7 @@ static DWORD WINAPI delta_worker(LPVOID unused) {
         if(GetTickCount64()-start>600000) {delta_log("ERROR original L9.65 not loaded");return 1;}
         Sleep(50);
     }
-    /* The request comes after the original DirectInput call returns, outside
-     * DllMain. Allow the game's initial module setup to finish before hooks. */
-    Sleep(250);
+    /* Both ready notifications have already arrived. No guessed delay. */
     if(!load_selected_resource()) {delta_log("ERROR loading selected-function resource; original host/L9 retained");return 2;}
     exe=(unsigned char*)GetModuleHandleA(NULL);dos=(IMAGE_DOS_HEADER*)exe;
     nt=(IMAGE_NT_HEADERS64*)(exe+dos->e_lfanew);size=nt->OptionalHeader.SizeOfImage;
@@ -339,7 +340,8 @@ static DWORD WINAPI delta_worker(LPVOID unused) {
     snprintf(runtime_log,sizeof(runtime_log),"%s\\logs\\swiss_delta_patches.log",g_delta.mod);
     g_delta.log_handle=CreateFileA(runtime_log,FILE_APPEND_DATA,FILE_SHARE_READ|FILE_SHARE_WRITE,NULL,OPEN_ALWAYS,FILE_ATTRIBUTE_NORMAL,NULL);
     memcpy(g_delta.image+0x1C020,&g_delta.log_handle,8);
-    delta_log("revision 3: original L9.65 retained; starting after original DirectInput succeeded");
+    delta_log("restart revision 6: V12 native hooks AND original DirectInput ready; original L9.65 retained");
+    (void)league_query_batches_start(g_delta.game,g_delta.mod);
     if(active("Trikotschluessel",0)) start_byte_job(0);
     if(active("Ligengroesse",0)) start_byte_job(1);
     if(active("Karrierewaechter",1)) start_selected("career lookup guard",0x4C80);
@@ -361,7 +363,7 @@ static DWORD WINAPI delta_worker(LPVOID unused) {
     }
     return 0;
 }
-BOOL swiss_delta_start(HMODULE host,const char *game_dir,const char *mod_dir) {
+static BOOL swiss_delta_start(HMODULE host,const char *game_dir,const char *mod_dir) {
     HANDLE thread;
     if(InterlockedCompareExchange(&g_started,1,0)) return TRUE;
     g_delta.host=host;
@@ -372,4 +374,11 @@ BOOL swiss_delta_start(HMODULE host,const char *game_dir,const char *mod_dir) {
     thread=CreateThread(NULL,0,delta_worker,NULL,0,NULL);
     if(!thread) {delta_log("ERROR starting adapter error=%lu",GetLastError());return FALSE;}
     CloseHandle(thread);return TRUE;
+}
+
+/* Either completion order is valid. The second notification starts once.
+ * Failure of either original V12 path leaves all Swiss writes inactive. */
+void swiss_delta_notify_ready(HMODULE host,const char *game_dir,const char *mod_dir,LONG stage) {
+    LONG previous=InterlockedOr(&g_ready,stage);
+    if(((previous|stage)&3)==3) (void)swiss_delta_start(host,game_dir,mod_dir);
 }

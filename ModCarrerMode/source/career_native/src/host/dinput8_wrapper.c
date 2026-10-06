@@ -4274,7 +4274,10 @@ static DWORD WINAPI patch_standings_provider(LPVOID unused)
     fprintf(log, "Patches de chamadas=%u/19\n", call_patched);
     fclose(log);
     if (patched == sizeof(g_patches) / sizeof(g_patches[0]) && call_patched == 19)
+    {
         append_loader_log("career_native_card_hooks_installed");
+        swiss_delta_notify_ready(g_self, g_game_dir, g_mod_dir, SWISS_READY_NATIVE);
+    }
     return (
         patched == sizeof(g_patches) / sizeof(g_patches[0])
         && call_patched == 19)
@@ -4302,7 +4305,8 @@ HRESULT WINAPI DirectInput8Create(
         interface_id,
         output,
         outer);
-    if (SUCCEEDED(result)) (void)swiss_delta_start(g_self,g_game_dir,g_mod_dir);
+    if (SUCCEEDED(result))
+        swiss_delta_notify_ready(g_self, g_game_dir, g_mod_dir, SWISS_READY_DIRECTINPUT);
     return result;
 }
 
