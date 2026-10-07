@@ -1,0 +1,221 @@
+{
+  "branch": "fifa-friends-v12-integracao-suico",
+  "changes": [
+    {
+      "field": "career_users.primarycompobjid",
+      "before": {
+        "name": "primarycompobjid",
+        "shortname": "XGBd",
+        "type": "DBOFIELDTYPE_INTEGER",
+        "depth": "11",
+        "null": "False",
+        "rangehigh": "2000",
+        "rangelow": "0",
+        "update": "True"
+      },
+      "after": {
+        "name": "primarycompobjid",
+        "shortname": "XGBd",
+        "type": "DBOFIELDTYPE_INTEGER",
+        "depth": "13",
+        "null": "False",
+        "rangehigh": "8191",
+        "rangelow": "0",
+        "update": "True"
+      },
+      "rows": 0
+    },
+    {
+      "field": "career_newsban.compobjid",
+      "before": {
+        "name": "compobjid",
+        "shortname": "OvfW",
+        "type": "DBOFIELDTYPE_INTEGER",
+        "depth": "11",
+        "null": "False",
+        "rangehigh": "2000",
+        "rangelow": "0",
+        "update": "True"
+      },
+      "after": {
+        "name": "compobjid",
+        "shortname": "OvfW",
+        "type": "DBOFIELDTYPE_INTEGER",
+        "depth": "13",
+        "null": "False",
+        "rangehigh": "8191",
+        "rangelow": "0",
+        "update": "True"
+      },
+      "rows": 0
+    },
+    {
+      "field": "career_managerawards.compobjid",
+      "before": {
+        "name": "compobjid",
+        "shortname": "OvfW",
+        "type": "DBOFIELDTYPE_INTEGER",
+        "depth": "11",
+        "null": "False",
+        "rangehigh": "2000",
+        "rangelow": "0",
+        "update": "True"
+      },
+      "after": {
+        "name": "compobjid",
+        "shortname": "OvfW",
+        "type": "DBOFIELDTYPE_INTEGER",
+        "depth": "13",
+        "null": "False",
+        "rangehigh": "8191",
+        "rangelow": "0",
+        "update": "True"
+      },
+      "rows": 0
+    },
+    {
+      "field": "career_playerawards.compobjid",
+      "before": {
+        "name": "compobjid",
+        "shortname": "OvfW",
+        "type": "DBOFIELDTYPE_INTEGER",
+        "depth": "11",
+        "null": "False",
+        "rangehigh": "2000",
+        "rangelow": "0",
+        "update": "True"
+      },
+      "after": {
+        "name": "compobjid",
+        "shortname": "OvfW",
+        "type": "DBOFIELDTYPE_INTEGER",
+        "depth": "13",
+        "null": "False",
+        "rangehigh": "8191",
+        "rangelow": "0",
+        "update": "True"
+      },
+      "rows": 0
+    },
+    {
+      "field": "persistent_events.compobjid",
+      "before": {
+        "name": "compobjid",
+        "shortname": "OvfW",
+        "type": "DBOFIELDTYPE_INTEGER",
+        "depth": "11",
+        "null": "False",
+        "rangehigh": "2000",
+        "rangelow": "-1",
+        "update": "True"
+      },
+      "after": {
+        "name": "compobjid",
+        "shortname": "OvfW",
+        "type": "DBOFIELDTYPE_INTEGER",
+        "depth": "13",
+        "null": "False",
+        "rangehigh": "8190",
+        "rangelow": "-1",
+        "update": "True"
+      },
+      "rows": 0
+    },
+    {
+      "field": "career_competitionprogress.stageid",
+      "before": {
+        "name": "stageid",
+        "shortname": "KPUK",
+        "type": "DBOFIELDTYPE_INTEGER",
+        "depth": "11",
+        "null": "False",
+        "rangehigh": "2000",
+        "rangelow": "-1",
+        "update": "True"
+      },
+      "after": {
+        "name": "stageid",
+        "shortname": "KPUK",
+        "type": "DBOFIELDTYPE_INTEGER",
+        "depth": "13",
+        "null": "False",
+        "rangehigh": "8190",
+        "rangelow": "-1",
+        "update": "True"
+      },
+      "rows": 0
+    },
+    {
+      "field": "career_competitionprogress.compobjid",
+      "before": {
+        "name": "compobjid",
+        "shortname": "OvfW",
+        "type": "DBOFIELDTYPE_INTEGER",
+        "depth": "11",
+        "null": "False",
+        "rangehigh": "2000",
+        "rangelow": "0"
+      },
+      "after": {
+        "name": "compobjid",
+        "shortname": "OvfW",
+        "type": "DBOFIELDTYPE_INTEGER",
+        "depth": "13",
+        "null": "False",
+        "rangehigh": "8191",
+        "rangelow": "0"
+      },
+      "rows": 0
+    }
+  ],
+  "total_tables": 137,
+  "tables_with_identical_values": 137,
+  "tables_with_identical_binary_excluding_crc": 131,
+  "affected_empty_tables": [
+    "NgwF",
+    "PdMH",
+    "ShPa",
+    "cPet",
+    "gCOv",
+    "mPrV"
+  ],
+  "input_crc_valid": true,
+  "output_crc_valid": true,
+  "files": [
+    {
+      "name": "fifa_ng_db.db",
+      "before_bytes": 7591404,
+      "after_bytes": 7591404,
+      "before_sha256": "fa058eac7a1f0beeac0bedb9623780fee5cc1e22c0d50d27de620f0a577f4fd8",
+      "after_sha256": "3b5d8f8f23d55ee2e89fafe7f7fb41c45bba2170139637ea503078fafdac3236"
+    },
+    {
+      "name": "fifa_ng_db-meta.xml",
+      "before_bytes": 408767,
+      "after_bytes": 408767,
+      "before_sha256": "e07763d79dcc1a012dfa8136ced16295357394f239e7752d74fa48576c418980",
+      "after_sha256": "f5a515488c8db95f29c3d79638559242e4d4bf284ad23dd7a06b884d34372924"
+    }
+  ],
+  "fault": {
+    "competition_id": 2235,
+    "saved_id": 187,
+    "old_mask": 2047,
+    "instruction": "FootballCompEngzf.dll+0x884F0",
+    "save": "Tournament20261006183001"
+  },
+  "backup": "J:\\mods\\fifa 16\\estudos fifa 16\\backups\\torneios-schema_20261006_183828",
+  "runtime_confirmation": "user_reported_apparent_resolution_2026-10-07",
+  "installation": {
+    "installed": true,
+    "at": "2026-10-06T18:46:35.6220201-03:00",
+    "game": "U:\\fifa 16",
+    "files": 2,
+    "backup": "J:\\mods\\fifa 16\\estudos fifa 16\\backups\\torneios-schema_20261006_183828\\installation\\ModCarrerMode_install_20261006_184629_379"
+  },
+  "user_feedback": {
+    "date": "2026-10-07",
+    "text": "acho que corrigiu, pode subir essa modificação",
+    "scope": "Relato do usuario; validacao exaustiva nao realizada"
+  }
+}

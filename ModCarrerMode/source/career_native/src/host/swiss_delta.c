@@ -8,6 +8,7 @@
 #include "swiss_delta.h"
 #include "swiss_byte_patches.h"
 #include "league_query_batches.h"
+#include "tournament_list_compat.h"
 
 /* The original L9.65 image is kept byte-for-byte. Resource 102 contains ONLY
  * eight selected Swiss patch routines, callbacks and supporting functions.
@@ -340,7 +341,8 @@ static DWORD WINAPI delta_worker(LPVOID unused) {
     snprintf(runtime_log,sizeof(runtime_log),"%s\\logs\\swiss_delta_patches.log",g_delta.mod);
     g_delta.log_handle=CreateFileA(runtime_log,FILE_APPEND_DATA,FILE_SHARE_READ|FILE_SHARE_WRITE,NULL,OPEN_ALWAYS,FILE_ATTRIBUTE_NORMAL,NULL);
     memcpy(g_delta.image+0x1C020,&g_delta.log_handle,8);
-    delta_log("restart revision 6: V12 native hooks AND original DirectInput ready; original L9.65 retained");
+    delta_log("restart revision 7: V12 native hooks AND original DirectInput ready; original L9.65 retained");
+    (void)tournament_list_compat_start(g_delta.game,g_delta.mod);
     (void)league_query_batches_start(g_delta.game,g_delta.mod);
     if(active("Trikotschluessel",0)) start_byte_job(0);
     if(active("Ligengroesse",0)) start_byte_job(1);
