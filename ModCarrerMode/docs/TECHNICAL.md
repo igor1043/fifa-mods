@@ -18,7 +18,9 @@ Ao selecionar um dos cards, um diálogo sobreposto com sinal sonoro instrui o us
 
 Os plugins ativos nas duas edições são `crowd/crowd_plugin.dll`, `bench_native12/bench_native12.dll`, `substitution_all7_rulescan_native/substitution_all7_rulescan_native.dll` e `career_birthdate_2006/birthyear_range_2006_2012.dll`. O patch legado `global_limit_12_v2.dll` não integra a lista: ele altera a versão do interpretador APT, não o tamanho do banco.
 
-A expansão do banco prepara até 12 jogadores reais. O plugin de substituição procura e altera os dois limites `A78C`, sem modificar os contadores `B03C`. A confirmação prática da quarta à sétima troca requer partida nova. As opções L9 `ScoutOhneLiga`, `Namensweiche` e `Poolwache` mantêm o estado desligado da base.
+A expansão do banco prepara até 12 jogadores reais. A versão 7 preserva os sete modelos originais e oculta os cinco adicionais enquanto reservas; libera qualquer adicional quando a atualização nativa o ativa em campo, inclusive sem recarregar o descritor. A transição e a visibilidade na substituição foram validadas pelo usuário em 07/10/2026. Não modifica assentos, coordenadas ou movimentação. [Código, testes e compilação do banco](../source/bench_native12/README.md).
+
+O plugin de substituição procura e altera os dois limites `A78C`, sem modificar os contadores `B03C`. A confirmação prática da quarta à sétima troca requer partida nova. As opções L9 `ScoutOhneLiga`, `Namensweiche` e `Poolwache` mantêm o estado desligado da base.
 
 O instalador inclui o servidor Python e os requisitos de nascimento 2006–2012: DLL, watcher e payload `vpro_proinfo.big` na interface nativa. Confere hashes conhecidos do payload e da interface instalada antes de substituir. Arquivos escritos são comparados por SHA-256; os anteriores ficam em backup externo.
 

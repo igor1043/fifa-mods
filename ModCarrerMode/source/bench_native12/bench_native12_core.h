@@ -27,6 +27,11 @@ static const BenchNativePatch bench_native12_patches[BENCH_NATIVE12_PATCH_COUNT]
          0x07,0x7E,0x07,0x41,0xC7,0x00,0x1D,0x00,0x00,0x00}}
 };
 
+/* Retain the v3 loader that constructed twelve real, usable reserves.
+ * Reducing the late AI copy to seven (v5) blocked match initialization.
+ * Visual filtering now belongs exclusively to the native renderer adapter. */
+static const unsigned char bench_native12_targets[BENCH_NATIVE12_PATCH_COUNT]={12U,12U};
+
 /* 7 and 12 are the only accepted complete instruction signatures. */
 static int bench_native12_signature(const BenchNativePatch *patch,
     const unsigned char *bytes, size_t size)

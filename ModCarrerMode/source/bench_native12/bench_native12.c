@@ -7,6 +7,7 @@
 #include "bench_native12_core.h"
 #include "bench_import_adapter.h"
 #include "bench_job_adapter.h"
+#include "bench_render_adapter.h"
 #include "../substitution_all7_rulescan_native/fifa16_mod_api.h"
 
 static volatile LONG started;
@@ -85,7 +86,9 @@ static BOOL code_ready(void)
         {0x414EB4AU,3U,{0x49,0x89,0xCD}},
         {0x414EBB9U,5U,{0x42,0x89,0x5C,0x28,0x34}},
         {0x3D42150U,8U,{0x48,0x8B,0x05,0x91,0x7F,0x7A,0xFF,0xC3}},
-        {0x4C0ED80U,5U,{0x48,0x8B,0x41,0x68,0xC3}}
+        {0x4C0ED80U,5U,{0x48,0x8B,0x41,0x68,0xC3}},
+        {0x4FC52E1U,11U,{0x48,0x89,0xD9,0xE8,0x97,0x4F,0,0,0x48,0x89,0xD9}},
+        {0x4E66D00U,8U,{0x55,0x53,0x41,0x55,0x41,0x56,0x48,0x8D}}
     };
     unsigned char bytes[BENCH_NATIVE12_MAX_SIGNATURE];
     size_t index;
@@ -98,7 +101,7 @@ static BOOL code_ready(void)
         if (!read_memory(image_base+patch->rva,bytes,patch->size) ||
             !bench_native12_signature(patch,bytes,patch->size)) return FALSE;
     }
-    return bench_job_code_ready(image_base);
+    return bench_job_code_ready(image_base) && bench_render_code_ready(image_base);
 }
 
 static BOOL write_limit(const BenchNativePatch *patch, unsigned char value)
@@ -142,9 +145,13 @@ static BOOL install_limits(void)
             goto rollback;
         }
     }
+    if (!bench_render_install(image_base,image_size)) {
+        log_event("install_failed native_render_visibility error=%lu",GetLastError());
+        goto rollback;
+    }
     for (index=0; index<BENCH_NATIVE12_PATCH_COUNT; ++index) {
         applied=index+1U; /* Include a failed write in rollback/readback. */
-        if (!write_limit(&bench_native12_patches[index],12U)) {
+        if (!write_limit(&bench_native12_patches[index],bench_native12_targets[index])) {
             log_event("install_failed patch=%s error=%lu",bench_native12_patches[index].name,GetLastError());
             goto rollback;
         }
@@ -153,9 +160,10 @@ static BOOL install_limits(void)
         log_event("install_failed coherent_native_import_request error=%lu",GetLastError());
         goto rollback;
     }
-    log_event("installed version=3 coherent_import_request_rva=0x414EB83 FCE_immediate_rva=0x415AEDA late_copy_immediate_rva=0x44B434A job_sites=0x49AA8B5/0x49AC29F/0x49AA820/0x49AA960 native_drain=0x49AD1E0 batch_capacity=192 target=12 tasks_dropped=0 actor_clones=0 files_or_save_written=0 C14_or_substitution_rules_written=0");
+    log_event("installed version=7 candidate=1 loader=v3_12_12 visual_target=7 extra_bench_models=native_hide_by_player_id release_on_native_activity_call=0x4359830 native_activity_setter=0x437CDE0 renderer_original_updates=1 render_load_call=0x43600A3 render_show_vtable=0x2207288 native_hide=0x437B630 seat_hooks=0 ordinal_writes=0 coordinates_written=0 coherent_import_request_rva=0x414EB83 FCE_immediate_rva=0x415AEDA job_sites=0x49AA8B5/0x49AC29F/0x49AA820/0x49AA960 native_drain=0x49AD1E0 batch_capacity=192 tasks_dropped=0 actor_clones=0 files_or_save_written=0 C14_or_substitution_rules_written=0 additional_substitution_gameplay_validation_pending=1");
     return TRUE;
 rollback:
+    if (!bench_render_remove()) log_event("rollback_failed native_render_visibility");
     while (applied) {
         --applied;
         if (!write_limit(&bench_native12_patches[applied],previous[applied]))
@@ -256,6 +264,7 @@ static DWORD WINAPI worker(void *unused)
     unsigned int attempt;
     uint32_t previous_hash=0, request_hash=0;
     LONG64 batch_counts[BENCH_JOB_ADAPTER_COUNT]={0};
+    LONG64 previous_loads=0,previous_shows=0,previous_released=0;
     (void)unused;
     if (!supported_image()) { log_event("not_installed unsupported_native_build"); return 0; }
     for (attempt=0; attempt<600U; ++attempt) {
@@ -265,9 +274,16 @@ static DWORD WINAPI worker(void *unused)
             if (state == 1) {
                 if (!install_limits()) return 0;
                 for (;;) {
+                    LONG64 loads=0,shows=0,released=0;
+                    bench_render_reset_if_unloaded();
                     observe_loaded_lineup(&previous_hash);
                     observe_native_request(&request_hash);
                     observe_batches(batch_counts);
+                    bench_render_counters(&loads,&shows,&released);
+                    if (loads!=previous_loads || shows!=previous_shows || released!=previous_released) {
+                        previous_loads=loads;previous_shows=shows;previous_released=released;
+                        log_event("render_visibility hidden_extra_loads=%lld hidden_extra_show_requests=%lld extra_models_released=%lld native_seat_writes=0",loads,shows,released);
+                    }
                     Sleep(1000U);
                 }
             }
@@ -291,7 +307,7 @@ __declspec(dllexport) BOOL WINAPI Fifa16ModStart(const char *mods_root)
     _snprintf_s(logs_dir,sizeof(logs_dir),_TRUNCATE,"%s\\..\\logs",mods_root);
     CreateDirectoryA(logs_dir,NULL);
     _snprintf_s(log_path,sizeof(log_path),_TRUNCATE,"%s\\bench_native12.log",logs_dir);
-    log_event("candidate_start version=3 coherent_native_import_request_and_FCE_and_copy=12 bounded_native_resource_batches=192 no_UI_count_forgery=1");
+    log_event("candidate_start version=7 loader=v3_12_12 visual_target=7 native_activity_release=1 extra_models=hidden_in_bench_only scene_assignment_original=1 bounded_native_resource_batches=192 gameplay_validation_pending=1");
     /* Registered runtime tables and counters may outlive a rolled-back
      * CALL whose in-flight native task still returns to our RX page. */
     if (!GetModuleHandleExA(GET_MODULE_HANDLE_EX_FLAG_FROM_ADDRESS|GET_MODULE_HANDLE_EX_FLAG_PIN,

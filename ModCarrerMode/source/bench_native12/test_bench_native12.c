@@ -5,6 +5,7 @@ int main(void)
 {
     size_t patch_index, index;
     unsigned int checks=0;
+    if (bench_native12_targets[0]!=12U || bench_native12_targets[1]!=12U) return 6;
     for (patch_index=0; patch_index<BENCH_NATIVE12_PATCH_COUNT; ++patch_index) {
         const BenchNativePatch *patch=&bench_native12_patches[patch_index];
         unsigned char bytes[BENCH_NATIVE12_MAX_SIGNATURE];
@@ -24,6 +25,6 @@ int main(void)
         if (bench_native12_signature(patch,bytes,patch->size-1U)) return 5;
         ++checks;
     }
-    printf("bench_native12: %u signature checks passed; gameplay not tested\n",checks);
+    printf("bench_native12: %u signature checks passed; working v3 loader targets 12/12; gameplay not tested\n",checks);
     return 0;
 }

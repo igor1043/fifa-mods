@@ -24,7 +24,7 @@ static void release_threads(PatchThreads *threads)
     threads->suspended=0;threads->count=0;
 }
 
-static BOOL pause_threads(PatchThreads *threads, uintptr_t site)
+static BOOL pause_threads(PatchThreads *threads, uintptr_t site, SIZE_T length)
 {
     THREADENTRY32 entry;
     HANDLE snapshot;
@@ -63,7 +63,7 @@ static BOOL pause_threads(PatchThreads *threads, uintptr_t site)
         ++threads->suspended;
         memset(&context,0,sizeof(context));context.ContextFlags=CONTEXT_CONTROL;
         if (!GetThreadContext(threads->handles[index],&context) ||
-            (context.Rip>=site && context.Rip<site+BENCH_IMPORT_SITE_SIZE)) {
+            (context.Rip>=site && context.Rip<site+length)) {
             release_threads(threads);return FALSE;
         }
     }
@@ -107,29 +107,36 @@ unsigned char *bench_adapter_near_page(uintptr_t image, SIZE_T image_size, uintp
 BOOL bench_adapter_write_site(uintptr_t address, const unsigned char *before,
     const unsigned char *after)
 {
+    return bench_adapter_write_bytes(address,before,after,BENCH_IMPORT_SITE_SIZE);
+}
+
+BOOL bench_adapter_write_bytes(uintptr_t address, const unsigned char *before,
+    const unsigned char *after,SIZE_T length)
+{
     unsigned char current[BENCH_IMPORT_SITE_SIZE];
     PatchThreads threads;
     DWORD previous=0, ignored=0;
     BOOL flushed, restored, matched, ok=FALSE;
-    if (!copy_read(address,current,sizeof(current)) ||
-        memcmp(current,before,sizeof(current))!=0) return FALSE;
-    if (!pause_threads(&threads,address)) return FALSE;
-    if (!copy_read(address,current,sizeof(current)) ||
-        memcmp(current,before,sizeof(current))!=0 ||
-        !VirtualProtect((void *)address,sizeof(current),PAGE_EXECUTE_READWRITE,&previous))
+    if (!length || length>sizeof(current) || !before || !after ||
+        !copy_read(address,current,length) ||
+        memcmp(current,before,length)!=0) return FALSE;
+    if (!pause_threads(&threads,address,length)) return FALSE;
+    if (!copy_read(address,current,length) ||
+        memcmp(current,before,length)!=0 ||
+        !VirtualProtect((void *)address,length,PAGE_EXECUTE_READWRITE,&previous))
         goto finish;
     /* Installed only at startup, before real players load, with existing
      * threads paused. The game never resumes on a half-written instruction.
      */
-    memcpy((void *)address,after,sizeof(current));
-    flushed=FlushInstructionCache(GetCurrentProcess(),(const void *)address,sizeof(current));
-    matched=copy_read(address,current,sizeof(current)) &&
-        memcmp(current,after,sizeof(current))==0;
+    memcpy((void *)address,after,length);
+    flushed=FlushInstructionCache(GetCurrentProcess(),(const void *)address,length);
+    matched=copy_read(address,current,length) &&
+        memcmp(current,after,length)==0;
     if (!flushed || !matched) {
-        memcpy((void *)address,before,sizeof(current));
-        (void)FlushInstructionCache(GetCurrentProcess(),(const void *)address,sizeof(current));
+        memcpy((void *)address,before,length);
+        (void)FlushInstructionCache(GetCurrentProcess(),(const void *)address,length);
     }
-    restored=VirtualProtect((void *)address,sizeof(current),previous,&ignored);
+    restored=VirtualProtect((void *)address,length,previous,&ignored);
     ok=flushed && matched && restored;
 finish:
     release_threads(&threads);
