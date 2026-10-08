@@ -1,54 +1,51 @@
 # FIFA Friends V12
 
-Melhorias para o FIFA 16 com navegação pelos cards e abas do próprio jogo. Esta edição reúne os ajustes compartilhados de carreira, torcida, banco e substituições, com a aposentadoria pelo fluxo nativo de dois cards.
+FIFA Friends V12 é um mod para FIFA 16 que acrescenta recursos ao modo carreira e ajustes de jogo. O pacote inclui cards de carreira, automações para o save, melhorias de torcida, banco de reservas e substituições.
 
-## O que muda nesta versão
+## Recursos
 
-A aba **Meu Time** reúne os principais dados do clube e dos jogadores na interface do FIFA. O card **Clube** é informativo, sem clique para abrir perfil de jogador, técnico ou elenco 3D. Na Central, **Próxima partida** permanece como card informativo. O carrossel extra de **Meu escritório** pertence à New Experience.
+### Modo carreira
 
-A aposentadoria volta aos dois cards em **Escritório > Configurações**: **Remover aposentadoria** e **Remover aposentadoria e redefinir idade**. O primeiro limpa a marca de aposentadoria dos jogadores sinalizados; o segundo também ajusta a idade desses jogadores para o valor configurado (18 anos por padrão), preservando mês e dia. Esse fluxo não oferece seleção individual ou por clube.
+- **Meu Time:** estatísticas dos jogadores e informações do clube, como desempenho, uniformes, estádio, capacidade e prestígio.
+- **Competição:** informações de Liga e Copa separadas, com classificação, fases e partidas disponíveis.
+- **Próxima partida:** adversário, competição, data, horário, estádio e público estimado quando esses dados estão disponíveis.
+- **Remover aposentadoria:** limpa a marca de aposentadoria dos jogadores sinalizados.
+- **Remover aposentadoria e redefinir idade:** limpa a marca e ajusta a idade para 18 anos por padrão, preservando mês e dia.
+- **Solicitar verba:** acrescenta 1.000.000 ou 3.000.000 à verba de transferências.
 
-Ao clicar, o fluxo faz autosave e exibe a orientação para fechar o FIFA completamente. Aguarde o worker terminar antes de abrir o jogo e carregar a carreira novamente. A operação faz backup e valida os CRCs do save.
+As ações de aposentadoria e verba são processadas depois que você sai do save. Aguarde o autosave; na aposentadoria, escolha sair sem salvar. Permaneça no menu enquanto a camada mostra o andamento e reabra a carreira após a confirmação. O FIFA pode continuar aberto no menu durante o processamento.
 
-## Melhorias compartilhadas
+### Mods incluídos
 
-- **Meu Time:** artilheiros, assistências, jogadores mais bem avaliados, minutos, cartões, lesões e resumo do elenco. O card Clube reúne escudo, uniformes, desempenho, estádio, capacidade e prestígio.
-- **Competição:** separação das informações de Liga e Copa, classificação, fases e partidas da carreira. Dados não disponíveis são indicados sem inventar números.
-- **Próxima partida:** adversário, competição, data, horário, estádio, imagem e público estimado, conforme os dados disponíveis da carreira e da instalação.
-- **Torcida:** cálculo automático de ocupação considerando reputação dos clubes, adversário, desempenho, competição, rivalidade e importância do jogo. A capacidade do estádio é exibida separadamente do percentual estimado.
-- **Banco de reservas:** plugin nativo para preparar até 12 reservas reais. O tamanho do banco e a quantidade de trocas são ajustes distintos.
-- **Substituições:** plugin nativo para o limite de sete substituições por partida.
-- **Player Career:** faixa de nascimento 2006–2012, com interface, DLL e watcher para persistência da data no save.
-- **Idiomas e base nativa:** seleção de idioma começando pelo Brasil, traduções de carreira e integração L9.65/CompData Patcher.
+- **Torcida:** estima a ocupação do estádio com base em reputação, adversário, desempenho, competição, rivalidade e importância da partida.
+- **Banco de reservas:** prepara até 12 jogadores reais. O tamanho do banco é independente do limite de substituições.
+- **Sete substituições:** permite até sete trocas por partida.
+- **Player Career 2006–2012:** permite criar jogadores nessa faixa de nascimento e mantém a data no save com o watcher incluído.
+- **Server16Python / CR16:** ajustes de escolha de estádio, público ao iniciar e volume da torcida.
 
-## Servidor Python / CR16
+## Requisitos
 
-O `Server16Python.exe` acompanha as duas edições. Ele mantém os ajustes de escolha de estádio, público ao iniciar e volume da torcida. Os estádios disponíveis dependem do conteúdo instalado no FIFA/FSW/StadiumGBD; o pacote não contém os arquivos completos do jogo ou todos os estádios.
-
-O ajuste manual do servidor e a estimativa automática do mod são controles diferentes. O mod usa `ModCarrerMode/crowd.ini`; `automatic_dynamic_controller=1` mantém o cálculo automático. Para usar um percentual manual, desative esse controlador e configure o modo manual adequado à sua instalação.
+- FIFA 16 instalado, com `FIFA16.exe` na pasta do jogo.
+- Windows com PowerShell, usado pelo instalador incluído.
 
 ## Instalação
 
-Use uma instalação funcional do FIFA 16 com os assets de base. Feche o FIFA e o servidor antes de substituir executáveis. Na pasta deste pacote, execute:
+1. Baixe o pacote da [branch FIFA Friends V12](https://github.com/igor1043/fifa-mods/tree/fifa-friends-v12) e extraia os arquivos mantendo a estrutura de pastas.
+2. Feche o FIFA 16 e o Server16Python.
+3. Abra um terminal na pasta extraída e execute, substituindo o caminho pelo local onde o FIFA 16 está instalado:
 
-```powershell
-.\ModCarrerMode\install-game.cmd -GameDirectory "U:\fifa 16"
-```
+   ```powershell
+   .\ModCarrerMode\install-game.cmd -GameDirectory "C:\Caminho\para\FIFA 16"
+   ```
 
-O instalador instala esta edição, incluindo `Server16Python.exe`, plugins e payload de nascimento. Faz backup externo dos arquivos substituídos e arquiva componentes exclusivos da New Experience quando instala a V12. Preserva saves, contratos e configurações pessoais; a identificação da edição e a configuração do fluxo de aposentadoria são reaplicadas para corresponder ao pacote escolhido.
+O instalador verifica a pasta escolhida e cria backups dos arquivos que substituir. Não remova esses backups até confirmar que o jogo iniciou corretamente.
 
-Para restaurar também os bancos de idioma, acrescente `-RestoreLocalization`. Para reaplicar todas as configurações, use `-ReplaceConfiguration`. `-VerifyOnly` mostra diferenças sem instalar.
+## Como usar
 
-Antes de criar jogador com nascimento 2006–2012, inicie `ModCarrerMode/mods/career_birthdate_2006/dist/Fifa16BirthdateWatcher2006.exe`. Confira a data após reabrir a carreira.
+- Os cards de carreira ficam nas abas e áreas indicadas no próprio jogo. Para aposentadoria ou verba, selecione o card correspondente e siga a orientação exibida na camada.
+- Para criar um jogador com nascimento entre 2006 e 2012, inicie `ModCarrerMode/mods/career_birthdate_2006/dist/Fifa16BirthdateWatcher2006.exe` antes de criar o jogador.
+- As estimativas de torcida são aplicadas automaticamente durante a carreira.
 
-Instale os arquivos de execução pelo instalador. Fontes, testes, galerias, objetos de compilação, documentação e backups ficam fora da instalação do FIFA.
+## New Experience
 
-## Desenvolvimento e validação
-
-Branch: `fifa-friends-v12`. Pasta: `J:\mods\fifa 16\fifa-mods-dev\fifa-mods-dev`.
-
-O código das telas extras e do renderer 3D foi separado para a New Experience. A DLL da V12 compila somente o núcleo, os provedores dos cards nativos, a torcida e o motor legado de aposentadoria. [Guia técnico](ModCarrerMode/docs/TECHNICAL.md) e [código nativo](ModCarrerMode/source/career_native/README.md).
-
-As verificações automatizadas cobrem a separação de arquivos, ações dos cards, navegação, configuração e lógica compartilhada. A divisão em edições precisa ser confirmada dentro do FIFA: confira os dois cards de aposentadoria e valide banco/substituições em uma partida nova. Não considere a compilação como confirmação de todos os cenários do jogo.
-
-As referências `dev` e `integracao-new-screens` são preservadas no Git. Esta edição é desenvolvida em uma branch separada.
+A New Experience é uma edição separada, com um card **Meu Escritório** que abre telas próprias de carreira: central e calendário, notícias, busca de clubes e ligas, competições, perfis de clube, jogador e treinador, visualização 3D, ranking, operações, transferências, patrocinadores, próxima partida e sala de troféus. Ela está disponível na [branch FIFA Friends New Experience](https://github.com/igor1043/fifa-mods/tree/fifa-friends-new-experience) e não faz parte deste pacote V12.
