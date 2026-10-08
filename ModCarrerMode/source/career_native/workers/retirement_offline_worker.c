@@ -120,8 +120,8 @@ static void worker_show_success_feedback(const char *mode, int target_age,
     const RetirementApplyResult *result)
 {
     char text[512];
-    if (mode && (_stricmp(mode, "add_transfer_budget_100k") == 0
-            || _stricmp(mode, "add_transfer_budget_300k") == 0)) {
+    if (mode && (_stricmp(mode, "add_transfer_budget_1m") == 0
+            || _stricmp(mode, "add_transfer_budget_3m") == 0)) {
         if (result && result->transfer_budget_added > 0U)
             snprintf(text, sizeof(text),
                 "Orcamento de transferencias atualizado.\n"
@@ -342,7 +342,7 @@ int main(int argc, char **argv)
     if (!wait_for_stable_data(data_path, (unsigned)quiet_value)) {
         worker_log_event(mod_dir, "worker_error_save_not_stable", data_path,
             mode, worker_elapsed_ms(started_at));
-        fprintf(stderr, "DATA não estabilizou: %s\n", data_path);
+        fprintf(stderr, "DATA nao estabilizou: %s\n", data_path);
         snprintf(feedback, sizeof(feedback),
             "O save nao ficou livre e estavel depois de sair da carreira.\n"
             "Nenhuma alteracao foi aplicada. Confira se a carreira foi "

@@ -247,18 +247,18 @@
 						}
 					}
 					,{
-						"name":"RetirementAddFunds100KFlow"
+						"name":"RetirementAddFunds1MFlow"
 						,"type":"external"
-						,"file":"/retirementaddfunds100kflow.nav"
+						,"file":"/retirementaddfunds1mflow.nav"
 						,"outputs":
 						{
 							"back":"MainMenuHub"
 						}
 					}
 					,{
-						"name":"RetirementAddFunds300KFlow"
+						"name":"RetirementAddFunds3MFlow"
 						,"type":"external"
-						,"file":"/retirementaddfunds300kflow.nav"
+						,"file":"/retirementaddfunds3mflow.nav"
 						,"outputs":
 						{
 							"back":"MainMenuHub"
@@ -375,12 +375,12 @@
 						,"targets":["RetirementResetAgeFlow"]
 					}
 					,{
-						"event":"RetirementAddFunds100K"
-						,"targets":["RetirementAddFunds100KFlow"]
+						"event":"RetirementAddFunds1M"
+						,"targets":["RetirementAddFunds1MFlow"]
 					}
 					,{
-						"event":"RetirementAddFunds300K"
-						,"targets":["RetirementAddFunds300KFlow"]
+						"event":"RetirementAddFunds3M"
+						,"targets":["RetirementAddFunds3MFlow"]
 					}
 					,{
 						"event":"MoveToNewClub"

@@ -1,5 +1,5 @@
 {
-    "name":"RetirementAddFunds100KFlow",
+    "name":"RetirementAddFunds1MFlow",
     "initial":{"targets":["RetirementApply"]},
     "states":[
         {

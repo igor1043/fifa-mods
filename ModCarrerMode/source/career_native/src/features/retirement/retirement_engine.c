@@ -88,7 +88,7 @@ static char g_retirement_deferred_paths[RETIREMENT_WATCH_CAPACITY][1024];
 #define RETIREMENT_FEEDBACK_HIDE_TIMER 1U
 #define RETIREMENT_FEEDBACK_WIDTH 780
 #define RETIREMENT_FEEDBACK_HEIGHT 176
-#define RETIREMENT_FEEDBACK_DURATION_MS 30000U
+#define RETIREMENT_FEEDBACK_DURATION_MS 20000U
 #define RETIREMENT_CARD_REQUEST_COOLDOWN_MS 500ULL
 #define RETIREMENT_CARD_REQUEST_WINDOW_MS 15000ULL
 /* Kept only for the legacy input helper below.  The helper is no longer
@@ -340,10 +340,10 @@ static int retirement_find_tables(const unsigned char *data, SIZE_T size,
 
 static unsigned int retirement_transfer_budget_amount(const char *mode)
 {
-    if (mode && _stricmp(mode, "add_transfer_budget_100k") == 0)
-        return 100000U;
-    if (mode && _stricmp(mode, "add_transfer_budget_300k") == 0)
-        return 300000U;
+    if (mode && _stricmp(mode, "add_transfer_budget_1m") == 0)
+        return 1000000U;
+    if (mode && _stricmp(mode, "add_transfer_budget_3m") == 0)
+        return 3000000U;
     return 0U;
 }
 
@@ -775,7 +775,7 @@ int retirement_engine_apply_file(const char *data_path, const char *mode,
     if (!result || !data_path || !*data_path) return 0;
     retirement_result_clear(result);
     if (!retirement_read_file(data_path, &data, &size)) {
-        retirement_result_message(result, 10, "DATA não pôde ser lido"); return 0;
+        retirement_result_message(result, 10, "DATA nao pode ser lido"); return 0;
     }
     if (size < RETIREMENT_CRC_START || size < RETIREMENT_CRC_OFFSET + 4U) {
         retirement_result_message(result, 11, "DATA pequeno demais"); goto fail;
@@ -785,11 +785,11 @@ int retirement_engine_apply_file(const char *data_path, const char *mode,
         size - RETIREMENT_CRC_START);
     result->crc_before = stored_crc;
     if (stored_crc != calculated_crc) {
-        retirement_result_message(result, 12, "CRC original inválido; nada foi alterado"); goto fail;
+        retirement_result_message(result, 12, "CRC original invalido; nada foi alterado"); goto fail;
     }
     if (!retirement_find_tables(data, size, &players, &calendar,
             &manager_pref)) {
-        retirement_result_message(result, 13, "Tabela CZUM/fields não encontrados"); goto fail;
+        retirement_result_message(result, 13, "Tabela CZUM/fields nao encontrados"); goto fail;
     }
     if (budget_amount) {
         uint32_t old_budget;
@@ -798,20 +798,20 @@ int retirement_engine_apply_file(const char *data_path, const char *mode,
         if (!manager_pref.transfer_budget.found
             || manager_pref.record_count != 1U) {
             retirement_result_message(result, 24,
-                "Tabela career_managerpref/transferbudget não encontrada");
+                "Tabela career_managerpref/transferbudget nao encontrada");
             goto fail;
         }
         start = manager_pref.records_offset;
         if (data[start + manager_pref.record_size - 1U] & 0x80U) {
             retirement_result_message(result, 24,
-                "Registro career_managerpref inválido");
+                "Registro career_managerpref invalido");
             goto fail;
         }
         old_budget = retirement_read_bits(data, start,
             &manager_pref.transfer_budget, manager_pref.record_size);
         if (old_budget > RETIREMENT_TRANSFER_BUDGET_MAX) {
             retirement_result_message(result, 24,
-                "Orçamento de transferências fora do intervalo seguro");
+                "Orcamento de transferencias fora do intervalo seguro");
             goto fail;
         }
         new_budget = old_budget > RETIREMENT_TRANSFER_BUDGET_MAX - budget_amount
@@ -822,7 +822,7 @@ int retirement_engine_apply_file(const char *data_path, const char *mode,
         if (!result->transfer_budget_added) {
             result->crc_after = calculated_crc;
             retirement_result_message(result, 0,
-                "Orçamento já está no limite máximo");
+                "Orcamento ja esta no limite maximo");
             HeapFree(GetProcessHeap(), 0, data);
             return 1;
         }
@@ -836,7 +836,7 @@ int retirement_engine_apply_file(const char *data_path, const char *mode,
     } else {
         if (!players.player_id.found) {
             retirement_result_message(result, 13,
-                "Tabela CZUM/fields não encontrados"); goto fail;
+                "Tabela CZUM/fields nao encontrados"); goto fail;
         }
     }
     if (calendar.current_date.found && calendar.record_count > 0U) {
@@ -850,7 +850,7 @@ int retirement_engine_apply_file(const char *data_path, const char *mode,
     if (!budget_amount && rejuvenate
         && (!current_date_valid || target_age < 12 || target_age > 50)) {
         retirement_result_message(result, 19,
-            !current_date_valid ? "Data da carreira não encontrada; nada foi alterado"
+            !current_date_valid ? "Data da carreira nao encontrada; nada foi alterado"
                                 : "Idade-alvo fora do intervalo seguro 12..50");
         goto fail;
     }
@@ -908,7 +908,7 @@ int retirement_engine_apply_file(const char *data_path, const char *mode,
             ? &manager_pref : &players;
         if (!retirement_recalculate_table_crc(data, size, changed_table)) {
             retirement_result_message(result, 25,
-                "CRC da tabela alterada não pôde ser atualizado");
+                "CRC da tabela alterada nao pode ser atualizado");
             goto fail;
         }
         retirement_put_u32(data + RETIREMENT_CRC_OFFSET,
@@ -924,7 +924,7 @@ int retirement_engine_apply_file(const char *data_path, const char *mode,
         if (slash) { lstrcpyA(slash + 1, "INDEX"); }
         if (GetFileAttributesA(index_path) != INVALID_FILE_ATTRIBUTES) {
             if (!retirement_copy_backup(index_path, "", backup_index, sizeof(backup_index))) {
-                retirement_result_message(result, 17, "Backup do INDEX falhou; DATA não foi alterado"); goto fail;
+                retirement_result_message(result, 17, "Backup do INDEX falhou; DATA nao foi alterado"); goto fail;
             }
             lstrcpynA(result->backup_index, backup_index, sizeof(result->backup_index));
         }
@@ -942,8 +942,8 @@ int retirement_engine_apply_file(const char *data_path, const char *mode,
         }
     }
     retirement_result_message(result, 1, budget_amount
-        ? "Orçamento de transferências atualizado com backup"
-        : "Patch global concluído com backup");
+        ? "Orcamento de transferencias atualizado com backup"
+        : "Patch global concluido com backup");
     HeapFree(GetProcessHeap(), 0, data); return 1;
 fail:
     HeapFree(GetProcessHeap(), 0, data);
@@ -974,13 +974,13 @@ int retirement_engine_apply_buffer(void *buffer, SIZE_T size,
     result->crc_before = stored_crc;
     if (stored_crc != calculated_crc) {
         retirement_result_message(result, 12,
-            "CRC original inválido; nada foi alterado");
+            "CRC original invalido; nada foi alterado");
         return 0;
     }
     if (!retirement_find_tables(data, size, &players, &calendar, NULL)
         || !players.player_id.found) {
         retirement_result_message(result, 13,
-            "Tabela CZUM/fields não encontrados");
+            "Tabela CZUM/fields nao encontrados");
         return 0;
     }
     if (calendar.current_date.found && calendar.record_count > 0U) {
@@ -993,7 +993,7 @@ int retirement_engine_apply_buffer(void *buffer, SIZE_T size,
     }
     if (rejuvenate && (!current_date_valid || target_age < 12 || target_age > 50)) {
         retirement_result_message(result, 19,
-            !current_date_valid ? "Data da carreira não encontrada; nada foi alterado"
+            !current_date_valid ? "Data da carreira nao encontrada; nada foi alterado"
                                 : "Idade-alvo fora do intervalo seguro 12..50");
         return 0;
     }
@@ -1068,7 +1068,7 @@ int retirement_engine_apply_buffer(void *buffer, SIZE_T size,
             size - RETIREMENT_CRC_START));
     result->crc_after = retirement_u32(data + RETIREMENT_CRC_OFFSET);
     retirement_result_message(result, 1,
-        "Patch em memória pronto para salvar");
+        "Patch em memoria pronto para salvar");
     return 1;
 }
 
@@ -1224,7 +1224,7 @@ int retirement_engine_apply_buffer_from_config(void *buffer, SIZE_T size,
         if (result) {
             retirement_result_clear(result);
             retirement_result_message(result, 20,
-                "Engine desabilitado na configuração");
+                "Engine desabilitado na configuracao");
         }
         return 0;
     }
@@ -1464,14 +1464,14 @@ static void retirement_feedback_show_ready(const char *mode)
     /* This non-modal layer lets the NAV save and exit flow continue. */
     if (retirement_transfer_budget_amount(mode))
         retirement_engine_show_feedback(
-            "Aumento do orçamento preparado.\n"
-            "Saia do save e escolha NAO salvar.\n"
+            "Aumento do orcamento preparado.\n"
+            "Saia do save sem salvar.\n"
             "Ao voltar a tela anterior, aguarde o processamento.",
             MB_ICONINFORMATION);
     else
         retirement_engine_show_feedback(
             "Aposentadoria preparada.\n"
-            "Saia do save e escolha NAO salvar.\n"
+            "Saia do save sem salvar.\n"
             "Ao voltar a tela anterior, aguarde o processamento.",
             MB_ICONINFORMATION);
 }
@@ -1549,12 +1549,12 @@ void retirement_engine_note_ui_signal(const char *path)
     } else if (_stricmp(name, "retirementresetageflow.nav") == 0) {
         mode = "remove_and_rejuvenate";
         event = "nav_reset_age_request";
-    } else if (_stricmp(name, "retirementaddfunds100kflow.nav") == 0) {
-        mode = "add_transfer_budget_100k";
-        event = "nav_add_transfer_budget_100k_request";
-    } else if (_stricmp(name, "retirementaddfunds300kflow.nav") == 0) {
-        mode = "add_transfer_budget_300k";
-        event = "nav_add_transfer_budget_300k_request";
+    } else if (_stricmp(name, "retirementaddfunds1mflow.nav") == 0) {
+        mode = "add_transfer_budget_1m";
+        event = "nav_add_transfer_budget_1m_request";
+    } else if (_stricmp(name, "retirementaddfunds3mflow.nav") == 0) {
+        mode = "add_transfer_budget_3m";
+        event = "nav_add_transfer_budget_3m_request";
     } else {
         return;
     }
