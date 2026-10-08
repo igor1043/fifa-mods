@@ -8,6 +8,9 @@ typedef struct RetirementApplyResult {
     unsigned int players_seen;
     unsigned int players_retiring;
     unsigned int players_changed;
+    unsigned int transfer_budget_before;
+    unsigned int transfer_budget_after;
+    unsigned int transfer_budget_added;
     unsigned int crc_before;
     unsigned int crc_after;
     char message[256];

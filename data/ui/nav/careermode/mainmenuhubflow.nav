@@ -247,6 +247,24 @@
 						}
 					}
 					,{
+						"name":"RetirementAddFunds100KFlow"
+						,"type":"external"
+						,"file":"/retirementaddfunds100kflow.nav"
+						,"outputs":
+						{
+							"back":"MainMenuHub"
+						}
+					}
+					,{
+						"name":"RetirementAddFunds300KFlow"
+						,"type":"external"
+						,"file":"/retirementaddfunds300kflow.nav"
+						,"outputs":
+						{
+							"back":"MainMenuHub"
+						}
+					}
+					,{
 						"let":{"tmMode":"offlineCareer"}
 						,"states":
 						[
@@ -355,6 +373,14 @@
 					,{
 						"event":"RetirementResetAge"
 						,"targets":["RetirementResetAgeFlow"]
+					}
+					,{
+						"event":"RetirementAddFunds100K"
+						,"targets":["RetirementAddFunds100KFlow"]
+					}
+					,{
+						"event":"RetirementAddFunds300K"
+						,"targets":["RetirementAddFunds300KFlow"]
 					}
 					,{
 						"event":"MoveToNewClub"

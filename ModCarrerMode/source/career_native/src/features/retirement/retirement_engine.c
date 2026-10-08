@@ -17,6 +17,7 @@
 #define RETIREMENT_MAX_RECORD_SIZE 4096U
 #define RETIREMENT_CAREER_DATE_LOW 20080101U
 #define RETIREMENT_WINDOW_DAY_LOW 101U
+#define RETIREMENT_TRANSFER_BUDGET_MAX 2147483520U
 
 typedef struct RetirementField {
     uint32_t bit_offset;
@@ -34,6 +35,7 @@ typedef struct RetirementTable {
     RetirementField player_id;
     RetirementField birthdate;
     RetirementField is_retiring;
+    RetirementField transfer_budget;
 } RetirementTable;
 
 typedef struct RetirementCalendar {
@@ -62,6 +64,7 @@ static volatile LONG g_retirement_running;
 static void retirement_log_event(const char *event, const char *path);
 static int retirement_take_requested_mode(char *mode, size_t capacity);
 static int retirement_peek_requested_mode(char *mode, size_t capacity);
+static uint32_t retirement_fifa_crc32(const unsigned char *data, SIZE_T size);
 
 #define RETIREMENT_WATCH_CAPACITY 64U
 
@@ -199,11 +202,16 @@ static int retirement_find_field(const unsigned char *data,
 }
 
 static int retirement_find_tables(const unsigned char *data, SIZE_T size,
-    RetirementTable *players, RetirementCalendar *calendar)
+    RetirementTable *players, RetirementCalendar *calendar,
+    RetirementTable *manager_pref)
 {
     SIZE_T cursor = 0;
     int players_found = 0;
     int calendar_found = 0;
+    int manager_pref_found = 0;
+    if (players) memset(players, 0, sizeof(*players));
+    if (calendar) memset(calendar, 0, sizeof(*calendar));
+    if (manager_pref) memset(manager_pref, 0, sizeof(*manager_pref));
     while (cursor + RETIREMENT_SIGNATURE_SIZE <= size) {
         SIZE_T db_offset;
         uint32_t db_size;
@@ -304,14 +312,55 @@ static int retirement_find_tables(const unsigned char *data, SIZE_T size,
                     if (calendar->current_date.found)
                         calendar_found = 1;
                 }
+                if (manager_pref && !manager_pref_found
+                    && retirement_name_is(entry, "dqXv")) {
+                    memset(manager_pref, 0, sizeof(*manager_pref));
+                    manager_pref->records_offset = db_offset + records_offset;
+                    manager_pref->table_crc_start = db_offset + table_offset + 36U;
+                    manager_pref->table_crc_offset = db_offset + records_end
+                        + padded_compressed;
+                    manager_pref->record_size = record_size;
+                    manager_pref->record_count = record_count;
+                    manager_pref->field_count = field_count;
+                    retirement_find_field(db, table_offset, field_count,
+                        record_size, "SnDr", &manager_pref->transfer_budget);
+                    if (manager_pref->transfer_budget.found)
+                        manager_pref_found = 1;
+                }
             }
         }
         cursor = db_offset + db_size;
-        if (players_found && calendar_found) break;
+        if (players_found && calendar_found
+            && (!manager_pref || manager_pref_found)) break;
     }
     /* Callers that modify players still validate player_id explicitly.  A
      * read-only UI query may legitimately need only the calendar table. */
-    return players_found || calendar_found;
+    return players_found || calendar_found || manager_pref_found;
+}
+
+static unsigned int retirement_transfer_budget_amount(const char *mode)
+{
+    if (mode && _stricmp(mode, "add_transfer_budget_100k") == 0)
+        return 100000U;
+    if (mode && _stricmp(mode, "add_transfer_budget_300k") == 0)
+        return 300000U;
+    return 0U;
+}
+
+static int retirement_recalculate_table_crc(unsigned char *data, SIZE_T size,
+    const RetirementTable *table)
+{
+    uint32_t stored;
+    if (!data || !table || table->table_crc_offset > size
+        || table->table_crc_start > table->table_crc_offset
+        || table->table_crc_offset - table->table_crc_start < 4U)
+        return 0;
+    stored = retirement_u32(data + table->table_crc_offset);
+    if (stored != RETIREMENT_TABLE_CRC_SENTINEL)
+        retirement_put_u32(data + table->table_crc_offset,
+            retirement_fifa_crc32(data + table->table_crc_start,
+                table->table_crc_offset - table->table_crc_start));
+    return 1;
 }
 
 /* Gregorian day conversion, relative to 1970-01-01. */
@@ -502,7 +551,7 @@ int retirement_engine_get_transfer_window_ends(const char *data_path,
         return 0;
     if (size < RETIREMENT_CRC_START || size < RETIREMENT_CRC_OFFSET + 4U)
         goto done;
-    if (!retirement_find_tables(data, size, &players, &calendar)
+    if (!retirement_find_tables(data, size, &players, &calendar, NULL)
         || !calendar.record_count)
         goto done;
     start = calendar.records_offset;
@@ -582,10 +631,12 @@ static int retirement_validate_written_file(const char *data_path,
     unsigned char *data = NULL;
     SIZE_T size = 0;
     RetirementTable players;
+    RetirementTable manager_pref;
     RetirementCalendar calendar;
     uint32_t stored_crc;
     uint32_t calculated_crc;
     unsigned int row;
+    unsigned int budget_amount = retirement_transfer_budget_amount(mode);
     int rejuvenate = mode && (_stricmp(mode, "remove_and_rejuvenate") == 0
         || _stricmp(mode, "rejuvenate") == 0);
     (void)rejuvenate;
@@ -600,8 +651,21 @@ static int retirement_validate_written_file(const char *data_path,
     calculated_crc = retirement_crc32(data + RETIREMENT_CRC_START,
         size - RETIREMENT_CRC_START);
     if (stored_crc != calculated_crc
-        || !retirement_find_tables(data, size, &players, &calendar)
-        || !players.player_id.found || !players.is_retiring.found) {
+        || !retirement_find_tables(data, size, &players, &calendar,
+            &manager_pref)) {
+        HeapFree(GetProcessHeap(), 0, data);
+        return 0;
+    }
+    if (budget_amount) {
+        int valid = result && manager_pref.transfer_budget.found
+            && manager_pref.record_count == 1U
+            && retirement_read_bits(data, manager_pref.records_offset,
+                &manager_pref.transfer_budget, manager_pref.record_size)
+                == result->transfer_budget_after;
+        HeapFree(GetProcessHeap(), 0, data);
+        return valid;
+    }
+    if (!players.player_id.found || !players.is_retiring.found) {
         HeapFree(GetProcessHeap(), 0, data);
         return 0;
     }
@@ -665,10 +729,9 @@ static int retirement_get_config(const char *mod_dir, int *enabled,
     char line[256];
     FILE *file;
     *enabled = 0; *target_age = 18; *quiet_ms = 2500U;
-    /* Safe by default: a post-save patch must never replace a DATA file while
-     * FIFA is still alive.  The explicit config switch can only opt out for
-     * controlled diagnostics. */
-    if (defer_until_game_exit) *defer_until_game_exit = 1;
+    /* The worker waits until DATA and INDEX are stable and exclusively open.
+     * Closing the career releases the save while FIFA can remain at the menu. */
+    if (defer_until_game_exit) *defer_until_game_exit = 0;
     lstrcpynA(mode, "remove_retirement", (int)mode_capacity);
     career_path_read(path, sizeof(path), mod_dir, "config", "career_retirement_background.ini");
     file = fopen(path, "rb");
@@ -698,12 +761,14 @@ int retirement_engine_apply_file(const char *data_path, const char *mode,
     unsigned char *data = NULL;
     SIZE_T size = 0;
     RetirementTable players;
+    RetirementTable manager_pref;
     RetirementCalendar calendar;
     uint32_t stored_crc;
     uint32_t calculated_crc;
     int current_year = 2026;
     unsigned current_month = 1U, current_day = 1U;
     int current_date_valid = 0;
+    unsigned int budget_amount = retirement_transfer_budget_amount(mode);
     int rejuvenate = mode && (_stricmp(mode, "remove_and_rejuvenate") == 0
         || _stricmp(mode, "rejuvenate") == 0);
     unsigned int row;
@@ -722,9 +787,57 @@ int retirement_engine_apply_file(const char *data_path, const char *mode,
     if (stored_crc != calculated_crc) {
         retirement_result_message(result, 12, "CRC original inválido; nada foi alterado"); goto fail;
     }
-    if (!retirement_find_tables(data, size, &players, &calendar)
-        || !players.player_id.found) {
+    if (!retirement_find_tables(data, size, &players, &calendar,
+            &manager_pref)) {
         retirement_result_message(result, 13, "Tabela CZUM/fields não encontrados"); goto fail;
+    }
+    if (budget_amount) {
+        uint32_t old_budget;
+        uint32_t new_budget;
+        SIZE_T start;
+        if (!manager_pref.transfer_budget.found
+            || manager_pref.record_count != 1U) {
+            retirement_result_message(result, 24,
+                "Tabela career_managerpref/transferbudget não encontrada");
+            goto fail;
+        }
+        start = manager_pref.records_offset;
+        if (data[start + manager_pref.record_size - 1U] & 0x80U) {
+            retirement_result_message(result, 24,
+                "Registro career_managerpref inválido");
+            goto fail;
+        }
+        old_budget = retirement_read_bits(data, start,
+            &manager_pref.transfer_budget, manager_pref.record_size);
+        if (old_budget > RETIREMENT_TRANSFER_BUDGET_MAX) {
+            retirement_result_message(result, 24,
+                "Orçamento de transferências fora do intervalo seguro");
+            goto fail;
+        }
+        new_budget = old_budget > RETIREMENT_TRANSFER_BUDGET_MAX - budget_amount
+            ? RETIREMENT_TRANSFER_BUDGET_MAX : old_budget + budget_amount;
+        result->transfer_budget_before = old_budget;
+        result->transfer_budget_after = new_budget;
+        result->transfer_budget_added = new_budget - old_budget;
+        if (!result->transfer_budget_added) {
+            result->crc_after = calculated_crc;
+            retirement_result_message(result, 0,
+                "Orçamento já está no limite máximo");
+            HeapFree(GetProcessHeap(), 0, data);
+            return 1;
+        }
+        if (!retirement_write_bits(data, start,
+                &manager_pref.transfer_budget, manager_pref.record_size,
+                new_budget)) {
+            retirement_result_message(result, 24,
+                "Falha ao atualizar transferbudget");
+            goto fail;
+        }
+    } else {
+        if (!players.player_id.found) {
+            retirement_result_message(result, 13,
+                "Tabela CZUM/fields não encontrados"); goto fail;
+        }
     }
     if (calendar.current_date.found && calendar.record_count > 0U) {
         SIZE_T start = calendar.records_offset;
@@ -734,13 +847,14 @@ int retirement_engine_apply_file(const char *data_path, const char *mode,
             (int)(raw + RETIREMENT_CAREER_DATE_LOW), &current_year,
             &current_month, &current_day);
     }
-    if (rejuvenate && (!current_date_valid || target_age < 12 || target_age > 50)) {
+    if (!budget_amount && rejuvenate
+        && (!current_date_valid || target_age < 12 || target_age > 50)) {
         retirement_result_message(result, 19,
             !current_date_valid ? "Data da carreira não encontrada; nada foi alterado"
                                 : "Idade-alvo fora do intervalo seguro 12..50");
         goto fail;
     }
-    for (row = 0; row < players.record_count; ++row) {
+    for (row = 0; !budget_amount && row < players.record_count; ++row) {
         SIZE_T start = players.records_offset + (SIZE_T)row * players.record_size;
         if (data[start + players.record_size - 1U] & 0x80U)
             continue;
@@ -780,7 +894,7 @@ int retirement_engine_apply_file(const char *data_path, const char *mode,
         }
         result->players_changed++;
     }
-    if (!result->players_changed) {
+    if (!budget_amount && !result->players_changed) {
         result->crc_after = calculated_crc;
         retirement_result_message(result, 0, "Nenhum jogador marcado para aposentadoria");
         HeapFree(GetProcessHeap(), 0, data); return 1;
@@ -790,14 +904,12 @@ int retirement_engine_apply_file(const char *data_path, const char *mode,
         char backup_index[1200];
         char backup_data[1200];
         char *slash;
-        if (players.table_crc_offset <= size
-            && players.table_crc_start <= players.table_crc_offset
-            && players.table_crc_offset - players.table_crc_start >= 4U) {
-            uint32_t table_crc = retirement_u32(data + players.table_crc_offset);
-            if (table_crc != RETIREMENT_TABLE_CRC_SENTINEL)
-                retirement_put_u32(data + players.table_crc_offset,
-                    retirement_fifa_crc32(data + players.table_crc_start,
-                        players.table_crc_offset - players.table_crc_start));
+        const RetirementTable *changed_table = budget_amount
+            ? &manager_pref : &players;
+        if (!retirement_recalculate_table_crc(data, size, changed_table)) {
+            retirement_result_message(result, 25,
+                "CRC da tabela alterada não pôde ser atualizado");
+            goto fail;
         }
         retirement_put_u32(data + RETIREMENT_CRC_OFFSET,
             retirement_crc32(data + RETIREMENT_CRC_START,
@@ -829,7 +941,9 @@ int retirement_engine_apply_file(const char *data_path, const char *mode,
             goto fail;
         }
     }
-    retirement_result_message(result, 1, "Patch global concluído com backup");
+    retirement_result_message(result, 1, budget_amount
+        ? "Orçamento de transferências atualizado com backup"
+        : "Patch global concluído com backup");
     HeapFree(GetProcessHeap(), 0, data); return 1;
 fail:
     HeapFree(GetProcessHeap(), 0, data);
@@ -863,7 +977,7 @@ int retirement_engine_apply_buffer(void *buffer, SIZE_T size,
             "CRC original inválido; nada foi alterado");
         return 0;
     }
-    if (!retirement_find_tables(data, size, &players, &calendar)
+    if (!retirement_find_tables(data, size, &players, &calendar, NULL)
         || !players.player_id.found) {
         retirement_result_message(result, 13,
             "Tabela CZUM/fields não encontrados");
@@ -990,7 +1104,7 @@ int retirement_engine_apply_selection(void *buffer, SIZE_T size,
     memset(&players, 0, sizeof(players)); memset(&calendar, 0, sizeof(calendar));
     crc = retirement_crc32(original + RETIREMENT_CRC_START, size - RETIREMENT_CRC_START);
     if (retirement_u32(original + RETIREMENT_CRC_OFFSET) != crc
-        || !retirement_find_tables(original, size, &players, &calendar)
+        || !retirement_find_tables(original, size, &players, &calendar, NULL)
         || !players.player_id.found || !players.is_retiring.found || !players.birthdate.found
         || players.player_id.bit_depth != 19U || players.birthdate.bit_depth != 20U
         || players.is_retiring.bit_depth != 1U || !calendar.current_date.found
@@ -1311,14 +1425,29 @@ static void retirement_log_event(const char *event, const char *path)
 
 void retirement_engine_show_feedback(const char *text, UINT beep_type)
 {
+    HWND window;
+    COPYDATASTRUCT copy;
+    DWORD_PTR ignored = 0;
     if (!text || !*text)
         return;
+    window = g_retirement_feedback_window;
+    if (!window || !IsWindow(window)) {
+        g_retirement_feedback_window = NULL;
+        retirement_feedback_start();
+        window = g_retirement_feedback_window;
+    }
+    if (!window)
+        window = FindWindowA("FifaRetirementFeedbackWindow", NULL);
+    if (window) {
+        memset(&copy, 0, sizeof(copy));
+        copy.dwData = RETIREMENT_FEEDBACK_RESULT;
+        copy.cbData = (DWORD)strlen(text) + 1U;
+        copy.lpData = (PVOID)text;
+        (void)SendMessageTimeoutA(window, WM_COPYDATA, 0, (LPARAM)&copy,
+            SMTO_ABORTIFHUNG | SMTO_BLOCK, 1500U, &ignored);
+    }
     if (beep_type)
         MessageBeep(beep_type);
-    /* A modal topmost prompt also works when FIFA uses exclusive fullscreen;
-     * the NAV flow continues after the user has read and dismissed it. */
-    (void)MessageBoxA(NULL, text, "FIFA Friends - Aposentadoria",
-        MB_OK | MB_SETFOREGROUND | MB_TOPMOST);
 }
 
 static void retirement_feedback_show_result(const RetirementApplyResult *result)
@@ -1330,16 +1459,21 @@ static void retirement_feedback_show_result(const RetirementApplyResult *result)
         MB_OK);
 }
 
-static void retirement_feedback_show_ready(void)
+static void retirement_feedback_show_ready(const char *mode)
 {
-    /* The NAV prompt runs before the flow starts its automatic save.
-     * Dismissing it lets the autosave flow continue. */
-    retirement_engine_show_feedback(
-        "Pedido de aposentadoria recebido. Aguarde o autosave da acao.\n"
-        "Depois, feche o FIFA completamente. Se aparecer outra pergunta\n"
-        "de salvamento ao sair, escolha NAO salvar. Aguarde a mensagem\n"
-        "e o sinal sonoro de conclusao antes de reabrir a carreira.",
-        MB_ICONINFORMATION);
+    /* This non-modal layer lets the NAV save and exit flow continue. */
+    if (retirement_transfer_budget_amount(mode))
+        retirement_engine_show_feedback(
+            "Aumento do orçamento preparado.\n"
+            "Saia do save e escolha NAO salvar.\n"
+            "Ao voltar a tela anterior, aguarde o processamento.",
+            MB_ICONINFORMATION);
+    else
+        retirement_engine_show_feedback(
+            "Aposentadoria preparada.\n"
+            "Saia do save e escolha NAO salvar.\n"
+            "Ao voltar a tela anterior, aguarde o processamento.",
+            MB_ICONINFORMATION);
 }
 
 void retirement_engine_note_buffer_write(const char *data_path,
@@ -1415,6 +1549,12 @@ void retirement_engine_note_ui_signal(const char *path)
     } else if (_stricmp(name, "retirementresetageflow.nav") == 0) {
         mode = "remove_and_rejuvenate";
         event = "nav_reset_age_request";
+    } else if (_stricmp(name, "retirementaddfunds100kflow.nav") == 0) {
+        mode = "add_transfer_budget_100k";
+        event = "nav_add_transfer_budget_100k_request";
+    } else if (_stricmp(name, "retirementaddfunds300kflow.nav") == 0) {
+        mode = "add_transfer_budget_300k";
+        event = "nav_add_transfer_budget_300k_request";
     } else {
         return;
     }
@@ -1427,7 +1567,7 @@ void retirement_engine_note_ui_signal(const char *path)
     }
     if (retirement_set_requested_mode(mode)) {
         retirement_log_event(event, path);
-        retirement_feedback_show_ready();
+        retirement_feedback_show_ready(mode);
     } else
         retirement_log_event("nav_request_ignored_latched", path);
 }
@@ -1485,17 +1625,20 @@ static LRESULT CALLBACK retirement_feedback_window_proc(HWND window,
     {
         PAINTSTRUCT paint;
         RECT client;
+        RECT heading;
+        RECT body;
         HBRUSH background;
-        HFONT font;
-        HFONT previous_font;
+        HFONT heading_font;
+        HFONT body_font;
+        HGDIOBJ previous_font;
         char text[512];
         HDC dc = BeginPaint(window, &paint);
         GetClientRect(window, &client);
-        background = CreateSolidBrush(RGB(31, 37, 48));
+        background = CreateSolidBrush(RGB(23, 30, 43));
         FillRect(dc, &client, background);
         DeleteObject(background);
         {
-            HBRUSH accent = CreateSolidBrush(RGB(45, 183, 200));
+            HBRUSH accent = CreateSolidBrush(RGB(52, 194, 196));
             RECT stripe = client;
             stripe.bottom = stripe.top + 5;
             FillRect(dc, &stripe, accent);
@@ -1512,18 +1655,46 @@ static LRESULT CALLBACK retirement_feedback_window_proc(HWND window,
             DeleteObject(border);
         }
         SetBkMode(dc, TRANSPARENT);
-        SetTextColor(dc, RGB(245, 247, 250));
-        font = CreateFontA(20, 0, 0, 0, FW_SEMIBOLD, FALSE, FALSE, FALSE,
-            DEFAULT_CHARSET, OUT_DEFAULT_PRECIS, CLIP_DEFAULT_PRECIS,
-            CLEARTYPE_QUALITY, DEFAULT_PITCH | FF_SWISS, "Arial");
-        previous_font = (HFONT)SelectObject(dc, font);
         AcquireSRWLockShared(&g_retirement_feedback_lock);
         lstrcpynA(text, g_retirement_feedback_text, sizeof(text));
         ReleaseSRWLockShared(&g_retirement_feedback_lock);
-        DrawTextA(dc, text, -1, &client,
-            DT_CENTER | DT_VCENTER | DT_WORDBREAK | DT_NOPREFIX);
+
+        heading.left = client.left + 27;
+        heading.right = client.right - 24;
+        heading.top = client.top + 15;
+        heading.bottom = client.top + 38;
+        SetTextColor(dc, RGB(116, 218, 216));
+        heading_font = CreateFontA(12, 0, 0, 0, FW_BOLD, FALSE, FALSE, FALSE,
+            DEFAULT_CHARSET, OUT_DEFAULT_PRECIS, CLIP_DEFAULT_PRECIS,
+            CLEARTYPE_QUALITY, DEFAULT_PITCH | FF_SWISS, "Arial");
+        previous_font = SelectObject(dc, heading_font);
+        DrawTextA(dc, "FIFA FRIENDS  |  CARREIRA", -1, &heading,
+            DT_LEFT | DT_VCENTER | DT_SINGLELINE | DT_NOPREFIX);
         SelectObject(dc, previous_font);
-        DeleteObject(font);
+        DeleteObject(heading_font);
+
+        {
+            HPEN divider = CreatePen(PS_SOLID, 1, RGB(57, 70, 87));
+            HGDIOBJ previous_pen = SelectObject(dc, divider);
+            MoveToEx(dc, client.left + 24, client.top + 43, NULL);
+            LineTo(dc, client.right - 24, client.top + 43);
+            SelectObject(dc, previous_pen);
+            DeleteObject(divider);
+        }
+
+        body.left = client.left + 27;
+        body.right = client.right - 27;
+        body.top = client.top + 51;
+        body.bottom = client.bottom - 13;
+        SetTextColor(dc, RGB(243, 246, 250));
+        body_font = CreateFontA(20, 0, 0, 0, FW_SEMIBOLD, FALSE, FALSE, FALSE,
+            DEFAULT_CHARSET, OUT_DEFAULT_PRECIS, CLIP_DEFAULT_PRECIS,
+            CLEARTYPE_QUALITY, DEFAULT_PITCH | FF_SWISS, "Arial");
+        previous_font = SelectObject(dc, body_font);
+        DrawTextA(dc, text, -1, &body,
+            DT_LEFT | DT_VCENTER | DT_WORDBREAK | DT_NOPREFIX);
+        SelectObject(dc, previous_font);
+        DeleteObject(body_font);
         EndPaint(window, &paint);
         return 0;
     }

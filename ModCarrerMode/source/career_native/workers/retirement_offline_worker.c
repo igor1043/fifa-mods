@@ -77,19 +77,23 @@ static void worker_log_result(const char *mod_dir, const char *data_path,
     GetLocalTime(&now);
     fprintf(file,
         "event=worker_result timestamp=%04u-%02u-%02uT%02u:%02u:%02u.%03u "
-        "elapsed_ms=%llu status=%d changed=%u retiring=%u "
+        "elapsed_ms=%llu status=%d changed=%u retiring=%u budget_before=%u "
+        "budget_after=%u budget_added=%u "
         "crc_before=%08X crc_after=%08X message=%s data=%s mode=%s "
         "backup_data=%s backup_index=%s\n",
         now.wYear, now.wMonth, now.wDay, now.wHour, now.wMinute,
         now.wSecond, now.wMilliseconds, (unsigned long long)elapsed_ms,
         result->status, result->players_changed, result->players_retiring,
+        result->transfer_budget_before, result->transfer_budget_after,
+        result->transfer_budget_added,
         result->crc_before, result->crc_after, result->message,
         data_path ? data_path : "", mode && *mode ? mode : "",
         result->backup_data, result->backup_index);
     fclose(file);
 }
 
-static void worker_show_feedback(const char *text, UINT beep_type)
+static void worker_show_feedback(const char *text, UINT beep_type,
+    int allow_modal_fallback)
 {
     HWND window;
     COPYDATASTRUCT copy;
@@ -107,16 +111,31 @@ static void worker_show_feedback(const char *text, UINT beep_type)
                 SMTO_ABORTIFHUNG | SMTO_BLOCK, 1500U, &ignored))
             return;
     }
-    /* The DLL overlay belongs to FIFA and disappears when its process exits.
-     * The worker runs after that exit, so report completion on the desktop. */
-    (void)MessageBoxA(NULL, text, "FIFA Friends - Aposentadoria",
-        MB_OK | MB_SETFOREGROUND | MB_TOPMOST);
+    if (allow_modal_fallback)
+        (void)MessageBoxA(NULL, text, "FIFA Friends - Aposentadoria",
+            MB_OK | MB_SETFOREGROUND | MB_TOPMOST);
 }
 
 static void worker_show_success_feedback(const char *mode, int target_age,
     const RetirementApplyResult *result)
 {
     char text[512];
+    if (mode && (_stricmp(mode, "add_transfer_budget_100k") == 0
+            || _stricmp(mode, "add_transfer_budget_300k") == 0)) {
+        if (result && result->transfer_budget_added > 0U)
+            snprintf(text, sizeof(text),
+                "Orcamento de transferencias atualizado.\n"
+                "+%u adicionados. Novo total: %u.\n"
+                "O save esta pronto para reabrir a carreira.",
+                result->transfer_budget_added,
+                result->transfer_budget_after);
+        else
+            lstrcpyA(text,
+                "O orcamento de transferencias ja esta no limite maximo.\n"
+                "Nenhum valor foi alterado; o save pode ser reaberto.");
+        worker_show_feedback(text, MB_OK, 0);
+        return;
+    }
     if (mode && _stricmp(mode, "remove_and_rejuvenate") == 0) {
         if (result && result->players_changed > 0U)
             snprintf(text, sizeof(text),
@@ -139,7 +158,8 @@ static void worker_show_success_feedback(const char *mode, int target_age,
             "Nenhuma alteracao adicional era necessaria; o save esta "
             "pronto para reabrir.");
     }
-    worker_show_feedback(text, MB_OK);
+    /* Success is always reported in the non-modal FIFA overlay. */
+    worker_show_feedback(text, MB_OK, 0);
 }
 
 static int parse_unsigned(const char *value, unsigned long *result)
@@ -263,10 +283,13 @@ static int wait_for_stable_data(const char *path, unsigned quiet_ms)
 
 static void print_result(const char *path, const RetirementApplyResult *result)
 {
-    printf("status=%d message=%s changed=%u retiring=%u crc_before=%08X "
+    printf("status=%d message=%s changed=%u retiring=%u budget_before=%u "
+           "budget_after=%u budget_added=%u crc_before=%08X "
            "crc_after=%08X data=%s backup_data=%s backup_index=%s\n",
         result->status, result->message, result->players_changed,
-        result->players_retiring, result->crc_before, result->crc_after,
+        result->players_retiring, result->transfer_budget_before,
+        result->transfer_budget_after, result->transfer_budget_added,
+        result->crc_before, result->crc_after,
         path ? path : "", result->backup_data, result->backup_index);
 }
 
@@ -308,7 +331,7 @@ int main(int argc, char **argv)
             worker_show_feedback(
                 "Nao foi possivel confirmar o fechamento completo do FIFA.\n"
                 "A operacao foi interrompida; verifique o save antes de reabrir.",
-                MB_ICONERROR);
+                MB_ICONERROR, 1);
             return 3;
         }
         worker_log_event(mod_dir, "worker_game_exited", data_path, mode,
@@ -321,10 +344,11 @@ int main(int argc, char **argv)
             mode, worker_elapsed_ms(started_at));
         fprintf(stderr, "DATA não estabilizou: %s\n", data_path);
         snprintf(feedback, sizeof(feedback),
-            "O save nao ficou livre e estavel apos fechar o FIFA.\n"
-            "Nenhuma alteracao foi aplicada. Confira se o FIFA fechou "
-            "completamente e tente novamente.\nArquivo: %s", data_path);
-        worker_show_feedback(feedback, MB_ICONERROR);
+            "O save nao ficou livre e estavel depois de sair da carreira.\n"
+            "Nenhuma alteracao foi aplicada. Confira se a carreira foi "
+            "fechada e aguarde qualquer salvamento terminar.\nArquivo: %s",
+            data_path);
+        worker_show_feedback(feedback, MB_ICONERROR, 1);
         return 4;
     }
     memset(&result, 0, sizeof(result));
@@ -338,7 +362,7 @@ int main(int argc, char **argv)
             "Nao foi possivel aplicar a operacao no save.\n%s\n"
             "Confira o backup antes de abrir ou salvar esta carreira.",
             result.message[0] ? result.message : "Erro sem detalhes adicionais.");
-        worker_show_feedback(feedback, MB_ICONERROR);
+        worker_show_feedback(feedback, MB_ICONERROR, 1);
         return 5;
     }
     print_result(data_path, &result);
