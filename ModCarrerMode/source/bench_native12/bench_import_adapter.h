@@ -51,4 +51,6 @@ BOOL bench_import_remove(BenchImportAdapter *adapter);
 unsigned char *bench_adapter_near_page(uintptr_t image, SIZE_T image_size, uintptr_t site);
 BOOL bench_adapter_write_site(uintptr_t address,const unsigned char *before,
                               const unsigned char *after);
+BOOL bench_adapter_write_bytes(uintptr_t address,const unsigned char *before,
+                              const unsigned char *after,SIZE_T length);
 #endif

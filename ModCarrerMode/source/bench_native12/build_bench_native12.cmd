@@ -12,6 +12,18 @@ cl /nologo /std:c11 /W4 /WX /O2 /MT /D_CRT_SECURE_NO_WARNINGS test_bench_import_
 if errorlevel 1 exit /b 1
 build\test_bench_import_adapter.exe
 if errorlevel 1 exit /b 1
+ml64 /nologo /c /Fobuild\test_native_role_bridge.obj test_native_role_bridge.asm
+if errorlevel 1 exit /b 1
+cl /nologo /std:c11 /W4 /WX /O2 /MT /D_CRT_SECURE_NO_WARNINGS test_native_role_limit.c build\test_native_role_bridge.obj /Fobuild\test_native_role_limit.obj /Febuild\test_native_role_limit.exe /link /NOLOGO
+if errorlevel 1 exit /b 1
+build\test_native_role_limit.exe
+if errorlevel 1 exit /b 1
+ml64 /nologo /c /Fobuild\test_bench_render_bridge.obj test_bench_render_bridge.asm
+if errorlevel 1 exit /b 1
+cl /nologo /std:c11 /W4 /WX /O2 /MT /D_CRT_SECURE_NO_WARNINGS /DBENCH_RENDER_TEST test_bench_render_adapter.c bench_render_adapter.c bench_import_adapter.c build\test_bench_render_bridge.obj /Fobuild\ /Febuild\test_bench_render_adapter.exe /link /NOLOGO
+if errorlevel 1 exit /b 1
+build\test_bench_render_adapter.exe
+if errorlevel 1 exit /b 1
 ml64 /nologo /c /Fobuild\bench_job_template.obj bench_job_adapter.asm
 if errorlevel 1 exit /b 1
 ml64 /nologo /c /Fobuild\test_bench_job_bridge.obj test_bench_job_bridge.asm
@@ -20,7 +32,7 @@ cl /nologo /std:c11 /W4 /WX /O2 /MT /D_CRT_SECURE_NO_WARNINGS test_bench_job_ada
 if errorlevel 1 exit /b 1
 build\test_bench_job_adapter.exe
 if errorlevel 1 exit /b 1
-cl /nologo /std:c11 /W4 /WX /O2 /MT /LD /D_CRT_SECURE_NO_WARNINGS bench_native12.c bench_import_adapter.c bench_job_adapter.c build\bench_job_template.obj /Fobuild\ /Febuild\bench_native12.dll /link /NOLOGO /IMPLIB:build\bench_native12.lib
+cl /nologo /std:c11 /W4 /WX /O2 /MT /LD /D_CRT_SECURE_NO_WARNINGS bench_native12.c bench_render_adapter.c bench_import_adapter.c bench_job_adapter.c build\bench_job_template.obj /Fobuild\ /Febuild\bench_native12.dll /link /NOLOGO /IMPLIB:build\bench_native12.lib
 if errorlevel 1 exit /b 1
 popd
 endlocal
