@@ -20,6 +20,11 @@ static uintptr_t mascotAnimatedRenderer, mascotAnimatedRecords;
 static size_t mascotAnimatedIndex;
 static int mascotAnimatedStadium = -1, mascotAnimatedLight = -1, mascotAnimatedCold = -1;
 static unsigned int mascotPrivateSlot = 73;
+static unsigned int mascotAnimatedGeneration;
+static uintptr_t mascotInitAttemptRenderer, mascotInitAttemptRecords;
+static size_t mascotInitAttemptIndex;
+static unsigned int mascotInitAttemptGeneration;
+static DWORD mascotInitAttemptTick;
 static float mascotBindPose[31][16];
 static float mascotLastPose[31][16];
 
@@ -150,8 +155,13 @@ static bool mascot_install_crowd_hook()
 
 static void __fastcall mascot_crowd_assignment_hook(void* object)
 {
-    const uintptr_t current = mascot_current_crowd();
     const LONG requested = InterlockedCompareExchange(&mascotRequestedBehavior, 0, 0);
+    // Preserve one restoration after an active mascot, then pass through
+    // untouched when no supported mascot is active.
+    if (requested < 0 && mascotLastAppliedBehavior < 0) {
+        ((void (__fastcall*)(void*))mascotOriginalCrowdAssignments)(object); return;
+    }
+    const uintptr_t current = mascot_current_crowd();
     if ((uintptr_t)object == current && current &&
         (requested != mascotLastAppliedBehavior || current != mascotLastAppliedCrowd)) {
         const int saved = *(int*)(current + 4);
@@ -201,35 +211,26 @@ static void mascot_unbind_pose(uintptr_t renderer, uintptr_t records, size_t cou
     mascotAnimationBound = false; mascotAnimationInitialized = false;
 }
 
-static void mascot_animate_instance(void* object)
+static void mascot_animate_instance(const MascotFrameContext& frame)
 {
-    const uintptr_t renderer=(uintptr_t)object;
-    uintptr_t prototypes,records; size_t protoCount,count;
-    if (!vector_bounds(renderer+0x60,8,prototypes,protoCount) || protoCount!=3 ||
-        !vector_bounds(renderer+0x900,0x50,records,count)) { mascot_unbind_pose(0,0,0); mascot_set_animation_active(false,-1); return; }
-    if (!count) { mascot_unbind_pose(renderer,records,count); mascot_set_animation_active(false,-1); return; }
-    size_t selected=count;
-    for(size_t i=0;i<count;++i) if(*(unsigned char*)(records+i*0x50+0x42)==2) {
-        if(selected!=count) { mascot_unbind_pose(renderer,records,count); mascot_set_animation_active(false,-1); return; }
-        selected=i;
+    const uintptr_t renderer=frame.renderer, records=frame.records;
+    const size_t count=frame.count, selected=frame.selected;
+    const int home=frame.home, stadium=frame.stadium, light=frame.light, cold=frame.cold;
+    const bool animatedPackage=(home==1043 && (frame.packages&4)) || (home==383 && (frame.packages&8));
+    if(!frame.mascotActive || !animatedPackage) {
+        mascot_unbind_pose(renderer,records,count); mascot_set_animation_active(false,home); return;
     }
-    if(selected==count) { mascot_unbind_pose(renderer,records,count); mascot_set_animation_active(false,-1); return; }
-    uintptr_t prototype=*(uintptr_t*)(prototypes+16),state=*(uintptr_t*)(prototype+16);
-    unsigned int rnaIndex;
-    if(!get(state+0x4c,rnaIndex)) { mascot_set_animation_active(false,-1); return; }
-    uintptr_t table=prototype_lua_table(rnaIndex);
-    int home=lua_number(table,"teamid"),stadium=lua_number(table,"stadiumID"),
-        light=lua_number(table,"stadiumLightID"),cold=lua_number(table,"cold"),isMascot=lua_number(table,"isMascot");
-    const LONG packages=InterlockedCompareExchange(&packageStatus,0,0);
-    const bool animatedPackage=(home==1043 && (packages&4)) || (home==383 && (packages&8));
-    const bool enabled=isMascot==1 && animatedPackage &&
-        repositionMascot &&
-        InterlockedCompareExchange(&mascotAnimationEnabled,0,0);
-    if(!enabled) { mascot_unbind_pose(renderer,records,count); mascot_set_animation_active(false,home); return; }
-    mascot_set_animation_active(true,home);
     if(!mascotAnimationInitialized || renderer!=mascotAnimatedRenderer || records!=mascotAnimatedRecords ||
-        selected!=mascotAnimatedIndex || stadium!=mascotAnimatedStadium || light!=mascotAnimatedLight || cold!=mascotAnimatedCold) {
+        selected!=mascotAnimatedIndex || stadium!=mascotAnimatedStadium || light!=mascotAnimatedLight || cold!=mascotAnimatedCold ||
+        frame.generation!=mascotAnimatedGeneration) {
+        const DWORD tick=GetTickCount();
+        const bool sameAttempt=renderer==mascotInitAttemptRenderer && records==mascotInitAttemptRecords &&
+            selected==mascotInitAttemptIndex && frame.generation==mascotInitAttemptGeneration;
+        if (sameAttempt && tick-mascotInitAttemptTick<250) return;
+        mascotInitAttemptRenderer=renderer; mascotInitAttemptRecords=records;
+        mascotInitAttemptIndex=selected; mascotInitAttemptGeneration=frame.generation; mascotInitAttemptTick=tick;
         mascot_unbind_pose(renderer,records,count);
+        mascot_set_animation_active(false,home);
         wchar_t variant[MAX_PATH];
         const int chars=_snwprintf_s(variant,MAX_PATH,_TRUNCATE,L"%ls\\data\\sceneassets\\mascot\\%u\\model_animated.rx3",gameDirectory,(unsigned int)home);
         if(chars<0 || !mascot_rx3_file_valid(variant,false)) { log_event("animation_fallback invalid_variant club=%d",home); mascot_set_animation_active(false,home); return; }
@@ -250,9 +251,11 @@ static void mascot_animate_instance(void* object)
         mascotPreviousBinding=previousBinding;
         mascotAnimatedRenderer=renderer;mascotAnimatedRecords=records;mascotAnimatedIndex=selected;
         mascotAnimatedStadium=stadium;mascotAnimatedLight=light;mascotAnimatedCold=cold;
+        mascotAnimatedGeneration=frame.generation;
         mascotAnimationInitialized=true;mascotAnimationBound=false;
         log_event("animation_ready club=%d instance=%zu slot=73 standing_idle=26 home_goal=14",home,selected+1);
     }
+    mascot_set_animation_active(true,home);
     const LONG mode=InterlockedCompareExchange(&mascotAnimationMode,0,0);
     const int behavior=mode==3?14:26;
     InterlockedExchange(&mascotRequestedBehavior,behavior);

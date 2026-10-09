@@ -9,6 +9,7 @@
 #include "mascot_single_core.h"
 #include "native_guards.h"
 #include "mascot_package_guard.h"
+#include "mascot_memory_reader.h"
 
 static uintptr_t image;
 static char logPath[MAX_PATH];
@@ -28,6 +29,17 @@ static bool priorPlacementPending;
 static wchar_t gameDirectory[MAX_PATH];
 static volatile LONG packageStatus;
 static LONG lastPackageStatus = -1;
+static unsigned int mascotPlacementGeneration;
+// Validated once by placement. Animation consumes this snapshot in the same
+// hook, rather than scanning the same vectors and Lua tables a second time.
+struct MascotFrameContext {
+    uintptr_t renderer, records;
+    size_t count, selected;
+    int home, stadium, light, cold;
+    LONG packages;
+    unsigned int generation;
+    bool mascotActive;
+};
 
 static void log_event(const char* format, ...)
 {
@@ -138,16 +150,17 @@ static bool refresh_lua(unsigned int rnaIndex)
  * Placement changes require this exact prototype's isMascot=1. */
 static uintptr_t lua_table_field(uintptr_t table, const char* key)
 {
+    MascotScopedMemoryReader reader;
     unsigned char type, power; uintptr_t nodes;
-    if (!get(table + 8, type) || type != 5 || !get(table + 11, power) || power > 16 ||
-        !get(table + 32, nodes)) return 0;
+    if (!reader.get(table + 8, type) || type != 5 || !reader.get(table + 11, power) || power > 16 ||
+        !reader.get(table + 32, nodes)) return 0;
     const size_t length = strlen(key), count = (size_t)1 << power;
     for (size_t i = 0; i < count; ++i) {
         const uintptr_t node = nodes + i * 40;
         int tag; uintptr_t text; size_t textLength;
-        if (!get(node + 24, tag)) return 0;
-        if (tag != 4 || !get(node + 16, text) || !get(text + 16, textLength) ||
-            textLength != length || !readable(text + 24, length)) continue;
+        if (!reader.get(node + 24, tag)) return 0;
+        if (tag != 4 || !reader.get(node + 16, text) || !reader.get(text + 16, textLength) ||
+            textLength != length || !reader.readable(text + 24, length)) continue;
         if (memcmp((void*)(text + 24), key, length) == 0) return node;
     }
     return 0;
@@ -214,18 +227,18 @@ static void prepare_prototypes(uintptr_t begin)
     }
 }
 
-static void assign_photographer(void* object)
+static bool assign_photographer(void* object, MascotFrameContext& frame)
 {
     const uintptr_t renderer = (uintptr_t)object;
     uintptr_t prototypes, records; size_t prototypeCount, count;
     if (!vector_bounds(renderer + 0x60, 8, prototypes, prototypeCount) || prototypeCount != 3 ||
-        !vector_bounds(renderer + 0x900, 0x50, records, count)) return;
-    if (!count) { lastRecords = 0; repositionMascot = false; mascot_set_animation_active(false,-1); return; }
+        !vector_bounds(renderer + 0x900, 0x50, records, count)) return false;
+    if (!count) { lastRecords = 0; repositionMascot = false; mascot_set_animation_active(false,-1); return false; }
     for (size_t i = 0; i < 3; ++i) {
         uintptr_t prototype, state; uint16_t type, variation;
         if (!get(prototypes + i * 8, prototype) || !get(prototype + 12, type) || type != 1 ||
             !get(prototype + 14, variation) || variation != i || !get(prototype + 16, state) ||
-            !readable(state, 0x50)) return;
+            !readable(state, 0x50)) return false;
     }
     uintptr_t prototype = *(uintptr_t*)(prototypes + 16);
     uintptr_t state = *(uintptr_t*)(prototype + 16);
@@ -243,6 +256,7 @@ static void assign_photographer(void* object)
     const LONG packages=InterlockedCompareExchange(&packageStatus,0,0);
     const bool packagesChanged=packages!=lastPackageStatus;
     if (newGeometry || newIdentity || packagesChanged) {
+        ++mascotPlacementGeneration;
         if (!newGeometry && repositionMascot && selectedSlot < count) {
             float current[3]; memcpy(current,(void*)(records+selectedSlot*0x50+0x20),sizeof(current));
             if (same_position(current,targetPosition)) memcpy((void*)(records+selectedSlot*0x50+0x20),originalPosition,sizeof(originalPosition));
@@ -300,14 +314,27 @@ static void assign_photographer(void* object)
     if (repositionMascot) memcpy((void*)(records + selectedSlot * 0x50 + 0x20), targetPosition, sizeof(targetPosition));
     if (changes) log_event("appearance_assignment mode=corner mascot_slots=1 normal_slots=%zu changed=%zu",
         count - 1, changes);
+    frame = {renderer, records, count, selectedSlot, home, stadium, light, cold,
+        packages, mascotPlacementGeneration, repositionMascot};
+    return true;
 }
 
 static void __fastcall selection_hook(void* renderer)
 {
     originalSelect(renderer);
     /* BEFORE 43a8bf0 resolves prototypes and builds its GPU draw list. */
-    __try { assign_photographer(renderer); mascot_animate_instance(renderer); }
-    __except(EXCEPTION_EXECUTE_HANDLER) { log_event("assignment_fault; no further writes this frame"); }
+    MascotFrameContext frame{};
+    __try {
+        if (assign_photographer(renderer, frame)) mascot_animate_instance(frame);
+        else { mascot_unbind_pose(0,0,0); mascot_set_animation_active(false,-1); }
+    }
+    __except(EXCEPTION_EXECUTE_HANDLER) {
+        mascot_unbind_pose(0,0,0); mascot_set_animation_active(false,-1);
+        static DWORD lastFaultLog; const DWORD tick=GetTickCount();
+        if (!lastFaultLog || tick-lastFaultLog>=1000) {
+            lastFaultLog=tick; log_event("assignment_fault; no further writes this frame");
+        }
+    }
 }
 
 static void* allocate_near(uintptr_t origin)
@@ -432,7 +459,7 @@ static DWORD WINAPI worker(void*)
         HANDLE animationThread=CreateThread(nullptr,0,mascot_animation_worker,nullptr,0,nullptr);
         if (animationThread) CloseHandle(animationThread);
         else log_event("animation_score_watcher not_started thread_creation_failed");
-        log_event("installed version=13 mode=approved_corner_native_animation hook=43ac0f1 crowd_hook=4f530aa type=1 prototype=2 resource_refresh=1 startup_retry=1 legacy_ballboys=normal missing_package_guard=1 celebration_ms=11000");
+        log_event("installed version=13 mode=approved_corner_native_animation hook=43ac0f1 crowd_hook=4f530aa type=1 prototype=2 resource_refresh=1 startup_retry=1 legacy_ballboys=normal missing_package_guard=1 celebration_ms=26000 performance_revision=1 identity_poll_ms=250 lua_scan_per_frame=0");
         return 0;
     }
     log_event("not_installed unsupported_or_conflicting_native_code"); return 4;

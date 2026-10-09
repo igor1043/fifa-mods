@@ -10,3 +10,13 @@ Este componente parte da colocação v12 que já foi validada no jogo e acrescen
 - O build gera e copia mascot_goal_line_v13.dll para ModCarrerMode/mods/mascot_single.
 
 Para compilar, execute build_mascot_single_v13.cmd nesta pasta. A instalação no jogo é feita separadamente por Install-MascotPhotographer.ps1; a restauração usa Restore-MascotPhotographer.ps1.
+
+## Revisão de desempenho — 09/10/2026
+
+A revisão `performance_revision=1` remove a segunda descoberta do time/estádio e a segunda varredura de fotógrafos feitas pela animação a cada quadro. A animação usa os dados já validados pelo posicionamento no mesmo callback. A identidade continua sendo conferida a cada 250 ms, e as poses nativas continuam atualizadas a cada quadro.
+
+Cada consulta Lua também reutiliza as regiões de memória validadas dentro daquela consulta. O cache termina ao sair da função; não guarda ponteiros Lua entre quadros nem compartilha dados entre threads. As leituras mantêm a proteção SEH. Falhas de inicialização da animação têm intervalo mínimo de 250 ms, e o callback da torcida passa diretamente ao jogo quando não há mascote ativo. Mudanças de recursos/time invalidam o estado da animação.
+
+`tests\run_performance.cmd` compila o código real com contagem de VirtualQuery e executa verificações de memória inválida, atribuição única, fotógrafo normal sem mascote, posição e tentativas de inicialização. Na tabela sintética de 1.024 nós, a consulta original fez 4.099 VirtualQuery; a revisada fez uma. Uma execução registrou 1.790,9 µs contra 18,9 µs por consulta. Esses números medem a consulta artificial, não FPS nem tempo total da partida.
+
+A DLL foi aplicada em `U:\fifa 16` e no projeto `FIFA Friends V12`, com o jogo fechado. Cópias anteriores, resultados e hashes estão em `estudos fifa 16\14_MASCOTE_PERFORMANCE_20261009`. Não foi possível medir FPS em partida nesta revisão. Para confirmar o resultado no jogo, compare a mesma partida, câmera e opções gráficas antes/depois. A posição, troca de lado e comemoração de 26 segundos não foram alteradas.
