@@ -7,3 +7,6 @@ substitution_all7_rulescan_native\substitution_all7_rulescan_native.dll
 bench_native12\bench_native12.dll
 # One mascot recessed behind the goal-line boards; native idle and home-goal cheer.
 mascot_single\mascot_goal_line_v13.dll
+
+# Experimental tournament reload: unique root mask, revision 3.
+tournament_compat_native\tournament_compat_native.dll
