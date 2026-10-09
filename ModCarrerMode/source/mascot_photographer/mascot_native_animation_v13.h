@@ -8,7 +8,7 @@
 static volatile LONG mascotAnimationEnabled;
 static volatile LONG mascotAnimationHome = -1;
 static volatile LONG mascotSceneGeneration;
-static volatile LONG mascotAnimationMode;      // 0 inactive, 2 standing idle, 3 home-goal cheer
+static volatile LONG mascotAnimationMode;      // 0 inactive, 2 mirror crowd, 3 home-goal cheer
 static volatile LONG mascotRequestedBehavior = -1;
 static uintptr_t mascotOriginalCrowdAssignments;
 static uintptr_t mascotLastAppliedCrowd;
@@ -149,7 +149,7 @@ static bool mascot_install_crowd_hook()
     if (distance < INT32_MIN || distance > INT32_MAX || !install_call(site, (int32_t)distance)) {
         VirtualFree(relay, 0, MEM_RELEASE); return false;
     }
-    log_event("animation_hook installed crowd_assignment=4f530aa private_pose_slot=73 idle=26 home_goal=14");
+    log_event("animation_hook installed crowd_assignment=4f530aa private_pose_slot=73 crowd_mirror=1 home_goal=14");
     return true;
 }
 
@@ -179,15 +179,15 @@ static void __fastcall mascot_crowd_assignment_hook(void* object)
     ((void (__fastcall*)(void*))mascotOriginalCrowdAssignments)(object);
 }
 
-static bool mascot_native_standing_pose(int requested, float pose[31][16], int& clip)
+static bool mascot_native_standing_pose(int requested, float pose[31][16], int& behaviorOut, int& clip)
 {
     uintptr_t crowd = mascot_current_crowd(), wrapper, data, manager, impl, provider;
     if (!crowd || !get(image + 0x3504750, wrapper) || !get(wrapper + 0x10, data) ||
         !get(data + 0x90, manager) || !get(manager, impl) || !get(impl + 0x28, provider) || !provider) return false;
     const unsigned char posture = *(unsigned char*)(crowd + 4 + 8);
     const int behavior = *(int*)(crowd + 0x474);
-    if (posture != 2 || behavior != requested) return false;
-    clip = *(int*)(crowd + 0x470);
+    /* Keep the mascot standing: seated/non-standing crowd postures are never copied. */
+    if (posture != 2 || (requested >= 0 && behavior != requested)) return false;
     const uintptr_t raw = provider + 0x10;
     if (!readable(raw, 31 * 64)) return false;
     float second[31][16];
@@ -197,7 +197,10 @@ static bool mascot_native_standing_pose(int requested, float pose[31][16], int& 
         for (size_t j=0;j<16;++j) if (!isfinite(pose[bone][j]) || fabsf(pose[bone][j])>1000) return false;
         if (fabsf(pose[bone][15]-1)>0.001f) return false;
     }
-    return pose[2][13] >= 75 && pose[2][13] <= 160 && pose[14][13] >= 120;
+    if (pose[2][13] < 75 || pose[2][13] > 160 || pose[14][13] < 120) return false;
+    behaviorOut = behavior;
+    clip = *(int*)(crowd + 0x470);
+    return true;
 }
 
 static void mascot_unbind_pose(uintptr_t renderer, uintptr_t records, size_t count)
@@ -253,20 +256,20 @@ static void mascot_animate_instance(const MascotFrameContext& frame)
         mascotAnimatedStadium=stadium;mascotAnimatedLight=light;mascotAnimatedCold=cold;
         mascotAnimatedGeneration=frame.generation;
         mascotAnimationInitialized=true;mascotAnimationBound=false;
-        log_event("animation_ready club=%d instance=%zu slot=73 standing_idle=26 home_goal=14",home,selected+1);
+        log_event("animation_ready club=%d instance=%zu slot=73 crowd_mirror=1 home_goal=14",home,selected+1);
     }
     mascot_set_animation_active(true,home);
     const LONG mode=InterlockedCompareExchange(&mascotAnimationMode,0,0);
-    const int behavior=mode==3?14:26;
-    InterlockedExchange(&mascotRequestedBehavior,behavior);
-    float pose[31][16];int clip=-1;
-    if(mascot_native_standing_pose(behavior,pose,clip)) {
+    const int requestedBehavior=mode==3?14:-1;
+    InterlockedExchange(&mascotRequestedBehavior,requestedBehavior);
+    float pose[31][16];int behavior=-1,clip=-1;
+    if(mascot_native_standing_pose(requestedBehavior,pose,behavior,clip)) {
         memcpy(mascotLastPose,pose,sizeof(mascotLastPose));
         memcpy((void*)(renderer+mascotPrivateSlot*0xe00+0xe7e0),pose,sizeof(pose));
         *(uint16_t*)(records+selected*0x50+0x40)=(uint16_t)mascotPrivateSlot;
         mascotAnimationBound=true;
-        static LONG lastMode=-1;static int lastClip=-1;
-        if(lastMode!=mode || lastClip!=clip) { log_event("animation_pose club=%d mode=%s behavior=%d clip=%d standing=1",home,mode==3?"home_goal":"idle",behavior,clip);lastMode=mode;lastClip=clip; }
+        static LONG lastMode=-1;static int lastBehavior=-1,lastClip=-1;
+        if(lastMode!=mode || lastBehavior!=behavior || lastClip!=clip) { log_event("animation_pose club=%d mode=%s behavior=%d clip=%d standing=1",home,mode==3?"home_goal":"crowd_native",behavior,clip);lastMode=mode;lastBehavior=behavior;lastClip=clip; }
     } else if(mascotAnimationBound) {
         memcpy((void*)(renderer+mascotPrivateSlot*0xe00+0xe7e0),mascotLastPose,sizeof(mascotLastPose));
     }
@@ -287,7 +290,7 @@ static DWORD WINAPI mascot_animation_worker(void*)
         break;
     }
     if(!hookInstalled) { log_event("animation_disabled crowd_hook_guard_failed"); return 1; }
-    log_event("animation_score_watcher started home_only=1 confirm_ms=750 idle=26 celebration=14 duration_ms=26000 away_reaction=0");
+    log_event("animation_score_watcher started home_only=1 confirm_ms=750 crowd_mirror=1 celebration=14 duration_ms=26000");
     for(;;) {
         const uint64_t now=GetTickCount64();
         const bool active=InterlockedCompareExchange(&mascotAnimationEnabled,0,0)!=0;
@@ -302,24 +305,24 @@ static DWORD WINAPI mascot_animation_worker(void*)
         }
         if(!previousActive) {
             InterlockedExchange(&mascotAnimationMode,2);
-            InterlockedExchange(&mascotRequestedBehavior,26);
+            InterlockedExchange(&mascotRequestedBehavior,-1);
         }
         previousActive=true;
         uintptr_t key=0;int homeClub=-1,awayClub=-1,h=-1,a=-1;
         if(!mascot_read_confirmed_score(key,homeClub,awayClub,h,a) || homeClub!=mascotClub) {
-            InterlockedExchange(&mascotAnimationMode,2);InterlockedExchange(&mascotRequestedBehavior,26);
+            InterlockedExchange(&mascotAnimationMode,2);InterlockedExchange(&mascotRequestedBehavior,-1);
             baseline=candidate=false;lastSample=0;Sleep(100);continue;
         }
         key ^= (uintptr_t)(unsigned int)homeClub << 3;
         key ^= (uintptr_t)(unsigned int)awayClub << 29;
         if(key!=currentKey) {
             currentKey=key;baseline=candidate=false;highHome=-1;celebrationUntil=0;lastSample=0;
-            InterlockedExchange(&mascotAnimationMode,2);InterlockedExchange(&mascotRequestedBehavior,26);
+            InterlockedExchange(&mascotAnimationMode,2);InterlockedExchange(&mascotRequestedBehavior,-1);
         }
         if(lastSample && now-lastSample>2000) { baseline=candidate=false;celebrationUntil=0;InterlockedExchange(&mascotAnimationMode,2); }
         lastSample=now;
         if(celebrationUntil && now>=celebrationUntil) {
-            celebrationUntil=0;InterlockedExchange(&mascotAnimationMode,2);InterlockedExchange(&mascotRequestedBehavior,26);
+            celebrationUntil=0;InterlockedExchange(&mascotAnimationMode,2);InterlockedExchange(&mascotRequestedBehavior,-1);
             log_event("home_goal_celebration_finished score=%d:%d",h,a);
         }
         if(!baseline) {
@@ -333,7 +336,7 @@ static DWORD WINAPI mascot_animation_worker(void*)
             if(!candidate || h!=candidateHome || a!=candidateAway) { candidate=true;candidateHome=h;candidateAway=a;candidateSince=now; }
             const bool homeGoal=(h==scoreHome+1 && a==scoreAway && h>highHome);
             if((h<scoreHome || a!=scoreAway) && celebrationUntil) {
-                celebrationUntil=0;InterlockedExchange(&mascotAnimationMode,2);InterlockedExchange(&mascotRequestedBehavior,26);
+                celebrationUntil=0;InterlockedExchange(&mascotAnimationMode,2);InterlockedExchange(&mascotRequestedBehavior,-1);
             }
             if(now-candidateSince>=750) {
                 const int oldHome=scoreHome,oldAway=scoreAway;
@@ -342,7 +345,7 @@ static DWORD WINAPI mascot_animation_worker(void*)
                     celebrationUntil=now+26000;InterlockedExchange(&mascotAnimationMode,3);InterlockedExchange(&mascotRequestedBehavior,14);
                     log_event("HOME_GOAL_CONFIRMED score=%d:%d previous=%d:%d; native_behavior=14 duration_ms=26000",h,a,oldHome,oldAway);
                 } else {
-                    InterlockedExchange(&mascotAnimationMode,2);InterlockedExchange(&mascotRequestedBehavior,26);
+                    InterlockedExchange(&mascotAnimationMode,2);InterlockedExchange(&mascotRequestedBehavior,-1);
                     log_event("score_change_without_home_goal score=%d:%d previous=%d:%d",h,a,oldHome,oldAway);
                 }
             }
