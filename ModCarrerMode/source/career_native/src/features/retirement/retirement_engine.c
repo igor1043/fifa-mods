@@ -341,9 +341,9 @@ static int retirement_find_tables(const unsigned char *data, SIZE_T size,
 static unsigned int retirement_transfer_budget_amount(const char *mode)
 {
     if (mode && _stricmp(mode, "add_transfer_budget_1m") == 0)
-        return 1000000U;
+        return 10000000U;
     if (mode && _stricmp(mode, "add_transfer_budget_3m") == 0)
-        return 3000000U;
+        return 100000000U;
     return 0U;
 }
 
