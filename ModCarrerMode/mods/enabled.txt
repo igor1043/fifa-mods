@@ -5,3 +5,5 @@ career_birthdate_2006\birthyear_range_2006_2012.dll
 substitution_all7_rulescan_native\substitution_all7_rulescan_native.dll
 # Bench expansion candidate: native player preparation, not extra permitted substitutions.
 bench_native12\bench_native12.dll
+# One mascot recessed behind the goal-line boards; native idle and home-goal cheer.
+mascot_single\mascot_goal_line_v13.dll
