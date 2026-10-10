@@ -690,11 +690,11 @@
     },
     "model.rx3": {
       "bytes": 222832,
-      "sha256": "248dc468dd1fe9a0d85fa1b4ea39d1f91be3a903f7616a0d423ee44b0921eb60"
+      "sha256": "b74c6500b8a3c19bc74c49d905c42ae5126d58108e8679814fea662684303149"
     },
     "model_animated.rx3": {
       "bytes": 222832,
-      "sha256": "248dc468dd1fe9a0d85fa1b4ea39d1f91be3a903f7616a0d423ee44b0921eb60"
+      "sha256": "b74c6500b8a3c19bc74c49d905c42ae5126d58108e8679814fea662684303149"
     },
     "textures.rx3": {
       "bytes": 8367504,

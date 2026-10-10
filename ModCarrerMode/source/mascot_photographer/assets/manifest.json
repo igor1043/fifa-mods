@@ -112,12 +112,12 @@
   {
     "path": "data/sceneassets/mascot/569/model.rx3",
     "bytes": 222832,
-    "sha256": "248dc468dd1fe9a0d85fa1b4ea39d1f91be3a903f7616a0d423ee44b0921eb60"
+    "sha256": "b74c6500b8a3c19bc74c49d905c42ae5126d58108e8679814fea662684303149"
   },
   {
     "path": "data/sceneassets/mascot/569/model_animated.rx3",
     "bytes": 222832,
-    "sha256": "248dc468dd1fe9a0d85fa1b4ea39d1f91be3a903f7616a0d423ee44b0921eb60"
+    "sha256": "b74c6500b8a3c19bc74c49d905c42ae5126d58108e8679814fea662684303149"
   },
   {
     "path": "data/sceneassets/mascot/569/textures.rx3",
@@ -165,9 +165,14 @@
     "sha256": "86f3bf1f78244b8a09cf79cd65667390c4e02657a90527c805d02862de2a6646"
   },
   {
+    "path": "ModCarrerMode/source/mascot_photographer/assets/conversion/VASCO/beard_weights_report.json",
+    "bytes": 3382,
+    "sha256": "5a5eb26e656efa16cb20107381a602d4ef83d6f8e4fd1b77ace4e4d003e0d9dd"
+  },
+  {
     "path": "ModCarrerMode/source/mascot_photographer/assets/conversion/VASCO/cheer0.5.png",
-    "bytes": 351481,
-    "sha256": "c7b1ecaa57ba0e995e0e99800ae0af8ade3faa885c1a183c217149b6a5f70887"
+    "bytes": 351064,
+    "sha256": "c69f7808c9f01bd79ae3b0cfe8dc2ec1c07997bb49752a7c9f02483831e348e8"
   },
   {
     "path": "ModCarrerMode/source/mascot_photographer/assets/conversion/VASCO/conversion.json",
@@ -181,13 +186,18 @@
   },
   {
     "path": "ModCarrerMode/source/mascot_photographer/assets/conversion/VASCO/idle0.5.png",
-    "bytes": 352361,
-    "sha256": "b20868c9cc3c802dc2c0e547421b9ee30bd1d24542abc538c937a6114bf6c679"
+    "bytes": 352802,
+    "sha256": "ae56d79e981b643e9b5006cc50eab4d6a96295248ddc1f12bbb1cf302f48f3da"
   },
   {
     "path": "ModCarrerMode/source/mascot_photographer/assets/conversion/VASCO/prepare_package.py",
     "bytes": 4507,
     "sha256": "11637064b6dcf1db70398469a6b08a1292ed5323bf3f28fb45975bc8d116d90b"
+  },
+  {
+    "path": "ModCarrerMode/source/mascot_photographer/assets/conversion/VASCO/repair_vasco_beard_weights.py",
+    "bytes": 4855,
+    "sha256": "83891a5409c11cc6ce9032af2905b6a202057870b561ec42cce6667d39bacfb4"
   },
   {
     "path": "ModCarrerMode/source/mascot_photographer/assets/conversion/VASCO/source_inspection.json",
@@ -197,12 +207,12 @@
   {
     "path": "ModCarrerMode/source/mascot_photographer/assets/conversion/VASCO/validation.json",
     "bytes": 14533,
-    "sha256": "0eed21295c8bfb342f596c660788cfe75fa2c1f8470a6fbeb9188db740537c62"
+    "sha256": "bf892c7f9049b2e9178c51bf00479377f79a382e23f158f3d54e2a42b9c65343"
   },
   {
     "path": "ModCarrerMode/source/mascot_photographer/assets/conversion/VASCO/walk0.5.png",
-    "bytes": 349808,
-    "sha256": "8374516febfe6976aefcd958a84fe9e1bd121cb3af6334fb647a9ac708cf48c3"
+    "bytes": 349973,
+    "sha256": "420b3e6a02d02348a45d7787fb0282be5e0b4cd5549faf4edde0672fdfb75cc4"
   },
   {
     "path": "ModCarrerMode/source/mascot_photographer/assets/originals/FLAMENGO/tripo_convert_59acfebb-40ba-4534-97d8-bab2a83e9ac0.fbm/FLAMENGO_basecolor.JPEG",
