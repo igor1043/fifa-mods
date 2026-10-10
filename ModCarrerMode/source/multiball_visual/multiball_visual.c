@@ -5,11 +5,12 @@
 #include "ball_layout.h"
 typedef void (__fastcall *RenderFn)(void*,int);
 typedef unsigned char (__fastcall *SceneFn)(void*,void*);
-static RenderFn render_original;
+static RenderFn render_original,render_previous;
 static SceneFn bounds_original,shadow_original;
 static uintptr_t base;
 static LONG started,stop_requested,observed;
 static char log_path[MAX_PATH];
+static void event(const char *message);
 static const uintptr_t slots[3]={0x2205ec0,0x2205f98,0x2205f90};
 static const uintptr_t native[3]={0x436b530,0x436b350,0x436ba90};
 static void *hooks[3];
@@ -45,12 +46,10 @@ static BOOL snapshot(void *self,SIZE_T state_offset,unsigned char *object,unsign
 static void __fastcall render_hook(void *self,int phase) {
  __declspec(align(16)) unsigned char object[0x40],state[BALL_STATE_BYTES];
  /* phase 1 is the engine's reset operation, not a draw. */
- render_original(self,phase);
+ render_previous(self,phase);
  if(phase==0 && snapshot(self,0x30,object,state,0)) {
   render_original(object,0);
-  ball_support_snapshot(state);
-  render_original(object,0);
-  if(InterlockedCompareExchange(&observed,1,0)==0)event("drawn 13 visual balls on low rounded holders shared_ball_material");
+  if(InterlockedCompareExchange(&observed,1,0)==0)event("drawn 13 visual balls height=11.1252cm goal_retreat=100cm");
  }
 }
 static unsigned char __fastcall bounds_hook(void *self,void *context) {
@@ -73,9 +72,17 @@ static BOOL exchange(unsigned int i,void *before,void *after) {
  VirtualProtect((void*)slot,8,old,&ignored);
  return seen==before || seen==after;
 }
+static BOOL render_compatible(uintptr_t actual) {
+ HMODULE owner=NULL;char path[MAX_PATH];const char *name;
+ if(actual==base+native[0])return TRUE;
+ if(!GetModuleHandleExA(GET_MODULE_HANDLE_EX_FLAG_FROM_ADDRESS|GET_MODULE_HANDLE_EX_FLAG_UNCHANGED_REFCOUNT,(LPCSTR)actual,&owner))return FALSE;
+ if(!GetModuleFileNameA(owner,path,MAX_PATH))return FALSE;
+ name=strrchr(path,'\\');name=name?name+1:path;
+ return strcmp(name,"flamengo_pyro_v1.dll")==0;
+}
 static BOOL ready(void) {
  unsigned int i;uintptr_t actual;
- for(i=0;i<3;i++)if(!read_at(base+slots[i],&actual,8) || actual!=base+native[i])return FALSE;
+ for(i=0;i<3;i++)if(!read_at(base+slots[i],&actual,8) || (i==0?!render_compatible(actual):actual!=base+native[i]))return FALSE;
  return TRUE;
 }
 static DWORD WINAPI install_worker(void *unused) {
@@ -91,13 +98,14 @@ static DWORD WINAPI install_worker(void *unused) {
  }
  if(stable<3){event("native_slots_unavailable_or_conflict");return 0;}
  render_original=(RenderFn)(base+native[0]);bounds_original=(SceneFn)(base+native[1]);shadow_original=(SceneFn)(base+native[2]);
+ if(!read_at(base+slots[0],&render_previous,8))return 0;
  hooks[0]=(void*)render_hook;hooks[1]=(void*)bounds_hook;hooks[2]=(void*)shadow_hook;
  /* The shadow hook is diagnostic/pass-through; only two slots need mutation. */
  for(i=0;i<2;i++) {
-  if(!exchange(i,(void*)(base+native[i]),hooks[i]))break;
+  if(!exchange(i,i==0?(void*)render_previous:(void*)(base+native[i]),hooks[i]))break;
   installed[i]=TRUE;
  }
- if(i!=2){for(i=0;i<2;i++)if(installed[i]){exchange(i,hooks[i],(void*)(base+native[i]));installed[i]=FALSE;}event("install_failed_rolled_back");return 0;}
+ if(i!=2){for(i=0;i<2;i++)if(installed[i]){exchange(i,hooks[i],i==0?(void*)render_previous:(void*)(base+native[i]));installed[i]=FALSE;}event("install_failed_rolled_back");return 0;}
  event("installed experimental_render_only_13 perimeter_balls no_physics");return 0;
 }
 __declspec(dllexport) unsigned int WINAPI Fifa16ModGetApiVersion(void){return 1;}
@@ -106,13 +114,13 @@ __declspec(dllexport) BOOL WINAPI Fifa16ModStart(const char *mods_root) {
  if(!mods_root || InterlockedCompareExchange(&started,1,0))return FALSE;
  if(_snprintf_s(log_path,sizeof(log_path),_TRUNCATE,"%s\\..\\logs\\multiball_visual.log",mods_root)<0)return FALSE;
  if(!GetModuleHandleExA(GET_MODULE_HANDLE_EX_FLAG_FROM_ADDRESS|GET_MODULE_HANDLE_EX_FLAG_PIN,(LPCSTR)&started,&pinned))return FALSE;
- event("start v3 experimental low_rounded_holders");worker=CreateThread(NULL,0,install_worker,NULL,0,NULL);
+ event("start v16 balls_only_no_cone_no_support goal_retreat=100cm");worker=CreateThread(NULL,0,install_worker,NULL,0,NULL);
  if(!worker)return FALSE;CloseHandle(worker);return TRUE;
 }
 __declspec(dllexport) BOOL WINAPI Fifa16ModStop(void) {
  unsigned int i;BOOL ok=TRUE;InterlockedExchange(&stop_requested,1);
  for(i=0;i<2;i++)if(installed[i]){
-  if(exchange(i,hooks[i],(void*)(base+native[i])))installed[i]=FALSE;else ok=FALSE;
+  if(exchange(i,hooks[i],i==0?(void*)render_previous:(void*)(base+native[i])))installed[i]=FALSE;else ok=FALSE;
  }
  event(ok?"stopped native_slots_restored":"stop_conflict");return ok;
 }

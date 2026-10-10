@@ -38,9 +38,12 @@ int main(){float standing[31][16]={{1.000000000f,0.000000000f,0.000000000f,0.000
  float sitting[31][16];memcpy(sitting,standing,sizeof(sitting));
  for(unsigned int hip : {3u,7u}){const unsigned int knee=hip+1;sitting[knee][13]=sitting[hip][13];sitting[knee][14]=sitting[hip][14]+35;}
  if(mascot_pose_upright(sitting)){puts("FAIL sitting accepted");return 2;}
+ float seatedTransition[31][16];memcpy(seatedTransition,standing,sizeof(seatedTransition));
+ seatedTransition[4][13]=seatedTransition[3][13];seatedTransition[4][14]=seatedTransition[3][14]+35;
+ if(mascot_pose_upright(seatedTransition)){puts("FAIL one-leg seated transition accepted");return 13;}
  float jump[31][16];memcpy(jump,standing,sizeof(jump));for(int i=0;i<31;++i)jump[i][13]+=40;
  if(!mascot_pose_upright(jump)){puts("FAIL upright jump rejected");return 3;}
- unsigned int preferred=0;for(unsigned int seed=1;seed<=10000;++seed){const float z=mascot_lateral_from_seed(seed);if(z<900||z>3150)return 4;if(z==3150)++preferred;}
+ unsigned int preferred=0;for(unsigned int seed=1;seed<=10000;++seed){const float z=mascot_lateral_from_seed(seed);if(fabsf(z)<900||fabsf(z)>3150)return 4;if(z==3150)++preferred;}
  if(preferred<7300||preferred>7700)return 5;
  MascotPlacementChoice p;if(!p.update(1,1035,31,1))return 6;const float start=p.lateral;
  if(p.update(1,1035,31,99999)||p.lateral!=start)return 7;

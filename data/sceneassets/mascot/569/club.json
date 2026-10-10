@@ -1,0 +1,46 @@
+{
+  "id": 569,
+  "name": "Vasco da Gama",
+  "meshSource": "ballboy_0_0_1_0_swarmmesh_mesh.fbx",
+  "textureSource": "specificballboy_569_0_0_textures.rx3",
+  "textureSourceSha256": "cbd5b217abde0c782b3e81d0fb02fb707c9104164fd3a7481a522d20ec4d90b3",
+  "modelSha256": "f711cd96196f992ae908482b94debf0cc40ee17fac33ed1da2cd81a7b9cd3baa",
+  "vertexCount": 14588,
+  "triangleCount": 23612,
+  "boundsCm": {
+    "min": [
+      -48.40625,
+      0.385986328125,
+      -29.078125
+    ],
+    "max": [
+      48.40625,
+      184.25,
+      30.359375
+    ]
+  },
+  "boneCount": 31,
+  "usedBones": [
+    2,
+    3,
+    4,
+    5,
+    7,
+    8,
+    9,
+    11,
+    12,
+    13,
+    14,
+    16,
+    17,
+    18,
+    21,
+    22,
+    23
+  ],
+  "rightArmWeightedVertices": 1279,
+  "leftArmWeightedVertices": 1296,
+  "rigMethod": "31-bone FIFA crowd-rig weights transferred by nearest-surface interpolation",
+  "status": "generated; visual game validation pending"
+}

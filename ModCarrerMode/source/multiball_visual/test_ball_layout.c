@@ -12,7 +12,7 @@ int main(void) {
  for(i=0;i<SPARE_BALLS;i++) {
   float m[16];memcpy(m,copy+0x3b0+(i+1)*64,64);
   assert(fabsf(m[12])>5250 || fabsf(m[14])>3400);
-  assert(m[13]>16 && m[13]<17);assert(m[15]==1);assert(copy[0x7fe + i]);
+  assert(m[13]>11 && m[13]<12);assert(m[15]==1);assert(copy[0x7fe + i]);
  }
  memcpy(copy,source,sizeof(copy));copy[0x50]=0;assert(!ball_expand_snapshot(copy,0));
  memcpy(copy,source,sizeof(copy));copy[0x80e]=1;assert(!ball_expand_snapshot(copy,0));
@@ -22,14 +22,8 @@ int main(void) {
   copy[0x7fe]=1;copy[0x3f0]=123;
   assert(ball_expand_snapshot(copy,0));assert(copy[0x3f0]==123);
   memcpy(&count,copy+0x7f8,4);assert(count==i+13);assert(!copy[0x7fd] && !copy[0x7fe]);
-  memcpy(extra,copy+0x3b0+i*64,64);assert(extra[12]==-5450);
+  memcpy(extra,copy+0x3b0+i*64,64);assert(extra[12]==-5550);
  }
  memcpy(copy,source,sizeof(copy));assert(ball_expand_snapshot(copy,1));assert(copy[0x7fd]);
- ball_support_snapshot(copy);
- for(i=0;i<SPARE_BALLS;i++) {
-  float m[16];memcpy(m,copy+0x3b0+(i+1)*64,64);
-  assert(m[12]==ball_positions[i][0] && m[14]==ball_positions[i][2]);
-  assert(m[13]==2.6f && m[0]>m[5]*6);assert(m[15]==1);
- }
  puts("PASS layout, world units, original slot, menu exclusion, hidden ball, busy slots");return 0;
 }

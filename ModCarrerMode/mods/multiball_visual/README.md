@@ -1,32 +1,32 @@
-# Bolas extras visuais — protótipo v3
+# Bolas extras visuais — v16, somente bolas
 
-DLL independente para FIFA 16 x64, executável PE timestamp `577DE45C`.
-Reutiliza os recursos de modelo/material da bola da partida (renderizador índice 1).
-Não cria entidades, colisões, jogadores, scripts de IA ou bolas de gameplay.
-
-Distribuição inicial: 13 cópias, duas atrás de cada gol e nove nas laterais.
-Coordenadas em centímetros para campo de 105 × 68 m; posições em `ball_layout.h`.
-Centro da bola elevado em 5,2 cm, com suporte baixo arredondado embaixo.
-Sem cones. As cópias são estáticas; o primeiro protótipo não acrescenta sombras.
+Treze cópias estáticas usam a malha e a textura da bola atual do FIFA 16 x64.
+Não possuem física. Centro a 11,1252 cm do gramado, sem cone ou suporte redondo.
+Quatro bolas atrás dos gols em X ±5550 cm: recuo de exatamente 1 metro.
+As demais permanecem nas laterais do campo de 105 × 68 m.
 
 ## Implementação
 
-- Slot virtual `+2205EC0`: desenho nativo `+436B530`, fase 0.
-- Slot virtual `+2205F98`: registro de limites visuais `+436B350`.
-- Objetos de renderização e estado de 0x820 bytes copiados na pilha, alinhados.
-- Estado original protegido pela seção crítica nativa somente durante captura.
-- Preserva os 1–3 slots gráficos já ocupados pelo jogo; cópias usam os próximos
-  13 slots livres, respeitando o limite nativo de 16. Se não houver espaço, pula.
-- O desenho original é executado normalmente, seguido do desenho das cópias.
-- Não modifica posição/matriz/contagem da bola original nem seus recursos.
-- Não altera os hooks de saída de bola, banco, substituição ou mascote.
-- Slots verificados antes da instalação, troca atômica, rollback e API Stop.
-- DLL fixada na memória para callbacks em andamento após desativação.
+A DLL reutiliza os recursos gráficos já carregados da bola da partida.
+Não executa Lua nem cria ou recarrega recursos RX3 durante a renderização.
+Copia o objeto e seu estado gráfico de 0x820 bytes para memória privada.
+Preserva os 1–3 slots originais e acrescenta 13 cópias até o limite de 16.
+Não altera a bola real, a saída de bola, o banco, substituições ou mascote.
+Mantém um callback anterior de pirotecnia reconhecido, quando ele já ocupa o slot.
+A API Stop restaura os callbacks anteriores; a DLL permanece fixada na memória.
 
-`build.cmd` compila os testes de disposição/guardas e a DLL com `/W4 /WX`.
+## Instalação e validação
+
+`multiball_visual_v16.dll` está habilitada no jogo e na pasta de desenvolvimento.
+Os binários nas duas pastas têm o mesmo SHA-256.
+Compilação `/W4 /WX` e testes passaram: distribuição, altura no chão, preservação
+ dos slots originais, exclusão do menu, bola oculta e limite de slots ocupados.
+O próximo reinício do FIFA ainda precisa de conferência visual pelo usuário.
+
+O cone foi abandonado a pedido do usuário depois de novo crash no teste v15.
+Versões v5–v15 e os RX3 usados por elas foram retirados das pastas ativas para
+`mods/multiball_visual/experimental_disabled`. Não são carregados pela v16.
+Código experimental e dumps foram preservados nos estudos, fora do autoload.
+Não houve commit ou push.
+
 Log: `ModCarrerMode/logs/multiball_visual.log`.
-
-Estado: compilado e carregado ao vivo em 10/10/2026. Captura mostrou bolas
-fora do campo; conferência de perto pelo usuário e reinício ainda pendentes.
-Habilitado em `mods/enabled.txt` no jogo e na pasta de desenvolvimento.
-Código e DLL publicados na branch fifa-friends-v12. Validação visual de perto permanece pendente.

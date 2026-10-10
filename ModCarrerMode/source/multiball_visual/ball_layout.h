@@ -5,11 +5,10 @@
 #include <string.h>
 #define BALL_STATE_BYTES 0x820
 #define SPARE_BALLS 13
-#define BALL_SUPPORT_HEIGHT 5.2f
 /* FIFA world coordinates are centimetres: X along the pitch, Z across it. */
 static const float ball_positions[SPARE_BALLS][3] = {
- {-5450,11.1252f,-2016},{-5450,11.1252f,2016},
- {5450,11.1252f,-2016},{5450,11.1252f,2016},
+ {-5550,11.1252f,-2016},{-5550,11.1252f,2016},
+ {5550,11.1252f,-2016},{5550,11.1252f,2016},
  {-4200,11.1252f,-3650},{-2100,11.1252f,-3650},
  {0,11.1252f,-3650},{2100,11.1252f,-3650},{4200,11.1252f,-3650},
  {-4200,11.1252f,3650},{-1400,11.1252f,3650},
@@ -28,7 +27,7 @@ static int ball_expand_snapshot(unsigned char *state, int include_match_ball) {
  for(i=0;i<SPARE_BALLS;i++) {
   float matrix[16]={0};
   matrix[0]=matrix[5]=matrix[10]=scale;matrix[15]=1;
-  matrix[12]=ball_positions[i][0];matrix[13]=ball_positions[i][1]+BALL_SUPPORT_HEIGHT;matrix[14]=ball_positions[i][2];
+  matrix[12]=ball_positions[i][0];matrix[13]=ball_positions[i][1];matrix[14]=ball_positions[i][2];
   memcpy(state+0x3b0+(i+reserved)*64,matrix,sizeof(matrix));
   /* Share the current ball's lighting bindings, not stale spare slot values. */
   memcpy(state+0xa0+(i+reserved)*48,state+0xa0,48);
@@ -37,19 +36,5 @@ static int ball_expand_snapshot(unsigned char *state, int include_match_ball) {
  count=SPARE_BALLS+reserved;memcpy(state+0x7f8,&count,4);
  if(!include_match_ball)for(i=0;i<reserved;i++)state[0x7fd+i]=0;
  return 1;
-}
-/* Low rounded holder: the existing graphical mesh is flattened into a base.
-   This prototype deliberately shares the loaded ball material. */
-static void ball_support_snapshot(unsigned char *state) {
- int count,reserved,i;float scale;
- memcpy(&count,state+0x7f8,4);reserved=count-SPARE_BALLS;
- if(reserved<1 || reserved>3)return;
- memcpy(&scale,state+0x3b0+reserved*64,4);
- for(i=0;i<SPARE_BALLS;i++) {
-  float matrix[16]={0};matrix[0]=matrix[10]=scale*1.45f;
-  matrix[5]=scale*0.2337f;matrix[15]=1;
-  matrix[12]=ball_positions[i][0];matrix[13]=BALL_SUPPORT_HEIGHT*0.5f;matrix[14]=ball_positions[i][2];
-  memcpy(state+0x3b0+(i+reserved)*64,matrix,64);
- }
 }
 #endif

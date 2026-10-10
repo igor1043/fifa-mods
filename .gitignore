@@ -16,8 +16,7 @@ ModCarrerMode/runtime/injury_snapshot.tsv
 # Local backup copies never belong in the published package.
 ModCarrerMode/backups/
 
-# Local mascot assets (documented in README).
-/data/sceneassets/mascot/
+# Mascot runtime assets and animation sources are versioned at user request.
 **/__pycache__/
 ModCarrerMode/source/**/build/
 ModCarrerMode/source/**/backups/

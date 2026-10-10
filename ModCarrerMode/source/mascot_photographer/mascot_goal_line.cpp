@@ -24,6 +24,7 @@ static bool repositionMascot;
 static bool currentClubAnimated;
 static MascotPlacementChoice matchPlacement;
 static float originalPosition[3];
+static float originalYaw;
 static int lastHome = -1, lastStadium = -1, lastLight = -1, lastCold = -1;
 static DWORD lastIdentityCheck, lastDirectionCheck;
 static int lastAttackDirection;
@@ -277,6 +278,7 @@ static bool assign_photographer(void* object, MascotFrameContext& frame)
     const bool packagesChanged=packages!=lastPackageStatus;
     if (newGeometry || newIdentity || packagesChanged) {
         ++mascotPlacementGeneration;
+        if (!newGeometry && mascotWalkRuntime.ready) mascot_walk_restore_live(renderer,records,count);
         if (!newGeometry && repositionMascot && selectedSlot < count) {
             float current[3]; memcpy(current,(void*)(records+selectedSlot*0x50+0x20),sizeof(current));
             if (same_position(current,targetPosition)) memcpy((void*)(records+selectedSlot*0x50+0x20),originalPosition,sizeof(originalPosition));
@@ -308,15 +310,8 @@ static bool assign_photographer(void* object, MascotFrameContext& frame)
         currentClubAnimated=mascot_club_ready(home,true);
         mascot_set_animation_active(repositionMascot && currentClubAnimated,home);
         memcpy(originalPosition,p,sizeof(originalPosition));
+        if(!get(records+selectedSlot*0x50+0x1c,originalYaw))originalYaw=0;
         mascot_position_by_goal_line(p, targetPosition);
-        if(repositionMascot){
-            uintptr_t key=0;int h=-1,a=-1,hs=-1,as=-1;
-            mascot_read_confirmed_score(key,h,a,hs,as,false);
-            const uint64_t tickSeed=GetTickCount64();
-            const uint32_t seed=(uint32_t)tickSeed^(uint32_t)(tickSeed>>32)^(unsigned int)home^(uint32_t)(key>>4);
-            if(matchPlacement.update(key,home,stadium,seed))log_event("match_position_chosen club=%d lateral=%g behind_boards_x=5850 preferred=%u",home,matchPlacement.lateral,(unsigned int)(matchPlacement.lateral==3150.0f));
-            targetPosition[2]=matchPlacement.lateral;
-        }
         lastAttackDirection=0;lastDirectionCheck=0;
         reload_legacy_ballboys(renderer);
         log_event("match_identity home=%d stadium=%d mascot_active=%u",home,stadium,(unsigned int)repositionMascot);
@@ -324,13 +319,21 @@ static bool assign_photographer(void* object, MascotFrameContext& frame)
             (unsigned int)repositionMascot, selectedSlot + 1, p[0], p[1], p[2],
             targetPosition[0], targetPosition[1], targetPosition[2]);
     }
+    if(repositionMascot){
+        const uintptr_t session=(uintptr_t)(unsigned int)InterlockedCompareExchange(&mascotPlacementSession,0,0);
+        const uint64_t tickSeed=GetTickCount64();
+        const uint32_t seed=(uint32_t)tickSeed^(uint32_t)(tickSeed>>32)^(unsigned int)home^(uint32_t)session;
+        if(matchPlacement.update(session,home,stadium,seed))
+            log_event("match_position_chosen club=%d session=%llu lateral=%g behind_boards_x=5850 preferred=%u",home,(unsigned long long)session,matchPlacement.lateral,(unsigned int)(matchPlacement.lateral==3150.0f));
+        targetPosition[2]=matchPlacement.lateral;
+    }
     if (repositionMascot && (!lastDirectionCheck || tick-lastDirectionCheck>=250)) {
         lastDirectionCheck=tick;
         const int direction=mascot_home_native_orientation(home);
         if (direction && direction!=lastAttackDirection) {
             lastAttackDirection=direction;
             targetPosition[0]=mascot_attack_goal_x(direction);
-            targetPosition[2]=mascotGoalLineZ;
+            targetPosition[2]=matchPlacement.lateral;
             log_event("attack_side home=%d direction=%d goal_x=%g target=%g,%g,%g",home,direction,
                 targetPosition[0],targetPosition[0],targetPosition[1],targetPosition[2]);
         }
@@ -353,10 +356,12 @@ static void __fastcall selection_hook(void* renderer)
     MascotFrameContext frame{};
     __try {
         if (assign_photographer(renderer, frame)) mascot_animate_instance(frame);
-        else { mascot_unbind_pose(0,0,0); mascot_set_animation_active(false,-1); }
+        else { mascotWalkRuntime={};mascotNativeClock={};mascot_unbind_pose(0,0,0); mascot_set_animation_active(false,-1); }
     }
     __except(EXCEPTION_EXECUTE_HANDLER) {
-        mascot_unbind_pose(0,0,0); mascot_set_animation_active(false,-1);
+        // A failed scene lookup supplies no ownership proof for old pointers.
+        // Forget them; never write through them during exception recovery.
+        mascotWalkRuntime={};mascotNativeClock={};mascot_unbind_pose(0,0,0); mascot_set_animation_active(false,-1);
         static DWORD lastFaultLog; const DWORD tick=GetTickCount();
         if (!lastFaultLog || tick-lastFaultLog>=1000) {
             lastFaultLog=tick; log_event("assignment_fault; no further writes this frame");
@@ -486,7 +491,7 @@ static DWORD WINAPI worker(void*)
         HANDLE animationThread=CreateThread(nullptr,0,mascot_animation_worker,nullptr,0,nullptr);
         if (animationThread) CloseHandle(animationThread);
         else log_event("animation_score_watcher not_started thread_creation_failed");
-        log_event("installed version=16 mode=approved_corner_native_animation hook=43ac0f1 crowd_hook=4f530aa type=1 prototype=2 resource_refresh=1 startup_retry=1 legacy_ballboys=normal missing_package_guard=1 celebration_ms=26000 performance_revision=1 identity_poll_ms=250 lua_scan_per_frame=0 dynamic_club_packages=1 seated_pose_guard=1 match_lateral_choice=1");
+        log_event("installed version=21 mode=contact_driven_locomotion hook=43ac0f1 crowd_hook=0 type=1 prototype=2 resource_refresh=1 startup_retry=1 legacy_ballboys=normal missing_package_guard=1 celebration_engine_ms=26000 performance_revision=2 identity_poll_ms=250 lua_scan_per_frame=0 dynamic_club_packages=1 seated_pose_guard=1 approved_clips_only=1 turn_before_walk=1 yaw_private_palette=1 idle_blend_ms=450 ground_smoothing_ms=80 restart_session_worker=1 no_consecutive_position_repeat=1 stale_scene_restore=0 waypoint_dwell_seconds=20 waypoint_bag=10 waypoint_interaction_seconds=12");
         return 0;
     }
     log_event("not_installed unsupported_or_conflicting_native_code"); return 4;

@@ -1,0 +1,182 @@
+[
+  {
+    "path": "data/sceneassets/mascot/1035/club.json",
+    "bytes": 4363,
+    "sha256": "34df57f0572b2b2aa68d34d7c6f2a1c1ed806c60d85aab30ea3ba77bcb108157"
+  },
+  {
+    "path": "data/sceneassets/mascot/1035/locomotion_feet.bin",
+    "bytes": 1012,
+    "sha256": "4174c4c119053325d001cfe1c14425a21a18f1aa8a636e887e82d0a9b65db116"
+  },
+  {
+    "path": "data/sceneassets/mascot/1035/model.rx3",
+    "bytes": 418576,
+    "sha256": "7f605bf1a212e43e1f7fea5bdec5f013afc353b2b06c757ccee889cea3bf15d5"
+  },
+  {
+    "path": "data/sceneassets/mascot/1035/model_animated.rx3",
+    "bytes": 418576,
+    "sha256": "7f605bf1a212e43e1f7fea5bdec5f013afc353b2b06c757ccee889cea3bf15d5"
+  },
+  {
+    "path": "data/sceneassets/mascot/1035/textures.rx3",
+    "bytes": 4129184,
+    "sha256": "998bb4265cd115b046f2533dac9401340288ab28481bb1a3da4957b06c384f35"
+  },
+  {
+    "path": "data/sceneassets/mascot/1043/club.json",
+    "bytes": 204,
+    "sha256": "47a0e1727c504716485051d97cb9b17f594b5e4761a0d0733822d54bb7228105"
+  },
+  {
+    "path": "data/sceneassets/mascot/1043/locomotion_feet.bin",
+    "bytes": 1012,
+    "sha256": "343d07c56ff3f8a8a4e8bd019ee7edde25914ddd028c213da348213f831730ca"
+  },
+  {
+    "path": "data/sceneassets/mascot/1043/model.rx3",
+    "bytes": 210048,
+    "sha256": "2f36a7fdabd82958e2ae78256826783d84c04e7691ea9b76d1d5a67696b02119"
+  },
+  {
+    "path": "data/sceneassets/mascot/1043/model_animated.rx3",
+    "bytes": 210048,
+    "sha256": "2f36a7fdabd82958e2ae78256826783d84c04e7691ea9b76d1d5a67696b02119"
+  },
+  {
+    "path": "data/sceneassets/mascot/1043/textures.rx3",
+    "bytes": 8367504,
+    "sha256": "01b8f4331531096e8dce59736537932a00ea5266097455dce78c684d02c0959c"
+  },
+  {
+    "path": "data/sceneassets/mascot/383/club.json",
+    "bytes": 109,
+    "sha256": "43cd799e827ec4c3c98f4e8ba4a30628b7ebf3e52f5e0e2050cfba3e71ce6ff2"
+  },
+  {
+    "path": "data/sceneassets/mascot/383/locomotion_feet.bin",
+    "bytes": 1012,
+    "sha256": "a262f32e41d85ed6cc63ded791331a502455780950f8555e0734981ac571a24b"
+  },
+  {
+    "path": "data/sceneassets/mascot/383/model.rx3",
+    "bytes": 782608,
+    "sha256": "9b1733e10cb49074cb2d39cf34663e15cca60abff1af87959c6bd2da2bec997f"
+  },
+  {
+    "path": "data/sceneassets/mascot/383/model_animated.rx3",
+    "bytes": 782608,
+    "sha256": "164e67480237b1c61ed87fefb044e5098210e3c409f05711966044b366c3b542"
+  },
+  {
+    "path": "data/sceneassets/mascot/383/textures.rx3",
+    "bytes": 37749606,
+    "sha256": "cf5a6fe721396e410a86e3ae96d727b9d5139f0b5a94bca3cafe79ce6d2f73fa"
+  },
+  {
+    "path": "data/sceneassets/mascot/568/club.json",
+    "bytes": 987,
+    "sha256": "ff8f594ec58e09d2d897e7c0dc50966d7ab654d0489c9f4823f286b88f5ef55f"
+  },
+  {
+    "path": "data/sceneassets/mascot/568/locomotion_feet.bin",
+    "bytes": 1012,
+    "sha256": "c565a74d3631c1bec10605c27b78d1948abb1120d2bf0c814673657d627f5245"
+  },
+  {
+    "path": "data/sceneassets/mascot/568/model.rx3",
+    "bytes": 564624,
+    "sha256": "49566501322053f3866e9d98615736a188f1547acdb2c41066cb25f9c094994d"
+  },
+  {
+    "path": "data/sceneassets/mascot/568/model_animated.rx3",
+    "bytes": 564624,
+    "sha256": "49566501322053f3866e9d98615736a188f1547acdb2c41066cb25f9c094994d"
+  },
+  {
+    "path": "data/sceneassets/mascot/568/textures.rx3",
+    "bytes": 4129254,
+    "sha256": "a1b3abf3611e409bcb5136caea29d7d5e4baae63e952a7244a8a08079e0d0362"
+  },
+  {
+    "path": "data/sceneassets/mascot/569/club.json",
+    "bytes": 983,
+    "sha256": "a1ae97e6ff9d5c8e479203e8bdf0b3e788715e2ea2d2937aa45250e04c353899"
+  },
+  {
+    "path": "data/sceneassets/mascot/569/locomotion_feet.bin",
+    "bytes": 1012,
+    "sha256": "faf7b8edf1e2251f936becc67a73b246aa0bc9a1922375c6b0fc4ffa4cb18fa7"
+  },
+  {
+    "path": "data/sceneassets/mascot/569/model.rx3",
+    "bytes": 553104,
+    "sha256": "f711cd96196f992ae908482b94debf0cc40ee17fac33ed1da2cd81a7b9cd3baa"
+  },
+  {
+    "path": "data/sceneassets/mascot/569/model_animated.rx3",
+    "bytes": 553104,
+    "sha256": "f711cd96196f992ae908482b94debf0cc40ee17fac33ed1da2cd81a7b9cd3baa"
+  },
+  {
+    "path": "data/sceneassets/mascot/569/textures.rx3",
+    "bytes": 16778022,
+    "sha256": "cbd5b217abde0c782b3e81d0fb02fb707c9104164fd3a7481a522d20ec4d90b3"
+  },
+  {
+    "path": "ModCarrerMode/source/mascot_photographer/assets/animations/catalog_celebrate.channels.json",
+    "bytes": 212610,
+    "sha256": "8c3a2c4a2520aa12a15ed81723a786902fae056b0786499cebd77b48c2f61eb7"
+  },
+  {
+    "path": "ModCarrerMode/source/mascot_photographer/assets/animations/catalog_idle.channels.json",
+    "bytes": 117368,
+    "sha256": "16b568c73a948efaf149ac83496873b3af7b3c9f7bcb41786e86711252d10222"
+  },
+  {
+    "path": "ModCarrerMode/source/mascot_photographer/assets/animations/cheer_baked.json",
+    "bytes": 489106,
+    "sha256": "14f9bb716234446eb20d25ef49ffb6f8dc11b8c25af3104d46e079c7c00e4e7d"
+  },
+  {
+    "path": "ModCarrerMode/source/mascot_photographer/assets/animations/idle_baked.json",
+    "bytes": 198427,
+    "sha256": "f82ac4e60eed1885ac68b9b75fb5188cb2affddbea34bd68689fd019254309aa"
+  },
+  {
+    "path": "ModCarrerMode/source/mascot_photographer/assets/animations/player_hierarchy.json",
+    "bytes": 31148,
+    "sha256": "a97c38725a47e1e0527f168868f58e0f84a50b949339d52c607766d732352478"
+  },
+  {
+    "path": "ModCarrerMode/source/mascot_photographer/assets/animations/reference_bind.json",
+    "bytes": 6721,
+    "sha256": "5f9a3ea91cd40d18d31da1863598bb4577c9fc2ea19699f3504b8bca3a1d4b3d"
+  },
+  {
+    "path": "ModCarrerMode/source/mascot_photographer/assets/animations/slow_walk_loop.channels.json",
+    "bytes": 123054,
+    "sha256": "9cd8aed6c58aa33460407a4310e8c697f21fa521dc76febcb3e44c7c69c2af0e"
+  },
+  {
+    "path": "ModCarrerMode/source/mascot_photographer/assets/animations/walk_baked.json",
+    "bytes": 204744,
+    "sha256": "86f3bf1f78244b8a09cf79cd65667390c4e02657a90527c805d02862de2a6646"
+  },
+  {
+    "path": "ModCarrerMode/source/mascot_photographer/assets/originals/FLAMENGO/tripo_convert_59acfebb-40ba-4534-97d8-bab2a83e9ac0.fbm/FLAMENGO_basecolor.JPEG",
+    "bytes": 607277,
+    "sha256": "9be2fce2787b9695fb1d31c3f0d390a59cce0ba283b58f34245d89e7ff1bdc0e"
+  },
+  {
+    "path": "ModCarrerMode/source/mascot_photographer/assets/originals/FLAMENGO/tripo_convert_59acfebb-40ba-4534-97d8-bab2a83e9ac0.fbm/FLAMENGO_normal.PNG",
+    "bytes": 4993975,
+    "sha256": "719f63305936990700a180172656ede0aa28e3eebf18803052cbff59b801c593"
+  },
+  {
+    "path": "ModCarrerMode/source/mascot_photographer/assets/originals/FLAMENGO/tripo_convert_59acfebb-40ba-4534-97d8-bab2a83e9ac0.fbx",
+    "bytes": 453116,
+    "sha256": "94b56e3415fee7b07725b9eacb1489ea351d405c448cab2679db294b06756912"
+  }
+]
