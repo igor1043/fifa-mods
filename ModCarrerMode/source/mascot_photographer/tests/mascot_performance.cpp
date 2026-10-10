@@ -11,7 +11,7 @@ static SIZE_T WINAPI counted_query(LPCVOID address, PMEMORY_BASIC_INFORMATION in
     return ::VirtualQuery(address, info, length);
 }
 #define VirtualQuery counted_query
-#include "../mascot_single_v13.cpp"
+#include "../mascot_goal_line.cpp"
 #undef VirtualQuery
 
 static unsigned int checks;
@@ -114,7 +114,7 @@ int main()
     mascot_crowd_assignment_hook(nullptr);
     check(crowdPasses==1 && queryCalls==0,"inactive crowd hook directly passes through");
     frame.renderer=0x10000; frame.records=0x20000; frame.count=40;
-    frame.home=1043; frame.packages=4; frame.generation=1; frame.mascotActive=true;
+    frame.home=1043; frame.packages=4; frame.generation=1; frame.mascotActive=true; frame.packageAnimated=true;
     wcscpy_s(gameDirectory,L"Z:\\__mascot_regression_missing_package__");
     mascot_animate_instance(frame);
     check(!mascotAnimationInitialized && !mascotAnimationEnabled,"missing model safely falls back");

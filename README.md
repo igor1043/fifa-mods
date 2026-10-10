@@ -17,6 +17,12 @@ As ações de aposentadoria e verba são processadas depois que você sai do sav
 
 ### Mods incluídos
 
+- **Mascote:** uma instância por mandante com pacote local; troca de gol no intervalo e comemoração de 26 segundos. [Instalação dos modelos e limitações](ModCarrerMode/source/mascot_photographer/README.md).
+- **Bolas extras:** 13 cópias visuais da bola da partida ao redor do campo, sem física de gameplay.
+- **Saída de bola moderna:** receptor na diagonal, passe para trás e demais cobradores fora do círculo.
+- **Ícones da carreira:** resolução dinâmica de competições e pré-temporada, com catálogo compartilhado.
+
+
 - **Torcida:** estima a ocupação do estádio com base em reputação, adversário, desempenho, competição, rivalidade e importância da partida.
 - **Banco de reservas:** prepara até 12 jogadores reais. O tamanho do banco é independente do limite de substituições.
 - **Sete substituições:** permite até sete trocas por partida.

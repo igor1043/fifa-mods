@@ -29,14 +29,10 @@ local SLC_NUM = 23
 -- Resolve the model during the initial callback; a later activation flag
 -- cannot change resources that have already been prepared.
 local MASCOT_PHOTOGRAPHER_SLEINDEX = 2
-local MASCOT_SLC_PACKAGES = {
-    [1043] = true, -- Flamengo
-    [383] = true   -- Palmeiras
-}
+-- Club IDs come from native validation of installed mascot packages.
 
 local function MascotPackageReady(teamid)
-    return MASCOT_SLC_PACKAGES[teamid] == true and
-        type(FIFA16_MASCOT_PACKAGE_STATUS) == "table" and FIFA16_MASCOT_PACKAGE_STATUS[teamid] == true
+    return type(FIFA16_MASCOT_PACKAGE_STATUS) == "table" and FIFA16_MASCOT_PACKAGE_STATUS[teamid] == true
 end
 
 ---------------------------------------------------------------------------------------------------
@@ -407,7 +403,7 @@ end
 function GetRMSle(idx,isModel)
 	-- These legacy ballboy packages contain the club mascot. Only the
 	-- reserved photographer prototype may use it in the single-mascot mod.
-	if ((db.sle[idx].sletype == SLC_BALLBOY_TYPE or db.sle[idx].sletype == SLC_CHOREO_BALLBOY_TYPE) and MASCOT_SLC_PACKAGES[db.sle[idx].teamid] == true) then
+	if ((db.sle[idx].sletype == SLC_BALLBOY_TYPE or db.sle[idx].sletype == SLC_CHOREO_BALLBOY_TYPE) and MascotPackageReady(db.sle[idx].teamid)) then
         return ""
     end
 	local sleorder = ""

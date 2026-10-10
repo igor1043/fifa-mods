@@ -1,0 +1,243 @@
+diff --git a/ModCarrerMode/docs/integracao-swiss-revisada-20261005.md b/ModCarrerMode/docs/integracao-swiss-revisada-20261005.md
+index 8ace023..4fc6866 100644
+--- a/ModCarrerMode/docs/integracao-swiss-revisada-20261005.md
++++ b/ModCarrerMode/docs/integracao-swiss-revisada-20261005.md
+@@ -2,6 +2,12 @@
+ 
+ ## Estado
+ 
++**Atualização de 06/10:** a revisão foi publicada na branch
++`fifa-friends-v12-integracao-suico`, commit `afb5879`. O usuário relatou uma
++regressão nas abas da carreira. O diagnóstico e a correção em andamento estão
++em [diagnostico-abas-swiss-20261006.md](diagnostico-abas-swiss-20261006.md).
++O funcionamento conjunto da V12 com Swiss ainda não está confirmado.
++
+ Revisão aplicada em `U:\fifa 16`, em 05/10/2026. Dev: `J:\mods\fifa 16\fifa-mods-dev\fifa-mods-dev`, branch `fifa-friends-v12`, base `4693010a0a8c37df94bd6749f4a2e18630eb36f5`. Sem commit ou push.
+ 
+ O build e a conferência de arquivos foram concluídos. **O jogo não foi executado nesta revisão; chegar à seleção de idioma e jogar continuam pendentes de teste pelo usuário.**
+diff --git a/ModCarrerMode/source/career_native/src/host/active_save_probe.inc b/ModCarrerMode/source/career_native/src/host/active_save_probe.inc
+index ac1fc74..00d73e2 100644
+--- a/ModCarrerMode/source/career_native/src/host/active_save_probe.inc
++++ b/ModCarrerMode/source/career_native/src/host/active_save_probe.inc
+@@ -46,6 +46,8 @@ static BOOL get_save_data_path(HANDLE handle, char *path, size_t capacity)
+     wchar_t wide_path[2048];
+     DWORD length;
+     int converted;
++    if (path && capacity)
++        path[0] = '\0';
+     if (!g_get_final_path_name_by_handle_w || !path || capacity == 0)
+         return FALSE;
+     length = g_get_final_path_name_by_handle_w(handle, wide_path,
+@@ -54,7 +56,11 @@ static BOOL get_save_data_path(HANDLE handle, char *path, size_t capacity)
+         return FALSE;
+     converted = WideCharToMultiByte(CP_UTF8, WC_ERR_INVALID_CHARS, wide_path,
+         -1, path, (int)capacity, NULL, NULL);
+-    return converted > 0 && is_fifa_save_data_path(path);
++    if (converted <= 0 || !is_fifa_save_data_path(path)) {
++        path[0] = '\0';
++        return FALSE;
++    }
++    return TRUE;
+ }
+ 
+ static void track_save_data_handle(HANDLE handle)
+@@ -88,6 +94,7 @@ static BOOL take_unreported_save_handle(HANDLE handle, char *path, size_t capaci
+ {
+     SIZE_T index;
+     BOOL found = FALSE;
++    char current_path[1024];
+     if (!path || capacity == 0)
+         return FALSE;
+     path[0] = '\0';
+@@ -102,6 +109,13 @@ static BOOL take_unreported_save_handle(HANDLE handle, char *path, size_t capaci
+         }
+     }
+     ReleaseSRWLockExclusive(&g_save_read_handles_lock);
++    /* Windows can reuse a closed HANDLE for an unrelated asset. Never publish
++     * a cached save name unless it still identifies the open DATA file. */
++    if (found && (!get_save_data_path(handle, current_path, sizeof(current_path))
++        || _stricmp(path, current_path) != 0)) {
++        path[0] = '\0';
++        return FALSE;
++    }
+     return found;
+ }
+ 
+@@ -117,7 +131,8 @@ static void publish_active_save_access(const char *path, const char *operation,
+     HANDLE file;
+     DWORD written = 0;
+     int length;
+-    if (!path || !*path || !operation || bytes_transferred == 0 || !g_mod_dir[0])
++    if (!is_fifa_save_data_path(path) || !operation
++        || bytes_transferred == 0 || !g_mod_dir[0])
+         return;
+     if (!GetProcessTimes(GetCurrentProcess(), &created, &exited, &kernel, &user))
+         return;
+@@ -157,18 +172,41 @@ static void publish_active_save_access(const char *path, const char *operation,
+     }
+ }
+ 
++static void record_career_ui_open(const char *path, HANDLE handle, DWORD error)
++{
++    const char *leaf;
++    const char *cursor;
++    char event[1400];
++    if (!path)
++        return;
++    leaf = path;
++    for (cursor = path; *cursor; ++cursor)
++        if (*cursor == '\\' || *cursor == '/') leaf = cursor + 1;
++    if (_stricmp(leaf, "careermanagerhubcfg.xml") != 0
++        && _stricmp(leaf, "careerhubwidget.big") != 0
++        && _stricmp(leaf, "mainmenuhubflow.nav") != 0)
++        return;
++    snprintf(event, sizeof(event), "career_ui_open success=%d error=%lu path=%s",
++        handle != INVALID_HANDLE_VALUE, (unsigned long)error, path);
++    append_loader_log(event);
++}
++
+ static HANDLE WINAPI create_file_a_capture(
+     LPCSTR name, DWORD access, DWORD share, LPSECURITY_ATTRIBUTES security,
+     DWORD creation, DWORD flags, HANDLE template_file)
+ {
+     HANDLE handle;
++    DWORD error;
+     if (!g_original_create_file_a)
+         return INVALID_HANDLE_VALUE;
+     handle = g_original_create_file_a(name, access, share, security, creation,
+                                       flags, template_file);
++    error = GetLastError();
++    record_career_ui_open(name, handle, error);
+     if (handle != INVALID_HANDLE_VALUE)
+         retirement_engine_note_ui_signal(name);
+     track_save_data_handle(handle);
++    SetLastError(error);
+     return handle;
+ }
+ 
+@@ -177,17 +215,23 @@ static HANDLE WINAPI create_file_w_capture(
+     DWORD creation, DWORD flags, HANDLE template_file)
+ {
+     HANDLE handle;
++    DWORD error;
+     if (!g_original_create_file_w)
+         return INVALID_HANDLE_VALUE;
+     handle = g_original_create_file_w(name, access, share, security, creation,
+                                       flags, template_file);
+-    if (handle != INVALID_HANDLE_VALUE && name) {
++    error = GetLastError();
++    if (name) {
+         char signal_path[1024];
+         if (WideCharToMultiByte(CP_UTF8, WC_ERR_INVALID_CHARS, name, -1,
+-                signal_path, (int)sizeof(signal_path), NULL, NULL) > 0)
+-            retirement_engine_note_ui_signal(signal_path);
++                signal_path, (int)sizeof(signal_path), NULL, NULL) > 0) {
++            record_career_ui_open(signal_path, handle, error);
++            if (handle != INVALID_HANDLE_VALUE)
++                retirement_engine_note_ui_signal(signal_path);
++        }
+     }
+     track_save_data_handle(handle);
++    SetLastError(error);
+     return handle;
+ }
+ 
+@@ -195,13 +239,16 @@ static BOOL WINAPI read_file_capture(HANDLE handle, LPVOID buffer, DWORD length,
+                                      LPDWORD bytes_read, LPOVERLAPPED overlapped)
+ {
+     BOOL result;
++    DWORD error;
+     char path[1024];
+     if (!g_original_read_file)
+         return FALSE;
+     result = g_original_read_file(handle, buffer, length, bytes_read, overlapped);
++    error = GetLastError();
+     if (result && bytes_read && *bytes_read > 0
+         && take_unreported_save_handle(handle, path, sizeof(path)))
+         publish_active_save_access(path, "read", *bytes_read);
++    SetLastError(error);
+     return result;
+ }
+ 
+@@ -211,15 +258,19 @@ static BOOL WINAPI write_file_capture(HANDLE handle, LPCVOID buffer, DWORD lengt
+     BOOL result;
+     char path[1024];
+     DWORD amount;
++    DWORD error;
+     if (!g_original_write_file)
+         return FALSE;
+     path[0] = '\0';
+     /* Do not edit the buffer while Career Mode still owns the save.  Merely
+      * capture the DATA path; the worker applies the pending card action after
+      * FIFA releases the file on leaving the save. */
++    error = GetLastError();
+     (void)get_save_data_path(handle, path, sizeof(path));
++    SetLastError(error);
+     result = g_original_write_file(handle, buffer, length, bytes_written,
+         overlapped);
++    error = GetLastError();
+     amount = bytes_written ? *bytes_written : length;
+     if (result && amount > 0 && path[0]) {
+         publish_active_save_access(path, "write", amount);
+@@ -229,6 +280,7 @@ static BOOL WINAPI write_file_capture(HANDLE handle, LPCVOID buffer, DWORD lengt
+         publish_active_save_access(path, "write", amount);
+         retirement_engine_note_write(path);
+     }
++    SetLastError(error);
+     return result;
+ }
+ 
+diff --git a/ModCarrerMode/source/career_native/src/host/swiss_delta.c b/ModCarrerMode/source/career_native/src/host/swiss_delta.c
+index aaf1de7..fe60f1f 100644
+--- a/ModCarrerMode/source/career_native/src/host/swiss_delta.c
++++ b/ModCarrerMode/source/career_native/src/host/swiss_delta.c
+@@ -30,11 +30,18 @@ static volatile LONG g_started;
+ static SRWLOCK g_log_lock=SRWLOCK_INIT;
+ 
+ static void delta_log(const char *format, ...) {
+-    char line[1024]; va_list args; FILE *out;
++    char line[1024]; va_list args; FILE *out; SYSTEMTIME now;
+     va_start(args,format); vsnprintf(line,sizeof(line),format,args); va_end(args);
++    GetLocalTime(&now);
+     AcquireSRWLockExclusive(&g_log_lock);
+     out=fopen(g_delta.log,"ab");
+-    if(out) { fprintf(out,"[V12 Swiss delta] %s\r\n",line); fclose(out); }
++    if(out) {
++        fprintf(out,"[%04u-%02u-%02u %02u:%02u:%02u] [V12 Swiss delta pid=%lu] %s\r\n",
++            (unsigned)now.wYear,(unsigned)now.wMonth,(unsigned)now.wDay,
++            (unsigned)now.wHour,(unsigned)now.wMinute,(unsigned)now.wSecond,
++            (unsigned long)GetCurrentProcessId(),line);
++        fclose(out);
++    }
+     ReleaseSRWLockExclusive(&g_log_lock);
+ }
+ static BOOL range_valid(DWORD rva, DWORD size) {
+@@ -339,7 +346,7 @@ static DWORD WINAPI delta_worker(LPVOID unused) {
+     snprintf(runtime_log,sizeof(runtime_log),"%s\\logs\\swiss_delta_patches.log",g_delta.mod);
+     g_delta.log_handle=CreateFileA(runtime_log,FILE_APPEND_DATA,FILE_SHARE_READ|FILE_SHARE_WRITE,NULL,OPEN_ALWAYS,FILE_ATTRIBUTE_NORMAL,NULL);
+     memcpy(g_delta.image+0x1C020,&g_delta.log_handle,8);
+-    delta_log("revision 3: original L9.65 retained; starting after original DirectInput succeeded");
++    delta_log("revision 4 diagnostics: original L9.65 retained; starting after original DirectInput succeeded");
+     if(active("Trikotschluessel",0)) start_byte_job(0);
+     if(active("Ligengroesse",0)) start_byte_job(1);
+     if(active("Karrierewaechter",1)) start_selected("career lookup guard",0x4C80);
+diff --git a/README.md b/README.md
+index 15ca9c2..5dc21e0 100644
+--- a/README.md
++++ b/README.md
+@@ -25,7 +25,11 @@ Ao clicar, o fluxo faz autosave e exibe a orientação para fechar o FIFA comple
+ 
+ O `Server16Python.exe` acompanha as duas edições. Ele mantém os ajustes de escolha de estádio, público ao iniciar e volume da torcida. Os estádios disponíveis dependem do conteúdo instalado no FIFA/FSW/StadiumGBD; o pacote não contém os arquivos completos do jogo ou todos os estádios.
+ 
+-O ajuste manual do servidor e a estimativa automática do mod são controles diferentes. O mod usa `ModCarrerMode/crowd.ini`; `automatic_dynamic_controller=1` mantém o cálculo automático. Para usar um percentual manual, desative esse controlador e configure o modo manual adequado à sua instalação.
++O público escolhido no painel do Server16Python vale somente para a partida atual. Ao voltar ao menu da carreira, esse ajuste é descartado; na próxima partida, o mod dinâmico volta a determinar o público. Para alterar novamente, aplique um novo percentual no painel antes dessa partida. O servidor não salva esse percentual no `ModCarrerMode/crowd.ini`.
++
++Mantenha `automatic_dynamic_controller=1` para o cálculo automático do mod. Não é necessário desativá-lo para fazer uma escolha temporária no painel do servidor. O modo manual permanente do `crowd.ini` é uma configuração diferente.
++
++Revisão de 04/10/2026: conferida a liberação do público manual entre partidas, inclusive quando o próximo confronto tem os mesmos times. O `Server16Python.exe` deste pacote contém também os ajustes recentes de tamanho do painel, navegação por F2/controle e cursor visível. A revisão automatizada não substitui a confirmação dentro do FIFA.
+ 
+ ## Instalação
+ 
+diff --git a/dinput8.dll b/dinput8.dll
+index 43085c8..d30ca10 100644
+Binary files a/dinput8.dll and b/dinput8.dll differ

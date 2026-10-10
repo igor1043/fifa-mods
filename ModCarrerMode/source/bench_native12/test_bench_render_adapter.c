@@ -69,8 +69,8 @@ static int test_callbacks(void)
     const SIZE_T image_size=0x4380000U;
     unsigned char *image=(unsigned char *)VirtualAlloc(NULL,image_size,MEM_RESERVE|MEM_COMMIT,PAGE_READWRITE);
     unsigned char *engine=(unsigned char *)VirtualAlloc(NULL,0xB000U,MEM_RESERVE|MEM_COMMIT,PAGE_READWRITE);
-    unsigned char objects[5][40]={{0}};
-    unsigned char parameters[5][0x900]={{0}};
+    unsigned char objects[7][40]={{0}};
+    unsigned char parameters[7][0x900]={{0}};
     BenchRenderRoster roster;
     void *load;
     typedef void (__fastcall *ActivityFn)(void *,unsigned char);
@@ -119,7 +119,7 @@ static int test_callbacks(void)
             set_u32(team+0x200U+index*0x330U,roster.role[side][index]);
         }
     }
-    for (index=0;index<5;++index) {
+    for (index=0;index<7;++index) {
         set_ptr(objects[index],(uintptr_t)image+0x2207230U);
         set_ptr(objects[index]+0x18U,(uintptr_t)parameters[index]);
         set_u32(parameters[index]+0x80U,0x11U);
@@ -183,6 +183,28 @@ static int test_callbacks(void)
     if (*(uint32_t *)(parameters[1]+0x80U)!=0x1BU || hides!=6) return 33;
     activity(objects[1],1);
     if (hides!=6) return 34;
+    /* Missed opening descriptor: the first Show arrives without a bench
+     * load classification. Never hide an active extra, even with stale role. */
+    set_ptr(image+BENCH_RENDER_TABLE+31U*8U,(uintptr_t)objects[5]);
+    set_u32(image+BENCH_RENDER_IDENTITIES+31U*8U,119);
+    set_u32(image+BENCH_RENDER_IDENTITIES+31U*8U+4U,0);
+    show(objects[5]);
+    if(shows!=9 || hides!=6)return 35;
+    set_u32(parameters[5]+0x80U,0x19U);
+    show(objects[5]);
+    if(shows!=9 || hides!=7 || *(uint32_t *)(parameters[5]+0x80U)!=0x1BU)return 36;
+    activity(objects[5],0);show(objects[5]);
+    if(shows!=11 || hides!=7 || *(uint32_t *)(parameters[5]+0x80U)!=0x11U)return 37;
+    /* A false opening bench flag also recovers after the native load, but
+     * subsequent real activation still releases the SAME reused RNA model. */
+    set_ptr(image+BENCH_RENDER_TABLE+32U*8U,(uintptr_t)objects[6]);
+    set_u32(image+BENCH_RENDER_IDENTITIES+32U*8U,120);
+    set_u32(image+BENCH_RENDER_IDENTITIES+32U*8U+4U,0);
+    set_u32(parameters[6]+0x80U,0x19U);
+    set_u32(descriptor+0x24U,120);set_u32(descriptor+0x10U,0);
+    if(!test_bench_render_load_bridge(objects[6],descriptor,0,load) || hides!=8)return 38;
+    activity(objects[6],0);
+    if(shows!=12 || hides!=8 || *(uint32_t *)(parameters[6]+0x80U)!=0x11U)return 39;
     if (!bench_render_remove() ||
         memcmp(image+BENCH_RENDER_LOAD_CALL,context+8,5U) ||
         memcmp(image+BENCH_RENDER_ACTIVITY_CALL,activity_context+10,5U) ||

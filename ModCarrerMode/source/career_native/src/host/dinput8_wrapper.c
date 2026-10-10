@@ -2045,6 +2045,13 @@ static BOOL is_readable_range(const void *address, SIZE_T size)
 }
 
 
+static BOOL career_ui_competition_exists(int asset)
+{
+    typedef int (WINAPI *HasCompetitionFn)(int);
+    HMODULE module=GetModuleHandleA("career_ui_assets.dll");
+    HasCompetitionFn has=module?(HasCompetitionFn)GetProcAddress(module,"Fifa16UiAssetsHasCompetition"):NULL;
+    return has && has(asset);
+}
 static BOOL calendar_competition_asset_exists(int competition_id)
 {
     char path[MAX_PATH];
@@ -2057,7 +2064,7 @@ static BOOL calendar_competition_asset_exists(int competition_id)
         "cmCalendarCompetitions%d.dds",
         g_game_dir,
         competition_id);
-    return GetFileAttributesA(path) != INVALID_FILE_ATTRIBUTES;
+    return GetFileAttributesA(path) != INVALID_FILE_ATTRIBUTES || career_ui_competition_exists(competition_id);
 }
 
 
@@ -2068,8 +2075,20 @@ static BOOL calendar_competition_asset_exists(int competition_id)
 static short g_compdata_parent[65536];
 static unsigned char g_compdata_type[65536];
 static int g_compdata_asset[65536];
+static int g_competition_icon_asset_by_id[65536];
 static unsigned char g_calendar_direct_asset[65536];
 static volatile LONG g_compdata_index_state;
+
+typedef int (WINAPI *UiCompetitionAssetFn)(int,const void *);
+static int career_ui_competition_asset(int root,const void *owner)
+{
+    BYTE *registry=NULL;HMODULE plugin;UiCompetitionAssetFn resolve;
+    if(owner && is_readable_range((const BYTE*)owner+8,sizeof(registry)))memcpy(&registry,(const BYTE*)owner+8,sizeof(registry));
+    plugin=GetModuleHandleA("career_ui_assets.dll");
+    if(!plugin)return 0;
+    resolve=(UiCompetitionAssetFn)GetProcAddress(plugin,"Fifa16UiAssetsResolveCompetition");
+    return resolve?resolve(root,registry):0;
+}
 
 static void load_compdata_competition_index(void)
 {
@@ -2115,6 +2134,26 @@ static void load_compdata_competition_index(void)
         }
         fclose(file);
     }
+    /* The server IDs are stable competition identities, while UI DDS files
+     * use the legacy resource IDs. Keep that relationship in a text catalogue
+     * so career screens can share one mapping without changing the DB. */
+    snprintf(path, sizeof(path),
+        "%s\\data\\catalogs\\career_competition_icon_map.tsv", g_mod_dir);
+    file = fopen(path, "rb");
+    if (file)
+    {
+        while (fgets(line, sizeof(line), file))
+        {
+            int competition_id, asset_id;
+            if (line[0] == '#' || line[0] == '\r' || line[0] == '\n')
+                continue;
+            if (sscanf(line, "%d|%d", &competition_id, &asset_id) == 2
+                && competition_id > 0 && competition_id <= 65535
+                && asset_id > 0 && asset_id <= 65535)
+                g_competition_icon_asset_by_id[competition_id] = asset_id;
+        }
+        fclose(file);
+    }
     /* FIFA Friends/FSW declares the installed competition identities in its
      * [movies] section. These IDs can collide numerically with FCE stage
      * objects (for example 1707), so an explicit installed competition must
@@ -2145,6 +2184,58 @@ static void load_compdata_competition_index(void)
         fclose(file);
     }
     InterlockedExchange(&g_compdata_index_state, 2);
+}
+
+static int career_competition_icon_asset(int competition_id)
+{
+    if (competition_id <= 0 || competition_id > 65535)
+        return 0;
+    if (InterlockedCompareExchange(&g_compdata_index_state, 0, 0) == 0)
+        load_compdata_competition_index();
+    if (InterlockedCompareExchange(&g_compdata_index_state, 0, 0) != 2)
+        return 0;
+    return g_competition_icon_asset_by_id[competition_id];
+}
+
+static int calendar_competition_root_from_compdata(int object_id)
+{
+    int hop;
+    if (InterlockedCompareExchange(&g_compdata_index_state, 0, 0) == 0)
+        load_compdata_competition_index();
+    if (InterlockedCompareExchange(&g_compdata_index_state, 0, 0) != 2)
+        return 0;
+    for (hop = 0; hop < 64 && object_id >= 0 && object_id <= 65535; ++hop)
+    {
+        if (g_compdata_type[object_id] == 3)
+            return object_id;
+        object_id = g_compdata_parent[object_id];
+    }
+    return 0;
+}
+
+static int calendar_competition_root_from_model(int object_id)
+{
+    FceLiveSnapshot *snapshot;
+    const FceModel *model;
+    FceCompetition competition;
+    int root = 0;
+    snapshot = fce_runtime_cached_acquire();
+    model = fce_runtime_model(snapshot);
+    if (model && fce_resolve_competition(model->nodes, model->node_count,
+            object_id, &competition) == FCE_OK)
+        root = competition.competition;
+    fce_runtime_release(snapshot);
+    return root;
+}
+
+static int calendar_mapped_competition_asset(int object_id)
+{
+    int root = calendar_competition_root_from_model(object_id);
+    if (!root)
+        root = calendar_competition_root_from_compdata(object_id);
+    if (!root)
+        root = object_id;
+    return career_competition_icon_asset(root);
 }
 
 static int calendar_competition_asset_from_compdata(int object_id)
@@ -2236,11 +2327,31 @@ static int calendar_asset_for_date_capture(
      * each rendered cell, so it must never be used to validate a fixture. */
     /* Expansion Compdata exposes Supercopa Rei through both its root object
      * (1687) and related tournament object (1688).  They share l9.dds. */
-    int candidate =
+    int candidate = career_ui_competition_asset(competition_id,calendar_service);
+    if(!candidate)candidate=career_ui_competition_asset(related_id,calendar_service);
+    if(!candidate)candidate=
         (competition_id == 1687 || competition_id == 1688
             || related_id == 1687 || related_id == 1688)
         ? 9
         : 0;
+    if (!candidate)
+    {
+        int mapped = calendar_mapped_competition_asset(competition_id);
+        if (mapped > 0 && calendar_competition_asset_exists(mapped))
+            candidate = mapped;
+    }
+    if (!candidate)
+    {
+        int mapped = calendar_mapped_competition_asset(related_id);
+        if (mapped > 0 && calendar_competition_asset_exists(mapped))
+            candidate = mapped;
+    }
+    if (!candidate)
+    {
+        int mapped = calendar_mapped_competition_asset(stage_id);
+        if (mapped > 0 && calendar_competition_asset_exists(mapped))
+            candidate = mapped;
+    }
     if (!candidate && InterlockedCompareExchange(&g_compdata_index_state,0,0) == 0)
         load_compdata_competition_index();
     if (!candidate && competition_id >= 0 && competition_id <= 65535

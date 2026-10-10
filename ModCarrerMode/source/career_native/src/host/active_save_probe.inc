@@ -46,6 +46,8 @@ static BOOL get_save_data_path(HANDLE handle, char *path, size_t capacity)
     wchar_t wide_path[2048];
     DWORD length;
     int converted;
+    if (path && capacity)
+        path[0] = '\0';
     if (!g_get_final_path_name_by_handle_w || !path || capacity == 0)
         return FALSE;
     length = g_get_final_path_name_by_handle_w(handle, wide_path,
@@ -54,7 +56,11 @@ static BOOL get_save_data_path(HANDLE handle, char *path, size_t capacity)
         return FALSE;
     converted = WideCharToMultiByte(CP_UTF8, WC_ERR_INVALID_CHARS, wide_path,
         -1, path, (int)capacity, NULL, NULL);
-    return converted > 0 && is_fifa_save_data_path(path);
+    if (converted <= 0 || !is_fifa_save_data_path(path)) {
+        path[0] = '\0';
+        return FALSE;
+    }
+    return TRUE;
 }
 
 static void track_save_data_handle(HANDLE handle)
@@ -88,6 +94,7 @@ static BOOL take_unreported_save_handle(HANDLE handle, char *path, size_t capaci
 {
     SIZE_T index;
     BOOL found = FALSE;
+    char current_path[1024];
     if (!path || capacity == 0)
         return FALSE;
     path[0] = '\0';
@@ -102,6 +109,13 @@ static BOOL take_unreported_save_handle(HANDLE handle, char *path, size_t capaci
         }
     }
     ReleaseSRWLockExclusive(&g_save_read_handles_lock);
+    /* Windows can reuse a closed HANDLE for an unrelated asset. Never publish
+     * a cached save name unless it still identifies the open DATA file. */
+    if (found && (!get_save_data_path(handle, current_path, sizeof(current_path))
+        || _stricmp(path, current_path) != 0)) {
+        path[0] = '\0';
+        return FALSE;
+    }
     return found;
 }
 
@@ -117,7 +131,8 @@ static void publish_active_save_access(const char *path, const char *operation,
     HANDLE file;
     DWORD written = 0;
     int length;
-    if (!path || !*path || !operation || bytes_transferred == 0 || !g_mod_dir[0])
+    if (!is_fifa_save_data_path(path) || !operation
+        || bytes_transferred == 0 || !g_mod_dir[0])
         return;
     if (!GetProcessTimes(GetCurrentProcess(), &created, &exited, &kernel, &user))
         return;
@@ -157,18 +172,41 @@ static void publish_active_save_access(const char *path, const char *operation,
     }
 }
 
+static void record_career_ui_open(const char *path, HANDLE handle, DWORD error)
+{
+    const char *leaf;
+    const char *cursor;
+    char event[1400];
+    if (!path)
+        return;
+    leaf = path;
+    for (cursor = path; *cursor; ++cursor)
+        if (*cursor == '\\' || *cursor == '/') leaf = cursor + 1;
+    if (_stricmp(leaf, "careermanagerhubcfg.xml") != 0
+        && _stricmp(leaf, "careerhubwidget.big") != 0
+        && _stricmp(leaf, "mainmenuhubflow.nav") != 0)
+        return;
+    snprintf(event, sizeof(event), "career_ui_open success=%d error=%lu path=%s",
+        handle != INVALID_HANDLE_VALUE, (unsigned long)error, path);
+    append_loader_log(event);
+}
+
 static HANDLE WINAPI create_file_a_capture(
     LPCSTR name, DWORD access, DWORD share, LPSECURITY_ATTRIBUTES security,
     DWORD creation, DWORD flags, HANDLE template_file)
 {
     HANDLE handle;
+    DWORD error;
     if (!g_original_create_file_a)
         return INVALID_HANDLE_VALUE;
     handle = g_original_create_file_a(name, access, share, security, creation,
                                       flags, template_file);
+    error = GetLastError();
+    record_career_ui_open(name, handle, error);
     if (handle != INVALID_HANDLE_VALUE)
         retirement_engine_note_ui_signal(name);
     track_save_data_handle(handle);
+    SetLastError(error);
     return handle;
 }
 
@@ -177,17 +215,23 @@ static HANDLE WINAPI create_file_w_capture(
     DWORD creation, DWORD flags, HANDLE template_file)
 {
     HANDLE handle;
+    DWORD error;
     if (!g_original_create_file_w)
         return INVALID_HANDLE_VALUE;
     handle = g_original_create_file_w(name, access, share, security, creation,
                                       flags, template_file);
-    if (handle != INVALID_HANDLE_VALUE && name) {
+    error = GetLastError();
+    if (name) {
         char signal_path[1024];
         if (WideCharToMultiByte(CP_UTF8, WC_ERR_INVALID_CHARS, name, -1,
-                signal_path, (int)sizeof(signal_path), NULL, NULL) > 0)
-            retirement_engine_note_ui_signal(signal_path);
+                signal_path, (int)sizeof(signal_path), NULL, NULL) > 0) {
+            record_career_ui_open(signal_path, handle, error);
+            if (handle != INVALID_HANDLE_VALUE)
+                retirement_engine_note_ui_signal(signal_path);
+        }
     }
     track_save_data_handle(handle);
+    SetLastError(error);
     return handle;
 }
 
@@ -195,13 +239,16 @@ static BOOL WINAPI read_file_capture(HANDLE handle, LPVOID buffer, DWORD length,
                                      LPDWORD bytes_read, LPOVERLAPPED overlapped)
 {
     BOOL result;
+    DWORD error;
     char path[1024];
     if (!g_original_read_file)
         return FALSE;
     result = g_original_read_file(handle, buffer, length, bytes_read, overlapped);
+    error = GetLastError();
     if (result && bytes_read && *bytes_read > 0
         && take_unreported_save_handle(handle, path, sizeof(path)))
         publish_active_save_access(path, "read", *bytes_read);
+    SetLastError(error);
     return result;
 }
 
@@ -211,15 +258,19 @@ static BOOL WINAPI write_file_capture(HANDLE handle, LPCVOID buffer, DWORD lengt
     BOOL result;
     char path[1024];
     DWORD amount;
+    DWORD error;
     if (!g_original_write_file)
         return FALSE;
     path[0] = '\0';
     /* Do not edit the buffer while Career Mode still owns the save.  Merely
      * capture the DATA path; the worker applies the pending card action after
      * FIFA releases the file on leaving the save. */
+    error = GetLastError();
     (void)get_save_data_path(handle, path, sizeof(path));
+    SetLastError(error);
     result = g_original_write_file(handle, buffer, length, bytes_written,
         overlapped);
+    error = GetLastError();
     amount = bytes_written ? *bytes_written : length;
     if (result && amount > 0 && path[0]) {
         publish_active_save_access(path, "write", amount);
@@ -229,6 +280,7 @@ static BOOL WINAPI write_file_capture(HANDLE handle, LPCVOID buffer, DWORD lengt
         publish_active_save_access(path, "write", amount);
         retirement_engine_note_write(path);
     }
+    SetLastError(error);
     return result;
 }
 

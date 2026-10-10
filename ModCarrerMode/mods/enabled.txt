@@ -6,7 +6,12 @@ substitution_all7_rulescan_native\substitution_all7_rulescan_native.dll
 # Bench expansion candidate: native player preparation, not extra permitted substitutions.
 bench_native12\bench_native12.dll
 # One mascot recessed behind the goal-line boards; native idle and home-goal cheer.
-mascot_single\mascot_goal_line_v13.dll
-
+mascot_single\mascot_goal_line.dll
 # Experimental tournament reload: unique root mask, revision 3.
 tournament_compat_native\tournament_compat_native.dll
+# Career preseason icons and missing goalkeeper thumbnails.
+career_ui_assets\career_ui_assets.dll
+# Modern kickoff v10: diagonal receiver, backward pass and other starters outside circle.
+kickoff_modern_v10\kickoff_modern_v10.dll
+# Visual spare balls: 13 static copies of the current match ball, no physics.
+multiball_visual\multiball_visual_v3.dll

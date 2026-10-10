@@ -1,0 +1,40 @@
+FIFA 16 CompData Patcher v6.6 UPDATE
+DonnieDarko666/VivianRoberto/DonTM
+
+Base=0x140000000 Size=0x9524000
+
+Scan #1...Init cluster at offset 0x5BD0967
+  34 BA instrs
+  [OK] advancement: 4000->10000 --> 4043 - 40,43%
+  [OK] compavg: 100->2000 --> 144 - 0,07%
+  [OK] compobj: 2000->6000 --> 2292 - 38,2%
+  [OK] initteams: 500->2000 --> 683 - 34,15%
+  [OK] fixture: 4000->7000 --> ???
+  [OK] schedule: 7000->15000 --> 6118 - 40,78%
+  [OK] tasks: 800->3000 --> 1296 - 43,2%
+  [OK] settings: 4000->15000 --> 5094 - 33,96%
+  [OK] stagadv: 100->2000 --> ???
+  [OK] standings: 5300->15000 --> 6900 - 46%
+  [OK] stats: 7000->10000 --> ???
+  [OK] weather: 330->2000 --> 544 - 27,2%
+  activeteams obf at 0x5BD08B9
+  [OK] activeteams: 64->512 --> 64 - 12,5%
+Total: 13 patches
+
+Scan #1...Init cluster at offset 0x5BD0967
+  34 BA instrs
+  [OK] advancement: 4000->8000 --> 4043 - 50,53%
+  [OK] compids: 100->500 --> 144 - 28,8%
+  [OK] compobj: 2000->4000 --> 2292 - 57,3%
+  [OK] initteams: 500->2000 --> 683 - 34,15%
+  [OK] settings: 4000->5000 --> 5092 *** - 101,8%
+  [OK] schedule: 7000->15000 --> 6118 - 40,78%
+  [OK] tasks: 800->1500 --> 1296 - 86,4%
+  [OK] settings2: 4000->5000 --> 5092 *** - 101,8%
+  [OK] compids2: 100->500 --> 144 - 28,8%
+  [OK] standings: 5300->10000 --> 6900 - 69%
+  [SKIP] table2048
+  [OK] weather: 330->2000 --> 544 - 27,2%
+  activeteams obf at 0x5BD08B9
+  [OK] activeteams: 64->512 - fixo
+Total: 12 patches

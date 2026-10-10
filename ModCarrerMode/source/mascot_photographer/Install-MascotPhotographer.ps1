@@ -1,7 +1,7 @@
 param([string]$GameRoot = 'U:\fifa 16', [switch]$VerifyOnly)
 $ErrorActionPreference = 'Stop'
 $running = Get-Process FIFA16 -ErrorAction SilentlyContinue
-if (-not $VerifyOnly -and $running -and @($running.Modules | Where-Object ModuleName -eq 'mascot_goal_line_v13.dll').Count) {
+if (-not $VerifyOnly -and $running -and @($running.Modules | Where-Object ModuleName -match '^mascot_.*\.dll$').Count) {
     throw 'A DLL corner já está carregada; feche o FIFA antes de substituir essa versão.'
 }
 $repo = [IO.Path]::GetFullPath((Join-Path $PSScriptRoot '..\..\..'))
@@ -9,7 +9,7 @@ $game = (Resolve-Path -LiteralPath $GameRoot).Path.TrimEnd('\')
 if (-not (Test-Path -LiteralPath (Join-Path $game 'FIFA16.exe'))) { throw 'Destino sem FIFA16.exe.' }
 if ($game -eq $repo) { throw 'Destino deve ser o jogo, não a cópia de desenvolvimento.' }
 $luaRelative = 'data\fifarna\lua\assets\sle.lua'
-$dllRelative = 'ModCarrerMode\mods\mascot_single\mascot_goal_line_v13.dll'
+$dllRelative = 'ModCarrerMode\mods\mascot_single\mascot_goal_line.dll'
 $enabledRelative = 'ModCarrerMode\mods\enabled.txt'
 $luaSource = Join-Path $repo $luaRelative
 $dllSource = Join-Path $repo $dllRelative
@@ -29,11 +29,15 @@ if (Test-Path -LiteralPath $statePath) {
 }
 if ((Get-FileHash -LiteralPath $luaTarget).Hash -notin $allowed) { throw 'O Lua do jogo recebeu outra alteração; instalação interrompida para preservá-la.' }
 $assetFiles = @()
-foreach ($club in @(1043,383)) {
+# Optional packages discovered by numeric club ID.
+$assetRoot = Join-Path $repo 'data\sceneassets\mascot'
+foreach ($directory in @(Get-ChildItem -LiteralPath $assetRoot -Directory -ErrorAction SilentlyContinue | Where-Object { $_.Name -match '^\d+$' })) {
+    $club = $directory.Name
+    if (-not (Test-Path -LiteralPath (Join-Path $directory.FullName 'model.rx3')) -or -not (Test-Path -LiteralPath (Join-Path $directory.FullName 'textures.rx3'))) { Write-Warning "Pacote incompleto ignorado: $club"; continue }
     foreach ($name in @('model.rx3','textures.rx3','model_animated.rx3')) {
         $relative = "data\sceneassets\mascot\$club\$name"
         $source = Join-Path $repo $relative
-        if (-not (Test-Path -LiteralPath $source -PathType Leaf)) { throw "Pacote de mascote incompleto: $source" }
+        if (-not (Test-Path -LiteralPath $source -PathType Leaf)) { continue }
         $assetFiles += [pscustomobject]@{Source=$source;Target=(Join-Path $game $relative);Relative=$relative}
     }
 }
@@ -45,7 +49,7 @@ if ($VerifyOnly) {
         if (-not (Test-Path -LiteralPath $asset.Target) -or (Get-FileHash -LiteralPath $asset.Source).Hash -ne (Get-FileHash -LiteralPath $asset.Target).Hash) { throw "Asset divergente: $($asset.Target)" }
     }
     $entries = @([IO.File]::ReadAllLines($enabledTarget) | Where-Object { $_.Trim() -match '^mascot_single\\.*\.dll$' })
-    if ($entries.Count -ne 1 -or $entries[0].Trim() -ne 'mascot_single\mascot_goal_line_v13.dll') { throw 'Registro do plugin divergente.' }
+    if ($entries.Count -ne 1 -or $entries[0].Trim() -ne 'mascot_single\mascot_goal_line.dll') { throw 'Registro do plugin divergente.' }
     [pscustomobject]@{Game=$game;Version=13;Verified=$true;Assets=$assetFiles.Count;AutomaticPlugin=$entries[0].Trim()}
     return
 }
@@ -74,9 +78,9 @@ foreach ($asset in $assetFiles) {
 }
 Copy-Item -LiteralPath $dllSource -Destination $dllTarget -Force
 Copy-Item -LiteralPath $luaSource -Destination $luaTarget -Force
-$entry = 'mascot_single\mascot_goal_line_v13.dll'
+$entry = 'mascot_single\mascot_goal_line.dll'
 $enabled = [IO.File]::ReadAllText($enabledTarget)
-$enabled = (($enabled -split '\r?\n') | Where-Object { $_.Trim() -notin @('mascot_single\mascot_single.dll','mascot_single\mascot_corner.dll','mascot_single\mascot_goal_line.dll','mascot_single\mascot_goal_line_v6.dll','mascot_single\mascot_goal_line_v7.dll','mascot_single\mascot_goal_line_v8.dll','mascot_single\mascot_goal_line_v9.dll','mascot_single\mascot_goal_line_v10.dll','mascot_single\mascot_goal_line_v11.dll','mascot_single\mascot_goal_line_v12.dll','mascot_single\mascot_goal_line_v13.dll') }) -join "`r`n"
+$enabled = (($enabled -split '\r?\n') | Where-Object { $_.Trim() -notmatch '^mascot_single\\.*\.dll$' }) -join "`r`n"
 $enabled = $enabled.Replace('# Mascote em uma única instância de fotógrafo.','# Mascote: uma posição perto de uma esquina do campo.').Replace('# Mascote: diagnóstico nos fotógrafos de número par.','# Mascote: uma posição perto de uma esquina do campo.')
 if ($entry -notin @($enabled -split '\r?\n' | ForEach-Object { $_.Trim() })) {
     [IO.File]::WriteAllText($enabledTarget,$enabled.TrimEnd()+"`r`n"+$entry+"`r`n",[Text.UTF8Encoding]::new($false))

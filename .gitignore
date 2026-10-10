@@ -15,3 +15,19 @@ ModCarrerMode/runtime/career_active_save*
 ModCarrerMode/runtime/injury_snapshot.tsv
 # Local backup copies never belong in the published package.
 ModCarrerMode/backups/
+
+# Local mascot assets (documented in README).
+/data/sceneassets/mascot/
+**/__pycache__/
+ModCarrerMode/source/**/build/
+ModCarrerMode/source/**/backups/
+# Disabled experimental DLLs remain local; sources are preserved.
+ModCarrerMode/mods/kickoff_modern/
+ModCarrerMode/mods/kickoff_modern_v6/
+ModCarrerMode/mods/kickoff_modern_v8/
+ModCarrerMode/mods/kickoff_modern_v9/
+ModCarrerMode/mods/multiball_visual/multiball_visual_v1.dll
+ModCarrerMode/mods/multiball_visual/multiball_visual_v2.dll
+# Duplicate/backup competition packages are not runtime inputs.
+dlc/dlc_FootballCompEng/dlc/FootballCompEng/FootballCompEng/
+*.rar

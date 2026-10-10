@@ -2,6 +2,7 @@
  * The game's providers still build and order the original standings/scorers.
  * No game object is retained beyond its provider callback. */
 static FceLiveSnapshot *native_snapshot;
+static void *native_ui_asset_owner;
 static FceModel native_view;
 static unsigned long native_epoch;
 static unsigned long native_generation(void) { return native_epoch; }
@@ -284,32 +285,8 @@ static void native_squad_refresh(void) {
             g_squad_summary.overall_count;
 }
 
-typedef struct NativeKitAvailabilityEntry {
-    int team_id;
-    unsigned int kit_type_mask;
-    int home_kit_id;
-    int away_kit_id;
-    int goalkeeper_kit_id;
-} NativeKitAvailabilityEntry;
-
-static const NativeKitAvailabilityEntry g_native_kit_availability[] = {
-#include "../catalogs/native_kit_types.inc"
-};
-
-static const NativeKitAvailabilityEntry *native_kit_entry(int team_id) {
-    size_t low=0,high=sizeof(g_native_kit_availability)/sizeof(g_native_kit_availability[0]);
-    while(low<high) {
-        size_t mid=low+(high-low)/2;
-        if(g_native_kit_availability[mid].team_id<team_id) low=mid+1;
-        else high=mid;
-    }
-    if(low<sizeof(g_native_kit_availability)/sizeof(g_native_kit_availability[0]) &&
-       g_native_kit_availability[low].team_id==team_id)
-        return &g_native_kit_availability[low];
-    return NULL;
-}
-
 static void native_end(void) {
+    native_ui_asset_owner=NULL;
     fce_runtime_release(native_snapshot); native_snapshot=NULL;
     memset(&native_view,0,sizeof(native_view)); native_names=NULL;
     native_name_cache_count=0;
@@ -358,23 +335,35 @@ static void native_context_reset(void) {
     InterlockedExchange(&g_display_competition_id,0);
     native_epoch=0; native_club=0; native_requested_competition=0;
 }
+static int native_league_logo_asset_exists(int asset);
+
 static int native_logo(int object) {
     FceCompetition c;
+    int mapped,installed;
     /* Expansion Compdata Supercopa Rei. Some builds expose the root and
      * others its related object. The direct compact card asset is l1687.dds;
      * unlike legacy l9.dds it follows the same padded 128px convention as
      * every other dynamically installed competition logo. */
     if(object==1687 || object==1688) return 1687;
-    /* The installed competition ID owns a matched dark/light pair generated
-     * from the calendar catalogue. Prefer it over legacy FCE asset aliases,
-     * whose two focus states can point to unrelated competitions. */
-    {
-        int installed=installed_competition_asset(object);
+    mapped=career_ui_competition_asset(object,native_ui_asset_owner);
+    if(mapped>0)return mapped;
+    if(fce_resolve_competition(native_view.nodes,native_view.node_count,object,&c)==FCE_OK) {
+        mapped=career_ui_competition_asset(c.competition,native_ui_asset_owner);
+        if(mapped>0)return mapped;
+        /* Resolve the stable server competition ID to the shared visual ID
+         * before consulting the older CompData alias. */
+        mapped=career_competition_icon_asset(c.competition);
+        if(mapped>0 && native_league_logo_asset_exists(mapped)) return mapped;
+        installed=installed_competition_asset(c.competition);
         if(installed>0) return installed;
+        return c.asset>0 ? c.asset : 0;
     }
-    if(fce_resolve_competition(native_view.nodes,native_view.node_count,object,&c)!=FCE_OK)
-        return 0;
-    return c.asset>0 ? c.asset : 0;
+    /* Pre-season competitions can use temporary roots outside the compact
+     * CompData model. Their stable root IDs are still covered by the map. */
+    mapped=career_competition_icon_asset(object);
+    if(mapped>0 && native_league_logo_asset_exists(mapped)) return mapped;
+    installed=installed_competition_asset(object);
+    return installed>0 ? installed : 0;
 }
 
 /* Pre-season fixtures can be backed by a temporary competition object which
@@ -860,17 +849,13 @@ static int native_next_match_stadium(const FceFixture *fixture,int competition_i
         detail,detail_size);
 }
 static int native_match_kit_key(int team,int kit_type,char *out,size_t size) {
-    const NativeKitAvailabilityEntry *entry;
     char path[MAX_PATH],filename[48];
-    unsigned int bit;
     if(!out || !size) return 0;
     out[0]=0;
-    if(team<=0 || (kit_type!=0 && kit_type!=1)) return 0;
-    entry=native_kit_entry(team);
-    bit=kit_type==0?0x01u:0x02u;
-    if(!entry || !(entry->kit_type_mask&bit) ||
-       (kit_type==0 && entry->home_kit_id<=0) ||
-       (kit_type==1 && entry->away_kit_id<=0)) return 0;
+    /* The static availability catalogue can lag behind custom leagues and
+     * newly added clubs. The game's thumbnail filename is the authoritative
+     * key, so publish a kit whenever that exact image is installed. */
+    if(team<=0 || kit_type<0 || kit_type>2) return 0;
     snprintf(filename,sizeof(filename),"%d_%d_0",kit_type,team);
     snprintf(path,sizeof(path),"%s\\data\\ui\\imgAssets\\kits\\j%s.dds",
         g_game_dir,filename);
@@ -1998,6 +1983,7 @@ static void native_prepare(void *owner) {
     FceFixture fixtures[10];
     native_end();
     requested=(int)g_active_competition_id; comp=requested;
+    native_ui_asset_owner=owner;
     club=resolve_user_club_id(owner,NULL);
     native_requested_competition=requested;
     native_snapshot=fce_runtime_acquire(); model=fce_runtime_model(native_snapshot);
@@ -2590,7 +2576,8 @@ static int native_active_competition_trophy(int competition_id,int title_asset) 
 static int native_league_logo_asset_exists(int asset) {
     char path[MAX_PATH];
     DWORD attributes;
-    if(asset<=0 || asset>65535 || !g_game_dir[0]) return 0;
+    if(asset<=0 || asset>2000000 || !g_game_dir[0]) return 0;
+    if(career_ui_competition_exists(asset))return 1;
     snprintf(path,sizeof(path),"%s\\data\\ui\\imgAssets\\league\\dark\\l%d.dds",
         g_game_dir,asset);
     attributes=GetFileAttributesA(path);
@@ -2605,14 +2592,14 @@ static int native_league_logo_asset_exists(int asset) {
 static int native_active_competition_logo(int root,int visual_asset) {
     SIZE_T i;
     int logo;
+    logo=native_logo(root);
+    if(native_league_logo_asset_exists(logo)) return logo;
     if(native_league_logo_asset_exists(visual_asset)) return visual_asset;
     for(i=0;i<g_competition_count;++i) {
         if(g_competition_rows[i].competition_id==root &&
            native_league_logo_asset_exists(g_competition_rows[i].league_id))
             return g_competition_rows[i].league_id;
     }
-    logo=native_logo(root);
-    if(native_league_logo_asset_exists(logo)) return logo;
     return native_league_logo_asset_exists(root)?root:0;
 }
 
@@ -3045,10 +3032,8 @@ static void native_publish(void *provider) {
     SIZE_T trophy_log_count;
     int injury_source=0;
     int seen_roots[128];
-    const NativeKitAvailabilityEntry *kit_entry;
-    unsigned int kit_type_mask;
-    int home_kit_id,away_kit_id,goalkeeper_kit_id;
     char kit_asset_ids[3][32];
+    int kit_available[3];
     if(!provider) return;
     native_team_name(native_club,club_name,sizeof(club_name));
     native_squad_refresh();
@@ -3062,20 +3047,15 @@ static void native_publish(void *provider) {
      * complete middle part of the real filename: <type>_<teamtechid>_0.
      * Example: 0_1043_0 -> imgAssets/kits/j0_1043_0.dds. teamkitid is only
      * the DB row ID and is not the thumbnail filename key. */
-    kit_entry=native_kit_entry(native_club);
-    kit_type_mask=kit_entry?kit_entry->kit_type_mask:0;
-    home_kit_id=kit_entry?kit_entry->home_kit_id:0;
-    away_kit_id=kit_entry?kit_entry->away_kit_id:0;
-    goalkeeper_kit_id=kit_entry?kit_entry->goalkeeper_kit_id:0;
-    snprintf(kit_asset_ids[0],sizeof(kit_asset_ids[0]),"0_%d_0",native_club);
-    snprintf(kit_asset_ids[1],sizeof(kit_asset_ids[1]),"1_%d_0",native_club);
-    snprintf(kit_asset_ids[2],sizeof(kit_asset_ids[2]),"2_%d_0",native_club);
-    publish_string_field(provider,"TEAMKIT1",(kit_type_mask&0x01u)?kit_asset_ids[0]:"");
-    publish_visibility_field(provider,"TEAMKIT1",home_kit_id>0);
-    publish_string_field(provider,"TEAMKIT2",(kit_type_mask&0x02u)?kit_asset_ids[1]:"");
-    publish_visibility_field(provider,"TEAMKIT2",away_kit_id>0);
-    publish_string_field(provider,"TEAMKIT3",(kit_type_mask&0x04u)?kit_asset_ids[2]:"");
-    publish_visibility_field(provider,"TEAMKIT3",goalkeeper_kit_id>0);
+    kit_available[0]=native_match_kit_key(native_club,0,kit_asset_ids[0],sizeof(kit_asset_ids[0]));
+    kit_available[1]=native_match_kit_key(native_club,1,kit_asset_ids[1],sizeof(kit_asset_ids[1]));
+    kit_available[2]=native_match_kit_key(native_club,2,kit_asset_ids[2],sizeof(kit_asset_ids[2]));
+    publish_string_field(provider,"TEAMKIT1",kit_available[0]?kit_asset_ids[0]:"");
+    publish_visibility_field(provider,"TEAMKIT1",kit_available[0]);
+    publish_string_field(provider,"TEAMKIT2",kit_available[1]?kit_asset_ids[1]:"");
+    publish_visibility_field(provider,"TEAMKIT2",kit_available[1]);
+    publish_string_field(provider,"TEAMKIT3",kit_available[2]?kit_asset_ids[2]:"");
+    publish_visibility_field(provider,"TEAMKIT3",kit_available[2]);
     publish_string_field(provider,"TEAMNAME",club_name);
     publish_int_field(provider,"MYTEAM_SQUAD_TOTAL",g_squad_summary.total);
     publish_visibility_field(provider,"MYTEAM_SQUAD_TOTAL",g_squad_summary.available);
@@ -3175,12 +3155,11 @@ static void native_publish(void *provider) {
     if(!fce_runtime_log_verbose()) return;
     snprintf(path,sizeof(path),"%s\\logs\\career_native_cards.log",g_mod_dir);
     log=fopen(path,"ab"); if(!log) return;
-    fprintf(log,"kit_binding club=%d asset_teamtechid=%d mask=0x%02X TEAMKIT1_asset_id=%s TEAMKIT2_asset_id=%s TEAMKIT3_asset_id=%s source_teamkitids=%d/%d/%d\n",
-        native_club,kit_entry?kit_entry->team_id:0,kit_type_mask,
-        (kit_type_mask&0x01u)?kit_asset_ids[0]:"",
-        (kit_type_mask&0x02u)?kit_asset_ids[1]:"",
-        (kit_type_mask&0x04u)?kit_asset_ids[2]:"",
-        home_kit_id,away_kit_id,goalkeeper_kit_id);
+    fprintf(log,"kit_binding club=%d asset_teamtechid=%d available=%d/%d/%d TEAMKIT1_asset_id=%s TEAMKIT2_asset_id=%s TEAMKIT3_asset_id=%s\n",
+        native_club,native_club,kit_available[0],kit_available[1],kit_available[2],
+        kit_available[0]?kit_asset_ids[0]:"",
+        kit_available[1]?kit_asset_ids[1]:"",
+        kit_available[2]?kit_asset_ids[2]:"");
     fprintf(log,"squad_summary total=%d average_age=%d age_count=%d positions=%d/%d/%d/%d position_count=%d source=%d available=%d\n",
         g_squad_summary.total,g_squad_summary.average_age,g_squad_summary.age_count,
         g_squad_summary.goalkeepers,g_squad_summary.defenders,

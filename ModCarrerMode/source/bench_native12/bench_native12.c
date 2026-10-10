@@ -160,7 +160,7 @@ static BOOL install_limits(void)
         log_event("install_failed coherent_native_import_request error=%lu",GetLastError());
         goto rollback;
     }
-    log_event("installed version=7 candidate=1 loader=v3_12_12 visual_target=7 extra_bench_models=native_hide_by_player_id release_on_native_activity_call=0x4359830 native_activity_setter=0x437CDE0 renderer_original_updates=1 render_load_call=0x43600A3 render_show_vtable=0x2207288 native_hide=0x437B630 seat_hooks=0 ordinal_writes=0 coordinates_written=0 coherent_import_request_rva=0x414EB83 FCE_immediate_rva=0x415AEDA job_sites=0x49AA8B5/0x49AC29F/0x49AA820/0x49AA960 native_drain=0x49AD1E0 batch_capacity=192 tasks_dropped=0 actor_clones=0 files_or_save_written=0 C14_or_substitution_rules_written=0 additional_substitution_gameplay_validation_pending=1");
+    log_event("installed version=8 candidate=1 loader=v3_12_12 visual_target=7 extra_bench_models=native_hide_by_player_id release_on_native_activity_call=0x4359830 native_activity_setter=0x437CDE0 renderer_original_updates=1 render_load_call=0x43600A3 render_show_vtable=0x2207288 native_hide=0x437B630 seat_hooks=0 ordinal_writes=0 coordinates_written=0 coherent_import_request_rva=0x414EB83 FCE_immediate_rva=0x415AEDA job_sites=0x49AA8B5/0x49AC29F/0x49AA820/0x49AA960 native_drain=0x49AD1E0 batch_capacity=192 tasks_dropped=0 actor_clones=0 files_or_save_written=0 C14_or_substitution_rules_written=0 additional_substitution_gameplay_validation_pending=1");
     return TRUE;
 rollback:
     if (!bench_render_remove()) log_event("rollback_failed native_render_visibility");
@@ -307,7 +307,7 @@ __declspec(dllexport) BOOL WINAPI Fifa16ModStart(const char *mods_root)
     _snprintf_s(logs_dir,sizeof(logs_dir),_TRUNCATE,"%s\\..\\logs",mods_root);
     CreateDirectoryA(logs_dir,NULL);
     _snprintf_s(log_path,sizeof(log_path),_TRUNCATE,"%s\\bench_native12.log",logs_dir);
-    log_event("candidate_start version=7 loader=v3_12_12 visual_target=7 native_activity_release=1 extra_models=hidden_in_bench_only scene_assignment_original=1 bounded_native_resource_batches=192 gameplay_validation_pending=1");
+    log_event("candidate_start version=8 loader=v3_12_12 visual_target=7 native_activity_release=1 extra_models=hidden_in_bench_only scene_assignment_original=1 inactive_identity_fallback=1 bounded_native_resource_batches=192 gameplay_validation_pending=1");
     /* Registered runtime tables and counters may outlive a rolled-back
      * CALL whose in-flight native task still returns to our RX page. */
     if (!GetModuleHandleExA(GET_MODULE_HANDLE_EX_FLAG_FROM_ADDRESS|GET_MODULE_HANDLE_EX_FLAG_PIN,

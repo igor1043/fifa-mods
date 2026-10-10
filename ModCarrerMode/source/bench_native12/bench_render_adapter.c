@@ -80,6 +80,44 @@ static BOOL hide_descriptor(unsigned int slot,const void *descriptor,unsigned ch
     ReleaseSRWLockExclusive(&plan_lock);
     return hide;
 }
+/* Opening/replay paths can load models before the normal bench descriptor.
+ * Recover an as-yet unclassified extra ONLY when the live RNA identity is a
+ * reserve in the native roster and its renderer remains inactive. Once the
+ * native activity update activates it, the existing release latch wins. */
+static BOOL classify_inactive_extra(unsigned int slot,void *object)
+{
+    unsigned char descriptor[0x30]={0};
+    int32_t identity[2];
+    uintptr_t engine,parameters;
+    uint32_t count=0,role=0,id=0,flags=0;
+    unsigned int index;
+    BOOL reserve=FALSE;
+    uint64_t packed;
+    if (slot<30U || slot>=54U ||
+        InterlockedCompareExchange64(&extra_identity[slot],0,0) ||
+        InterlockedCompareExchange(&active_by_update[slot],0,0) ||
+        !read_value(game_image+BENCH_RENDER_IDENTITIES+slot*8U,identity,8U) ||
+        identity[0]<=0 || identity[1]<0 || identity[1]>1) return FALSE;
+    parameters=pointer_at((uintptr_t)object+0x18U);
+    if (!read_value(parameters+0x80U,&flags,4U) || !(flags&8U)) return FALSE;
+    engine=pointer_at(game_image+0x37477B0U);
+    if (!engine || pointer_at(engine)!=game_image+0x22D2CF0U) return FALSE;
+    engine+=0xBC0U+(uintptr_t)identity[1]*0x4B60U;
+    if (!read_value(engine+0x4B40U,&count,4U) || count<11U || count>23U) return FALSE;
+    for(index=0;index<count;++index) {
+        const uintptr_t record=engine+0x1F4U+index*0x330U;
+        if (!read_value(record,&id,4U) || !read_value(record+0xCU,&role,4U)) return FALSE;
+        if(id==(uint32_t)identity[0]) {reserve=role==28U;break;}
+    }
+    if(!reserve)return FALSE;
+    memcpy(descriptor+0x24U,&identity[0],4U);memcpy(descriptor+0x10U,&identity[1],4U);
+    if(!hide_descriptor(slot,descriptor,1))return FALSE;
+    packed=((uint64_t)(uint32_t)identity[1]<<32U)|(uint32_t)identity[0];
+    InterlockedExchange64(&extra_identity[slot],(LONG64)packed);
+    InterlockedExchange(&render_policy[slot],1);
+    return TRUE;
+}
+
 static unsigned char __fastcall load_wrapper(void *object,const void *descriptor,unsigned char is_bench)
 {
     const unsigned int slot=render_slot(object);
@@ -110,6 +148,7 @@ static unsigned char __fastcall load_wrapper(void *object,const void *descriptor
     }
     /* Preserve the original loader, descriptor and AL return value. */
     result=native_load(object,descriptor);
+    if (result && !hide) hide=classify_inactive_extra(slot,object);
     if (result && hide) {
         native_hide(object); InterlockedExchange(&hidden_by_us[slot],1);
         InterlockedIncrement64(&hidden_loads);
@@ -125,6 +164,9 @@ static void __fastcall activity_wrapper(void *object,unsigned char inactive)
     /* This is the unchanged native render-state setter used by the actual
      * match update (packet flag 0x40). It changes flags, not actor movement. */
     native_activity(object,inactive);
+    if (inactive && classify_inactive_extra(slot,object)) {
+        native_hide(object);InterlockedExchange(&hidden_by_us[slot],1);InterlockedIncrement64(&hidden_loads);
+    }
     if (slot<8U || slot>=54U || !read_flags ||
         !InterlockedCompareExchange64(&extra_identity[slot],0,0)) return;
     if (!inactive && ((previous_flags&8U)!=0U ||
@@ -143,6 +185,7 @@ static void __fastcall activity_wrapper(void *object,unsigned char inactive)
 static void __fastcall show_wrapper(void *object)
 {
     const unsigned int slot=render_slot(object);
+    (void)classify_inactive_extra(slot,object);
     if (slot<58U && InterlockedCompareExchange(&render_policy[slot],0,0)==1) {
         native_hide(object); InterlockedExchange(&hidden_by_us[slot],1);
         InterlockedIncrement64(&hidden_shows);
