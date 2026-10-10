@@ -80,3 +80,11 @@ O sorteio usa uma bolsa dos dez destinos: nenhum destino se repete antes de visi
 Replay: pausar congela posição, fase e espera. A leitura atual das matrizes da torcida não informa o sentido do tempo. Duas capturas pausadas antes/depois do recuo não confirmaram um relógio de replay; retroceder as animações ainda não é implementado. Nenhum endereço de relógio não confirmado foi aplicado ao jogo.
 
 As malhas RX3, texturas e marcadores dos cinco clubes estão em data/sceneassets/mascot/. assets/originals/FLAMENGO preserva o FBX e as texturas de origem; assets/animations guarda os três clipes baked, canais de caminhada, idle e comemoração e referência de rig. assets/manifest.json registra tamanho e SHA256 dos arquivos. Os modelos originais dos demais clubes não foram localizados nesta etapa; os RX3 convertidos estão preservados.
+
+## Revisão 22 — Vasco e novos tempos
+
+A espera passou para 30 segundos por destino: 7,5 segundos de idle, 15 segundos de interação/comemoração em pé e 7,5 segundos de idle. Gol do mandante tem prioridade e também usa 15 segundos de comemoração. O sorteio continua sem repetir destinos antes de passar pelos dez pontos. A limitação de recuo no replay permanece.
+
+Vasco da Gama usa o ID 569. O novo FBX tem um único esqueleto Mixamo de 65 ossos e pintura de pesos. A malha e UV originais foram preservadas; os pesos existentes foram mapeados para 31 ossos FIFA, agrupando dedos na mão. Face/barba/chapéu usam a cabeça rígida com transição no pescoço, cujos limites são obtidos do próprio esqueleto. O ajuste da pose T para A foi aplicado a malha, normais, tangentes e bind. Altura final: 1,80 m.
+
+Os RX3 e texturas estão em data/sceneassets/mascot/569; o FBX e mapas originais, em assets/originals/VASCO; conversão, inspeção, auditoria e três renders de poses, em assets/conversion/VASCO. Os scripts de conversão registram os caminhos das ferramentas e do estudo locais; a compilação da DLL não depende deles. Os marcadores de pés foram recalculados para esta malha. A auditoria offline verifica 5.803 vértices, 9.562 triângulos, pesos somando 255, 31 ossos, mipmaps e poses finitas. A conferência visual final em partida depende de iniciar o jogo.

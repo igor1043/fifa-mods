@@ -18,7 +18,13 @@ struct MascotWalkRuntime {
 };
 static MascotWalkRuntime mascotWalkRuntime;
 static constexpr float mascotWalkPlaybackRate=1.0f;
-static constexpr float mascotWaypointDwellSeconds=20.0f;
+static constexpr float mascotWaypointDwellSeconds=30.0f;
+static constexpr float mascotWaypointInteractionSeconds=15.0f;
+static bool mascot_waypoint_interaction() {
+    const MascotWalkRuntime& s=mascotWalkRuntime;
+    const float idle=(mascotWaypointDwellSeconds-mascotWaypointInteractionSeconds)*.5f;
+    return !s.walking && !s.turning && s.idleRemaining<=idle+mascotWaypointInteractionSeconds && s.idleRemaining>idle;
+}
 
 struct MascotFootMarkers {
     unsigned int magic,version,bones,floats;

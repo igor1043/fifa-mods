@@ -491,7 +491,7 @@ static DWORD WINAPI worker(void*)
         HANDLE animationThread=CreateThread(nullptr,0,mascot_animation_worker,nullptr,0,nullptr);
         if (animationThread) CloseHandle(animationThread);
         else log_event("animation_score_watcher not_started thread_creation_failed");
-        log_event("installed version=21 mode=contact_driven_locomotion hook=43ac0f1 crowd_hook=0 type=1 prototype=2 resource_refresh=1 startup_retry=1 legacy_ballboys=normal missing_package_guard=1 celebration_engine_ms=26000 performance_revision=2 identity_poll_ms=250 lua_scan_per_frame=0 dynamic_club_packages=1 seated_pose_guard=1 approved_clips_only=1 turn_before_walk=1 yaw_private_palette=1 idle_blend_ms=450 ground_smoothing_ms=80 restart_session_worker=1 no_consecutive_position_repeat=1 stale_scene_restore=0 waypoint_dwell_seconds=20 waypoint_bag=10 waypoint_interaction_seconds=12");
+        log_event("installed version=22 mode=contact_driven_locomotion hook=43ac0f1 crowd_hook=0 type=1 prototype=2 resource_refresh=1 startup_retry=1 legacy_ballboys=normal missing_package_guard=1 celebration_engine_ms=15000 performance_revision=2 identity_poll_ms=250 lua_scan_per_frame=0 dynamic_club_packages=1 seated_pose_guard=1 approved_clips_only=1 turn_before_walk=1 yaw_private_palette=1 idle_blend_ms=450 ground_smoothing_ms=80 restart_session_worker=1 no_consecutive_position_repeat=1 stale_scene_restore=0 waypoint_dwell_seconds=30 waypoint_bag=10 waypoint_interaction_seconds=15");
         return 0;
     }
     log_event("not_installed unsupported_or_conflicting_native_code"); return 4;

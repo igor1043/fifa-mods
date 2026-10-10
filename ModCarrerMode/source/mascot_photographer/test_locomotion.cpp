@@ -52,7 +52,7 @@ int wmain(int argc,wchar_t** argv) {
             MascotFrameContext frame{1,(uintptr_t)record,1,0,club,1};
             targetPosition[2]=direction<0?3150.0f:-3150.0f;
             mascotWalkRuntime={};mascot_walk_reset(frame,1000);
-            if(mascotWalkRuntime.idleRemaining!=20)return 13;
+            if(mascotWalkRuntime.idleRemaining!=30)return 13;
             MascotWalkRuntime& s=mascotWalkRuntime;
             s.direction=direction<0?1:-1;s.idleRemaining=0;s.yaw=1.2f;
             float moved=0,expectedDistance=0;bool wasWalking=false,finished=false;uint64_t now=1000;
@@ -78,7 +78,7 @@ int wmain(int argc,wchar_t** argv) {
                 if(wasWalking&&!s.walking){finished=true;break;}
             }
             if(!finished||fabsf(moved-expectedDistance)>.06f)return 11;
-            if(s.idleRemaining!=20)return 14;
+            if(s.idleRemaining!=30)return 14;
             printf("PASS club=%d direction=%d route_cm=%.3f pause=unchanged yaw=palette poses=upright\n",club,direction,moved);
             mascotAnimatedRenderer=frame.renderer;mascotAnimatedRecords=frame.records;mascotAnimatedIndex=0;mascotAnimationBound=true;
             const uint16_t slot=73;memcpy(record+0x40,&slot,sizeof(slot));
@@ -90,6 +90,17 @@ int wmain(int argc,wchar_t** argv) {
         alignas(16) unsigned char record[80]{};
         MascotFrameContext frame{1,(uintptr_t)record,1,0,1043,1};
         mascot_walk_reset(frame,1000);
+        unsigned int interactionFrames=0;
+        for(unsigned int tick=0;tick<1800;++tick) {
+            mascot_walk_update(frame,2,1000+tick*16,1.0f/60);
+            if(mascot_waypoint_interaction())++interactionFrames;
+            if(tick<1798 && (mascotWalkRuntime.walking||mascotWalkRuntime.turning))return 16;
+        }
+        if(interactionFrames<899 || interactionFrames>901)return 17;
+        mascot_walk_update(frame,2,30000,.05f);
+        if(!mascotWalkRuntime.walking && !mascotWalkRuntime.turning)return 18;
+        printf("PASS 30 second stop: 15 seconds interaction, no early departure\n");
+        mascot_walk_reset(frame,1000);
         unsigned int seen=1u<<mascotWalkRuntime.waypoint;
         for(unsigned int choice=0;choice<30;++choice) {
             MascotWalkRuntime& s=mascotWalkRuntime;
@@ -100,7 +111,7 @@ int wmain(int argc,wchar_t** argv) {
             seen|=1u<<s.nextWaypoint;
             s.position[2]=mascotGoalLineDestinations[s.nextWaypoint];s.waypoint=s.nextWaypoint;
         }
-        printf("PASS waypoint bag: all ten destinations before repetition, 20 seconds dwell\n");
+        printf("PASS waypoint bag: all ten destinations before repetition, 30 seconds dwell\n");
     }
     alignas(16) unsigned char benchmarkRecord[80]{};
     MascotFrameContext benchmark{1,(uintptr_t)benchmarkRecord,1,0,569,1};

@@ -312,8 +312,7 @@ static void mascot_animate_instance(const MascotFrameContext& frame)
     const float dt=mascot_native_animation_dt(crowd,now);
     mascot_walk_update(frame,mode,now,dt);
     MascotWalkRuntime& motion=mascotWalkRuntime;
-    const bool waypointInteraction=!motion.walking && !motion.turning &&
-        motion.idleRemaining<=16.0f && motion.idleRemaining>4.0f;
+    const bool waypointInteraction=mascot_waypoint_interaction();
     const int poseKind=mode==3?2:(motion.walking?1:(waypointInteraction?2:0));
     float matrices[31][16];
     int behavior=-1,clip=-1;
@@ -362,7 +361,7 @@ static DWORD WINAPI mascot_animation_worker(void*)
         break;
     }
     if(!code_ready()) { log_event("animation_disabled code_guard_failed"); return 1; }
-    log_event("animation_score_watcher started home_only=1 confirm_ms=750 crowd_read_only=1 crowd_hook=0 native_goal=14 standing_cheer_fallback=1 no_sit_pose=1 duration_engine_ms=26000");
+    log_event("animation_score_watcher started home_only=1 confirm_ms=750 crowd_read_only=1 crowd_hook=0 native_goal=14 standing_cheer_fallback=1 no_sit_pose=1 duration_engine_ms=15000");
     for(;;) {
         const uint64_t now=GetTickCount64();
         const bool active=InterlockedCompareExchange(&mascotAnimationEnabled,0,0)!=0;
@@ -423,8 +422,8 @@ static DWORD WINAPI mascot_animation_worker(void*)
                 const int oldHome=scoreHome,oldAway=scoreAway;
                 scoreHome=h;scoreAway=a;candidate=false;if(h>highHome)highHome=h;
                 if(homeGoal) {
-                    celebrationUntilEngine=mascot_animation_clock_now()+26000;InterlockedExchange(&mascotAnimationMode,3);
-                    log_event("HOME_GOAL_CONFIRMED score=%d:%d previous=%d:%d; native_behavior=14 duration_engine_ms=26000",h,a,oldHome,oldAway);
+                    celebrationUntilEngine=mascot_animation_clock_now()+15000;InterlockedExchange(&mascotAnimationMode,3);
+                    log_event("HOME_GOAL_CONFIRMED score=%d:%d previous=%d:%d; native_behavior=14 duration_engine_ms=15000",h,a,oldHome,oldAway);
                 } else {
                     InterlockedExchange(&mascotAnimationMode,2);
                     log_event("score_change_without_home_goal score=%d:%d previous=%d:%d",h,a,oldHome,oldAway);
