@@ -1,280 +1,5 @@
 [
   {
-    "path": "data/sceneassets/mascot/1035/club.json",
-    "bytes": 4363,
-    "sha256": "34df57f0572b2b2aa68d34d7c6f2a1c1ed806c60d85aab30ea3ba77bcb108157"
-  },
-  {
-    "path": "data/sceneassets/mascot/1035/locomotion_feet.bin",
-    "bytes": 1012,
-    "sha256": "4174c4c119053325d001cfe1c14425a21a18f1aa8a636e887e82d0a9b65db116"
-  },
-  {
-    "path": "data/sceneassets/mascot/1035/model.rx3",
-    "bytes": 418576,
-    "sha256": "7f605bf1a212e43e1f7fea5bdec5f013afc353b2b06c757ccee889cea3bf15d5"
-  },
-  {
-    "path": "data/sceneassets/mascot/1035/model_animated.rx3",
-    "bytes": 418576,
-    "sha256": "7f605bf1a212e43e1f7fea5bdec5f013afc353b2b06c757ccee889cea3bf15d5"
-  },
-  {
-    "path": "data/sceneassets/mascot/1035/textures.rx3",
-    "bytes": 4129184,
-    "sha256": "998bb4265cd115b046f2533dac9401340288ab28481bb1a3da4957b06c384f35"
-  },
-  {
-    "path": "data/sceneassets/mascot/1043/club.json",
-    "bytes": 204,
-    "sha256": "47a0e1727c504716485051d97cb9b17f594b5e4761a0d0733822d54bb7228105"
-  },
-  {
-    "path": "data/sceneassets/mascot/1043/locomotion_feet.bin",
-    "bytes": 1012,
-    "sha256": "343d07c56ff3f8a8a4e8bd019ee7edde25914ddd028c213da348213f831730ca"
-  },
-  {
-    "path": "data/sceneassets/mascot/1043/model.rx3",
-    "bytes": 210048,
-    "sha256": "2f36a7fdabd82958e2ae78256826783d84c04e7691ea9b76d1d5a67696b02119"
-  },
-  {
-    "path": "data/sceneassets/mascot/1043/model_animated.rx3",
-    "bytes": 210048,
-    "sha256": "2f36a7fdabd82958e2ae78256826783d84c04e7691ea9b76d1d5a67696b02119"
-  },
-  {
-    "path": "data/sceneassets/mascot/1043/textures.rx3",
-    "bytes": 8367504,
-    "sha256": "01b8f4331531096e8dce59736537932a00ea5266097455dce78c684d02c0959c"
-  },
-  {
-    "path": "data/sceneassets/mascot/111052/club.json",
-    "bytes": 207,
-    "sha256": "de72d4b3233b156f8249c154ea6505baa1d6ab14d2a8fcf71a847fec0cae2750"
-  },
-  {
-    "path": "data/sceneassets/mascot/111052/locomotion_feet.bin",
-    "bytes": 1012,
-    "sha256": "ca692cb1c0e17330aeb637cd29be9e5851ee0317dbf8a82cdc03644ebc7e31f7"
-  },
-  {
-    "path": "data/sceneassets/mascot/111052/model.rx3",
-    "bytes": 438880,
-    "sha256": "6402da4ac08cb9dfbcaa41837dba40922fc2ab3c8ea563db20f88ff9d9ccd2c0"
-  },
-  {
-    "path": "data/sceneassets/mascot/111052/model_animated.rx3",
-    "bytes": 438880,
-    "sha256": "6402da4ac08cb9dfbcaa41837dba40922fc2ab3c8ea563db20f88ff9d9ccd2c0"
-  },
-  {
-    "path": "data/sceneassets/mascot/111052/textures.rx3",
-    "bytes": 8367504,
-    "sha256": "b67889edc9137eafed5013d7a4b150106768ca6ab4bea99c54cf60d69f39ad44"
-  },
-  {
-    "path": "data/sceneassets/mascot/111058/club.json",
-    "bytes": 208,
-    "sha256": "b6b4ed947066942aa8a02e9c0daffcd93303d2097d509f222dd84ad31d77e123"
-  },
-  {
-    "path": "data/sceneassets/mascot/111058/locomotion_feet.bin",
-    "bytes": 1012,
-    "sha256": "771a121faf16a8e3d0eb18f172e2a6dbfa19e4cc0fcd6b58a3e04be290f31bd6"
-  },
-  {
-    "path": "data/sceneassets/mascot/111058/model.rx3",
-    "bytes": 227216,
-    "sha256": "1c1fa27a7dad52a9487f57ccda1fb6b4386d390e1d477c838270e89bb0fe2385"
-  },
-  {
-    "path": "data/sceneassets/mascot/111058/model_animated.rx3",
-    "bytes": 227216,
-    "sha256": "1c1fa27a7dad52a9487f57ccda1fb6b4386d390e1d477c838270e89bb0fe2385"
-  },
-  {
-    "path": "data/sceneassets/mascot/111058/textures.rx3",
-    "bytes": 8367504,
-    "sha256": "bc91c53d1778d21d63c7d5fb79ece5f7197f730c880a71aeb42adb48eea94cac"
-  },
-  {
-    "path": "data/sceneassets/mascot/130026/club.json",
-    "bytes": 202,
-    "sha256": "83e0b40034878fd11246290ccb745aed6101863a66181817ab03dd3da9f3b14d"
-  },
-  {
-    "path": "data/sceneassets/mascot/130026/locomotion_feet.bin",
-    "bytes": 1012,
-    "sha256": "951e6c7f8d17ae308f3a626806b4e9e6223528a063c2a8f6a6ca6145b7b5e06a"
-  },
-  {
-    "path": "data/sceneassets/mascot/130026/model.rx3",
-    "bytes": 212704,
-    "sha256": "efff6b017022cc56d7f917e530834b5161031ba8806feb993405910f59c02c59"
-  },
-  {
-    "path": "data/sceneassets/mascot/130026/model_animated.rx3",
-    "bytes": 212704,
-    "sha256": "efff6b017022cc56d7f917e530834b5161031ba8806feb993405910f59c02c59"
-  },
-  {
-    "path": "data/sceneassets/mascot/130026/textures.rx3",
-    "bytes": 8367504,
-    "sha256": "f5456904b534e50796a18ff1daae9c42888c1f5eb181357355599471d2f1057a"
-  },
-  {
-    "path": "data/sceneassets/mascot/1598/club.json",
-    "bytes": 201,
-    "sha256": "a87c98a9e65accb0efe559b48aef030fda6cd120a845f1f16d508f0c387f3194"
-  },
-  {
-    "path": "data/sceneassets/mascot/1598/locomotion_feet.bin",
-    "bytes": 1012,
-    "sha256": "5fcc73a8aba41eece67e938173a8eea3988913e7f2e72c695ccec14808d2ab52"
-  },
-  {
-    "path": "data/sceneassets/mascot/1598/model.rx3",
-    "bytes": 233984,
-    "sha256": "041cc54c0affb25478acd24ba1240540c77369e4997dbd21f07424c7d6072b89"
-  },
-  {
-    "path": "data/sceneassets/mascot/1598/model_animated.rx3",
-    "bytes": 233984,
-    "sha256": "041cc54c0affb25478acd24ba1240540c77369e4997dbd21f07424c7d6072b89"
-  },
-  {
-    "path": "data/sceneassets/mascot/1598/textures.rx3",
-    "bytes": 8367504,
-    "sha256": "12005b6f417ead56f6873b55762d60cef315a36c6c73da51e62036bfeed19cc4"
-  },
-  {
-    "path": "data/sceneassets/mascot/1719/club.json",
-    "bytes": 207,
-    "sha256": "6f758fe8394701a2ce1c779ac7562a1ed483320916ee92a8fbb87102f4f04147"
-  },
-  {
-    "path": "data/sceneassets/mascot/1719/locomotion_feet.bin",
-    "bytes": 1012,
-    "sha256": "553c859df558a667e00561f5dd84102e3c364bbe0e7178387d26cab512677a87"
-  },
-  {
-    "path": "data/sceneassets/mascot/1719/model.rx3",
-    "bytes": 238336,
-    "sha256": "f07acd849557488bb41cc4498cd8d8c68fd7af3298fdb82da3114ccb2ad0f8b6"
-  },
-  {
-    "path": "data/sceneassets/mascot/1719/model_animated.rx3",
-    "bytes": 238336,
-    "sha256": "f07acd849557488bb41cc4498cd8d8c68fd7af3298fdb82da3114ccb2ad0f8b6"
-  },
-  {
-    "path": "data/sceneassets/mascot/1719/textures.rx3",
-    "bytes": 8367504,
-    "sha256": "17df0c71fec20aa188cda311bb05e6212643d2c8b42cc9914ee0156bdb9b32ab"
-  },
-  {
-    "path": "data/sceneassets/mascot/383/club.json",
-    "bytes": 109,
-    "sha256": "43cd799e827ec4c3c98f4e8ba4a30628b7ebf3e52f5e0e2050cfba3e71ce6ff2"
-  },
-  {
-    "path": "data/sceneassets/mascot/383/locomotion_feet.bin",
-    "bytes": 1012,
-    "sha256": "a262f32e41d85ed6cc63ded791331a502455780950f8555e0734981ac571a24b"
-  },
-  {
-    "path": "data/sceneassets/mascot/383/model.rx3",
-    "bytes": 782608,
-    "sha256": "9b1733e10cb49074cb2d39cf34663e15cca60abff1af87959c6bd2da2bec997f"
-  },
-  {
-    "path": "data/sceneassets/mascot/383/model_animated.rx3",
-    "bytes": 782608,
-    "sha256": "164e67480237b1c61ed87fefb044e5098210e3c409f05711966044b366c3b542"
-  },
-  {
-    "path": "data/sceneassets/mascot/383/textures.rx3",
-    "bytes": 37749606,
-    "sha256": "cf5a6fe721396e410a86e3ae96d727b9d5139f0b5a94bca3cafe79ce6d2f73fa"
-  },
-  {
-    "path": "data/sceneassets/mascot/568/club.json",
-    "bytes": 987,
-    "sha256": "ff8f594ec58e09d2d897e7c0dc50966d7ab654d0489c9f4823f286b88f5ef55f"
-  },
-  {
-    "path": "data/sceneassets/mascot/568/locomotion_feet.bin",
-    "bytes": 1012,
-    "sha256": "c565a74d3631c1bec10605c27b78d1948abb1120d2bf0c814673657d627f5245"
-  },
-  {
-    "path": "data/sceneassets/mascot/568/model.rx3",
-    "bytes": 564624,
-    "sha256": "49566501322053f3866e9d98615736a188f1547acdb2c41066cb25f9c094994d"
-  },
-  {
-    "path": "data/sceneassets/mascot/568/model_animated.rx3",
-    "bytes": 564624,
-    "sha256": "49566501322053f3866e9d98615736a188f1547acdb2c41066cb25f9c094994d"
-  },
-  {
-    "path": "data/sceneassets/mascot/568/textures.rx3",
-    "bytes": 4129254,
-    "sha256": "a1b3abf3611e409bcb5136caea29d7d5e4baae63e952a7244a8a08079e0d0362"
-  },
-  {
-    "path": "data/sceneassets/mascot/569/club.json",
-    "bytes": 208,
-    "sha256": "c9835ee6672a0c0c67f7470329847b1f28299d75bcd49a59d88de1379e551bea"
-  },
-  {
-    "path": "data/sceneassets/mascot/569/locomotion_feet.bin",
-    "bytes": 1012,
-    "sha256": "fcbfa56cf8e2683a3865e2b90bc8f3b4f3477449168a51ddf4aca70299af0453"
-  },
-  {
-    "path": "data/sceneassets/mascot/569/model.rx3",
-    "bytes": 222832,
-    "sha256": "b74c6500b8a3c19bc74c49d905c42ae5126d58108e8679814fea662684303149"
-  },
-  {
-    "path": "data/sceneassets/mascot/569/model_animated.rx3",
-    "bytes": 222832,
-    "sha256": "b74c6500b8a3c19bc74c49d905c42ae5126d58108e8679814fea662684303149"
-  },
-  {
-    "path": "data/sceneassets/mascot/569/textures.rx3",
-    "bytes": 8367504,
-    "sha256": "f79fa1186de73e91bde43b1126b28630940f563aeb2f66ff45cd2a76eb4d90b1"
-  },
-  {
-    "path": "data/sceneassets/mascot/598/club.json",
-    "bytes": 205,
-    "sha256": "c3f26af666e2b1b00fd2da4ec47f520c88766225d58459fe4a5f9aaa3b610493"
-  },
-  {
-    "path": "data/sceneassets/mascot/598/locomotion_feet.bin",
-    "bytes": 1012,
-    "sha256": "25689c04e3c09c1c98ec7e2bcef5767fa0628bc32e6429a1ace2c6926819f47c"
-  },
-  {
-    "path": "data/sceneassets/mascot/598/model.rx3",
-    "bytes": 217888,
-    "sha256": "b75ff7f005e2dc5383aa41497633478c3958f18001056b3018f7b04516844d30"
-  },
-  {
-    "path": "data/sceneassets/mascot/598/model_animated.rx3",
-    "bytes": 217888,
-    "sha256": "b75ff7f005e2dc5383aa41497633478c3958f18001056b3018f7b04516844d30"
-  },
-  {
-    "path": "data/sceneassets/mascot/598/textures.rx3",
-    "bytes": 8367504,
-    "sha256": "13200745760d826ced120c77c2799381d7642c61ee2fc3deb815a615ebeaaf76"
-  },
-  {
     "path": "ModCarrerMode/source/mascot_photographer/assets/animations/catalog_celebrate.channels.json",
     "bytes": 212610,
     "sha256": "8c3a2c4a2520aa12a15ed81723a786902fae056b0786499cebd77b48c2f61eb7"
@@ -315,6 +40,86 @@
     "sha256": "86f3bf1f78244b8a09cf79cd65667390c4e02657a90527c805d02862de2a6646"
   },
   {
+    "path": "ModCarrerMode/source/mascot_photographer/assets/conversion/ATHLETICO PR/cheer0.5.png",
+    "bytes": 365412,
+    "sha256": "74bec888b02129d875a94e45abdae889ec2f71ba96f0cfcda0c5ef73afa5cc3e"
+  },
+  {
+    "path": "ModCarrerMode/source/mascot_photographer/assets/conversion/ATHLETICO PR/conversion.json",
+    "bytes": 1083,
+    "sha256": "075cfd7821a765996f4915eebdbac3d562533dce49dc5d88c7af966d79b544a6"
+  },
+  {
+    "path": "ModCarrerMode/source/mascot_photographer/assets/conversion/ATHLETICO PR/idle0.5.png",
+    "bytes": 370827,
+    "sha256": "63629a41df5601fd94f2169585c374dfc724b67fd4bd64f0e33dd8ddab5439e0"
+  },
+  {
+    "path": "ModCarrerMode/source/mascot_photographer/assets/conversion/ATHLETICO PR/input_selection.json",
+    "bytes": 241,
+    "sha256": "c095afd09b660bfea60f5d86af6f39bf82ccaf397484cd3ccc013d646c5f2ded"
+  },
+  {
+    "path": "ModCarrerMode/source/mascot_photographer/assets/conversion/ATHLETICO PR/original.png",
+    "bytes": 369494,
+    "sha256": "71e5b68a6410547a01f9edd78ae5c06218b62c0afb610c2c140b1150b58e9477"
+  },
+  {
+    "path": "ModCarrerMode/source/mascot_photographer/assets/conversion/ATHLETICO PR/preview.png",
+    "bytes": 461146,
+    "sha256": "d44fd091de98e6329ef0016e8ddc981aaf3976c2f10126057c879abb879d943e"
+  },
+  {
+    "path": "ModCarrerMode/source/mascot_photographer/assets/conversion/ATHLETICO PR/validation.json",
+    "bytes": 14565,
+    "sha256": "dea5abe945147b60137892dca44b6e3db59a5d0ddda42750973639cc4f6183c4"
+  },
+  {
+    "path": "ModCarrerMode/source/mascot_photographer/assets/conversion/ATHLETICO PR/walk0.5.png",
+    "bytes": 373306,
+    "sha256": "9a2e158c54a1a5d2afaea4dc3f544658f9c1ac82c5d4f1008658ea28b45048fc"
+  },
+  {
+    "path": "ModCarrerMode/source/mascot_photographer/assets/conversion/ATLETICO MINEIRO/cheer0.5.png",
+    "bytes": 361082,
+    "sha256": "6b564bad7a31feccf7a9ad6a7fa797534de960960cd13e6513dd39987af20317"
+  },
+  {
+    "path": "ModCarrerMode/source/mascot_photographer/assets/conversion/ATLETICO MINEIRO/conversion.json",
+    "bytes": 1489,
+    "sha256": "8ed616abf38fbae463e07832bd64203771308386a80a10158abfcd27d2e23dda"
+  },
+  {
+    "path": "ModCarrerMode/source/mascot_photographer/assets/conversion/ATLETICO MINEIRO/idle0.5.png",
+    "bytes": 366294,
+    "sha256": "a77267d8d25c80b581f0081cddaa04e516db833351b968c55e91b8e02c74a323"
+  },
+  {
+    "path": "ModCarrerMode/source/mascot_photographer/assets/conversion/ATLETICO MINEIRO/input_selection.json",
+    "bytes": 266,
+    "sha256": "6aca1c799a934c93dad848933c54bc3658ec79724d1d7f84f857180e04810a93"
+  },
+  {
+    "path": "ModCarrerMode/source/mascot_photographer/assets/conversion/ATLETICO MINEIRO/original.png",
+    "bytes": 360177,
+    "sha256": "95f10f634452c1f1afd3392e175b32ff71cb1c08491a78bb68e0cbdc4f5d0ce7"
+  },
+  {
+    "path": "ModCarrerMode/source/mascot_photographer/assets/conversion/ATLETICO MINEIRO/preview.png",
+    "bytes": 441360,
+    "sha256": "a80ad181954008bad52c8551bb6bd3b4fe5e840e065abe0e206aed960a6523c9"
+  },
+  {
+    "path": "ModCarrerMode/source/mascot_photographer/assets/conversion/ATLETICO MINEIRO/validation.json",
+    "bytes": 14582,
+    "sha256": "3184ec0bdfa4fc17877bead097ed61e635ed197c4b055f859760d2dff7218c3b"
+  },
+  {
+    "path": "ModCarrerMode/source/mascot_photographer/assets/conversion/ATLETICO MINEIRO/walk0.5.png",
+    "bytes": 361079,
+    "sha256": "df7f3f5913bc0f9af1cf79dcecf25516572d273d1658691547fd6668cf0c1563"
+  },
+  {
     "path": "ModCarrerMode/source/mascot_photographer/assets/conversion/BAHIA/cheer0.5.png",
     "bytes": 368795,
     "sha256": "0ef7219912ee58cd36c0dba5e226bec531e2462dd5808baa014a30d12395e446"
@@ -350,6 +155,206 @@
     "sha256": "f7bc03ce93a81ff47cd95104e14a1111bde698d45bda524af75cabdb0a025b72"
   },
   {
+    "path": "ModCarrerMode/source/mascot_photographer/assets/conversion/CORINTHIANS/audit_head_shape.py",
+    "bytes": 2264,
+    "sha256": "1880db749b791c31848d6d66b4e61b1123bf544cc29366c5e3610b09b3bb2de1"
+  },
+  {
+    "path": "ModCarrerMode/source/mascot_photographer/assets/conversion/CORINTHIANS/baseline/model_animated.rx3",
+    "bytes": 208048,
+    "sha256": "8bada8f38d5fd163306a38a5c9c84da64f3a427af47c344c873d52a98bee1e20"
+  },
+  {
+    "path": "ModCarrerMode/source/mascot_photographer/assets/conversion/CORINTHIANS/cheer0.5.png",
+    "bytes": 346435,
+    "sha256": "1f20697142418413bdae72592335120a7de704586fea9db38bbc59cbc880a66b"
+  },
+  {
+    "path": "ModCarrerMode/source/mascot_photographer/assets/conversion/CORINTHIANS/conversion.json",
+    "bytes": 1081,
+    "sha256": "aa0a7e64d7912298998209a8c4ab8025ee82da59cf819db5036717ca5cc373c5"
+  },
+  {
+    "path": "ModCarrerMode/source/mascot_photographer/assets/conversion/CORINTHIANS/head_comparison.png",
+    "bytes": 588132,
+    "sha256": "6989aa7d01b715aceebfb3ca21eca71789a0cad633b90c3d81bf7c97fd5ab417"
+  },
+  {
+    "path": "ModCarrerMode/source/mascot_photographer/assets/conversion/CORINTHIANS/head_weights_report.json",
+    "bytes": 6479,
+    "sha256": "9db6a07cb38defeed0caf2ab367796205fd17795ee3fa44898a6d3e9b640f117"
+  },
+  {
+    "path": "ModCarrerMode/source/mascot_photographer/assets/conversion/CORINTHIANS/idle0.5.png",
+    "bytes": 343209,
+    "sha256": "8d42c278dc132242dda63fd49bd909de4fe74d0bde8e4dd56915eea07baabcc6"
+  },
+  {
+    "path": "ModCarrerMode/source/mascot_photographer/assets/conversion/CORINTHIANS/input_selection.json",
+    "bytes": 384,
+    "sha256": "cd61a1101e7f213964ed7e78df6a5d86fe588a0dc1f2d6615314ed7e680c6a17"
+  },
+  {
+    "path": "ModCarrerMode/source/mascot_photographer/assets/conversion/CORINTHIANS/original.png",
+    "bytes": 337291,
+    "sha256": "4ba81ed82f4a9e5882081f6a51540ac2cd16241dd6f707f7cbdd198148fcce4f"
+  },
+  {
+    "path": "ModCarrerMode/source/mascot_photographer/assets/conversion/CORINTHIANS/preview.png",
+    "bytes": 617925,
+    "sha256": "868781991ece237f865e873c2475e831878bc8fb30c3b90c1ae6c91a1574d622"
+  },
+  {
+    "path": "ModCarrerMode/source/mascot_photographer/assets/conversion/CORINTHIANS/repair_corinthians_head_weights.py",
+    "bytes": 5873,
+    "sha256": "1e2c1d17ce0f9588b32e118cedbb41aee9c3a69ca03551e861e569c510a91a58"
+  },
+  {
+    "path": "ModCarrerMode/source/mascot_photographer/assets/conversion/CORINTHIANS/validation.json",
+    "bytes": 14533,
+    "sha256": "7ce123568de58533e7aa355f434af44737f5e1285856481a06e7c2200c071f15"
+  },
+  {
+    "path": "ModCarrerMode/source/mascot_photographer/assets/conversion/CORINTHIANS/walk0.5.png",
+    "bytes": 340576,
+    "sha256": "0cd655674e6d18eb2b31a84e96c5e508790d33944a0bf996c20d37c6a205beb4"
+  },
+  {
+    "path": "ModCarrerMode/source/mascot_photographer/assets/conversion/CRUZEIRO/cheer0.5.png",
+    "bytes": 361930,
+    "sha256": "ecd326a3c66b2734c9cf5106ddf7b9a45c3d79d5ddfe31d78ebddb3ed16f0b39"
+  },
+  {
+    "path": "ModCarrerMode/source/mascot_photographer/assets/conversion/CRUZEIRO/conversion.json",
+    "bytes": 1074,
+    "sha256": "6e6354782bd9959fcb2ada6984e331d3eb8faa0e3f938fc9c3fa6b21632f1f04"
+  },
+  {
+    "path": "ModCarrerMode/source/mascot_photographer/assets/conversion/CRUZEIRO/idle0.5.png",
+    "bytes": 368654,
+    "sha256": "e929011ca279f09ac57334682d9389581823c4f5aabc3246ba3dff2678b3e441"
+  },
+  {
+    "path": "ModCarrerMode/source/mascot_photographer/assets/conversion/CRUZEIRO/input_selection.json",
+    "bytes": 237,
+    "sha256": "4d6785eba62af07f93a34a29bc2c072fd0846a7b5f2420e7ac6230529dd3747d"
+  },
+  {
+    "path": "ModCarrerMode/source/mascot_photographer/assets/conversion/CRUZEIRO/original.png",
+    "bytes": 366534,
+    "sha256": "cbb187519366331d9e2fab636c01d18e15cb3c9c67e1aae96d415b23bff6cfbd"
+  },
+  {
+    "path": "ModCarrerMode/source/mascot_photographer/assets/conversion/CRUZEIRO/preview.png",
+    "bytes": 432754,
+    "sha256": "115ed9b4be4c29ecf8b42a76383cb82b41fb74259fbfe49ddbfcef9079461227"
+  },
+  {
+    "path": "ModCarrerMode/source/mascot_photographer/assets/conversion/CRUZEIRO/validation.json",
+    "bytes": 14562,
+    "sha256": "7fe50387878ac6b8e923ac992c4fd269633c2ac3067b25cd03814a6b4ab4ed0e"
+  },
+  {
+    "path": "ModCarrerMode/source/mascot_photographer/assets/conversion/CRUZEIRO/walk0.5.png",
+    "bytes": 364491,
+    "sha256": "caa27978a44c7d4dedd4d9a84ef1c25981fd33b0612c7c5e96496e962cb3f8a8"
+  },
+  {
+    "path": "ModCarrerMode/source/mascot_photographer/assets/conversion/five_clubs_20261011/clubs.json",
+    "bytes": 1282,
+    "sha256": "a22c762036566acb0259e93b4dbe1f3d2d09b0d2ec8e24612f1767a39aa60fb2"
+  },
+  {
+    "path": "ModCarrerMode/source/mascot_photographer/assets/conversion/five_clubs_20261011/deployment.json",
+    "bytes": 5366,
+    "sha256": "c4575c0f7db65402b70a26babf42853758b736f5eccb76d604e8bc5132450d2e"
+  },
+  {
+    "path": "ModCarrerMode/source/mascot_photographer/assets/conversion/five_clubs_20261011/fixture/data/sceneassets/mascot/1035/bind.bin",
+    "bytes": 1984,
+    "sha256": "e0b083d5526010067505d71100263f1c634890e79d068b72b66519a5927c297d"
+  },
+  {
+    "path": "ModCarrerMode/source/mascot_photographer/assets/conversion/five_clubs_20261011/fixture/data/sceneassets/mascot/1035/locomotion_feet.bin",
+    "bytes": 1012,
+    "sha256": "387be79ee4fae1c3ee4718f4d27e5b1d78135bbc8c8bde00e86fe9d31a982055"
+  },
+  {
+    "path": "ModCarrerMode/source/mascot_photographer/assets/conversion/five_clubs_20261011/fixture/data/sceneassets/mascot/1039/bind.bin",
+    "bytes": 1984,
+    "sha256": "7c683b6b477ec60470fe37711357bc4fefc787663ab6195688475b97fee7b344"
+  },
+  {
+    "path": "ModCarrerMode/source/mascot_photographer/assets/conversion/five_clubs_20261011/fixture/data/sceneassets/mascot/1039/locomotion_feet.bin",
+    "bytes": 1012,
+    "sha256": "fe055473715197ba830a9797158b9dbfc4f3e858254ed6141113d7b27d45e502"
+  },
+  {
+    "path": "ModCarrerMode/source/mascot_photographer/assets/conversion/five_clubs_20261011/fixture/data/sceneassets/mascot/1041/bind.bin",
+    "bytes": 1984,
+    "sha256": "127445d185b3fc6265023434728ee5018e9fef88290baad4140e2a47e9129272"
+  },
+  {
+    "path": "ModCarrerMode/source/mascot_photographer/assets/conversion/five_clubs_20261011/fixture/data/sceneassets/mascot/1041/locomotion_feet.bin",
+    "bytes": 1012,
+    "sha256": "82a64876e111fce0ee8e8e18e047e3c9f4d904dd4c490518c5ea50e754fb560b"
+  },
+  {
+    "path": "ModCarrerMode/source/mascot_photographer/assets/conversion/five_clubs_20261011/fixture/data/sceneassets/mascot/111058/bind.bin",
+    "bytes": 1984,
+    "sha256": "38878f8e4ca5f129d3a2d1bfe1d25c12b815cd6c24a05d2335e6056216031f2c"
+  },
+  {
+    "path": "ModCarrerMode/source/mascot_photographer/assets/conversion/five_clubs_20261011/fixture/data/sceneassets/mascot/111058/locomotion_feet.bin",
+    "bytes": 1012,
+    "sha256": "771a121faf16a8e3d0eb18f172e2a6dbfa19e4cc0fcd6b58a3e04be290f31bd6"
+  },
+  {
+    "path": "ModCarrerMode/source/mascot_photographer/assets/conversion/five_clubs_20261011/fixture/data/sceneassets/mascot/130066/bind.bin",
+    "bytes": 1984,
+    "sha256": "379e5f98cb45d918e3a8e9f0c239dbe5ca0c2ea273b25471117077e817b72d05"
+  },
+  {
+    "path": "ModCarrerMode/source/mascot_photographer/assets/conversion/five_clubs_20261011/fixture/data/sceneassets/mascot/130066/locomotion_feet.bin",
+    "bytes": 1012,
+    "sha256": "e19fac62705d1dce8760de357da1220ab6d70a4f6ce6f0db5fdcec6cdc8e4572"
+  },
+  {
+    "path": "ModCarrerMode/source/mascot_photographer/assets/conversion/five_clubs_20261011/fixture/data/sceneassets/mascot/568/bind.bin",
+    "bytes": 1984,
+    "sha256": "b834133b5a33e6a307fcc23fd15b4416c38e8b9f3b1e954646247e77999bebc0"
+  },
+  {
+    "path": "ModCarrerMode/source/mascot_photographer/assets/conversion/five_clubs_20261011/fixture/data/sceneassets/mascot/568/locomotion_feet.bin",
+    "bytes": 1012,
+    "sha256": "fa81dadda3ad8b151a8867dd0dfa9b664103cff20ff80650c22e4465a3afaea2"
+  },
+  {
+    "path": "ModCarrerMode/source/mascot_photographer/assets/conversion/five_clubs_20261011/galo_locomotion_tests.txt",
+    "bytes": 390,
+    "sha256": "a08a74fc373a4c890d0e65912a595de0bbb387b98bed588041c0d446651003aa"
+  },
+  {
+    "path": "ModCarrerMode/source/mascot_photographer/assets/conversion/five_clubs_20261011/galo_unweighted.json",
+    "bytes": 1839,
+    "sha256": "dbfca8c986a9235d5fbb5434fe008424febe989278d2a06ead22554df0bc0146"
+  },
+  {
+    "path": "ModCarrerMode/source/mascot_photographer/assets/conversion/five_clubs_20261011/id_validation.json",
+    "bytes": 1892,
+    "sha256": "bf54925449f5135ce5edccc4f64f93c14b3d535a307b2fadd9fb88d7bc1ec196"
+  },
+  {
+    "path": "ModCarrerMode/source/mascot_photographer/assets/conversion/five_clubs_20261011/locomotion_tests.txt",
+    "bytes": 1105,
+    "sha256": "af3f321a02f62477a56b091556902a0dbaa8e929af77c5b77a494d001d3a61d0"
+  },
+  {
+    "path": "ModCarrerMode/source/mascot_photographer/assets/conversion/five_clubs_20261011/source_inspections.json",
+    "bytes": 174374,
+    "sha256": "c656fff3c73f30049a66e6e6356370701da255a0da8a455b1cc9808cd98be608"
+  },
+  {
     "path": "ModCarrerMode/source/mascot_photographer/assets/conversion/FORTALEZA/cheer0.5.png",
     "bytes": 389365,
     "sha256": "04f1b1174f194a9ac8f74fcf430c1cbc11b0633e48fcf20fd0978b52fea9adce"
@@ -383,6 +388,46 @@
     "path": "ModCarrerMode/source/mascot_photographer/assets/conversion/FORTALEZA/walk0.5.png",
     "bytes": 396338,
     "sha256": "aabb10267dbbd8f6e8a54bb83d3ee43abc43f0b3465fc2347d6854ed03a80108"
+  },
+  {
+    "path": "ModCarrerMode/source/mascot_photographer/assets/conversion/PAULISTA/cheer0.5.png",
+    "bytes": 358188,
+    "sha256": "b12d82258c743436a5d5c07d6f8ab4c49aca3442ae9193f3bcd03e2367ad9f7c"
+  },
+  {
+    "path": "ModCarrerMode/source/mascot_photographer/assets/conversion/PAULISTA/conversion.json",
+    "bytes": 1112,
+    "sha256": "dd44f602d15f10861e80109243266404c50a34da0f2e21038d1a36a9f54fa161"
+  },
+  {
+    "path": "ModCarrerMode/source/mascot_photographer/assets/conversion/PAULISTA/idle0.5.png",
+    "bytes": 365377,
+    "sha256": "aaccd01bca79fa4ec439da49e4221710eeb08ecf94c5140989623f64cf4620d4"
+  },
+  {
+    "path": "ModCarrerMode/source/mascot_photographer/assets/conversion/PAULISTA/input_selection.json",
+    "bytes": 246,
+    "sha256": "8ef98478de565f1ca75f40f47d0a93d1e9f7f78b7a826ed88e468f656359d172"
+  },
+  {
+    "path": "ModCarrerMode/source/mascot_photographer/assets/conversion/PAULISTA/original.png",
+    "bytes": 358879,
+    "sha256": "85f1d9ac038c23ef78ea0b9f257b689eb73792765d92e5e35741e20f3820f88a"
+  },
+  {
+    "path": "ModCarrerMode/source/mascot_photographer/assets/conversion/PAULISTA/preview.png",
+    "bytes": 433951,
+    "sha256": "1510782f881a95f69449aac6d0c9fb4f0a7396f4bb10802d3001c2dbb960ed33"
+  },
+  {
+    "path": "ModCarrerMode/source/mascot_photographer/assets/conversion/PAULISTA/validation.json",
+    "bytes": 14557,
+    "sha256": "ca25002ce0f4ba1c21a4fed721f3a107287b5f0f423b89d6b3bb0c71d4aead6b"
+  },
+  {
+    "path": "ModCarrerMode/source/mascot_photographer/assets/conversion/PAULISTA/walk0.5.png",
+    "bytes": 365159,
+    "sha256": "a9e3e2dc2aca2316cd7c9219446d22ad505bd429d104508c83b6a75fa54f7fb2"
   },
   {
     "path": "ModCarrerMode/source/mascot_photographer/assets/conversion/REMO/cheer0.5.png",
@@ -421,38 +466,43 @@
   },
   {
     "path": "ModCarrerMode/source/mascot_photographer/assets/conversion/SANTA+CRUZ/cheer0.5.png",
-    "bytes": 361391,
-    "sha256": "019709722fa6b39e6a89ab9895eeadec190c111f0096e9b4533aef255674b207"
+    "bytes": 362867,
+    "sha256": "b038997b22782d01a72e1c163f58a6933c73c920c93344f70a9928f0d3d31b34"
   },
   {
     "path": "ModCarrerMode/source/mascot_photographer/assets/conversion/SANTA+CRUZ/conversion.json",
-    "bytes": 1080,
-    "sha256": "d17a177721ff6db8ebfa4d2173e21dc3200d2f6131fe6018e8e26889fd3c9904"
+    "bytes": 1092,
+    "sha256": "ebe6235d6f947ba96f741045ee6f4a984025ccdb528fd376d571e1d509e40b7b"
   },
   {
     "path": "ModCarrerMode/source/mascot_photographer/assets/conversion/SANTA+CRUZ/idle0.5.png",
-    "bytes": 375495,
-    "sha256": "c650420e267c4019dc4e2dd85d6cb21bfd4de1c7d917985831db287b65ddeda0"
+    "bytes": 376674,
+    "sha256": "34639f43364c5c1cadbf7387fd67896b74c41cf7408b5d3597102321211a84c7"
+  },
+  {
+    "path": "ModCarrerMode/source/mascot_photographer/assets/conversion/SANTA+CRUZ/input_selection.json",
+    "bytes": 246,
+    "sha256": "fdb7787e0322d868b2e7e0f8ed8cd72c6f769d5bf7563360c224d86e99713da7"
   },
   {
     "path": "ModCarrerMode/source/mascot_photographer/assets/conversion/SANTA+CRUZ/original.png",
-    "bytes": 361105,
-    "sha256": "0fb1088261a719825884c2677c8a1cbd2c65b3c9708a4eee41713bebbc6900da"
+    "bytes": 361548,
+    "sha256": "f01bbac98d1f909c3f7f2e9d85dd0f31b1e7a9523240fbcd19fb443e03f1493e"
   },
   {
     "path": "ModCarrerMode/source/mascot_photographer/assets/conversion/SANTA+CRUZ/preview.png",
-    "bytes": 461272,
-    "sha256": "b46c24e5890465a4e098a4bebca86c326e13722824949d6f919c49a8343bde84"
+    "bytes": 465458,
+    "sha256": "a00165093788b94729eefed02d55f7f28786a88120a0785ba396f39f86573a8b"
   },
   {
     "path": "ModCarrerMode/source/mascot_photographer/assets/conversion/SANTA+CRUZ/validation.json",
     "bytes": 14581,
-    "sha256": "4a3e551fe7d0bf8217da3ad13a316fd3863442a0a4be6126ad448f3252f8137f"
+    "sha256": "036e05505671e822660e5a370f2a797297882757dd77f91a31cd24152846d5ca"
   },
   {
     "path": "ModCarrerMode/source/mascot_photographer/assets/conversion/SANTA+CRUZ/walk0.5.png",
-    "bytes": 366497,
-    "sha256": "224ef57e4f043a53db970cd357b8768729ea2ba64912a94c88870fc8effbece4"
+    "bytes": 368725,
+    "sha256": "8e93123d9e5abd095f125fc2e69e95b5a3540054a8d72305177eee57aeec0ea6"
   },
   {
     "path": "ModCarrerMode/source/mascot_photographer/assets/conversion/SAO PAULO/cheer0.5.png",
@@ -600,6 +650,36 @@
     "sha256": "33c45224aed84a1708db15026c8102ce1bd4a0f34c9bde02a633899138feb8d4"
   },
   {
+    "path": "ModCarrerMode/source/mascot_photographer/assets/originals/ATHLETICO PR/tripo_convert_55860e3c-f2af-49ee-97b5-f7f04158b6de.fbm/soccer_mascot_3d_model_basecolor.JPEG",
+    "bytes": 950613,
+    "sha256": "efcc4ff28ca07a4da2654449de5e6916d7d2ed72c65cf552a7af057912670fd2"
+  },
+  {
+    "path": "ModCarrerMode/source/mascot_photographer/assets/originals/ATHLETICO PR/tripo_convert_55860e3c-f2af-49ee-97b5-f7f04158b6de.fbm/soccer_mascot_3d_model_normal.PNG",
+    "bytes": 5022096,
+    "sha256": "b6612615fb75b790f0da885c0b7a19064ef38459ae9c063838e03b9da53d7af2"
+  },
+  {
+    "path": "ModCarrerMode/source/mascot_photographer/assets/originals/ATHLETICO PR/tripo_convert_55860e3c-f2af-49ee-97b5-f7f04158b6de.fbx",
+    "bytes": 474300,
+    "sha256": "c39ed8dfa445b16e23df979c6df03a12adc92636d5224a3d0b58934703a3786d"
+  },
+  {
+    "path": "ModCarrerMode/source/mascot_photographer/assets/originals/ATLETICO MINEIRO/tripo_convert_e0b01680-6a84-4537-a0fe-5ccca575ed4f.fbm/chicken_mascot_3d_model_basecolor.JPEG",
+    "bytes": 1078756,
+    "sha256": "d77bfd5d9bf51184629979b758ce6543343a46abf871b0652c1dfc542557602a"
+  },
+  {
+    "path": "ModCarrerMode/source/mascot_photographer/assets/originals/ATLETICO MINEIRO/tripo_convert_e0b01680-6a84-4537-a0fe-5ccca575ed4f.fbm/chicken_mascot_3d_model_normal.PNG",
+    "bytes": 6444297,
+    "sha256": "517ce8a754d570a18f0d71196e2f6cf95cde6981153ba232d5eeb97e793b048f"
+  },
+  {
+    "path": "ModCarrerMode/source/mascot_photographer/assets/originals/ATLETICO MINEIRO/tripo_convert_e0b01680-6a84-4537-a0fe-5ccca575ed4f.fbx",
+    "bytes": 500876,
+    "sha256": "a50b077a7412f850db82230d12dd2212903537451e7fdf0d644779b767df6fee"
+  },
+  {
     "path": "ModCarrerMode/source/mascot_photographer/assets/originals/BAHIA/tripo_convert_72f755b3-19a8-4508-9dd8-24ef0ab33184.fbm/mascot_character_3d_model_basecolor.JPEG",
     "bytes": 774193,
     "sha256": "998c7c30586a55a1858bcc4fe2e795c54d8588c0ac27c1ee92d6a66dd7ab0c31"
@@ -613,6 +693,36 @@
     "path": "ModCarrerMode/source/mascot_photographer/assets/originals/BAHIA/tripo_convert_72f755b3-19a8-4508-9dd8-24ef0ab33184.fbx",
     "bytes": 474988,
     "sha256": "2f8817090bc5054d8e9c6c75acaa68a68f4a3c3ed3df328e186c921867538c60"
+  },
+  {
+    "path": "ModCarrerMode/source/mascot_photographer/assets/originals/CORINTHIANS/tripo_convert_7a93fbf4-3e35-4c31-a94c-c08a9cd44c44.fbm/ca0af75d-88f6-4122-84cd-d72a472bb836_basecolor.JPEG",
+    "bytes": 645780,
+    "sha256": "10a7cc77275f240f748e9acaceb6a021933b7e58e9a6323b37bba6e0840414ee"
+  },
+  {
+    "path": "ModCarrerMode/source/mascot_photographer/assets/originals/CORINTHIANS/tripo_convert_7a93fbf4-3e35-4c31-a94c-c08a9cd44c44.fbm/ca0af75d-88f6-4122-84cd-d72a472bb836_normal.PNG",
+    "bytes": 5889277,
+    "sha256": "c3827122ebdcc5c227b188a25e7686529c1d155dc649f6833cf1c29e29b5303a"
+  },
+  {
+    "path": "ModCarrerMode/source/mascot_photographer/assets/originals/CORINTHIANS/tripo_convert_7a93fbf4-3e35-4c31-a94c-c08a9cd44c44.fbx",
+    "bytes": 443708,
+    "sha256": "f128c37c159fa2341dd28ff095a306a4f4993450861f127b89e0e76c6548fe48"
+  },
+  {
+    "path": "ModCarrerMode/source/mascot_photographer/assets/originals/CRUZEIRO/tripo_convert_74063ef8-1aa5-44c3-9243-b1c81588dc75.fbm/fox_mascot_3d_model_basecolor.JPEG",
+    "bytes": 1018882,
+    "sha256": "cd7b79f8d367408e5d374284f3db72ea1bba0508c70cab9d037a86bd7a5313ac"
+  },
+  {
+    "path": "ModCarrerMode/source/mascot_photographer/assets/originals/CRUZEIRO/tripo_convert_74063ef8-1aa5-44c3-9243-b1c81588dc75.fbm/fox_mascot_3d_model_normal.PNG",
+    "bytes": 6249586,
+    "sha256": "ed0e7a8851cdd0063e8be1f3bb5a5e8c9ce333604e8948ee347b48cb796afb55"
+  },
+  {
+    "path": "ModCarrerMode/source/mascot_photographer/assets/originals/CRUZEIRO/tripo_convert_74063ef8-1aa5-44c3-9243-b1c81588dc75.fbx",
+    "bytes": 451836,
+    "sha256": "edaa9951b36bde37453b3b2270f2056436a5abd3f8b072a286507947ba068645"
   },
   {
     "path": "ModCarrerMode/source/mascot_photographer/assets/originals/FLAMENGO/tripo_convert_59acfebb-40ba-4534-97d8-bab2a83e9ac0.fbm/FLAMENGO_basecolor.JPEG",
@@ -645,6 +755,26 @@
     "sha256": "c1b41b3079668180c5899d6e762989fc98aa35ed446a1ae2b002dde4ef12af31"
   },
   {
+    "path": "ModCarrerMode/source/mascot_photographer/assets/originals/PAULISTA/PAULISTA.zip",
+    "bytes": 7503194,
+    "sha256": "acf6f2abd95010cff94a82c7e522b7a29f1e27301887aa43e7fddd1dac5625e7"
+  },
+  {
+    "path": "ModCarrerMode/source/mascot_photographer/assets/originals/PAULISTA/tripo_convert_1be2602a-b7de-48dc-a38f-f51116337671.fbm/mascot_character_3d_model_basecolor.JPEG",
+    "bytes": 952582,
+    "sha256": "1b856463fdab14204776d40ca6eae35b3ae90e27fd72817c6e5003b6a1ec71a2"
+  },
+  {
+    "path": "ModCarrerMode/source/mascot_photographer/assets/originals/PAULISTA/tripo_convert_1be2602a-b7de-48dc-a38f-f51116337671.fbm/mascot_character_3d_model_normal.PNG",
+    "bytes": 6202205,
+    "sha256": "159ce156791ca1aa46b59a051edd480b528f081b92582228ed12ec4cb7b94d99"
+  },
+  {
+    "path": "ModCarrerMode/source/mascot_photographer/assets/originals/PAULISTA/tripo_convert_1be2602a-b7de-48dc-a38f-f51116337671.fbx",
+    "bytes": 477196,
+    "sha256": "a7ae8ad45884b9724c6ec40ea1c47ef10db77654b8592c53a5f52624216238e0"
+  },
+  {
     "path": "ModCarrerMode/source/mascot_photographer/assets/originals/REMO/tripo_convert_249f83fd-a562-4c61-8ccf-2fdd2dd070b1.fbm/mascot_lion_3d_model_basecolor.JPEG",
     "bytes": 891207,
     "sha256": "7a90f4ce02908b3ca378ea75f7a505e4a38d19912cd16e326fea5d03168db92e"
@@ -660,9 +790,9 @@
     "sha256": "c42dd2ae02046b44578923974628596352f0ee94fdbf76d3f3281090b6c04aa2"
   },
   {
-    "path": "ModCarrerMode/source/mascot_photographer/assets/originals/SANTA+CRUZ/tripo_convert_537fdb0c-dd10-4ab1-9411-4646906a7859.fbm/mascot_character_3d_model_basecolor.JPEG",
-    "bytes": 936976,
-    "sha256": "39cc2694a5c4f4e8907aca1b5b314282ae1ef61ff33aaf56d4fa2a50ab756eab"
+    "path": "ModCarrerMode/source/mascot_photographer/assets/originals/SANTA+CRUZ/tripo_convert_537fdb0c-dd10-4ab1-9411-4646906a7859.fbm/a8fc653a-7118-4fbf-896f-722717d7205e.png",
+    "bytes": 4201421,
+    "sha256": "ffa0d9bdb405e3922104b9979dd2e2046ecd0e6f8fb6f36e4dd2f78990a046ca"
   },
   {
     "path": "ModCarrerMode/source/mascot_photographer/assets/originals/SANTA+CRUZ/tripo_convert_537fdb0c-dd10-4ab1-9411-4646906a7859.fbm/mascot_character_3d_model_normal.PNG",
@@ -718,5 +848,355 @@
     "path": "ModCarrerMode/source/mascot_photographer/assets/originals/VITORIA BA/tripo_convert_2e782f01-3daa-4806-9f67-43a1ea7b0952.fbx",
     "bytes": 455820,
     "sha256": "b1d0b39a0102ca686ad9fffb3410c633d60d1321fe3db585527c6e5e772d52cc"
+  },
+  {
+    "path": "data/sceneassets/mascot/1035/club.json",
+    "bytes": 334,
+    "sha256": "5f499fc4126ef0c293a88b0600e497a701d41e411cc2fba277ebbb0c446c0f73"
+  },
+  {
+    "path": "data/sceneassets/mascot/1035/locomotion_feet.bin",
+    "bytes": 1012,
+    "sha256": "387be79ee4fae1c3ee4718f4d27e5b1d78135bbc8c8bde00e86fe9d31a982055"
+  },
+  {
+    "path": "data/sceneassets/mascot/1035/model.rx3",
+    "bytes": 240960,
+    "sha256": "4739e7aba1a6741d7ddf932c293fdb41de0887e8c216fd5e9583c6ee05a291c8"
+  },
+  {
+    "path": "data/sceneassets/mascot/1035/model_animated.rx3",
+    "bytes": 240960,
+    "sha256": "4739e7aba1a6741d7ddf932c293fdb41de0887e8c216fd5e9583c6ee05a291c8"
+  },
+  {
+    "path": "data/sceneassets/mascot/1035/textures.rx3",
+    "bytes": 8367504,
+    "sha256": "43967bcaab62e365d54b18e9364e259ca0da38aa69f484e194099629c37b5709"
+  },
+  {
+    "path": "data/sceneassets/mascot/1039/club.json",
+    "bytes": 327,
+    "sha256": "9caeefe4948f6757bea87ce59ee99477ae5b613c9e56e9e5898ebb963eb1f185"
+  },
+  {
+    "path": "data/sceneassets/mascot/1039/locomotion_feet.bin",
+    "bytes": 1012,
+    "sha256": "fe055473715197ba830a9797158b9dbfc4f3e858254ed6141113d7b27d45e502"
+  },
+  {
+    "path": "data/sceneassets/mascot/1039/model.rx3",
+    "bytes": 223344,
+    "sha256": "ced082f9d272cebf2b60456309479556f511685b74ccb9e6b3b05719dee8ee29"
+  },
+  {
+    "path": "data/sceneassets/mascot/1039/model_animated.rx3",
+    "bytes": 223344,
+    "sha256": "ced082f9d272cebf2b60456309479556f511685b74ccb9e6b3b05719dee8ee29"
+  },
+  {
+    "path": "data/sceneassets/mascot/1039/textures.rx3",
+    "bytes": 8367504,
+    "sha256": "1dcfe5f161adaec45390e1d505df92ed4e90114504cc181820c0992c04b659c0"
+  },
+  {
+    "path": "data/sceneassets/mascot/1041/club.json",
+    "bytes": 354,
+    "sha256": "b8a92e859274ea832296eb7c2ca1efce2f61d8542ea25185deb13441a7d750a9"
+  },
+  {
+    "path": "data/sceneassets/mascot/1041/locomotion_feet.bin",
+    "bytes": 1012,
+    "sha256": "82a64876e111fce0ee8e8e18e047e3c9f4d904dd4c490518c5ea50e754fb560b"
+  },
+  {
+    "path": "data/sceneassets/mascot/1041/model.rx3",
+    "bytes": 208048,
+    "sha256": "aa4c98da6d12efc1f630182a8bf1a37528e88e102cf190e0f4c46c0e6036cbd7"
+  },
+  {
+    "path": "data/sceneassets/mascot/1041/model_animated.rx3",
+    "bytes": 208048,
+    "sha256": "aa4c98da6d12efc1f630182a8bf1a37528e88e102cf190e0f4c46c0e6036cbd7"
+  },
+  {
+    "path": "data/sceneassets/mascot/1041/textures.rx3",
+    "bytes": 8367504,
+    "sha256": "b1b1be18591ec53472449b44d57c738de91cfc1c7eca3e75a8e432b93c506f23"
+  },
+  {
+    "path": "data/sceneassets/mascot/1043/club.json",
+    "bytes": 204,
+    "sha256": "47a0e1727c504716485051d97cb9b17f594b5e4761a0d0733822d54bb7228105"
+  },
+  {
+    "path": "data/sceneassets/mascot/1043/locomotion_feet.bin",
+    "bytes": 1012,
+    "sha256": "343d07c56ff3f8a8a4e8bd019ee7edde25914ddd028c213da348213f831730ca"
+  },
+  {
+    "path": "data/sceneassets/mascot/1043/model.rx3",
+    "bytes": 210048,
+    "sha256": "2f36a7fdabd82958e2ae78256826783d84c04e7691ea9b76d1d5a67696b02119"
+  },
+  {
+    "path": "data/sceneassets/mascot/1043/model_animated.rx3",
+    "bytes": 210048,
+    "sha256": "2f36a7fdabd82958e2ae78256826783d84c04e7691ea9b76d1d5a67696b02119"
+  },
+  {
+    "path": "data/sceneassets/mascot/1043/textures.rx3",
+    "bytes": 8367504,
+    "sha256": "01b8f4331531096e8dce59736537932a00ea5266097455dce78c684d02c0959c"
+  },
+  {
+    "path": "data/sceneassets/mascot/111052/club.json",
+    "bytes": 207,
+    "sha256": "de72d4b3233b156f8249c154ea6505baa1d6ab14d2a8fcf71a847fec0cae2750"
+  },
+  {
+    "path": "data/sceneassets/mascot/111052/locomotion_feet.bin",
+    "bytes": 1012,
+    "sha256": "ca692cb1c0e17330aeb637cd29be9e5851ee0317dbf8a82cdc03644ebc7e31f7"
+  },
+  {
+    "path": "data/sceneassets/mascot/111052/model.rx3",
+    "bytes": 438880,
+    "sha256": "6402da4ac08cb9dfbcaa41837dba40922fc2ab3c8ea563db20f88ff9d9ccd2c0"
+  },
+  {
+    "path": "data/sceneassets/mascot/111052/model_animated.rx3",
+    "bytes": 438880,
+    "sha256": "6402da4ac08cb9dfbcaa41837dba40922fc2ab3c8ea563db20f88ff9d9ccd2c0"
+  },
+  {
+    "path": "data/sceneassets/mascot/111052/textures.rx3",
+    "bytes": 8367504,
+    "sha256": "b67889edc9137eafed5013d7a4b150106768ca6ab4bea99c54cf60d69f39ad44"
+  },
+  {
+    "path": "data/sceneassets/mascot/111058/club.json",
+    "bytes": 333,
+    "sha256": "c77ec1b0b3824d540a67ae03e6cd9bea96954f4c1df732d657e5b3c06b86acb6"
+  },
+  {
+    "path": "data/sceneassets/mascot/111058/locomotion_feet.bin",
+    "bytes": 1012,
+    "sha256": "771a121faf16a8e3d0eb18f172e2a6dbfa19e4cc0fcd6b58a3e04be290f31bd6"
+  },
+  {
+    "path": "data/sceneassets/mascot/111058/model.rx3",
+    "bytes": 227216,
+    "sha256": "1c1fa27a7dad52a9487f57ccda1fb6b4386d390e1d477c838270e89bb0fe2385"
+  },
+  {
+    "path": "data/sceneassets/mascot/111058/model_animated.rx3",
+    "bytes": 227216,
+    "sha256": "1c1fa27a7dad52a9487f57ccda1fb6b4386d390e1d477c838270e89bb0fe2385"
+  },
+  {
+    "path": "data/sceneassets/mascot/111058/textures.rx3",
+    "bytes": 8367504,
+    "sha256": "4072f268e42d9ffe9dc80d91a01167995e3881b868a3e7aa97b5bf4d54ebf21a"
+  },
+  {
+    "path": "data/sceneassets/mascot/130026/club.json",
+    "bytes": 202,
+    "sha256": "83e0b40034878fd11246290ccb745aed6101863a66181817ab03dd3da9f3b14d"
+  },
+  {
+    "path": "data/sceneassets/mascot/130026/locomotion_feet.bin",
+    "bytes": 1012,
+    "sha256": "951e6c7f8d17ae308f3a626806b4e9e6223528a063c2a8f6a6ca6145b7b5e06a"
+  },
+  {
+    "path": "data/sceneassets/mascot/130026/model.rx3",
+    "bytes": 212704,
+    "sha256": "efff6b017022cc56d7f917e530834b5161031ba8806feb993405910f59c02c59"
+  },
+  {
+    "path": "data/sceneassets/mascot/130026/model_animated.rx3",
+    "bytes": 212704,
+    "sha256": "efff6b017022cc56d7f917e530834b5161031ba8806feb993405910f59c02c59"
+  },
+  {
+    "path": "data/sceneassets/mascot/130026/textures.rx3",
+    "bytes": 8367504,
+    "sha256": "f5456904b534e50796a18ff1daae9c42888c1f5eb181357355599471d2f1057a"
+  },
+  {
+    "path": "data/sceneassets/mascot/130066/club.json",
+    "bytes": 343,
+    "sha256": "ddfbc883b5087fbf74504d17a6b581dea15bf65f076bcbe6fea385a83de31f8b"
+  },
+  {
+    "path": "data/sceneassets/mascot/130066/locomotion_feet.bin",
+    "bytes": 1012,
+    "sha256": "e19fac62705d1dce8760de357da1220ab6d70a4f6ce6f0db5fdcec6cdc8e4572"
+  },
+  {
+    "path": "data/sceneassets/mascot/130066/model.rx3",
+    "bytes": 226080,
+    "sha256": "a0e8f88de7f110e404432e0543e319922eb9755ca5c5947778c312440b9e4679"
+  },
+  {
+    "path": "data/sceneassets/mascot/130066/model_animated.rx3",
+    "bytes": 226080,
+    "sha256": "a0e8f88de7f110e404432e0543e319922eb9755ca5c5947778c312440b9e4679"
+  },
+  {
+    "path": "data/sceneassets/mascot/130066/textures.rx3",
+    "bytes": 8367504,
+    "sha256": "f5b0f31749327cb356a76bebb92725134911eb1777dddfa83b451583dafcfea7"
+  },
+  {
+    "path": "data/sceneassets/mascot/1598/club.json",
+    "bytes": 201,
+    "sha256": "a87c98a9e65accb0efe559b48aef030fda6cd120a845f1f16d508f0c387f3194"
+  },
+  {
+    "path": "data/sceneassets/mascot/1598/locomotion_feet.bin",
+    "bytes": 1012,
+    "sha256": "5fcc73a8aba41eece67e938173a8eea3988913e7f2e72c695ccec14808d2ab52"
+  },
+  {
+    "path": "data/sceneassets/mascot/1598/model.rx3",
+    "bytes": 233984,
+    "sha256": "041cc54c0affb25478acd24ba1240540c77369e4997dbd21f07424c7d6072b89"
+  },
+  {
+    "path": "data/sceneassets/mascot/1598/model_animated.rx3",
+    "bytes": 233984,
+    "sha256": "041cc54c0affb25478acd24ba1240540c77369e4997dbd21f07424c7d6072b89"
+  },
+  {
+    "path": "data/sceneassets/mascot/1598/textures.rx3",
+    "bytes": 8367504,
+    "sha256": "12005b6f417ead56f6873b55762d60cef315a36c6c73da51e62036bfeed19cc4"
+  },
+  {
+    "path": "data/sceneassets/mascot/1719/club.json",
+    "bytes": 207,
+    "sha256": "6f758fe8394701a2ce1c779ac7562a1ed483320916ee92a8fbb87102f4f04147"
+  },
+  {
+    "path": "data/sceneassets/mascot/1719/locomotion_feet.bin",
+    "bytes": 1012,
+    "sha256": "553c859df558a667e00561f5dd84102e3c364bbe0e7178387d26cab512677a87"
+  },
+  {
+    "path": "data/sceneassets/mascot/1719/model.rx3",
+    "bytes": 238336,
+    "sha256": "f07acd849557488bb41cc4498cd8d8c68fd7af3298fdb82da3114ccb2ad0f8b6"
+  },
+  {
+    "path": "data/sceneassets/mascot/1719/model_animated.rx3",
+    "bytes": 238336,
+    "sha256": "f07acd849557488bb41cc4498cd8d8c68fd7af3298fdb82da3114ccb2ad0f8b6"
+  },
+  {
+    "path": "data/sceneassets/mascot/1719/textures.rx3",
+    "bytes": 8367504,
+    "sha256": "17df0c71fec20aa188cda311bb05e6212643d2c8b42cc9914ee0156bdb9b32ab"
+  },
+  {
+    "path": "data/sceneassets/mascot/383/club.json",
+    "bytes": 109,
+    "sha256": "43cd799e827ec4c3c98f4e8ba4a30628b7ebf3e52f5e0e2050cfba3e71ce6ff2"
+  },
+  {
+    "path": "data/sceneassets/mascot/383/locomotion_feet.bin",
+    "bytes": 1012,
+    "sha256": "a262f32e41d85ed6cc63ded791331a502455780950f8555e0734981ac571a24b"
+  },
+  {
+    "path": "data/sceneassets/mascot/383/model.rx3",
+    "bytes": 782608,
+    "sha256": "9b1733e10cb49074cb2d39cf34663e15cca60abff1af87959c6bd2da2bec997f"
+  },
+  {
+    "path": "data/sceneassets/mascot/383/model_animated.rx3",
+    "bytes": 782608,
+    "sha256": "164e67480237b1c61ed87fefb044e5098210e3c409f05711966044b366c3b542"
+  },
+  {
+    "path": "data/sceneassets/mascot/383/textures.rx3",
+    "bytes": 37749606,
+    "sha256": "cf5a6fe721396e410a86e3ae96d727b9d5139f0b5a94bca3cafe79ce6d2f73fa"
+  },
+  {
+    "path": "data/sceneassets/mascot/568/club.json",
+    "bytes": 316,
+    "sha256": "598b47f410838e1324dc2d7a83ec5b3e8e02bde0b71af27f24c3d6a36cfb2f53"
+  },
+  {
+    "path": "data/sceneassets/mascot/568/locomotion_feet.bin",
+    "bytes": 1012,
+    "sha256": "fa81dadda3ad8b151a8867dd0dfa9b664103cff20ff80650c22e4465a3afaea2"
+  },
+  {
+    "path": "data/sceneassets/mascot/568/model.rx3",
+    "bytes": 214096,
+    "sha256": "7ceb1f75f853a6ca605a4d246066bed7b14f9f82caef40e4d1c49743146e4c90"
+  },
+  {
+    "path": "data/sceneassets/mascot/568/model_animated.rx3",
+    "bytes": 214096,
+    "sha256": "7ceb1f75f853a6ca605a4d246066bed7b14f9f82caef40e4d1c49743146e4c90"
+  },
+  {
+    "path": "data/sceneassets/mascot/568/textures.rx3",
+    "bytes": 8367504,
+    "sha256": "20ea3d5674ec20f2f57cb6cbabebb1427d0f3aca282540d36d68dfe10a469466"
+  },
+  {
+    "path": "data/sceneassets/mascot/569/club.json",
+    "bytes": 208,
+    "sha256": "c9835ee6672a0c0c67f7470329847b1f28299d75bcd49a59d88de1379e551bea"
+  },
+  {
+    "path": "data/sceneassets/mascot/569/locomotion_feet.bin",
+    "bytes": 1012,
+    "sha256": "fcbfa56cf8e2683a3865e2b90bc8f3b4f3477449168a51ddf4aca70299af0453"
+  },
+  {
+    "path": "data/sceneassets/mascot/569/model.rx3",
+    "bytes": 222832,
+    "sha256": "b74c6500b8a3c19bc74c49d905c42ae5126d58108e8679814fea662684303149"
+  },
+  {
+    "path": "data/sceneassets/mascot/569/model_animated.rx3",
+    "bytes": 222832,
+    "sha256": "b74c6500b8a3c19bc74c49d905c42ae5126d58108e8679814fea662684303149"
+  },
+  {
+    "path": "data/sceneassets/mascot/569/textures.rx3",
+    "bytes": 8367504,
+    "sha256": "f79fa1186de73e91bde43b1126b28630940f563aeb2f66ff45cd2a76eb4d90b1"
+  },
+  {
+    "path": "data/sceneassets/mascot/598/club.json",
+    "bytes": 205,
+    "sha256": "c3f26af666e2b1b00fd2da4ec47f520c88766225d58459fe4a5f9aaa3b610493"
+  },
+  {
+    "path": "data/sceneassets/mascot/598/locomotion_feet.bin",
+    "bytes": 1012,
+    "sha256": "25689c04e3c09c1c98ec7e2bcef5767fa0628bc32e6429a1ace2c6926819f47c"
+  },
+  {
+    "path": "data/sceneassets/mascot/598/model.rx3",
+    "bytes": 217888,
+    "sha256": "b75ff7f005e2dc5383aa41497633478c3958f18001056b3018f7b04516844d30"
+  },
+  {
+    "path": "data/sceneassets/mascot/598/model_animated.rx3",
+    "bytes": 217888,
+    "sha256": "b75ff7f005e2dc5383aa41497633478c3958f18001056b3018f7b04516844d30"
+  },
+  {
+    "path": "data/sceneassets/mascot/598/textures.rx3",
+    "bytes": 8367504,
+    "sha256": "13200745760d826ced120c77c2799381d7642c61ee2fc3deb815a615ebeaaf76"
   }
 ]

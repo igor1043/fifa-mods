@@ -681,8 +681,8 @@
   "bones": 31,
   "files": {
     "club.json": {
-      "bytes": 208,
-      "sha256": "b6b4ed947066942aa8a02e9c0daffcd93303d2097d509f222dd84ad31d77e123"
+      "bytes": 333,
+      "sha256": "c77ec1b0b3824d540a67ae03e6cd9bea96954f4c1df732d657e5b3c06b86acb6"
     },
     "locomotion_feet.bin": {
       "bytes": 1012,
@@ -698,7 +698,7 @@
     },
     "textures.rx3": {
       "bytes": 8367504,
-      "sha256": "bc91c53d1778d21d63c7d5fb79ece5f7197f730c880a71aeb42adb48eea94cac"
+      "sha256": "4072f268e42d9ffe9dc80d91a01167995e3881b868a3e7aa97b5bf4d54ebf21a"
     }
   }
 }

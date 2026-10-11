@@ -8,6 +8,7 @@ parser=argparse.ArgumentParser(description='Preserve authored Mixamo skin and ex
 parser.add_argument('--source',required=True);parser.add_argument('--output',required=True)
 parser.add_argument('--tools',required=True);parser.add_argument('--clips',required=True)
 parser.add_argument('--club-id',type=int,required=True);parser.add_argument('--club-name',required=True)
+parser.add_argument('--repair-unweighted',action='store_true',help='Fill only unweighted source vertices from three weighted neighbours within 2 cm')
 args=parser.parse_args(sys.argv[sys.argv.index('--')+1:] if '--' in sys.argv else sys.argv[1:])
 ROOT=Path(args.output);ROOT.mkdir(parents=True,exist_ok=True)
 TOOLS=Path(args.tools);SRC=Path(args.source);CLIPS=Path(args.clips)
@@ -15,6 +16,25 @@ spec=importlib.util.spec_from_file_location('builder',TOOLS/'Build-MascotFromFbx
 vertices,indices,name,unit=b.load_source_mesh(next(SRC.glob('*.fbx')))
 mesh=next(o for o in bpy.context.scene.objects if o.type=='MESH')
 arm=next(o for o in bpy.context.scene.objects if o.type=='ARMATURE')
+repaired=[]
+unweighted=[v.index for v in mesh.data.vertices if not any(g.weight>1e-6 for g in v.groups)]
+if unweighted and args.repair_unweighted:
+    weighted=[v for v in mesh.data.vertices if any(g.weight>1e-6 for g in v.groups)]
+    if len(weighted)<3:raise ValueError('Insufficient weighted source vertices')
+    neighbour_tree=KDTree(len(weighted))
+    for v in weighted:neighbour_tree.insert(b.game_position(mesh.matrix_world@v.co),v.index)
+    neighbour_tree.balance()
+    for index in unweighted:
+        point=b.game_position(mesh.matrix_world@mesh.data.vertices[index].co)
+        neighbours=neighbour_tree.find_n(point,3)
+        if max(d for _,_,d in neighbours)>2:raise ValueError('Unweighted vertex lacks a local weighted neighbourhood')
+        influence={};total=sum(1/max(d,1e-6) for _,_,d in neighbours)
+        for _,other,d in neighbours:
+            groups=[g for g in mesh.data.vertices[other].groups if g.weight>1e-6]
+            norm=sum(g.weight for g in groups);fraction=(1/max(d,1e-6))/total
+            for g in groups:influence[g.group]=influence.get(g.group,0)+fraction*g.weight/norm
+        for group,weight in influence.items():mesh.vertex_groups[group].add([index],weight,'REPLACE')
+        repaired.append(dict(index=index,neighbours=[dict(index=i,distanceCm=d) for _,i,d in neighbours]))
 scale=180/(max(v['position'].y for v in vertices)-min(v['position'].y for v in vertices))
 floor=min(v['position'].y for v in vertices)
 center=Vector(((max(v['position'].x for v in vertices)+min(v['position'].x for v in vertices))/2,floor,(max(v['position'].z for v in vertices)+min(v['position'].z for v in vertices))/2))
@@ -106,5 +126,5 @@ result,parts,bind=b.build_rx3(template,vertices,indices,joints,weights,order,bin
 dest=ROOT/'package/data/sceneassets/mascot'/str(args.club_id);dest.mkdir(parents=True,exist_ok=True)
 for n in ('model.rx3','model_animated.rx3'):(dest/n).write_bytes(result)
 (ROOT/'converted_mesh.json').write_text(json.dumps(dict(parts=parts,bind=bind)),encoding='utf8')
-(ROOT/'conversion.json').write_text(json.dumps(dict(clubId=args.club_id,clubName=args.club_name,source=str(next(SRC.glob('*.fbx'))),heightCm=180,scale=scale,sourceVertices=len(mesh.data.vertices),exportVertices=len(vertices),triangles=len(indices)//3,rigidHeadVertices=head_count,removedOppositeLegInfluences=fixed_sides,boneMap=mapping,usedBones=order),indent=2),encoding='utf8')
+(ROOT/'conversion.json').write_text(json.dumps(dict(clubId=args.club_id,clubName=args.club_name,source=str(next(SRC.glob('*.fbx'))),heightCm=180,scale=scale,sourceVertices=len(mesh.data.vertices),exportVertices=len(vertices),triangles=len(indices)//3,rigidHeadVertices=head_count,removedOppositeLegInfluences=fixed_sides,repairedUnweightedSourceVertices=repaired,boneMap=mapping,usedBones=order),indent=2),encoding='utf8')
 print('CONVERTED',len(vertices),len(indices)//3,head_count,'rigid head vertices')

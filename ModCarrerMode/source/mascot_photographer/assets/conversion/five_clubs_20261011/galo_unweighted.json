@@ -1,0 +1,78 @@
+[
+  {
+    "index": 3188,
+    "point": [
+      8.708945274353027,
+      52.84423065185547,
+      -5.032731056213379
+    ],
+    "neighbors": [
+      {
+        "index": 3205,
+        "distanceCm": 0.5502074956893921,
+        "groups": [
+          {
+            "name": "mixamorig:Hips",
+            "weight": 0.24313725531101227
+          },
+          {
+            "name": "mixamorig:LeftUpLeg",
+            "weight": 0.19607843458652496
+          },
+          {
+            "name": "mixamorig:Spine",
+            "weight": 0.29019609093666077
+          },
+          {
+            "name": "mixamorig:Spine1",
+            "weight": 0.2705882489681244
+          }
+        ]
+      },
+      {
+        "index": 3496,
+        "distanceCm": 1.258770227432251,
+        "groups": [
+          {
+            "name": "mixamorig:Hips",
+            "weight": 0.3019607961177826
+          },
+          {
+            "name": "mixamorig:LeftUpLeg",
+            "weight": 0.2078431397676468
+          },
+          {
+            "name": "mixamorig:Spine",
+            "weight": 0.24313725531101227
+          },
+          {
+            "name": "mixamorig:Spine1",
+            "weight": 0.24705882370471954
+          }
+        ]
+      },
+      {
+        "index": 3120,
+        "distanceCm": 1.3527268171310425,
+        "groups": [
+          {
+            "name": "mixamorig:Hips",
+            "weight": 0.32156863808631897
+          },
+          {
+            "name": "mixamorig:LeftUpLeg",
+            "weight": 0.3019607961177826
+          },
+          {
+            "name": "mixamorig:Spine",
+            "weight": 0.21960784494876862
+          },
+          {
+            "name": "mixamorig:Spine1",
+            "weight": 0.1568627506494522
+          }
+        ]
+      }
+    ]
+  }
+]

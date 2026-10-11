@@ -7,11 +7,12 @@ parser=argparse.ArgumentParser(description="Preview source FBX and final FIFA RX
 parser.add_argument('--source',required=True)
 parser.add_argument('--output',required=True)
 parser.add_argument('--tools',required=True)
+parser.add_argument('--basecolor',help='Explicit diffuse map, matching the package conversion')
 args=parser.parse_args(sys.argv[sys.argv.index('--')+1:] if '--' in sys.argv else sys.argv[1:])
-root=Path(args.output);tools=Path(args.tools)
+root=Path(args.output).resolve();tools=Path(args.tools).resolve()
 spec=importlib.util.spec_from_file_location('builder',tools/'Build-MascotFromFbx.py');builder=importlib.util.module_from_spec(spec);spec.loader.exec_module(builder)
 for club in [{'folder': '.'}]:
- folder=root;src=Path(args.source)
+ folder=root;src=Path(args.source).resolve()
  vertices,indices,_,_=builder.load_source_mesh(next(src.glob('*.fbx')))
  original={'positions':[list(v['position']) for v in vertices],'uvs':[list(v['uv']) for v in vertices],'indices':indices}
  (folder/'source_reference.json').write_text(json.dumps(original),encoding='utf8')
@@ -25,7 +26,8 @@ for club in [{'folder': '.'}]:
   light=bpy.data.lights.new('Area','AREA');light.energy=power;light.size=4;ob=bpy.data.objects.new('Area',light);scene.collection.objects.link(ob);ob.location=loc;ob.rotation_euler=(Vector((0,0,1.2))-ob.location).to_track_quat('-Z','Y').to_euler()
  camdata=bpy.data.cameras.new('Camera');cam=bpy.data.objects.new('Camera',camdata);scene.collection.objects.link(cam);camdata.type='ORTHO';camdata.ortho_scale=2.25;scene.camera=cam
  cam.location=(0,-5,.90);cam.rotation_euler=(Vector((0,0,.90))-cam.location).to_track_quat('-Z','Y').to_euler()
- textures={'original':next(p for p in src.rglob('*') if p.is_file() and ('basecolor' in p.name.lower() or 'tripo_rgb' in p.name.lower())),'converted':folder/'exported_basecolor.png'}
+ basecolor=Path(args.basecolor).resolve() if args.basecolor else next(p for p in src.rglob('*') if p.is_file() and ('basecolor' in p.name.lower() or 'tripo_rgb' in p.name.lower()))
+ textures={'original':basecolor,'converted':folder/'exported_basecolor.png'}
  for label in ['original','idle0.5','walk0.5','cheer0.5']:
   prev=bpy.data.objects.get('Mascot preview')
   if prev:bpy.data.objects.remove(prev,do_unlink=True)

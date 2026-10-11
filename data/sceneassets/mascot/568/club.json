@@ -1,48 +1,8 @@
 {
   "id": 568,
   "name": "Cruzeiro",
-  "meshSource": "ballboy_0_0_1_0_swarmmesh_mesh.fbx",
-  "textureSource": "specificballboy_568_0_1_textures.rx3",
-  "textureSourceSha256": "a1b3abf3611e409bcb5136caea29d7d5e4baae63e952a7244a8a08079e0d0362",
-  "modelSha256": "49566501322053f3866e9d98615736a188f1547acdb2c41066cb25f9c094994d",
-  "vertexCount": 14869,
-  "triangleCount": 24220,
-  "boundsCm": {
-    "min": [
-      -67.875,
-      0.92138671875,
-      -23.359375
-    ],
-    "max": [
-      68.25,
-      184.0,
-      34.5625
-    ]
-  },
-  "boneCount": 31,
-  "usedBones": [
-    2,
-    3,
-    4,
-    5,
-    7,
-    8,
-    9,
-    11,
-    12,
-    13,
-    14,
-    16,
-    17,
-    18,
-    19,
-    21,
-    22,
-    23,
-    24
-  ],
-  "rightArmWeightedVertices": 2223,
-  "leftArmWeightedVertices": 2531,
-  "rigMethod": "31-bone FIFA crowd-rig weights transferred by nearest-surface interpolation",
-  "status": "generated; visual game validation pending"
+  "importedFrom": "tripo_convert_74063ef8-1aa5-44c3-9243-b1c81588dc75.fbx",
+  "basecolorSource": "fox_mascot_3d_model_basecolor.JPEG",
+  "normalSource": "fox_mascot_3d_model_normal.PNG",
+  "rig": "FIFA16 31 bones; preserved Mixamo weights; rigid head; independent limbs"
 }

@@ -1,0 +1,13 @@
+PASS club=111058 direction=-1 route_cm=1050.000 pause=unchanged yaw=palette poses=upright
+PASS club=111058 direction=1 route_cm=5850.000 pause=unchanged yaw=palette poses=upright
+PASS club=1039 direction=-1 route_cm=1050.000 pause=unchanged yaw=palette poses=upright
+PASS club=1039 direction=1 route_cm=5849.980 pause=unchanged yaw=palette poses=upright
+PASS club=1041 direction=-1 route_cm=5249.988 pause=unchanged yaw=palette poses=upright
+PASS club=1041 direction=1 route_cm=1650.000 pause=unchanged yaw=palette poses=upright
+PASS club=568 direction=-1 route_cm=5849.995 pause=unchanged yaw=palette poses=upright
+PASS club=568 direction=1 route_cm=1050.000 pause=unchanged yaw=palette poses=upright
+PASS club=130066 direction=-1 route_cm=5849.983 pause=unchanged yaw=palette poses=upright
+PASS club=130066 direction=1 route_cm=1050.000 pause=unchanged yaw=palette poses=upright
+PASS 30 second stop: 15 seconds interaction, no early departure
+PASS waypoint bag: all ten destinations before repetition, 30 seconds dwell
+Offline locomotion cost: 14.70 us/callback (no engine/driver/log cost)

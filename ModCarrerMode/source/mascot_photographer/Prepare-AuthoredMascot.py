@@ -8,6 +8,7 @@ parser.add_argument('--source',required=True);parser.add_argument('--output',req
 parser.add_argument('--tools',required=True);parser.add_argument('--clips',required=True)
 parser.add_argument('--club-id',type=int,required=True);parser.add_argument('--club-name',required=True)
 parser.add_argument('--texture-template',required=True)
+parser.add_argument('--basecolor',help='Explicit diffuse map when the supplied filename is not basecolor/tripo_rgb')
 args=parser.parse_args()
 ROOT=Path(args.output);TOOLS=Path(args.tools);SRC=Path(args.source)
 sys.path[:0]=[str(TOOLS),str(TOOLS/'vendor/rx3tools'),str(Path(__file__).resolve().parent)]
@@ -32,13 +33,15 @@ def texture(image,limit,mips=None):
     struct.pack_into('<I',data,0,len(data));struct.pack_into('<4H',data,8,w,h,1,count)
     return bytes(data)
 sections=[s for s in rx.sections if s[0]==TEXTURE]
-sections[0][1]=texture(Image.open(next((p for p in SRC.rglob('*') if p.is_file() and ('basecolor' in p.name.lower() or 'tripo_rgb' in p.name.lower())))),2048)
-sections[2][1]=texture(Image.open(next(p for p in SRC.rglob('*') if p.is_file() and 'normal' in p.name.lower())),1024)
+basecolor=Path(args.basecolor) if args.basecolor else next((p for p in SRC.rglob('*') if p.is_file() and ('basecolor' in p.name.lower() or 'tripo_rgb' in p.name.lower())))
+sections[0][1]=texture(Image.open(basecolor),2048)
+normal=next(p for p in SRC.rglob('*') if p.is_file() and 'normal' in p.name.lower())
+sections[2][1]=texture(Image.open(normal),1024)
 (dest/'textures.rx3').write_bytes(rx.build())
 (ROOT/'exported_basecolor.png').write_bytes(rx3_colour_png(dest/'textures.rx3'))
 parts,raw=read_model(Rx3((dest/'model_animated.rx3').read_bytes()));part=parts[0];bind=matrices(raw)
 (dest/'locomotion_feet.bin').write_bytes(foot_markers(part,bind))
-(dest/'club.json').write_text(json.dumps(dict(id=args.club_id,name=args.club_name,importedFrom=next(SRC.glob('*.fbx')).name,rig='FIFA16 31 bones; preserved Mixamo weights; rigid head; independent limbs'),ensure_ascii=False,indent=2),encoding='utf8')
+(dest/'club.json').write_text(json.dumps(dict(id=args.club_id,name=args.club_name,importedFrom=next(SRC.glob('*.fbx')).name,basecolorSource=basecolor.name,normalSource=normal.name,rig='FIFA16 31 bones; preserved Mixamo weights; rigid head; independent limbs'),ensure_ascii=False,indent=2),encoding='utf8')
 clips=Path(args.clips)
 poseData={'bind':np.array(part['positions']).reshape(-1,3).tolist()};report={}
 for label in ('idle','walk','cheer'):

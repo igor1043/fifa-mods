@@ -7,7 +7,7 @@ Não há lista fixa de clubes. Pacotes ausentes ou incompletos mantêm o fotógr
 
 ## Modelos versionados
 
-Cada pasta numérica precisa de model.rx3 e textures.rx3; model_animated.rx3 é opcional para animação. club.json registra a origem da conversão. Os modelos, texturas e marcadores estão versionados em data/sceneassets/mascot/. IDs: Atlético Mineiro 1035, Flamengo 1043, Palmeiras 383, Cruzeiro 568, Vasco 569, Bahia 1598, Fortaleza 111052, Remo 130026, Santa Cruz 111058, São Paulo 598 e Vitória-BA 1719. Os IDs novos foram conferidos nos bancos locais do jogo e do desenvolvimento; o Remo usa o ID do banco customizado. Copie os pacotes completos para a pasta do jogo antes de usar Install-Locomotion.ps1.
+Cada pasta numérica precisa de model.rx3 e textures.rx3; model_animated.rx3 é opcional para animação. club.json registra a origem da conversão. Os modelos, texturas e marcadores estão versionados em data/sceneassets/mascot/. IDs: Atlético Mineiro 1035, Athletico-PR 1039, Corinthians 1041, Flamengo 1043, Palmeiras 383, Cruzeiro 568, Vasco 569, Bahia 1598, Fortaleza 111052, Remo 130026, Santa Cruz 111058, São Paulo 598, Vitória-BA 1719 e Paulista de Jundiaí 130066. Os IDs novos foram conferidos nos bancos locais do jogo e do desenvolvimento; Remo e Paulista usam IDs do banco customizado. Copie os pacotes completos para a pasta do jogo antes de usar Install-Locomotion.ps1.
 
 ## Comportamento e desempenho
 
@@ -116,14 +116,30 @@ $taskScripts = 'ModCarrerMode/source/mascot_photographer'
 $taskSource = "$taskScripts/assets/originals/BAHIA"
 $taskClips = "$taskScripts/assets/animations"
 $taskOutput = 'J:/mods/fifa 16/estudos fifa 16/rebuild_bahia'
-& 'C:/Program Files/Blender Foundation/Blender 4.4/blender.exe' --background --factory-startup --python "$taskScripts/Build-AuthoredMascot.py" -- --source $taskSource --output $taskOutput --tools $taskTools --clips $taskClips --club-id 1598 --club-name Bahia
+& 'C:/Program Files/Blender Foundation/Blender 4.4/blender.exe' --background --factory-startup --python-exit-code 1 --python "$taskScripts/Build-AuthoredMascot.py" -- --source $taskSource --output $taskOutput --tools $taskTools --clips $taskClips --club-id 1598 --club-name Bahia
 python "$taskScripts/Prepare-AuthoredMascot.py" --source $taskSource --output $taskOutput --tools $taskTools --clips $taskClips --club-id 1598 --club-name Bahia --texture-template 'data/sceneassets/mascot/1035/textures.rx3'
 ```
 
 Os parâmetros correspondentes dos outros clubes constam em assets/conversion/six_clubs_20261010/clubs.json. Render-AuthoredMascot.py refaz as quatro imagens com --source, --output e --tools, após os dois passos acima.
 
-verify_locomotion.cmd aceita a raiz da fixture e uma lista opcional de IDs; sem lista mantém os cinco clubes anteriores. Os binds das fixtures são as 31 matrizes do RX3, em ordem row-major float32; os marcadores são cópias dos respectivos pacotes. A execução desta etapa usou os seis IDs acima.
+verify_locomotion.cmd aceita a raiz da fixture e uma lista opcional de IDs; sem lista mantém os cinco clubes anteriores. Os binds das fixtures são as 31 matrizes do RX3 em float32, conservando a disposição original com translação nos índices 12–14; os marcadores são cópias dos respectivos pacotes. A execução desta etapa usou os seis IDs acima.
 
 ### Ativação da revisão 22
 
 A DLL atual foi preparada como mascot_goal_line_v22.dll em jogo e desenvolvimento. O enabled.txt tem uma única entrada de mascote e conserva as outras DLLs. O processo aberto não recebeu uma segunda injeção; a nova DLL passa a valer na próxima abertura do FIFA. Install-Locomotion.ps1 continua exigindo o jogo fechado para futuras substituições e normaliza entradas de versões anteriores para evitar duplicação. Espera atual: 30 segundos por ponto, com 15 segundos de interação; comemoração de gol também dura 15 segundos. Pausa congela o mascote; recuo das animações no replay continua sem implementação.
+
+## Novos modelos e pintura — 11/10/2026
+
+Athletico-PR (1039), Corinthians (1041) e Paulista de Jundiaí (130066) foram adicionados. Cruzeiro (568) e Atlético Mineiro (1035) receberam os novos FBX fornecidos. Santa Cruz (111058) conserva o FBX anterior e usa a nova pintura PNG da subpasta SANTA+CRUZ, conforme solicitado. A escolha explícita de textura fica em input_selection.json; Prepare-AuthoredMascot.py e Render-AuthoredMascot.py aceitam --basecolor para reproduzir essa escolha. Os IDs foram conferidos nos dois bancos locais, usando o deslocamento +1 definido na metadata; nenhum banco foi alterado.
+
+Os seis originais estão em assets/originals, incluindo o ZIP do Paulista. Auditorias, renders e parâmetros estão em assets/conversion/<clube>. A pasta histórica five_clubs_20261011 reúne também o Atlético Mineiro, totalizando seis modelos nesta etapa. Cada pacote tem cinco arquivos; os 14 clubes instalados totalizam 70 arquivos conferidos entre jogo e desenvolvimento. O plugin continua descobrindo os pacotes por ID, sem nova DLL para cada mascote.
+
+### Mandíbula do Corinthians
+
+A frente do queixo já acompanhava a cabeça, mas vértices laterais ainda recebiam influência do pescoço e dos ombros, inclusive pontos com peso de cabeça zero. repair_corinthians_head_weights.py remove essas influências na mandíbula/barba e no contorno inferior do cabelo dentro de uma região delimitada, preservando a geometria, UV, normais, tangentes, índices, bind e pesos do restante do corpo. O osso da cabeça não foi deslocado. São 383 vértices corrigidos; pesos somam 255. A auditoria independente inclui 192 vértices de pele da face inferior. Em 12 poses dos três clipes, o erro máximo de forma dos pontos corrigidos caiu de até 5,65 cm para menos de 0,0001 cm.
+
+Para reproduzir, execute a conversão genérica em uma pasta separada, prepare suas texturas, depois execute assets/conversion/CORINTHIANS/repair_corinthians_head_weights.py com --package, --output e --tools. Copie os dois modelos candidatos para o pacote e rode Prepare-AuthoredMascot.py novamente para recalcular poses, marcadores e hashes; Render-AuthoredMascot.py produz a revisão visual. head_weights_report.json e head_comparison.png documentam a correção final. A validação é offline; reinicie o FIFA para descarregar os recursos antigos e conferir a animação em partida.
+
+### Novo Atlético Mineiro
+
+O modelo aprovado tem 6.356 vértices exportados, 10.004 triângulos e rig adaptado a 31 ossos. O FBX tinha um único vértice sem pintura na cintura. Build-AuthoredMascot.py --repair-unweighted interpolou somente esse ponto a partir de três vizinhos já pintados a menos de 1,36 cm; o arquivo original foi preservado. A opção é explícita e rejeita vizinhos além de 2 cm. O rig e a locomoção passaram nos testes offline em ambos os sentidos, incluindo pausa, giro, parada de 30 segundos, interação de 15 segundos e dez destinos antes de repetir. Use --python-exit-code 1 ao executar os scripts no Blender para que erros de Python também interrompam a conversão.
