@@ -229,7 +229,7 @@ static bool mascot_invert_affine(const float* matrix, float* output)
     /* Keep the mascot standing: seated/non-standing crowd postures are never copied. */
     // Upright geometry alone admits early/late frames of seated clips.
     // Only the extracted standing goal clip is eligible for native copying.
-    if (posture != 2 || requested!=14 || behavior!=14 || clock.clip!=109) return false;
+    if (!mascot_goal_pose_allowed(posture,requested,behavior,clock.clip)) return false;
     memcpy(pose,clock.sample,sizeof(clock.sample));
     if (pose[2][13] < 75 || pose[2][13] > 160 || pose[14][13] < 120) return false;
     if(!mascot_pose_upright(pose))return false;

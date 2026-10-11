@@ -1,6 +1,6 @@
 # Mascote na linha de fundo
 
-Compile com build.cmd. Plugin ativo: ModCarrerMode/mods/mascot_single/mascot_goal_line_v22.dll.
+Compile com build.cmd. Plugin ativo: ModCarrerMode/mods/mascot_single/mascot_goal_line_v23.dll.
 Somente uma versão do plugin deve estar em enabled.txt. A cópia sem sufixo é mantida como artefato de compilação.
 A DLL usa o ID do mandante e procura pacotes em data/sceneassets/mascot/<ID>/.
 Não há lista fixa de clubes. Pacotes ausentes ou incompletos mantêm o fotógrafo normal.
@@ -143,3 +143,17 @@ Para reproduzir, execute a conversão genérica em uma pasta separada, prepare s
 ### Novo Atlético Mineiro
 
 O modelo aprovado tem 6.356 vértices exportados, 10.004 triângulos e rig adaptado a 31 ossos. O FBX tinha um único vértice sem pintura na cintura. Build-AuthoredMascot.py --repair-unweighted interpolou somente esse ponto a partir de três vizinhos já pintados a menos de 1,36 cm; o arquivo original foi preservado. A opção é explícita e rejeita vizinhos além de 2 cm. O rig e a locomoção passaram nos testes offline em ambos os sentidos, incluindo pausa, giro, parada de 30 segundos, interação de 15 segundos e dez destinos antes de repetir. Use --python-exit-code 1 ao executar os scripts no Blender para que erros de Python também interrompam a conversão.
+
+## Revisão 23 — trajetos próximos
+
+A caminhada escolhe somente destinos a até 600 cm da posição atual. Entre os vizinhos elegíveis, prefere aquele cuja última visita ocorreu há mais tempo; a distância desempata pontos ainda não visitados. A visita é registrada na chegada, portanto um gol que interrompe a caminhada não conta como visita ao destino abandonado. A espera continua em 30 segundos, com 15 segundos de interação. Ao atingir uma extremidade, revisitar um vizinho é necessário para prosseguir.
+
+Os dez pontos de spawn continuam disponíveis. Durante uma caminhada normal, cada uma das duas regiões com cinco pontos tem trechos de 450 ou 600 cm; o mascote permanece na região sorteada, sem atravessar o vão central de 1.800 cm nem procurar um ponto distante para completar a antiga bolsa global. O intervalo conserva a coordenada lateral e troca o gol. Nova partida pode sortear outra região.
+
+verify_locomotion.cmd passou com seis rigs, os três clipes e ambos os sentidos, além de 600 escolhas locais a partir dos dez pontos, preferência pelo vizinho menos recente e exploração dos cinco pontos de cada região. Três interrupções por gol verificam parada imediata, fase congelada durante pausa, 30 segundos de repouso ao fim da comemoração e retomada local mesmo quando o gol interrompe o deslocamento. verify.cmd confere também o filtro nativo de comemoração: postura em pé e comportamento/clipe 14:109; outras poses continuam recusadas.
+
+A detecção de gols permanece igual: gol do mandante confirmado por 750 ms ativa 15 segundos no relógio de animação. A pose nativa da torcida 14:109 é usada quando disponível e válida; caso contrário, usa o clipe de comemoração em pé incluído. O log distingue HOME_GOAL_CONFIRMED, animation_pose kind=home_goal e home_goal_celebration_finished, incluindo a origem efetivamente usada. Uma confirmação de placar sozinha não comprova que a pose nativa foi copiada.
+
+A DLL foi compilada como mascot_goal_line_v23.dll e preparada para a próxima abertura, com uma única entrada de mascote em enabled.txt. A versão 22 do processo aberto não recebeu outra injeção. Backups de enabled.txt ficam em ModCarrerMode/backups/mascot_local_route_v23_20261011, tanto no jogo como no desenvolvimento.
+
+Validação em partida da revisão 23: Flamengo mandante (1043), gol de 0:0 para 1:0. O log registrou HOME_GOAL_CONFIRMED, kind=home_goal com approved_standing_cheer, home_goal_celebration_finished e retorno a idle. Em seguida, confirmou o trajeto Z=3150 → 2700 cm, com chegada após 450 cm. Nesse gol foi usada a alternativa em pé; não houve registro de cópia da pose nativa 14:109 nessa sequência. Os registros recentes da revisão 22 confirmam uso de crowd_goal_14_clip_109, cuja seleção foi preservada na revisão 23. Pausas alongam o intervalo de relógio real, pois os 15 segundos são contados no relógio de animação. Evidência resumida: tests/validation_v23_20261011.json.

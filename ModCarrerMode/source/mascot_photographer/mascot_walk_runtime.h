@@ -1,12 +1,14 @@
 #pragma once
+#include <limits.h>
 #include "mascot_locomotion_math.h"
 
 struct MascotWalkQuaternion { float x, y, z, w; };
 struct MascotWalkRuntime {
     bool ready=false, walking=false, turning=false, cheering=false, hasPose=false, transitioning=false;
-    int home=-1, direction=0, waypoint=0, nextWaypoint=0, poseKind=-1;
-    unsigned int generation=0, visitedWaypoints=0;
-    uint32_t routeSeed=0;
+    int home=-1, direction=0, poseKind=-1;
+    unsigned int waypoint=0, nextWaypoint=0;
+    unsigned int generation=0, waypointVisitSerial=0;
+    unsigned int waypointLastVisit[mascotGoalLineDestinationCount]{};
     LONG session=0;
     uint64_t lastTick=0, transitionTick=0, seatPollTick=0;
     float position[3]{}, idleRemaining=0, walkTime=0, walkDistance=0;
@@ -20,6 +22,7 @@ static MascotWalkRuntime mascotWalkRuntime;
 static constexpr float mascotWalkPlaybackRate=1.0f;
 static constexpr float mascotWaypointDwellSeconds=30.0f;
 static constexpr float mascotWaypointInteractionSeconds=15.0f;
+static constexpr float mascotWaypointMaxTravelCm=600.0f;
 static bool mascot_waypoint_interaction() {
     const MascotWalkRuntime& s=mascotWalkRuntime;
     const float idle=(mascotWaypointDwellSeconds-mascotWaypointInteractionSeconds)*.5f;
@@ -182,10 +185,24 @@ static void mascot_orient_pose(float pose[31][16],float yaw) {
 static unsigned int mascot_nearest_waypoint(float z) {
     unsigned int best=0;float nearest=1.0e30f;for(unsigned int i=0;i<mascotGoalLineDestinationCount;++i){const float d=fabsf(z-mascotGoalLineDestinations[i]);if(d<nearest){nearest=d;best=i;}}return best;
 }
+static unsigned int mascot_local_destination(const MascotWalkRuntime& s,unsigned int at) {
+    unsigned int best=at,oldest=UINT_MAX;
+    float nearest=1.0e30f;
+    for(unsigned int i=0;i<mascotGoalLineDestinationCount;++i) {
+        const float travel=fabsf(mascotGoalLineDestinations[i]-s.position[2]);
+        if(i==at || travel>mascotWaypointMaxTravelCm+.01f)continue;
+        // Only nearby stops are eligible. Prefer the least recently visited
+        // neighbour; the distance breaks ties without a cross-goal detour.
+        if(s.waypointLastVisit[i]<oldest || (s.waypointLastVisit[i]==oldest && travel<nearest)) {
+            best=i;oldest=s.waypointLastVisit[i];nearest=travel;
+        }
+    }
+    return best;
+}
 static void mascot_walk_reset(const MascotFrameContext& frame,uint64_t now) {
     MascotWalkRuntime& s=mascotWalkRuntime;s={};s.ready=true;s.home=frame.home;s.generation=frame.generation;s.session=InterlockedCompareExchange(&mascotPlacementSession,0,0);s.lastTick=now;s.yaw=originalYaw;
     memcpy(s.position,targetPosition,sizeof(s.position));s.waypoint=mascot_nearest_waypoint(s.position[2]);uint32_t seed=(uint32_t)now^(uint32_t)(now>>32)^(uint32_t)frame.home^(uint32_t)s.session;
-    s.visitedWaypoints=1u<<s.waypoint;s.routeSeed=mascot_mix_position_seed(seed);
+    s.waypointVisitSerial=1;s.waypointLastVisit[s.waypoint]=1;
     s.idleRemaining=mascotWaypointDwellSeconds;s.direction=(seed&1)?1:-1;if(s.waypoint==0)s.direction=1;if(s.waypoint+1>=mascotGoalLineDestinationCount)s.direction=-1;
     s.nextWaypoint=(unsigned int)((int)s.waypoint+s.direction);
 }
@@ -222,16 +239,10 @@ static void mascot_walk_update(const MascotFrameContext& frame,LONG mode,uint64_
                 s.idleRemaining-=dt;
                 if(s.idleRemaining<=0) {
                     const unsigned int at=mascot_nearest_waypoint(s.position[2]);
-                    const unsigned int all=(1u<<mascotGoalLineDestinationCount)-1;
-                    if((s.visitedWaypoints&all)==all)s.visitedWaypoints=1u<<at;
-                    unsigned int candidates[mascotGoalLineDestinationCount],count=0;
-                    for(unsigned int i=0;i<mascotGoalLineDestinationCount;++i)
-                        if(i!=at && !(s.visitedWaypoints&(1u<<i)))candidates[count++]=i;
-                    s.routeSeed=mascot_mix_position_seed(s.routeSeed);
-                    s.waypoint=at;s.nextWaypoint=candidates[s.routeSeed%count];
-                    s.visitedWaypoints|=1u<<s.nextWaypoint;
+                    s.waypoint=at;s.nextWaypoint=mascot_local_destination(s,at);
                     s.direction=mascotGoalLineDestinations[s.nextWaypoint]>s.position[2]?1:-1;
-                    s.walkTime=s.walkDistance=0;s.turning=true;
+                    s.walkTime=s.walkDistance=0;s.turning=s.nextWaypoint!=at;
+                    if(!s.turning)s.idleRemaining=mascotWaypointDwellSeconds;
                 }
             }
         }
@@ -263,6 +274,7 @@ static void mascot_walk_update(const MascotFrameContext& frame,LONG mode,uint64_
                 s.position[2]+=remaining<0?-travel:travel;
                 if(fabsf(goal-s.position[2])<.02f) {
                     s.position[2]=goal;s.waypoint=s.nextWaypoint;s.walking=false;
+                    s.waypointLastVisit[s.waypoint]=++s.waypointVisitSerial;
                     s.idleRemaining=mascotWaypointDwellSeconds;s.clipTime=0;
                     log_event("walk_end club=%d z=%.2f distance_cm=%.2f",frame.home,s.position[2],s.walkDistance);
                 }

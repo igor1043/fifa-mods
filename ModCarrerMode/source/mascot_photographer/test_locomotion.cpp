@@ -109,18 +109,47 @@ int wmain(int argc,wchar_t** argv) {
         mascot_walk_update(frame,2,30000,.05f);
         if(!mascotWalkRuntime.walking && !mascotWalkRuntime.turning)return 18;
         printf("PASS 30 second stop: 15 seconds interaction, no early departure\n");
-        mascot_walk_reset(frame,1000);
-        unsigned int seen=1u<<mascotWalkRuntime.waypoint;
-        for(unsigned int choice=0;choice<30;++choice) {
-            MascotWalkRuntime& s=mascotWalkRuntime;
-            if(seen==((1u<<mascotGoalLineDestinationCount)-1))seen=1u<<s.waypoint;
-            s.walking=s.turning=false;s.idleRemaining=0;
-            mascot_walk_update(frame,2,1000+choice*16,.016f);
-            if(seen&(1u<<s.nextWaypoint))return 15;
-            seen|=1u<<s.nextWaypoint;
-            s.position[2]=mascotGoalLineDestinations[s.nextWaypoint];s.waypoint=s.nextWaypoint;
+        for(unsigned int start=0;start<mascotGoalLineDestinationCount;++start) {
+            targetPosition[2]=mascotGoalLineDestinations[start];mascot_walk_reset(frame,1000);
+            unsigned int seen=1u<<start;
+            for(unsigned int choice=0;choice<60;++choice) {
+                MascotWalkRuntime& s=mascotWalkRuntime;
+                s.walking=s.turning=false;s.idleRemaining=0;
+                const float previous=s.position[2];
+                mascot_walk_update(frame,2,1000+choice*32,.016f);
+                const float next=mascotGoalLineDestinations[s.nextWaypoint];
+                if(s.nextWaypoint==s.waypoint || fabsf(next-previous)>600.01f || next*previous<=0)return 15;
+                // Returning is allowed only when no less-recent eligible stop exists.
+                for(unsigned int i=0;i<mascotGoalLineDestinationCount;++i)
+                    if(i!=s.waypoint && fabsf(mascotGoalLineDestinations[i]-previous)<=600.01f &&
+                       s.waypointLastVisit[i]<s.waypointLastVisit[s.nextWaypoint])return 20;
+                seen|=1u<<s.nextWaypoint;
+                s.position[2]=next;s.turning=false;s.walking=true;
+                mascot_walk_update(frame,2,1016+choice*32,.016f);
+                if(s.walking || s.waypointLastVisit[s.waypoint]!=s.waypointVisitSerial)return 21;
+            }
+            if(seen!=(start<5?0x1fu:0x3e0u))return 22;
         }
-        printf("PASS waypoint bag: all ten destinations before repetition, 30 seconds dwell\n");
+        printf("PASS 600 local choices: max 6 metres, both five-stop regions explored, least-recent neighbour preferred\n");
+        // Repeat goal interruptions, including a paused goal/replay. Arrival
+        // history must not count destinations abandoned by the celebration.
+        for(unsigned int goal=0;goal<3;++goal) {
+            targetPosition[2]=3150;mascot_walk_reset(frame,1000);
+            MascotWalkRuntime& s=mascotWalkRuntime;s.idleRemaining=0;
+            mascot_walk_update(frame,2,1016,.016f);
+            s.position[2]=2925;s.walking=true;s.turning=false;
+            const float z=s.position[2];const unsigned int visits=s.waypointVisitSerial;
+            for(unsigned int tick=0;tick<900;++tick)mascot_walk_update(frame,3,1032+tick*16,1.0f/60);
+            if(!s.cheering || s.walking || s.turning || s.position[2]!=z || s.waypointVisitSerial!=visits)return 23;
+            const float clip=s.clipTime;
+            for(unsigned int tick=0;tick<300;++tick)mascot_walk_update(frame,3,16032+tick*16,0);
+            if(s.clipTime!=clip || s.position[2]!=z)return 24;
+            mascot_walk_update(frame,2,22000,.016f);
+            if(s.cheering || s.walking || s.turning || s.idleRemaining<29.98f)return 25;
+            s.idleRemaining=0;mascot_walk_update(frame,2,22016,.016f);
+            if(fabsf(mascotGoalLineDestinations[s.nextWaypoint]-z)>600.01f)return 26;
+        }
+        printf("PASS three home-goal interruptions: stationary cheer, pause freezes phase, 30-second rest then nearby route\n");
     }
     alignas(16) unsigned char benchmarkRecord[80]{};
     MascotFrameContext benchmark{1,(uintptr_t)benchmarkRecord,1,0,569,1};

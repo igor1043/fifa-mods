@@ -9,7 +9,7 @@ if errorlevel 1 exit /b 1
 if not exist ..\..\mods\mascot_single mkdir ..\..\mods\mascot_single
 copy /y build\mascot_goal_line.dll ..\..\mods\mascot_single\mascot_goal_line.dll >nul
 if errorlevel 1 exit /b 1
-copy /y build\mascot_goal_line.dll ..\..\mods\mascot_single\mascot_goal_line_v22.dll >nul
+copy /y build\mascot_goal_line.dll ..\..\mods\mascot_single\mascot_goal_line_v23.dll >nul
 if errorlevel 1 exit /b 1
 popd
 endlocal

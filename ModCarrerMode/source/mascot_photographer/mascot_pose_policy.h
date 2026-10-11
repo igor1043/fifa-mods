@@ -1,5 +1,8 @@
 #pragma once
 #include <math.h>
+[[maybe_unused]] static bool mascot_goal_pose_allowed(unsigned char posture,int requested,int behavior,int clip){
+ return posture==2 && requested==14 && behavior==14 && clip==109;
+}
 static float mascot_joint_distance(const float pose[31][16],unsigned int a,unsigned int b){
  const float x=pose[a][12]-pose[b][12],y=pose[a][13]-pose[b][13],z=pose[a][14]-pose[b][14];return sqrtf(x*x+y*y+z*z);
 }
