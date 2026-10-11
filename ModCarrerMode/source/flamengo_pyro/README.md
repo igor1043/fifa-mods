@@ -8,7 +8,7 @@ O diretório conserva o nome histórico `flamengo_pyro`, mas o módulo atual é 
 - Gol do mandante: 25 segundos de efeitos. Gol do visitante não inicia um novo show.
 - Fogos, confete e duas camadas de fumaça; encerramento gradual das fontes, com cauda de partículas incluída na duração.
 - Prévia de estádio, seleção de uniformes e outros menus não acionam abertura. Reiniciar Partida rearma abertura e detector de gols.
-- Pausa/replay não armam novos disparos; os recursos de um efeito iniciado são conservados para os caminhos nativos de reprodução.
+- A pausa interrompe a emissão em curso e preserva o evento consumido e o placar. Voltar à partida, abrir seleção de lados/detalhes ou reconstruir tabelas Lua não rearma a fumaça. Abertura e gols do mandante são os únicos disparos automáticos.
 - Sem comandos F7/F8: os gatilhos são automáticos.
 
 ## Compilação
@@ -35,7 +35,7 @@ data/sceneassets/particles/stadium_pyrotechnics_0.lnx
 data/sceneassets/particles/stadium_pyrotechnics_0.rx3
 ```
 
-O par `.lnx/.rx3` precisa corresponder ao módulo. Não é gerado pelo build C++ e não é publicado neste commit de código. Preserve os recursos já instalados ou use o pacote local correspondente.
+O par `.lnx/.rx3`, a DLL e as configurações correspondentes estão incluídos no pacote publicado. O build C++ atualiza a DLL; preserve o par de recursos ao instalar.
 
 Em `ModCarrerMode/mods/enabled.txt`, adicione uma única entrada:
 
@@ -67,7 +67,7 @@ entrance=1
 goal=1
 ```
 
-`pyrotechnics` é a chave geral; `entrance` e `goal` controlam separadamente abertura e gol. Preserve as outras chaves e preferências existentes ao editar. Essas opções são consultadas durante a sessão; na ausência delas, a pirotecnia fica desativada por padrão. O mascote v27 pode ser desativado pela sua entrada em `enabled.txt`.
+`pyrotechnics` é a chave geral; `entrance` e `goal` controlam separadamente abertura e gol. Preserve as outras chaves e preferências existentes ao editar. Essas opções são consultadas durante a sessão; na ausência delas, a pirotecnia fica desativada por padrão. O mascote pode ser desativado pela sua entrada em `enabled.txt`.
 
 ## Diagnóstico e desativação
 

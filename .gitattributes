@@ -1,3 +1,8 @@
 # Preserve exact bytes of versioned mascot models and source animation archives.
 data/sceneassets/mascot/** -text whitespace=cr-at-eol
 ModCarrerMode/source/mascot_photographer/assets/** -text whitespace=cr-at-eol
+*.dll -text
+*.exe -text
+*.rx3 -text
+*.lnx -text whitespace=cr-at-eol
+*.bin -text

@@ -1,0 +1,18 @@
+Modulo de fogos e fumaca
+
+Arquivo unico: stadium_pyrotechnics.dll.
+Efeito e assets: stadium_pyrotechnics_0.lnx / .rx3.
+Log: ModCarrerMode/logs/stadium_pyrotechnics.log.
+Automatico para qualquer mandante; abertura 60 segundos e gol do mandante 25 segundos.
+Previa de selecao, KickOffHub, uniformes e outros menus: sem disparo, abertura rearmada.
+Apenas apresentacao real (pagina de carregamento/TV bumper) com duas equipes nativas libera inicio.
+Pausa/replay nao arma novos disparos; apenas conserva uma animacao ja iniciada.
+Server16: controles independentes em ModCarrerMode/config/match_presentation.ini, sem sobrescrever preferencia.
+Cores: duas cores institucionais do mandante recuperadas do banco FIFA instalado.
+Gol do visitante nao aciona novos efeitos. Um show ja iniciado segue sua duracao.
+Duas camadas de cada fumaca na mesma origem, inclusive rastro do foguete.
+Encerramento: fontes diminuem em pares nos ultimos 12 segundos; cauda de 7 segundos incluida na duracao.
+Config: pyro.ini, enabled=0 ou 1. Sem teclas F7/F8.
+Feche e abra o FIFA para carregar uma atualizacao da DLL.
+Depois de carregada, Reiniciar Partida rearma abertura e detector de gols.
+Historico e backups ficam na pasta de estudos, fora do mod instalado.

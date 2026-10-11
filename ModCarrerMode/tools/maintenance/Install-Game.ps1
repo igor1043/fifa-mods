@@ -18,6 +18,7 @@ function Get-Sha256([string]$LiteralPath) {
 }
 $modSource = [IO.Path]::GetFullPath((Join-Path $PSScriptRoot '..\..'))
 $repoSource = [IO.Directory]::GetParent($modSource).FullName
+& (Join-Path $PSScriptRoot 'Verify-Package.ps1') -PackageRoot $repoSource | Out-Null
 $game = (Resolve-Path -LiteralPath $GameDirectory).Path.TrimEnd('\')
 if (-not (Test-Path -LiteralPath (Join-Path $game 'FIFA16.exe'))) { throw 'A pasta selecionada nao contem FIFA16.exe.' }
 if ($game -eq $repoSource) { throw 'O destino nao pode ser a pasta Dev.' }
@@ -51,6 +52,7 @@ foreach($folder in @('config','data','mods','assets')) {
         # ModCarrerMode/assets tree that V12 archives on every installation.
         if ($file.FullName -eq $swissMemorySource) { continue }
         if ($file.Extension -in @('.md','.ps1','.example')) { continue }
+        if ($folder -eq 'mods' -and ($file.FullName -match '\\kickoff_modern_v\d+\\' -or $file.Name -match '^mascot_goal_line_v\d+\.dll$')) { continue }
         $relative='ModCarrerMode\'+$folder+'\'+$file.FullName.Substring($base.Length+1)
         Add-File $file.FullName $relative
     }

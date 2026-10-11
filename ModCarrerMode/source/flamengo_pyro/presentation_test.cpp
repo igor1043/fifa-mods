@@ -1,4 +1,5 @@
 #include "presentation.h"
+#include "goals.h"
 #include <cassert>
 #include <cstdio>
 #include <initializer_list>
@@ -35,11 +36,40 @@ int main() {
     assert(pyro_can_start(pyro_page(" \t",true),true));
     assert(pyro_can_start(pyro_page("game/screens/TV/bumper",true),true));
     for(const char* pause:{"game/screens/misc/StadiumPan","game/screens/fluxHub/FluxHub",
-                          "game/screens/instantReplay/ReplayScreen"}) {
+                          "game/screens/instantReplay/ReplayScreen","game/screens/pause/PauseMenu"}) {
         const auto page=pyro_page(pause,true);
         assert(!pyro_can_start(page,true));
         assert(!pyro_can_continue(page,true,false));
         assert(pyro_can_continue(page,true,true));
     }
+    PyroMatchSession session;
+    assert(session.observe(100,1043,1041));
+    for(const char* overlay:{"game/screens/playNow/SideSelect","game/screens/matchDetails/MatchDetails"}) {
+        assert(pyro_page(overlay,true)==PyroPage::Outside);
+        const auto paused=pyro_page(overlay,true,session.key!=0);
+        assert(paused==PyroPage::Pause);
+        assert(!pyro_can_start(paused,true));
+        assert(pyro_can_continue(paused,true,true));
+        // Resume with recreated Lua tables at 0:0 cannot arm another opening.
+        assert(!session.observe(200,1043,1041));
+        assert(session.key==100);
+        assert(pyro_can_start(pyro_page("",true,true),true));
+    }
+    assert(!session.observe(300,1043,1041)); // replay/resource rebuild
+    session=PyroMatchSession{}; // confirmed restart or leave match
+    assert(session.observe(400,1043,1041));
+    assert(session.observe(500,383,1041)); // different fixture
+    PyroGoals score;
+    assert(!score.update(100,0,0));
+    assert(!score.update(200,1,0));
+    assert(score.update(300,1,0));
+    // Pause and scene reconstruction do not clear the score baseline.
+    assert(!score.update(10000,1,0));
+    assert(!score.update(10100,1,0));
+    assert(!score.update(10200,1,1));
+    assert(!score.update(10300,1,1)); // away goal does not trigger
+    assert(!score.update(10400,2,1));
+    assert(score.update(10500,2,1)); // next home goal still triggers
+    std::puts("Pause side selection/details and rebuilt scene tables preserve match session; restart/new fixture rearm: PASS");
     std::puts("Preview never consumes opening; native teams required; presentation allowed before kickoff; pause/replay cannot arm: PASS");
 }

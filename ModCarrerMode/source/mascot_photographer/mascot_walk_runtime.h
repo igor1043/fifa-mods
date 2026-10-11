@@ -201,6 +201,9 @@ static unsigned int mascot_local_destination(const MascotWalkRuntime& s,unsigned
     }
     return best;
 }
+static float mascot_pitch_heading(float x,float z) {
+    return atan2f(-x,-z);
+}
 static void mascot_walk_reset(const MascotFrameContext& frame,uint64_t now) {
     MascotWalkRuntime& s=mascotWalkRuntime;s={};s.ready=true;s.home=frame.home;s.generation=frame.generation;s.session=InterlockedCompareExchange(&mascotPlacementSession,0,0);s.lastTick=now;s.yaw=originalYaw;
     memcpy(s.position,targetPosition,sizeof(s.position));s.waypoint=mascot_nearest_waypoint(s.position[2]);uint32_t seed=(uint32_t)now^(uint32_t)(now>>32)^(uint32_t)frame.home^(uint32_t)s.session;
@@ -227,6 +230,16 @@ static void mascot_walk_update(const MascotFrameContext& frame,LONG mode,uint64_
     const LONG session=InterlockedCompareExchange(&mascotPlacementSession,0,0);
     if(!s.ready||s.home!=frame.home||s.generation!=frame.generation||s.session!=session)
         mascot_walk_reset(frame,now);
+    if(s.position[0]*targetPosition[0]<0) {
+        // Halftime changes the goal independently of animation time. Do not
+        // carry a first-half pose/heading to the opposite end during pause.
+        s.position[0]=targetPosition[0];
+        s.yaw=mascot_pitch_heading(s.position[0],s.position[2]);
+        s.walking=false;s.turning=false;s.hasPose=false;
+        s.idleRemaining=mascotWaypointDwellSeconds;
+        s.waypoint=mascot_nearest_waypoint(s.position[2]);s.nextWaypoint=s.waypoint;
+        log_event("goal_side_orientation club=%d goal_x=%.2f z=%.2f yaw=%.3f facing=pitch",frame.home,s.position[0],s.position[2],s.yaw);
+    }
     s.lastTick=now;
     const float dt=isfinite(engineDt)?fmaxf(0,fminf(.05f,engineDt)):0;
     const bool cheer=mode==3;
@@ -249,7 +262,7 @@ static void mascot_walk_update(const MascotFrameContext& frame,LONG mode,uint64_
             }
         }
         const bool route=(s.walking||s.turning)&&!cheer;
-        const float heading=route?atan2f(0,mascotGoalLineDestinations[s.nextWaypoint]-s.position[2]):atan2f(-targetPosition[0],-s.position[2]);
+        const float heading=route?atan2f(0,mascotGoalLineDestinations[s.nextWaypoint]-s.position[2]):mascot_pitch_heading(targetPosition[0],s.position[2]);
         s.yaw=mascot_turn_heading(s.yaw,heading,dt);
         if(s.turning && fabsf(mascot_wrap_heading(heading-s.yaw))<.04f) {
             s.turning=false;s.walking=true;

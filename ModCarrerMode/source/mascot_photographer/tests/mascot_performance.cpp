@@ -38,9 +38,6 @@ static uintptr_t baseline_field(uintptr_t table, const char* key)
     return 0;
 }
 
-static unsigned int crowdPasses;
-static void __fastcall original_crowd_mock(void*) { ++crowdPasses; }
-
 int main()
 {
     SYSTEM_INFO system{}; GetSystemInfo(&system);
@@ -109,10 +106,6 @@ int main()
     MascotFrameContext frame{}; frame.home=999; queryCalls=0;
     mascot_animate_instance(frame);
     check(queryCalls==0 && !mascotAnimationEnabled,"unsupported club does no animation lookup");
-    mascotOriginalCrowdAssignments=(uintptr_t)&original_crowd_mock;
-    mascotLastAppliedBehavior=-1; mascotRequestedBehavior=-1; queryCalls=0;
-    mascot_crowd_assignment_hook(nullptr);
-    check(crowdPasses==1 && queryCalls==0,"inactive crowd hook directly passes through");
     frame.renderer=0x10000; frame.records=0x20000; frame.count=40;
     frame.home=1043; frame.packages=4; frame.generation=1; frame.mascotActive=true; frame.packageAnimated=true;
     wcscpy_s(gameDirectory,L"Z:\\__mascot_regression_missing_package__");

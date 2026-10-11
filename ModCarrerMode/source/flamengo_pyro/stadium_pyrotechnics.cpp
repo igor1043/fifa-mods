@@ -39,7 +39,8 @@ static bool showing=false;
 static ULONGLONG showStarted=0;
 static bool emitterStarted[emitterCount]={};
 static bool emitterDraining[emitterCount]={};
-static uintptr_t activeObject, activeState, activeManager, sessionKey;
+static uintptr_t activeObject, activeState, activeManager;
+static PyroMatchSession session;
 static ULONGLONG lastSample, candidateSince, deadline, lastValid;
 static bool consumed, configured;
 static int handles[emitterCount];
@@ -370,7 +371,7 @@ static void sample_presentation(ULONGLONG now) {
         const unsigned int offsets[]={232,192,136,472,0};
         uintptr_t address=0;char page[64]={};
         const bool known=chain(58757168,offsets,address) && get(address,page) && memchr(page,0,sizeof(page));
-        const PyroPage next=pyro_page(page,known);
+        const PyroPage next=pyro_page(page,known,session.key!=0);
         page[sizeof(page)-1]=0;
         if(next!=currentPage || strcmp(currentPageName,page)) {
             char event[160];
@@ -408,7 +409,7 @@ static void tick(void* batch) {
     if(!enabled && !stopping) return;
     if(!stopping) {
         sample_presentation(now);
-        if(!pyro_can_continue(currentPage,cachedFixture,sessionKey!=0)) {
+        if(!pyro_can_continue(currentPage,cachedFixture,session.key!=0)) {
             // Clear retained particles once when entering a menu, including a finished show's tail.
             if(showing || (currentPage==PyroPage::Outside && !menuCleared && configured)) {
                 uintptr_t impl=0;
@@ -416,8 +417,8 @@ static void tick(void* batch) {
                 batchImpl=impl;cleanup(currentPage==PyroPage::Outside);
             }
             if(currentPage==PyroPage::Outside) {
-                if(sessionKey)log_event("MATCH_LEFT_FOR_MENU rearm_opening_and_home_goals");
-                sessionKey=0;consumed=false;goalShow=false;goals=PyroGoals{};lifecycle=PyroLifecycle{};
+                if(session.key)log_event("MATCH_LEFT_FOR_MENU rearm_opening_and_home_goals");
+                session=PyroMatchSession{};consumed=false;goalShow=false;goals=PyroGoals{};lifecycle=PyroLifecycle{};
                 cachedMatch=false;cachedZero=false;lastMatchSample=0;lastValid=0;
                 candidateSince=0;kickoffSince=0;showStarted=0;deadline=0;
                 paletteHome=0;paletteEffect=0;menuCleared=true;
@@ -427,20 +428,29 @@ static void tick(void* batch) {
         menuCleared=false;
     }
     const bool canStart=pyro_can_start(currentPage,cachedFixture);
-    if(sessionKey && restarted(now)) {
+    if(session.key && restarted(now)) {
         // Ensure any old show is stopped on the render thread before resetting.
         uintptr_t impl=0;
         if(!same((uintptr_t)batch,image+0x2214500) || !get((uintptr_t)batch+0x10,impl) || !impl)return;
         batchImpl=impl;cleanup();
-        goals=PyroGoals{};sessionKey=0;consumed=false;goalShow=false;
+        goals=PyroGoals{};session=PyroMatchSession{};consumed=false;goalShow=false;
         kickoffSince=0;candidateSince=now;showStarted=0;deadline=0;
         lastMatchSample=0;cachedMatch=false;cachedZero=false;
         for(int i=0;i<emitterCount;++i)emitterStarted[i]=false;
         log_event("MATCH_RESTART_CONFIRMED reset_intro_and_goal_baseline");
     }
+    if(currentPage==PyroPage::Pause) {
+        if(showing) {
+            uintptr_t impl=0;
+            if(!same((uintptr_t)batch,image+0x2214500) || !get((uintptr_t)batch+0x10,impl) || !impl)return;
+            batchImpl=impl;cleanup(true);consumed=true;
+            log_event("PAUSE_EFFECT_STOPPED opening_and_goal_baseline_preserved");
+        }
+        return;
+    }
     bool pendingGoal=false;
     // Dormant gameplay path: no renderer validation, tree walk, or job wait.
-    if(!stopping && canStart && !showing && consumed && sessionKey && cachedMatch &&
+    if(!stopping && canStart && !showing && consumed && session.key && cachedMatch &&
         now-lastMatchSample<2000) {
         int home=0,away=0;
         pendingGoal=read_score(home,away) && goals.update(now,home,away);
@@ -457,22 +467,21 @@ static void tick(void* batch) {
     uintptr_t key=0; bool zero=false;
     if (!lastMatchSample || now-lastMatchSample>=(showing || !consumed ? 500ULL : 2000ULL)) {
         cachedMatch=match(key,zero); cachedZero=zero; lastMatchSample=now;
-    } else { key=sessionKey; zero=cachedZero; }
+    } else { key=session.key; zero=cachedZero; }
     if (!cachedMatch) {
         cleanup();
-        if (lastValid && now-lastValid>30000) { sessionKey=0; consumed=false; candidateSince=0; kickoffSince=0; }
+        // A missing scene sample is not a new match and cannot rearm opening.
         return;
     }
     lastValid=now;
-    if (key!=sessionKey) {
-        cleanup(); sessionKey=key; consumed=!automatic || !zero || !presentation.entrance_allowed();
+    if (session.observe(key,fixtureHome,fixtureAway)) {
+        cleanup(); consumed=!automatic || !zero || !presentation.entrance_allowed();
         candidateSince=now; kickoffSince=0; goals=PyroGoals{}; goalShow=false; lifecycle=PyroLifecycle{}; paletteHome=0;paletteEffect=0;
         log_event("MATCH_DETECTED automatic_intro_armed");
     }
     if (configured && (showing || !consumed) && !owned()) {
-        const bool wasIntro=showing && !goalShow;
-        forget_resource(); consumed=wasIntro?!presentation.entrance_allowed():!zero; candidateSince=now;assetSince=0;
-        log_event("RESOURCE_REBUILD rearm_pending_show_without_stale_pointers");
+        forget_resource(); candidateSince=now;assetSince=0;
+        log_event("RESOURCE_REBUILD consumed_event_preserved_without_stale_pointers");
     }
     int h=0,a=0;
     if (canStart && (pendingGoal || (read_score(h,a) && goals.update(now,h,a))) && enabled && presentation.goal_allowed()) {

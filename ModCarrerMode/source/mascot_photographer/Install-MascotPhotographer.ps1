@@ -2,7 +2,7 @@ param([string]$GameRoot = 'U:\fifa 16', [switch]$VerifyOnly, [switch]$PrepareNex
 $ErrorActionPreference = 'Stop'
 $running = Get-Process FIFA16 -ErrorAction SilentlyContinue
 $loadedMascots = @($running.Modules | Where-Object ModuleName -match '^mascot_.*\.dll$')
-if (-not $VerifyOnly -and $loadedMascots.Count -and (-not $PrepareNextStartup -or @($loadedMascots | Where-Object ModuleName -eq 'mascot_goal_line_v27.dll').Count)) {
+if (-not $VerifyOnly -and $loadedMascots.Count -and (-not $PrepareNextStartup -or @($loadedMascots | Where-Object ModuleName -eq 'mascot_goal_line.dll').Count)) {
     throw 'A DLL do mascote já está carregada; feche o FIFA antes de substituir essa versão.'
 }
 $repo = [IO.Path]::GetFullPath((Join-Path $PSScriptRoot '..\..\..'))
@@ -10,7 +10,7 @@ $game = (Resolve-Path -LiteralPath $GameRoot).Path.TrimEnd('\')
 if (-not (Test-Path -LiteralPath (Join-Path $game 'FIFA16.exe'))) { throw 'Destino sem FIFA16.exe.' }
 if ($game -eq $repo) { throw 'Destino deve ser o jogo, não a cópia de desenvolvimento.' }
 $luaRelative = 'data\fifarna\lua\assets\sle.lua'
-$dllRelative = 'ModCarrerMode\mods\mascot_single\mascot_goal_line_v27.dll'
+$dllRelative = 'ModCarrerMode\mods\mascot_single\mascot_goal_line.dll'
 $enabledRelative = 'ModCarrerMode\mods\enabled.txt'
 $luaSource = Join-Path $repo $luaRelative
 $dllSource = Join-Path $repo $dllRelative
@@ -63,8 +63,8 @@ if ($VerifyOnly) {
         if (-not (Test-Path -LiteralPath $asset.Target) -or (Get-FileHash -LiteralPath $asset.Source).Hash -ne (Get-FileHash -LiteralPath $asset.Target).Hash) { throw "Asset divergente: $($asset.Target)" }
     }
     $entries = @([IO.File]::ReadAllLines($enabledTarget) | Where-Object { $_.Trim() -match '^mascot_single\\.*\.dll$' })
-    if ($entries.Count -ne 1 -or $entries[0].Trim() -ne 'mascot_single\mascot_goal_line_v27.dll') { throw 'Registro do plugin divergente.' }
-    [pscustomobject]@{Game=$game;Version=27;Verified=$true;Assets=$assetFiles.Count;AutomaticPlugin=$entries[0].Trim()}
+    if ($entries.Count -ne 1 -or $entries[0].Trim() -ne 'mascot_single\mascot_goal_line.dll') { throw 'Registro do plugin divergente.' }
+    [pscustomobject]@{Game=$game;Version=28;Verified=$true;Assets=$assetFiles.Count;AutomaticPlugin=$entries[0].Trim()}
     return
 }
 $backupRelative = 'backups\'+(Get-Date -Format 'yyyyMMdd_HHmmss_fff')
@@ -92,7 +92,7 @@ foreach ($asset in $assetFiles) {
 }
 Copy-Item -LiteralPath $dllSource -Destination $dllTarget -Force
 Copy-Item -LiteralPath $luaSource -Destination $luaTarget -Force
-$entry = 'mascot_single\mascot_goal_line_v27.dll'
+$entry = 'mascot_single\mascot_goal_line.dll'
 $enabled = [IO.File]::ReadAllText($enabledTarget)
 $enabled = (($enabled -split '\r?\n') | Where-Object { $_.Trim() -notmatch '^mascot_single\\.*\.dll$' }) -join "`r`n"
 $enabled = $enabled.Replace('# Mascote em uma única instância de fotógrafo.','# Mascote: uma posição perto de uma esquina do campo.').Replace('# Mascote: diagnóstico nos fotógrafos de número par.','# Mascote: uma posição perto de uma esquina do campo.')
@@ -105,7 +105,7 @@ foreach ($pair in @(@($luaSource,$luaTarget),@($dllSource,$dllTarget))) {
     if ((Get-FileHash -LiteralPath $pair[0]).Hash -ne (Get-FileHash -LiteralPath $pair[1]).Hash) { throw 'Falha de cópia; consulte o backup.' }
 }
 $state = [ordered]@{
-    version = 27
+    version = 28
     selectionMode = 'one_walking_goal_line'
     gameRoot = $game
     installedAt = (Get-Date -Format 'yyyy-MM-dd HH:mm:ss zzz')
@@ -120,4 +120,4 @@ $state = [ordered]@{
     gameWasRunningAtInstall = [bool]$running
 }
 $state | ConvertTo-Json | Set-Content -LiteralPath $statePath -Encoding UTF8
-[pscustomobject]@{Game=$game;Version=27;Mode='one_walking_goal_line';Lua=$state.installedLuaHash;Dll=$state.installedDllHash;Backup=$backup;RequiresReload=[bool]$running}
+[pscustomobject]@{Game=$game;Version=28;Mode='one_walking_goal_line';Lua=$state.installedLuaHash;Dll=$state.installedDllHash;Backup=$backup;RequiresReload=[bool]$running}

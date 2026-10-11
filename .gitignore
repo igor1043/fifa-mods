@@ -18,15 +18,24 @@ ModCarrerMode/backups/
 runtime/backups/
 ModCarrerMode/mods/*.bak
 
-# Mascot runtime assets and animation sources are versioned at user request.
+# Mascot models, textures, captures and conversion data stay local.
+data/sceneassets/mascot/
+ModCarrerMode/source/mascot_photographer/assets/
+ModCarrerMode/source/mascot_photographer/last_install.json
+ModCarrerMode/source/mascot_photographer/tests/*.bin
+ModCarrerMode/source/mascot_photographer/tests/*.jpg
+ModCarrerMode/source/mascot_photographer/tests/validation_*.json
 **/__pycache__/
 ModCarrerMode/source/**/build/
 ModCarrerMode/source/**/backups/
+*.obj
+*.exp
+*.lib
+ModCarrerMode/source/skip_server_shutdown_notice/*.dll
+ModCarrerMode/source/flamengo_pyro/historico_carregado/
 # Disabled experimental DLLs remain local; sources are preserved.
-ModCarrerMode/mods/kickoff_modern/
-ModCarrerMode/mods/kickoff_modern_v6/
-ModCarrerMode/mods/kickoff_modern_v8/
-ModCarrerMode/mods/kickoff_modern_v9/
+ModCarrerMode/mods/kickoff_modern_v*/
+ModCarrerMode/mods/mascot_single/mascot_goal_line_v*.dll
 ModCarrerMode/mods/multiball_visual/multiball_visual_v1.dll
 ModCarrerMode/mods/multiball_visual/multiball_visual_v2.dll
 # Duplicate/backup competition packages are not runtime inputs.

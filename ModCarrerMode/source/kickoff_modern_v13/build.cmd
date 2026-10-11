@@ -11,4 +11,7 @@ if errorlevel 1 exit /b 1
 cl /nologo /std:c11 /W4 /WX /O2 /MT /LD kickoff_modern_v13.c /Fobuild\ /Febuild\kickoff_modern_v13.dll /link /NOLOGO
 if errorlevel 1 exit /b 1
 popd
+if not exist "%~dp0..\..\mods\kickoff_modern" mkdir "%~dp0..\..\mods\kickoff_modern"
+copy /y "%~dp0build\kickoff_modern_v13.dll" "%~dp0..\..\mods\kickoff_modern\kickoff_modern.dll" >nul
+if errorlevel 1 exit /b 1
 endlocal

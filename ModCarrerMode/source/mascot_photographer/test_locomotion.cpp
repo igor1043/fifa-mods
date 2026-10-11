@@ -173,6 +173,29 @@ int wmain(int argc,wchar_t** argv) {
         }
     }
     {
+        alignas(16) unsigned char record[80]{};
+        MascotFrameContext frame{1,(uintptr_t)record,1,0,1043,1};
+        for(float goalX:{-5850.0f,5850.0f})for(float z:{-3150.0f,3150.0f}) {
+            targetPosition[0]=goalX;targetPosition[2]=z;mascot_walk_reset(frame,1000);
+            MascotWalkRuntime& s=mascotWalkRuntime;
+            for(unsigned int tick=0;tick<100;++tick)mascot_walk_update(frame,2,1000+tick*50,.05f);
+            const float beforeYaw=s.yaw,phase=s.clipTime;
+            if(sinf(s.yaw)*(-goalX)+cosf(s.yaw)*(-z)<=0)return 50;
+            s.walking=true;s.hasPose=true;s.position[2]=z;
+            targetPosition[0]=-goalX;
+            mascot_walk_update(frame,2,1100,0);
+            if(s.position[0]!=-goalX || s.position[2]!=z || s.walking || s.turning || s.hasPose ||
+               s.clipTime!=phase || s.idleRemaining!=30 ||
+               sinf(s.yaw)*goalX+cosf(s.yaw)*(-z)<=0)return 51;
+            const float afterYaw=s.yaw;
+            if(fabsf(mascot_wrap_heading(afterYaw-beforeYaw))<1)return 52;
+            mascot_walk_update(frame,2,1200,0);
+            if(s.yaw!=afterYaw || s.position[2]!=z || s.clipTime!=phase)return 53;
+        }
+        targetPosition[0]=5850;targetPosition[2]=3150;
+        printf("PASS both goal sides: live heading faces pitch; halftime reorients during pause without advancing clip or route\n");
+    }
+    {
         {
         static MascotReplayHistory history;
         history.bind(1043,1);

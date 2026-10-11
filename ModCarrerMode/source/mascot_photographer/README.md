@@ -1,6 +1,8 @@
-# Mascotes — versão 27
+# Mascote na linha de fundo
 
 Um mascote representa o mandante atrás das placas do gol que ele ataca. O plugin procura o pacote pelo ID nativo do clube, sem lista fixa de times. Troca o lado no intervalo e preserva sua posição lateral.
+
+O mascote sincroniza a orientação com a troca de gol: o mascote olha para o gramado logo após o intervalo, inclusive com o relógio de animação pausado. A caminhada anterior é encerrada e a parada no novo lado recomeça com 30 segundos. A DLL publicada é a mesma que está funcionando no jogo local.
 
 ## Comportamento
 
@@ -8,7 +10,7 @@ Um mascote representa o mandante atrás das placas do gol que ele ataca. O plugi
 - Permanência de 30 segundos por ponto, com 15 segundos de interação: palmas e dois gestos de apoio com os braços.
 - Gols do mandante interrompem a rota e acionam 15 segundos de comemoração. Seis variantes capturadas da torcida incluem braços erguidos, gestos amplos e saltos. O ponto inicial da sequência varia entre gols.
 - Pausa conserva a pose. No replay, o relógio nativo seleciona posições e poses já registradas, incluindo o clipe escolhido e a altura do salto.
-- A versão 27 compensa a diferença entre o esqueleto do RX3 do clube e o esqueleto do renderizador. Essa correção trata a deformação de tronco/braços nas comemorações para todos os pacotes compatíveis.
+- O módulo compensa a diferença entre o esqueleto do RX3 do clube e o esqueleto do renderizador. Essa correção trata a deformação de tronco/braços nas comemorações para todos os pacotes compatíveis.
 
 O histórico de replay é local à sessão: até 8192 quadros, registrados no máximo 30 vezes por segundo real. Trechos fora desse histórico usam o quadro registrado mais próximo. Não é gravado nos arquivos nativos de replay; abrir um replay de outra sessão não recupera a movimentação anterior do mascote.
 
@@ -46,7 +48,7 @@ data/sceneassets/mascot/1041/
 
 Remo e Paulista usam IDs do banco customizado instalado. Se o seu banco tiver outro ID, o nome da pasta deve acompanhar o ID desse banco.
 
-Os modelos atualizados e suas texturas são mantidos no jogo e no backup local de modelos. Este commit publica os fontes; não publica as novas malhas, prévias, relatórios ou originais de edição. Modelos de commits anteriores podem continuar presentes no repositório, mas não substituem o pacote local atualizado.
+Modelos, texturas, marcadores, prévias e originais de edição ficam no jogo e nos backups locais, fora da versão atual do Git. A DLL e o Lua estão incluídos no pacote publicado. Os modelos devem estar previamente instalados ou ser obtidos separadamente; sem o pacote completo do clube, permanece o fotógrafo normal. Cópias enviadas anteriormente continuam no histórico antigo.
 
 ## Compilar e instalar
 
@@ -56,7 +58,7 @@ Na raiz do repositório, com MSVC x64 disponível:
 .\ModCarrerMode\source\mascot_photographer\build.cmd
 ```
 
-O build gera `build/mascot_goal_line.dll` e as cópias `ModCarrerMode/mods/mascot_single/mascot_goal_line.dll` e `mascot_goal_line_v27.dll`. Os seis headers `mascot_goal_*_clip.h` entram diretamente na compilação; não é preciso recuperar os JSONs de captura.
+O pacote já inclui `ModCarrerMode/mods/mascot_single/mascot_goal_line.dll`. Compilar é opcional; o build atualiza somente essa DLL. Os seis headers `mascot_goal_*_clip.h` entram diretamente na compilação; não é preciso recuperar os JSONs de captura.
 
 Coloque os pacotes locais atualizados em `data/sceneassets/mascot/` do desenvolvimento, feche o FIFA e execute:
 
@@ -69,7 +71,7 @@ Esse instalador copia DLL, Lua e pacotes numéricos completos; faz backup dos ar
 Arquivos necessários no jogo:
 
 ```text
-ModCarrerMode/mods/mascot_single/mascot_goal_line_v27.dll
+ModCarrerMode/mods/mascot_single/mascot_goal_line.dll
 data/fifarna/lua/assets/sle.lua
 data/sceneassets/mascot/<ID>/...
 ```
@@ -77,7 +79,7 @@ data/sceneassets/mascot/<ID>/...
 Em `ModCarrerMode/mods/enabled.txt`, mantenha somente:
 
 ```text
-mascot_single\mascot_goal_line_v27.dll
+mascot_single\mascot_goal_line.dll
 ```
 
 Preserve as entradas dos outros mods. Para verificar a instalação:
@@ -86,7 +88,7 @@ Preserve as entradas dos outros mods. Para verificar a instalação:
 .\ModCarrerMode\source\mascot_photographer\Install-MascotPhotographer.ps1 -GameRoot "C:\Caminho\para\FIFA 16" -VerifyOnly
 ```
 
-Para desativar esta versão, comente a entrada do mascote em `enabled.txt`. Reabra o FIFA após trocar a DLL ou alterar sua entrada.
+Para desativar, comente a entrada do mascote em `enabled.txt`. Reabra o FIFA após trocar a DLL ou alterar sua entrada.
 
 ## Atores disponíveis e desempenho
 
@@ -100,4 +102,4 @@ Se todas as categorias estiverem vazias, registra `placement_unavailable` e pres
 
 `verify.cmd` compila e executa as políticas de posição, seleção de atores, replay e animação. `verify_locomotion.cmd` verifica poses e deformação com uma pasta de fixtures contendo modelos, marcadores e matrizes de referência; essa pasta é um recurso de teste local, separado do pacote de jogo. `tests/run_performance.cmd` verifica o custo das consultas.
 
-A compensação da v27 foi testada com os 14 pacotes instalados e a matriz capturada do renderizador. A conferência visual da revisão final em campo permanece necessária. Consulte `ModCarrerMode/logs/mascot_goal_line.log` e o registro `installed version=27` para confirmar a versão carregada.
+A compensação foi testada com os 14 pacotes instalados e a matriz capturada do renderizador. O usuário confirmou o funcionamento no jogo local. Consulte `ModCarrerMode/logs/mascot_goal_line.log` e o registro `installed version=28` para identificar o build interno; o caminho ativo não tem sufixo de versão.
