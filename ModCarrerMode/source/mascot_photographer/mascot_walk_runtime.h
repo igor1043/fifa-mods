@@ -16,6 +16,7 @@ struct MascotWalkRuntime {
     float clipTime=0, transitionPose[31*7]{}, currentPose[31*7]{};
     float blendElapsed=0, groundLift=0;
     bool hasGroundLift=false;
+    float visualLift=0, liftBlendSource=0;
     float lastLocal[31][16]{}, blendSource[31][16]{};
 };
 static MascotWalkRuntime mascotWalkRuntime;
@@ -155,6 +156,7 @@ static void mascot_ground_pose(float pose[31][16],float dt=-1) {
 static void mascot_blend_local_pose(float pose[31][16],int kind,float dt) {
     MascotWalkRuntime& s=mascotWalkRuntime;
     if(s.hasPose && s.poseKind!=kind) {
+        s.liftBlendSource=s.visualLift;
         memcpy(s.blendSource,s.lastLocal,sizeof(s.blendSource));
         s.blendElapsed=0;s.transitioning=true;
     }

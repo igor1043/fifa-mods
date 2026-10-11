@@ -9,6 +9,7 @@ parser.add_argument('--source',required=True);parser.add_argument('--output',req
 parser.add_argument('--tools',required=True);parser.add_argument('--clips',required=True)
 parser.add_argument('--club-id',type=int,required=True);parser.add_argument('--club-name',required=True)
 parser.add_argument('--repair-unweighted',action='store_true',help='Fill only unweighted source vertices from three weighted neighbours within 2 cm')
+parser.add_argument('--corinthians-body-review',action='store_true',help='Reviewed Corinthians cape attachment and chest/neck separation, club 1041 only')
 args=parser.parse_args(sys.argv[sys.argv.index('--')+1:] if '--' in sys.argv else sys.argv[1:])
 ROOT=Path(args.output);ROOT.mkdir(parents=True,exist_ok=True)
 TOOLS=Path(args.tools);SRC=Path(args.source);CLIPS=Path(args.clips)
@@ -43,6 +44,31 @@ kd=KDTree(len(mesh.data.vertices))
 for v in mesh.data.vertices:kd.insert(b.game_position(mesh.matrix_world@v.co),v.index)
 kd.balance()
 mapping={'Hips':2,'RightUpLeg':3,'RightLeg':4,'RightFoot':5,'RightToeBase':6,'LeftUpLeg':7,'LeftLeg':8,'LeftFoot':9,'LeftToeBase':10,'Spine':11,'Spine1':12,'Spine2':13,'Neck':13,'Head':14,'LeftShoulder':16,'LeftArm':17,'LeftForeArm':18,'LeftHand':19,'RightShoulder':21,'RightArm':22,'RightForeArm':23,'RightHand':24}
+cape_vertices=set()
+if args.corinthians_body_review:
+    if args.club_id!=1041 or len(vertices)!=5399 or len(indices)!=8984*3:
+        raise ValueError('Body review applies only to the inspected Corinthians mesh')
+    # The cape has long triangles from its hem to the rear collar. Identify
+    # that sheet before the A-pose conversion, then include seam duplicates
+    # and the bounded rear collar. Legs and gloves lie outside this region.
+    source_points=[(v['position']-center)*scale for v in vertices]
+    sheet=set()
+    for offset in range(0,len(indices),3):
+        tri=indices[offset:offset+3];pts=[source_points[i] for i in tri]
+        if max(p.y for p in pts)-min(p.y for p in pts)>45 and max(p.z for p in pts)<2:
+            sheet.update(tri)
+    if not 150<=len(sheet)<=250:raise ValueError('Unexpected cape sheet topology')
+    cape_tree=KDTree(len(sheet))
+    for i in sheet:cape_tree.insert(source_points[i],i)
+    cape_tree.balance()
+    for i,p in enumerate(source_points):
+        _,_,distance=cape_tree.find(p)
+        if distance<.003 or (distance<2 and 110<p.y<128 and p.z<-4 and abs(p.x)<26) or (distance<2 and 30<p.y<38 and p.z<-9):
+            cape_vertices.add(i)
+    if not 250<=len(cape_vertices)<=450:raise ValueError('Unexpected cape collar and hem region')
+    # Spine2 is chest tissue, not neck tissue. Keep Neck on bone 13 and
+    # merge both authored chest bones onto bone 12 at the upper chest pivot.
+    mapping['Spine2']=12
 names={g.index:g.name.split(':')[-1] for g in mesh.vertex_groups}
 joints=[];weights=[];head_count=0;fixed_sides=0
 hip_y=b.game_position(arm.matrix_world@arm.data.bones['mixamorig:Hips'].head_local).y
@@ -53,7 +79,7 @@ neck_y=b.game_position(arm.matrix_world@arm.data.bones['mixamorig:Neck'].head_lo
 neck_span=head_y-neck_y
 face_floor=head_y-neck_span*.33
 neck_blend_floor=head_y-neck_span*.66
-for v in vertices:
+for vertex_index,v in enumerate(vertices):
     _,idx,d=kd.find(v['position'])
     if d>.001:raise ValueError('Source loop vertex not matched')
     raw={};source_head=0
@@ -71,6 +97,11 @@ for v in vertices:
     elif source_head>0 and y>=neck_blend_floor:
         t=max(source_head,min(1,max(0,(y-neck_blend_floor)/(face_floor-neck_blend_floor))))
         raw={14:t,13:1-t}
+    if vertex_index in cape_vertices:
+        # A cape cannot have zero total skin weight: that sends it to the
+        # origin. Attach the whole sheet to the chest so it retains its form
+        # and does not follow the legs or the waving/clapping arms.
+        raw={12:1}
     if y<hip_y and abs(x)>3:
         forbidden=set([3,4,5,6]) if x>0 else set([7,8,9,10])
         fixed_sides+=sum(k in forbidden and w>1e-5 for k,w in raw.items())
@@ -89,6 +120,8 @@ _,bones=b.read_model(b.Rx3(template));positions={i:Vector(bones[i][12:15]) for i
 for n,i in mapping.items():
     if n=='Spine2':continue
     positions[i]=position(arm.matrix_world@arm.data.bones['mixamorig:'+n].head_local)
+if args.corinthians_body_review:
+    positions[12]=position(arm.matrix_world@arm.data.bones['mixamorig:Spine2'].head_local)
 positions[15]=position(arm.matrix_world@arm.data.bones['mixamorig:Head'].tail_local)
 positions[20]=position(arm.matrix_world@arm.data.bones['mixamorig:LeftHand'].tail_local)
 positions[25]=position(arm.matrix_world@arm.data.bones['mixamorig:RightHand'].tail_local)
@@ -127,4 +160,6 @@ dest=ROOT/'package/data/sceneassets/mascot'/str(args.club_id);dest.mkdir(parents
 for n in ('model.rx3','model_animated.rx3'):(dest/n).write_bytes(result)
 (ROOT/'converted_mesh.json').write_text(json.dumps(dict(parts=parts,bind=bind)),encoding='utf8')
 (ROOT/'conversion.json').write_text(json.dumps(dict(clubId=args.club_id,clubName=args.club_name,source=str(next(SRC.glob('*.fbx'))),heightCm=180,scale=scale,sourceVertices=len(mesh.data.vertices),exportVertices=len(vertices),triangles=len(indices)//3,rigidHeadVertices=head_count,removedOppositeLegInfluences=fixed_sides,repairedUnweightedSourceVertices=repaired,boneMap=mapping,usedBones=order),indent=2),encoding='utf8')
+if args.corinthians_body_review:
+    (ROOT/'body_weights_report.json').write_text(json.dumps(dict(clubId=1041,capeVertices=sorted(cape_vertices),capeBone=12,chestBone=12,neckBone=13,headBone=14,chestPivot=list(positions[12]),method='rear cape sheet and collar rigid on chest; authored Spine1/Spine2 mapped to chest, Neck kept separate; original arm chains retained'),indent=2),encoding='utf8')
 print('CONVERTED',len(vertices),len(indices)//3,head_count,'rigid head vertices')

@@ -119,57 +119,66 @@ static BOOL take_unreported_save_handle(HANDLE handle, char *path, size_t capaci
     return found;
 }
 
+static BOOL write_career_save_bridge(const char *runtime_dir,
+                                     const char *bridge_name,
+                                     const char *temporary_name,
+                                     const char *record, int length)
+{
+    char bridge_path[MAX_PATH], temporary_path[MAX_PATH];
+    HANDLE file;
+    DWORD written = 0;
+    snprintf(bridge_path, sizeof(bridge_path), "%s\\%s", runtime_dir,
+             bridge_name);
+    snprintf(temporary_path, sizeof(temporary_path), "%s\\%s.%lu.%lu.tmp",
+             runtime_dir, temporary_name, (unsigned long)GetCurrentProcessId(),
+             (unsigned long)GetCurrentThreadId());
+    file = CreateFileA(temporary_path, GENERIC_WRITE, 0, NULL, CREATE_ALWAYS,
+                       FILE_ATTRIBUTE_NORMAL, NULL);
+    if (file == INVALID_HANDLE_VALUE) return FALSE;
+    if (WriteFile(file, record, (DWORD)length, &written, NULL) &&
+        written == (DWORD)length) {
+        FlushFileBuffers(file);
+        CloseHandle(file);
+        if (MoveFileExA(temporary_path, bridge_path,
+            MOVEFILE_REPLACE_EXISTING | MOVEFILE_WRITE_THROUGH)) return TRUE;
+    } else {
+        CloseHandle(file);
+    }
+    DeleteFileA(temporary_path);
+    return FALSE;
+}
+
 static void publish_active_save_access(const char *path, const char *operation,
                                        DWORD bytes_transferred)
 {
     char runtime_dir[MAX_PATH];
-    char bridge_path[MAX_PATH];
-    char temporary_path[MAX_PATH];
     char record[1600];
     FILETIME created, exited, kernel, user;
     ULARGE_INTEGER created_value;
-    HANDLE file;
-    DWORD written = 0;
     int length;
-    if (!is_fifa_save_data_path(path) || !operation
-        || bytes_transferred == 0 || !g_mod_dir[0])
-        return;
+    if (!is_fifa_save_data_path(path) || !operation ||
+        bytes_transferred == 0 || !g_mod_dir[0]) return;
     if (!GetProcessTimes(GetCurrentProcess(), &created, &exited, &kernel, &user))
         return;
     created_value.LowPart = created.dwLowDateTime;
     created_value.HighPart = created.dwHighDateTime;
     snprintf(runtime_dir, sizeof(runtime_dir), "%s\\runtime", g_mod_dir);
-    if (!CreateDirectoryA(runtime_dir, NULL) && GetLastError() != ERROR_ALREADY_EXISTS)
-        return;
-    snprintf(bridge_path, sizeof(bridge_path), "%s\\career_active_save.tsv",
-             runtime_dir);
-    snprintf(temporary_path, sizeof(temporary_path),
-             "%s\\career_active_save.%lu.%lu.tmp", runtime_dir,
-             (unsigned long)GetCurrentProcessId(),
-             (unsigned long)GetCurrentThreadId());
+    if (!CreateDirectoryA(runtime_dir, NULL) &&
+        GetLastError() != ERROR_ALREADY_EXISTS) return;
     length = snprintf(record, sizeof(record),
-        "schema=1\r\npid=%lu\r\nprocess_created_100ns=%llu\r\n"
+        "schema=2\r\npid=%lu\r\nprocess_created_100ns=%llu\r\n"
         "access_tick_ms=%llu\r\noperation=%s\r\nio_bytes=%lu\r\npath=%s\r\n",
         (unsigned long)GetCurrentProcessId(),
         (unsigned long long)created_value.QuadPart,
         (unsigned long long)GetTickCount64(), operation,
         (unsigned long)bytes_transferred, path);
-    if (length <= 0 || (size_t)length >= sizeof(record))
-        return;
-    file = CreateFileA(temporary_path, GENERIC_WRITE, 0, NULL, CREATE_ALWAYS,
-                       FILE_ATTRIBUTE_NORMAL, NULL);
-    if (file == INVALID_HANDLE_VALUE)
-        return;
-    if (WriteFile(file, record, (DWORD)length, &written, NULL)
-        && written == (DWORD)length) {
-        FlushFileBuffers(file);
-        CloseHandle(file);
-        (void)MoveFileExA(temporary_path, bridge_path,
-                          MOVEFILE_REPLACE_EXISTING | MOVEFILE_WRITE_THROUGH);
-    } else {
-        CloseHandle(file);
-        DeleteFileA(temporary_path);
-    }
+    if (length <= 0 || (size_t)length >= sizeof(record)) return;
+    /* Keep the established bridge for existing mod tools and publish a
+     * dedicated source bridge that cannot be confused with unrelated assets. */
+    (void)write_career_save_bridge(runtime_dir, "career_active_save.tsv",
+        "career_active_save", record, length);
+    (void)write_career_save_bridge(runtime_dir, "career_save_source.tsv",
+        "career_save_source", record, length);
 }
 
 static void record_career_ui_open(const char *path, HANDLE handle, DWORD error)

@@ -23,10 +23,4 @@ Compilação `/W4 /WX` e testes passaram: distribuição, altura no chão, prese
  dos slots originais, exclusão do menu, bola oculta e limite de slots ocupados.
 O próximo reinício do FIFA ainda precisa de conferência visual pelo usuário.
 
-O cone foi abandonado a pedido do usuário depois de novo crash no teste v15.
-Versões v5–v15 e os RX3 usados por elas foram retirados das pastas ativas para
-`mods/multiball_visual/experimental_disabled`. Não são carregados pela v16.
-Código experimental e dumps foram preservados nos estudos, fora do autoload.
-Não houve commit ou push.
-
 Log: `ModCarrerMode/logs/multiball_visual.log`.

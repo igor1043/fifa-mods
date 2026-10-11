@@ -19,6 +19,7 @@ static volatile LONG started;
 static void (__fastcall* originalSelect)(void*);
 static uintptr_t lastRenderer, lastRecords;
 static size_t lastCount, selectedSlot;
+static unsigned int lastAppearanceType=23;
 static float targetPosition[3];
 static bool repositionMascot;
 static bool currentClubAnimated;
@@ -45,6 +46,7 @@ struct MascotFrameContext {
     unsigned int generation;
     bool mascotActive;
     bool packageAnimated;
+    unsigned int appearanceType;
 };
 
 static void log_event(const char* format, ...)
@@ -236,9 +238,9 @@ static void reload_legacy_ballboys(uintptr_t renderer)
     }
 }
 
-static void prepare_prototypes(uintptr_t begin)
+static void prepare_prototypes(uintptr_t begin,size_t count)
 {
-    for (size_t i = 0; i < 3; ++i) {
+    for (size_t i = 0; i < count; ++i) {
         uintptr_t prototype = *(uintptr_t*)(begin + i * 8);
         if (!((bool (__fastcall*)(void*))(image + 0x43b4500))((void*)prototype)) {
             alignas(16) int parameters[5] = {-1, -1, -1, 0, -1};
@@ -248,23 +250,45 @@ static void prepare_prototypes(uintptr_t begin)
     }
 }
 
-static bool assign_photographer(void* object, MascotFrameContext& frame)
+static bool assign_mascot_placement(void* object, MascotFrameContext& frame)
 {
     const uintptr_t renderer = (uintptr_t)object;
+    size_t placementCounts[mascotPlacementTypeCount]{};
+    uintptr_t placementRecords[mascotPlacementTypeCount]{};
+    for(unsigned int i=0;i<mascotPlacementTypeCount;++i)
+        if(!vector_bounds(renderer+0x30*(mascotPlacementTypes[i]+0x2f),0x50,placementRecords[i],placementCounts[i]))return false;
+    const unsigned int appearanceType=mascot_choose_placement_type(placementCounts);
+    if(appearanceType>=23) {
+        static DWORD lastMissingLog=0;const DWORD tick=GetTickCount();
+        if(!lastMissingLog || tick-lastMissingLog>=5000) { lastMissingLog=tick;log_event("placement_unavailable photographers=0 choreo_photographers=0 stewards=0 choreo_stewards=0"); }
+        lastRecords=0;repositionMascot=false;mascot_set_animation_active(false,-1);return false;
+    }
     uintptr_t prototypes, records; size_t prototypeCount, count;
-    if (!vector_bounds(renderer + 0x60, 8, prototypes, prototypeCount) || prototypeCount != 3 ||
-        !vector_bounds(renderer + 0x900, 0x50, records, count)) return false;
+    const unsigned char reservedAppearance=(unsigned char)mascot_reserved_appearance(appearanceType);
+    if (!vector_bounds(renderer + 0x30*(appearanceType+1), 8, prototypes, prototypeCount) || prototypeCount != (size_t)reservedAppearance+1 ||
+        !vector_bounds(renderer + 0x30*(appearanceType+0x2f), 0x50, records, count)) return false;
     if (!count) { lastRecords = 0; repositionMascot = false; mascot_set_animation_active(false,-1); return false; }
-    for (size_t i = 0; i < 3; ++i) {
+    for (size_t i = 0; i < prototypeCount; ++i) {
         uintptr_t prototype, state; uint16_t type, variation;
-        if (!get(prototypes + i * 8, prototype) || !get(prototype + 12, type) || type != 1 ||
+        if (!get(prototypes + i * 8, prototype) || !get(prototype + 12, type) || type != appearanceType ||
             !get(prototype + 14, variation) || variation != i || !get(prototype + 16, state) ||
             !readable(state, 0x50)) return false;
     }
-    uintptr_t prototype = *(uintptr_t*)(prototypes + 16);
+    uintptr_t prototype = *(uintptr_t*)(prototypes + (size_t)reservedAppearance*8);
     uintptr_t state = *(uintptr_t*)(prototype + 16);
     const unsigned int rnaIndex = *(unsigned int*)(state + 0x4c);
-    const bool newGeometry = renderer != lastRenderer || records != lastRecords || count != lastCount;
+    const bool newGeometry = renderer != lastRenderer || records != lastRecords || count != lastCount || appearanceType!=lastAppearanceType;
+    if(renderer==lastRenderer && appearanceType!=lastAppearanceType && lastAppearanceType<23) {
+        uintptr_t previous;size_t previousCount;
+        if(vector_bounds(renderer+0x30*(lastAppearanceType+0x2f),0x50,previous,previousCount) && previous==lastRecords) {
+            mascot_walk_restore_live(renderer,previous,previousCount);
+            mascot_unbind_pose(renderer,previous,previousCount);
+        }
+    }
+    // Clean the reserved appearances in the other validated actor categories.
+    // No previous vector or scene pointer is used after an ownership change.
+    for(unsigned int i=0;i<mascotPlacementTypeCount;++i)if(mascotPlacementTypes[i]!=appearanceType)
+        mascot_assign_none((unsigned char*)placementRecords[i],placementCounts[i],(unsigned char)mascot_reserved_appearance(mascotPlacementTypes[i]));
     int home = lastHome, stadium = lastStadium, light = lastLight, cold = lastCold;
     const DWORD tick = GetTickCount();
     if (newGeometry || tick - lastIdentityCheck >= 250) {
@@ -294,12 +318,13 @@ static bool assign_photographer(void* object, MascotFrameContext& frame)
             priorPlacementPending = false;
         }
         lastRenderer = renderer; lastRecords = records; lastCount = count;
+        lastAppearanceType=appearanceType;
         lastHome=home; lastStadium=stadium; lastLight=light; lastCold=cold;
         lastPackageStatus=packages;
         selectedSlot = mascot_choose_corner((const unsigned char*)records, count);
         float p[3]; memcpy(p, (void*)(records + selectedSlot * 0x50 + 0x20), sizeof(p));
-        log_event("scene renderer=%p photographers=%zu mode=corner mascot_slots=1 normal_slots=%zu number=%zu runtime_index=%zu position=%g,%g,%g",
-            object, count, count - 1, selectedSlot + 1, selectedSlot, p[0], p[1], p[2]);
+        log_event("scene renderer=%p placement_type=%u actors=%zu photographers=%zu choreo_photographers=%zu stewards=%zu choreo_stewards=%zu mascot_slots=1 number=%zu runtime_index=%zu position=%g,%g,%g",
+            object,appearanceType,count,placementCounts[0],placementCounts[1],placementCounts[2],placementCounts[3],selectedSlot+1,selectedSlot,p[0],p[1],p[2]);
         if (refresh_lua(rnaIndex)) {
             /* v2/v3 had already configured this resource as a photographer.
              * Force its native callback/path/material reload on the scene thread. */
@@ -338,14 +363,14 @@ static bool assign_photographer(void* object, MascotFrameContext& frame)
                 targetPosition[0],targetPosition[0],targetPosition[1],targetPosition[2]);
         }
     }
-    prepare_prototypes(prototypes);
-    const size_t changes = repositionMascot ? mascot_assign_one((unsigned char*)records,count,selectedSlot) :
-        mascot_assign_none((unsigned char*)records,count);
+    prepare_prototypes(prototypes,prototypeCount);
+    const size_t changes = repositionMascot ? mascot_assign_one((unsigned char*)records,count,selectedSlot,reservedAppearance) :
+        mascot_assign_none((unsigned char*)records,count,reservedAppearance);
     if (repositionMascot) memcpy((void*)(records + selectedSlot * 0x50 + 0x20), targetPosition, sizeof(targetPosition));
     if (changes) log_event("appearance_assignment mode=corner mascot_slots=1 normal_slots=%zu changed=%zu",
         count - 1, changes);
     frame = {renderer, records, count, selectedSlot, home, stadium, light, cold,
-        packages, mascotPlacementGeneration, repositionMascot, currentClubAnimated};
+        packages, mascotPlacementGeneration, repositionMascot, currentClubAnimated,appearanceType};
     return true;
 }
 
@@ -355,7 +380,7 @@ static void __fastcall selection_hook(void* renderer)
     /* BEFORE 43a8bf0 resolves prototypes and builds its GPU draw list. */
     MascotFrameContext frame{};
     __try {
-        if (assign_photographer(renderer, frame)) mascot_animate_instance(frame);
+        if (assign_mascot_placement(renderer, frame)) mascot_animate_instance(frame);
         else { mascotWalkRuntime={};mascotNativeClock={};mascot_unbind_pose(0,0,0); mascot_set_animation_active(false,-1); }
     }
     __except(EXCEPTION_EXECUTE_HANDLER) {
@@ -491,7 +516,7 @@ static DWORD WINAPI worker(void*)
         HANDLE animationThread=CreateThread(nullptr,0,mascot_animation_worker,nullptr,0,nullptr);
         if (animationThread) CloseHandle(animationThread);
         else log_event("animation_score_watcher not_started thread_creation_failed");
-        log_event("installed version=23 mode=contact_driven_locomotion hook=43ac0f1 crowd_hook=0 type=1 prototype=2 resource_refresh=1 startup_retry=1 legacy_ballboys=normal missing_package_guard=1 celebration_engine_ms=15000 performance_revision=2 identity_poll_ms=250 lua_scan_per_frame=0 dynamic_club_packages=1 seated_pose_guard=1 approved_clips_only=1 turn_before_walk=1 yaw_private_palette=1 idle_blend_ms=450 ground_smoothing_ms=80 restart_session_worker=1 no_consecutive_position_repeat=1 stale_scene_restore=0 waypoint_dwell_seconds=30 waypoint_policy=local_least_recent waypoint_max_travel_cm=600 waypoint_interaction_seconds=15");
+        log_event("installed version=27 mode=contact_driven_locomotion hook=43ac0f1 crowd_hook=0 placement_types=1,18,0,22 resource_refresh=1 startup_retry=1 legacy_ballboys=normal missing_package_guard=1 celebration_engine_ms=15000 performance_revision=2 identity_poll_ms=250 lua_scan_per_frame=0 dynamic_club_packages=1 seated_pose_guard=1 approved_clips_only=1 turn_before_walk=1 yaw_private_palette=1 idle_blend_ms=450 ground_smoothing_ms=80 restart_session_worker=1 no_consecutive_position_repeat=1 stale_scene_restore=0 waypoint_dwell_seconds=30 waypoint_policy=local_least_recent waypoint_max_travel_cm=600 waypoint_interaction_seconds=15 goal_variants=6 support_variants=3 replay_clock=GameStateInterface replay_history_frames=8192 waypoint_applause_separate=1 bind_source=club_rx3 renderer_bind_compensated=1");
         return 0;
     }
     log_event("not_installed unsupported_or_conflicting_native_code"); return 4;

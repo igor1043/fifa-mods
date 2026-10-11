@@ -5,7 +5,7 @@ if (Get-Process -Name fifa16 -ErrorAction SilentlyContinue) {
 }
 $taskProject = (Resolve-Path -LiteralPath (Join-Path $PSScriptRoot '..\..\..')).Path
 $taskGame = (Resolve-Path -LiteralPath $GameRoot).Path
-$taskDllName = 'mascot_goal_line_v23.dll'
+$taskDllName = 'mascot_goal_line_v27.dll'
 $taskDllSource = Join-Path $taskProject ('ModCarrerMode\mods\mascot_single\' + $taskDllName)
 $taskDllTarget = Join-Path $taskGame ('ModCarrerMode\mods\mascot_single\' + $taskDllName)
 if (-not (Test-Path -LiteralPath (Join-Path $taskGame 'fifa16.exe'))) { throw 'A pasta de destino nao contem fifa16.exe.' }

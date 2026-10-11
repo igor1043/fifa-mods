@@ -1281,9 +1281,14 @@ static int native_read_active_save_path(char *path, size_t capacity)
     if (!path || !capacity || !g_mod_dir[0])
         return 0;
     path[0] = '\0';
-    snprintf(bridge, sizeof(bridge), "%s\\runtime\\career_active_save.tsv",
+    snprintf(bridge, sizeof(bridge), "%s\\runtime\\career_save_source.tsv",
         g_mod_dir);
     file = fopen(bridge, "rb");
+    if (!file) {
+        snprintf(bridge, sizeof(bridge), "%s\\runtime\\career_active_save.tsv",
+            g_mod_dir);
+        file = fopen(bridge, "rb");
+    }
     if (!file)
         return 0;
     while (fgets(line, sizeof(line), file)) {
@@ -1298,10 +1303,228 @@ static int native_read_active_save_path(char *path, size_t capacity)
         memcpy(path, value, length);
         path[length] = '\0';
         fclose(file);
+        if (!is_fifa_save_data_path(path)) {
+            path[0] = '\0';
+            return 0;
+        }
         return 1;
     }
     fclose(file);
     return 0;
+}
+
+static unsigned long native_fce_snapshot_generation;
+static unsigned long long native_fce_snapshot_size;
+static unsigned long long native_fce_snapshot_write_time;
+static unsigned long long native_fce_snapshot_fingerprint;
+static unsigned long long native_fce_hash_value(unsigned long long hash,
+    unsigned int value)
+{
+    int byte;
+    for (byte = 0; byte < 4; ++byte) {
+        hash ^= (unsigned char)(value >> (byte * 8));
+        hash *= 1099511628211ULL;
+    }
+    return hash;
+}
+static unsigned long long native_fce_model_fingerprint(const FceModel *model)
+{
+    unsigned long long hash = 1469598103934665603ULL;
+    size_t i;
+    hash = native_fce_hash_value(hash, (unsigned int)model->date);
+    hash = native_fce_hash_value(hash, (unsigned int)model->unresolved_fixtures);
+    hash = native_fce_hash_value(hash, (unsigned int)model->node_count);
+    hash = native_fce_hash_value(hash, (unsigned int)model->standing_count);
+    hash = native_fce_hash_value(hash, (unsigned int)model->fixture_count);
+    hash = native_fce_hash_value(hash, (unsigned int)model->stat_count);
+    for (i = 0; i < model->node_count; ++i) {
+        const FceCompNode *row = model->nodes + i;
+        hash = native_fce_hash_value(hash, (unsigned int)row->id);
+        hash = native_fce_hash_value(hash, (unsigned int)row->parent);
+        hash = native_fce_hash_value(hash, (unsigned int)row->type);
+        hash = native_fce_hash_value(hash, (unsigned int)row->asset);
+        hash = native_fce_hash_value(hash, (unsigned int)row->stage_kind);
+    }
+    for (i = 0; i < model->standing_count; ++i) {
+        const FceStanding *row = model->standings + i;
+        hash = native_fce_hash_value(hash, (unsigned int)row->standing_id);
+        hash = native_fce_hash_value(hash, (unsigned int)row->competition_object);
+        hash = native_fce_hash_value(hash, (unsigned int)row->team);
+        hash = native_fce_hash_value(hash, row->home_wins);
+        hash = native_fce_hash_value(hash, row->home_draws);
+        hash = native_fce_hash_value(hash, row->home_losses);
+        hash = native_fce_hash_value(hash, row->away_wins);
+        hash = native_fce_hash_value(hash, row->away_draws);
+        hash = native_fce_hash_value(hash, row->away_losses);
+        hash = native_fce_hash_value(hash, row->played);
+    }
+    for (i = 0; i < model->fixture_count; ++i) {
+        const FceFixture *row = model->fixtures + i;
+        hash = native_fce_hash_value(hash, (unsigned int)row->id);
+        hash = native_fce_hash_value(hash, (unsigned int)row->competition_object);
+        hash = native_fce_hash_value(hash, (unsigned int)row->stage);
+        hash = native_fce_hash_value(hash, (unsigned int)row->date_raw);
+        hash = native_fce_hash_value(hash, (unsigned int)row->time_raw);
+        hash = native_fce_hash_value(hash, (unsigned int)row->home);
+        hash = native_fce_hash_value(hash, (unsigned int)row->away);
+        hash = native_fce_hash_value(hash, (unsigned int)row->home_score);
+        hash = native_fce_hash_value(hash, (unsigned int)row->away_score);
+        hash = native_fce_hash_value(hash, (unsigned int)row->played_raw);
+        hash = native_fce_hash_value(hash, (unsigned int)row->round);
+    }
+    for (i = 0; i < model->stat_count; ++i) {
+        const FceStat *row = model->stats + i;
+        hash = native_fce_hash_value(hash, (unsigned int)row->stats_id);
+        hash = native_fce_hash_value(hash, (unsigned int)row->competition);
+        hash = native_fce_hash_value(hash, (unsigned int)row->team);
+        hash = native_fce_hash_value(hash, (unsigned int)row->player);
+        hash = native_fce_hash_value(hash, (unsigned int)row->appearances);
+        hash = native_fce_hash_value(hash, (unsigned int)row->minutes);
+        hash = native_fce_hash_value(hash, (unsigned int)row->goals);
+        hash = native_fce_hash_value(hash, (unsigned int)row->assists);
+        hash = native_fce_hash_value(hash, (unsigned int)row->yellow_cards);
+        hash = native_fce_hash_value(hash, (unsigned int)row->red_cards);
+        hash = native_fce_hash_value(hash, (unsigned int)row->clean_sheets);
+        hash = native_fce_hash_value(hash, (unsigned int)row->rating_sum);
+        hash = native_fce_hash_value(hash, row->profile_valid);
+    }
+    return hash;
+}
+static int native_fce_snapshot_json_string(FILE *file, const char *value)
+{
+    const unsigned char *cursor = (const unsigned char *)value;
+    if (fputc('"', file) == EOF) return 0;
+    while (*cursor) {
+        if (*cursor == '"' || *cursor == '\\') {
+            if (fputc('\\', file) == EOF || fputc(*cursor, file) == EOF) return 0;
+        } else if (*cursor == '\r') {
+            if (fputs("\\r", file) == EOF) return 0;
+        } else if (*cursor == '\n') {
+            if (fputs("\\n", file) == EOF) return 0;
+        } else if (*cursor == '\t') {
+            if (fputs("\\t", file) == EOF) return 0;
+        } else if (*cursor >= 0x20) {
+            if (fputc(*cursor, file) == EOF) return 0;
+        }
+        ++cursor;
+    }
+    return fputc('"', file) != EOF;
+}
+
+/* Keep a career-owned copy of the live FCE model. The browser only reads this
+ * atomic snapshot; it never inspects FIFA process memory. */
+static int native_fce_snapshot_write(void)
+{
+    const FceModel *model = &native_view;
+    char runtime_dir[MAX_PATH], snapshot_path[MAX_PATH], temporary_path[MAX_PATH];
+    char save_path[1024];
+    wchar_t save_path_w[2048];
+    FILE *file;
+    FILETIME created, exited, kernel, user;
+    WIN32_FILE_ATTRIBUTE_DATA save_attributes;
+    ULARGE_INTEGER created_value, saved_write_time, save_size;
+    DWORD pid = GetCurrentProcessId();
+    size_t i;
+    int ok = 1;
+    unsigned long generation = native_epoch;
+    unsigned long long fingerprint;
+    int converted;
+    if (!g_mod_dir[0] || !generation ||
+        model->node_count > 65536 || model->standing_count > 65536 ||
+        model->fixture_count > 65536 || model->stat_count > 65536 ||
+        (model->node_count && !model->nodes) ||
+        (model->standing_count && !model->standings) ||
+        (model->fixture_count && !model->fixtures) ||
+        (model->stat_count && !model->stats) ||
+        !native_read_active_save_path(save_path, sizeof(save_path)) ||
+        !GetProcessTimes(GetCurrentProcess(), &created, &exited, &kernel, &user))
+        return 0;
+    converted = MultiByteToWideChar(CP_UTF8, MB_ERR_INVALID_CHARS, save_path, -1,
+        save_path_w, (int)(sizeof(save_path_w) / sizeof(save_path_w[0])));
+    if (!converted || !GetFileAttributesExW(save_path_w, GetFileExInfoStandard,
+        &save_attributes)) return 0;
+    created_value.LowPart = created.dwLowDateTime;
+    created_value.HighPart = created.dwHighDateTime;
+    saved_write_time.LowPart = save_attributes.ftLastWriteTime.dwLowDateTime;
+    saved_write_time.HighPart = save_attributes.ftLastWriteTime.dwHighDateTime;
+    save_size.LowPart = save_attributes.nFileSizeLow;
+    save_size.HighPart = save_attributes.nFileSizeHigh;
+    fingerprint = native_fce_model_fingerprint(model);
+    if (fingerprint == native_fce_snapshot_fingerprint &&
+        save_size.QuadPart == native_fce_snapshot_size &&
+        saved_write_time.QuadPart == native_fce_snapshot_write_time) return 0;
+    snprintf(runtime_dir, sizeof(runtime_dir), "%s\\runtime", g_mod_dir);
+    if (!CreateDirectoryA(runtime_dir, NULL) &&
+        GetLastError() != ERROR_ALREADY_EXISTS) return 0;
+    snprintf(snapshot_path, sizeof(snapshot_path),
+        "%s\\career_fce_snapshot.json", runtime_dir);
+    snprintf(temporary_path, sizeof(temporary_path),
+        "%s\\career_fce_snapshot.%lu.tmp", runtime_dir, (unsigned long)pid);
+    file = fopen(temporary_path, "wb");
+    if (!file) return 0;
+    if (fprintf(file,
+        "{\"schema\":3,\"pid\":%lu,\"processCreated100ns\":%llu,"
+        "\"generation\":%lu,\"saveSize\":%llu,\"saveWriteTime100ns\":%llu,"
+        "\"savePath\":",
+        (unsigned long)pid, (unsigned long long)created_value.QuadPart,
+        generation, (unsigned long long)save_size.QuadPart,
+        (unsigned long long)saved_write_time.QuadPart) < 0) ok = 0;
+    if (ok && !native_fce_snapshot_json_string(file, save_path)) ok = 0;
+    if (ok && fprintf(file, ",\"club\":%d,\"date\":%d,\"unresolvedFixtures\":%llu,\"nodes\":[",
+        native_club, model->date,
+        (unsigned long long)model->unresolved_fixtures) < 0) ok = 0;
+    for (i = 0; ok && i < model->node_count; ++i) {
+        const FceCompNode *n = model->nodes + i;
+        if (fprintf(file, "%s[%d,%d,%d,%d,%d]", i ? "," : "",
+            (int)n->id, (int)n->parent, (int)n->type, (int)n->asset,
+            (int)n->stage_kind) < 0) ok = 0;
+    }
+    if (ok && fputs("],\"standings\":[", file) == EOF) ok = 0;
+    for (i = 0; ok && i < model->standing_count; ++i) {
+        const FceStanding *standing = model->standings + i;
+        if (fprintf(file, "%s[%d,%d,%d,%u,%u,%u,%u,%u,%u,%u]",
+            i ? "," : "", (int)standing->standing_id,
+            (int)standing->competition_object, (int)standing->team,
+            standing->home_wins, standing->home_draws, standing->home_losses,
+            standing->away_wins, standing->away_draws, standing->away_losses,
+            standing->played) < 0) ok = 0;
+    }
+    if (ok && fputs("],\"fixtures\":[", file) == EOF) ok = 0;
+    for (i = 0; ok && i < model->fixture_count; ++i) {
+        const FceFixture *fixture = model->fixtures + i;
+        if (fprintf(file, "%s[%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d]",
+            i ? "," : "", (int)fixture->id,
+            (int)fixture->competition_object, (int)fixture->stage,
+            (int)fixture->date_raw, (int)fixture->time_raw,
+            (int)fixture->home, (int)fixture->away,
+            (int)fixture->home_score, (int)fixture->away_score,
+            (int)fixture->played_raw, (int)fixture->round) < 0) ok = 0;
+    }
+    if (ok && fputs("],\"stats\":[", file) == EOF) ok = 0;
+    for (i = 0; ok && i < model->stat_count; ++i) {
+        const FceStat *stat = model->stats + i;
+        if (fprintf(file, "%s[%d,%d,%d,%d,%d,%d,%d,%d]", i ? "," : "",
+            (int)stat->stats_id, (int)stat->competition, (int)stat->team,
+            (int)stat->player, (int)stat->appearances, (int)stat->minutes,
+            (int)stat->goals, (int)stat->assists) < 0) ok = 0;
+    }
+    if (ok && fputs("]}\n", file) == EOF) ok = 0;
+    if (fflush(file) != 0) ok = 0;
+    if (fclose(file) != 0) ok = 0;
+    if (!ok) {
+        DeleteFileA(temporary_path);
+        return 0;
+    }
+    if (!MoveFileExA(temporary_path, snapshot_path,
+        MOVEFILE_REPLACE_EXISTING | MOVEFILE_WRITE_THROUGH)) {
+        DeleteFileA(temporary_path);
+        return 0;
+    }
+    native_fce_snapshot_generation = generation;
+    native_fce_snapshot_size = save_size.QuadPart;
+    native_fce_snapshot_write_time = saved_write_time.QuadPart;
+    native_fce_snapshot_fingerprint = fingerprint;
+    return 1;
 }
 
 static unsigned int native_find_layout_id_offsets(const void *object,
@@ -2111,6 +2334,7 @@ static void native_prepare(void *owner) {
             native_add_club_competition(st->competition_object,club,st->competition_object);
     }
     for(i=0;i<g_competition_count;++i) native_build_competition_tab(i,club);
+    (void)native_fce_snapshot_write();
     if(g_competition_count>0) {
         size_t row_count=g_competition_tab_row_counts[0];
         size_t j;

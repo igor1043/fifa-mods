@@ -3,15 +3,18 @@
 #include <math.h>
 #include "mascot_match_lifecycle.h"
 #include "mascot_walk_clips.h"
+#include "mascot_animation_variants.h"
+#include "mascot_skin_binding.h"
 
 // Approved standing clips and foot-driven locomotion use private SLE slot 73.
-// CrowdAI is read only for the existing pause clock and the known upright
-// goal clip 14:109. Generic crowd idle/transition clips are never copied.
+// CrowdAI is read only for the pause clock. Selected native goal reactions
+// are baked offline; replay uses the native time and our recorded palettes.
 static volatile LONG mascotAnimationEnabled;
 static volatile LONG mascotAnimationHome = -1;
 static volatile LONG mascotSceneGeneration;
 static volatile LONG mascotPlacementSession;
 static volatile LONG mascotAnimationMode;      // 0 inactive, 2 standing idle/walk, 3 home-goal cheer
+static volatile LONG mascotGoalEventSerial;
 static volatile LONG64 mascotAnimationClockMs;
 static bool mascotAnimationInitialized;
 static bool mascotAnimationBound;
@@ -27,6 +30,7 @@ static unsigned int mascotInitAttemptGeneration;
 static DWORD mascotInitAttemptTick;
 static float mascotBindPose[31][16];
 static float mascotLastPose[31][16];
+static MascotSkinBinding mascotSkinBinding;
 struct MascotNativeClock {
     uintptr_t provider=0, crowd=0;
     unsigned int generation=0;
@@ -38,6 +42,13 @@ struct MascotNativeClock {
 };
 static MascotNativeClock mascotNativeClock;
 #include "mascot_walk_runtime.h"
+#include "mascot_replay_clock.h"
+#include "mascot_replay_history.h"
+static MascotReplayHistory mascotReplayHistory;
+static bool mascotWasInReplay=false;
+static double mascotLastNativeTime=-1;
+static uintptr_t mascotLastNativeSource=0;
+static uint64_t mascotLastNativeAdvance=0;
 
 static void mascot_set_animation_active(bool enabled, int home)
 {
@@ -98,7 +109,7 @@ static uintptr_t mascot_native_pose_provider()
 
 // The crowd pose provider advances on FIFA's animation clock. Use its motion
 // as the clock for mascot locomotion, so a paused replay freezes the route too.
-static float mascot_native_animation_dt(uintptr_t crowd,uint64_t now)
+static float mascot_native_animation_dt(uintptr_t crowd,uint64_t now,bool allowAdvance=true)
 {
     MascotNativeClock& clock=mascotNativeClock;
     if(clock.crowd!=crowd || clock.generation!=mascotPlacementGeneration) {
@@ -148,6 +159,7 @@ static float mascot_native_animation_dt(uintptr_t crowd,uint64_t now)
     clock.lastFrameTick=now;
     if(dt<0 || dt>.05f) dt=.05f;
     if(!clock.lastChangedTick || now-clock.lastChangedTick>250) dt=0;
+    if(!allowAdvance)dt=0;
     if(dt>0) InterlockedExchangeAdd64(&mascotAnimationClockMs,(LONG64)(dt*1000.0f));
     return dt;
 }
@@ -200,23 +212,6 @@ static bool mascot_read_confirmed_score(uintptr_t& matchKey, int& homeClub, int&
     matchKey = rows ^ team[0] ^ (team[1] << 11 | team[1] >> (sizeof(uintptr_t) * 8 - 11)) ^
         (sceneGenerationKey ? generation * (uintptr_t)0x9e3779b97f4a7c15ULL : 0);
     return matchKey != 0;
-}
-
-static bool mascot_invert_affine(const float* matrix, float* output)
-{
-    for (size_t i = 0; i < 16; ++i) if (!isfinite(matrix[i]) || fabsf(matrix[i]) > 20000) return false;
-    if (fabsf(matrix[15] - 1) > 0.001f) return false;
-    const float a=matrix[0], b=matrix[4], c=matrix[8], d=matrix[1], e=matrix[5], f=matrix[9],
-                g=matrix[2], h=matrix[6], i=matrix[10];
-    const float determinant=a*(e*i-f*h)-b*(d*i-f*g)+c*(d*h-e*g);
-    if (!isfinite(determinant) || fabsf(determinant) < 0.0001f) return false;
-    memset(output, 0, 16 * sizeof(float)); output[15]=1;
-    const float rows[9]={e*i-f*h,c*h-b*i,b*f-c*e,f*g-d*i,a*i-c*g,c*d-a*f,d*h-e*g,b*g-a*h,a*e-b*d};
-    for (size_t row=0;row<3;++row) for (size_t column=0;column<3;++column)
-        output[column*4+row]=rows[row*3+column]/determinant;
-    for (size_t row=0;row<3;++row)
-        output[12+row]=-(output[row]*matrix[12]+output[4+row]*matrix[13]+output[8+row]*matrix[14]);
-    return true;
 }
 
 [[maybe_unused]] static bool mascot_native_standing_pose(uintptr_t crowd,uintptr_t provider,int requested, float pose[31][16], int& behaviorOut, int& clip)
@@ -277,6 +272,9 @@ static void mascot_animate_instance(const MascotFrameContext& frame)
         if (sameAttempt && tick-mascotInitAttemptTick<250) return;
         mascotInitAttemptRenderer=renderer; mascotInitAttemptRecords=records;
         mascotInitAttemptIndex=selected; mascotInitAttemptGeneration=frame.generation; mascotInitAttemptTick=tick;
+        uint16_t incomingBinding=0;unsigned char incomingAppearance=0;
+        const bool ownsIncomingSlot=get(records+selected*0x50+0x40,incomingBinding) && incomingBinding==mascotPrivateSlot &&
+            get(records+selected*0x50+0x42,incomingAppearance) && incomingAppearance==mascot_reserved_appearance(frame.appearanceType);
         mascot_unbind_pose(renderer,records,count);
         mascot_set_animation_active(false,home);
         wchar_t variant[MAX_PATH];
@@ -285,13 +283,20 @@ static void mascot_animate_instance(const MascotFrameContext& frame)
         for(unsigned int type=0;type<23;++type) {
             uintptr_t begin;size_t n;
             if(!vector_bounds(renderer+0x30*(type+0x2f),0x50,begin,n)) return;
-            for(size_t i=0;i<n;++i) if(*(uint16_t*)(begin+i*0x50+0x40)==mascotPrivateSlot && (type!=1 || i!=selected)) return;
+            for(size_t i=0;i<n;++i) if(*(uint16_t*)(begin+i*0x50+0x40)==mascotPrivateSlot && (type!=frame.appearanceType || i!=selected)) return;
         }
-        if(*(unsigned char*)(renderer+mascotPrivateSlot*0xe00+0xf5d0)!=0) return;
+        if(*(unsigned char*)(renderer+mascotPrivateSlot*0xe00+0xf5d0)!=0 && !ownsIncomingSlot) {
+            static DWORD lastBusyLog=0;
+            if(!lastBusyLog || tick-lastBusyLog>=5000){lastBusyLog=tick;log_event("animation_wait club=%d reason=private_slot_occupied placement_type=%u",home,frame.appearanceType);}
+            return;
+        }
         uintptr_t inverse;
         if(!get(renderer+0x4f440,inverse) || !readable(inverse,sizeof(mascotBindPose))) return;
-        float inverseMatrices[31][16];memcpy(inverseMatrices,(void*)inverse,sizeof(inverseMatrices));
-        for(size_t bone=0;bone<31;++bone) if(!mascot_invert_affine(inverseMatrices[bone],mascotBindPose[bone])) return;
+        float inverseMatrices[31][16],modelInverse[31][16];memcpy(inverseMatrices,(void*)inverse,sizeof(inverseMatrices));
+        if(!mascot_read_model_inverse(variant,modelInverse) || !mascot_skin_prepare(modelInverse,inverseMatrices,mascotSkinBinding)) {
+            log_event("animation_fallback invalid_model_bind club=%d",home);return;
+        }
+        memcpy(mascotBindPose,mascotSkinBinding.modelBind,sizeof(mascotBindPose));
         mascot_load_foot_markers(home);
         memcpy(mascotLastPose,mascotBindPose,sizeof(mascotLastPose));
         uint16_t previousBinding=3;
@@ -302,50 +307,114 @@ static void mascot_animate_instance(const MascotFrameContext& frame)
         mascotAnimatedStadium=stadium;mascotAnimatedLight=light;mascotAnimatedCold=cold;
         mascotAnimatedGeneration=frame.generation;
         mascotAnimationInitialized=true;mascotAnimationBound=false;
-        log_event("animation_ready club=%d instance=%zu slot=73 idle=approved_baked native_goal=14:109 contact_walk=1 foot_markers=%u no_sit_pose=1",home,selected+1,(unsigned int)mascotFootMarkersReady);
+        log_event("animation_ready club=%d instance=%zu slot=73 idle=approved_baked goal_variants=6 support_variants=3 contact_walk=1 foot_markers=%u no_sit_pose=1 bind_source=club_rx3 renderer_bind_compensated=1",home,selected+1,(unsigned int)mascotFootMarkersReady);
     }
     mascot_set_animation_active(true,home);
     const LONG mode=InterlockedCompareExchange(&mascotAnimationMode,0,0);
     const uint64_t now=GetTickCount64();
+    const MascotReplayClockSample replayClock=mascot_read_replay_clock();
+    const LONG session=InterlockedCompareExchange(&mascotPlacementSession,0,0);
+    mascotReplayHistory.bind(home,session);
+    if(replayClock.valid && replayClock.replay) {
+        float pose[31][16],position[3];int kind=0,clip=-1;bool clamped=false;
+        const bool recorded=mascotReplayHistory.sample(replayClock.time,position,pose,kind,clip,clamped);
+        if(recorded) {
+            memcpy((void*)(records+selected*0x50+0x20),position,sizeof(position));
+            const float neutral=0;
+            memcpy((void*)(records+selected*0x50+0x1c),&neutral,sizeof(neutral));
+            memcpy((void*)(records+selected*0x50+0x2c),&neutral,sizeof(neutral));
+        } else memcpy(pose,mascotLastPose,sizeof(pose));
+        float palette[31][16];
+        if(!mascot_skin_palette(mascotSkinBinding,pose,palette))return;
+        memcpy((void*)(renderer+mascotPrivateSlot*0xe00+0xe7e0),palette,sizeof(palette));
+        *(uint16_t*)(records+selected*0x50+0x40)=(uint16_t)mascotPrivateSlot;
+        mascotAnimationBound=true;
+        static double lastReportedTime=-1;static int lastKind=-1,lastClip=-1;
+        if(!mascotWasInReplay || kind!=lastKind || clip!=lastClip || fabs(replayClock.time-lastReportedTime)>5) {
+            log_event("replay_pose native_time=%.6f stored=%u recorded=%u clamped=%u kind=%d clip=%d position_z=%.3f",replayClock.time,mascotReplayHistory.count,(unsigned int)recorded,(unsigned int)clamped,kind,clip,recorded?position[2]:targetPosition[2]);
+            lastReportedTime=replayClock.time;lastKind=kind;lastClip=clip;
+        }
+        mascotWasInReplay=true;
+        return;
+    }
+    if(mascotWasInReplay && mascotReplayHistory.count) {
+        float position[3],pose[31][16];int kind=0,clip=-1;bool clamped=false;
+        if(mascotReplayHistory.sample(mascotReplayHistory.at(mascotReplayHistory.count-1).time,position,pose,kind,clip,clamped))
+            memcpy(mascotLastPose,pose,sizeof(pose));
+        log_event("replay_finished live_route_preserved=1");
+    }
+    mascotWasInReplay=false;
+    if(mascotWalkRuntime.ready && mascotWalkRuntime.home==home && mascotWalkRuntime.session==session)
+        mascotWalkRuntime.generation=frame.generation;
+    bool allowAdvance=true;
+    if(replayClock.valid) {
+        if(replayClock.source!=mascotLastNativeSource || replayClock.time!=mascotLastNativeTime)mascotLastNativeAdvance=now;
+        else if(now-mascotLastNativeAdvance>250)allowAdvance=false;
+        mascotLastNativeSource=replayClock.source;mascotLastNativeTime=replayClock.time;
+    }
     const uintptr_t crowd=mascot_cached_crowd(now);
-    const LONG requestedBehavior=mode==3?14:-1;
-    const float dt=mascot_native_animation_dt(crowd,now);
+    const float dt=mascot_native_animation_dt(crowd,now,allowAdvance);
     mascot_walk_update(frame,mode,now,dt);
     MascotWalkRuntime& motion=mascotWalkRuntime;
     const bool waypointInteraction=mascot_waypoint_interaction();
-    const int poseKind=mode==3?2:(motion.walking?1:(waypointInteraction?2:0));
+    // Goals must never fall back to the waypoint applause clip. The captured
+    // crowd reaction is self-contained even when live crowd slot 0 changes.
+    const int poseKind=mode==3?3:(motion.walking?1:(waypointInteraction?2:0));
     float matrices[31][16];
-    int behavior=-1,clip=-1;
-    const bool nativePose=poseKind==2 && mascot_native_standing_pose(crowd,mascotNativeClock.provider,requestedBehavior,matrices,behavior,clip);
-    if(!nativePose) {
+    float phase=motion.clipTime;
+    unsigned int variant=0;
+    const MascotStandingClip* standing=nullptr;
+    if(poseKind==3) {
+        variant=mascot_goal_sequence((unsigned int)InterlockedCompareExchange(&mascotGoalEventSerial,0,0),motion.clipTime,phase);
+        standing=&mascotGoalClips[variant];
+    } else if(poseKind==2) {
+        const float interactionElapsed=fmaxf(0,22.5f-motion.idleRemaining);
+        const unsigned int segment=interactionElapsed>=7.5f?1u:0u;
+        variant=(motion.waypointVisitSerial-1+segment)%mascotSupportClipCount;
+        phase=interactionElapsed-(float)segment*7.5f;
+        standing=&mascotSupportClips[variant];
+    }
+    const int behavior=poseKind==3?14:-1;
+    const int clip=standing?standing->nativeClip:-1;
+    const int blendKind=standing?(poseKind==3?10:20)+(int)variant:poseKind;
+    float lift=poseKind==3?mascot_clip_lift(*standing,phase):0;
+    {
         float sampled[31*7];
-        if(poseKind==1) mascot_sample_baked_clip(&mascotWalkFrames[0][0],mascotWalkTimes,mascotWalkFrameCount,mascotWalkDuration,motion.walkTime,sampled);
-        else if(poseKind==2) mascot_sample_baked_clip(&mascotCheerFrames[0][0],mascotCheerTimes,mascotCheerFrameCount,mascotCheerDuration,motion.clipTime,sampled);
+        if(standing) mascot_sample_baked_clip(standing->frames,standing->times,standing->count,standing->duration,phase,sampled);
+        else if(poseKind==1) mascot_sample_baked_clip(&mascotWalkFrames[0][0],mascotWalkTimes,mascotWalkFrameCount,mascotWalkDuration,motion.walkTime,sampled);
         else mascot_sample_baked_clip(&mascotIdleFrames[0][0],mascotIdleTimes,mascotIdleFrameCount,mascotIdleDuration,motion.clipTime,sampled);
         mascot_retarget_baked_pose(sampled,matrices);
-    } else if(nativePose) {
-        // CrowdAI has already advanced this pose on the match animation clock.
     }
     // Validate the final retarget as well as native sources. A bad transition
     // cannot become the next fallback pose. Paused frames retain the last pose.
     if(!mascot_pose_upright(matrices) || (dt==0 && motion.hasPose))memcpy(matrices,mascotLastPose,sizeof(matrices));
     else {
-        mascot_blend_local_pose(matrices,poseKind+(nativePose?4:0),dt);
+        mascot_blend_local_pose(matrices,blendKind,dt);
         mascot_ground_pose(matrices,dt);
+        if(motion.transitioning) {
+            const float alpha=fminf(1,motion.blendElapsed/.35f);
+            lift=motion.liftBlendSource+(lift-motion.liftBlendSource)*alpha;
+        }
+        motion.visualLift=lift;
+        for(unsigned int bone=0;bone<31;++bone)matrices[bone][13]+=lift;
         mascot_orient_pose(matrices,motion.yaw);
     }
     for(size_t bone=0;bone<31;++bone)for(size_t element=0;element<16;++element)
         if(!isfinite(matrices[bone][element])||fabsf(matrices[bone][element])>20000)return;
     memcpy(mascotLastPose,matrices,sizeof(mascotLastPose));
     motion.hasPose=true;
-    memcpy((void*)(renderer+mascotPrivateSlot*0xe00+0xe7e0),matrices,sizeof(matrices));
+    float palette[31][16];
+    if(!mascot_skin_palette(mascotSkinBinding,matrices,palette))return;
+    memcpy((void*)(renderer+mascotPrivateSlot*0xe00+0xe7e0),palette,sizeof(palette));
     *(uint16_t*)(records+selected*0x50+0x40)=(uint16_t)mascotPrivateSlot;
     mascotAnimationBound=true;
-    static int lastPoseKind=-1,lastBehavior=-1,lastClip=-1;
-    if(lastPoseKind!=poseKind || (nativePose && (lastBehavior!=behavior || lastClip!=clip))) {
-        const char* source=poseKind==1?"contact_walk":(nativePose?"crowd_goal_14_clip_109":(poseKind==2?"approved_standing_cheer":"approved_standing_idle"));
-        log_event("animation_pose club=%d kind=%s source=%s behavior=%d clip=%d engine_dt=%.3f no_sit=1",home,poseKind==2?(mode==3?"home_goal":"waypoint_interaction"):poseKind==1?"walk":"idle",source,behavior,clip,dt);
-        lastPoseKind=poseKind;lastBehavior=behavior;lastClip=clip;
+    if(replayClock.valid)
+        mascotReplayHistory.record(replayClock.time,now,motion.position,matrices,poseKind,clip);
+    static int lastPoseKind=-1,lastVariant=-1;
+    if(lastPoseKind!=poseKind || lastVariant!=(int)variant) {
+        const char* source=poseKind==3?"captured_crowd_home_goal":poseKind==1?"contact_walk":poseKind==2?"captured_waypoint_support":"approved_standing_idle";
+        log_event("animation_pose club=%d kind=%s source=%s behavior=%d clip=%d variant=%s lift_cm=%.3f engine_dt=%.3f no_sit=1",home,poseKind==3?"home_goal":poseKind==2?"waypoint_interaction":poseKind==1?"walk":"idle",source,behavior,clip,standing?standing->name:"none",lift,dt);
+        lastPoseKind=poseKind;lastVariant=(int)variant;
     }
 }
 
@@ -361,9 +430,11 @@ static DWORD WINAPI mascot_animation_worker(void*)
         break;
     }
     if(!code_ready()) { log_event("animation_disabled code_guard_failed"); return 1; }
-    log_event("animation_score_watcher started home_only=1 confirm_ms=750 crowd_read_only=1 crowd_hook=0 native_goal=14 standing_cheer_fallback=1 no_sit_pose=1 duration_engine_ms=15000");
+    log_event("animation_score_watcher started home_only=1 confirm_ms=750 crowd_read_only=1 crowd_hook=0 captured_goal_variants=6 support_variants=3 replay_clock_read_only=1 waypoint_applause_separate=1 no_sit_pose=1 duration_engine_ms=15000");
     for(;;) {
         const uint64_t now=GetTickCount64();
+        const auto replayClock=mascot_read_replay_clock();
+        if(replayClock.valid && replayClock.replay) { lastSample=0;Sleep(100);continue; }
         const bool active=InterlockedCompareExchange(&mascotAnimationEnabled,0,0)!=0;
         const int mascotClub=InterlockedCompareExchange(&mascotAnimationHome,0,0);
         if(!active || mascotClub<=0) {
@@ -422,6 +493,7 @@ static DWORD WINAPI mascot_animation_worker(void*)
                 const int oldHome=scoreHome,oldAway=scoreAway;
                 scoreHome=h;scoreAway=a;candidate=false;if(h>highHome)highHome=h;
                 if(homeGoal) {
+                    InterlockedExchange(&mascotGoalEventSerial,h-1);
                     celebrationUntilEngine=mascot_animation_clock_now()+15000;InterlockedExchange(&mascotAnimationMode,3);
                     log_event("HOME_GOAL_CONFIRMED score=%d:%d previous=%d:%d; native_behavior=14 duration_engine_ms=15000",h,a,oldHome,oldAway);
                 } else {

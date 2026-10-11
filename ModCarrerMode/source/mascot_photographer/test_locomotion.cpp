@@ -8,6 +8,8 @@
 #include <cstdlib>
 #include "mascot_placement_policy.h"
 #include "mascot_walk_clips.h"
+#include "mascot_animation_variants.h"
+#include "mascot_skin_binding.h"
 #include "mascot_pose_policy.h"
 struct MascotFrameContext { uintptr_t renderer,records;size_t count,selected;int home;unsigned int generation; };
 static LONG mascotPlacementSession=1;
@@ -22,6 +24,7 @@ static bool mascotAnimationBound;
 template<class T>static bool get(uintptr_t p,T& v){if(!p)return false;memcpy(&v,(void*)p,sizeof(v));return true;}
 static void log_event(const char*,...){}
 #include "mascot_walk_runtime.h"
+#include "mascot_replay_history.h"
 
 static int check_pose_library(const float* frames,const float* times,unsigned int count,float duration) {
     for(unsigned int i=0;i+1<count;++i)for(unsigned int n=0;n<8;++n) {
@@ -48,14 +51,88 @@ int wmain(int argc,wchar_t** argv) {
     }
     if(clubs.empty())clubs={1035,1043,383,568,569};
     wcsncpy_s(gameDirectory,argv[1],_TRUNCATE);
+    {
+        for(const wchar_t* name:{L"truncated",L"missing",L"out_of_bounds",L"wrong_count",L"singular",L"nonfinite",L"wrong_affine",L"duplicate"}) {
+            wchar_t path[MAX_PATH];_snwprintf_s(path,MAX_PATH,_TRUNCATE,L"%ls\\bind_%ls.rx3",gameDirectory,name);
+            float rejected[31][16];memset(rejected,0x5a,sizeof(rejected));float original[31][16];memcpy(original,rejected,sizeof(original));
+            if(mascot_read_model_inverse(path,rejected) || memcmp(rejected,original,sizeof(original))!=0)return 48;
+        }
+        wchar_t path[MAX_PATH];_snwprintf_s(path,MAX_PATH,_TRUNCATE,L"%ls\\bind_valid.rx3",gameDirectory);
+        float accepted[31][16];if(!mascot_read_model_inverse(path,accepted))return 49;
+        printf("PASS RX3 bind parser: valid asset accepted; truncated/missing/out-of-bounds/duplicate/wrong-count/singular/nonfinite/non-affine rejected without changing output\n");
+    }
     for(int club:clubs) {
         wchar_t path[MAX_PATH];_snwprintf_s(path,MAX_PATH,_TRUNCATE,L"%ls\\data\\sceneassets\\mascot\\%d\\bind.bin",gameDirectory,club);
         FILE* f=nullptr;if(_wfopen_s(&f,path,L"rb")||!f)return 2;
         const size_t got=fread(mascotBindPose,1,sizeof(mascotBindPose),f);fclose(f);if(got!=sizeof(mascotBindPose))return 3;
+        // Use the actual RX3 inverse bind together with a captured renderer
+        // inverse, not a fixture that assumes those two skeletons are equal.
+        _snwprintf_s(path,MAX_PATH,_TRUNCATE,L"%ls\\data\\sceneassets\\mascot\\%d\\model_animated.rx3",gameDirectory,club);
+        float modelInverse[31][16];if(!mascot_read_model_inverse(path,modelInverse))return 40;
+        _snwprintf_s(path,MAX_PATH,_TRUNCATE,L"%ls\\renderer_inverse.bin",gameDirectory);
+        if(_wfopen_s(&f,path,L"rb")||!f)return 41;
+        float rendererInverse[31][16];const size_t sharedRead=fread(rendererInverse,1,sizeof(rendererInverse),f);fclose(f);
+        if(sharedRead!=sizeof(rendererInverse))return 42;
+        MascotSkinBinding skinBinding;
+        if(!mascot_skin_prepare(modelInverse,rendererInverse,skinBinding))return 43;
+        memcpy(mascotBindPose,skinBinding.modelBind,sizeof(mascotBindPose));
+        float maxUncorrectedError=0;
+        for(const auto& clip:mascotGoalClips)for(unsigned int frameIndex=0;frameIndex<clip.count;++frameIndex) {
+            float sampled[31*7],modelPose[31][16],palette[31][16];
+            mascot_sample_baked_clip(clip.frames,clip.times,clip.count,clip.duration,clip.times[frameIndex],sampled);
+            mascot_retarget_baked_pose(sampled,modelPose);
+            mascot_orient_pose(modelPose,.71f);
+            for(unsigned int bone=0;bone<31;++bone)modelPose[bone][13]+=12;
+            if(!mascot_skin_palette(skinBinding,modelPose,palette))return 44;
+            for(unsigned int bone=0;bone<31;++bone) {
+                float gpu[16],expected[16],wrong[16];
+                mascot_skin_multiply(palette[bone],rendererInverse[bone],gpu);
+                mascot_skin_multiply(modelPose[bone],modelInverse[bone],expected);
+                mascot_skin_multiply(modelPose[bone],rendererInverse[bone],wrong);
+                for(unsigned int element=0;element<16;++element) {
+                    if(fabsf(gpu[element]-expected[element])>.002f)return 45;
+                    maxUncorrectedError=fmaxf(maxUncorrectedError,fabsf(wrong[element]-expected[element]));
+                }
+            }
+        }
+        float bindDifference=0;
+        for(unsigned int bone=0;bone<31;++bone)for(unsigned int element=0;element<16;++element)
+            bindDifference=fmaxf(bindDifference,fabsf(modelInverse[bone][element]-rendererInverse[bone][element]));
+        if(bindDifference>1 && maxUncorrectedError<1)return 46;
+        if(bindDifference<.001f && maxUncorrectedError>.002f)return 47;
+        printf("PASS club=%d actual RX3/captured renderer bind compensation: six goal clips, actor rotation and lift; uncompensated error=%.3f\n",club,maxUncorrectedError);
         mascot_load_foot_markers(club);if(!mascotFootMarkersReady)return 4;
         if(check_pose_library(&mascotIdleFrames[0][0],mascotIdleTimes,mascotIdleFrameCount,mascotIdleDuration) ||
            check_pose_library(&mascotCheerFrames[0][0],mascotCheerTimes,mascotCheerFrameCount,mascotCheerDuration) ||
+           check_pose_library(&mascotGoalFrames[0][0],mascotGoalTimes,mascotGoalFrameCount,mascotGoalDuration) ||
            check_pose_library(&mascotWalkFrames[0][0],mascotWalkTimes,mascotWalkFrameCount,mascotWalkDuration))return 5;
+        for(const auto& clip:mascotGoalClips) {
+            if(check_pose_library(clip.frames,clip.times,clip.count,clip.duration))return 27;
+            for(unsigned int i=0;i<clip.count;++i) {
+                const float lift=mascot_clip_lift(clip,clip.times[i]);
+                if(!isfinite(lift)||lift<0||lift>50)return 28;
+                float pose[31][16];mascot_retarget_baked_pose(clip.frames+i*217,pose);
+                mascot_ground_pose(pose);
+                for(unsigned int bone=0;bone<31;++bone)pose[bone][13]+=lift;
+                float feet[2][3];mascot_pose_feet(pose,feet);
+                if(fabsf(fminf(feet[0][1],feet[1][1])-mascotFootMarkers.floor-lift)>.02f)return 29;
+            }
+        }
+        for(const auto& clip:mascotSupportClips)
+            if(check_pose_library(clip.frames,clip.times,clip.count,clip.duration))return 30;
+        // Check the raised, separated arms on each final mascot rig. Large
+        // mascot heads need not have the proportions of the human source.
+        unsigned int raised=0;
+        for(unsigned int i=0;i<mascotGoalFrameCount;++i) {
+            float pose[31][16];mascot_retarget_baked_pose(mascotGoalFrames[i],pose);
+            const float height=pose[14][13]-pose[5][13];
+            const float restHands=fmaxf(mascotBindPose[19][13],mascotBindPose[24][13]);
+            const float dx=pose[19][12]-pose[24][12],dy=pose[19][13]-pose[24][13],dz=pose[19][14]-pose[24][14];
+            if(fminf(pose[19][13],pose[24][13])>restHands+height*.12f &&
+               sqrtf(dx*dx+dy*dy+dz*dz)>height*.15f)++raised;
+        }
+        if(raised<mascotGoalFrameCount/2)return 20;
+        printf("PASS club=%d goal_arms_raised_separated=%u/%u separate_from_applause=1\n",club,raised,mascotGoalFrameCount);
         for(int direction:{-1,1}) {
             alignas(16) unsigned char record[80]{};
             MascotFrameContext frame{1,(uintptr_t)record,1,0,club,1};
@@ -96,6 +173,44 @@ int wmain(int argc,wchar_t** argv) {
         }
     }
     {
+        {
+        static MascotReplayHistory history;
+        history.bind(1043,1);
+        float a[31][16],b[31][16],c[31][16];
+        memcpy(a,mascotBindPose,sizeof(a));memcpy(b,a,sizeof(b));memcpy(c,a,sizeof(c));
+        for(unsigned int bone=0;bone<31;++bone){b[bone][13]+=20;c[bone][13]+=10;}
+        const float pa[3]={5850,0,3150},pb[3]={5850,0,3000},pc[3]={5850,0,2925};
+        history.record(100,1000,pa,a,1,-1);history.record(110,2000,pb,b,3,112);history.record(120,3000,pc,c,3,118);
+        float position[3],pose[31][16];int kind=0,clip=-1;bool clamped=false;
+        for(double time:{120.,110.,100.,105.,110.,120.}) {
+            if(!history.sample(time,position,pose,kind,clip,clamped)||clamped)return 34;
+            const float expected=time<=110?(float)(time-100)*2:20-(float)(time-110);
+            if(fabsf(pose[2][13]-a[2][13]-expected)>.001f)return 35;
+            if(time==110 && (kind!=3 || clip!=112 || position[2]!=3000))return 36;
+        }
+        float paused[31][16];memcpy(paused,pose,sizeof(paused));
+        for(unsigned int i=0;i<100;++i) {
+            history.sample(120,position,pose,kind,clip,clamped);
+            if(memcmp(paused,pose,sizeof(paused)) || history.count!=3)return 37;
+        }
+        history.sample(99,position,pose,kind,clip,clamped);if(!clamped||position[2]!=3150)return 38;
+        history.bind(1035,2);if(history.sample(110,position,pose,kind,clip,clamped))return 39;
+        for(unsigned int i=0;i<MascotReplayHistory::capacity+3;++i)history.record(100+i,1000+(uint64_t)i*40,pa,a,1,-1);
+        if(history.count!=MascotReplayHistory::capacity || history.at(0).time!=103)return 40;
+        puts("PASS replay history: backward/forward seek, jump height, position/clip restoration, stable pause, session isolation and ring retention");
+        }
+        for(unsigned int event=0;event<mascotGoalClipCount*2;++event) {
+            unsigned int seen=0;
+            for(unsigned int tick=0;tick<1500;++tick) {
+                float phase=0,again=0;
+                const unsigned int variant=mascot_goal_sequence(event,(float)tick*.01f,phase);
+                if(mascot_goal_sequence(event,(float)tick*.01f,again)!=variant || phase!=again)return 31;
+                if(variant>=mascotGoalClipCount || phase<0 || phase>=mascotGoalClips[variant].duration)return 32;
+                seen|=1u<<variant;
+            }
+            if(!(seen&(seen-1)))return 33;
+        }
+        printf("PASS six native goal variants: several clips per goal, repeatable event/time selection; three support variants\n");
         alignas(16) unsigned char record[80]{};
         MascotFrameContext frame{1,(uintptr_t)record,1,0,1043,1};
         mascot_walk_reset(frame,1000);

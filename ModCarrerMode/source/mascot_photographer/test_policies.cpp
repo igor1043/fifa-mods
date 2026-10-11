@@ -3,7 +3,28 @@
 #include <cstring>
 #include "mascot_pose_policy.h"
 #include "mascot_placement_policy.h"
+#include "mascot_single_core.h"
 int main(){
+ const size_t none[4]={0,0,0,0},arena[4]={0,14,0,10},small[4]={1,14,10,10},stewards[4]={0,0,1,10},choreo[4]={0,0,0,1};
+ if(mascot_choose_placement_type(none)!=23 || mascot_choose_placement_type(arena)!=18 ||
+    mascot_choose_placement_type(small)!=1 || mascot_choose_placement_type(stewards)!=0 ||
+    mascot_choose_placement_type(choreo)!=22)return 15;
+ for(unsigned int type:mascotPlacementTypes) {
+  const unsigned char reserved=(unsigned char)mascot_reserved_appearance(type);
+  for(size_t count:{1u,2u,14u,64u}) {
+   unsigned char records[64*80]{};
+   for(size_t i=0;i<count;++i){const float pos[3]={-5600,0,2000+(float)i*20};memcpy(records+i*80+0x20,pos,sizeof(pos));records[i*80+0x42]=reserved;}
+   const size_t selected=mascot_choose_corner(records,count);
+   mascot_assign_one(records,count,selected,reserved);
+   size_t mascots=0;for(size_t i=0;i<count;++i)if(records[i*80+0x42]==reserved)++mascots;
+   if(mascots!=1 || selected>=count)return 16;
+   float target[3];mascot_position_by_goal_line((float*)(records+selected*80+0x20),target);
+   if(target[0]!=-mascotGoalLineBackX || target[2]!=mascotGoalLineZ)return 17;
+   mascot_assign_none(records,count,reserved);
+   for(size_t i=0;i<count;++i)if(records[i*80+0x42]>=reserved)return 18;
+  }
+ }
+ puts("PASS placement uses available actors: 0 common/14 choreo photographers, one-actor stadium, steward fallback; exactly one mascot");
  if(!mascot_goal_pose_allowed(2,14,14,109) || mascot_goal_pose_allowed(1,14,14,109) ||
     mascot_goal_pose_allowed(2,-1,14,109) || mascot_goal_pose_allowed(2,14,0,109) ||
     mascot_goal_pose_allowed(2,14,14,108)){puts("FAIL native goal pose filter");return 14;}

@@ -14,7 +14,7 @@ bench_native12\bench_native12.dll
 
 # One mascot recessed behind the goal-line boards; native idle and home-goal cheer.
 
-mascot_single\mascot_goal_line_v23.dll
+mascot_single\mascot_goal_line_v27.dll
 
 # Experimental tournament reload: unique root mask, revision 3.
 
@@ -24,9 +24,8 @@ tournament_compat_native\tournament_compat_native.dll
 
 career_ui_assets\career_ui_assets.dll
 
-# Modern kickoff v10: diagonal receiver, backward pass and other starters outside circle.
-
-kickoff_modern_v10\kickoff_modern_v10.dll
+# Modern kickoff v13: diagonal receiver, backward pass, defence-facing kicker.
+kickoff_modern_v13\kickoff_modern_v13.dll
 
 # Visual spare balls: 13 static copies of the current match ball, no physics.
 

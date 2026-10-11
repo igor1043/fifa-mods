@@ -29,6 +29,11 @@ local SLC_NUM = 23
 -- Resolve the model during the initial callback; a later activation flag
 -- cannot change resources that have already been prepared.
 local MASCOT_PHOTOGRAPHER_SLEINDEX = 2
+local function MascotReservedAppearance(sletype)
+    if sletype == SLC_PHOTOGRAPHER_TYPE or sletype == SLC_CHOREO_PHOTOGRAPHER_TYPE then return 2 end
+    if sletype == SLC_STEWARD_TYPE or sletype == SLC_CHOREO_STEWARD_TYPE then return 1 end
+    return -1
+end
 -- Club IDs come from native validation of installed mascot packages.
 
 local function MascotPackageReady(teamid)
@@ -169,7 +174,7 @@ function SleUpdate(idx)
 	
 	db.sle[idx].varient = db.sle[idx].cold
     -- Assign the reserved prototype's model during initial preparation.
-    if (sletype == SLC_PHOTOGRAPHER_TYPE and sleindex == MASCOT_PHOTOGRAPHER_SLEINDEX and MascotPackageReady(db.sle[idx].teamid)) then
+    if (sleindex == MascotReservedAppearance(sletype) and MascotPackageReady(db.sle[idx].teamid)) then
         db.sle[idx].isMascot = 1
         db.sle[idx].slename = "ballboy"
     end
@@ -345,7 +350,7 @@ function CreateSleVariations(gr, batch, sleTable)
         -- Keep both normal photographer appearances and append a dedicated
         -- third prototype. Native assignment reserves one physical placement
         -- near a pitch corner. GetVariationsFromIndex(2) defaults to normal 0.
-        if stype == SLC_PHOTOGRAPHER_TYPE then
+        if MascotReservedAppearance(stype) >= 0 then
             sleTable[i] = gr:Create("sle", i)
             gr:AddSubObject(batch, sleTable[i], stype)
             i = i + 1
