@@ -1,0 +1,170 @@
+{
+  "date": "2026-10-10",
+  "packages": [
+    {
+      "id": 1598,
+      "name": "Bahia",
+      "identicalGameAndDevelopment": true,
+      "files": {
+        "club.json": {
+          "bytes": 201,
+          "sha256": "a87c98a9e65accb0efe559b48aef030fda6cd120a845f1f16d508f0c387f3194"
+        },
+        "locomotion_feet.bin": {
+          "bytes": 1012,
+          "sha256": "5fcc73a8aba41eece67e938173a8eea3988913e7f2e72c695ccec14808d2ab52"
+        },
+        "model.rx3": {
+          "bytes": 233984,
+          "sha256": "041cc54c0affb25478acd24ba1240540c77369e4997dbd21f07424c7d6072b89"
+        },
+        "model_animated.rx3": {
+          "bytes": 233984,
+          "sha256": "041cc54c0affb25478acd24ba1240540c77369e4997dbd21f07424c7d6072b89"
+        },
+        "textures.rx3": {
+          "bytes": 8367504,
+          "sha256": "12005b6f417ead56f6873b55762d60cef315a36c6c73da51e62036bfeed19cc4"
+        }
+      }
+    },
+    {
+      "id": 111052,
+      "name": "Fortaleza",
+      "identicalGameAndDevelopment": true,
+      "files": {
+        "club.json": {
+          "bytes": 207,
+          "sha256": "de72d4b3233b156f8249c154ea6505baa1d6ab14d2a8fcf71a847fec0cae2750"
+        },
+        "locomotion_feet.bin": {
+          "bytes": 1012,
+          "sha256": "ca692cb1c0e17330aeb637cd29be9e5851ee0317dbf8a82cdc03644ebc7e31f7"
+        },
+        "model.rx3": {
+          "bytes": 438880,
+          "sha256": "6402da4ac08cb9dfbcaa41837dba40922fc2ab3c8ea563db20f88ff9d9ccd2c0"
+        },
+        "model_animated.rx3": {
+          "bytes": 438880,
+          "sha256": "6402da4ac08cb9dfbcaa41837dba40922fc2ab3c8ea563db20f88ff9d9ccd2c0"
+        },
+        "textures.rx3": {
+          "bytes": 8367504,
+          "sha256": "b67889edc9137eafed5013d7a4b150106768ca6ab4bea99c54cf60d69f39ad44"
+        }
+      }
+    },
+    {
+      "id": 130026,
+      "name": "Remo",
+      "identicalGameAndDevelopment": true,
+      "files": {
+        "club.json": {
+          "bytes": 202,
+          "sha256": "83e0b40034878fd11246290ccb745aed6101863a66181817ab03dd3da9f3b14d"
+        },
+        "locomotion_feet.bin": {
+          "bytes": 1012,
+          "sha256": "951e6c7f8d17ae308f3a626806b4e9e6223528a063c2a8f6a6ca6145b7b5e06a"
+        },
+        "model.rx3": {
+          "bytes": 212704,
+          "sha256": "efff6b017022cc56d7f917e530834b5161031ba8806feb993405910f59c02c59"
+        },
+        "model_animated.rx3": {
+          "bytes": 212704,
+          "sha256": "efff6b017022cc56d7f917e530834b5161031ba8806feb993405910f59c02c59"
+        },
+        "textures.rx3": {
+          "bytes": 8367504,
+          "sha256": "f5456904b534e50796a18ff1daae9c42888c1f5eb181357355599471d2f1057a"
+        }
+      }
+    },
+    {
+      "id": 111058,
+      "name": "Santa Cruz",
+      "identicalGameAndDevelopment": true,
+      "files": {
+        "club.json": {
+          "bytes": 208,
+          "sha256": "b6b4ed947066942aa8a02e9c0daffcd93303d2097d509f222dd84ad31d77e123"
+        },
+        "locomotion_feet.bin": {
+          "bytes": 1012,
+          "sha256": "771a121faf16a8e3d0eb18f172e2a6dbfa19e4cc0fcd6b58a3e04be290f31bd6"
+        },
+        "model.rx3": {
+          "bytes": 227216,
+          "sha256": "1c1fa27a7dad52a9487f57ccda1fb6b4386d390e1d477c838270e89bb0fe2385"
+        },
+        "model_animated.rx3": {
+          "bytes": 227216,
+          "sha256": "1c1fa27a7dad52a9487f57ccda1fb6b4386d390e1d477c838270e89bb0fe2385"
+        },
+        "textures.rx3": {
+          "bytes": 8367504,
+          "sha256": "bc91c53d1778d21d63c7d5fb79ece5f7197f730c880a71aeb42adb48eea94cac"
+        }
+      }
+    },
+    {
+      "id": 598,
+      "name": "São Paulo",
+      "identicalGameAndDevelopment": true,
+      "files": {
+        "club.json": {
+          "bytes": 205,
+          "sha256": "c3f26af666e2b1b00fd2da4ec47f520c88766225d58459fe4a5f9aaa3b610493"
+        },
+        "locomotion_feet.bin": {
+          "bytes": 1012,
+          "sha256": "25689c04e3c09c1c98ec7e2bcef5767fa0628bc32e6429a1ace2c6926819f47c"
+        },
+        "model.rx3": {
+          "bytes": 217888,
+          "sha256": "b75ff7f005e2dc5383aa41497633478c3958f18001056b3018f7b04516844d30"
+        },
+        "model_animated.rx3": {
+          "bytes": 217888,
+          "sha256": "b75ff7f005e2dc5383aa41497633478c3958f18001056b3018f7b04516844d30"
+        },
+        "textures.rx3": {
+          "bytes": 8367504,
+          "sha256": "13200745760d826ced120c77c2799381d7642c61ee2fc3deb815a615ebeaaf76"
+        }
+      }
+    },
+    {
+      "id": 1719,
+      "name": "Vitória-BA",
+      "identicalGameAndDevelopment": true,
+      "files": {
+        "club.json": {
+          "bytes": 207,
+          "sha256": "6f758fe8394701a2ce1c779ac7562a1ed483320916ee92a8fbb87102f4f04147"
+        },
+        "locomotion_feet.bin": {
+          "bytes": 1012,
+          "sha256": "553c859df558a667e00561f5dd84102e3c364bbe0e7178387d26cab512677a87"
+        },
+        "model.rx3": {
+          "bytes": 238336,
+          "sha256": "f07acd849557488bb41cc4498cd8d8c68fd7af3298fdb82da3114ccb2ad0f8b6"
+        },
+        "model_animated.rx3": {
+          "bytes": 238336,
+          "sha256": "f07acd849557488bb41cc4498cd8d8c68fd7af3298fdb82da3114ccb2ad0f8b6"
+        },
+        "textures.rx3": {
+          "bytes": 8367504,
+          "sha256": "17df0c71fec20aa188cda311bb05e6212643d2c8b42cc9914ee0156bdb9b32ab"
+        }
+      }
+    }
+  ],
+  "plugin": "mascot_goal_line_v22.dll",
+  "pluginSha256": "668b39ca54499eb07d118b2c4de943f5364abb1f7ebb1b40af138e1ed208f89f",
+  "activation": "next game start; currently running process is untouched"
+}

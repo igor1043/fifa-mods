@@ -4,6 +4,8 @@
 #include <cstdint>
 #include <cstring>
 #include <initializer_list>
+#include <vector>
+#include <cstdlib>
 #include "mascot_placement_policy.h"
 #include "mascot_walk_clips.h"
 #include "mascot_pose_policy.h"
@@ -37,9 +39,16 @@ static int check_pose_library(const float* frames,const float* times,unsigned in
     return 0;
 }
 int wmain(int argc,wchar_t** argv) {
-    if(argc!=2)return 1;
+    if(argc<2)return 1;
+    std::vector<int> clubs;
+    for(int i=2;i<argc;++i) {
+        wchar_t* end=nullptr;const long id=wcstol(argv[i],&end,10);
+        if(!end || *end || id<1 || id>200000)return 19;
+        clubs.push_back((int)id);
+    }
+    if(clubs.empty())clubs={1035,1043,383,568,569};
     wcsncpy_s(gameDirectory,argv[1],_TRUNCATE);
-    for(int club:{1035,1043,383,568,569}) {
+    for(int club:clubs) {
         wchar_t path[MAX_PATH];_snwprintf_s(path,MAX_PATH,_TRUNCATE,L"%ls\\data\\sceneassets\\mascot\\%d\\bind.bin",gameDirectory,club);
         FILE* f=nullptr;if(_wfopen_s(&f,path,L"rb")||!f)return 2;
         const size_t got=fread(mascotBindPose,1,sizeof(mascotBindPose),f);fclose(f);if(got!=sizeof(mascotBindPose))return 3;

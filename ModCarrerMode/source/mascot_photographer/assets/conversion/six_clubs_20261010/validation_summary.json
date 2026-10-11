@@ -1,0 +1,44 @@
+{
+  "date": "2026-10-10",
+  "clubIds": [
+    1598,
+    111052,
+    130026,
+    111058,
+    598,
+    1719
+  ],
+  "packageAudit": "passed for six clubs: geometry, 31 bones, normalized weights, mip descriptors, foot markers and finite posed mesh",
+  "rigTests": {
+    "result": "passed",
+    "directionsPerClub": 2,
+    "checks": [
+      "upright interpolated idle/walk/cheer",
+      "foot ground contact",
+      "pause leaves position and phase unchanged",
+      "yaw applied to private palette",
+      "30 second waypoint stop",
+      "15 second interaction",
+      "ten destinations before repetition"
+    ]
+  },
+  "visualReview": {
+    "renderer": "Blender 4.4 Cycles",
+    "poses": [
+      "source FBX",
+      "idle at 50%",
+      "walk at 50%",
+      "cheer at 50%"
+    ],
+    "result": "reviewed for all six clubs",
+    "inGameValidation": "pending restart and match with each home club"
+  },
+  "installationVerification": {
+    "method": "Install-MascotPhotographer.ps1 -VerifyOnly",
+    "version": 22,
+    "assetsVerified": 55,
+    "activeMascotEntries": 1,
+    "activePlugin": "mascot_single/mascot_goal_line_v22.dll",
+    "runningGameModule": "mascot_goal_line.dll; existing process unchanged"
+  }
+}

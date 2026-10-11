@@ -12,7 +12,7 @@ if ((Get-FileHash -Algorithm SHA256 -LiteralPath $backup).Hash -ne $state.origin
 if ($state.version -ge 2) {
     $enabledPath = Join-Path $GameRoot 'ModCarrerMode\mods\enabled.txt'
     $lines = [IO.File]::ReadAllLines($enabledPath)
-    $remaining = @($lines | Where-Object { $_.Trim() -notin @($state.pluginEntry,'mascot_single\mascot_single.dll','mascot_single\mascot_corner.dll','mascot_single\mascot_goal_line.dll','mascot_single\mascot_goal_line_v6.dll','mascot_single\mascot_goal_line_v7.dll','mascot_single\mascot_goal_line_v8.dll','mascot_single\mascot_goal_line_v9.dll','mascot_single\mascot_goal_line_v10.dll','mascot_single\mascot_goal_line_v11.dll','mascot_single\mascot_goal_line_v12.dll','mascot_single\mascot_goal_line_v13.dll') })
+    $remaining = @($lines | Where-Object { $_.Trim() -ne $state.pluginEntry -and $_.Trim() -notmatch '^mascot_single[\\/]mascot_(?:single|corner|goal_line(?:_v\d+)?)\.dll$' })
     [IO.File]::WriteAllLines($enabledPath,$remaining,[Text.UTF8Encoding]::new($false))
 }
 Copy-Item -LiteralPath $backup -Destination $destination -Force

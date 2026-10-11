@@ -1,12 +1,13 @@
 # Mascote na linha de fundo
 
-Compile com build.cmd. Plugin: ModCarrerMode/mods/mascot_single/mascot_goal_line.dll.
+Compile com build.cmd. Plugin ativo: ModCarrerMode/mods/mascot_single/mascot_goal_line_v22.dll.
+Somente uma versão do plugin deve estar em enabled.txt. A cópia sem sufixo é mantida como artefato de compilação.
 A DLL usa o ID do mandante e procura pacotes em data/sceneassets/mascot/<ID>/.
 Não há lista fixa de clubes. Pacotes ausentes ou incompletos mantêm o fotógrafo normal.
 
 ## Modelos versionados
 
-Cada pasta numérica precisa de model.rx3 e textures.rx3; model_animated.rx3 é opcional para animação. club.json pode registrar a origem da conversão. IDs: Atlético Mineiro 1035, Flamengo 1043, Palmeiras 383, Cruzeiro 568, Vasco 569. Copie os arquivos convertidos e validados para a pasta do jogo. Modelos/texturas não são distribuídos neste repositório. O instalador copia somente pacotes completos encontrados localmente; nenhum pacote é obrigatório para instalar a DLL.
+Cada pasta numérica precisa de model.rx3 e textures.rx3; model_animated.rx3 é opcional para animação. club.json registra a origem da conversão. Os modelos, texturas e marcadores estão versionados em data/sceneassets/mascot/. IDs: Atlético Mineiro 1035, Flamengo 1043, Palmeiras 383, Cruzeiro 568, Vasco 569, Bahia 1598, Fortaleza 111052, Remo 130026, Santa Cruz 111058, São Paulo 598 e Vitória-BA 1719. Os IDs novos foram conferidos nos bancos locais do jogo e do desenvolvimento; o Remo usa o ID do banco customizado. Copie os pacotes completos para a pasta do jogo antes de usar Install-Locomotion.ps1.
 
 ## Comportamento e desempenho
 
@@ -65,32 +66,64 @@ Install-Locomotion.ps1 instala a DLL e os marcadores com o FIFA fechado, guarda 
 
 ## Novo Flamengo e transições — revisão 20
 
-O novo pacote 1043 conserva a malha, UV e basecolor JPEG do FBX fornecido em FLAMENGO. O rig Mixamo é mapeado aos 31 ossos FIFA; os dedos são agrupados na mão. A cabeça é rígida com transição restrita ao pescoço. Pesos originais dos braços são conservados, removendo influências do lado oposto. A pose de referência T do FBX é convertida para a pose A do FIFA junto com as matrizes bind, posições, normais e tangentes, antes da exportação. A altura final é 1,80 m. O pacote inclui marcadores de pés recalculados; modelos e texturas est�o versionados.
+O novo pacote 1043 conserva a malha, UV e basecolor JPEG do FBX fornecido em FLAMENGO. O rig Mixamo Ã© mapeado aos 31 ossos FIFA; os dedos sÃ£o agrupados na mÃ£o. A cabeÃ§a Ã© rÃ­gida com transiÃ§Ã£o restrita ao pescoÃ§o. Pesos originais dos braÃ§os sÃ£o conservados, removendo influÃªncias do lado oposto. A pose de referÃªncia T do FBX Ã© convertida para a pose A do FIFA junto com as matrizes bind, posiÃ§Ãµes, normais e tangentes, antes da exportaÃ§Ã£o. A altura final Ã© 1,80 m. O pacote inclui marcadores de pÃ©s recalculados; modelos e texturas estão versionados.
 
 A pose de caminhada passa para idle com mistura de 450 ms; outras trocas usam 350 ms. As rotações são interpoladas por quaternion e as posições por interpolação linear com curva suave. A correção vertical dos centros dos pés usa filtro de 80 ms. O giro é aplicado uma vez às matrizes privadas do mascote, com os dois ângulos nativos do registro zerados. As transições e o giro usam o relógio de animação já existente, preservando a pausa. A comemoração da torcida 14:109 continua disponível, com alternativa em pé e duração de 26 segundos.
 
 Renders, conversor, auditoria RX3 e originais de backup: J:/mods/fifa 16/estudos fifa 16/19_FLAMENGO_NOVO_MASCOTE_20261010. A DLL compilou; a conferência visual de tremor, giro e chegada com esta revisão ainda depende de teste no jogo reiniciado.
 
-## Revis�o 21 � paradas e percurso
+## Revisão 21 — paradas e percurso
 
-Cada chegada e o in�cio do percurso t�m 20 segundos de espera no rel�gio de anima��o: idle durante 4 segundos, intera��o/comemora��o em p� durante 12 segundos e idle nos 4 segundos finais. A comemora��o de gol do mandante continua com prioridade e dura��o de 26 segundos. Depois dela come�a uma nova espera de 20 segundos.
+Cada chegada e o início do percurso têm 20 segundos de espera no relógio de animação: idle durante 4 segundos, interação/comemoração em pé durante 12 segundos e idle nos 4 segundos finais. A comemoração de gol do mandante continua com prioridade e duração de 26 segundos. Depois dela começa uma nova espera de 20 segundos.
 
-O sorteio usa uma bolsa dos dez destinos: nenhum destino se repete antes de visitar os demais; a posi��o atual � exclu�da tamb�m na mudan�a de ciclo. Destinos distantes podem exigir caminhada por pontos intermedi�rios.
+O sorteio usa uma bolsa dos dez destinos: nenhum destino se repete antes de visitar os demais; a posição atual é excluída também na mudança de ciclo. Destinos distantes podem exigir caminhada por pontos intermediários.
 
-Replay: pausar congela posi��o, fase e espera. A leitura atual das matrizes da torcida n�o informa o sentido do tempo. Duas capturas pausadas antes/depois do recuo n�o confirmaram um rel�gio de replay; retroceder as anima��es ainda n�o � implementado. Nenhum endere�o de rel�gio n�o confirmado foi aplicado ao jogo.
+Replay: pausar congela posição, fase e espera. A leitura atual das matrizes da torcida não informa o sentido do tempo. Duas capturas pausadas antes/depois do recuo não confirmaram um relógio de replay; retroceder as animações ainda não é implementado. Nenhum endereço de relógio não confirmado foi aplicado ao jogo.
 
-As malhas RX3, texturas e marcadores dos cinco clubes est�o em data/sceneassets/mascot/. assets/originals/FLAMENGO preserva o FBX e as texturas de origem; assets/animations guarda os tr�s clipes baked, canais de caminhada, idle e comemora��o e refer�ncia de rig. assets/manifest.json registra tamanho e SHA256 dos arquivos. Os modelos originais dos demais clubes n�o foram localizados nesta etapa; os RX3 convertidos est�o preservados.
+As malhas RX3, texturas e marcadores dos cinco clubes estão em data/sceneassets/mascot/. assets/originals/FLAMENGO preserva o FBX e as texturas de origem; assets/animations guarda os três clipes baked, canais de caminhada, idle e comemoração e referência de rig. assets/manifest.json registra tamanho e SHA256 dos arquivos. Os modelos originais dos demais clubes não foram localizados nesta etapa; os RX3 convertidos estão preservados.
 
-## Revis�o 22 � Vasco e novos tempos
+## Revisão 22 — Vasco e novos tempos
 
-A espera passou para 30 segundos por destino: 7,5 segundos de idle, 15 segundos de intera��o/comemora��o em p� e 7,5 segundos de idle. Gol do mandante tem prioridade e tamb�m usa 15 segundos de comemora��o. O sorteio continua sem repetir destinos antes de passar pelos dez pontos. A limita��o de recuo no replay permanece.
+A espera passou para 30 segundos por destino: 7,5 segundos de idle, 15 segundos de interação/comemoração em pé e 7,5 segundos de idle. Gol do mandante tem prioridade e também usa 15 segundos de comemoração. O sorteio continua sem repetir destinos antes de passar pelos dez pontos. A limitação de recuo no replay permanece.
 
-Vasco da Gama usa o ID 569. O novo FBX tem um �nico esqueleto Mixamo de 65 ossos e pintura de pesos. A malha e UV originais foram preservadas; os pesos existentes foram mapeados para 31 ossos FIFA, agrupando dedos na m�o. Face/barba/chap�u usam a cabe�a r�gida com transi��o no pesco�o, cujos limites s�o obtidos do pr�prio esqueleto. O ajuste da pose T para A foi aplicado a malha, normais, tangentes e bind. Altura final: 1,80 m.
+Vasco da Gama usa o ID 569. O novo FBX tem um único esqueleto Mixamo de 65 ossos e pintura de pesos. A malha e UV originais foram preservadas; os pesos existentes foram mapeados para 31 ossos FIFA, agrupando dedos na mão. Face/barba/chapéu usam a cabeça rígida com transição no pescoço, cujos limites são obtidos do próprio esqueleto. O ajuste da pose T para A foi aplicado a malha, normais, tangentes e bind. Altura final: 1,80 m.
 
-Os RX3 e texturas est�o em data/sceneassets/mascot/569; o FBX e mapas originais, em assets/originals/VASCO; convers�o, inspe��o, auditoria e tr�s renders de poses, em assets/conversion/VASCO. Os scripts de convers�o registram os caminhos das ferramentas e do estudo locais; a compila��o da DLL n�o depende deles. Os marcadores de p�s foram recalculados para esta malha. A auditoria offline verifica 5.803 v�rtices, 9.562 tri�ngulos, pesos somando 255, 31 ossos, mipmaps e poses finitas. A confer�ncia visual final em partida depende de iniciar o jogo.
+Os RX3 e texturas estão em data/sceneassets/mascot/569; o FBX e mapas originais, em assets/originals/VASCO; conversão, inspeção, auditoria e três renders de poses, em assets/conversion/VASCO. Os scripts de conversão registram os caminhos das ferramentas e do estudo locais; a compilação da DLL não depende deles. Os marcadores de pés foram recalculados para esta malha. A auditoria offline verifica 5.803 vértices, 9.562 triângulos, pesos somando 255, 31 ossos, mipmaps e poses finitas. A conferência visual final em partida depende de iniciar o jogo.
 
 ### Ajuste da barba do Vasco
 
-A regi�o conectada da barba, incluindo seus tons escuros e a ponta, acompanha o osso da cabe�a. Foram modificados somente os �ndices/pesos de 272 v�rtices; o contorno da barba cont�m 482 v�rtices j� r�gidos ou corrigidos. A sele��o usa posi��o frontal, cor e componente espacial para excluir o escudo da camisa. A transi��o original do pesco�o fora da barba foi preservada. A auditoria confirma pesos somando 255 e aus�ncia de mudan�as na malha, normais, tangentes, UV, �ndices e bind.
+A região conectada da barba, incluindo seus tons escuros e a ponta, acompanha o osso da cabeça. Foram modificados somente os índices/pesos de 272 vértices; o contorno da barba contém 482 vértices já rígidos ou corrigidos. A seleção usa posição frontal, cor e componente espacial para excluir o escudo da camisa. A transição original do pescoço fora da barba foi preservada. A auditoria confirma pesos somando 255 e ausência de mudanças na malha, normais, tangentes, UV, índices e bind.
 
-repair_vasco_beard_weights.py recebe --package (pasta contendo o modelo animado e texturas) e --output (pasta separada). Para regenerar, execute-o ap�s convert_vasco.py e antes de prepare_package.py; substitua os dois modelos do pacote pelos candidatos validados. A ferramenta RX3 local pode ser indicada em FIFA_RX3_TOOLS. Renders de idle, caminhada e comemora��o foram conferidos novamente.
+repair_vasco_beard_weights.py recebe --package (pasta contendo o modelo animado e texturas) e --output (pasta separada). Para regenerar, execute-o após convert_vasco.py e antes de prepare_package.py; substitua os dois modelos do pacote pelos candidatos validados. A ferramenta RX3 local pode ser indicada em FIFA_RX3_TOOLS. Renders de idle, caminhada e comemoração foram conferidos novamente.
+
+## Seis clubes adicionais — 10/10/2026
+
+Bahia (1598), Fortaleza (111052), Remo (130026), Santa Cruz (111058), São Paulo (598) e Vitória-BA (1719) usam os FBX fornecidos. Cada arquivo tem um esqueleto Mixamo de 65 ossos e pesos pintados; esses pesos foram preservados e adaptados aos 31 ossos FIFA. Cabeça/face e membros usam limites derivados do próprio esqueleto. UVs, pintura de cor e mapa normal são conservados; a pose T foi convertida para A e a altura normalizada para 1,80 m. Difusão usa DXT5 com mipmaps até 1x1, no máximo 2048; normal usa até 1024. Os marcadores dos pés foram recalculados por modelo.
+
+Originais em assets/originals/<pasta>; auditoria e imagens em assets/conversion/<pasta>. Cada preview compara o FBX original com repouso, caminhada e comemoração calculados a partir do RX3 final. A revisão visual é offline, não uma captura do FIFA. Os seis rigs passaram em teste de locomoção nos dois sentidos, postura em pé, contato dos pés, pausa, giro, parada de 30 segundos, interação de 15 segundos e dez destinos antes de repetição. A confirmação final de render/material e posicionamento no estádio depende de abrir uma partida de cada mandante.
+
+A evidência do banco, inspeção de origem e hashes da instalação estão em assets/conversion/six_clubs_20261010/. Nenhum banco foi alterado. O plugin descobre os pacotes pelo ID sem recompilar uma lista de clubes.
+
+### Reproduzir a conversão
+
+São necessários Blender 4.4, Python com NumPy/Pillow e a ferramenta local mascot_rig_adjuster (Build-MascotFromFbx.py, assets/template_model_animated.rx3, vendor/rx3tools e texture_assets.py). O caminho das ferramentas é parâmetro; neste computador ficam em J:/mods/fifa 16/02_Ferramentas/mascot_rig_adjuster. Use uma saída separada, valide e só então copie os cinco arquivos do pacote para jogo e desenvolvimento.
+
+Exemplo a partir da raiz do repositório, no PowerShell:
+
+```powershell
+$taskTools = 'J:/mods/fifa 16/02_Ferramentas/mascot_rig_adjuster'
+$taskScripts = 'ModCarrerMode/source/mascot_photographer'
+$taskSource = "$taskScripts/assets/originals/BAHIA"
+$taskClips = "$taskScripts/assets/animations"
+$taskOutput = 'J:/mods/fifa 16/estudos fifa 16/rebuild_bahia'
+& 'C:/Program Files/Blender Foundation/Blender 4.4/blender.exe' --background --factory-startup --python "$taskScripts/Build-AuthoredMascot.py" -- --source $taskSource --output $taskOutput --tools $taskTools --clips $taskClips --club-id 1598 --club-name Bahia
+python "$taskScripts/Prepare-AuthoredMascot.py" --source $taskSource --output $taskOutput --tools $taskTools --clips $taskClips --club-id 1598 --club-name Bahia --texture-template 'data/sceneassets/mascot/1035/textures.rx3'
+```
+
+Os parâmetros correspondentes dos outros clubes constam em assets/conversion/six_clubs_20261010/clubs.json. Render-AuthoredMascot.py refaz as quatro imagens com --source, --output e --tools, após os dois passos acima.
+
+verify_locomotion.cmd aceita a raiz da fixture e uma lista opcional de IDs; sem lista mantém os cinco clubes anteriores. Os binds das fixtures são as 31 matrizes do RX3, em ordem row-major float32; os marcadores são cópias dos respectivos pacotes. A execução desta etapa usou os seis IDs acima.
+
+### Ativação da revisão 22
+
+A DLL atual foi preparada como mascot_goal_line_v22.dll em jogo e desenvolvimento. O enabled.txt tem uma única entrada de mascote e conserva as outras DLLs. O processo aberto não recebeu uma segunda injeção; a nova DLL passa a valer na próxima abertura do FIFA. Install-Locomotion.ps1 continua exigindo o jogo fechado para futuras substituições e normaliza entradas de versões anteriores para evitar duplicação. Espera atual: 30 segundos por ponto, com 15 segundos de interação; comemoração de gol também dura 15 segundos. Pausa congela o mascote; recuo das animações no replay continua sem implementação.

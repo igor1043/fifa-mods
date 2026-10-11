@@ -2,14 +2,14 @@ param([string]$GameRoot = 'U:\fifa 16', [switch]$VerifyOnly)
 $ErrorActionPreference = 'Stop'
 $running = Get-Process FIFA16 -ErrorAction SilentlyContinue
 if (-not $VerifyOnly -and $running -and @($running.Modules | Where-Object ModuleName -match '^mascot_.*\.dll$').Count) {
-    throw 'A DLL corner já está carregada; feche o FIFA antes de substituir essa versão.'
+    throw 'A DLL do mascote já está carregada; feche o FIFA antes de substituir essa versão.'
 }
 $repo = [IO.Path]::GetFullPath((Join-Path $PSScriptRoot '..\..\..'))
 $game = (Resolve-Path -LiteralPath $GameRoot).Path.TrimEnd('\')
 if (-not (Test-Path -LiteralPath (Join-Path $game 'FIFA16.exe'))) { throw 'Destino sem FIFA16.exe.' }
 if ($game -eq $repo) { throw 'Destino deve ser o jogo, não a cópia de desenvolvimento.' }
 $luaRelative = 'data\fifarna\lua\assets\sle.lua'
-$dllRelative = 'ModCarrerMode\mods\mascot_single\mascot_goal_line.dll'
+$dllRelative = 'ModCarrerMode\mods\mascot_single\mascot_goal_line_v22.dll'
 $enabledRelative = 'ModCarrerMode\mods\enabled.txt'
 $luaSource = Join-Path $repo $luaRelative
 $dllSource = Join-Path $repo $dllRelative
@@ -34,7 +34,7 @@ $assetRoot = Join-Path $repo 'data\sceneassets\mascot'
 foreach ($directory in @(Get-ChildItem -LiteralPath $assetRoot -Directory -ErrorAction SilentlyContinue | Where-Object { $_.Name -match '^\d+$' })) {
     $club = $directory.Name
     if (-not (Test-Path -LiteralPath (Join-Path $directory.FullName 'model.rx3')) -or -not (Test-Path -LiteralPath (Join-Path $directory.FullName 'textures.rx3'))) { Write-Warning "Pacote incompleto ignorado: $club"; continue }
-    foreach ($name in @('model.rx3','textures.rx3','model_animated.rx3')) {
+    foreach ($name in @('model.rx3','textures.rx3','model_animated.rx3','locomotion_feet.bin','club.json')) {
         $relative = "data\sceneassets\mascot\$club\$name"
         $source = Join-Path $repo $relative
         if (-not (Test-Path -LiteralPath $source -PathType Leaf)) { continue }
@@ -49,8 +49,8 @@ if ($VerifyOnly) {
         if (-not (Test-Path -LiteralPath $asset.Target) -or (Get-FileHash -LiteralPath $asset.Source).Hash -ne (Get-FileHash -LiteralPath $asset.Target).Hash) { throw "Asset divergente: $($asset.Target)" }
     }
     $entries = @([IO.File]::ReadAllLines($enabledTarget) | Where-Object { $_.Trim() -match '^mascot_single\\.*\.dll$' })
-    if ($entries.Count -ne 1 -or $entries[0].Trim() -ne 'mascot_single\mascot_goal_line.dll') { throw 'Registro do plugin divergente.' }
-    [pscustomobject]@{Game=$game;Version=13;Verified=$true;Assets=$assetFiles.Count;AutomaticPlugin=$entries[0].Trim()}
+    if ($entries.Count -ne 1 -or $entries[0].Trim() -ne 'mascot_single\mascot_goal_line_v22.dll') { throw 'Registro do plugin divergente.' }
+    [pscustomobject]@{Game=$game;Version=22;Verified=$true;Assets=$assetFiles.Count;AutomaticPlugin=$entries[0].Trim()}
     return
 }
 $backupRelative = 'backups\'+(Get-Date -Format 'yyyyMMdd_HHmmss_fff')
@@ -78,7 +78,7 @@ foreach ($asset in $assetFiles) {
 }
 Copy-Item -LiteralPath $dllSource -Destination $dllTarget -Force
 Copy-Item -LiteralPath $luaSource -Destination $luaTarget -Force
-$entry = 'mascot_single\mascot_goal_line.dll'
+$entry = 'mascot_single\mascot_goal_line_v22.dll'
 $enabled = [IO.File]::ReadAllText($enabledTarget)
 $enabled = (($enabled -split '\r?\n') | Where-Object { $_.Trim() -notmatch '^mascot_single\\.*\.dll$' }) -join "`r`n"
 $enabled = $enabled.Replace('# Mascote em uma única instância de fotógrafo.','# Mascote: uma posição perto de uma esquina do campo.').Replace('# Mascote: diagnóstico nos fotógrafos de número par.','# Mascote: uma posição perto de uma esquina do campo.')
@@ -91,8 +91,8 @@ foreach ($pair in @(@($luaSource,$luaTarget),@($dllSource,$dllTarget))) {
     if ((Get-FileHash -LiteralPath $pair[0]).Hash -ne (Get-FileHash -LiteralPath $pair[1]).Hash) { throw 'Falha de cópia; consulte o backup.' }
 }
 $state = [ordered]@{
-    version = 13
-    selectionMode = 'one_near_goal_line_corner'
+    version = 22
+    selectionMode = 'one_walking_goal_line'
     gameRoot = $game
     installedAt = (Get-Date -Format 'yyyy-MM-dd HH:mm:ss zzz')
     backupRelativePath = $backupRelative
@@ -106,4 +106,4 @@ $state = [ordered]@{
     gameWasRunningAtInstall = [bool]$running
 }
 $state | ConvertTo-Json | Set-Content -LiteralPath $statePath -Encoding UTF8
-[pscustomobject]@{Game=$game;Version=13;Mode='one_near_goal_line_corner';Lua=$state.installedLuaHash;Dll=$state.installedDllHash;Backup=$backup;RequiresReload=[bool]$running}
+[pscustomobject]@{Game=$game;Version=22;Mode='one_walking_goal_line';Lua=$state.installedLuaHash;Dll=$state.installedDllHash;Backup=$backup;RequiresReload=[bool]$running}
