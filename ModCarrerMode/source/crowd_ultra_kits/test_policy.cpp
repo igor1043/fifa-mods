@@ -2,7 +2,21 @@
 #include <stdio.h>
 #include "crowd_policy.h"
 #include "country_policy.h"
+#include "scene_policy.h"
 int main() {
+    int32_t scene[32]{}; UltraSceneTeams teams;
+    assert(!ultra_scene_teams(scene, teams));
+    scene[16] = 1; scene[17] = 1043; scene[18] = 567;
+    scene[19] = 130000; // Kit team is independent of the actual club.
+    assert(ultra_scene_teams(scene, teams));
+    assert(teams.index == 1 && teams.home == 1043 && teams.away == 567);
+    scene[16] = 0; scene[17] = 112893; scene[18] = 1;
+    assert(ultra_scene_teams(scene, teams));
+    assert(teams.index == 0 && teams.home == 112893 && teams.away == 1);
+    scene[16] = 2; assert(!ultra_scene_teams(scene, teams));
+    scene[16] = 1; scene[17] = -1; assert(!ultra_scene_teams(scene, teams));
+    scene[17] = 1000001; assert(!ultra_scene_teams(scene, teams));
+    assert(!ultra_scene_teams(nullptr, teams));
     assert(ultra_brazil_country("Brazil"));
     assert(ultra_brazil_country("Brasil Sul"));
     assert(!ultra_brazil_country("England"));
@@ -44,5 +58,5 @@ int main() {
     c.kit2Percent = c.kit3Percent = c.goalkeeperPercent = 0; c.kit1Percent = 100;
     assert(ultra_third_count(2000, c) == 0);
     assert(ultra_goalkeeper_count(2000, c) == 0);
-    printf("PASS: seat bits, affiliation, deterministic mix, zero replacement and kit split. Primary=%u Secondary=%u\n", primary, secondary);
+    printf("PASS: early scene identity, seat bits, affiliation, deterministic mix, zero replacement and kit split. Primary=%u Secondary=%u\n", primary, secondary);
 }

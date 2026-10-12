@@ -13,6 +13,7 @@
 #include <unordered_map>
 #include <string>
 #include "country_policy.h"
+#include "scene_policy.h"
 
 static HMODULE ownModule;
 static uintptr_t image;
@@ -60,36 +61,28 @@ template<class T> static bool read(uintptr_t address, T& value) {
 static bool same_native(uintptr_t address, uintptr_t expected) {
     uintptr_t value = 0; return read(address, value) && value == expected;
 }
-static bool native_fixture(uintptr_t& key,int& home,int& away) {
-    uintptr_t manager=0,world=0,game=0,registry=0,pairs=0;
-    int k=0,count=0;
-    if (!read(image+0x3517420,manager) || !same_native(manager,image+0x2226730) ||
-        !read(manager+8,world) || !same_native(world,image+0x2225d90) ||
-        !read(world+0x10,game) || !same_native(game,image+0x2309370) ||
-        !read(game+0x20,registry) || !registry ||
-        !read(registry+8+15*32,k) || k!=15 ||
-        !read(registry+8+15*32+16,count) || count!=2 ||
-        !read(registry+8+15*32+24,pairs)) return false;
-    uintptr_t teams[2]={}; int clubs[2]={};
-    for (int i=0;i<2;++i) {
-        uintptr_t team=0,owner=0,stats=0; int side=-1,club=0;
-        if (!read(pairs+i*16+8,team) || !same_native(team,image+0x22fe9f0) ||
-            !read(team+0x30,owner) || owner!=registry || !read(team+0x58,side) ||
-            side<0 || side>1 || teams[side] || !read(team+0x50,stats) ||
-            !read(stats+0x80,club) || club<=0 || club>1000000) return false;
-        teams[side]=team; clubs[side]=club;
+static bool scene_fixture(void* renderer, UltraSceneTeams& teams) {
+    teams = {};
+    // The frontend preview and match have different crowd objects. Match the
+    // renderer, not whichever Lua row or game registry happens to exist first.
+    for (int i = 0; i < 2; ++i) {
+        uintptr_t object = 0, state = 0, wrapper = 0, actual = 0;
+        int index = -1; int32_t fields[32]{};
+        if (!read(image + 0x3504748 + i * 8, object) || !same_native(object, image + 0x220c3a0) ||
+            !read(object + 0x10, state) || !read(state + 0x84, index) || index != i ||
+            !read(state + 0x90, wrapper) || !read(wrapper, actual) || actual != (uintptr_t)renderer ||
+            !read(state + 4, fields) || !ultra_scene_teams(fields, teams) || teams.index != i) continue;
+        return true;
     }
-    home=clubs[0];away=clubs[1];
-    key=registry ^ teams[0] ^ ((teams[1]<<11)|(teams[1]>>53));
-    return key!=0;
+    teams = {}; return false;
 }
 
-static void brazil_sides(bool (&sides)[2]) {
-    uintptr_t key = 0; int home = 0, away = 0;
+static void brazil_sides(void* renderer, bool (&sides)[2]) {
+    UltraSceneTeams teams;
     sides[0] = sides[1] = false;
-    if (native_fixture(key, home, away)) {
-        sides[0] = live_brazil_club(home);
-        sides[1] = live_brazil_club(away);
+    if (scene_fixture(renderer, teams)) {
+        sides[0] = live_brazil_club(teams.home);
+        sides[1] = live_brazil_club(teams.away);
     }
 }
 
@@ -112,23 +105,32 @@ static void __fastcall crowd_bind_hook(const char* name, const char* format, voi
     refresh_live_countries();
     publish_country_scope();
     // Same thread and lock discipline as the engine's Crowd3dAssetBind call.
-    ((RunLua)(image + 0x4ac35e0))(payload, payloadSize, "crowd_ultra_kits_v1");
+    ((RunLua)(image + 0x4ac35e0))(payload, payloadSize, "crowd_ultra_kits_v5");
     ((BindLua)(image + 0x4ac3460))(name, format, object);
     log_event("crowd_asset_bind registered primary=0 secondary=1 third=3 goalkeeper=2 fallback=0");
 }
 
-static void __fastcall load_assets_hook(void* object) {
-    // Asset bind also runs at boot, before frontend database services exist.
-    // Recheck before the renderer resolves this scene's resources. Draw hooks
-    // then use the resulting snapshot without doing database queries.
-    refresh_live_countries();
+static void prepare_scene(void* object, void* input) {
+    uintptr_t state = 0; int index = -1; int32_t fields[32]{};
+    UltraSceneTeams teams;
+    if (!same_native((uintptr_t)object, image + 0x220c3a0) ||
+        !read((uintptr_t)object + 0x10, state) || !read(state + 0x84, index) ||
+        !read((uintptr_t)input, fields) || !ultra_scene_teams(fields, teams) || teams.index != index) return;
+    refresh_live_countries(true);
     publish_country_scope();
-    uintptr_t key = 0; int home = 0, away = 0;
-    const bool fixture = native_fixture(key, home, away);
-    log_event("country_scope fixture=%u home=%d home_brazil=%u away=%d away_brazil=%u",
-              fixture ? 1U : 0U, home, live_brazil_club(home) ? 1U : 0U,
-              away, live_brazil_club(away) ? 1U : 0U);
-    ((BuildInstances)(image + 0x5cb8480))(object);
+    // The host may load after the two crowd constructors. This event still
+    // precedes the resource jobs and instance allocation for the new fixture.
+    ((RunLua)(image + 0x4ac35e0))(payload, payloadSize, "crowd_ultra_kits_v5");
+    ((BindLua)(image + 0x4ac3460))("FIFA16UltraExtraAssetBind", "%p", object);
+    log_event("country_scope source=crowd_scene index=%d home=%d home_brazil=%u away=%d away_brazil=%u lua_prepare_called=1",
+              teams.index, teams.home, live_brazil_club(teams.home) ? 1U : 0U,
+              teams.away, live_brazil_club(teams.away) ? 1U : 0U);
+}
+
+static void __fastcall scene_prepare_hook(void* object, void* input) {
+    __try { prepare_scene(object, input); }
+    __except (EXCEPTION_EXECUTE_HANDLER) { log_event("scene_prepare_fault native_update_continues"); }
+    ((void (__fastcall*)(void*, void*))(image + 0x4398560))(object, input);
 }
 
 static void remap_instances(void* object) {
@@ -136,8 +138,12 @@ static void remap_instances(void* object) {
     uint32_t count = 0; uintptr_t records = 0;
     if (!read(renderer + 0x1438, count) || !read(renderer + 0x1458, records) ||
         !count || count > 300000 || !accessible(records, (size_t)count * 23, true)) return;
-    bool allowed[2]{}; brazil_sides(allowed);
-    if (!allowed[0] && !allowed[1]) { log_event("instances_original scope=brazil_only"); return; }
+    bool allowed[2]{}; brazil_sides(object, allowed);
+    UltraSceneTeams teams; const bool fixture = scene_fixture(object, teams);
+    if (!allowed[0] && !allowed[1]) {
+        log_event("instances_original scope=brazil_only renderer=%p fixture=%u index=%d home=%d away=%d", object, fixture ? 1U : 0U, teams.index, teams.home, teams.away);
+        return;
+    }
     unsigned empty = 0, changed = 0, normalBefore = 0, ultraBefore = 0, groups[4]{};
     for (uint32_t i = 0; i < count; ++i) {
         uint32_t before;
@@ -180,7 +186,7 @@ static void* resolve_third_texture(void* renderer, const char* name) {
 static void __fastcall jersey_batch_hook(void* renderer, int group, void* meshes, void* textures, void* effect, uintptr_t opaque) {
     const JerseyContext previous = jerseyContext;
     jerseyContext = {true, (uintptr_t)meshes, (uintptr_t)textures, {nullptr, nullptr}, {nullptr, nullptr}, {false, false}};
-    brazil_sides(jerseyContext.allowed);
+    brazil_sides(renderer, jerseyContext.allowed);
     __try {
         jerseyContext.third[0] = resolve_third_texture(renderer, "ultra_kit3_home");
         jerseyContext.third[1] = resolve_third_texture(renderer, "ultra_kit3_away");
@@ -232,7 +238,7 @@ static const CallHook hooks[] = {
     {0x5cb9f03, 0x5cb9560, (void*)build_instances_hook, {0xe8,0x58,0xf6,0xff,0xff,0x44,0x8b,0x87,0x38,0x14,0x00,0x00,0x48,0x8b,0x97,0x58}},
     {0x5cbc0a2, 0x5cbc310, (void*)jersey_batch_hook, {0xe8,0x69,0x02,0x00,0x00,0xe8,0x84,0xc9,0xe0,0xfe,0x48,0x8d,0x0d,0xad,0xcf,0x3d}},
     {0x5cbc483, 0x5cc36e0, (void*)draw_instances_hook, {0xe8,0x58,0x72,0x00,0x00,0x44,0x8b,0x6f,0x08,0x4c,0x8b,0x84,0x24,0x80,0x00,0x00}},
-    {0x5cbd1c8, 0x5cb8480, (void*)load_assets_hook, {0xe8,0xb3,0xb2,0xff,0xff,0xf6,0x87,0x94,0x20,0x00,0x00,0x04,0x74,0x08,0x48,0x89}},
+    {0x43989c7, 0x4398560, (void*)scene_prepare_hook, {0xe8,0x94,0xfb,0xff,0xff,0xb0,0x01,0x48,0x8b,0x8c,0x24,0x40,0x03,0x00,0x00,0x48}},
     {0x58e2ea4, 0x4461f10, (void*)capture_country_registration, {0xe8,0x67,0xf0,0xb7,0xfe,0x48,0x8b,0x5e,0x08,0x48,0x8d,0x4d,0xd0,0xe8,0xaa,0x36}},
     {0x5b8e430, 0, (void*)capture_team_name, {0x48,0x89,0x5c,0x24,0x10,0x48,0x89,0x74,0x24,0x18,0x57,0x48,0x81,0xec,0x90,0x00,0x00,0x00}, 18}
 };
@@ -327,7 +333,7 @@ static DWORD WINAPI worker(void*) {
                 memcpy(jump, prefix, sizeof(prefix)); memcpy(jump + 6, &hooks[i].replacement, 8);
             }
             // The team resolver prologue contains no relative instructions.
-            unsigned char* trampoline=relay+256;
+            unsigned char* trampoline=relay+hookCount*32;
             memcpy(trampoline,(void*)(image+0x5b8e430),18);
             const unsigned char absoluteJump[6]={0xff,0x25,0,0,0,0};
             memcpy(trampoline+18,absoluteJump,6);
@@ -339,7 +345,7 @@ static DWORD WINAPI worker(void*) {
             FlushInstructionCache(GetCurrentProcess(), relay, 4096);
         }
         if (install_hooks(relay)) {
-            log_event("installed version=4 scope=country_database_brazil_only replace_percent=%u kit1=%u kit2=%u kit3=%u goalkeeper=%u native_ultra_instances=1 seat_state_preserved=1 third_kit_type=3 split_instanced_draw=1", config.replacePercent, config.kit1Percent, config.kit2Percent, config.kit3Percent, config.goalkeeperPercent);
+            log_event("installed version=5 scope=country_database_brazil_only scene_team_identity=1 late_lua_bind=1 replace_percent=%u kit1=%u kit2=%u kit3=%u goalkeeper=%u native_ultra_instances=1 seat_state_preserved=1 third_kit_type=3 split_instanced_draw=1", config.replacePercent, config.kit1Percent, config.kit2Percent, config.kit3Percent, config.goalkeeperPercent);
             return 0;
         }
         Sleep(100);

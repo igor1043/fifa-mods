@@ -1,11 +1,13 @@
--- Installed by this DLL on the engine scene thread, before Crowd3dAssetBind.
+-- Installed on the engine scene thread before the new fixture loads resources.
 -- Native instance selection is handled by the DLL; Lua registers kit textures.
 if Crowd3dAssetBind ~= FIFA16_ULTRA_KITS_BIND_WRAPPER then
     assert(type(Crowd3dAssetBind) == "function", "Crowd3dAssetBind is unavailable")
     assert(type(CrowdUpdate) == "function", "CrowdUpdate is unavailable")
+    assert(type(GetRMCrowdShirt) == "function", "GetRMCrowdShirt is unavailable")
     local originalBind = Crowd3dAssetBind
     local originalUpdate = CrowdUpdate
     local originalShirt = GetRMCrowdShirt
+    local extraBound = {}
     local function isBrazilClub(team)
         return FIFA16_ULTRA_LIVE_BRAZIL and FIFA16_ULTRA_LIVE_BRAZIL[team] == true
     end
@@ -43,14 +45,25 @@ if Crowd3dAssetBind ~= FIFA16_ULTRA_KITS_BIND_WRAPPER then
         if isBrazilClub(db.crowd[idx].awayTeamID) then db.crowd[idx].awaycrowdsize = 2 end
     end
 
-    Crowd3dAssetBind = function(crowd)
-        local result = originalBind(crowd)
+    -- Existing scene objects already own all native assets. Late preparation
+    -- only appends our four assets once, without rebinding the native models.
+    function FIFA16UltraExtraAssetBind(crowd)
+        if extraBound[crowd] then return end
         gRenderables:AddAsset(crowd, 0, "ultra_kit3_home", "${FIFA16UltraThirdKit(?,1)}", 2)
         gRenderables:AddAsset(crowd, 0, "ultra_kit3_away", "${FIFA16UltraThirdKit(?,2)}", 2)
         gRenderables:AddAsset(crowd, 0, "ultra_gk_home", "${FIFA16UltraGoalkeeperKit(?,1)}", 2)
         gRenderables:AddAsset(crowd, 0, "ultra_gk_away", "${FIFA16UltraGoalkeeperKit(?,2)}", 2)
+        extraBound[crowd] = true
+    end
+
+    Crowd3dAssetBind = function(crowd)
+        local result = originalBind(crowd)
+        -- A newly constructed object may reuse a previous object's address.
+        extraBound[crowd] = nil
+        FIFA16UltraExtraAssetBind(crowd)
         return result
     end
     FIFA16_ULTRA_KITS_BIND_WRAPPER = Crowd3dAssetBind
     FIFA16_ULTRA_KITS_V1 = true
+    FIFA16_ULTRA_KITS_V5 = true
 end

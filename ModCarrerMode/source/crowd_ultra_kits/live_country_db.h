@@ -7,8 +7,10 @@ using ResolveTeamName = uintptr_t (__fastcall*)(void*, int, void*);
 static ResolveTeamName originalTeamName;
 static void* volatile currentCountryService;
 static SRWLOCK countryLock = SRWLOCK_INIT;
+static SRWLOCK countryRefreshLock = SRWLOCK_INIT;
 static std::unordered_map<int, bool> liveClubCountries;
 static bool countrySnapshotReady;
+static uintptr_t countrySnapshotBackend;
 
 struct CountryRow { int id, value; };
 #include "installed_country_db.h"
@@ -96,10 +98,17 @@ static bool native_country_catalog(uintptr_t backend, std::unordered_map<int, bo
     return true;
 }
 
-static void refresh_live_countries() {
+static void refresh_live_countries(bool refreshLoaded = false) {
+    AcquireSRWLockExclusive(&countryRefreshLock);
     uintptr_t backend = 0;
+    current_country_backend(backend);
+    // Keep the installed snapshot for the session. A newly captured backend
+    // replaces it at scene preparation; loaded careers can refresh per scene.
+    if (countrySnapshotReady && backend == countrySnapshotBackend && (!backend || !refreshLoaded)) {
+        ReleaseSRWLockExclusive(&countryRefreshLock); return;
+    }
     std::unordered_map<int, bool> clubs;
-    bool okay = current_country_backend(backend) && native_country_catalog(backend, clubs);
+    bool okay = backend && native_country_catalog(backend, clubs);
     const char* source = "loaded_database";
     if (!okay) {
         clubs.clear(); source = "installed_database";
@@ -108,11 +117,12 @@ static void refresh_live_countries() {
     unsigned eligible = 0;
     if (okay) for (const auto& row : clubs) if (row.second) ++eligible;
     AcquireSRWLockExclusive(&countryLock);
-    liveClubCountries.clear(); countrySnapshotReady = okay;
+    liveClubCountries.clear(); countrySnapshotReady = okay; countrySnapshotBackend = backend;
     if (okay) liveClubCountries.swap(clubs);
     ReleaseSRWLockExclusive(&countryLock);
     log_event("country_db status=%s source=%s backend=%p brazilian_clubs=%u fixed_club_ids=0",
               okay ? "loaded" : "unavailable_scope_original", source, (void*)backend, eligible);
+    ReleaseSRWLockExclusive(&countryRefreshLock);
 }
 
 static bool live_brazil_club(int club) {
