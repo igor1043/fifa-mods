@@ -1,6 +1,6 @@
 # Crowd Ultra Kits v1 — DLL experimental independente
 
-Converte os registros visíveis da torcida em modelos ultra nativos, usando as malhas e materiais separados de corpo/camisa já registrados pelo FIFA 16. A configuração inicial substitui 100% dos registros visíveis. A seleção tem como alvo kit 1 = 85%, kit 2 = 10%, kit 3 = 5%. Mandante e visitante mantêm seus próprios clubes.
+Converte os registros visíveis da torcida em modelos ultra nativos, usando as malhas e materiais separados de corpo/camisa já registrados pelo FIFA 16. A configuração inicial substitui 96% dos registros visíveis; os outros 4% mantêm seus modelos originais. Entre os registros substituídos, a seleção tem como alvo kit 1 = 85%, kit 2 = 10%, kit 3 = 5%. Mandante e visitante mantêm seus próprios clubes.
 
 Os índices de uniforme do FIFA são 0, 1 e **3**. O índice 2 é uniforme de goleiro. Se o kit secundário ou terceiro solicitado não existir, o resolver tem o primeiro uniforme como alternativa. Os percentuais representam solicitações de textura: um clube sem terceiro kit terá parte dessa parcela exibida com o primeiro uniforme.
 
