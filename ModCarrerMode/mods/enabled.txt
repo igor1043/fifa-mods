@@ -31,3 +31,6 @@ kickoff_modern\kickoff_modern.dll
 
 multiball_visual\multiball_visual_v16.dll
 stadium_pyrotechnics\stadium_pyrotechnics.dll
+
+# Independent crowd model and kit variation prototype.
+crowd_ultra_kits\crowd_ultra_kits.dll
