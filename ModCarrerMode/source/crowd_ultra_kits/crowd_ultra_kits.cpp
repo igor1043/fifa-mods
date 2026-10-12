@@ -7,6 +7,7 @@
 #include <string.h>
 #include <initializer_list>
 #include "crowd_policy.h"
+#include "brazil_clubs.h"
 
 static HMODULE ownModule;
 static uintptr_t image;
@@ -49,6 +50,41 @@ template<class T> static bool read(uintptr_t address, T& value) {
     __except (EXCEPTION_EXECUTE_HANDLER) { return false; }
 }
 
+static bool same_native(uintptr_t address, uintptr_t expected) {
+    uintptr_t value = 0; return read(address, value) && value == expected;
+}
+static bool native_fixture(uintptr_t& key,int& home,int& away) {
+    uintptr_t manager=0,world=0,game=0,registry=0,pairs=0;
+    int k=0,count=0;
+    if (!read(image+0x3517420,manager) || !same_native(manager,image+0x2226730) ||
+        !read(manager+8,world) || !same_native(world,image+0x2225d90) ||
+        !read(world+0x10,game) || !same_native(game,image+0x2309370) ||
+        !read(game+0x20,registry) || !registry ||
+        !read(registry+8+15*32,k) || k!=15 ||
+        !read(registry+8+15*32+16,count) || count!=2 ||
+        !read(registry+8+15*32+24,pairs)) return false;
+    uintptr_t teams[2]={}; int clubs[2]={};
+    for (int i=0;i<2;++i) {
+        uintptr_t team=0,owner=0,stats=0; int side=-1,club=0;
+        if (!read(pairs+i*16+8,team) || !same_native(team,image+0x22fe9f0) ||
+            !read(team+0x30,owner) || owner!=registry || !read(team+0x58,side) ||
+            side<0 || side>1 || teams[side] || !read(team+0x50,stats) ||
+            !read(stats+0x80,club) || club<=0 || club>1000000) return false;
+        teams[side]=team; clubs[side]=club;
+    }
+    home=clubs[0];away=clubs[1];
+    key=registry ^ teams[0] ^ ((teams[1]<<11)|(teams[1]>>53));
+    return key!=0;
+}
+static void brazil_sides(bool (&sides)[2]) {
+    uintptr_t key = 0; int home = 0, away = 0;
+    sides[0] = sides[1] = false;
+    if (native_fixture(key, home, away)) {
+        sides[0] = ultra_brazil_club(home);
+        sides[1] = ultra_brazil_club(away);
+    }
+}
+
 using RunLua = void (__fastcall*)(const char*, size_t, const char*);
 using BindLua = void (__fastcall*)(const char*, const char*, void*);
 using BuildInstances = void (__fastcall*)(void*);
@@ -69,13 +105,15 @@ static void remap_instances(void* object) {
     uint32_t count = 0; uintptr_t records = 0;
     if (!read(renderer + 0x1438, count) || !read(renderer + 0x1458, records) ||
         !count || count > 300000 || !accessible(records, (size_t)count * 23, true)) return;
+    bool allowed[2]{}; brazil_sides(allowed);
+    if (!allowed[0] && !allowed[1]) { log_event("instances_original scope=brazil_only"); return; }
     unsigned empty = 0, changed = 0, normalBefore = 0, ultraBefore = 0, groups[4]{};
     for (uint32_t i = 0; i < count; ++i) {
         uint32_t before;
         memcpy(&before, (void*)(records + (size_t)i * 23 + 12), 4);
         if (((before >> 22) & 3U) == 2U) { ++empty; continue; }
         if (before & 0x80000U) ++ultraBefore; else ++normalBefore;
-        const uint32_t after = ultra_flags(before, i, config);
+        const uint32_t after = ultra_scoped_flags(before, i, config, allowed[0], allowed[1]);
         if (before != after) { memcpy((void*)(records + (size_t)i * 23 + 12), &after, 4); ++changed; }
         if (after & 0x80000U) ++groups[(after >> 20) & 3U];
     }
@@ -94,6 +132,7 @@ struct JerseyContext {
     uintptr_t meshes, textures;
     void* third[2];
     void* goalkeeper[2];
+    bool allowed[2];
 };
 static thread_local JerseyContext jerseyContext{};
 
@@ -109,7 +148,8 @@ static void* resolve_third_texture(void* renderer, const char* name) {
 
 static void __fastcall jersey_batch_hook(void* renderer, int group, void* meshes, void* textures, void* effect, uintptr_t opaque) {
     const JerseyContext previous = jerseyContext;
-    jerseyContext = {true, (uintptr_t)meshes, (uintptr_t)textures, {nullptr, nullptr}, {nullptr, nullptr}};
+    jerseyContext = {true, (uintptr_t)meshes, (uintptr_t)textures, {nullptr, nullptr}, {nullptr, nullptr}, {false, false}};
+    brazil_sides(jerseyContext.allowed);
     __try {
         jerseyContext.third[0] = resolve_third_texture(renderer, "ultra_kit3_home");
         jerseyContext.third[1] = resolve_third_texture(renderer, "ultra_kit3_away");
@@ -127,6 +167,9 @@ static void __fastcall draw_instances_hook(void* mesh, void* buffer, void* effec
         ((DrawInstances)(image + 0x5cc36e0))(mesh, buffer, effect, first, count, pass); return;
     }
     const unsigned variant = (unsigned)((address - jerseyContext.meshes) / 8 / 5);
+    if (!jerseyContext.allowed[variant & 1U]) {
+        ((DrawInstances)(image + 0x5cc36e0))(mesh, buffer, effect, first, count, pass); return;
+    }
     unsigned thirdCount = variant >= 2 ? ultra_third_count(count, config) : 0;
     unsigned goalkeeperCount = variant >= 2 ? ultra_goalkeeper_count(count, config) : 0;
     if (thirdCount > count) thirdCount = count;
@@ -244,7 +287,7 @@ static DWORD WINAPI worker(void*) {
             FlushInstructionCache(GetCurrentProcess(), relay, 4096);
         }
         if (install_hooks(relay)) {
-            log_event("installed version=2 replace_percent=%u kit1=%u kit2=%u kit3=%u goalkeeper=%u native_ultra_instances=1 seat_state_preserved=1 third_kit_type=3 split_instanced_draw=1", config.replacePercent, config.kit1Percent, config.kit2Percent, config.kit3Percent, config.goalkeeperPercent);
+            log_event("installed version=3 scope=brazil_only replace_percent=%u kit1=%u kit2=%u kit3=%u goalkeeper=%u native_ultra_instances=1 seat_state_preserved=1 third_kit_type=3 split_instanced_draw=1", config.replacePercent, config.kit1Percent, config.kit2Percent, config.kit3Percent, config.goalkeeperPercent);
             return 0;
         }
         Sleep(100);

@@ -36,3 +36,8 @@ static inline unsigned ultra_goalkeeper_count(unsigned count, const UltraConfig&
     const unsigned secondary = config.kit2Percent + config.kit3Percent + config.goalkeeperPercent;
     return secondary ? (unsigned)(((uint64_t)count * config.goalkeeperPercent + secondary / 2U) / secondary) : 0U;
 }
+
+static inline uint32_t ultra_scoped_flags(uint32_t flags, uint32_t index, const UltraConfig& config, bool homeAllowed, bool awayAllowed) {
+    const bool allowed = (flags & 0x08000000U) ? homeAllowed : awayAllowed;
+    return allowed ? ultra_flags(flags, index, config) : flags;
+}

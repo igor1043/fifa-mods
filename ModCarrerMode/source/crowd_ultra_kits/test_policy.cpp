@@ -1,9 +1,23 @@
 #include <assert.h>
 #include <stdio.h>
 #include "crowd_policy.h"
+#include "brazil_clubs.h"
 int main() {
+    assert(ultra_brazil_club(1043));
+    assert(ultra_brazil_club(1041));
+    assert(!ultra_brazil_club(1));
+    assert(!ultra_brazil_club(0));
     UltraConfig c;
     c.replacePercent = 100;
+    for (uint32_t i = 0; i < 1000; ++i) {
+        const uint32_t home = 0x08000000U, away = 0;
+        assert(ultra_scoped_flags(home, i, c, true, false) == ultra_flags(home, i, c));
+        assert(ultra_scoped_flags(away, i, c, true, false) == away);
+        assert(ultra_scoped_flags(home, i, c, false, true) == home);
+        assert(ultra_scoped_flags(away, i, c, false, true) == ultra_flags(away, i, c));
+        const uint32_t random = ultra_hash(i);
+        assert(ultra_scoped_flags(random, i, c, false, false) == random);
+    }
     unsigned primary = 0, secondary = 0;
     for (uint32_t i = 0; i < 100000; ++i) {
         const uint32_t original = ultra_hash(i);

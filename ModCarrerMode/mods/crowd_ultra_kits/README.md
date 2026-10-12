@@ -1,6 +1,6 @@
-# Crowd Ultra Kits v2 — DLL experimental independente
+# Crowd Ultra Kits v3 — DLL experimental independente
 
-Converte os registros visíveis da torcida em modelos ultra nativos, usando as malhas e materiais separados de corpo/camisa já registrados pelo FIFA 16. A configuração inicial substitui 96% dos registros visíveis; os outros 4% mantêm seus modelos originais. Entre os registros substituídos, a seleção tem como alvo kit 1 = 88%, kit 2 = 8%, kit 3 = 3%, goleiro = 1%. Mandante e visitante mantêm seus próprios clubes.
+Converte os registros visíveis da torcida em modelos ultra nativos, usando as malhas e materiais separados de corpo/camisa já registrados pelo FIFA 16. A configuração inicial substitui 96% dos registros visíveis; os outros 4% mantêm seus modelos originais. Entre os registros substituídos, a seleção tem como alvo kit 1 = 88%, kit 2 = 8%, kit 3 = 3%, goleiro = 1%. Mandante e visitante mantêm seus próprios clubes. A regra se aplica somente a clubes brasileiros: cada lado é verificado separadamente, inclusive em partidas internacionais. Torcedores de clubes estrangeiros usam modelos, seletor de camisas e tamanho de protótipos originais.
 
 Os índices de uniforme do FIFA são 0, 1 e **3**. O índice 2 é uniforme de goleiro. Se o kit secundário ou terceiro solicitado não existir, o resolver tem o primeiro uniforme como alternativa. Os percentuais representam solicitações de textura: um clube sem terceiro kit terá parte dessa parcela exibida com o primeiro uniforme.
 
@@ -43,3 +43,9 @@ Com o jogo fechado, altere `enabled=0` no INI ou remova a linha `crowd_ultra_kit
 ## Estado
 
 Protótipo experimental para teste do usuário. A versão 2 acrescenta a camisa de goleiro (tipo 2) e configura 88/8/3/1, mantendo a substituição em 96%. Compilação e testes da seleção e dos tamanhos dos lotes passaram; a nova camisa de goleiro ainda requer confirmação visual em partida. Compilação e testes da política devem passar antes da instalação. A integração inicial é auditada pelos logs nativos; comportamento visual em partida permanece dependente do teste dentro do jogo.
+
+## Restrição brasileira da versão 3
+
+`brazil_clubs.h` e a tabela incorporada ao Lua foram gerados do banco instalado: `leagues.countryid` unido a `leagueteamlinks`, mais `rowteamnationlinks`. Inclui Brazil e as regiões brasileiras criadas pelo mod nas tabelas de países, totalizando 514 IDs de clubes. `brazil_clubs.json` registra IDs, nomes, ligas e hash do banco. O cadastro é por clube, não pelo torneio da partida. Se novos clubes forem acrescentados ao banco, é necessário regenerar o catálogo e recompilar para incluí-los.
+
+A identidade de mandante e visitante é lida no registro nativo de equipes da partida com validação dos tipos e índices de lado, uma vez na conversão e em cada lote de camisas. Se a identidade não estiver disponível, a rotina passa sem converter. A política de seleção foi testada para brasileiro em casa, brasileiro fora e dois estrangeiros, mantendo os registros estrangeiros intactos. A confirmação visual dessas partidas permanece pendente.

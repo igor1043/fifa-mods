@@ -1,0 +1,2105 @@
+{
+  "database_sha256": "0a78b346b3c1eef6b5df1ddfc751348edfd7f37a564f157da6fdfff4f0489985",
+  "nation_ids": [
+    54,
+    156,
+    217,
+    220,
+    221,
+    223,
+    224,
+    226
+  ],
+  "league_ids": [
+    2,
+    7,
+    34,
+    35,
+    43,
+    44,
+    45,
+    48,
+    83,
+    86,
+    90,
+    92,
+    94,
+    95,
+    96,
+    100,
+    101,
+    102,
+    103,
+    104,
+    105,
+    107,
+    108,
+    109,
+    112,
+    113,
+    114,
+    115,
+    350,
+    351,
+    354,
+    1004
+  ],
+  "clubs": [
+    {
+      "id": 383,
+      "name": "Palmeiras"
+    },
+    {
+      "id": 517,
+      "name": "Botafogo"
+    },
+    {
+      "id": 567,
+      "name": "Fluminense"
+    },
+    {
+      "id": 568,
+      "name": "Cruzeiro"
+    },
+    {
+      "id": 569,
+      "name": "Vasco da Gama"
+    },
+    {
+      "id": 598,
+      "name": "São Paulo"
+    },
+    {
+      "id": 983,
+      "name": "Itapirense"
+    },
+    {
+      "id": 1035,
+      "name": "Atlético-MG"
+    },
+    {
+      "id": 1039,
+      "name": "Athletico-PR"
+    },
+    {
+      "id": 1041,
+      "name": "Corinthians"
+    },
+    {
+      "id": 1043,
+      "name": "Flamengo"
+    },
+    {
+      "id": 1048,
+      "name": "Internacional"
+    },
+    {
+      "id": 1053,
+      "name": "Santos"
+    },
+    {
+      "id": 1477,
+      "name": "Fluminense de Feira"
+    },
+    {
+      "id": 1598,
+      "name": "Bahia"
+    },
+    {
+      "id": 1629,
+      "name": "Grêmio"
+    },
+    {
+      "id": 1719,
+      "name": "Vitória-BA"
+    },
+    {
+      "id": 1789,
+      "name": "São Caetano"
+    },
+    {
+      "id": 105501,
+      "name": "ABECAT"
+    },
+    {
+      "id": 105502,
+      "name": "ADESG"
+    },
+    {
+      "id": 105503,
+      "name": "Osasco Audax"
+    },
+    {
+      "id": 105504,
+      "name": "São Raimundo-RR"
+    },
+    {
+      "id": 105511,
+      "name": "Penapolense"
+    },
+    {
+      "id": 105516,
+      "name": "Sergipe"
+    },
+    {
+      "id": 105517,
+      "name": "Petrópolis Fc"
+    },
+    {
+      "id": 105519,
+      "name": "América-SP"
+    },
+    {
+      "id": 105520,
+      "name": "Nacional-SP"
+    },
+    {
+      "id": 105521,
+      "name": "FC Cascavel"
+    },
+    {
+      "id": 105522,
+      "name": "Grêmio Sorriso"
+    },
+    {
+      "id": 105523,
+      "name": "Iporá EC"
+    },
+    {
+      "id": 105524,
+      "name": "Central"
+    },
+    {
+      "id": 105526,
+      "name": "Juazeirense"
+    },
+    {
+      "id": 105527,
+      "name": "Uberaba"
+    },
+    {
+      "id": 105528,
+      "name": "Tubarão"
+    },
+    {
+      "id": 105529,
+      "name": "Villa Nova-MG"
+    },
+    {
+      "id": 105530,
+      "name": "São José-RS"
+    },
+    {
+      "id": 105531,
+      "name": "Pelotas"
+    },
+    {
+      "id": 105532,
+      "name": "Caldense"
+    },
+    {
+      "id": 105533,
+      "name": "E.C. Lemense"
+    },
+    {
+      "id": 110378,
+      "name": "Independência"
+    },
+    {
+      "id": 110540,
+      "name": "São Raimundo EC"
+    },
+    {
+      "id": 110548,
+      "name": "Metropolitano"
+    },
+    {
+      "id": 110549,
+      "name": "Portuguesa-RJ"
+    },
+    {
+      "id": 111041,
+      "name": "Juventude"
+    },
+    {
+      "id": 111042,
+      "name": "Goiás"
+    },
+    {
+      "id": 111043,
+      "name": "Ponte Preta"
+    },
+    {
+      "id": 111044,
+      "name": "Coritiba"
+    },
+    {
+      "id": 111045,
+      "name": "Figueirense"
+    },
+    {
+      "id": 111046,
+      "name": "Criciúma"
+    },
+    {
+      "id": 111048,
+      "name": "Paraná Clube"
+    },
+    {
+      "id": 111049,
+      "name": "Guarani"
+    },
+    {
+      "id": 111050,
+      "name": "Náutico"
+    },
+    {
+      "id": 111052,
+      "name": "Fortaleza"
+    },
+    {
+      "id": 111054,
+      "name": "Joinville"
+    },
+    {
+      "id": 111057,
+      "name": "Sport Recife"
+    },
+    {
+      "id": 111058,
+      "name": "Santa Cruz"
+    },
+    {
+      "id": 111059,
+      "name": "Ceará"
+    },
+    {
+      "id": 111292,
+      "name": "Portuguesa"
+    },
+    {
+      "id": 111293,
+      "name": "Santo André"
+    },
+    {
+      "id": 111299,
+      "name": "União Rondonópolis"
+    },
+    {
+      "id": 111300,
+      "name": "Globo FC"
+    },
+    {
+      "id": 111701,
+      "name": "Paragominas"
+    },
+    {
+      "id": 111704,
+      "name": "América-RN"
+    },
+    {
+      "id": 111727,
+      "name": "Castanhal"
+    },
+    {
+      "id": 111976,
+      "name": "Avaí"
+    },
+    {
+      "id": 112001,
+      "name": "América-MG"
+    },
+    {
+      "id": 112077,
+      "name": "União Mogi"
+    },
+    {
+      "id": 112119,
+      "name": "Atlético-GO"
+    },
+    {
+      "id": 112190,
+      "name": "Tabajara FC"
+    },
+    {
+      "id": 112408,
+      "name": "Coruripe"
+    },
+    {
+      "id": 112427,
+      "name": "Potiguar"
+    },
+    {
+      "id": 112476,
+      "name": "Chapecoense"
+    },
+    {
+      "id": 113007,
+      "name": "Veranópolis"
+    },
+    {
+      "id": 113011,
+      "name": "CSP"
+    },
+    {
+      "id": 113013,
+      "name": "Real Sport Club"
+    },
+    {
+      "id": 113015,
+      "name": "Santa Cruz-RN"
+    },
+    {
+      "id": 113016,
+      "name": "Resende"
+    },
+    {
+      "id": 113018,
+      "name": "Academia-MT"
+    },
+    {
+      "id": 113022,
+      "name": "Bangu"
+    },
+    {
+      "id": 113028,
+      "name": "Rio Branco-ES"
+    },
+    {
+      "id": 113055,
+      "name": "Olaria"
+    },
+    {
+      "id": 113080,
+      "name": "Crato"
+    },
+    {
+      "id": 113101,
+      "name": "Ferroviária"
+    },
+    {
+      "id": 113102,
+      "name": "Comercial-RP"
+    },
+    {
+      "id": 113103,
+      "name": "Rio Preto"
+    },
+    {
+      "id": 113104,
+      "name": "Itabaiana"
+    },
+    {
+      "id": 113105,
+      "name": "Ituano"
+    },
+    {
+      "id": 113107,
+      "name": "Rio Claro"
+    },
+    {
+      "id": 113111,
+      "name": "Patrocinense"
+    },
+    {
+      "id": 113113,
+      "name": "URT"
+    },
+    {
+      "id": 113115,
+      "name": "PSTC"
+    },
+    {
+      "id": 113116,
+      "name": "Operário-PR"
+    },
+    {
+      "id": 113117,
+      "name": "Prudentópolis"
+    },
+    {
+      "id": 113119,
+      "name": "Azuriz-PR"
+    },
+    {
+      "id": 113120,
+      "name": "Juventus Jaraguá"
+    },
+    {
+      "id": 113121,
+      "name": "Brusque"
+    },
+    {
+      "id": 113124,
+      "name": "Luziânia"
+    },
+    {
+      "id": 113125,
+      "name": "Zumbi-AL"
+    },
+    {
+      "id": 113127,
+      "name": "Desportiva Ferroviária"
+    },
+    {
+      "id": 113130,
+      "name": "EC São Bernardo"
+    },
+    {
+      "id": 113132,
+      "name": "Altos"
+    },
+    {
+      "id": 113133,
+      "name": "CTE Colatina"
+    },
+    {
+      "id": 113134,
+      "name": "Nova Venécia"
+    },
+    {
+      "id": 113135,
+      "name": "Passo Fundo"
+    },
+    {
+      "id": 113136,
+      "name": "Democrata SL"
+    },
+    {
+      "id": 113139,
+      "name": "Operário Várzea Grande"
+    },
+    {
+      "id": 113145,
+      "name": "Niteroiense"
+    },
+    {
+      "id": 113146,
+      "name": "Novo Hamburgo"
+    },
+    {
+      "id": 113149,
+      "name": "Comercial-MS"
+    },
+    {
+      "id": 113150,
+      "name": "Guarany de Sobral"
+    },
+    {
+      "id": 113152,
+      "name": "Tocantinópolis"
+    },
+    {
+      "id": 113154,
+      "name": "Imperatriz"
+    },
+    {
+      "id": 113163,
+      "name": "Mirassol"
+    },
+    {
+      "id": 113165,
+      "name": "Independente Tucuruí"
+    },
+    {
+      "id": 113167,
+      "name": "São Bento"
+    },
+    {
+      "id": 113169,
+      "name": "Batatais"
+    },
+    {
+      "id": 113172,
+      "name": "Capivariano"
+    },
+    {
+      "id": 120000,
+      "name": "São Francisco"
+    },
+    {
+      "id": 120001,
+      "name": "Osasco Sporting"
+    },
+    {
+      "id": 120002,
+      "name": "Paysandu"
+    },
+    {
+      "id": 120003,
+      "name": "Caxias"
+    },
+    {
+      "id": 120004,
+      "name": "Botafogo-PB"
+    },
+    {
+      "id": 120005,
+      "name": "CRB"
+    },
+    {
+      "id": 120006,
+      "name": "Cuiabá"
+    },
+    {
+      "id": 120007,
+      "name": "Bonsucesso"
+    },
+    {
+      "id": 120008,
+      "name": "Salgueiro"
+    },
+    {
+      "id": 120009,
+      "name": "Luverdense"
+    },
+    {
+      "id": 120010,
+      "name": "Macaé"
+    },
+    {
+      "id": 120011,
+      "name": "Madureira"
+    },
+    {
+      "id": 120012,
+      "name": "Mogi Mirim"
+    },
+    {
+      "id": 120013,
+      "name": "Sampaio Corrêa"
+    },
+    {
+      "id": 120015,
+      "name": "Sousa"
+    },
+    {
+      "id": 120016,
+      "name": "Vila Nova"
+    },
+    {
+      "id": 120017,
+      "name": "ASA"
+    },
+    {
+      "id": 120018,
+      "name": "Boa Esporte"
+    },
+    {
+      "id": 120019,
+      "name": "Tupi"
+    },
+    {
+      "id": 120020,
+      "name": "Xv de Piracicaba"
+    },
+    {
+      "id": 120409,
+      "name": "Nova Iguaçu"
+    },
+    {
+      "id": 120410,
+      "name": "Campinense"
+    },
+    {
+      "id": 120414,
+      "name": "Concórdia"
+    },
+    {
+      "id": 120415,
+      "name": "CSA"
+    },
+    {
+      "id": 120424,
+      "name": "Serra-ES"
+    },
+    {
+      "id": 120425,
+      "name": "Inter de Santa Maria"
+    },
+    {
+      "id": 120426,
+      "name": "Jacobina EC"
+    },
+    {
+      "id": 120428,
+      "name": "Itumbiara"
+    },
+    {
+      "id": 120429,
+      "name": "Brasil de Pelotas"
+    },
+    {
+      "id": 120432,
+      "name": "Pouso Alegre"
+    },
+    {
+      "id": 120433,
+      "name": "Volta Redonda"
+    },
+    {
+      "id": 120435,
+      "name": "Aparecidense"
+    },
+    {
+      "id": 120438,
+      "name": "Trem"
+    },
+    {
+      "id": 120439,
+      "name": "Goiânia EC"
+    },
+    {
+      "id": 120440,
+      "name": "Inhumas"
+    },
+    {
+      "id": 120441,
+      "name": "Cabofriense"
+    },
+    {
+      "id": 120444,
+      "name": "Maracanã EC"
+    },
+    {
+      "id": 123917,
+      "name": "Friburguense"
+    },
+    {
+      "id": 123921,
+      "name": "RB Bragantino"
+    },
+    {
+      "id": 123922,
+      "name": "Sertãozinho"
+    },
+    {
+      "id": 123923,
+      "name": "Desportivo Brasil"
+    },
+    {
+      "id": 130011,
+      "name": "Capitão Poço"
+    },
+    {
+      "id": 130012,
+      "name": "Jaraguá-GO"
+    },
+    {
+      "id": 130016,
+      "name": "Cruzeiro-AL"
+    },
+    {
+      "id": 130018,
+      "name": "Catanduva"
+    },
+    {
+      "id": 130019,
+      "name": "Feira Futebol Clube"
+    },
+    {
+      "id": 130020,
+      "name": "Santa Catarina"
+    },
+    {
+      "id": 130021,
+      "name": "Londrina"
+    },
+    {
+      "id": 130022,
+      "name": "ABC"
+    },
+    {
+      "id": 130023,
+      "name": "Tombense"
+    },
+    {
+      "id": 130024,
+      "name": "Confiança"
+    },
+    {
+      "id": 130025,
+      "name": "Ypiranga"
+    },
+    {
+      "id": 130026,
+      "name": "Remo"
+    },
+    {
+      "id": 130027,
+      "name": "River-PI"
+    },
+    {
+      "id": 130028,
+      "name": "Botafogo-RP"
+    },
+    {
+      "id": 130029,
+      "name": "União Frederiquense"
+    },
+    {
+      "id": 130030,
+      "name": "Moto Club"
+    },
+    {
+      "id": 130033,
+      "name": "Maguary"
+    },
+    {
+      "id": 130036,
+      "name": "Cianorte"
+    },
+    {
+      "id": 130037,
+      "name": "Parnahyba"
+    },
+    {
+      "id": 130040,
+      "name": "Princesa do Solimões-AM"
+    },
+    {
+      "id": 130041,
+      "name": "Manaus"
+    },
+    {
+      "id": 130042,
+      "name": "América-RJ"
+    },
+    {
+      "id": 130043,
+      "name": "Rio Branco-AC"
+    },
+    {
+      "id": 130045,
+      "name": "Grêmio Novorizontino"
+    },
+    {
+      "id": 130046,
+      "name": "São Bernardo"
+    },
+    {
+      "id": 130047,
+      "name": "Goytacaz"
+    },
+    {
+      "id": 130053,
+      "name": "Comercial-PI"
+    },
+    {
+      "id": 130058,
+      "name": "15 de Novembro"
+    },
+    {
+      "id": 130059,
+      "name": "Hercílio Luz"
+    },
+    {
+      "id": 130062,
+      "name": "Uberlândia"
+    },
+    {
+      "id": 130063,
+      "name": "Democrata GV"
+    },
+    {
+      "id": 130064,
+      "name": "Linense"
+    },
+    {
+      "id": 130065,
+      "name": "Boavista-RJ"
+    },
+    {
+      "id": 130066,
+      "name": "Paulista de Jundiaí"
+    },
+    {
+      "id": 130067,
+      "name": "Vilavelhense"
+    },
+    {
+      "id": 130068,
+      "name": "Ceilândia"
+    },
+    {
+      "id": 130069,
+      "name": "Penedense"
+    },
+    {
+      "id": 130070,
+      "name": "Murici SC"
+    },
+    {
+      "id": 130071,
+      "name": "Gurupi"
+    },
+    {
+      "id": 130072,
+      "name": "Maranhão"
+    },
+    {
+      "id": 130073,
+      "name": "Naviraiense-MS"
+    },
+    {
+      "id": 130074,
+      "name": "Afogados FC"
+    },
+    {
+      "id": 130075,
+      "name": "Campo Grande"
+    },
+    {
+      "id": 130076,
+      "name": "Sobradinho"
+    },
+    {
+      "id": 130077,
+      "name": "Treze"
+    },
+    {
+      "id": 130078,
+      "name": "Galícia"
+    },
+    {
+      "id": 130079,
+      "name": "Flamengo de Arco Verde"
+    },
+    {
+      "id": 130080,
+      "name": "4 de Julho"
+    },
+    {
+      "id": 130081,
+      "name": "Juventus-SP"
+    },
+    {
+      "id": 130082,
+      "name": "Potyguar CN"
+    },
+    {
+      "id": 130083,
+      "name": "Desportivo Aliança"
+    },
+    {
+      "id": 130084,
+      "name": "Jacuipense"
+    },
+    {
+      "id": 130085,
+      "name": "ACEC Baraúnas"
+    },
+    {
+      "id": 130086,
+      "name": "Atlético Alagoinhas"
+    },
+    {
+      "id": 130087,
+      "name": "Horizonte"
+    },
+    {
+      "id": 130088,
+      "name": "Inter de Bebedouro"
+    },
+    {
+      "id": 130089,
+      "name": "Mamoré"
+    },
+    {
+      "id": 130090,
+      "name": "Guarani-MG"
+    },
+    {
+      "id": 130091,
+      "name": "Inter de Limeira"
+    },
+    {
+      "id": 130092,
+      "name": "Baré-RR"
+    },
+    {
+      "id": 130093,
+      "name": "Brasiliense"
+    },
+    {
+      "id": 130094,
+      "name": "Petrolina"
+    },
+    {
+      "id": 130095,
+      "name": "São Raimundo-AM"
+    },
+    {
+      "id": 130096,
+      "name": "Vilhena"
+    },
+    {
+      "id": 130097,
+      "name": "Tuna Luso"
+    },
+    {
+      "id": 130098,
+      "name": "IAPE"
+    },
+    {
+      "id": 130099,
+      "name": "Santos-AP"
+    },
+    {
+      "id": 130100,
+      "name": "Floresta"
+    },
+    {
+      "id": 130101,
+      "name": "Gama"
+    },
+    {
+      "id": 130102,
+      "name": "Íbis Sport Club"
+    },
+    {
+      "id": 130103,
+      "name": "Crac-GO"
+    },
+    {
+      "id": 130104,
+      "name": "Real Brasília"
+    },
+    {
+      "id": 130105,
+      "name": "Vitória da Conquista"
+    },
+    {
+      "id": 130106,
+      "name": "Taguatinga-DF"
+    },
+    {
+      "id": 130107,
+      "name": "Ferroviário-CE"
+    },
+    {
+      "id": 130108,
+      "name": "Maringá"
+    },
+    {
+      "id": 130109,
+      "name": "Toledo-PR"
+    },
+    {
+      "id": 130110,
+      "name": "Manthiqueira-SP"
+    },
+    {
+      "id": 130111,
+      "name": "Interporto-TO"
+    },
+    {
+      "id": 130112,
+      "name": "Coimbra FC Porto"
+    },
+    {
+      "id": 130113,
+      "name": "Goianésia EC"
+    },
+    {
+      "id": 130114,
+      "name": "Nacional-AM"
+    },
+    {
+      "id": 130115,
+      "name": "Águia de Marabá"
+    },
+    {
+      "id": 130116,
+      "name": "Duque de Caxias"
+    },
+    {
+      "id": 130117,
+      "name": "Lajeadense"
+    },
+    {
+      "id": 130118,
+      "name": "Camboriú"
+    },
+    {
+      "id": 130119,
+      "name": "E.C. Próspera"
+    },
+    {
+      "id": 130120,
+      "name": "Marcílio Dias"
+    },
+    {
+      "id": 130121,
+      "name": "Independente São Joseense"
+    },
+    {
+      "id": 130122,
+      "name": "Primavera-MT"
+    },
+    {
+      "id": 130123,
+      "name": "Bragantino-PA"
+    },
+    {
+      "id": 130124,
+      "name": "Mixto"
+    },
+    {
+      "id": 130125,
+      "name": "Frei Paulistano"
+    },
+    {
+      "id": 130126,
+      "name": "Piauí"
+    },
+    {
+      "id": 130127,
+      "name": "Jabaquara"
+    },
+    {
+      "id": 130128,
+      "name": "Marília"
+    },
+    {
+      "id": 130129,
+      "name": "Olímpia-SP"
+    },
+    {
+      "id": 130130,
+      "name": "Noroeste"
+    },
+    {
+      "id": 130131,
+      "name": "União Barbarense"
+    },
+    {
+      "id": 130132,
+      "name": "Monte Azul"
+    },
+    {
+      "id": 130133,
+      "name": "Independente-SP"
+    },
+    {
+      "id": 130134,
+      "name": "Academica Vitória"
+    },
+    {
+      "id": 130135,
+      "name": "Guarany Bagé"
+    },
+    {
+      "id": 130136,
+      "name": "Dourados A.C."
+    },
+    {
+      "id": 130137,
+      "name": "São Luiz-RS"
+    },
+    {
+      "id": 130138,
+      "name": "Rio Branco-PR"
+    },
+    {
+      "id": 130139,
+      "name": "Galvez"
+    },
+    {
+      "id": 130140,
+      "name": "Ypiranga-AP"
+    },
+    {
+      "id": 130141,
+      "name": "Vitória-ES"
+    },
+    {
+      "id": 130142,
+      "name": "São Carlense"
+    },
+    {
+      "id": 130143,
+      "name": "Taboão da Serra"
+    },
+    {
+      "id": 130144,
+      "name": "Barretos"
+    },
+    {
+      "id": 130145,
+      "name": "Matonense"
+    },
+    {
+      "id": 130146,
+      "name": "Votuporanguense"
+    },
+    {
+      "id": 130147,
+      "name": "Rio Branco-SP"
+    },
+    {
+      "id": 130148,
+      "name": "São José-SP"
+    },
+    {
+      "id": 130149,
+      "name": "Taubaté"
+    },
+    {
+      "id": 130150,
+      "name": "Velo Clube"
+    },
+    {
+      "id": 130151,
+      "name": "Portuguesa Santista"
+    },
+    {
+      "id": 130154,
+      "name": "Genus-RO"
+    },
+    {
+      "id": 130157,
+      "name": "Rondoniense"
+    },
+    {
+      "id": 130158,
+      "name": "Itupiranga"
+    },
+    {
+      "id": 130159,
+      "name": "Capital-DF"
+    },
+    {
+      "id": 130161,
+      "name": "Atlético Cajazeiras"
+    },
+    {
+      "id": 130162,
+      "name": "Primavera"
+    },
+    {
+      "id": 130163,
+      "name": "Pombal E.C."
+    },
+    {
+      "id": 130164,
+      "name": "Americano-RJ"
+    },
+    {
+      "id": 130165,
+      "name": "Esporte de Patos"
+    },
+    {
+      "id": 130166,
+      "name": "Auto Esporte"
+    },
+    {
+      "id": 130167,
+      "name": "Nacional de Patos"
+    },
+    {
+      "id": 130168,
+      "name": "Bahia de Feira"
+    },
+    {
+      "id": 130169,
+      "name": "F.C. Pantanal"
+    },
+    {
+      "id": 130170,
+      "name": "União - TO"
+    },
+    {
+      "id": 130171,
+      "name": "Jequié-BA"
+    },
+    {
+      "id": 130173,
+      "name": "Aimoré-RS"
+    },
+    {
+      "id": 130174,
+      "name": "Atlético-PI"
+    },
+    {
+      "id": 130176,
+      "name": "São Cristóvão F.R."
+    },
+    {
+      "id": 130177,
+      "name": "Bandeirante-SP"
+    },
+    {
+      "id": 130181,
+      "name": "Picuiense"
+    },
+    {
+      "id": 130183,
+      "name": "Angra Audax"
+    },
+    {
+      "id": 130184,
+      "name": "Sampaio Correa-RJ"
+    },
+    {
+      "id": 130185,
+      "name": "Campos-RJ"
+    },
+    {
+      "id": 130186,
+      "name": "São Gonçalo-RJ"
+    },
+    {
+      "id": 130187,
+      "name": "Barra Mansa-RJ"
+    },
+    {
+      "id": 130188,
+      "name": "Samambaia"
+    },
+    {
+      "id": 130189,
+      "name": "Planaltina-DF"
+    },
+    {
+      "id": 130190,
+      "name": "Anápolis"
+    },
+    {
+      "id": 130191,
+      "name": "Carajás"
+    },
+    {
+      "id": 130192,
+      "name": "Barcelona de Ilhéus"
+    },
+    {
+      "id": 130203,
+      "name": "Porto Vitória"
+    },
+    {
+      "id": 130206,
+      "name": "Atlético Catarinense"
+    },
+    {
+      "id": 130208,
+      "name": "Gavião Kyikatejê"
+    },
+    {
+      "id": 130209,
+      "name": "Porto Velho"
+    },
+    {
+      "id": 130210,
+      "name": "Real Ariquemes"
+    },
+    {
+      "id": 130211,
+      "name": "Ivinhema-MS"
+    },
+    {
+      "id": 130212,
+      "name": "Cabense"
+    },
+    {
+      "id": 130213,
+      "name": "Sete de Setembro"
+    },
+    {
+      "id": 130214,
+      "name": "Cacerense"
+    },
+    {
+      "id": 130215,
+      "name": "Humaitá"
+    },
+    {
+      "id": 130216,
+      "name": "Vasco-AC"
+    },
+    {
+      "id": 130218,
+      "name": "Tocantins"
+    },
+    {
+      "id": 130219,
+      "name": "Ypiranga-PE"
+    },
+    {
+      "id": 130220,
+      "name": "Jaguar"
+    },
+    {
+      "id": 130230,
+      "name": "Metropolitano-SP"
+    },
+    {
+      "id": 130232,
+      "name": "Ji-Paraná"
+    },
+    {
+      "id": 130234,
+      "name": "Várzea Paulista"
+    },
+    {
+      "id": 130240,
+      "name": "Fernandópolis"
+    },
+    {
+      "id": 130241,
+      "name": "Água Santa"
+    },
+    {
+      "id": 130242,
+      "name": "Porto-PE"
+    },
+    {
+      "id": 130245,
+      "name": "Jataiense"
+    },
+    {
+      "id": 130246,
+      "name": "Esportivo-RS"
+    },
+    {
+      "id": 130247,
+      "name": "Francana-SP"
+    },
+    {
+      "id": 130248,
+      "name": "Fifa Friends Team"
+    },
+    {
+      "id": 130250,
+      "name": "Itacotiara"
+    },
+    {
+      "id": 130251,
+      "name": "Barcelona F.C."
+    },
+    {
+      "id": 130252,
+      "name": "Brasil de Farroupilha"
+    },
+    {
+      "id": 130253,
+      "name": "Clube Atlético Cristal"
+    },
+    {
+      "id": 130254,
+      "name": "E.C. Macapá"
+    },
+    {
+      "id": 130255,
+      "name": "São José-AP"
+    },
+    {
+      "id": 130256,
+      "name": "Guaporé F.C."
+    },
+    {
+      "id": 130259,
+      "name": "Santa Cruz E.C."
+    },
+    {
+      "id": 130260,
+      "name": "CEFA Tirol"
+    },
+    {
+      "id": 130261,
+      "name": "Crateús"
+    },
+    {
+      "id": 130262,
+      "name": "Legião-DF"
+    },
+    {
+      "id": 130263,
+      "name": "Formosa"
+    },
+    {
+      "id": 130264,
+      "name": "América-PE"
+    },
+    {
+      "id": 130265,
+      "name": "Estrela do Norte"
+    },
+    {
+      "id": 130266,
+      "name": "Real Noroeste"
+    },
+    {
+      "id": 130267,
+      "name": "Rio Branco VN"
+    },
+    {
+      "id": 130268,
+      "name": "Náutico-RR"
+    },
+    {
+      "id": 130269,
+      "name": "Queimadense"
+    },
+    {
+      "id": 130270,
+      "name": "Maricá"
+    },
+    {
+      "id": 130274,
+      "name": "Santo Ângelo-RS"
+    },
+    {
+      "id": 130277,
+      "name": "Blumenau"
+    },
+    {
+      "id": 130278,
+      "name": "Caucaia EC"
+    },
+    {
+      "id": 130279,
+      "name": "Alecrim-RN"
+    },
+    {
+      "id": 130280,
+      "name": "ASSU-RN"
+    },
+    {
+      "id": 130281,
+      "name": "Laguna-RN"
+    },
+    {
+      "id": 130282,
+      "name": "Icasa"
+    },
+    {
+      "id": 130283,
+      "name": "Iranduba FC"
+    },
+    {
+      "id": 130284,
+      "name": "Penarol-AM"
+    },
+    {
+      "id": 130285,
+      "name": "Amazonas FC"
+    },
+    {
+      "id": 130286,
+      "name": "Retrô FC"
+    },
+    {
+      "id": 130287,
+      "name": "São Paulo Crystal"
+    },
+    {
+      "id": 130288,
+      "name": "Corisabbá"
+    },
+    {
+      "id": 130289,
+      "name": "Ipatinga FC"
+    },
+    {
+      "id": 130290,
+      "name": "SKA Brasil"
+    },
+    {
+      "id": 130291,
+      "name": "São Vicente"
+    },
+    {
+      "id": 130292,
+      "name": "Mauá F.C."
+    },
+    {
+      "id": 130293,
+      "name": "A.D. Guarujá"
+    },
+    {
+      "id": 130294,
+      "name": "XV de Jaú"
+    },
+    {
+      "id": 130295,
+      "name": "União São João"
+    },
+    {
+      "id": 130296,
+      "name": "União Suzano"
+    },
+    {
+      "id": 130297,
+      "name": "Pinheiros-ES"
+    },
+    {
+      "id": 130298,
+      "name": "Izabelense"
+    },
+    {
+      "id": 130300,
+      "name": "Fluminense-PI"
+    },
+    {
+      "id": 130301,
+      "name": "Decisão Futebol Clube"
+    },
+    {
+      "id": 130302,
+      "name": "Nova Mutum"
+    },
+    {
+      "id": 130303,
+      "name": "GE Bagé"
+    },
+    {
+      "id": 130304,
+      "name": "São José de Ribamar"
+    },
+    {
+      "id": 130305,
+      "name": "Pinheiro A.C."
+    },
+    {
+      "id": 130306,
+      "name": "Juventude-MA"
+    },
+    {
+      "id": 130307,
+      "name": "Ranchariense"
+    },
+    {
+      "id": 130308,
+      "name": "União Beltrão-PR"
+    },
+    {
+      "id": 130309,
+      "name": "Maruinense"
+    },
+    {
+      "id": 130310,
+      "name": "Parauapebas"
+    },
+    {
+      "id": 130311,
+      "name": "Lagarto-SE"
+    },
+    {
+      "id": 130312,
+      "name": "América Propriá"
+    },
+    {
+      "id": 130313,
+      "name": "Atlético Gloriense"
+    },
+    {
+      "id": 130314,
+      "name": "Grêmio Prudente"
+    },
+    {
+      "id": 130315,
+      "name": "Flamengo de Guarulhos"
+    },
+    {
+      "id": 130316,
+      "name": "A.D. Guarulhos"
+    },
+    {
+      "id": 130317,
+      "name": "VOCEM"
+    },
+    {
+      "id": 130318,
+      "name": "Itaperuna"
+    },
+    {
+      "id": 130319,
+      "name": "Foz do Iguaçu"
+    },
+    {
+      "id": 130320,
+      "name": "América T.O."
+    },
+    {
+      "id": 130321,
+      "name": "Mineiros-GO"
+    },
+    {
+      "id": 130322,
+      "name": "AD Iguatu"
+    },
+    {
+      "id": 130324,
+      "name": "Paranavaí"
+    },
+    {
+      "id": 130325,
+      "name": "Itabuna"
+    },
+    {
+      "id": 130326,
+      "name": "Barra-SC"
+    },
+    {
+      "id": 130327,
+      "name": "Tuntum-MA"
+    },
+    {
+      "id": 130328,
+      "name": "Cordino-MA"
+    },
+    {
+      "id": 130329,
+      "name": "Morrinhos-GO"
+    },
+    {
+      "id": 130330,
+      "name": "Oeirense-PI"
+    },
+    {
+      "id": 130331,
+      "name": "Manauara EC"
+    },
+    {
+      "id": 130332,
+      "name": "Operário-MS"
+    },
+    {
+      "id": 130333,
+      "name": "Operário-AM"
+    },
+    {
+      "id": 130334,
+      "name": "Caeté"
+    },
+    {
+      "id": 130335,
+      "name": "Cruzeiro-RS"
+    },
+    {
+      "id": 130336,
+      "name": "Oratório-AP"
+    },
+    {
+      "id": 130337,
+      "name": "Monte Roraima"
+    },
+    {
+      "id": 130338,
+      "name": "Santa Rosa"
+    },
+    {
+      "id": 130339,
+      "name": "Ceilandense"
+    },
+    {
+      "id": 130340,
+      "name": "Paranoá-DF"
+    },
+    {
+      "id": 130341,
+      "name": "Estanciano"
+    },
+    {
+      "id": 130342,
+      "name": "Andraus"
+    },
+    {
+      "id": 130343,
+      "name": "Falcon-SE"
+    },
+    {
+      "id": 130344,
+      "name": "Ferroviário-PI"
+    },
+    {
+      "id": 130345,
+      "name": "Chapadinha"
+    },
+    {
+      "id": 130346,
+      "name": "Paritins FC"
+    },
+    {
+      "id": 130347,
+      "name": "Avenida-RS"
+    },
+    {
+      "id": 130348,
+      "name": "Barbalha"
+    },
+    {
+      "id": 130349,
+      "name": "Serra Branca"
+    },
+    {
+      "id": 130350,
+      "name": "Guarani de Juazeiro"
+    },
+    {
+      "id": 130354,
+      "name": "Confiança de Sapé"
+    },
+    {
+      "id": 130355,
+      "name": "Santacruzense"
+    },
+    {
+      "id": 130356,
+      "name": "Tanabi E.C."
+    },
+    {
+      "id": 130357,
+      "name": "Tupã Futebol Clube"
+    },
+    {
+      "id": 130358,
+      "name": "Taquaritinga"
+    },
+    {
+      "id": 130359,
+      "name": "São Carlos Futebol Clube"
+    },
+    {
+      "id": 130360,
+      "name": "Amparo Athlético Club"
+    },
+    {
+      "id": 130361,
+      "name": "Colorado Caieiras"
+    },
+    {
+      "id": 130362,
+      "name": "Capixaba"
+    },
+    {
+      "id": 130363,
+      "name": "Jacareí Futebol Clube"
+    },
+    {
+      "id": 130364,
+      "name": "Assisense"
+    },
+    {
+      "id": 130365,
+      "name": "ECUS Suzano"
+    },
+    {
+      "id": 130366,
+      "name": "Grêmio Mauaense"
+    },
+    {
+      "id": 130367,
+      "name": "Cametá"
+    },
+    {
+      "id": 130368,
+      "name": "Goiatuba"
+    },
+    {
+      "id": 130372,
+      "name": "Vênus-PA"
+    },
+    {
+      "id": 130377,
+      "name": "Itabirito F.C."
+    },
+    {
+      "id": 130378,
+      "name": "SSA FC"
+    },
+    {
+      "id": 130379,
+      "name": "Grapiúna AC"
+    },
+    {
+      "id": 130380,
+      "name": "Colo-Colo FR"
+    },
+    {
+      "id": 130381,
+      "name": "A.D. Leônico"
+    },
+    {
+      "id": 130382,
+      "name": "Artsul F.C."
+    },
+    {
+      "id": 130383,
+      "name": "Ypiranga-BA"
+    },
+    {
+      "id": 130384,
+      "name": "S.C. Aymorés"
+    },
+    {
+      "id": 130385,
+      "name": "North-MG"
+    },
+    {
+      "id": 130386,
+      "name": "Nacional Muriaé"
+    },
+    {
+      "id": 130387,
+      "name": "Betim Futebol"
+    },
+    {
+      "id": 130388,
+      "name": "Athletic SJR-MG"
+    },
+    {
+      "id": 130389,
+      "name": "União Luziense"
+    },
+    {
+      "id": 130390,
+      "name": "Varginha E.C."
+    },
+    {
+      "id": 130391,
+      "name": "Independente-AP"
+    },
+    {
+      "id": 130392,
+      "name": "Glória de Vacaria"
+    },
+    {
+      "id": 130396,
+      "name": "Atlético Cearense"
+    },
+    {
+      "id": 130397,
+      "name": "Catanduvense"
+    },
+    {
+      "id": 130403,
+      "name": "Araçatuba"
+    },
+    {
+      "id": 130406,
+      "name": "Anapolina"
+    },
+    {
+      "id": 130407,
+      "name": "Grêmio Barueri"
+    },
+    {
+      "id": 130412,
+      "name": "Maranguape"
+    },
+    {
+      "id": 130413,
+      "name": "Quixadá Futebol Clube"
+    },
+    {
+      "id": 130414,
+      "name": "Brasília F.C."
+    },
+    {
+      "id": 130415,
+      "name": "ARUC-DF"
+    },
+    {
+      "id": 130416,
+      "name": "União Cacoalense"
+    },
+    {
+      "id": 130417,
+      "name": "Forte Futebol Clube"
+    },
+    {
+      "id": 130418,
+      "name": "Luminense A.C."
+    },
+    {
+      "id": 130419,
+      "name": "Galo Maringá"
+    },
+    {
+      "id": 130420,
+      "name": "Valeriodoce Esporte Clube"
+    },
+    {
+      "id": 130421,
+      "name": "Teresina Esporte Clube"
+    },
+    {
+      "id": 130422,
+      "name": "Várzea Grande"
+    },
+    {
+      "id": 130423,
+      "name": "Centro-Oeste SAF"
+    },
+    {
+      "id": 130425,
+      "name": "Carlos Renaux"
+    },
+    {
+      "id": 130426,
+      "name": "ITZ Sport"
+    },
+    {
+      "id": 130427,
+      "name": "Chapada F.C."
+    },
+    {
+      "id": 130428,
+      "name": "Bataguassú"
+    },
+    {
+      "id": 130429,
+      "name": "Águia Negra-MS"
+    },
+    {
+      "id": 130430,
+      "name": "CR Aquidauana"
+    },
+    {
+      "id": 130431,
+      "name": "Corumbaense"
+    },
+    {
+      "id": 130432,
+      "name": "Amazônia Independente"
+    },
+    {
+      "id": 130433,
+      "name": "São Francisco-AC"
+    },
+    {
+      "id": 130434,
+      "name": "Atlético Progresso"
+    },
+    {
+      "id": 130435,
+      "name": "Atlético Roraima"
+    },
+    {
+      "id": 130436,
+      "name": "Quinho F.C."
+    },
+    {
+      "id": 130437,
+      "name": "Batalhão Futebol Clube"
+    },
+    {
+      "id": 130438,
+      "name": "Bela Vista Futebol Clube"
+    },
+    {
+      "id": 130439,
+      "name": "Capital Futebol Clube"
+    },
+    {
+      "id": 130440,
+      "name": "Desportiva Aracajú"
+    },
+    {
+      "id": 130441,
+      "name": "Dorense Futebol Clube"
+    },
+    {
+      "id": 130442,
+      "name": "Associação Atlética Guarany"
+    },
+    {
+      "id": 130443,
+      "name": "Flamengo-PI"
+    },
+    {
+      "id": 130445,
+      "name": "E.C. Rio Verde"
+    },
+    {
+      "id": 130448,
+      "name": "Araguaína"
+    },
+    {
+      "id": 130460,
+      "name": "São Paulo-RS"
+    },
+    {
+      "id": 130461,
+      "name": "Itapipoca"
+    },
+    {
+      "id": 130462,
+      "name": "Cariri"
+    },
+    {
+      "id": 130463,
+      "name": "ESMAC"
+    },
+    {
+      "id": 130464,
+      "name": "Novo Esporte"
+    },
+    {
+      "id": 130465,
+      "name": "Caravaggio"
+    },
+    {
+      "id": 130466,
+      "name": "Guarani-SC"
+    },
+    {
+      "id": 130467,
+      "name": "Fluminense-SC"
+    },
+    {
+      "id": 130468,
+      "name": "Patriotas"
+    },
+    {
+      "id": 130469,
+      "name": "Araucária"
+    },
+    {
+      "id": 130470,
+      "name": "Nacional-PR"
+    },
+    {
+      "id": 130549,
+      "name": "Monsoon"
+    },
+    {
+      "id": 130614,
+      "name": "CSE-AL"
+    },
+    {
+      "id": 130615,
+      "name": "Santana-AP"
+    },
+    {
+      "id": 130616,
+      "name": "Sport Sinop"
+    },
+    {
+      "id": 130623,
+      "name": "G.A. Sampaio"
+    },
+    {
+      "id": 130624,
+      "name": "Rio Negro-RR"
+    },
+    {
+      "id": 130626,
+      "name": "Rio Negro-AM"
+    },
+    {
+      "id": 130627,
+      "name": "Costa Rica-MS"
+    },
+    {
+      "id": 130901,
+      "name": "Fast Club"
+    },
+    {
+      "id": 131000,
+      "name": "Porto Sport Club"
+    }
+  ]
+}
