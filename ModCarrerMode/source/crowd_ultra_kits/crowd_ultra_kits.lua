@@ -14,6 +14,13 @@ if Crowd3dAssetBind ~= FIFA16_ULTRA_KITS_BIND_WRAPPER then
                "data/sceneassets/kit/kit_"..team.."_0_0.rx3;"
     end
 
+    function FIFA16UltraGoalkeeperKit(idx, side)
+        local c = db.crowd[idx]
+        local team = side == 1 and c.homeKitTeamID or c.awayKitTeamID
+        return "data/sceneassets/kit/kit_"..team.."_2_0.rx3;"..
+               "data/sceneassets/kit/kit_"..team.."_0_0.rx3;"
+    end
+
     function GetRMCrowdShirt(idx, side, character)
         local c = db.crowd[idx]
         local team = side == 1 and c.homeKitTeamID or c.awayKitTeamID
@@ -34,6 +41,8 @@ if Crowd3dAssetBind ~= FIFA16_ULTRA_KITS_BIND_WRAPPER then
         local result = originalBind(crowd)
         gRenderables:AddAsset(crowd, 0, "ultra_kit3_home", "${FIFA16UltraThirdKit(?,1)}", 2)
         gRenderables:AddAsset(crowd, 0, "ultra_kit3_away", "${FIFA16UltraThirdKit(?,2)}", 2)
+        gRenderables:AddAsset(crowd, 0, "ultra_gk_home", "${FIFA16UltraGoalkeeperKit(?,1)}", 2)
+        gRenderables:AddAsset(crowd, 0, "ultra_gk_away", "${FIFA16UltraGoalkeeperKit(?,2)}", 2)
         return result
     end
     FIFA16_ULTRA_KITS_BIND_WRAPPER = Crowd3dAssetBind

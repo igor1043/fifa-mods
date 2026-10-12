@@ -61,7 +61,7 @@ static void __fastcall crowd_bind_hook(const char* name, const char* format, voi
     // Same thread and lock discipline as the engine's Crowd3dAssetBind call.
     ((RunLua)(image + 0x4ac35e0))(payload, payloadSize, "crowd_ultra_kits_v1");
     ((BindLua)(image + 0x4ac3460))(name, format, object);
-    log_event("crowd_asset_bind registered primary=0 secondary=1 third=3 fallback=0");
+    log_event("crowd_asset_bind registered primary=0 secondary=1 third=3 goalkeeper=2 fallback=0");
 }
 
 static void remap_instances(void* object) {
@@ -93,6 +93,7 @@ struct JerseyContext {
     bool active;
     uintptr_t meshes, textures;
     void* third[2];
+    void* goalkeeper[2];
 };
 static thread_local JerseyContext jerseyContext{};
 
@@ -108,11 +109,13 @@ static void* resolve_third_texture(void* renderer, const char* name) {
 
 static void __fastcall jersey_batch_hook(void* renderer, int group, void* meshes, void* textures, void* effect, uintptr_t opaque) {
     const JerseyContext previous = jerseyContext;
-    jerseyContext = {true, (uintptr_t)meshes, (uintptr_t)textures, {nullptr, nullptr}};
+    jerseyContext = {true, (uintptr_t)meshes, (uintptr_t)textures, {nullptr, nullptr}, {nullptr, nullptr}};
     __try {
         jerseyContext.third[0] = resolve_third_texture(renderer, "ultra_kit3_home");
         jerseyContext.third[1] = resolve_third_texture(renderer, "ultra_kit3_away");
-    } __except (EXCEPTION_EXECUTE_HANDLER) { jerseyContext.third[0] = jerseyContext.third[1] = nullptr; }
+        jerseyContext.goalkeeper[0] = resolve_third_texture(renderer, "ultra_gk_home");
+        jerseyContext.goalkeeper[1] = resolve_third_texture(renderer, "ultra_gk_away");
+    } __except (EXCEPTION_EXECUTE_HANDLER) { jerseyContext.third[0] = jerseyContext.third[1] = nullptr; jerseyContext.goalkeeper[0] = jerseyContext.goalkeeper[1] = nullptr; }
     ((DrawBatch)(image + 0x5cbc310))(renderer, group, meshes, textures, effect, opaque);
     jerseyContext = previous;
 }
@@ -124,18 +127,29 @@ static void __fastcall draw_instances_hook(void* mesh, void* buffer, void* effec
         ((DrawInstances)(image + 0x5cc36e0))(mesh, buffer, effect, first, count, pass); return;
     }
     const unsigned variant = (unsigned)((address - jerseyContext.meshes) / 8 / 5);
-    const unsigned thirdCount = variant >= 2 ? ultra_third_count(count, config) : 0;
+    unsigned thirdCount = variant >= 2 ? ultra_third_count(count, config) : 0;
+    unsigned goalkeeperCount = variant >= 2 ? ultra_goalkeeper_count(count, config) : 0;
+    if (thirdCount > count) thirdCount = count;
+    if (goalkeeperCount > count - thirdCount) goalkeeperCount = count - thirdCount;
     void* third = jerseyContext.third[variant & 1U];
+    void* goalkeeper = jerseyContext.goalkeeper[variant & 1U];
     uintptr_t original = 0;
-    if (!thirdCount || !third || !read(jerseyContext.textures + variant * 40, original) || !original) {
+    if ((!thirdCount && !goalkeeperCount) || !read(jerseyContext.textures + variant * 40, original) || !original) {
         ((DrawInstances)(image + 0x5cc36e0))(mesh, buffer, effect, first, count, pass); return;
     }
-    const unsigned secondCount = count - thirdCount;
+    const unsigned secondCount = count - thirdCount - goalkeeperCount;
     if (secondCount) ((DrawInstances)(image + 0x5cc36e0))(mesh, buffer, effect, first, secondCount, pass);
-    ((BindTexture)(image + 0x4acdd30))(effect, "textures", "diffuseTexture", third);
-    ((DrawInstances)(image + 0x5cc36e0))(mesh, buffer, effect, first + secondCount, thirdCount, pass);
+    if (thirdCount) {
+        ((BindTexture)(image + 0x4acdd30))(effect, "textures", "diffuseTexture", third ? third : (void*)original);
+        ((DrawInstances)(image + 0x5cc36e0))(mesh, buffer, effect, first + secondCount, thirdCount, pass);
+    }
+    if (goalkeeperCount) {
+        ((BindTexture)(image + 0x4acdd30))(effect, "textures", "diffuseTexture", goalkeeper ? goalkeeper : (void*)original);
+        ((DrawInstances)(image + 0x5cc36e0))(mesh, buffer, effect, first + secondCount + thirdCount, goalkeeperCount, pass);
+    }
     ((BindTexture)(image + 0x4acdd30))(effect, "textures", "diffuseTexture", (void*)original);
-    if (InterlockedIncrement(&drawReports) <= 8) log_event("third_kit_draw variant=%u instances=%u kit2=%u kit3_or_primary_fallback=%u", variant, count, secondCount, thirdCount);
+    if (InterlockedIncrement(&drawReports) <= 8) log_event("kit_variation_draw variant=%u instances=%u kit2=%u kit3=%u goalkeeper=%u third_resolved=%u goalkeeper_resolved=%u", variant, count, secondCount, thirdCount, goalkeeperCount, third ? 1U : 0U, goalkeeper ? 1U : 0U);
+
 }
 
 struct CallHook { uintptr_t rva, target; void* replacement; unsigned char expected[16]; };
@@ -230,7 +244,7 @@ static DWORD WINAPI worker(void*) {
             FlushInstructionCache(GetCurrentProcess(), relay, 4096);
         }
         if (install_hooks(relay)) {
-            log_event("installed version=1 replace_percent=%u kit1=%u kit2=%u kit3=%u native_ultra_instances=1 seat_state_preserved=1 third_kit_type=3 split_instanced_draw=1", config.replacePercent, config.kit1Percent, config.kit2Percent, config.kit3Percent);
+            log_event("installed version=2 replace_percent=%u kit1=%u kit2=%u kit3=%u goalkeeper=%u native_ultra_instances=1 seat_state_preserved=1 third_kit_type=3 split_instanced_draw=1", config.replacePercent, config.kit1Percent, config.kit2Percent, config.kit3Percent, config.goalkeeperPercent);
             return 0;
         }
         Sleep(100);
@@ -249,12 +263,13 @@ extern "C" __declspec(dllexport) BOOL WINAPI Fifa16ModStart(const char* modsRoot
     _snprintf_s(logPath, sizeof(logPath), _TRUNCATE, "%s\\crowd_ultra_kits.log", logs);
     _snprintf_s(ini, sizeof(ini), _TRUNCATE, "%s\\crowd_ultra_kits\\crowd_ultra_kits.ini", modsRoot);
     if (!GetPrivateProfileIntA("crowd_ultra_kits", "enabled", 1, ini)) { log_event("disabled_by_ini"); return TRUE; }
-    config.replacePercent = GetPrivateProfileIntA("crowd_ultra_kits", "replace_percent", 100, ini);
-    config.kit1Percent = GetPrivateProfileIntA("crowd_ultra_kits", "kit1_percent", 85, ini);
-    config.kit2Percent = GetPrivateProfileIntA("crowd_ultra_kits", "kit2_percent", 10, ini);
-    config.kit3Percent = GetPrivateProfileIntA("crowd_ultra_kits", "kit3_percent", 5, ini);
-    if (config.replacePercent > 100 || config.kit1Percent > 100 || config.kit2Percent > 100 || config.kit3Percent > 100 ||
-        config.kit1Percent + config.kit2Percent + config.kit3Percent != 100) { config = UltraConfig{}; log_event("invalid_ini defaults_restored"); }
+    config.replacePercent = GetPrivateProfileIntA("crowd_ultra_kits", "replace_percent", 96, ini);
+    config.kit1Percent = GetPrivateProfileIntA("crowd_ultra_kits", "kit1_percent", 88, ini);
+    config.kit2Percent = GetPrivateProfileIntA("crowd_ultra_kits", "kit2_percent", 8, ini);
+    config.kit3Percent = GetPrivateProfileIntA("crowd_ultra_kits", "kit3_percent", 3, ini);
+    config.goalkeeperPercent = GetPrivateProfileIntA("crowd_ultra_kits", "goalkeeper_percent", 1, ini);
+    if (config.replacePercent > 100 || config.kit1Percent > 100 || config.kit2Percent > 100 || config.kit3Percent > 100 || config.goalkeeperPercent > 100 ||
+        config.kit1Percent + config.kit2Percent + config.kit3Percent + config.goalkeeperPercent != 100) { config = UltraConfig{}; log_event("invalid_ini defaults_restored"); }
     HRSRC resource = FindResourceW(ownModule, MAKEINTRESOURCEW(101), MAKEINTRESOURCEW(10));
     if (!resource) return FALSE;
     payloadSize = SizeofResource(ownModule, resource);

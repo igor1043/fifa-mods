@@ -2,10 +2,11 @@
 #include <stdint.h>
 
 struct UltraConfig {
-    unsigned replacePercent = 100;
-    unsigned kit1Percent = 85;
-    unsigned kit2Percent = 10;
-    unsigned kit3Percent = 5;
+    unsigned replacePercent = 96;
+    unsigned kit1Percent = 88;
+    unsigned kit2Percent = 8;
+    unsigned kit3Percent = 3;
+    unsigned goalkeeperPercent = 1;
 };
 
 static inline uint32_t ultra_hash(uint32_t value) {
@@ -27,6 +28,11 @@ static inline uint32_t ultra_flags(uint32_t flags, uint32_t index, const UltraCo
 }
 
 static inline unsigned ultra_third_count(unsigned count, const UltraConfig& config) {
-    const unsigned secondary = config.kit2Percent + config.kit3Percent;
+    const unsigned secondary = config.kit2Percent + config.kit3Percent + config.goalkeeperPercent;
     return secondary ? (unsigned)(((uint64_t)count * config.kit3Percent + secondary / 2U) / secondary) : 0U;
+}
+
+static inline unsigned ultra_goalkeeper_count(unsigned count, const UltraConfig& config) {
+    const unsigned secondary = config.kit2Percent + config.kit3Percent + config.goalkeeperPercent;
+    return secondary ? (unsigned)(((uint64_t)count * config.goalkeeperPercent + secondary / 2U) / secondary) : 0U;
 }
