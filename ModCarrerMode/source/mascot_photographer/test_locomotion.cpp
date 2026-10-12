@@ -77,6 +77,7 @@ int wmain(int argc,wchar_t** argv) {
         if(!mascot_skin_prepare(modelInverse,rendererInverse,skinBinding))return 43;
         memcpy(mascotBindPose,skinBinding.modelBind,sizeof(mascotBindPose));
         float maxUncorrectedError=0;
+        static MascotReplayHistory assetReplay;
         for(const auto& clip:mascotGoalClips)for(unsigned int frameIndex=0;frameIndex<clip.count;++frameIndex) {
             float sampled[31*7],modelPose[31][16],palette[31][16];
             mascot_sample_baked_clip(clip.frames,clip.times,clip.count,clip.duration,clip.times[frameIndex],sampled);
@@ -84,6 +85,18 @@ int wmain(int argc,wchar_t** argv) {
             mascot_orient_pose(modelPose,.71f);
             for(unsigned int bone=0;bone<31;++bone)modelPose[bone][13]+=12;
             if(!mascot_skin_palette(skinBinding,modelPose,palette))return 44;
+            // Exercise the real replay encoder on every mascot bind, after
+            // actor yaw and lift. Replaying a pose must retain its asset-space
+            // orientation; shared human bind proportions are not assumed.
+            assetReplay.reset(club,1);
+            const float recordedPosition[3]={5850,0,3150};
+            assetReplay.record(10,1000,recordedPosition,modelPose,3,clip.nativeClip);
+            float replayPosition[3],replayPose[31][16],replayPalette[31][16];
+            int replayKind=0,replayClip=-1;bool replayClamped=false;
+            if(!assetReplay.sample(10,replayPosition,replayPose,replayKind,replayClip,replayClamped) ||
+               replayClamped || replayKind!=3 || replayClip!=clip.nativeClip ||
+               memcmp(replayPosition,recordedPosition,sizeof(replayPosition)) ||
+               !mascot_skin_palette(skinBinding,replayPose,replayPalette))return 50;
             for(unsigned int bone=0;bone<31;++bone) {
                 float gpu[16],expected[16],wrong[16];
                 mascot_skin_multiply(palette[bone],rendererInverse[bone],gpu);
@@ -91,6 +104,8 @@ int wmain(int argc,wchar_t** argv) {
                 mascot_skin_multiply(modelPose[bone],rendererInverse[bone],wrong);
                 for(unsigned int element=0;element<16;++element) {
                     if(fabsf(gpu[element]-expected[element])>.002f)return 45;
+                    if(fabsf(replayPose[bone][element]-modelPose[bone][element])>.002f ||
+                       fabsf(replayPalette[bone][element]-palette[bone][element])>.002f)return 51;
                     maxUncorrectedError=fmaxf(maxUncorrectedError,fabsf(wrong[element]-expected[element]));
                 }
             }
@@ -101,6 +116,7 @@ int wmain(int argc,wchar_t** argv) {
         if(bindDifference>1 && maxUncorrectedError<1)return 46;
         if(bindDifference<.001f && maxUncorrectedError>.002f)return 47;
         printf("PASS club=%d actual RX3/captured renderer bind compensation: six goal clips, actor rotation and lift; uncompensated error=%.3f\n",club,maxUncorrectedError);
+        printf("PASS club=%d replay palette: six goal clips retain asset orientation, yaw and lift\n",club);
         mascot_load_foot_markers(club);if(!mascotFootMarkersReady)return 4;
         if(check_pose_library(&mascotIdleFrames[0][0],mascotIdleTimes,mascotIdleFrameCount,mascotIdleDuration) ||
            check_pose_library(&mascotCheerFrames[0][0],mascotCheerTimes,mascotCheerFrameCount,mascotCheerDuration) ||

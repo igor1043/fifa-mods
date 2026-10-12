@@ -13,15 +13,25 @@ foreach ($relative in @('dinput8.dll','dinput8_orig.dll','dinput8_L9.ini','dinpu
 }
 $entries = @(Get-Content -LiteralPath (Join-Path $mods 'enabled.txt') | ForEach-Object { $_.Trim() } | Where-Object { $_ -and -not $_.StartsWith('#') })
 $seen = @{}
+$enabledModules = @{}
 foreach ($entry in $entries) {
     $target = [IO.Path]::GetFullPath((Join-Path $mods $entry))
     if (-not $target.StartsWith($mods+'\',[StringComparison]::OrdinalIgnoreCase) -or [IO.Path]::GetExtension($target) -ne '.dll') { throw "Entrada de plugin invalida: $entry" }
     if ($seen.ContainsKey($target)) { throw "Plugin duplicado: $entry" }
     $seen[$target] = $true
     if (-not (Test-Path -LiteralPath $target -PathType Leaf)) { throw "DLL habilitada ausente: $entry" }
+    $module = ($entry -split '[\\/]')[0]
+    if ($enabledModules.ContainsKey($module)) { throw "Mais de uma DLL habilitada no mod: $module" }
+    $enabledModules[$module] = $true
 }
-foreach ($pattern in @('^mascot_single[\\/]','^kickoff_modern(?:_v\d+)?[\\/]')) {
-    if (@($entries | Where-Object { $_ -match $pattern }).Count -gt 1) { throw 'Mais de uma DLL de mascote ou kickoff habilitada.' }
+# Check disabled files too: ignoring them in enabled.txt does not remove them
+# from the downloaded package or from a subsequent installation.
+foreach ($file in Get-ChildItem -LiteralPath $mods -Recurse -File) {
+    if ($file.Extension -eq '.bak' -or $file.Name -match '_v\d+\.dll$') { throw "Revisao antiga/backup na pasta de mods: $($file.FullName)" }
+}
+foreach ($directory in Get-ChildItem -LiteralPath $mods -Directory) {
+    if ($directory.Name -match '_v\d+$') { throw "Pasta de mod versionada: $($directory.Name)" }
+    if (@(Get-ChildItem -LiteralPath $directory.FullName -Recurse -File -Filter '*.dll').Count -gt 1) { throw "Mais de uma DLL no pacote do mod: $($directory.Name)" }
 }
 if (@($entries | Where-Object { $_ -match '^mascot_single[\\/]' }).Count) {
     Require-File 'ModCarrerMode\config\match_presentation.ini'

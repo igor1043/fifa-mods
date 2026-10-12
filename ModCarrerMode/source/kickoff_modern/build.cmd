@@ -8,7 +8,10 @@ cl /nologo /std:c11 /W4 /WX /O2 /MT test_kickoff_spacing.c /Fobuild\ /Febuild\te
 if errorlevel 1 exit /b 1
 build\test_kickoff_spacing.exe
 if errorlevel 1 exit /b 1
-cl /nologo /std:c11 /W4 /WX /O2 /MT /LD kickoff_modern_v7.c /Fobuild\ /Febuild\kickoff_modern_v7.dll /link /NOLOGO
+cl /nologo /std:c11 /W4 /WX /O2 /MT /LD kickoff_modern.c /Fobuild\ /Febuild\kickoff_modern.dll /link /NOLOGO
 if errorlevel 1 exit /b 1
 popd
+if not exist "%~dp0..\..\mods\kickoff_modern" mkdir "%~dp0..\..\mods\kickoff_modern"
+copy /y "%~dp0build\kickoff_modern.dll" "%~dp0..\..\mods\kickoff_modern\kickoff_modern.dll" >nul
+if errorlevel 1 exit /b 1
 endlocal

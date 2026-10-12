@@ -10,12 +10,12 @@ A posição atrás da bola e a direção para a defesa são mantidas pelos coman
 
 ## Compilação e instalação
 
-Execute `build.cmd` com o MSVC x64 Build Tools instalado. O script compila com C11, `/W4 /WX /O2 /MT`, executa os testes e publica a DLL em `ModCarrerMode/mods/kickoff_modern_v20/`. Ajuste o caminho de `vcvars64.bat` no script caso sua instalação do compilador seja diferente.
+Execute `build.cmd` com o MSVC x64 Build Tools instalado. O script compila com C11, `/W4 /WX /O2 /MT`, executa os testes e publica a DLL em `ModCarrerMode/mods/kickoff_modern/`. Ajuste o caminho de `vcvars64.bat` no script caso sua instalação do compilador seja diferente.
 
 Copie essa pasta para `ModCarrerMode/mods/` do jogo e mantenha uma única entrada de saída de bola em `mods/enabled.txt`:
 
 ```text
-kickoff_modern_v20\kickoff_modern_v20.dll
+kickoff_modern\kickoff_modern.dll
 ```
 
 O loader aplica o mod automaticamente ao iniciar o jogo. O executável permanece intacto. O código verifica a versão do executável e os bytes originais antes de instalar os hooks; não force a instalação em outra versão. Para desativar, comente a entrada e reinicie o jogo.

@@ -1,36 +1,15 @@
-# Each non-comment line is a plugin path relative to this folder.
-
-# The original DLL loader remains installed; this file is reversible.
+# Uma DLL atual por mod, relativa a esta pasta.
+# Reinicie o FIFA apos alterar esta lista.
 
 crowd\crowd_plugin.dll
-
 career_birthdate_2006\birthyear_range_2006_2012.dll
-
 substitution_all7_rulescan_native\substitution_all7_rulescan_native.dll
-
-# Bench expansion candidate: native player preparation, not extra permitted substitutions.
-
 bench_native12\bench_native12.dll
-
-# One mascot recessed behind the goal-line boards; native idle and home-goal cheer.
-
 mascot_single\mascot_goal_line.dll
-
-# Experimental tournament reload: unique root mask, revision 3.
-
 tournament_compat_native\tournament_compat_native.dll
-
-# Career preseason icons and missing goalkeeper thumbnails.
-
 career_ui_assets\career_ui_assets.dll
-
-# Modern kickoff v20: behind-ball first touch toward defence, softer backward pass.
-kickoff_modern_v20\kickoff_modern_v20.dll
-
-# Visual spare balls: 13 static copies of the current match ball, no physics.
-
-multiball_visual\multiball_visual_v16.dll
+kickoff_modern\kickoff_modern.dll
+multiball_visual\multiball_visual.dll
 stadium_pyrotechnics\stadium_pyrotechnics.dll
-
-# Independent crowd model and kit variation prototype.
 crowd_ultra_kits\crowd_ultra_kits.dll
+skip_server_shutdown_notice\skip_server_shutdown_notice.dll

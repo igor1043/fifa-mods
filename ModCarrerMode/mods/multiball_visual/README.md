@@ -17,7 +17,8 @@ A API Stop restaura os callbacks anteriores; a DLL permanece fixada na memória.
 
 ## Instalação e validação
 
-`multiball_visual_v16.dll` está habilitada no jogo e na pasta de desenvolvimento.
+`multiball_visual.dll` está habilitada no jogo e na pasta de desenvolvimento.
+O arquivo contém a implementação v16; o nome fixo evita acumular revisões no pacote.
 Os binários nas duas pastas têm o mesmo SHA-256.
 Compilação `/W4 /WX` e testes passaram: distribuição, altura no chão, preservação
  dos slots originais, exclusão do menu, bola oculta e limite de slots ocupados.

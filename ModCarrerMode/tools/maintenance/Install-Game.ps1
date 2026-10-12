@@ -52,14 +52,17 @@ foreach($folder in @('config','data','mods','assets')) {
         # ModCarrerMode/assets tree that V12 archives on every installation.
         if ($file.FullName -eq $swissMemorySource) { continue }
         if ($file.Extension -in @('.md','.ps1','.example','.bak')) { continue }
-        if ($folder -eq 'mods' -and $file.FullName -match '\\kickoff_modern_v\d+\\' -and $file.Directory.Name -ne 'kickoff_modern_v20') { continue }
-        if ($folder -eq 'mods' -and $file.Name -match '^mascot_goal_line_v\d+\.dll$') { continue }
         $relative='ModCarrerMode\'+$folder+'\'+$file.FullName.Substring($base.Length+1)
         Add-File $file.FullName $relative
     }
 }
 $dataSource=Join-Path $repoSource 'data'
-foreach($file in Get-ChildItem -LiteralPath $dataSource -Recurse -File) { Add-File $file.FullName ('data\'+$file.FullName.Substring($dataSource.Length+1)) }
+$localCalendarIcons=(Join-Path $dataSource 'ui\imgAssets\careerCompetitionIcons').TrimEnd('\')+'\'
+foreach($file in Get-ChildItem -LiteralPath $dataSource -Recurse -File) {
+    # Calendar images/index are local resources; update only the lookup module.
+    if ($file.FullName.StartsWith($localCalendarIcons,[StringComparison]::OrdinalIgnoreCase)) { continue }
+    Add-File $file.FullName ('data\'+$file.FullName.Substring($dataSource.Length+1))
+}
 # Competition rules belong to this exact DLC path. Only source payload files
 # are installed; schedules and other existing DLC files remain game-owned.
 $compdataRelative = 'dlc\dlc_FootballCompEng\dlc\FootballCompEng\data\compdata'
@@ -100,10 +103,37 @@ foreach($file in $files) {
     $changes.Add($file)
 }
 $obsoletePaths = @('dinput8_career_chain.dll','ModCarrerMode\mods\bench12_global_limit_12_v2')
+# Upgrade old packages to one DLL per mod. Archive only known module folders;
+# unrelated user-installed modules remain outside this migration.
+$installedMods = Join-Path $gameMod 'mods'
+$packageMods = Join-Path $modSource 'mods'
+if (Test-Path -LiteralPath $installedMods -PathType Container) {
+    foreach ($directory in Get-ChildItem -LiteralPath $installedMods -Directory) {
+        if ($directory.Name -match '^kickoff_modern(?:_restore)?_v\d+$') {
+            $obsoletePaths += 'ModCarrerMode\mods\'+$directory.Name
+        }
+    }
+    foreach ($directory in Get-ChildItem -LiteralPath $packageMods -Directory) {
+        $installedModule = Join-Path $installedMods $directory.Name
+        if (-not (Test-Path -LiteralPath $installedModule -PathType Container)) { continue }
+        foreach ($oldFile in Get-ChildItem -LiteralPath $installedModule -Recurse -File) {
+            if ($oldFile.Extension -ne '.dll' -and $oldFile.Name -notlike '*animation_command*.txt') { continue }
+            $moduleRelative = $oldFile.FullName.Substring($installedMods.Length+1)
+            if (-not (Test-Path -LiteralPath (Join-Path $packageMods $moduleRelative) -PathType Leaf)) {
+                $obsoletePaths += 'ModCarrerMode\mods\'+$moduleRelative
+            }
+        }
+    }
+    foreach ($oldFile in Get-ChildItem -LiteralPath $installedMods -File) {
+        if ($oldFile.Extension -eq '.bak' -or $oldFile.Name -eq 'enabled_birthdate_2006.txt') {
+            $obsoletePaths += 'ModCarrerMode\mods\'+$oldFile.Name
+        }
+    }
+}
 if ($edition -eq 'v12') {
     $obsoletePaths += @('ModCarrerMode\assets','ModCarrerMode\career_operations_worker.exe','ModCarrerMode\config\ranking_overlay.ini','ModCarrerMode\ranking_overlay.ini')
 }
-$obsoletePaths = @($obsoletePaths | Where-Object { Test-Path -LiteralPath (Join-Path $game $_) })
+$obsoletePaths = @($obsoletePaths | Select-Object -Unique | Where-Object { Test-Path -LiteralPath (Join-Path $game $_) })
 if ($VerifyOnly) {
     [pscustomobject]@{Edition=$edition;DevFiles=$files.Count;Identical=$same;Preserved=$skip.Count;ToInstall=$changes.Count;ToArchive=$obsoletePaths.Count}
     $changes | Select-Object Relative

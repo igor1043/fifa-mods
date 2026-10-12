@@ -8,7 +8,10 @@ cl /nologo /std:c11 /W4 /WX /O2 /MT test_ball_layout.c /Fobuild\ /Febuild\test_b
 if not "%errorlevel%"=="0" exit /b 1
 build\test_ball_layout.exe
 if not "%errorlevel%"=="0" exit /b 1
-cl /nologo /std:c11 /W4 /WX /O2 /MT /LD multiball_visual.c /Fobuild\ /Febuild\multiball_visual_v16.dll /link /NOLOGO
+cl /nologo /std:c11 /W4 /WX /O2 /MT /LD multiball_visual.c /Fobuild\ /Febuild\multiball_visual.dll /link /NOLOGO
 if not "%errorlevel%"=="0" exit /b 1
 popd
+if not exist "%~dp0..\..\mods\multiball_visual" mkdir "%~dp0..\..\mods\multiball_visual"
+copy /y "%~dp0build\multiball_visual.dll" "%~dp0..\..\mods\multiball_visual\multiball_visual.dll" >nul
+if errorlevel 1 exit /b 1
 endlocal

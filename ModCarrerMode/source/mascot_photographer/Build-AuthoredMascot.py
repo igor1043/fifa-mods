@@ -10,10 +10,14 @@ parser.add_argument('--tools',required=True);parser.add_argument('--clips',requi
 parser.add_argument('--club-id',type=int,required=True);parser.add_argument('--club-name',required=True)
 parser.add_argument('--repair-unweighted',action='store_true',help='Fill only unweighted source vertices from three weighted neighbours within 2 cm')
 parser.add_argument('--corinthians-body-review',action='store_true',help='Reviewed Corinthians cape attachment and chest/neck separation, club 1041 only')
+parser.add_argument('--review-body-weights',action='store_true',help='Separate upper chest from neck and strengthen the authored large-head region')
 args=parser.parse_args(sys.argv[sys.argv.index('--')+1:] if '--' in sys.argv else sys.argv[1:])
 ROOT=Path(args.output);ROOT.mkdir(parents=True,exist_ok=True)
 TOOLS=Path(args.tools);SRC=Path(args.source);CLIPS=Path(args.clips)
-spec=importlib.util.spec_from_file_location('builder',TOOLS/'Build-MascotFromFbx.py');b=importlib.util.module_from_spec(spec);spec.loader.exec_module(b)
+sys.path.insert(0,str(TOOLS/'vendor/rx3tools'))
+builder_path=Path(__file__).with_name('Build-MascotFromFbx.py')
+if not builder_path.is_file():builder_path=TOOLS/'Build-MascotFromFbx.py'
+spec=importlib.util.spec_from_file_location('builder',builder_path);b=importlib.util.module_from_spec(spec);spec.loader.exec_module(b)
 vertices,indices,name,unit=b.load_source_mesh(next(SRC.glob('*.fbx')))
 mesh=next(o for o in bpy.context.scene.objects if o.type=='MESH')
 arm=next(o for o in bpy.context.scene.objects if o.type=='ARMATURE')
@@ -44,6 +48,7 @@ kd=KDTree(len(mesh.data.vertices))
 for v in mesh.data.vertices:kd.insert(b.game_position(mesh.matrix_world@v.co),v.index)
 kd.balance()
 mapping={'Hips':2,'RightUpLeg':3,'RightLeg':4,'RightFoot':5,'RightToeBase':6,'LeftUpLeg':7,'LeftLeg':8,'LeftFoot':9,'LeftToeBase':10,'Spine':11,'Spine1':12,'Spine2':13,'Neck':13,'Head':14,'LeftShoulder':16,'LeftArm':17,'LeftForeArm':18,'LeftHand':19,'RightShoulder':21,'RightArm':22,'RightForeArm':23,'RightHand':24}
+if args.review_body_weights:mapping['Spine2']=12
 cape_vertices=set()
 if args.corinthians_body_review:
     if args.club_id!=1041 or len(vertices)!=5399 or len(indices)!=8984*3:
@@ -91,7 +96,8 @@ for vertex_index,v in enumerate(vertices):
         if target is not None:raw[target]=raw.get(target,0)+g.weight
         if n=='Head':source_head+=g.weight
     y=v['position'].y;x=v['position'].x
-    if source_head>=.55 or y>=head_y or (y>=face_floor and raw.get(13,0)+source_head>=.65):
+    reviewed_head=args.review_body_weights and source_head>=.25 and y>=neck_y+neck_span*.15
+    if reviewed_head or source_head>=.55 or y>=head_y or (y>=face_floor and raw.get(13,0)+source_head>=.65):
         raw={14:1};head_count+=1
     # Only neck junction blends; the face/skull remain rigid together.
     elif source_head>0 and y>=neck_blend_floor:
@@ -120,7 +126,7 @@ _,bones=b.read_model(b.Rx3(template));positions={i:Vector(bones[i][12:15]) for i
 for n,i in mapping.items():
     if n=='Spine2':continue
     positions[i]=position(arm.matrix_world@arm.data.bones['mixamorig:'+n].head_local)
-if args.corinthians_body_review:
+if args.corinthians_body_review or args.review_body_weights:
     positions[12]=position(arm.matrix_world@arm.data.bones['mixamorig:Spine2'].head_local)
 positions[15]=position(arm.matrix_world@arm.data.bones['mixamorig:Head'].tail_local)
 positions[20]=position(arm.matrix_world@arm.data.bones['mixamorig:LeftHand'].tail_local)
@@ -163,3 +169,5 @@ for n in ('model.rx3','model_animated.rx3'):(dest/n).write_bytes(result)
 if args.corinthians_body_review:
     (ROOT/'body_weights_report.json').write_text(json.dumps(dict(clubId=1041,capeVertices=sorted(cape_vertices),capeBone=12,chestBone=12,neckBone=13,headBone=14,chestPivot=list(positions[12]),method='rear cape sheet and collar rigid on chest; authored Spine1/Spine2 mapped to chest, Neck kept separate; original arm chains retained'),indent=2),encoding='utf8')
 print('CONVERTED',len(vertices),len(indices)//3,head_count,'rigid head vertices')
+if args.review_body_weights:
+    (ROOT/'body_weights_review.json').write_text(json.dumps(dict(clubId=args.club_id,chestBone=12,neckBone=13,headBone=14,rigidHeadVertices=head_count,method='Authored per-character Mixamo pivots; upper chest separated from neck, head region rigid, smooth neck junction, independent arm chains, normalized four-influence weights'),indent=2),encoding='utf8')

@@ -7,6 +7,7 @@
 #include <stdlib.h>
 #include <stdarg.h>
 #include <intrin.h>
+#include <errno.h>
 
 static char game_dir[MAX_PATH],log_path[MAX_PATH];
 static volatile LONG started,capacity_ready;
@@ -51,27 +52,29 @@ static int resolve_rows(const BYTE *rows,size_t count,int root) {
     }
     return found;
 }
+static BOOL existing_calendar(int asset);
 __declspec(dllexport) int WINAPI Fifa16UiAssetsResolvePreseason(int root,const void *registry) {
-    BYTE *wrapper=NULL,*competition=NULL;BYTE rows[400*0x5c];int asset;char path[MAX_PATH];
+    BYTE *wrapper=NULL,*competition=NULL;BYTE rows[400*0x5c];int asset;
     if(root<=0 || root>65535 || !registry || !game_dir[0] || !expanded_layout_ready())return 0;
     if(!read_memory((const BYTE*)registry+20*32+24,&wrapper,sizeof(wrapper)) || !read_memory(wrapper,&competition,sizeof(competition)) ||
        !competition || !read_memory(competition+0x10,rows,sizeof(rows)))return 0;
     asset=resolve_rows(rows,400,root);if(!asset)return 0;
-    snprintf(path,sizeof(path),"%s/data/ui/imgAssets/league/light/l%d.dds",game_dir,asset);
-    return valid_dds(path)?asset:0;
+    return existing_calendar(asset)?asset:0;
 }
 #include "asset_catalog.inc"
+#include "compat_aliases.inc"
 #ifndef UI_ASSETS_TEST
 #include "path_hooks.inc"
 #endif
 static DWORD WINAPI worker(void *unused) {
-    unsigned attempt;(void)unused;build_catalog();
+    unsigned attempt;(void)unused;prepare_aliases(game_dir);build_catalog();
+    if(!calendar_count){log_line("EMPTY careerCompetitionIcons; hooks not installed",3,0);return 0;}
 #ifndef UI_ASSETS_TEST
     for(attempt=0;attempt<900;attempt++) {
-        if(expanded_layout_ready() && install_path_hooks()){log_line("READY existing-assets resolver version",2,0);return 0;}
+        if(expanded_layout_ready() && install_path_hooks()){log_line("READY dedicated-calendar DDS resolver version",3,0);return 0;}
         Sleep(100);
     }
-    log_line("UNSUPPORTED or busy UI formatters; hooks not installed",2,0);
+    log_line("UNSUPPORTED or busy UI formatters; hooks not installed",3,0);
 #else
     (void)attempt;
 #endif

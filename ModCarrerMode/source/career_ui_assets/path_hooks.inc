@@ -82,7 +82,8 @@ static BOOL install_path_hooks(void) {
     native_print_core=(UiPrintCore)(ui_exe+0x3c9e270);native_string_core=(UiStringCore)(ui_exe+0x3a338f0);
     ok=freeze_other_threads(threads,&count,hooks,2);
     if(ok) {
-        for(i=0;i<2;i++){if(!VirtualProtect(hooks[i].target,16,PAGE_EXECUTE_READWRITE,&hooks[i].protect)){ok=FALSE;break;}protected_count++;}
+        for(i=0;i<2;i++)if(memcmp(hooks[i].target,hooks[i].before,16)){ok=FALSE;break;}
+        if(ok)for(i=0;i<2;i++){if(!VirtualProtect(hooks[i].target,16,PAGE_EXECUTE_READWRITE,&hooks[i].protect)){ok=FALSE;break;}protected_count++;}
         if(ok)for(i=0;i<2;i++){memcpy(hooks[i].target,hooks[i].after,16);FlushInstructionCache(GetCurrentProcess(),hooks[i].target,16);}
         for(i=0;i<protected_count;i++)VirtualProtect(hooks[i].target,16,hooks[i].protect,&ignored);
     }

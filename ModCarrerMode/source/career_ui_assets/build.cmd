@@ -8,7 +8,9 @@ cl /nologo /std:c11 /W4 /WX /O2 /MT /D_CRT_SECURE_NO_WARNINGS /LD career_ui_asse
 if errorlevel 1 exit /b 1
 cl /nologo /std:c11 /W4 /WX /O2 /MT /D_CRT_SECURE_NO_WARNINGS test_ui_assets.c /Fobuild\test_ui_assets.obj /Febuild\test_ui_assets.exe
 if errorlevel 1 exit /b 1
-build\test_ui_assets.exe
+powershell -NoProfile -ExecutionPolicy Bypass -File "%~dp0Prepare-TestFixture.ps1"
+if errorlevel 1 exit /b 1
+build\test_ui_assets.exe "%~dp0build\fixture"
 if errorlevel 1 exit /b 1
 popd
 endlocal
