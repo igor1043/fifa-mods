@@ -24,8 +24,8 @@ tournament_compat_native\tournament_compat_native.dll
 
 career_ui_assets\career_ui_assets.dll
 
-# Modern kickoff v13: diagonal receiver, backward pass, defence-facing kicker.
-kickoff_modern\kickoff_modern.dll
+# Modern kickoff v20: behind-ball first touch toward defence, softer backward pass.
+kickoff_modern_v20\kickoff_modern_v20.dll
 
 # Visual spare balls: 13 static copies of the current match ball, no physics.
 

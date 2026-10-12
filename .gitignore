@@ -35,6 +35,8 @@ ModCarrerMode/source/skip_server_shutdown_notice/*.dll
 ModCarrerMode/source/flamengo_pyro/historico_carregado/
 # Disabled experimental DLLs remain local; sources are preserved.
 ModCarrerMode/mods/kickoff_modern_v*/
+# Validated active kickoff release belongs in the published package.
+!ModCarrerMode/mods/kickoff_modern_v20/
 ModCarrerMode/mods/mascot_single/mascot_goal_line_v*.dll
 ModCarrerMode/mods/multiball_visual/multiball_visual_v1.dll
 ModCarrerMode/mods/multiball_visual/multiball_visual_v2.dll
