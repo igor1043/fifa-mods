@@ -1,9 +1,10 @@
 # Saída de bola moderna
 
-Plugin publicado: `kickoff_modern/kickoff_modern.dll` em `mods/enabled.txt`.
-Use somente essa entrada; desabilite entradas antigas com sufixo de versão.
-O primeiro passe recua para o receptor diagonal, com o cobrador voltado à defesa.
+Versão ativa: `kickoff_modern_v20/kickoff_modern_v20.dll` em `mods/enabled.txt`.
+Mantenha somente essa entrada habilitada. A DLL desta pasta é uma cópia da v20
+para compatibilidade com o caminho anterior; não habilite as duas simultaneamente.
 
-A DLL corresponde à saída de bola que funciona no jogo local. Fontes, testes
-e build estão em `ModCarrerMode/source/kickoff_modern_v13/`; o build atualiza
-a DLL desta pasta. Consulte o README desse diretório para instalação e detalhes.
+A DLL corresponde à saída validada no jogo: cobrador atrás da bola, voltado à
+defesa, mantendo a direção no primeiro toque, com passe recuado mais suave.
+Fontes, testes e build estão em `ModCarrerMode/source/kickoff_modern_v20/`.
+O build publica no caminho ativo v20. Consulte seu README para os detalhes.

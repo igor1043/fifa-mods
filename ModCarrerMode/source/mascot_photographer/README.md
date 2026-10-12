@@ -2,7 +2,9 @@
 
 Um mascote representa o mandante atrás das placas do gol que ele ataca. O plugin procura o pacote pelo ID nativo do clube, sem lista fixa de times. Troca o lado no intervalo e preserva sua posição lateral.
 
-O mascote sincroniza a orientação com a troca de gol: o mascote olha para o gramado logo após o intervalo, inclusive com o relógio de animação pausado. A caminhada anterior é encerrada e a parada no novo lado recomeça com 30 segundos. A DLL publicada é a mesma que está funcionando no jogo local.
+O mascote sincroniza a orientação com a troca de gol: olha para o gramado logo após o intervalo, inclusive com o relógio de animação pausado. A caminhada anterior é encerrada e a parada no novo lado recomeça com 30 segundos.
+
+A revisão 29 mantém apoio e palmas voltados ao campo. Antes de iniciar o clipe de gol, o mascote vira para o gramado e permanece nessa direção durante a comemoração. Na caminhada continua olhando para o destino. A cada três paradas, depois da interação, faz uma olhada lateral suave de até 26 graus durante três segundos, alternando o lado e retornando ao campo. Esta revisão está instalada no jogo e publicada com testes automatizados; sua conferência visual ainda está pendente.
 
 ## Comportamento
 
@@ -102,4 +104,4 @@ Se todas as categorias estiverem vazias, registra `placement_unavailable` e pres
 
 `verify.cmd` compila e executa as políticas de posição, seleção de atores, replay e animação. `verify_locomotion.cmd` verifica poses e deformação com uma pasta de fixtures contendo modelos, marcadores e matrizes de referência; essa pasta é um recurso de teste local, separado do pacote de jogo. `tests/run_performance.cmd` verifica o custo das consultas.
 
-A compensação foi testada com os 14 pacotes instalados e a matriz capturada do renderizador. O usuário confirmou o funcionamento no jogo local. Consulte `ModCarrerMode/logs/mascot_goal_line.log` e o registro `installed version=28` para identificar o build interno; o caminho ativo não tem sufixo de versão.
+A compensação foi testada com os 14 pacotes instalados e a matriz capturada do renderizador. O usuário confirmou o funcionamento no jogo local. Consulte `ModCarrerMode/logs/mascot_goal_line.log` e o registro `installed version=29` para identificar o build interno; o caminho ativo não tem sufixo de versão.

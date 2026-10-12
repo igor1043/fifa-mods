@@ -51,8 +51,9 @@ foreach($folder in @('config','data','mods','assets')) {
         # This payload belongs at the game root; do not recreate a legacy
         # ModCarrerMode/assets tree that V12 archives on every installation.
         if ($file.FullName -eq $swissMemorySource) { continue }
-        if ($file.Extension -in @('.md','.ps1','.example')) { continue }
-        if ($folder -eq 'mods' -and ($file.FullName -match '\\kickoff_modern_v\d+\\' -or $file.Name -match '^mascot_goal_line_v\d+\.dll$')) { continue }
+        if ($file.Extension -in @('.md','.ps1','.example','.bak')) { continue }
+        if ($folder -eq 'mods' -and $file.FullName -match '\\kickoff_modern_v\d+\\' -and $file.Directory.Name -ne 'kickoff_modern_v20') { continue }
+        if ($folder -eq 'mods' -and $file.Name -match '^mascot_goal_line_v\d+\.dll$') { continue }
         $relative='ModCarrerMode\'+$folder+'\'+$file.FullName.Substring($base.Length+1)
         Add-File $file.FullName $relative
     }

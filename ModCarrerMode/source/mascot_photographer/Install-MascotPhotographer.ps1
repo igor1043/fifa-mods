@@ -64,7 +64,7 @@ if ($VerifyOnly) {
     }
     $entries = @([IO.File]::ReadAllLines($enabledTarget) | Where-Object { $_.Trim() -match '^mascot_single\\.*\.dll$' })
     if ($entries.Count -ne 1 -or $entries[0].Trim() -ne 'mascot_single\mascot_goal_line.dll') { throw 'Registro do plugin divergente.' }
-    [pscustomobject]@{Game=$game;Version=28;Verified=$true;Assets=$assetFiles.Count;AutomaticPlugin=$entries[0].Trim()}
+    [pscustomobject]@{Game=$game;Version=29;Verified=$true;Assets=$assetFiles.Count;AutomaticPlugin=$entries[0].Trim()}
     return
 }
 $backupRelative = 'backups\'+(Get-Date -Format 'yyyyMMdd_HHmmss_fff')
@@ -105,7 +105,7 @@ foreach ($pair in @(@($luaSource,$luaTarget),@($dllSource,$dllTarget))) {
     if ((Get-FileHash -LiteralPath $pair[0]).Hash -ne (Get-FileHash -LiteralPath $pair[1]).Hash) { throw 'Falha de cópia; consulte o backup.' }
 }
 $state = [ordered]@{
-    version = 28
+    version = 29
     selectionMode = 'one_walking_goal_line'
     gameRoot = $game
     installedAt = (Get-Date -Format 'yyyy-MM-dd HH:mm:ss zzz')
@@ -120,4 +120,4 @@ $state = [ordered]@{
     gameWasRunningAtInstall = [bool]$running
 }
 $state | ConvertTo-Json | Set-Content -LiteralPath $statePath -Encoding UTF8
-[pscustomobject]@{Game=$game;Version=28;Mode='one_walking_goal_line';Lua=$state.installedLuaHash;Dll=$state.installedDllHash;Backup=$backup;RequiresReload=[bool]$running}
+[pscustomobject]@{Game=$game;Version=29;Mode='one_walking_goal_line';Lua=$state.installedLuaHash;Dll=$state.installedDllHash;Backup=$backup;RequiresReload=[bool]$running}

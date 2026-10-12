@@ -356,10 +356,11 @@ static void mascot_animate_instance(const MascotFrameContext& frame)
     const float dt=mascot_native_animation_dt(crowd,now,allowAdvance);
     mascot_walk_update(frame,mode,now,dt);
     MascotWalkRuntime& motion=mascotWalkRuntime;
-    const bool waypointInteraction=mascot_waypoint_interaction();
+    const bool facingPitch=mascot_facing_pitch();
+    const bool waypointInteraction=mascot_waypoint_interaction() && facingPitch;
     // Goals must never fall back to the waypoint applause clip. The captured
     // crowd reaction is self-contained even when live crowd slot 0 changes.
-    const int poseKind=mode==3?3:(motion.walking?1:(waypointInteraction?2:0));
+    const int poseKind=mode==3?(facingPitch?3:0):(motion.walking?1:(waypointInteraction?2:0));
     float matrices[31][16];
     float phase=motion.clipTime;
     unsigned int variant=0;

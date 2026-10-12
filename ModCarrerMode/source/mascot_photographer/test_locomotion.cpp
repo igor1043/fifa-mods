@@ -196,6 +196,35 @@ int wmain(int argc,wchar_t** argv) {
         printf("PASS both goal sides: live heading faces pitch; halftime reorients during pause without advancing clip or route\n");
     }
     {
+        alignas(16) unsigned char record[80]{};
+        MascotFrameContext frame{1,(uintptr_t)record,1,0,1043,1};
+        unsigned int glanceSamples=0,totalSamples=0;
+        for(float goalX:{-5850.0f,5850.0f})for(float z:{-3150.0f,3150.0f}) {
+            targetPosition[0]=goalX;targetPosition[2]=z;mascot_walk_reset(frame,1000);
+            MascotWalkRuntime& s=mascotWalkRuntime;
+            const float pitch=mascot_pitch_heading(goalX,z);
+            for(unsigned int visit=1;visit<=6;++visit)for(unsigned int tick=0;tick<300;++tick) {
+                s.waypointVisitSerial=visit;s.idleRemaining=30-(float)tick*.1f;
+                const float heading=mascot_stationary_heading(s,false);
+                const float offset=fabsf(mascot_wrap_heading(heading-pitch));
+                if(offset>.451f || fabsf(mascot_wrap_heading(mascot_stationary_heading(s,true)-pitch))>.001f)return 54;
+                if(mascot_waypoint_interaction() && offset>.001f)return 55;
+                ++totalSamples;if(offset>.01f)++glanceSamples;
+            }
+            s.idleRemaining=30;s.yaw=mascot_wrap_heading(pitch+2);s.walking=true;
+            mascot_walk_update(frame,3,1100,.016f);
+            if(s.clipTime!=0 || s.walking || s.turning)return 56;
+            const float yaw=s.yaw;
+            mascot_walk_update(frame,3,1200,0);
+            if(s.yaw!=yaw || s.clipTime!=0)return 57;
+            for(unsigned int tick=0;tick<120;++tick)mascot_walk_update(frame,3,1300+tick*16,.016f);
+            if(!mascot_facing_pitch() || s.clipTime<=0)return 58;
+        }
+        if(!glanceSamples || glanceSamples*10>=totalSamples)return 59;
+        printf("PASS pitch-facing support and goals on both halves; rare idle glances=%u/%u; goal turns before clip, pause stable\n",glanceSamples,totalSamples);
+        targetPosition[0]=5850;targetPosition[2]=3150;
+    }
+    {
         {
         static MascotReplayHistory history;
         history.bind(1043,1);

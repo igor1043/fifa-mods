@@ -204,6 +204,22 @@ static unsigned int mascot_local_destination(const MascotWalkRuntime& s,unsigned
 static float mascot_pitch_heading(float x,float z) {
     return atan2f(-x,-z);
 }
+static bool mascot_facing_pitch() {
+    const MascotWalkRuntime& s=mascotWalkRuntime;
+    return fabsf(mascot_wrap_heading(mascot_pitch_heading(s.position[0],s.position[2])-s.yaw))<.08f;
+}
+static float mascot_stationary_heading(const MascotWalkRuntime& s,bool cheer) {
+    const float pitch=mascot_pitch_heading(s.position[0],s.position[2]);
+    // One short glance on every third stop, only after support has finished.
+    // Stay inside the pitch-facing half-plane on either side of the stadium.
+    if(!cheer && s.waypointVisitSerial%3==0 && s.idleRemaining<6 && s.idleRemaining>3) {
+        const float elapsed=6-s.idleRemaining;
+        const float envelope=sinf(elapsed*(3.14159265f/3));
+        const float side=((s.waypointVisitSerial/3)&1)?1.0f:-1.0f;
+        return mascot_wrap_heading(pitch+side*.45f*envelope*envelope);
+    }
+    return pitch;
+}
 static void mascot_walk_reset(const MascotFrameContext& frame,uint64_t now) {
     MascotWalkRuntime& s=mascotWalkRuntime;s={};s.ready=true;s.home=frame.home;s.generation=frame.generation;s.session=InterlockedCompareExchange(&mascotPlacementSession,0,0);s.lastTick=now;s.yaw=originalYaw;
     memcpy(s.position,targetPosition,sizeof(s.position));s.waypoint=mascot_nearest_waypoint(s.position[2]);uint32_t seed=(uint32_t)now^(uint32_t)(now>>32)^(uint32_t)frame.home^(uint32_t)s.session;
@@ -246,7 +262,7 @@ static void mascot_walk_update(const MascotFrameContext& frame,LONG mode,uint64_
     if(dt>0) {
         if(cheer) {
             if(!s.cheering){s.cheering=true;s.walking=false;s.turning=false;s.clipTime=0;}
-            s.clipTime+=dt;
+            if(mascot_facing_pitch())s.clipTime+=dt;
         } else {
             if(s.cheering){s.cheering=false;s.walking=false;s.turning=false;s.idleRemaining=mascotWaypointDwellSeconds;s.clipTime=0;}
             else s.clipTime+=dt;
@@ -262,7 +278,7 @@ static void mascot_walk_update(const MascotFrameContext& frame,LONG mode,uint64_
             }
         }
         const bool route=(s.walking||s.turning)&&!cheer;
-        const float heading=route?atan2f(0,mascotGoalLineDestinations[s.nextWaypoint]-s.position[2]):mascot_pitch_heading(targetPosition[0],s.position[2]);
+        const float heading=route?atan2f(0,mascotGoalLineDestinations[s.nextWaypoint]-s.position[2]):mascot_stationary_heading(s,cheer);
         s.yaw=mascot_turn_heading(s.yaw,heading,dt);
         if(s.turning && fabsf(mascot_wrap_heading(heading-s.yaw))<.04f) {
             s.turning=false;s.walking=true;
