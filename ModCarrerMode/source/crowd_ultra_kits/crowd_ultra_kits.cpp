@@ -6,8 +6,13 @@
 #include <stdarg.h>
 #include <string.h>
 #include <initializer_list>
+#include <limits.h>
+#include <stdlib.h>
 #include "crowd_policy.h"
-#include "brazil_clubs.h"
+#include <vector>
+#include <unordered_map>
+#include <string>
+#include "country_policy.h"
 
 static HMODULE ownModule;
 static uintptr_t image;
@@ -50,6 +55,8 @@ template<class T> static bool read(uintptr_t address, T& value) {
     __except (EXCEPTION_EXECUTE_HANDLER) { return false; }
 }
 
+#include "live_country_db.h"
+
 static bool same_native(uintptr_t address, uintptr_t expected) {
     uintptr_t value = 0; return read(address, value) && value == expected;
 }
@@ -76,12 +83,13 @@ static bool native_fixture(uintptr_t& key,int& home,int& away) {
     key=registry ^ teams[0] ^ ((teams[1]<<11)|(teams[1]>>53));
     return key!=0;
 }
+
 static void brazil_sides(bool (&sides)[2]) {
     uintptr_t key = 0; int home = 0, away = 0;
     sides[0] = sides[1] = false;
     if (native_fixture(key, home, away)) {
-        sides[0] = ultra_brazil_club(home);
-        sides[1] = ultra_brazil_club(away);
+        sides[0] = live_brazil_club(home);
+        sides[1] = live_brazil_club(away);
     }
 }
 
@@ -93,11 +101,34 @@ using DrawBatch = void (__fastcall*)(void*, int, void*, void*, void*, uintptr_t)
 using ResolveAsset = void* (__fastcall*)(void*, const char*);
 using BindTexture = void (__fastcall*)(void*, const char*, const char*, void*);
 
+static void publish_country_scope() {
+    const std::string scope = live_country_lua();
+    ((RunLua)(image + 0x4ac35e0))(scope.data(), scope.size(), "crowd_country_scope");
+}
+
 static void __fastcall crowd_bind_hook(const char* name, const char* format, void* object) {
+    // Refresh membership from the live DB at scene creation; publish the same
+    // result to Lua before registering/resolving crowd resources.
+    refresh_live_countries();
+    publish_country_scope();
     // Same thread and lock discipline as the engine's Crowd3dAssetBind call.
     ((RunLua)(image + 0x4ac35e0))(payload, payloadSize, "crowd_ultra_kits_v1");
     ((BindLua)(image + 0x4ac3460))(name, format, object);
     log_event("crowd_asset_bind registered primary=0 secondary=1 third=3 goalkeeper=2 fallback=0");
+}
+
+static void __fastcall load_assets_hook(void* object) {
+    // Asset bind also runs at boot, before frontend database services exist.
+    // Recheck before the renderer resolves this scene's resources. Draw hooks
+    // then use the resulting snapshot without doing database queries.
+    refresh_live_countries();
+    publish_country_scope();
+    uintptr_t key = 0; int home = 0, away = 0;
+    const bool fixture = native_fixture(key, home, away);
+    log_event("country_scope fixture=%u home=%d home_brazil=%u away=%d away_brazil=%u",
+              fixture ? 1U : 0U, home, live_brazil_club(home) ? 1U : 0U,
+              away, live_brazil_club(away) ? 1U : 0U);
+    ((BuildInstances)(image + 0x5cb8480))(object);
 }
 
 static void remap_instances(void* object) {
@@ -195,20 +226,25 @@ static void __fastcall draw_instances_hook(void* mesh, void* buffer, void* effec
 
 }
 
-struct CallHook { uintptr_t rva, target; void* replacement; unsigned char expected[16]; };
+struct CallHook { uintptr_t rva, target; void* replacement; unsigned char expected[18]; size_t length = 5; };
 static const CallHook hooks[] = {
     {0x4397c47, 0x4ac3460, (void*)crowd_bind_hook, {0xe8,0x14,0xb8,0x72,0x00,0x48,0x8b,0x6c,0x24,0x48,0x48,0x8b,0x74,0x24,0x50,0x48}},
     {0x5cb9f03, 0x5cb9560, (void*)build_instances_hook, {0xe8,0x58,0xf6,0xff,0xff,0x44,0x8b,0x87,0x38,0x14,0x00,0x00,0x48,0x8b,0x97,0x58}},
     {0x5cbc0a2, 0x5cbc310, (void*)jersey_batch_hook, {0xe8,0x69,0x02,0x00,0x00,0xe8,0x84,0xc9,0xe0,0xfe,0x48,0x8d,0x0d,0xad,0xcf,0x3d}},
-    {0x5cbc483, 0x5cc36e0, (void*)draw_instances_hook, {0xe8,0x58,0x72,0x00,0x00,0x44,0x8b,0x6f,0x08,0x4c,0x8b,0x84,0x24,0x80,0x00,0x00}}
+    {0x5cbc483, 0x5cc36e0, (void*)draw_instances_hook, {0xe8,0x58,0x72,0x00,0x00,0x44,0x8b,0x6f,0x08,0x4c,0x8b,0x84,0x24,0x80,0x00,0x00}},
+    {0x5cbd1c8, 0x5cb8480, (void*)load_assets_hook, {0xe8,0xb3,0xb2,0xff,0xff,0xf6,0x87,0x94,0x20,0x00,0x00,0x04,0x74,0x08,0x48,0x89}},
+    {0x58e2ea4, 0x4461f10, (void*)capture_country_registration, {0xe8,0x67,0xf0,0xb7,0xfe,0x48,0x8b,0x5e,0x08,0x48,0x8d,0x4d,0xd0,0xe8,0xaa,0x36}},
+    {0x5b8e430, 0, (void*)capture_team_name, {0x48,0x89,0x5c,0x24,0x10,0x48,0x89,0x74,0x24,0x18,0x57,0x48,0x81,0xec,0x90,0x00,0x00,0x00}, 18}
 };
+static constexpr size_t hookCount = sizeof(hooks) / sizeof(hooks[0]);
 
 static bool code_ready() {
     const unsigned char luaGuard[] = {0x48,0x89,0x5c,0x24,0x08,0x48,0x89,0x74,0x24,0x10,0x57,0x48,0x83,0xec,0x30};
     if (!accessible(image + 0x4ac35e0, sizeof(luaGuard)) || memcmp((void*)(image + 0x4ac35e0), luaGuard, sizeof(luaGuard))) return false;
     for (const CallHook& hook : hooks) {
-        if (!accessible(image + hook.rva, sizeof(hook.expected)) ||
-            memcmp((void*)(image + hook.rva), hook.expected, sizeof(hook.expected))) return false;
+        if (!accessible(image + hook.rva, (hook.length == 18 ? 18U : 16U)) ||
+            memcmp((void*)(image + hook.rva), hook.expected, (hook.length == 18 ? 18U : 16U))) return false;
+        if (hook.length == 18) continue;
         const int32_t displacement = *(int32_t*)(image + hook.rva + 1);
         if ((intptr_t)(image + hook.rva + 5) + displacement != (intptr_t)(image + hook.target)) return false;
     }
@@ -231,7 +267,7 @@ static void* allocate_near() {
 
 static bool install_hooks(unsigned char* relay) {
     HANDLE handles[256]{}; size_t threadCount = 0, protectedCount = 0;
-    DWORD protections[4]{}; bool okay = true;
+    DWORD protections[hookCount]{}; bool okay = true;
     HANDLE snapshot = CreateToolhelp32Snapshot(TH32CS_SNAPTHREAD, 0);
     if (snapshot == INVALID_HANDLE_VALUE) return false;
     THREADENTRY32 entry{}; entry.dwSize = sizeof(entry);
@@ -244,16 +280,24 @@ static bool install_hooks(unsigned char* relay) {
         handles[threadCount++] = thread;
         CONTEXT context{}; context.ContextFlags = CONTEXT_CONTROL;
         if (!GetThreadContext(thread, &context)) { okay = false; break; }
-        for (const CallHook& hook : hooks) if (context.Rip >= image + hook.rva && context.Rip < image + hook.rva + 5) okay = false;
+        for (const CallHook& hook : hooks) if (context.Rip >= image + hook.rva && context.Rip < image + hook.rva + hook.length) okay = false;
         if (!okay) break;
     }
     CloseHandle(snapshot);
     if (okay) okay = code_ready();
-    if (okay) for (size_t i = 0; i < 4; ++i) {
-        if (!VirtualProtect((void*)(image + hooks[i].rva), 5, PAGE_EXECUTE_READWRITE, &protections[i])) { okay = false; break; }
+    if (okay) for (size_t i = 0; i < hookCount; ++i) {
+        if (!VirtualProtect((void*)(image + hooks[i].rva), hooks[i].length, PAGE_EXECUTE_READWRITE, &protections[i])) { okay = false; break; }
         ++protectedCount;
     }
-    if (okay) for (size_t i = 0; i < 4; ++i) {
+    if (okay) for (size_t i = 0; i < hookCount; ++i) {
+        if (hooks[i].length == 18) {
+            unsigned char patch[18]; memset(patch, 0x90, sizeof(patch));
+            patch[0]=0xff; patch[1]=0x25; memset(patch+2,0,4);
+            memcpy(patch+6,&hooks[i].replacement,8);
+            memcpy((void*)(image+hooks[i].rva),patch,sizeof(patch));
+            FlushInstructionCache(GetCurrentProcess(),(void*)(image+hooks[i].rva),sizeof(patch));
+            continue;
+        }
         unsigned char patch[5] = {0xe8,0,0,0,0};
         const int64_t distance = (int64_t)(uintptr_t)(relay + i * 32) - (int64_t)(image + hooks[i].rva + 5);
         const int32_t relative = (int32_t)distance;
@@ -263,7 +307,7 @@ static bool install_hooks(unsigned char* relay) {
     }
     // Two call sites share a page; reverse restoration preserves its original
     // protection rather than leaving the second site's temporary RWX value.
-    for (size_t i = protectedCount; i; --i) { DWORD ignored; VirtualProtect((void*)(image + hooks[i - 1].rva), 5, protections[i - 1], &ignored); }
+    for (size_t i = protectedCount; i; --i) { DWORD ignored; VirtualProtect((void*)(image + hooks[i - 1].rva), hooks[i - 1].length, protections[i - 1], &ignored); }
     for (size_t i = threadCount; i; --i) { ResumeThread(handles[i - 1]); CloseHandle(handles[i - 1]); }
     return okay;
 }
@@ -275,19 +319,27 @@ static DWORD WINAPI worker(void*) {
         if (!relay) {
             relay = (unsigned char*)allocate_near();
             if (!relay) { log_event("not_installed relay_allocation_failed"); return 1; }
-            for (size_t i = 0; i < 4; ++i) {
+            for (size_t i = 0; i < hookCount; ++i) {
                 unsigned char* jump = relay + i * 32;
                 const int64_t distance = (int64_t)(uintptr_t)jump - (int64_t)(image + hooks[i].rva + 5);
                 if (distance < INT32_MIN || distance > INT32_MAX) { VirtualFree(relay, 0, MEM_RELEASE); return 2; }
                 const unsigned char prefix[] = {0xff,0x25,0,0,0,0};
                 memcpy(jump, prefix, sizeof(prefix)); memcpy(jump + 6, &hooks[i].replacement, 8);
             }
+            // The team resolver prologue contains no relative instructions.
+            unsigned char* trampoline=relay+256;
+            memcpy(trampoline,(void*)(image+0x5b8e430),18);
+            const unsigned char absoluteJump[6]={0xff,0x25,0,0,0,0};
+            memcpy(trampoline+18,absoluteJump,6);
+            const uintptr_t continuation=image+0x5b8e442;
+            memcpy(trampoline+24,&continuation,8);
+            originalTeamName=(ResolveTeamName)trampoline;
             DWORD ignored;
             if (!VirtualProtect(relay, 4096, PAGE_EXECUTE_READ, &ignored)) { VirtualFree(relay, 0, MEM_RELEASE); return 3; }
             FlushInstructionCache(GetCurrentProcess(), relay, 4096);
         }
         if (install_hooks(relay)) {
-            log_event("installed version=3 scope=brazil_only replace_percent=%u kit1=%u kit2=%u kit3=%u goalkeeper=%u native_ultra_instances=1 seat_state_preserved=1 third_kit_type=3 split_instanced_draw=1", config.replacePercent, config.kit1Percent, config.kit2Percent, config.kit3Percent, config.goalkeeperPercent);
+            log_event("installed version=4 scope=country_database_brazil_only replace_percent=%u kit1=%u kit2=%u kit3=%u goalkeeper=%u native_ultra_instances=1 seat_state_preserved=1 third_kit_type=3 split_instanced_draw=1", config.replacePercent, config.kit1Percent, config.kit2Percent, config.kit3Percent, config.goalkeeperPercent);
             return 0;
         }
         Sleep(100);

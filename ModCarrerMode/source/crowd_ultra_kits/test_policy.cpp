@@ -1,12 +1,13 @@
 #include <assert.h>
 #include <stdio.h>
 #include "crowd_policy.h"
-#include "brazil_clubs.h"
+#include "country_policy.h"
 int main() {
-    assert(ultra_brazil_club(1043));
-    assert(ultra_brazil_club(1041));
-    assert(!ultra_brazil_club(1));
-    assert(!ultra_brazil_club(0));
+    assert(ultra_brazil_country("Brazil"));
+    assert(ultra_brazil_country("Brasil Sul"));
+    assert(!ultra_brazil_country("England"));
+    assert(!ultra_brazil_country("Brazilian fantasy"));
+    assert(!ultra_brazil_country(nullptr));
     UltraConfig c;
     c.replacePercent = 100;
     for (uint32_t i = 0; i < 1000; ++i) {
