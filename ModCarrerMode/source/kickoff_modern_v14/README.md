@@ -1,0 +1,7 @@
+# Kickoff v14 — controle da orientação e da velocidade calculada
+
+Após falha visual confirmada da v13, a RAM mostrou um segundo PlayKick/Stand original no buffer do cobrador. O CALL +4FE5883 não era seu produtor efetivo. A v14 intercepta o publicador nativo +4D39DE0 (prólogo completo de cinco bytes, trampoline sem instruções relativas). O filtro substitui somente PlayKick/Stand 0x48 do cobrador da assignment ativa, com receptor recuado válido e antes do passe. Preserva prioridades e posição. O alcance inclui todos os produtores do comando, sem depender de CALLs presumidos.
+
+A carga do passe continua em 0,75. Além disso, o cálculo nativo da velocidade (+23148A0 -> +51074B0) passa por um wrapper: apenas durante o builder PassKickOff verificado desta saída, por variável de thread, reduz XYZ para 0,55 com teto 26,2464 unidades nativas. Atualiza o cache do pedido (+40) e o vetor devolvido ao chamador. W e direção são preservados. O getter nativo +5115B20 lê exatamente esse cache; demais chutes e threads não são ajustados. Logs registram velocidades antes/depois e callback ausente.
+
+Guardas: imagem conhecida, assinaturas originais, atleta/receptor/titulares/equipe, geometria central, tipo de pedido, finitude e magnitude. Stop restaura os bytes e slots somente se ainda pertencem ao mod. Binário FIFA em disco intacto. Compilar com build.cmd (MSVC /W4 /WX); confirmação visual e de distância em jogo depende do teste desta versão.
