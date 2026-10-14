@@ -1,0 +1,722 @@
+<particleSystem version="1.7.0">
+	<particleEffect name="stadium_pyrotechnics">
+		<parameter name="iCullBehavior" index="0" value="0" />
+		<particleGroup name="smoke_trail">
+			<parameter name="iNumParticlesMax" index="0" value="850" />
+			<parameter name="iInstancing" index="0" value="1" />
+			<particleAction name="ParticleActionEmitBox" className="ParticleActionEmitBox">
+				<parameter name="iEmitRate" index="0" value="150" />
+				<parameter name="bEmitRatePerCenter" index="0" value="1" />
+				<parameter name="fSizeMean" index="0" value="210" />
+				<parameter name="fSizeSpread" index="0" value="100" />
+				<parameter name="vDimensions" index="0" value="{ 0.0, 0.0, 0.0 }" />
+				<parameter name="vCenter" index="0" value="{ 0, 0, 0 }" numElements="20" />
+				<parameter name="vVelocityMean" index="0" value="{ 0, -100, 0 }" />
+				<parameter name="vVelocitySpread" index="0" value="{ 55, 55, 30 }" />
+				<parameter name="fVelocityAdoption" index="0" value="0" />
+				<parameter name="vOrientationSpread" index="0" value="{ 6.0, 0, 0 }" />
+				<parameter name="vAngularVelocitySpread" index="0" value="{ 0.0, 0.0, 0.0 }" />
+				<parameter name="bRespectExternalTrigger" index="0" value="0" />
+				<parameter name="iObeyLocator" index="0" value="0" />
+				<parameter name="iEmitDurationMs" index="0" value="60000" />
+				<parameter name="iTimeStartedMs" index="0" value="0" />
+				<parameter name="iEmitCycles" index="0" value="1" />
+				<parameter name="iEmitDelayMs" index="0" value="0" />
+			</particleAction>
+			<particleAction name="ParticleActionKillAge" className="ParticleActionKillAge">
+				<parameter name="iAgeMs" index="0" value="6500" />
+				<parameter name="iOrdering" index="0" value="0" />
+			</particleAction>
+			<particleAction name="ParticleActionEvolve" className="ParticleActionEvolve" />
+			<particleAction name="ParticleActionRender" className="ParticleActionRender">
+				<parameter name="sShader" index="0" value="lynx.fx" />
+				<parameter name="sTexture" index="0" value="fx_rawcloud.tga" />
+				<parameter name="sTechnique" index="0" value="AlphaBlend" />
+				<parameter name="iAlign" index="0" value="0" />
+				<parameter name="iScreenSpace" index="0" value="0" />
+				<parameter name="fFadeDistance" index="0" value="0.5" />
+				<parameter name="fZBias" index="0" value="0" />
+				<parameter name="vPivotShift" index="0" value="{ 0.0, 0.0, 0.0 }" />
+				<parameter name="rKillAge" index="0" value="smoke_trail/ParticleActionKillAge/iAgeMs" />
+				<parameter name="bStretchPerParticle" index="0" value="0" />
+				<parameter name="fStretchSpeedScale" index="0" value="2.0" />
+				<parameter name="iNoFadeFar" index="0" value="0" />
+				<parameter name="bDepthSort" index="0" value="1" />
+				<parameter name="bUseColorMult" index="0" value="1" />
+				<parameter name="vColorMult" index="0" value="{ 0.7, 0.012, 0.025, 0.95 }" />
+				<parameter name="vColorMultSpread" index="0" value="{ 0.0, 0.0, 0.0, 0.0 }" />
+				<parameter name="bUseSizeMult" index="0" value="0" />
+				<parameter name="fSizeMultX" index="0" value="1" />
+				<parameter name="fSizeMultY" index="0" value="2" />
+				<parameter name="bUseColorRamp" index="0" value="1" />
+				<parameter name="vColorRamp" index="0" value="{ 1, 1, 1, 1 }" />
+				<parameter name="vColorRamp" index="1" value="{ 1, 1, 1, 0.95 }" />
+				<parameter name="vColorRamp" index="2" value="{ 1, 1, 1, 0.75 }" />
+				<parameter name="vColorRamp" index="3" value="{ 1, 1, 1, 0 }" />
+				<parameter name="vColorRampTimes" index="0" value="{ 0.0, 0.1, 0.3, 1 }" />
+				<parameter name="bUseSizeRamp" index="0" value="1" />
+				<parameter name="vSizeRamp" index="0" value="{ 0.15, 0.55, 0.8725, 1.0 }" />
+				<parameter name="vSizeRampTimes" index="0" value="{ 0.0, 0.1, 0.2, 1 }" />
+				<parameter name="bUseLighting" index="0" value="0" />
+				<parameter name="bUseAnimTexture" index="0" value="0" />
+				<parameter name="iAnimTextureMode" index="0" value="1" />
+				<parameter name="iAnimTextureCount" index="0" value="4" />
+				<parameter name="iAnimTextureRows" index="0" value="2" />
+				<parameter name="fAnimTextureSpeed" index="0" value="3" />
+				<parameter name="iAnimTextureRandomStart" index="0" value="4" />
+				<parameter name="bHalfSizeRender" index="0" value="1" />
+				<parameter name="fZFeatherRange" index="0" value="100" />
+				<parameter name="fNearFeatherRange" index="0" value="1" />
+				<parameter name="fFarFeatherRange" index="0" value="1" />
+			</particleAction>
+		</particleGroup>
+		<particleGroup name="smoke_trail_overlay">
+			<parameter name="iNumParticlesMax" index="0" value="850" />
+			<parameter name="iInstancing" index="0" value="1" />
+			<particleAction name="ParticleActionEmitBox" className="ParticleActionEmitBox">
+				<parameter name="iEmitRate" index="0" value="150" />
+				<parameter name="bEmitRatePerCenter" index="0" value="1" />
+				<parameter name="fSizeMean" index="0" value="210" />
+				<parameter name="fSizeSpread" index="0" value="100" />
+				<parameter name="vDimensions" index="0" value="{ 0.0, 0.0, 0.0 }" />
+				<parameter name="vCenter" index="0" value="{ 0, 0, 0 }" numElements="20" />
+				<parameter name="vVelocityMean" index="0" value="{ 0, -100, 0 }" />
+				<parameter name="vVelocitySpread" index="0" value="{ 55, 55, 30 }" />
+				<parameter name="fVelocityAdoption" index="0" value="0" />
+				<parameter name="vOrientationSpread" index="0" value="{ 6.0, 0, 0 }" />
+				<parameter name="vAngularVelocitySpread" index="0" value="{ 0.0, 0.0, 0.0 }" />
+				<parameter name="bRespectExternalTrigger" index="0" value="0" />
+				<parameter name="iObeyLocator" index="0" value="0" />
+				<parameter name="iEmitDurationMs" index="0" value="60000" />
+				<parameter name="iTimeStartedMs" index="0" value="0" />
+				<parameter name="iEmitCycles" index="0" value="1" />
+				<parameter name="iEmitDelayMs" index="0" value="0" />
+			</particleAction>
+			<particleAction name="ParticleActionKillAge" className="ParticleActionKillAge">
+				<parameter name="iAgeMs" index="0" value="6500" />
+				<parameter name="iOrdering" index="0" value="0" />
+			</particleAction>
+			<particleAction name="ParticleActionEvolve" className="ParticleActionEvolve" />
+			<particleAction name="ParticleActionRender" className="ParticleActionRender">
+				<parameter name="sShader" index="0" value="lynx.fx" />
+				<parameter name="sTexture" index="0" value="fx_rawcloud.tga" />
+				<parameter name="sTechnique" index="0" value="AlphaBlend" />
+				<parameter name="iAlign" index="0" value="0" />
+				<parameter name="iScreenSpace" index="0" value="0" />
+				<parameter name="fFadeDistance" index="0" value="0.5" />
+				<parameter name="fZBias" index="0" value="0" />
+				<parameter name="vPivotShift" index="0" value="{ 0.0, 0.0, 0.0 }" />
+				<parameter name="rKillAge" index="0" value="smoke_trail_overlay/ParticleActionKillAge/iAgeMs" />
+				<parameter name="bStretchPerParticle" index="0" value="0" />
+				<parameter name="fStretchSpeedScale" index="0" value="2.0" />
+				<parameter name="iNoFadeFar" index="0" value="0" />
+				<parameter name="bDepthSort" index="0" value="1" />
+				<parameter name="bUseColorMult" index="0" value="1" />
+				<parameter name="vColorMult" index="0" value="{ 0.7, 0.012, 0.025, 0.95 }" />
+				<parameter name="vColorMultSpread" index="0" value="{ 0.0, 0.0, 0.0, 0.0 }" />
+				<parameter name="bUseSizeMult" index="0" value="0" />
+				<parameter name="fSizeMultX" index="0" value="1" />
+				<parameter name="fSizeMultY" index="0" value="2" />
+				<parameter name="bUseColorRamp" index="0" value="1" />
+				<parameter name="vColorRamp" index="0" value="{ 1, 1, 1, 1 }" />
+				<parameter name="vColorRamp" index="1" value="{ 1, 1, 1, 0.95 }" />
+				<parameter name="vColorRamp" index="2" value="{ 1, 1, 1, 0.75 }" />
+				<parameter name="vColorRamp" index="3" value="{ 1, 1, 1, 0 }" />
+				<parameter name="vColorRampTimes" index="0" value="{ 0.0, 0.1, 0.3, 1 }" />
+				<parameter name="bUseSizeRamp" index="0" value="1" />
+				<parameter name="vSizeRamp" index="0" value="{ 0.15, 0.55, 0.8725, 1.0 }" />
+				<parameter name="vSizeRampTimes" index="0" value="{ 0.0, 0.1, 0.2, 1 }" />
+				<parameter name="bUseLighting" index="0" value="0" />
+				<parameter name="bUseAnimTexture" index="0" value="0" />
+				<parameter name="iAnimTextureMode" index="0" value="1" />
+				<parameter name="iAnimTextureCount" index="0" value="4" />
+				<parameter name="iAnimTextureRows" index="0" value="2" />
+				<parameter name="fAnimTextureSpeed" index="0" value="3" />
+				<parameter name="iAnimTextureRandomStart" index="0" value="4" />
+				<parameter name="bHalfSizeRender" index="0" value="1" />
+				<parameter name="fZFeatherRange" index="0" value="100" />
+				<parameter name="fNearFeatherRange" index="0" value="1" />
+				<parameter name="fFarFeatherRange" index="0" value="1" />
+			</particleAction>
+		</particleGroup>
+		<particleGroup name="sparkle_trail">
+			<parameter name="iNumParticlesMax" index="0" value="100" />
+			<parameter name="iInstancing" index="0" value="1" />
+			<particleAction name="ParticleActionEmitBox" className="ParticleActionEmitBox">
+				<parameter name="iEmitRate" index="0" value="25" />
+				<parameter name="bEmitRatePerCenter" index="0" value="1" />
+				<parameter name="fSizeMean" index="0" value="20" />
+				<parameter name="fSizeSpread" index="0" value="0.0" />
+				<parameter name="vDimensions" index="0" value="{ 20.0, 20.0, 20.0 }" />
+				<parameter name="vCenter" index="0" value="{ 0, 0, 0 }" numElements="20" />
+				<parameter name="vVelocityMean" index="0" value="{ 0, -40, 0 }" />
+				<parameter name="vVelocitySpread" index="0" value="{ 10, 10, 10 }" />
+				<parameter name="fVelocityAdoption" index="0" value="0" />
+				<parameter name="vOrientationSpread" index="0" value="{ 6.28, 0, 0 }" />
+				<parameter name="vAngularVelocitySpread" index="0" value="{ 2.0, 0.0, 0.0 }" />
+				<parameter name="bEmitRatePerCenter" index="0" value="1" />
+				<parameter name="bRespectExternalTrigger" index="0" value="0" />
+				<parameter name="iObeyLocator" index="0" value="0" />
+				<parameter name="iEmitDurationMs" index="0" value="60000" />
+				<parameter name="iTimeStartedMs" index="0" value="0" />
+				<parameter name="iEmitCycles" index="0" value="1" />
+				<parameter name="iEmitDelayMs" index="0" value="0" />
+			</particleAction>
+			<particleAction name="ParticleActionKillAge" className="ParticleActionKillAge">
+				<parameter name="iAgeMs" index="0" value="3000" />
+				<parameter name="iOrdering" index="0" value="0" />
+			</particleAction>
+			<particleAction name="ParticleActionAccelerate" className="ParticleActionAccelerate">
+				<parameter name="vAcceleration" index="0" value="{ 0.0, -160.3, 0 }" />
+				<parameter name="vAccelVariance" index="0" value="{ 0.0, 0.0, 0.0 }" />
+			</particleAction>
+			<particleAction name="ParticleActionEvolve" className="ParticleActionEvolve" />
+			<particleAction name="ParticleActionRender" className="ParticleActionRender">
+				<parameter name="sShader" index="0" value="lynx.fx" />
+				<parameter name="sTexture" index="0" value="fx_fireworks_sparkletrail.tga" />
+				<parameter name="sTechnique" index="0" value="AdditiveBlend" />
+				<parameter name="iAlign" index="0" value="0" />
+				<parameter name="iScreenSpace" index="0" value="0" />
+				<parameter name="fFadeDistance" index="0" value="0.5" />
+				<parameter name="fZBias" index="0" value="0" />
+				<parameter name="vPivotShift" index="0" value="{ 0.0, 0.0, 0.0 }" />
+				<parameter name="rKillAge" index="0" value="sparkle_trail/ParticleActionKillAge/iAgeMs" />
+				<parameter name="iNoFadeFar" index="0" value="0" />
+				<parameter name="bDepthSort" index="0" value="0" />
+				<parameter name="bUseColorMult" index="0" value="1" />
+				<parameter name="vColorMult" index="0" value="{ 10.0, 2.0, 0.25, 1.0 }" />
+				<parameter name="vColorMultSpread" index="0" value="{ 0.0, 0.0, 0.0, 0 }" />
+				<parameter name="bUseSizeMult" index="0" value="0" />
+				<parameter name="fSizeMultX" index="0" value="0.5" />
+				<parameter name="fSizeMultY" index="0" value="1.0" />
+				<parameter name="bUseColorRamp" index="0" value="1" />
+				<parameter name="vColorRamp" index="0" value="{ 1, 2, 2, 2 }" />
+				<parameter name="vColorRamp" index="1" value="{ 1, 1, 1, 1 }" />
+				<parameter name="vColorRamp" index="2" value="{ 1, 1, 1, 0.5 }" />
+				<parameter name="vColorRamp" index="3" value="{ 1, 1, 1, 0 }" />
+				<parameter name="vColorRampTimes" index="0" value="{ 0, 0.1, 0.2, 1 }" />
+				<parameter name="bUseSizeRamp" index="0" value="1" />
+				<parameter name="vSizeRamp" index="0" value="{ 0.2, 0.8, 0.9, 1.0 }" />
+				<parameter name="vSizeRampTimes" index="0" value="{ 0.0, 0.05, 0.1, 1 }" />
+				<parameter name="bUseLighting" index="0" value="0" />
+				<parameter name="bUseAnimTexture" index="0" value="0" />
+				<parameter name="iAnimTextureMode" index="0" value="1" />
+				<parameter name="iAnimTextureCount" index="0" value="4" />
+				<parameter name="iAnimTextureRows" index="0" value="2" />
+				<parameter name="fAnimTextureSpeed" index="0" value="3" />
+				<parameter name="iAnimTextureRandomStart" index="0" value="4" />
+			</particleAction>
+		</particleGroup>
+		<particleGroup name="ordinance">
+			<parameter name="iNumParticlesMax" index="0" value="1" />
+			<parameter name="iInstancing" index="0" value="1" />
+			<particleAction name="ParticleActionEmitBox" className="ParticleActionEmitBox">
+				<parameter name="iEmitRate" index="0" value="1000" />
+				<parameter name="fSizeMean" index="0" value="12" />
+				<parameter name="fSizeSpread" index="0" value="0.0" />
+				<parameter name="vDimensions" index="0" value="{ 0.0, 0.0, 0.0 }" />
+				<parameter name="vCenter" index="0" value="{ 0, 0, 0 }" />
+				<parameter name="iAgeSpreadMs" index="0" value="200" />
+				<parameter name="vVelocityMean" index="0" value="{ 0, 1180, 80 }" />
+				<parameter name="vVelocitySpread" index="0" value="{ 40, 110, 60 }" />
+				<parameter name="vOrientationSpread" index="0" value="{ 6.28, 0, 0 }" />
+				<parameter name="vAngularVelocitySpread" index="0" value="{ 6.0, 0.0, 0.0 }" />
+				<parameter name="bInject" index="0" value="0" />
+				<parameter name="iEmitCycles" index="0" value="20" />
+				<parameter name="iEmitDurationMs" index="0" value="50" />
+				<parameter name="iEmitDelayMs" index="0" value="2950" />
+				<parameter name="iTimeStartedMs" index="0" value="0" />
+			</particleAction>
+			<particleAction name="ParticleActionKillAge" className="ParticleActionKillAge">
+				<parameter name="iAgeMs" index="0" value="2300" />
+			</particleAction>
+			<particleAction name="ParticleActionAccelerate" className="ParticleActionAccelerate">
+				<parameter name="vAcceleration" index="0" value="{ 35, -490, 10 }" />
+			</particleAction>
+			<particleAction name="ParticleActionEvolve" className="ParticleActionEvolve" />
+			<particleAction name="ParticleActionCopyToParameter2" className="ParticleActionCopyToParameter">
+				<parameter name="rPositionDest" index="0" value="sparkle_trail/ParticleActionEmitBox/vCenter" />
+				<parameter name="iStride" index="0" value="0" />
+				<parameter name="iShiftInc" index="0" value="0" />
+			</particleAction>
+			<particleAction name="ParticleActionCopyToParameter22" className="ParticleActionCopyToParameter">
+				<parameter name="rPositionDest" index="0" value="smoke_trail/ParticleActionEmitBox/vCenter" />
+				<parameter name="iStride" index="0" value="0" />
+				<parameter name="iShiftInc" index="0" value="0" />
+			</particleAction>
+			<particleAction name="ParticleActionRender" className="ParticleActionRender">
+				<parameter name="sShader" index="0" value="lynx.fx" />
+				<parameter name="sTexture" index="0" value="fx_glare_whitefalloff.dds" />
+				<parameter name="sTechnique" index="0" value="AdditiveBlend" />
+				<parameter name="iType" index="0" value="0" />
+				<parameter name="iAlign" index="0" value="0" />
+				<parameter name="iScreenSpace" index="0" value="0" />
+				<parameter name="fFadeDistance" index="0" value="0" />
+				<parameter name="fZBias" index="0" value="0" />
+				<parameter name="vPivotShift" index="0" value="{ 0.0, 0.0, 0.0 }" />
+				<parameter name="rKillAge" index="0" value="ordinance/ParticleActionKillAge/iAgeMs" />
+				<parameter name="bStretchPerParticle" index="0" value="0" />
+				<parameter name="fStretchSpeedScale" index="0" value="0.2" />
+				<parameter name="vStretchVelocity" index="0" value="{ 0, 0, 0, 0 }" />
+				<parameter name="fStretchSpeedMin" index="0" value="0.1" />
+				<parameter name="iNoFadeFar" index="0" value="0" />
+				<parameter name="bUseColorMult" index="0" value="1" />
+				<parameter name="vColorMult" index="0" value="{ 2.0, 1.1, 0.6, 0.85 }" />
+				<parameter name="vColorMultSpread" index="0" value="{ 0, 0, 0, 0.0 }" />
+				<parameter name="bUseSizeMult" index="0" value="0" />
+				<parameter name="bUseColorRamp" index="0" value="0" />
+				<parameter name="bUseSizeRamp" index="0" value="1" />
+				<parameter name="vSizeRamp" index="0" value="{ 1.0, 1.0, 1.0, 0.0 }" />
+				<parameter name="vSizeRampTimes" index="0" value="{ 0.0, 0.8, 0.9, 1 }" />
+				<parameter name="bUseLighting" index="0" value="0" />
+				<parameter name="bUseAnimTexture" index="0" value="0" />
+				<parameter name="iAnimTextureMode" index="0" value="1" />
+				<parameter name="iAnimTextureCount" index="0" value="4" />
+				<parameter name="iAnimTextureRows" index="0" value="2" />
+				<parameter name="fAnimTextureSpeed" index="0" value="10" />
+				<parameter name="iAnimTextureRandomStart" index="0" value="4" />
+			</particleAction>
+		<particleAction name="MachineTrailOverlayCopy" className="ParticleActionCopyToParameter"><parameter name="rPositionDest" index="0" value="smoke_trail_overlay/ParticleActionEmitBox/vCenter" /><parameter name="iStride" index="0" value="0" /><parameter name="iShiftInc" index="0" value="0" /></particleAction></particleGroup>
+		<particleGroup name="smoke_base">
+			<parameter name="iNumParticlesMax" index="0" value="850" />
+			<parameter name="iInstancing" index="0" value="1" />
+			<particleAction name="ParticleActionEmitBox" className="ParticleActionEmitBox">
+				<parameter name="iEmitRate" index="0" value="150" />
+				<parameter name="fSizeMean" index="0" value="380" />
+				<parameter name="fSizeSpread" index="0" value="100" />
+				<parameter name="vDimensions" index="0" value="{ 0.0, 0.0, 0.0 }" />
+				<parameter name="vCenter" index="0" value="{ 0, 0, 0 }" />
+				<parameter name="iAgeSpreadMs" index="0" value="0" />
+				<parameter name="vVelocityMean" index="0" value="{ 0, 280, 15 }" />
+				<parameter name="vVelocitySpread" index="0" value="{ 60, 100, 40 }" />
+				<parameter name="vOrientationSpread" index="0" value="{ 6.28, 0, 0 }" />
+				<parameter name="vAngularVelocitySpread" index="0" value="{ 0.25, 0.0, 0.0 }" />
+				<parameter name="bInject" index="0" value="0" />
+				<parameter name="iEmitCycles" index="0" value="1" />
+				<parameter name="iEmitDurationMs" index="0" value="60000" />
+				<parameter name="iEmitDelayMs" index="0" value="0" />
+			</particleAction>
+			<particleAction name="ParticleActionKillAge" className="ParticleActionKillAge">
+				<parameter name="iAgeMs" index="0" value="6500" />
+			</particleAction>
+			<particleAction name="ParticleActionEvolve" className="ParticleActionEvolve" />
+			<particleAction name="ParticleActionRender" className="ParticleActionRender">
+				<parameter name="sShader" index="0" value="lynx.fx" />
+				<parameter name="sTexture" index="0" value="fx_rawcloud.dds" />
+				<parameter name="sTechnique" index="0" value="AlphaBlend" />
+				<parameter name="iType" index="0" value="0" />
+				<parameter name="iAlign" index="0" value="0" />
+				<parameter name="iScreenSpace" index="0" value="0" />
+				<parameter name="fFadeDistance" index="0" value="0" />
+				<parameter name="fZBias" index="0" value="0" />
+				<parameter name="vPivotShift" index="0" value="{ 0, 0, 0 }" />
+				<parameter name="rKillAge" index="0" value="smoke_base/ParticleActionKillAge/iAgeMs" />
+				<parameter name="bStretchPerParticle" index="0" value="0" />
+				<parameter name="fStretchSpeedScale" index="0" value="0.2" />
+				<parameter name="vStretchVelocity" index="0" value="{ 0, 0, 0, 0 }" />
+				<parameter name="fStretchSpeedMin" index="0" value="0.1" />
+				<parameter name="iNoFadeFar" index="0" value="0" />
+				<parameter name="bUseColorMult" index="0" value="1" />
+				<parameter name="vColorMult" index="0" value="{ 0.7, 0.012, 0.025, 0.95 }" />
+				<parameter name="vColorMultSpread" index="0" value="{ 0, 0, 0, 0.0 }" />
+				<parameter name="bUseSizeMult" index="0" value="0" />
+				<parameter name="bUseColorRamp" index="0" value="1" />
+				<parameter name="vColorRamp" index="0" value="{ 1, 1, 1, 0 }" />
+				<parameter name="vColorRamp" index="1" value="{ 1, 1, 1, 0.95 }" />
+				<parameter name="vColorRamp" index="2" value="{ 1, 1, 1, 0.75 }" />
+				<parameter name="vColorRamp" index="3" value="{ 1, 1, 1, 0 }" />
+				<parameter name="vColorRampTimes" index="0" value="{ 0.0, 0.1, 0.6, 1.0 }" />
+				<parameter name="bUseSizeRamp" index="0" value="1" />
+				<parameter name="vSizeRamp" index="0" value="{ 0.04, 0.33, 0.66, 1.0 }" />
+				<parameter name="vSizeRampTimes" index="0" value="{ 0.0, 0.2, 0.5, 1 }" />
+				<parameter name="bUseLighting" index="0" value="0" />
+				<parameter name="bUseAnimTexture" index="0" value="0" />
+				<parameter name="iAnimTextureMode" index="0" value="1" />
+				<parameter name="iAnimTextureCount" index="0" value="25" />
+				<parameter name="iAnimTextureRows" index="0" value="5" />
+				<parameter name="fAnimTextureSpeed" index="0" value=".5" />
+				<parameter name="iAnimTextureRandomStart" index="0" value="25" />
+				<parameter name="bHalfSizeRender" index="0" value="1" />
+				<parameter name="fZFeatherRange" index="0" value="100" />
+				<parameter name="fNearFeatherRange" index="0" value="1" />
+				<parameter name="fFarFeatherRange" index="0" value="1" />
+				<parameter name="bDepthSort" index="0" value="1" />
+			</particleAction>
+		</particleGroup>
+		<particleGroup name="smoke_base_overlay">
+			<parameter name="iNumParticlesMax" index="0" value="850" />
+			<parameter name="iInstancing" index="0" value="1" />
+			<particleAction name="ParticleActionEmitBox" className="ParticleActionEmitBox">
+				<parameter name="iEmitRate" index="0" value="150" />
+				<parameter name="fSizeMean" index="0" value="380" />
+				<parameter name="fSizeSpread" index="0" value="100" />
+				<parameter name="vDimensions" index="0" value="{ 0.0, 0.0, 0.0 }" />
+				<parameter name="vCenter" index="0" value="{ 0, 0, 0 }" />
+				<parameter name="iAgeSpreadMs" index="0" value="0" />
+				<parameter name="vVelocityMean" index="0" value="{ 0, 280, 15 }" />
+				<parameter name="vVelocitySpread" index="0" value="{ 60, 100, 40 }" />
+				<parameter name="vOrientationSpread" index="0" value="{ 6.28, 0, 0 }" />
+				<parameter name="vAngularVelocitySpread" index="0" value="{ 0.25, 0.0, 0.0 }" />
+				<parameter name="bInject" index="0" value="0" />
+				<parameter name="iEmitCycles" index="0" value="1" />
+				<parameter name="iEmitDurationMs" index="0" value="60000" />
+				<parameter name="iEmitDelayMs" index="0" value="0" />
+			</particleAction>
+			<particleAction name="ParticleActionKillAge" className="ParticleActionKillAge">
+				<parameter name="iAgeMs" index="0" value="6500" />
+			</particleAction>
+			<particleAction name="ParticleActionEvolve" className="ParticleActionEvolve" />
+			<particleAction name="ParticleActionRender" className="ParticleActionRender">
+				<parameter name="sShader" index="0" value="lynx.fx" />
+				<parameter name="sTexture" index="0" value="fx_rawcloud.dds" />
+				<parameter name="sTechnique" index="0" value="AlphaBlend" />
+				<parameter name="iType" index="0" value="0" />
+				<parameter name="iAlign" index="0" value="0" />
+				<parameter name="iScreenSpace" index="0" value="0" />
+				<parameter name="fFadeDistance" index="0" value="0" />
+				<parameter name="fZBias" index="0" value="0" />
+				<parameter name="vPivotShift" index="0" value="{ 0, 0, 0 }" />
+				<parameter name="rKillAge" index="0" value="smoke_base_overlay/ParticleActionKillAge/iAgeMs" />
+				<parameter name="bStretchPerParticle" index="0" value="0" />
+				<parameter name="fStretchSpeedScale" index="0" value="0.2" />
+				<parameter name="vStretchVelocity" index="0" value="{ 0, 0, 0, 0 }" />
+				<parameter name="fStretchSpeedMin" index="0" value="0.1" />
+				<parameter name="iNoFadeFar" index="0" value="0" />
+				<parameter name="bUseColorMult" index="0" value="1" />
+				<parameter name="vColorMult" index="0" value="{ 0.7, 0.012, 0.025, 0.95 }" />
+				<parameter name="vColorMultSpread" index="0" value="{ 0, 0, 0, 0.0 }" />
+				<parameter name="bUseSizeMult" index="0" value="0" />
+				<parameter name="bUseColorRamp" index="0" value="1" />
+				<parameter name="vColorRamp" index="0" value="{ 1, 1, 1, 0 }" />
+				<parameter name="vColorRamp" index="1" value="{ 1, 1, 1, 0.95 }" />
+				<parameter name="vColorRamp" index="2" value="{ 1, 1, 1, 0.75 }" />
+				<parameter name="vColorRamp" index="3" value="{ 1, 1, 1, 0 }" />
+				<parameter name="vColorRampTimes" index="0" value="{ 0.0, 0.1, 0.6, 1.0 }" />
+				<parameter name="bUseSizeRamp" index="0" value="1" />
+				<parameter name="vSizeRamp" index="0" value="{ 0.04, 0.33, 0.66, 1.0 }" />
+				<parameter name="vSizeRampTimes" index="0" value="{ 0.0, 0.2, 0.5, 1 }" />
+				<parameter name="bUseLighting" index="0" value="0" />
+				<parameter name="bUseAnimTexture" index="0" value="0" />
+				<parameter name="iAnimTextureMode" index="0" value="1" />
+				<parameter name="iAnimTextureCount" index="0" value="25" />
+				<parameter name="iAnimTextureRows" index="0" value="5" />
+				<parameter name="fAnimTextureSpeed" index="0" value=".5" />
+				<parameter name="iAnimTextureRandomStart" index="0" value="25" />
+				<parameter name="bHalfSizeRender" index="0" value="1" />
+				<parameter name="fZFeatherRange" index="0" value="100" />
+				<parameter name="fNearFeatherRange" index="0" value="1" />
+				<parameter name="fFarFeatherRange" index="0" value="1" />
+				<parameter name="bDepthSort" index="0" value="1" />
+			</particleAction>
+		</particleGroup>
+		<particleGroup name="smoke_black">
+			<parameter name="iNumParticlesMax" index="0" value="850" />
+			<parameter name="iInstancing" index="0" value="1" />
+			<particleAction name="ParticleActionEmitBox" className="ParticleActionEmitBox">
+				<parameter name="iEmitRate" index="0" value="150" />
+				<parameter name="fSizeMean" index="0" value="380" />
+				<parameter name="fSizeSpread" index="0" value="100" />
+				<parameter name="vDimensions" index="0" value="{ 0.0, 0.0, 0.0 }" />
+				<parameter name="vCenter" index="0" value="{ 0, 0, 0 }" />
+				<parameter name="iAgeSpreadMs" index="0" value="0" />
+				<parameter name="vVelocityMean" index="0" value="{ 0, 280, 15 }" />
+				<parameter name="vVelocitySpread" index="0" value="{ 60, 100, 40 }" />
+				<parameter name="vOrientationSpread" index="0" value="{ 6.28, 0, 0 }" />
+				<parameter name="vAngularVelocitySpread" index="0" value="{ 0.25, 0.0, 0.0 }" />
+				<parameter name="bInject" index="0" value="0" />
+				<parameter name="iEmitCycles" index="0" value="1" />
+				<parameter name="iEmitDurationMs" index="0" value="60000" />
+				<parameter name="iEmitDelayMs" index="0" value="0" />
+			</particleAction>
+			<particleAction name="ParticleActionKillAge" className="ParticleActionKillAge">
+				<parameter name="iAgeMs" index="0" value="6500" />
+			</particleAction>
+			<particleAction name="ParticleActionEvolve" className="ParticleActionEvolve" />
+			<particleAction name="ParticleActionRender" className="ParticleActionRender">
+				<parameter name="sShader" index="0" value="lynx.fx" />
+				<parameter name="sTexture" index="0" value="fx_rawcloud.dds" />
+				<parameter name="sTechnique" index="0" value="AlphaBlend" />
+				<parameter name="iType" index="0" value="0" />
+				<parameter name="iAlign" index="0" value="0" />
+				<parameter name="iScreenSpace" index="0" value="0" />
+				<parameter name="fFadeDistance" index="0" value="0" />
+				<parameter name="fZBias" index="0" value="0" />
+				<parameter name="vPivotShift" index="0" value="{ 0, 0, 0 }" />
+				<parameter name="rKillAge" index="0" value="smoke_black/ParticleActionKillAge/iAgeMs" />
+				<parameter name="bStretchPerParticle" index="0" value="0" />
+				<parameter name="fStretchSpeedScale" index="0" value="0.2" />
+				<parameter name="vStretchVelocity" index="0" value="{ 0, 0, 0, 0 }" />
+				<parameter name="fStretchSpeedMin" index="0" value="0.1" />
+				<parameter name="iNoFadeFar" index="0" value="0" />
+				<parameter name="bUseColorMult" index="0" value="1" />
+				<parameter name="vColorMult" index="0" value="{ 0.055, 0.055, 0.055, 0.98 }" />
+				<parameter name="vColorMultSpread" index="0" value="{ 0, 0, 0, 0.0 }" />
+				<parameter name="bUseSizeMult" index="0" value="0" />
+				<parameter name="bUseColorRamp" index="0" value="1" />
+				<parameter name="vColorRamp" index="0" value="{ 1, 1, 1, 0 }" />
+				<parameter name="vColorRamp" index="1" value="{ 1, 1, 1, 0.95 }" />
+				<parameter name="vColorRamp" index="2" value="{ 1, 1, 1, 0.75 }" />
+				<parameter name="vColorRamp" index="3" value="{ 1, 1, 1, 0 }" />
+				<parameter name="vColorRampTimes" index="0" value="{ 0.0, 0.1, 0.6, 1.0 }" />
+				<parameter name="bUseSizeRamp" index="0" value="1" />
+				<parameter name="vSizeRamp" index="0" value="{ 0.04, 0.33, 0.66, 1.0 }" />
+				<parameter name="vSizeRampTimes" index="0" value="{ 0.0, 0.2, 0.5, 1 }" />
+				<parameter name="bUseLighting" index="0" value="0" />
+				<parameter name="bUseAnimTexture" index="0" value="0" />
+				<parameter name="iAnimTextureMode" index="0" value="1" />
+				<parameter name="iAnimTextureCount" index="0" value="25" />
+				<parameter name="iAnimTextureRows" index="0" value="5" />
+				<parameter name="fAnimTextureSpeed" index="0" value=".5" />
+				<parameter name="iAnimTextureRandomStart" index="0" value="25" />
+				<parameter name="bHalfSizeRender" index="0" value="1" />
+				<parameter name="fZFeatherRange" index="0" value="100" />
+				<parameter name="fNearFeatherRange" index="0" value="1" />
+				<parameter name="fFarFeatherRange" index="0" value="1" />
+				<parameter name="bDepthSort" index="0" value="1" />
+			</particleAction>
+		</particleGroup>
+		<particleGroup name="smoke_black_overlay">
+			<parameter name="iNumParticlesMax" index="0" value="850" />
+			<parameter name="iInstancing" index="0" value="1" />
+			<particleAction name="ParticleActionEmitBox" className="ParticleActionEmitBox">
+				<parameter name="iEmitRate" index="0" value="150" />
+				<parameter name="fSizeMean" index="0" value="380" />
+				<parameter name="fSizeSpread" index="0" value="100" />
+				<parameter name="vDimensions" index="0" value="{ 0.0, 0.0, 0.0 }" />
+				<parameter name="vCenter" index="0" value="{ 0, 0, 0 }" />
+				<parameter name="iAgeSpreadMs" index="0" value="0" />
+				<parameter name="vVelocityMean" index="0" value="{ 0, 280, 15 }" />
+				<parameter name="vVelocitySpread" index="0" value="{ 60, 100, 40 }" />
+				<parameter name="vOrientationSpread" index="0" value="{ 6.28, 0, 0 }" />
+				<parameter name="vAngularVelocitySpread" index="0" value="{ 0.25, 0.0, 0.0 }" />
+				<parameter name="bInject" index="0" value="0" />
+				<parameter name="iEmitCycles" index="0" value="1" />
+				<parameter name="iEmitDurationMs" index="0" value="60000" />
+				<parameter name="iEmitDelayMs" index="0" value="0" />
+			</particleAction>
+			<particleAction name="ParticleActionKillAge" className="ParticleActionKillAge">
+				<parameter name="iAgeMs" index="0" value="6500" />
+			</particleAction>
+			<particleAction name="ParticleActionEvolve" className="ParticleActionEvolve" />
+			<particleAction name="ParticleActionRender" className="ParticleActionRender">
+				<parameter name="sShader" index="0" value="lynx.fx" />
+				<parameter name="sTexture" index="0" value="fx_rawcloud.dds" />
+				<parameter name="sTechnique" index="0" value="AlphaBlend" />
+				<parameter name="iType" index="0" value="0" />
+				<parameter name="iAlign" index="0" value="0" />
+				<parameter name="iScreenSpace" index="0" value="0" />
+				<parameter name="fFadeDistance" index="0" value="0" />
+				<parameter name="fZBias" index="0" value="0" />
+				<parameter name="vPivotShift" index="0" value="{ 0, 0, 0 }" />
+				<parameter name="rKillAge" index="0" value="smoke_black_overlay/ParticleActionKillAge/iAgeMs" />
+				<parameter name="bStretchPerParticle" index="0" value="0" />
+				<parameter name="fStretchSpeedScale" index="0" value="0.2" />
+				<parameter name="vStretchVelocity" index="0" value="{ 0, 0, 0, 0 }" />
+				<parameter name="fStretchSpeedMin" index="0" value="0.1" />
+				<parameter name="iNoFadeFar" index="0" value="0" />
+				<parameter name="bUseColorMult" index="0" value="1" />
+				<parameter name="vColorMult" index="0" value="{ 0.055, 0.055, 0.055, 0.98 }" />
+				<parameter name="vColorMultSpread" index="0" value="{ 0, 0, 0, 0.0 }" />
+				<parameter name="bUseSizeMult" index="0" value="0" />
+				<parameter name="bUseColorRamp" index="0" value="1" />
+				<parameter name="vColorRamp" index="0" value="{ 1, 1, 1, 0 }" />
+				<parameter name="vColorRamp" index="1" value="{ 1, 1, 1, 0.95 }" />
+				<parameter name="vColorRamp" index="2" value="{ 1, 1, 1, 0.75 }" />
+				<parameter name="vColorRamp" index="3" value="{ 1, 1, 1, 0 }" />
+				<parameter name="vColorRampTimes" index="0" value="{ 0.0, 0.1, 0.6, 1.0 }" />
+				<parameter name="bUseSizeRamp" index="0" value="1" />
+				<parameter name="vSizeRamp" index="0" value="{ 0.04, 0.33, 0.66, 1.0 }" />
+				<parameter name="vSizeRampTimes" index="0" value="{ 0.0, 0.2, 0.5, 1 }" />
+				<parameter name="bUseLighting" index="0" value="0" />
+				<parameter name="bUseAnimTexture" index="0" value="0" />
+				<parameter name="iAnimTextureMode" index="0" value="1" />
+				<parameter name="iAnimTextureCount" index="0" value="25" />
+				<parameter name="iAnimTextureRows" index="0" value="5" />
+				<parameter name="fAnimTextureSpeed" index="0" value=".5" />
+				<parameter name="iAnimTextureRandomStart" index="0" value="25" />
+				<parameter name="bHalfSizeRender" index="0" value="1" />
+				<parameter name="fZFeatherRange" index="0" value="100" />
+				<parameter name="fNearFeatherRange" index="0" value="1" />
+				<parameter name="fFarFeatherRange" index="0" value="1" />
+				<parameter name="bDepthSort" index="0" value="1" />
+			</particleAction>
+		</particleGroup>
+		<particleGroup name="burst">
+			<parameter name="iNumParticlesMax" index="0" value="200" />
+			<particleAction name="ParticleActionEmitSphere" className="ParticleActionEmitSphere">
+				<parameter name="iEmitRate" index="0" value="1000" />
+				<parameter name="fSizeMean" index="0" value="22" />
+				<parameter name="fSizeSpread" index="0" value="12" />
+				<parameter name="vDimensions" index="0" value="{ 0.1, 0.1, 0.1 }" />
+				<parameter name="vCenter" index="0" value="{ 200, 1500, 0 }" numElements="1" />
+				<parameter name="vVelocityMean" index="0" value="{ 0, 0, 0 }" />
+				<parameter name="vVelocitySpread" index="0" value="{ 700, 700, 700 }" />
+				<parameter name="fVelocityAdoption" index="0" value="0" />
+				<parameter name="iEmitCycles" index="0" value="20" />
+				<parameter name="iEmitDurationMs" index="0" value="200" />
+				<parameter name="iTimeStartedMs" index="0" value="1800" />
+				<parameter name="iEmitDelayMs" index="0" value="2800" />
+			</particleAction>
+			<parameter name="iInstancing" index="0" value="1" />
+			<particleAction name="ParticleActionKillAge" className="ParticleActionKillAge">
+				<parameter name="iAgeMs" index="0" value="1900" />
+			</particleAction>
+			<particleAction name="ParticleActionAccelerate" className="ParticleActionAccelerate">
+				<parameter name="vAcceleration" index="0" value="{ 35, -240, 10 }" />
+			</particleAction>
+			<particleAction name="ParticleActionEvolve" className="ParticleActionEvolve" />
+			<particleAction name="ParticleActionRender" className="ParticleActionRender">
+				<parameter name="sShader" index="0" value="lynx.fx" />
+				<parameter name="sTexture" index="0" value="fx_glare_whitefalloff.dds" />
+				<parameter name="sTechnique" index="0" value="AdditiveBlend" />
+				<parameter name="iType" index="0" value="0" />
+				<parameter name="iAlign" index="0" value="0" />
+				<parameter name="iScreenSpace" index="0" value="0" />
+				<parameter name="fFadeDistance" index="0" value="0" />
+				<parameter name="fZBias" index="0" value="0" />
+				<parameter name="vPivotShift" index="0" value="{ 0.0, 0.0, 0.0 }" />
+				<parameter name="rKillAge" index="0" value="burst/ParticleActionKillAge/iAgeMs" />
+				<parameter name="bStretchPerParticle" index="0" value="0" />
+				<parameter name="fStretchSpeedScale" index="0" value="0.2" />
+				<parameter name="vStretchVelocity" index="0" value="{ 0, 0, 0, 0 }" />
+				<parameter name="fStretchSpeedMin" index="0" value="0.1" />
+				<parameter name="iNoFadeFar" index="0" value="0" />
+				<parameter name="bUseColorMult" index="0" value="1" />
+				<parameter name="vColorMult" index="0" value="{ 2.0, 1.1, 0.65, 0.85 }" />
+				<parameter name="vColorMultSpread" index="0" value="{ 0, 0, 0, 0.0 }" />
+				<parameter name="bUseSizeMult" index="0" value="0" />
+				<parameter name="bUseColorRamp" index="0" value="0" />
+				<parameter name="bUseSizeRamp" index="0" value="1" />
+				<parameter name="vSizeRamp" index="0" value="{ 1.0, 1.0, 1.0, 0.0 }" />
+				<parameter name="vSizeRampTimes" index="0" value="{ 0.0, 0.8, 0.9, 1 }" />
+				<parameter name="bUseLighting" index="0" value="0" />
+				<parameter name="bUseAnimTexture" index="0" value="0" />
+				<parameter name="iAnimTextureMode" index="0" value="1" />
+				<parameter name="iAnimTextureCount" index="0" value="4" />
+				<parameter name="iAnimTextureRows" index="0" value="2" />
+				<parameter name="fAnimTextureSpeed" index="0" value="10" />
+				<parameter name="iAnimTextureRandomStart" index="0" value="4" />
+			</particleAction>
+		</particleGroup>
+		<particleGroup name="confetti_primary">
+			<parameter name="iNumParticlesMax" index="0" value="1200" />
+			<parameter name="iInstancing" index="0" value="1" />
+			<particleAction name="ParticleActionEmitBox" className="ParticleActionEmitBox">
+				<parameter name="iEmitRate" index="0" value="2000" />
+				<parameter name="fSizeMean" index="0" value="3" />
+				<parameter name="fSizeSpread" index="0" value="1" />
+				<parameter name="vDimensions" index="0" value="{ 6, 6, 6 }" />
+				<parameter name="vCenter" index="0" value="{ 0, 0, 0 }" />
+				<parameter name="iAgeSpreadMs" index="0" value="0" />
+				<parameter name="vVelocityMean" index="0" value="{ 0, 1100, 75 }" />
+				<parameter name="vVelocitySpread" index="0" value="{ 340, 250, 320 }" />
+				<parameter name="vOrientationSpread" index="0" value="{ 6.28, 6.28, 6.28 }" />
+				<parameter name="vAngularVelocityMean" index="0" value="{ 5, 5, 5 }" />
+				<parameter name="vAngularVelocitySpread" index="0" value="{ 5, 5, 5 }" />
+				<parameter name="iEmitCycles" index="0" value="14" />
+				<parameter name="iEmitDurationMs" index="0" value="450" />
+				<parameter name="iEmitDelayMs" index="0" value="4050" />
+				<parameter name="iTimeStartedMs" index="0" value="0" />
+			</particleAction>
+			<particleAction name="ParticleActionEvolve" className="ParticleActionEvolve" />
+			<particleAction name="ParticleActionKillAge" className="ParticleActionKillAge">
+				<parameter name="iAgeMs" index="0" value="4300" />
+			</particleAction>
+			<particleAction name="ParticleActionAccelerate" className="ParticleActionAccelerate">
+				<parameter name="vAcceleration" index="0" value="{ 35, -400, 15 }" />
+			</particleAction>
+			<particleAction name="ParticleActionRender" className="ParticleActionRender">
+				<parameter name="sShader" index="0" value="confetticannon_one_color.fx" metadata="lynx.fx" />
+				<parameter name="sTexture" index="0" value="fx_confetti.dds" />
+				<parameter name="sTechnique" index="0" value="AlphaBlend" />
+				<parameter name="iType" index="0" value="0" />
+				<parameter name="iAlign" index="0" value="0" />
+				<parameter name="iScreenSpace" index="0" value="0" />
+				<parameter name="fFadeDistance" index="0" value="100" />
+				<parameter name="fZBias" index="0" value="0" />
+				<parameter name="vPivotShift" index="0" value="{ 0.0, 0.0, 0.0 }" />
+				<parameter name="rKillAge" index="0" value="confetti_primary/ParticleActionKillAge/iAgeMs" />
+				<parameter name="bStretchPerParticle" index="0" value="0" />
+				<parameter name="fStretchSpeedScale" index="0" value="1" />
+				<parameter name="iNoFadeFar" index="0" value="0" />
+				<parameter name="bUseColorMult" index="0" value="1" />
+				<parameter name="vColorMult" index="0" value="{ 0.85, 0.012, 0.025, 1 }" />
+				<parameter name="vColorMultSpread" index="0" value="{ 0, 0, 0, 0 }" />
+				<parameter name="bUseSizeMult" index="0" value="0" />
+				<parameter name="bUseColorRamp" index="0" value="1" />
+				<parameter name="vColorRamp" index="0" value="{ 1, 1, 1, 1 }" />
+				<parameter name="vColorRamp" index="1" value="{ 1, 1, 1, 1 }" />
+				<parameter name="vColorRamp" index="2" value="{ 1, 1, 1, 1 }" />
+				<parameter name="vColorRamp" index="3" value="{ 1, 1, 1, 0 }" />
+				<parameter name="vColorRampTimes" index="0" value="{ 0.0, 0.33, 0.66, 1 }" />
+				<parameter name="bUseSizeRamp" index="0" value="0" />
+				<parameter name="bUseLighting" index="0" value="0" />
+				<parameter name="bUseAnimTexture" index="0" value="0" />
+				<parameter name="fSunDarken" index="0" value="0.65" />
+				<parameter name="fSunPower" index="0" value="3.0" />
+				<parameter name="iUseCustomColor" index="0" value="0" />
+				<parameter name="bDepthSort" index="0" value="1" />
+			</particleAction>
+		</particleGroup>
+		<particleGroup name="confetti_secondary">
+			<parameter name="iNumParticlesMax" index="0" value="1200" />
+			<parameter name="iInstancing" index="0" value="1" />
+			<particleAction name="ParticleActionEmitBox" className="ParticleActionEmitBox">
+				<parameter name="iEmitRate" index="0" value="2000" />
+				<parameter name="fSizeMean" index="0" value="3" />
+				<parameter name="fSizeSpread" index="0" value="1" />
+				<parameter name="vDimensions" index="0" value="{ 6, 6, 6 }" />
+				<parameter name="vCenter" index="0" value="{ 0, 0, 0 }" />
+				<parameter name="iAgeSpreadMs" index="0" value="0" />
+				<parameter name="vVelocityMean" index="0" value="{ 0, 1100, 75 }" />
+				<parameter name="vVelocitySpread" index="0" value="{ 340, 250, 320 }" />
+				<parameter name="vOrientationSpread" index="0" value="{ 6.28, 6.28, 6.28 }" />
+				<parameter name="vAngularVelocityMean" index="0" value="{ 5, 5, 5 }" />
+				<parameter name="vAngularVelocitySpread" index="0" value="{ 5, 5, 5 }" />
+				<parameter name="iEmitCycles" index="0" value="14" />
+				<parameter name="iEmitDurationMs" index="0" value="450" />
+				<parameter name="iEmitDelayMs" index="0" value="4050" />
+				<parameter name="iTimeStartedMs" index="0" value="0" />
+			</particleAction>
+			<particleAction name="ParticleActionEvolve" className="ParticleActionEvolve" />
+			<particleAction name="ParticleActionKillAge" className="ParticleActionKillAge">
+				<parameter name="iAgeMs" index="0" value="4300" />
+			</particleAction>
+			<particleAction name="ParticleActionAccelerate" className="ParticleActionAccelerate">
+				<parameter name="vAcceleration" index="0" value="{ 35, -400, 15 }" />
+			</particleAction>
+			<particleAction name="ParticleActionRender" className="ParticleActionRender">
+				<parameter name="sShader" index="0" value="confetticannon_one_color.fx" metadata="lynx.fx" />
+				<parameter name="sTexture" index="0" value="fx_confetti.dds" />
+				<parameter name="sTechnique" index="0" value="AlphaBlend" />
+				<parameter name="iType" index="0" value="0" />
+				<parameter name="iAlign" index="0" value="0" />
+				<parameter name="iScreenSpace" index="0" value="0" />
+				<parameter name="fFadeDistance" index="0" value="100" />
+				<parameter name="fZBias" index="0" value="0" />
+				<parameter name="vPivotShift" index="0" value="{ 0.0, 0.0, 0.0 }" />
+				<parameter name="rKillAge" index="0" value="confetti_secondary/ParticleActionKillAge/iAgeMs" />
+				<parameter name="bStretchPerParticle" index="0" value="0" />
+				<parameter name="fStretchSpeedScale" index="0" value="1" />
+				<parameter name="iNoFadeFar" index="0" value="0" />
+				<parameter name="bUseColorMult" index="0" value="1" />
+				<parameter name="vColorMult" index="0" value="{ 0.035, 0.035, 0.035, 1 }" />
+				<parameter name="vColorMultSpread" index="0" value="{ 0, 0, 0, 0 }" />
+				<parameter name="bUseSizeMult" index="0" value="0" />
+				<parameter name="bUseColorRamp" index="0" value="1" />
+				<parameter name="vColorRamp" index="0" value="{ 1, 1, 1, 1 }" />
+				<parameter name="vColorRamp" index="1" value="{ 1, 1, 1, 1 }" />
+				<parameter name="vColorRamp" index="2" value="{ 1, 1, 1, 1 }" />
+				<parameter name="vColorRamp" index="3" value="{ 1, 1, 1, 0 }" />
+				<parameter name="vColorRampTimes" index="0" value="{ 0.0, 0.33, 0.66, 1 }" />
+				<parameter name="bUseSizeRamp" index="0" value="0" />
+				<parameter name="bUseLighting" index="0" value="0" />
+				<parameter name="bUseAnimTexture" index="0" value="0" />
+				<parameter name="fSunDarken" index="0" value="0.65" />
+				<parameter name="fSunPower" index="0" value="3.0" />
+				<parameter name="iUseCustomColor" index="0" value="0" />
+				<parameter name="bDepthSort" index="0" value="1" />
+			</particleAction>
+		</particleGroup>
+	</particleEffect>
+</particleSystem>

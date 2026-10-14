@@ -61,7 +61,7 @@
       "name": "Objetos de abertura por competição",
       "behavior": "Escolhe arco e placas pelo campeonato; retira modelo e escudos juntos ao fim das escalações ou da apresentação avançada.",
       "source": "ModCarrerMode/source/entrance_props",
-      "configuration": "ModCarrerMode/config/entrance_competitions.ini",
+      "configuration": "ModCarrerMode/config/match_presentation.ini; IDs em FSW/settings.ini",
       "limits": "Padrão Sim. Pacote ausente ou inválido deixa a partida sem objetos; assets são locais.",
       "status": "implemented"
     },
@@ -78,9 +78,18 @@
       "id": "pyrotechnics",
       "name": "Pirotecnia",
       "behavior": "Fogos, fumaça e confete na abertura e nos gols do mandante, com as cores do clube.",
-      "source": "ModCarrerMode/source/flamengo_pyro",
+      "source": "ModCarrerMode/source/stadium_pyrotechnics",
       "configuration": "ModCarrerMode/config/match_presentation.ini",
       "limits": "Requer os recursos locais de partículas.",
+      "status": "implemented"
+    },
+    {
+      "id": "smoke_machine",
+      "name": "Máquinas de fumaça",
+      "behavior": "Adiciona 20 equipamentos físicos; disparos e cores continuam sob controle da pirotecnia do estádio.",
+      "source": "ModCarrerMode/source/smoke_machine",
+      "configuration": "ModCarrerMode/mods/enabled.txt; ModCarrerMode/mods/smoke_machine/smoke_machine.ini",
+      "limits": "Requer os modelos e as texturas locais; usa o módulo stadium_pyrotechnics para os disparos.",
       "status": "implemented"
     },
     {
@@ -175,7 +184,7 @@
       "status": "visual_cabin_only"
     }
   ],
-  "reviewed_on": "2026-10-13",
-  "native_entrance_revision": 18,
+  "reviewed_on": "2026-10-14",
+  "native_entrance_revision": 19,
   "native_var_revision": 3
 }

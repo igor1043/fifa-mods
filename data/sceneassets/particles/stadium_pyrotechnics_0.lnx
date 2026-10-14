@@ -145,7 +145,7 @@
 			<particleAction name="ParticleActionEmitBox" className="ParticleActionEmitBox">
 				<parameter name="iEmitRate" index="0" value="25" />
 				<parameter name="bEmitRatePerCenter" index="0" value="1" />
-				<parameter name="fSizeMean" index="0" value="150" />
+				<parameter name="fSizeMean" index="0" value="20" />
 				<parameter name="fSizeSpread" index="0" value="0.0" />
 				<parameter name="vDimensions" index="0" value="{ 20.0, 20.0, 20.0 }" />
 				<parameter name="vCenter" index="0" value="{ 0, 0, 0 }" numElements="20" />
@@ -212,13 +212,13 @@
 			<parameter name="iInstancing" index="0" value="1" />
 			<particleAction name="ParticleActionEmitBox" className="ParticleActionEmitBox">
 				<parameter name="iEmitRate" index="0" value="1000" />
-				<parameter name="fSizeMean" index="0" value="45" />
+				<parameter name="fSizeMean" index="0" value="12" />
 				<parameter name="fSizeSpread" index="0" value="0.0" />
 				<parameter name="vDimensions" index="0" value="{ 0.0, 0.0, 0.0 }" />
-				<parameter name="vCenter" index="0" value="{ 0, 150, 0 }" />
+				<parameter name="vCenter" index="0" value="{ 0, 0, 0 }" />
 				<parameter name="iAgeSpreadMs" index="0" value="200" />
-				<parameter name="vVelocityMean" index="0" value="{ 80, 1180, 0 }" />
-				<parameter name="vVelocitySpread" index="0" value="{ 80, 110, 40 }" />
+				<parameter name="vVelocityMean" index="0" value="{ 0, 1180, 80 }" />
+				<parameter name="vVelocitySpread" index="0" value="{ 40, 110, 60 }" />
 				<parameter name="vOrientationSpread" index="0" value="{ 6.28, 0, 0 }" />
 				<parameter name="vAngularVelocitySpread" index="0" value="{ 6.0, 0.0, 0.0 }" />
 				<parameter name="bInject" index="0" value="0" />
@@ -276,7 +276,7 @@
 				<parameter name="fAnimTextureSpeed" index="0" value="10" />
 				<parameter name="iAnimTextureRandomStart" index="0" value="4" />
 			</particleAction>
-		</particleGroup>
+		<particleAction name="MachineTrailOverlayCopy" className="ParticleActionCopyToParameter"><parameter name="rPositionDest" index="0" value="smoke_trail_overlay/ParticleActionEmitBox/vCenter" /><parameter name="iStride" index="0" value="0" /><parameter name="iShiftInc" index="0" value="0" /></particleAction></particleGroup>
 		<particleGroup name="smoke_base">
 			<parameter name="iNumParticlesMax" index="0" value="850" />
 			<parameter name="iInstancing" index="0" value="1" />
@@ -285,9 +285,9 @@
 				<parameter name="fSizeMean" index="0" value="380" />
 				<parameter name="fSizeSpread" index="0" value="100" />
 				<parameter name="vDimensions" index="0" value="{ 0.0, 0.0, 0.0 }" />
-				<parameter name="vCenter" index="0" value="{ 120, 100, 0 }" />
+				<parameter name="vCenter" index="0" value="{ 0, 0, 0 }" />
 				<parameter name="iAgeSpreadMs" index="0" value="0" />
-				<parameter name="vVelocityMean" index="0" value="{ 55, 280, 15 }" />
+				<parameter name="vVelocityMean" index="0" value="{ 0, 280, 15 }" />
 				<parameter name="vVelocitySpread" index="0" value="{ 60, 100, 40 }" />
 				<parameter name="vOrientationSpread" index="0" value="{ 6.28, 0, 0 }" />
 				<parameter name="vAngularVelocitySpread" index="0" value="{ 0.25, 0.0, 0.0 }" />
@@ -309,7 +309,7 @@
 				<parameter name="iScreenSpace" index="0" value="0" />
 				<parameter name="fFadeDistance" index="0" value="0" />
 				<parameter name="fZBias" index="0" value="0" />
-				<parameter name="vPivotShift" index="0" value="{ 0.2, 0.0, 0.0 }" />
+				<parameter name="vPivotShift" index="0" value="{ 0, 0, 0 }" />
 				<parameter name="rKillAge" index="0" value="smoke_base/ParticleActionKillAge/iAgeMs" />
 				<parameter name="bStretchPerParticle" index="0" value="0" />
 				<parameter name="fStretchSpeedScale" index="0" value="0.2" />
@@ -327,7 +327,7 @@
 				<parameter name="vColorRamp" index="3" value="{ 1, 1, 1, 0 }" />
 				<parameter name="vColorRampTimes" index="0" value="{ 0.0, 0.1, 0.6, 1.0 }" />
 				<parameter name="bUseSizeRamp" index="0" value="1" />
-				<parameter name="vSizeRamp" index="0" value="{ 0.0, 0.33, 0.66, 1.0 }" />
+				<parameter name="vSizeRamp" index="0" value="{ 0.04, 0.33, 0.66, 1.0 }" />
 				<parameter name="vSizeRampTimes" index="0" value="{ 0.0, 0.2, 0.5, 1 }" />
 				<parameter name="bUseLighting" index="0" value="0" />
 				<parameter name="bUseAnimTexture" index="0" value="0" />
@@ -351,9 +351,9 @@
 				<parameter name="fSizeMean" index="0" value="380" />
 				<parameter name="fSizeSpread" index="0" value="100" />
 				<parameter name="vDimensions" index="0" value="{ 0.0, 0.0, 0.0 }" />
-				<parameter name="vCenter" index="0" value="{ 120, 100, 0 }" />
+				<parameter name="vCenter" index="0" value="{ 0, 0, 0 }" />
 				<parameter name="iAgeSpreadMs" index="0" value="0" />
-				<parameter name="vVelocityMean" index="0" value="{ 55, 280, 15 }" />
+				<parameter name="vVelocityMean" index="0" value="{ 0, 280, 15 }" />
 				<parameter name="vVelocitySpread" index="0" value="{ 60, 100, 40 }" />
 				<parameter name="vOrientationSpread" index="0" value="{ 6.28, 0, 0 }" />
 				<parameter name="vAngularVelocitySpread" index="0" value="{ 0.25, 0.0, 0.0 }" />
@@ -375,7 +375,7 @@
 				<parameter name="iScreenSpace" index="0" value="0" />
 				<parameter name="fFadeDistance" index="0" value="0" />
 				<parameter name="fZBias" index="0" value="0" />
-				<parameter name="vPivotShift" index="0" value="{ 0.2, 0.0, 0.0 }" />
+				<parameter name="vPivotShift" index="0" value="{ 0, 0, 0 }" />
 				<parameter name="rKillAge" index="0" value="smoke_base_overlay/ParticleActionKillAge/iAgeMs" />
 				<parameter name="bStretchPerParticle" index="0" value="0" />
 				<parameter name="fStretchSpeedScale" index="0" value="0.2" />
@@ -393,7 +393,7 @@
 				<parameter name="vColorRamp" index="3" value="{ 1, 1, 1, 0 }" />
 				<parameter name="vColorRampTimes" index="0" value="{ 0.0, 0.1, 0.6, 1.0 }" />
 				<parameter name="bUseSizeRamp" index="0" value="1" />
-				<parameter name="vSizeRamp" index="0" value="{ 0.0, 0.33, 0.66, 1.0 }" />
+				<parameter name="vSizeRamp" index="0" value="{ 0.04, 0.33, 0.66, 1.0 }" />
 				<parameter name="vSizeRampTimes" index="0" value="{ 0.0, 0.2, 0.5, 1 }" />
 				<parameter name="bUseLighting" index="0" value="0" />
 				<parameter name="bUseAnimTexture" index="0" value="0" />
@@ -417,9 +417,9 @@
 				<parameter name="fSizeMean" index="0" value="380" />
 				<parameter name="fSizeSpread" index="0" value="100" />
 				<parameter name="vDimensions" index="0" value="{ 0.0, 0.0, 0.0 }" />
-				<parameter name="vCenter" index="0" value="{ -120, 100, 0 }" />
+				<parameter name="vCenter" index="0" value="{ 0, 0, 0 }" />
 				<parameter name="iAgeSpreadMs" index="0" value="0" />
-				<parameter name="vVelocityMean" index="0" value="{ 55, 280, 15 }" />
+				<parameter name="vVelocityMean" index="0" value="{ 0, 280, 15 }" />
 				<parameter name="vVelocitySpread" index="0" value="{ 60, 100, 40 }" />
 				<parameter name="vOrientationSpread" index="0" value="{ 6.28, 0, 0 }" />
 				<parameter name="vAngularVelocitySpread" index="0" value="{ 0.25, 0.0, 0.0 }" />
@@ -441,7 +441,7 @@
 				<parameter name="iScreenSpace" index="0" value="0" />
 				<parameter name="fFadeDistance" index="0" value="0" />
 				<parameter name="fZBias" index="0" value="0" />
-				<parameter name="vPivotShift" index="0" value="{ 0.2, 0.0, 0.0 }" />
+				<parameter name="vPivotShift" index="0" value="{ 0, 0, 0 }" />
 				<parameter name="rKillAge" index="0" value="smoke_black/ParticleActionKillAge/iAgeMs" />
 				<parameter name="bStretchPerParticle" index="0" value="0" />
 				<parameter name="fStretchSpeedScale" index="0" value="0.2" />
@@ -459,7 +459,7 @@
 				<parameter name="vColorRamp" index="3" value="{ 1, 1, 1, 0 }" />
 				<parameter name="vColorRampTimes" index="0" value="{ 0.0, 0.1, 0.6, 1.0 }" />
 				<parameter name="bUseSizeRamp" index="0" value="1" />
-				<parameter name="vSizeRamp" index="0" value="{ 0.0, 0.33, 0.66, 1.0 }" />
+				<parameter name="vSizeRamp" index="0" value="{ 0.04, 0.33, 0.66, 1.0 }" />
 				<parameter name="vSizeRampTimes" index="0" value="{ 0.0, 0.2, 0.5, 1 }" />
 				<parameter name="bUseLighting" index="0" value="0" />
 				<parameter name="bUseAnimTexture" index="0" value="0" />
@@ -483,9 +483,9 @@
 				<parameter name="fSizeMean" index="0" value="380" />
 				<parameter name="fSizeSpread" index="0" value="100" />
 				<parameter name="vDimensions" index="0" value="{ 0.0, 0.0, 0.0 }" />
-				<parameter name="vCenter" index="0" value="{ -120, 100, 0 }" />
+				<parameter name="vCenter" index="0" value="{ 0, 0, 0 }" />
 				<parameter name="iAgeSpreadMs" index="0" value="0" />
-				<parameter name="vVelocityMean" index="0" value="{ 55, 280, 15 }" />
+				<parameter name="vVelocityMean" index="0" value="{ 0, 280, 15 }" />
 				<parameter name="vVelocitySpread" index="0" value="{ 60, 100, 40 }" />
 				<parameter name="vOrientationSpread" index="0" value="{ 6.28, 0, 0 }" />
 				<parameter name="vAngularVelocitySpread" index="0" value="{ 0.25, 0.0, 0.0 }" />
@@ -507,7 +507,7 @@
 				<parameter name="iScreenSpace" index="0" value="0" />
 				<parameter name="fFadeDistance" index="0" value="0" />
 				<parameter name="fZBias" index="0" value="0" />
-				<parameter name="vPivotShift" index="0" value="{ 0.2, 0.0, 0.0 }" />
+				<parameter name="vPivotShift" index="0" value="{ 0, 0, 0 }" />
 				<parameter name="rKillAge" index="0" value="smoke_black_overlay/ParticleActionKillAge/iAgeMs" />
 				<parameter name="bStretchPerParticle" index="0" value="0" />
 				<parameter name="fStretchSpeedScale" index="0" value="0.2" />
@@ -525,7 +525,7 @@
 				<parameter name="vColorRamp" index="3" value="{ 1, 1, 1, 0 }" />
 				<parameter name="vColorRampTimes" index="0" value="{ 0.0, 0.1, 0.6, 1.0 }" />
 				<parameter name="bUseSizeRamp" index="0" value="1" />
-				<parameter name="vSizeRamp" index="0" value="{ 0.0, 0.33, 0.66, 1.0 }" />
+				<parameter name="vSizeRamp" index="0" value="{ 0.04, 0.33, 0.66, 1.0 }" />
 				<parameter name="vSizeRampTimes" index="0" value="{ 0.0, 0.2, 0.5, 1 }" />
 				<parameter name="bUseLighting" index="0" value="0" />
 				<parameter name="bUseAnimTexture" index="0" value="0" />
@@ -603,12 +603,12 @@
 			<parameter name="iInstancing" index="0" value="1" />
 			<particleAction name="ParticleActionEmitBox" className="ParticleActionEmitBox">
 				<parameter name="iEmitRate" index="0" value="2000" />
-				<parameter name="fSizeMean" index="0" value="10" />
-				<parameter name="fSizeSpread" index="0" value="4" />
-				<parameter name="vDimensions" index="0" value="{ 30, 30, 30 }" />
-				<parameter name="vCenter" index="0" value="{ -70, 80, 0 }" />
+				<parameter name="fSizeMean" index="0" value="3" />
+				<parameter name="fSizeSpread" index="0" value="1" />
+				<parameter name="vDimensions" index="0" value="{ 6, 6, 6 }" />
+				<parameter name="vCenter" index="0" value="{ 0, 0, 0 }" />
 				<parameter name="iAgeSpreadMs" index="0" value="0" />
-				<parameter name="vVelocityMean" index="0" value="{ 75, 1100, 0 }" />
+				<parameter name="vVelocityMean" index="0" value="{ 0, 1100, 75 }" />
 				<parameter name="vVelocitySpread" index="0" value="{ 340, 250, 320 }" />
 				<parameter name="vOrientationSpread" index="0" value="{ 6.28, 6.28, 6.28 }" />
 				<parameter name="vAngularVelocityMean" index="0" value="{ 5, 5, 5 }" />
@@ -644,10 +644,10 @@
 				<parameter name="vColorMultSpread" index="0" value="{ 0, 0, 0, 0 }" />
 				<parameter name="bUseSizeMult" index="0" value="0" />
 				<parameter name="bUseColorRamp" index="0" value="1" />
-				<parameter name="vColorRamp" index="0" value="{ 1.0, 1.0, 1.0, 0.0 }" />
-				<parameter name="vColorRamp" index="1" value="{ 1.0, 1.0, 1.0, 0.0 }" />
-				<parameter name="vColorRamp" index="2" value="{ 1.0, 1.0, 1.0, 1.0 }" />
-				<parameter name="vColorRamp" index="3" value="{ 1.0, 1.0, 1.0, 0 }" />
+				<parameter name="vColorRamp" index="0" value="{ 1, 1, 1, 1 }" />
+				<parameter name="vColorRamp" index="1" value="{ 1, 1, 1, 1 }" />
+				<parameter name="vColorRamp" index="2" value="{ 1, 1, 1, 1 }" />
+				<parameter name="vColorRamp" index="3" value="{ 1, 1, 1, 0 }" />
 				<parameter name="vColorRampTimes" index="0" value="{ 0.0, 0.33, 0.66, 1 }" />
 				<parameter name="bUseSizeRamp" index="0" value="0" />
 				<parameter name="bUseLighting" index="0" value="0" />
@@ -663,12 +663,12 @@
 			<parameter name="iInstancing" index="0" value="1" />
 			<particleAction name="ParticleActionEmitBox" className="ParticleActionEmitBox">
 				<parameter name="iEmitRate" index="0" value="2000" />
-				<parameter name="fSizeMean" index="0" value="10" />
-				<parameter name="fSizeSpread" index="0" value="4" />
-				<parameter name="vDimensions" index="0" value="{ 30, 30, 30 }" />
-				<parameter name="vCenter" index="0" value="{ 70, 80, 0 }" />
+				<parameter name="fSizeMean" index="0" value="3" />
+				<parameter name="fSizeSpread" index="0" value="1" />
+				<parameter name="vDimensions" index="0" value="{ 6, 6, 6 }" />
+				<parameter name="vCenter" index="0" value="{ 0, 0, 0 }" />
 				<parameter name="iAgeSpreadMs" index="0" value="0" />
-				<parameter name="vVelocityMean" index="0" value="{ 75, 1100, 0 }" />
+				<parameter name="vVelocityMean" index="0" value="{ 0, 1100, 75 }" />
 				<parameter name="vVelocitySpread" index="0" value="{ 340, 250, 320 }" />
 				<parameter name="vOrientationSpread" index="0" value="{ 6.28, 6.28, 6.28 }" />
 				<parameter name="vAngularVelocityMean" index="0" value="{ 5, 5, 5 }" />
@@ -704,10 +704,10 @@
 				<parameter name="vColorMultSpread" index="0" value="{ 0, 0, 0, 0 }" />
 				<parameter name="bUseSizeMult" index="0" value="0" />
 				<parameter name="bUseColorRamp" index="0" value="1" />
-				<parameter name="vColorRamp" index="0" value="{ 1.0, 1.0, 1.0, 0.0 }" />
-				<parameter name="vColorRamp" index="1" value="{ 1.0, 1.0, 1.0, 0.0 }" />
-				<parameter name="vColorRamp" index="2" value="{ 1.0, 1.0, 1.0, 1.0 }" />
-				<parameter name="vColorRamp" index="3" value="{ 1.0, 1.0, 1.0, 0 }" />
+				<parameter name="vColorRamp" index="0" value="{ 1, 1, 1, 1 }" />
+				<parameter name="vColorRamp" index="1" value="{ 1, 1, 1, 1 }" />
+				<parameter name="vColorRamp" index="2" value="{ 1, 1, 1, 1 }" />
+				<parameter name="vColorRamp" index="3" value="{ 1, 1, 1, 0 }" />
 				<parameter name="vColorRampTimes" index="0" value="{ 0.0, 0.33, 0.66, 1 }" />
 				<parameter name="bUseSizeRamp" index="0" value="0" />
 				<parameter name="bUseLighting" index="0" value="0" />

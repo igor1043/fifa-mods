@@ -674,27 +674,6 @@ static int native_next_match_stadium_config(const FceFixture *fixture,
     if(native_competition_stadium_config(competition_id,out,size)) return 1;
     return native_team_stadium_config(fixture->home,out,size);
 }
-static int native_stadium_copy_reference_dds(const char *source,
-    const char *destination) {
-    WIN32_FILE_ATTRIBUTE_DATA source_info,destination_info;
-    DWORD destination_attributes;
-    if(!source || !destination ||
-       !GetFileAttributesExA(source,GetFileExInfoStandard,&source_info) ||
-       (source_info.dwFileAttributes&FILE_ATTRIBUTE_DIRECTORY)) return 0;
-    destination_attributes=GetFileAttributesA(destination);
-    if(destination_attributes==INVALID_FILE_ATTRIBUTES ||
-       (destination_attributes&FILE_ATTRIBUTE_DIRECTORY) ||
-       !GetFileAttributesExA(destination,GetFileExInfoStandard,
-        &destination_info) ||
-       source_info.nFileSizeHigh!=destination_info.nFileSizeHigh ||
-       source_info.nFileSizeLow!=destination_info.nFileSizeLow ||
-       CompareFileTime(&source_info.ftLastWriteTime,
-        &destination_info.ftLastWriteTime)!=0) {
-        if(!CopyFileA(source,destination,FALSE)) return 0;
-        return 2;
-    }
-    return 1;
-}
 static void native_stadium_log_image_lookup(const char *key,const char *result,
     const char *source,const char *destination) {
     char path[MAX_PATH];
@@ -704,17 +683,19 @@ static void native_stadium_log_image_lookup(const char *key,const char *result,
         return;
     log=fopen(path,"ab");
     if(!log) return;
-    fprintf(log,"stadium_image key=%s result=%s source=%s target=%s\n",
-        key?key:"",result?result:"",source?source:"",
+    fprintf(log,"stadium_image pid=%lu key=%s result=%s source=%s target=%s\n",
+        GetCurrentProcessId(),key?key:"",result?result:"",source?source:"",
         destination?destination:"");
     fclose(log);
 }
 static int native_stadium_image_key(const char *config_name,
     char *out,size_t size) {
     char candidate[256],original[256],source[MAX_PATH],destination[MAX_PATH];
-    char destination_dir[MAX_PATH];
+    char destination_dir[MAX_PATH],art_directory[MAX_PATH],asset[40],package[MAX_PATH];
     size_t length;
     int written,sync_result;
+    size_t extension;
+    static const char *extensions[]={"dds","jpg","jpeg","png","bmp"};
     DWORD attributes;
     if(!config_name || !config_name[0] || !out || !size || !g_game_dir[0])
         return 0;
@@ -728,6 +709,9 @@ static int native_stadium_image_key(const char *config_name,
     written=snprintf(destination_dir,sizeof(destination_dir),
         "%s\\data\\ui\\imgAssets\\stadium",g_game_dir);
     if(written<0 || written>=(int)sizeof(destination_dir)) return 0;
+    written=snprintf(art_directory,sizeof(art_directory),
+        "%s\\data\\ui\\artAssets\\stadium",g_game_dir);
+    if(written<0 || written>=(int)sizeof(art_directory)) return 0;
     attributes=GetFileAttributesA(destination_dir);
     if(attributes==INVALID_FILE_ATTRIBUTES) {
         if(!CreateDirectoryA(destination_dir,NULL) &&
@@ -735,19 +719,31 @@ static int native_stadium_image_key(const char *config_name,
     } else if(!(attributes&FILE_ATTRIBUTE_DIRECTORY)) return 0;
     length=strlen(candidate);
     while(candidate[0] && length>0) {
-        written=snprintf(source,sizeof(source),
-            "%s\\StadiumGBD\\render\\thumbnail\\stadium\\%s.dds",
-            g_game_dir,candidate);
-        if(written<0 || written>=(int)sizeof(source)) return 0;
         written=snprintf(destination,sizeof(destination),
             "%s\\stadium_%s.dds",destination_dir,candidate);
         if(written<0 || written>=(int)sizeof(destination)) return 0;
-        sync_result=native_stadium_copy_reference_dds(source,destination);
-        if(sync_result) {
-            native_stadium_log_image_lookup(original,
-                sync_result==2?"copied":"current",source,destination);
-            lstrcpynA(out,candidate,(int)size);
-            return out[0]!=0;
+        for(extension=0;extension<sizeof(extensions)/sizeof(extensions[0]);++extension) {
+            written=snprintf(source,sizeof(source),
+                "%s\\StadiumGBD\\render\\thumbnail\\stadium\\%s.%s",
+                g_game_dir,candidate,extensions[extension]);
+            if(written<0 || written>=(int)sizeof(source)) return 0;
+            sync_result=stadium_thumbnail_sync(source,destination);
+            if(sync_result) {
+                int package_result=stadium_thumbnail_package(destination,art_directory,asset,sizeof(asset));
+                if(!package_result) {
+                    native_stadium_log_image_lookup(original,"package-failed",source,destination);
+                    return 0;
+                }
+                native_stadium_log_image_lookup(original,
+                    sync_result==STADIUM_IMAGE_CONVERTED?"converted":
+                    sync_result==STADIUM_IMAGE_COPIED?"copied":"current",source,destination);
+                written=snprintf(package,sizeof(package),"%s\\stadium_%s.big",art_directory,asset);
+                if(written<0 || written>=(int)sizeof(package)) return 0;
+                native_stadium_log_image_lookup(original,"movie-ready",destination,package);
+                if(strlen(asset)>=size) return 0;
+                lstrcpynA(out,asset,(int)size);
+                return out[0]!=0;
+            }
         }
         /* FSW sometimes appends render digits to a key without a comma. */
         if(candidate[length-1]<'0' || candidate[length-1]>'9') break;
@@ -904,6 +900,7 @@ static void publish_next_match_card(void *provider) {
     publish_string_field(provider,"MYTEAM_NEXT_STADIUM_ATTENDANCE","");
     publish_visibility_field(provider,"MYTEAM_NEXT_STADIUM_IMAGE",FALSE);
     publish_string_field(provider,"MYTEAM_NEXT_STADIUM_IMAGE","");
+    publish_visibility_field(provider,"MYTEAM_NEXT_INFO_DIVIDER0",FALSE);
     publish_visibility_field(provider,"MYTEAM_NEXT_HOME_CREST",FALSE);
     publish_int_field(provider,"MYTEAM_NEXT_HOME_CREST",FORM_ASSET_EMPTY);
     publish_visibility_field(provider,"MYTEAM_NEXT_HOME_NAME",FALSE);
@@ -1029,28 +1026,27 @@ static void publish_next_match_card(void *provider) {
             publish_string_field(provider,"MYTEAM_NEXT_STATUS_DETAIL",stadium_detail);
             publish_visibility_field(provider,"MYTEAM_NEXT_STATUS_DETAIL",TRUE);
         }
-        /* Match the thumbnail to the venue shown on this card. The FSW
-         * competition pool takes precedence over the club's default venue;
-         * when it has several options, its first entry is the representative
-         * thumbnail until the game selects the actual ground. */
-        if(native_next_match_stadium_config(&g_next_match_fixture,competition_id,
-            stadium_config,sizeof(stadium_config)) &&
-           native_stadium_image_key(stadium_config,stadium_image,
-            sizeof(stadium_image))) {
-            publish_string_field(provider,"MYTEAM_NEXT_STADIUM_IMAGE",stadium_image);
-            publish_visibility_field(provider,"MYTEAM_NEXT_STADIUM_IMAGE",TRUE);
-        }
-        /* If the selected settings entry has no matching DDS, fall back to
-         * the club-ID mapping generated from the career database. */
-        if(!stadium_image[0] &&
-           fallback_ok && fallback_image[0] &&
-           native_stadium_image_key(fallback_image,stadium_image,
-            sizeof(stadium_image))) {
-            publish_string_field(provider,"MYTEAM_NEXT_STADIUM_IMAGE",stadium_image);
-            publish_visibility_field(provider,"MYTEAM_NEXT_STADIUM_IMAGE",TRUE);
-        }
     } else {
         publish_string_field(provider,"MYTEAM_NEXT_STADIUM_LABEL","Stadium_mixedcase");
+        if(fallback_ok && fallback_name[0]) {
+            publish_string_field(provider,"MYTEAM_NEXT_STADIUM",fallback_name);
+            publish_visibility_field(provider,"MYTEAM_NEXT_STADIUM",TRUE);
+        }
+    }
+    /* Resolve the picture independently of display-name availability. Use
+     * the DB host venue only when FSW has not selected another venue. */
+    if(native_next_match_stadium_config(&g_next_match_fixture,competition_id,
+        stadium_config,sizeof(stadium_config))) {
+        native_stadium_image_key(stadium_config,stadium_image,sizeof(stadium_image));
+    } else if(fallback_ok && fallback_image[0]) {
+        /* An explicit FSW venue without a photo must not borrow a picture
+         * of the club's different default stadium. */
+        native_stadium_image_key(fallback_image,stadium_image,sizeof(stadium_image));
+    }
+    if(stadium_image[0]) {
+        publish_string_field(provider,"MYTEAM_NEXT_STADIUM_IMAGE",stadium_image);
+        publish_visibility_field(provider,"MYTEAM_NEXT_STADIUM_IMAGE",TRUE);
+        publish_visibility_field(provider,"MYTEAM_NEXT_INFO_DIVIDER0",TRUE);
     }
 }
 static void native_coach_record(int club) {
@@ -3307,7 +3303,7 @@ static void native_publish(void *provider) {
     publish_visibility_field(provider,"MYTEAM_SQUAD_MID",g_squad_summary.available);
     publish_visibility_field(provider,"MYTEAM_SQUAD_ATT",g_squad_summary.available);
     publish_visibility_field(provider,"MYTEAM_SQUAD_POSITIONS",g_squad_summary.position_count>0);
-    publish_top_assists(provider);
+    publish_competition_leader_states(provider,publish_top_assists(provider));
     publish_ranked_rows(provider,"CLUB_GOAL_",g_club_goal_rows,g_club_goal_count);
     publish_ranked_rows(provider,"CLUB_ASSIST_",g_club_assist_rows,g_club_assist_count);
     publish_ranked_rows(provider,"CLUB_OVERALL_",g_club_overall_rows,g_club_overall_count);
@@ -3363,13 +3359,7 @@ static void native_publish(void *provider) {
     trophy_log_count=native_collect_active_competitions(trophy_log_rows,
         sizeof(trophy_log_rows)/sizeof(trophy_log_rows[0]));
     for(i=0;i<5;++i) {
-        char key[48]; size_t k; const char *suffix[]={"HEAD","LOGO","NAME","VALUE"};
-        for(k=0;k<4;++k) {
-            snprintf(key,sizeof(key),"ASSIST_%s%u",suffix[k],(unsigned)i);
-            publish_visibility_field(provider,key,i<g_assist_count);
-            if(i>=g_assist_count && k<2) publish_int_field(provider,key,FORM_ASSET_EMPTY);
-            if(i>=g_assist_count && k==3) publish_string_field(provider,key,"");
-        }
+        char key[48];
         snprintf(key,sizeof(key),"MYCOMP%u_RANK",(unsigned)i);
         publish_visibility_field(provider,key,i<g_competition_count && g_competition_rows[i].rank>0);
         snprintf(key,sizeof(key),"MYCOMP%u_POINTS",(unsigned)i);

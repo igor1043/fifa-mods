@@ -15,7 +15,7 @@ catalog=json.loads((ROOT/'ModCarrerMode/docs/implementations.json').read_text(en
 for feature in catalog['features']:
     if not (ROOT/feature['source']).exists():errors.append('Missing source: '+feature['source'])
 entries=[s.strip().replace('\\','/') for s in (ROOT/'ModCarrerMode/mods/enabled.txt').read_text().splitlines() if s.strip() and not s.startswith('#')]
-assert len(entries)==len(set(entries))==13
+assert len(entries)==len(set(entries))==14
 assert entries.index('entrance_props/entrance_props.dll')<entries.index('var_cabin/var_cabin.dll')
 for entry in entries:
     path=ROOT/'ModCarrerMode/mods'/entry
@@ -24,6 +24,7 @@ assert not (ROOT/'ModCarrerMode/mods/entrance_props/source').exists()
 assert (ROOT/'ModCarrerMode/source/entrance_props/club_atlas.h').is_file()
 assert (ROOT/'ModCarrerMode/source/entrance_props/crest_mesh.h').is_file()
 assert (ROOT/'ModCarrerMode/mods/var_cabin/var_cabin.lua').read_bytes()==(ROOT/'ModCarrerMode/source/var_cabin/var_cabin.lua').read_bytes()
+assert (ROOT/'ModCarrerMode/mods/smoke_machine/smoke_machine.lua').read_bytes()==(ROOT/'ModCarrerMode/source/smoke_machine/smoke_machine.lua').read_bytes()
 configuration=configparser.ConfigParser();configuration.read(ROOT/'ModCarrerMode/config/match_presentation.ini')
 assert configuration.getboolean('match','entrance_props')
 for relative in ('README.md','ModCarrerMode/source/entrance_props/README.md','ModCarrerMode/source/var_cabin/README.md'):

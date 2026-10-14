@@ -33,14 +33,14 @@ function SleUpdate(idx)
 end
 local VarCabinBaseTexture = GetTexture
 function GetTexture(idx)
-    if db.sle[idx].isVarCabin == 1 then return "data/sceneassets/var_cabin/textures_v2.rx3" end
+    if db.sle[idx].isVarCabin == 1 then return "data/sceneassets/var_cabin/textures.rx3" end
     return VarCabinBaseTexture(idx)
 end
 local VarCabinBaseRM = GetRMSle
 function GetRMSle(idx, isModel)
     if db.sle[idx].isVarCabin == 1 then
-        if isModel == 1 then return "data/sceneassets/var_cabin/textures_v2.rx3;" end
-        return "data/sceneassets/var_cabin/model_v2.rx3;"
+        if isModel == 1 then return "data/sceneassets/var_cabin/textures.rx3;" end
+        return "data/sceneassets/var_cabin/model.rx3;"
     end
     return VarCabinBaseRM(idx, isModel)
 end

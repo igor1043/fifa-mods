@@ -41,7 +41,7 @@ if ($entries -contains 'stadium_pyrotechnics\stadium_pyrotechnics.dll') {
     foreach ($relative in @('ModCarrerMode\mods\stadium_pyrotechnics\pyro.ini','ModCarrerMode\config\match_presentation.ini','data\sceneassets\particles\stadium_pyrotechnics_0.lnx','data\sceneassets\particles\stadium_pyrotechnics_0.rx3')) { Require-File $relative }
 }
 if ($entries -contains 'entrance_props\entrance_props.dll') {
-    Require-File 'ModCarrerMode\config\entrance_competitions.ini'
+    # Competition IDs come from the game-owned FSW/settings.ini at runtime.
     Require-File 'ModCarrerMode\config\match_presentation.ini'
 }
 if ($entries -contains 'var_cabin\var_cabin.dll') {
@@ -50,5 +50,9 @@ if ($entries -contains 'var_cabin\var_cabin.dll') {
     $entranceIndex=[Array]::IndexOf($entries,'entrance_props\entrance_props.dll')
     $varIndex=[Array]::IndexOf($entries,'var_cabin\var_cabin.dll')
     if ($entranceIndex -ge 0 -and $varIndex -lt $entranceIndex) { throw 'Os objetos de abertura devem ser carregados antes da cabine do VAR.' }
+}
+if ($entries -contains 'smoke_machine\smoke_machine.dll') {
+    foreach ($relative in @('ModCarrerMode\mods\smoke_machine\smoke_machine.ini','ModCarrerMode\mods\smoke_machine\smoke_machine.lua','data\sceneassets\smoke_machine\model.rx3','data\sceneassets\smoke_machine\textures.rx3')) { Require-File $relative }
+    if ($entries -notcontains 'stadium_pyrotechnics\stadium_pyrotechnics.dll') { throw 'A máquina de fumaça precisa do módulo stadium_pyrotechnics para os disparos.' }
 }
 [pscustomobject]@{Package=$root;Verified=$true;EnabledPlugins=$entries.Count;MascotModels='Local packages required; excluded from Git'}

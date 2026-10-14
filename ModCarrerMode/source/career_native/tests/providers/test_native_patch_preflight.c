@@ -2,12 +2,34 @@
 /* Include the real initializer to test its actual patch table/barrier.
  * DllMain is not invoked by this console test; no game process is touched. */
 #include "../../src/host/dinput8_wrapper.c"
+#include "stadium_thumbnail_fixture.h"
 
 static int failures;
 static void *fake_vector_result;
 static int vector_calls, notify_calls;
 static void *last_notification;
 static unsigned char last_dirty;
+static char observed_field[96], observed_image[256], observed_stadium[256];
+static int observed_image_visible, observed_image_divider;
+static void observe_prepare(void *provider) { (void)provider; observed_field[0] = 0; }
+static void observe_string(void *provider, const char *key, const char *value)
+{
+    (void)provider;
+    if (!strcmp(key, "ID")) lstrcpynA(observed_field, value, sizeof(observed_field));
+    if (!strcmp(key, "PARAM")) {
+        if (!strcmp(observed_field, "MYTEAM_NEXT_STADIUM_IMAGE"))
+            lstrcpynA(observed_image, value, sizeof(observed_image));
+        if (!strcmp(observed_field, "MYTEAM_NEXT_STADIUM"))
+            lstrcpynA(observed_stadium, value, sizeof(observed_stadium));
+    }
+}
+static void observe_int(void *provider, const char *key, int value)
+{
+    (void)provider;
+    if (strcmp(key, "VISIBLE")) return;
+    if (!strcmp(observed_field, "MYTEAM_NEXT_STADIUM_IMAGE")) observed_image_visible = value;
+    if (!strcmp(observed_field, "MYTEAM_NEXT_INFO_DIVIDER0")) observed_image_divider = value;
+}
 static void *fake_stats_vector(void *object, int category, unsigned char enabled)
 {
     if (object && category == 4 && enabled == 1) ++vector_calls;
@@ -28,6 +50,176 @@ static int commit_site(unsigned char *base, uintptr_t rva)
 {
     return VirtualAlloc(base + (rva & ~(uintptr_t)4095), 4096,
         MEM_COMMIT, PAGE_READWRITE) != NULL;
+}
+
+typedef struct LeaderField {
+    char id[48], text[128];
+    int visible, value;
+} LeaderField;
+static LeaderField leader_fields[64], *leader_current;
+static SIZE_T leader_field_count;
+static LeaderField *leader_field(const char *id)
+{
+    SIZE_T i;
+    for (i = 0; i < leader_field_count; ++i)
+        if (!strcmp(leader_fields[i].id, id)) return leader_fields + i;
+    if (leader_field_count == 64) return NULL;
+    lstrcpynA(leader_fields[i].id, id, sizeof(leader_fields[i].id));
+    ++leader_field_count;
+    return leader_fields + i;
+}
+static void leader_prepare(void *provider) { (void)provider; leader_current = NULL; }
+static void leader_string(void *provider, const char *attribute, const char *value)
+{
+    (void)provider;
+    if (!strcmp(attribute, "ID")) leader_current = leader_field(value);
+    else if (leader_current && !strcmp(attribute, "PARAM"))
+        lstrcpynA(leader_current->text, value, sizeof(leader_current->text));
+    else if (leader_current && !strcmp(attribute, "VISIBLE"))
+        leader_current->visible = !_stricmp(value, "TRUE");
+}
+static void leader_int(void *provider, const char *attribute, int value)
+{
+    (void)provider;
+    if (leader_current && !strcmp(attribute, "VISIBLE")) leader_current->visible = value;
+    else if (leader_current && !strcmp(attribute, "PARAM")) leader_current->value = value;
+}
+static void test_competition_leader_empty_states(void)
+{
+    void *provider = &failures;
+    SIZE_T i;
+    char key[48];
+    g_prepare_field = leader_prepare; g_set_string = leader_string; g_set_int = leader_int;
+    reset_stock_stat_capture();
+    /* These are the native ID/PARAM pairs observed at the guarded call sites.
+     * A HEAD field or a hidden NAME slot alone must not count as a player. */
+    competition_scorer_name_capture(provider, "ID", "HEAD0");
+    competition_scorer_name_capture(provider, "PARAM", "123");
+    competition_scorer_name_capture(provider, "ID", "NAME0");
+    competition_scorer_name_capture(provider, "PARAM", "Jogador A");
+    competition_scorer_name_capture(provider, "ID", "NAME1");
+    competition_scorer_name_capture(provider, "VISIBLE", "FALSE");
+    competition_scorer_name_capture(provider, "ID", "NAME4");
+    competition_scorer_name_capture(provider, "PARAM", "Jogador B");
+    competition_scorer_name_capture(provider, "ID", "NAME5");
+    competition_scorer_name_capture(provider, "PARAM", "Outside the card");
+    publish_competition_leader_states(provider, 2);
+    check(leader_field("ROW0")->visible && leader_field("ROW4")->visible &&
+        !leader_field("ROW1")->visible && !leader_field("NAME1")->text[0],
+        "scorers preserve actual native rows and hide missing positions");
+    check(!leader_field("COMP_SCORERS_EMPTY")->visible &&
+        !leader_field("COMP_SCORERS_EMPTY")->text[0] &&
+        !leader_field("COMP_ASSISTS_EMPTY")->visible && !leader_field("COMP_ASSISTS_EMPTY")->text[0],
+        "populated competition cards clear both empty message text and visibility");
+    reset_stock_stat_capture();
+    publish_competition_leader_states(provider, 0);
+    for (i = 0; i < 5; ++i) {
+        snprintf(key, sizeof(key), "ROW%u", (unsigned)i);
+        check(!leader_field(key)->visible, "empty scorer card hides row panels");
+        snprintf(key, sizeof(key), "ASSIST_ROW%u", (unsigned)i);
+        check(!leader_field(key)->visible, "empty assist card hides row panels");
+    }
+    check(leader_field("COMP_SCORERS_EMPTY")->visible &&
+        !strcmp(leader_field("COMP_SCORERS_EMPTY")->text, "FIFA_MODS_CM_NO_DATA_RECORDED") &&
+        leader_field("COMP_ASSISTS_EMPTY")->visible &&
+        !strcmp(leader_field("COMP_ASSISTS_EMPTY")->text, "FIFA_MODS_CM_NO_DATA_RECORDED"),
+        "empty competition cards show the localized no-data message");
+    check(!leader_field("NAME0")->text[0] && !leader_field("NAME4")->text[0] &&
+        !leader_field("HEAD0")->visible && leader_field("HEAD0")->value == FORM_ASSET_EMPTY &&
+        !leader_field("ASSIST_VALUE0")->visible,
+        "empty transition clears old player names, values, crests and portraits");
+    InterlockedExchange(&g_active_competition_id, 41);
+    g_stats_tile_query_competition = 42; g_assist_competition_id = 41; g_assist_count = 1;
+    lstrcpynA(g_assist_rows[0].name, "Assist player", sizeof(g_assist_rows[0].name));
+    g_assist_rows[0].head = 10; g_assist_rows[0].logo = 20; g_assist_rows[0].value = 3;
+    publish_competition_leader_states(provider, publish_top_assists(provider));
+    check(leader_field("COMP_ASSISTS_EMPTY")->visible &&
+        !leader_field("ASSIST_ROW0")->visible && !leader_field("ASSIST_NAME0")->text[0],
+        "assist cache from a different competition is empty for the current card");
+    g_assist_competition_id = 42;
+    competition_scorer_name_capture(provider, "ID", "NAME0");
+    competition_scorer_name_capture(provider, "PARAM", "Returned scorer");
+    publish_competition_leader_states(provider, publish_top_assists(provider));
+    check(!leader_field("COMP_SCORERS_EMPTY")->visible && !leader_field("COMP_SCORERS_EMPTY")->text[0] &&
+        !leader_field("COMP_ASSISTS_EMPTY")->visible && !leader_field("COMP_ASSISTS_EMPTY")->text[0] &&
+        leader_field("NAME0")->visible && !strcmp(leader_field("NAME0")->text, "Returned scorer") &&
+        leader_field("ASSIST_NAME0")->visible && !strcmp(leader_field("ASSIST_NAME0")->text, "Assist player"),
+        "new data removes empty banners and restores the actual current players");
+    reset_stock_stat_capture();
+    g_assist_count = 0; g_stats_tile_query_competition = 0; g_assist_competition_id = 0;
+    InterlockedExchange(&g_active_competition_id, 0);
+    g_prepare_field = observe_prepare; g_set_string = observe_string; g_set_int = observe_int;
+}
+
+static void test_next_match_stadium(void)
+{
+    static const char *folders[] = {"data", "data\\catalogs", "data\\ui",
+        "data\\ui\\imgAssets", "data\\ui\\imgAssets\\stadium", "data\\ui\\artAssets",
+        "data\\ui\\artAssets\\stadium", "StadiumGBD",
+        "StadiumGBD\\render", "StadiumGBD\\render\\thumbnail",
+        "StadiumGBD\\render\\thumbnail\\stadium", "FSW"};
+    char temporary[MAX_PATH], fixture[MAX_PATH], path[MAX_PATH];
+    char image[MAX_PATH], cached[MAX_PATH], catalogue[MAX_PATH], key[256], package_key[256];
+    FILE *file;
+    SIZE_T i;
+    if (!GetTempPathA(sizeof(temporary), temporary) ||
+        !GetTempFileNameA(temporary, "c16", 0, fixture)) { check(0, "stadium fixture path"); return; }
+    DeleteFileA(fixture);
+    check(CreateDirectoryA(fixture, NULL), "create isolated stadium fixture");
+    for (i = 0; i < sizeof(folders) / sizeof(folders[0]); ++i) {
+        snprintf(path, sizeof(path), "%s\\%s", fixture, folders[i]);
+        check(CreateDirectoryA(path, NULL), "create stadium fixture directory");
+    }
+    lstrcpynA(g_game_dir, fixture, sizeof(g_game_dir));
+    lstrcpynA(g_mod_dir, fixture, sizeof(g_mod_dir));
+    snprintf(image, sizeof(image), "%s\\StadiumGBD\\render\\thumbnail\\stadium\\Fixture Photo.jpg", fixture);
+    snprintf(cached, sizeof(cached), "%s\\data\\ui\\imgAssets\\stadium\\stadium_Fixture Photo.dds", fixture);
+    snprintf(catalogue, sizeof(catalogue), "%s\\data\\catalogs\\club_stadium_fallback.tsv", fixture);
+    check(write_stadium_fixture(image), "write source stadium picture");
+    check(native_stadium_image_key("Fixture Photo", key, sizeof(key)) &&
+        !strncmp(key, "cmphoto_", 8) && stadium_thumbnail_valid_dds(cached),
+        "convert JPG and generate the movie required by the native stadium helper");
+    lstrcpynA(package_key, key, sizeof(package_key));
+    check(native_stadium_image_key("Fixture Photo5", key, sizeof(key)) && !strcmp(key, package_key),
+        "malformed FSW render suffix still resolves the actual image");
+    check(!native_stadium_image_key("../outside", key, sizeof(key)), "reject image path traversal");
+    file = fopen(catalogue, "wb");
+    check(file != NULL, "create stadium fallback catalogue");
+    if (file) { fputs("1|1|10000|Fixture Ground|Fixture Photo|10|10\n", file); fclose(file); }
+    g_prepare_field = observe_prepare; g_set_string = observe_string; g_set_int = observe_int;
+    g_next_match_fixture_valid = 1; g_upcoming_count = 1;
+    memset(&g_next_match_fixture, 0, sizeof(g_next_match_fixture));
+    g_next_match_fixture.home = 1; g_next_match_fixture.away = 2;
+    g_next_match_fixture.date_raw = 20260111; g_next_match_fixture.time_raw = 1600;
+    publish_next_match_card(&failures);
+    check(observed_image_visible == 1 && observed_image_divider == 1 &&
+        !strcmp(observed_image, package_key) && !strcmp(observed_stadium, "Fixture Ground"),
+        "publish stadium picture and DB name even without optional FSW mapping");
+    snprintf(path, sizeof(path), "%s\\FSW\\settings.ini", fixture);
+    check(WritePrivateProfileStringA("stadium", "1", "Different Ground,5,3,0", path),
+        "create explicit FSW venue override");
+    publish_next_match_card(&failures);
+    check(!observed_image_visible && !observed_image_divider && !observed_image[0],
+        "a different venue without a picture never borrows the club's default photo");
+    WritePrivateProfileStringA("stadium", "1", NULL, path);
+    WritePrivateProfileStringA(NULL, NULL, NULL, path);
+    DeleteFileA(path);
+    DeleteFileA(image);
+    publish_next_match_card(&failures);
+    check(!observed_image_visible && !observed_image_divider && !observed_image[0] &&
+        !strcmp(observed_stadium, "Fixture Ground"),
+        "a missing photo hides the slot/divider and clears the previous picture");
+    g_next_match_fixture_valid = 0;
+    publish_next_match_card(&failures);
+    check(!observed_image_visible && !observed_image_divider, "no fixture keeps stadium image hidden");
+    DeleteFileA(cached); DeleteFileA(catalogue);
+    snprintf(path, sizeof(path), "%s\\data\\ui\\artAssets\\stadium\\stadium_%s.big", fixture, package_key);
+    DeleteFileA(path);
+    for (i = sizeof(folders) / sizeof(folders[0]); i > 0; --i) {
+        snprintf(path, sizeof(path), "%s\\%s", fixture, folders[i - 1]); RemoveDirectoryA(path);
+    }
+    RemoveDirectoryA(fixture);
+    g_game_dir[0] = 0; g_mod_dir[0] = 0;
 }
 
 int main(void)
@@ -110,6 +302,8 @@ int main(void)
     clear_pending_stats_refresh();
     check(!g_pending_stats_provider_owner && !g_stats_refresh_schedule.view_revision,
         "context reset cancels pending view retries");
+    test_competition_leader_empty_states();
+    test_next_match_stadium();
     printf("Career native patch readiness: %s (%d failures)\n",
         failures ? "FAIL" : "PASS", failures);
     return failures ? 1 : 0;

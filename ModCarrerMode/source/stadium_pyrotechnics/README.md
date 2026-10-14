@@ -1,0 +1,76 @@
+# Stadium Pyrotechnics — pirotecnia para qualquer time
+
+O módulo `stadium_pyrotechnics.dll` oferece pirotecnia para qualquer time. Na abertura, usa as duas cores institucionais do mandante; após um gol, os efeitos são acionados somente para o mandante.
+
+## Comportamento
+
+- Abertura de 60 segundos, acionada pela apresentação real da partida com duas equipes nativas confirmadas.
+- Gol do mandante: 25 segundos de efeitos. Gol do visitante não inicia um novo show.
+- Fogos, confete e duas camadas de fumaça; encerramento gradual das fontes, com cauda de partículas incluída na duração.
+- Prévia de estádio, seleção de uniformes e outros menus não acionam abertura. Reiniciar Partida rearma abertura e detector de gols.
+- A pausa interrompe a emissão em curso e preserva o evento consumido e o placar. Voltar à partida, abrir seleção de lados/detalhes ou reconstruir tabelas Lua não rearma a fumaça. Abertura e gols do mandante são os únicos disparos automáticos.
+- Sem comandos F7/F8: os gatilhos são automáticos.
+
+## Compilação
+
+Na raiz do repositório:
+
+```powershell
+.\ModCarrerMode\source\stadium_pyrotechnics\build.cmd
+```
+
+O script executa sete testes antes de compilar `stadium_pyrotechnics.cpp`, com MSVC C++17 x64 e `/W4 /WX`. Saída: `ModCarrerMode/source/stadium_pyrotechnics/build/stadium_pyrotechnics.dll`.
+
+`prepare.py` prepara os recursos atuais de `assets/` para o build, preservando o código do runtime. Os estudos e revisões anteriores ficam separados do módulo atual.
+
+## Instalação manual
+
+Feche o FIFA. A partir do pacote local de recursos, coloque os arquivos nos seguintes destinos, relativos à pasta de `FIFA16.exe`:
+
+```text
+ModCarrerMode/mods/stadium_pyrotechnics/stadium_pyrotechnics.dll
+ModCarrerMode/mods/stadium_pyrotechnics/pyro.ini
+ModCarrerMode/config/match_presentation.ini
+data/sceneassets/particles/stadium_pyrotechnics_0.lnx
+data/sceneassets/particles/stadium_pyrotechnics_0.rx3
+```
+
+O par `.lnx/.rx3`, a DLL e as configurações correspondentes estão incluídos no pacote publicado. O build C++ atualiza a DLL; preserve o par de recursos ao instalar.
+
+Em `ModCarrerMode/mods/enabled.txt`, adicione uma única entrada:
+
+```text
+stadium_pyrotechnics\stadium_pyrotechnics.dll
+```
+
+Mantenha uma única entrada deste módulo e reabra o FIFA após a instalação.
+
+O instalador `ModCarrerMode/tools/maintenance/Install-Game.ps1` também aplica o pacote e preserva as configurações locais. A instalação manual acima não depende de caminhos específicos da máquina de desenvolvimento.
+
+## Configuração
+
+Em `ModCarrerMode/mods/stadium_pyrotechnics/pyro.ini`:
+
+```ini
+[pyro]
+enabled=1
+```
+
+O runtime atual é automático. `enabled=0` desliga o módulo na próxima inicialização.
+
+Em `ModCarrerMode/config/match_presentation.ini`:
+
+```ini
+[match]
+pyrotechnics=1
+entrance=1
+goal=1
+```
+
+`pyrotechnics` é a chave geral; `entrance` e `goal` controlam separadamente abertura e gol. Preserve as outras chaves e preferências existentes ao editar. Essas opções são consultadas durante a sessão; na ausência delas, a pirotecnia fica desativada por padrão. O mascote pode ser desativado pela sua entrada em `enabled.txt`.
+
+## Diagnóstico e desativação
+
+Log: `ModCarrerMode/logs/stadium_pyrotechnics.log`. Os registros `MATCH_DETECTED`, `SHOW_STARTED` e `HOME_GOAL_CONFIRMED` identificam os gatilhos. `SLOT_UNAVAILABLE`, `ASSET_TIMEOUT` ou `UNSUPPORTED_IMAGE` indicam por que o show não iniciou.
+
+Para desativar, ajuste os controles acima ou comente a entrada da DLL em `enabled.txt` e reinicie o FIFA. Use apenas a DLL canônica atual, evitando carregar revisões históricas juntas.

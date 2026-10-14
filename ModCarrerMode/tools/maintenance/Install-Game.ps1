@@ -35,9 +35,16 @@ $modsItem = Get-Item -LiteralPath (Join-Path $gameMod 'mods') -Force -ErrorActio
 $liveMods = $modsItem -and $modsItem.LinkType
 $enabledPlugins=@(Get-Content -LiteralPath (Join-Path $modSource 'mods\enabled.txt') | ForEach-Object { $_.Trim() })
 if ($enabledPlugins -contains 'var_cabin\var_cabin.dll') {
-    foreach ($relative in @('data\sceneassets\var_cabin\model_v2.rx3','data\sceneassets\var_cabin\textures_v2.rx3')) {
+    foreach ($relative in @('data\sceneassets\var_cabin\model.rx3','data\sceneassets\var_cabin\textures.rx3')) {
         if (-not (Test-Path -LiteralPath (Join-Path $game $relative) -PathType Leaf)) {
             throw "A cabine do VAR precisa do asset local: $relative. Instale o modelo antes de ativar o mod."
+        }
+    }
+}
+if ($enabledPlugins -contains 'smoke_machine\smoke_machine.dll') {
+    foreach ($relative in @('data\sceneassets\smoke_machine\model.rx3','data\sceneassets\smoke_machine\textures.rx3')) {
+        if (-not (Test-Path -LiteralPath (Join-Path $repoSource $relative) -PathType Leaf)) {
+            throw "A máquina de fumaça precisa do asset no pacote: $relative."
         }
     }
 }
@@ -127,7 +134,8 @@ foreach($file in $files) {
     if ($exists -and (Get-Sha256 $file.Target) -eq $file.Hash) { $same++;continue }
     $changes.Add($file)
 }
-$obsoletePaths = @('dinput8_career_chain.dll','ModCarrerMode\mods\bench12_global_limit_12_v2')
+$obsoletePaths = @('dinput8_career_chain.dll','ModCarrerMode\mods\bench12_global_limit_12_v2',
+    'ModCarrerMode\config\entrance_competitions.ini','ModCarrerMode\entrance_competitions.ini')
 if (-not $liveMods) { $obsoletePaths += 'ModCarrerMode\mods\skip_server_shutdown_notice' }
 # Upgrade old packages to one DLL per mod. Archive only known module folders;
 # unrelated user-installed modules remain outside this migration.

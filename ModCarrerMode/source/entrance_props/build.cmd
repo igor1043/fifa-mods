@@ -8,6 +8,10 @@ cl /nologo /std:c++17 /W4 /WX /O2 /MT test_entrance.cpp /Fobuild\ /Febuild\test_
 if errorlevel 1 exit /b 1
 build\test_entrance.exe
 if errorlevel 1 exit /b 1
+cl /nologo /std:c++17 /W4 /WX /O2 /MT test_selection.cpp /Fobuild\ /Febuild\test_selection.exe /link /NOLOGO
+if errorlevel 1 exit /b 1
+build\test_selection.exe
+if errorlevel 1 exit /b 1
 cl /nologo /std:c++17 /EHsc /W4 /WX /O2 /MT test_crest.cpp /Fobuild\ /Febuild\test_crest.exe /link /NOLOGO
 if errorlevel 1 exit /b 1
 build\test_crest.exe

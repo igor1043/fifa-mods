@@ -1,0 +1,55 @@
+#define WIN32_LEAN_AND_MEAN
+#define NOMINMAX
+#include <windows.h>
+#include <stdio.h>
+#include <string.h>
+#include <assert.h>
+#include <initializer_list>
+#include "entrance_selection.h"
+
+static void directory(const char* root,const char* suffix){
+    char path[MAX_PATH];_snprintf_s(path,MAX_PATH,_TRUNCATE,"%s\\%s",root,suffix);
+    assert(CreateDirectoryA(path,nullptr));
+}
+int main(){
+    char temp[MAX_PATH],root[MAX_PATH],settings[MAX_PATH],metadata[MAX_PATH],name[81];
+    assert(GetTempPathA(MAX_PATH,temp));assert(GetTempFileNameA(temp,"eid",0,root));
+    assert(DeleteFileA(root));assert(CreateDirectoryA(root,nullptr));
+    directory(root,"FSW");directory(root,"data");directory(root,"data\\sceneassets");
+    directory(root,"data\\sceneassets\\entrance_props");directory(root,"data\\sceneassets\\entrance_props\\competitions");
+    for(const char* id:{"195","245","9999"}){
+        char suffix[128];_snprintf_s(suffix,sizeof(suffix),_TRUNCATE,"data\\sceneassets\\entrance_props\\competitions\\%s",id);
+        directory(root,suffix);
+        _snprintf_s(metadata,MAX_PATH,_TRUNCATE,"%s\\%s\\asset.ini",root,suffix);
+        assert(WritePrivateProfileStringA("asset","schema","1",metadata));
+    }
+    _snprintf_s(settings,MAX_PATH,_TRUNCATE,"%s\\FSW\\settings.ini",root);
+    assert(!EntranceSelection::select(root,settings,195,245,name));
+    assert(WritePrivateProfileStringA("movies","195","UEFA - Champions League",settings));
+    assert(WritePrivateProfileStringA("comp","245","Stadium of final,10,3,0",settings));
+    assert(WritePrivateProfileStringA("movies","0","Default must never select",settings));
+    assert(WritePrivateProfileStringA("unrelated","9999","Never select",settings));
+    assert(EntranceSelection::select(root,settings,195,245,name)&&!strcmp(name,"245"));
+    assert(EntranceSelection::select(root,settings,195,219,name)&&!strcmp(name,"195"));
+    assert(EntranceSelection::select(root,settings,195,9999,name)&&!strcmp(name,"195"));
+    assert(!EntranceSelection::select(root,settings,9999,0,name));
+    assert(!EntranceSelection::select(root,settings,0,0,name));
+    assert(!EntranceSelection::configured(settings,1000000));
+    _snprintf_s(metadata,MAX_PATH,_TRUNCATE,"%s\\data\\sceneassets\\entrance_props\\competitions\\245\\asset.ini",root);
+    assert(DeleteFileA(metadata));
+    assert(EntranceSelection::select(root,settings,195,245,name)&&!strcmp(name,"195"));
+    assert(WritePrivateProfileStringA("movies","195",nullptr,settings));
+    assert(!EntranceSelection::select(root,settings,195,245,name));
+    assert(WritePrivateProfileStringA("SCOREBOARD","195","Any scoreboard name",settings));
+    assert(EntranceSelection::select(root,settings,195,0,name)&&!strcmp(name,"195"));
+    assert(DeleteFileA(settings));
+    for(const char* id:{"195","245","9999"}){
+        _snprintf_s(metadata,MAX_PATH,_TRUNCATE,"%s\\data\\sceneassets\\entrance_props\\competitions\\%s\\asset.ini",root,id);
+        if(strcmp(id,"245"))assert(DeleteFileA(metadata));
+        char* slash=strrchr(metadata,'\\');*slash=0;assert(RemoveDirectoryA(metadata));
+    }
+    for(const char* suffix:{"data\\sceneassets\\entrance_props\\competitions","data\\sceneassets\\entrance_props","data\\sceneassets","data","FSW"}){
+        _snprintf_s(metadata,MAX_PATH,_TRUNCATE,"%s\\%s",root,suffix);assert(RemoveDirectoryA(metadata));
+    }
+    assert(RemoveDirectoryA(root));puts("PASS settings IDs, phase priority, root inheritance, no default or name mapping");
+}

@@ -16,7 +16,7 @@ function Assert-Child([string]$Base, [string]$Path) {
 }
 function Hash([string]$Path) { if (Test-Path -LiteralPath $Path -PathType Leaf) { (Get-FileHash -LiteralPath $Path -Algorithm SHA256).Hash } else { $null } }
 & (Join-Path $PSScriptRoot 'Verify-Package.ps1') -PackageRoot $dev | Out-Null
-foreach ($relative in @('fifa16.exe', 'data\sceneassets\var_cabin\model_v2.rx3', 'data\sceneassets\var_cabin\textures_v2.rx3')) {
+foreach ($relative in @('fifa16.exe', 'data\sceneassets\var_cabin\model.rx3', 'data\sceneassets\var_cabin\textures.rx3', 'data\sceneassets\smoke_machine\model.rx3', 'data\sceneassets\smoke_machine\textures.rx3')) {
     if (-not (Test-Path -LiteralPath (Join-Path $game $relative) -PathType Leaf)) { throw "Arquivo necessario no jogo: $relative" }
 }
 foreach ($relative in @('data\db\fifa_ng_db.db','data\db\fifa_ng_db-meta.xml','data\loc\por_br.db','dlc\dlc_FootballCompEng\dlc\FootballCompEng\data\compdata\settings.txt')) {
@@ -75,7 +75,7 @@ $backup = Join-Path ([IO.Path]::GetFullPath($BackupDirectory)) ('DB_DLC_Dev_' + 
 New-Item -ItemType Directory -Path $backup | Out-Null
 $plan | ConvertTo-Json -Depth 6 | Set-Content -LiteralPath (Join-Path $backup 'plan.json') -Encoding utf8
 $protected = [Collections.Generic.List[object]]::new()
-foreach ($relative in @('data\sceneassets\mascot','data\sceneassets\entrance_props','data\sceneassets\var_cabin','data\sceneassets\multiball','data\sceneassets\particles','ModCarrerMode\assets')) {
+foreach ($relative in @('data\sceneassets\mascot','data\sceneassets\entrance_props','data\sceneassets\var_cabin','data\sceneassets\smoke_machine','data\sceneassets\multiball','data\sceneassets\particles','ModCarrerMode\assets')) {
     $directory = Join-Path $game $relative
     if (Test-Path -LiteralPath $directory -PathType Container) {
         foreach ($file in Get-ChildItem -LiteralPath $directory -Recurse -File) {

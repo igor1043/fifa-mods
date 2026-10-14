@@ -1,0 +1,141 @@
+{
+  "source": "C:\\Users\\igorv\\OneDrive\\\u00c1rea de Trabalho\\maquina fuma\u00e7a",
+  "vertices": 4124,
+  "triangles": 3329,
+  "static": true,
+  "skeleton": false,
+  "height_cm": 55.0,
+  "bounds_cm": [
+    [
+      -15.3984375,
+      0.0008687973022460938,
+      -27.5625
+    ],
+    [
+      15.3046875,
+      55.0625,
+      27.546875
+    ]
+  ],
+  "position_error_cm": 0.01557159423828125,
+  "uv_error": 0.0002440810203552246,
+  "winding": {
+    "positive": 3147,
+    "negative": 102
+  },
+  "textures": [
+    [
+      2047566042,
+      "smoke_machine_cm"
+    ],
+    [
+      2047566042,
+      "smoke_machine_coeff"
+    ],
+    [
+      2047566042,
+      "smoke_machine_nm"
+    ]
+  ],
+  "normal_map_green_inverted": true,
+  "normal_mips_renormalized": true,
+  "source_files": {
+    "industrial+machine+3d+model.fbx": "59c0e0b1e00f7240ea66372c920cf869bbcf0564b013d6b1dc50e18437624bf6",
+    "industrial+machine+3d+model_basecolor.jpg": "85a6e24da5df6a40920638ab819efcccd39254333d37d06f97d17d485ed3f93e",
+    "industrial+machine+3d+model_normal.png": "70757f6bd439d82e2d3a66d30dba0d36c3dbfe616b8807c0224156e31226f865"
+  },
+  "files": {
+    "model.rx3": {
+      "size": 102816,
+      "sha256": "2315e2a7275cfbd9e11bb8d63262c77fa5119d7f4216b98373d8d6005c4023ec"
+    },
+    "textures.rx3": {
+      "size": 2802512,
+      "sha256": "31fe117fe9d4bbb315d4c640343f5ffd73e72c58454ed549875f28e76531e100"
+    }
+  },
+  "sites": [
+    [
+      -5900.0,
+      -2100.0
+    ],
+    [
+      -5900.0,
+      -1800.0
+    ],
+    [
+      -5900.0,
+      -700.0
+    ],
+    [
+      -5900.0,
+      700.0
+    ],
+    [
+      -5900.0,
+      1800.0
+    ],
+    [
+      -5900.0,
+      2100.0
+    ],
+    [
+      -2800.0,
+      -3700.0
+    ],
+    [
+      -2800.0,
+      3700.0
+    ],
+    [
+      -1400.0,
+      -3700.0
+    ],
+    [
+      -1400.0,
+      3700.0
+    ],
+    [
+      1400.0,
+      -3700.0
+    ],
+    [
+      1400.0,
+      3700.0
+    ],
+    [
+      2800.0,
+      -3700.0
+    ],
+    [
+      2800.0,
+      3700.0
+    ],
+    [
+      5900.0,
+      -2100.0
+    ],
+    [
+      5900.0,
+      -1800.0
+    ],
+    [
+      5900.0,
+      -700.0
+    ],
+    [
+      5900.0,
+      700.0
+    ],
+    [
+      5900.0,
+      1800.0
+    ],
+    [
+      5900.0,
+      2100.0
+    ]
+  ],
+  "total_triangles_20_machines": 66580,
+  "dll_sha256": "a7c0f190a8f9d384cc9fbe073272b209f3885beaddb5ed184b80f4ef7b92bab3"
+}

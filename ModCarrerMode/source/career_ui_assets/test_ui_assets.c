@@ -44,6 +44,8 @@ int main(int argc,char **argv) {
     CHECK(!resolve_image_path("imgAssets/cmCalendar/cmCalendar8.dds",resolved,sizeof(resolved)));
     CHECK(!resolve_image_path("imgAssets/league/light/l1693.dds",resolved,sizeof(resolved)));
     CHECK(!resolve_image_path("ui/imgAssets/kits/j30_110636_0.dds",resolved,sizeof(resolved)));
+    /* Stadium tiles consume a movie; never route them through the DDS formatter. */
+    CHECK(!resolve_image_path("artAssets/stadium/stadium_cmphoto_0123456789abcdef.big",resolved,sizeof(resolved)));
     native_print_core=test_print_core;native_string_core=test_string_core;
     /* Locale formatting uses this same game function before any artwork. */
     CHECK(ui_print(name,sizeof(name),"%s_%s","por","br")==6 && !strcmp(name,"por_br"));

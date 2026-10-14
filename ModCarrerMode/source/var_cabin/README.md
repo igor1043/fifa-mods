@@ -4,13 +4,13 @@ Usa o OBJ Cabine do Var do pacote CABINE DO VAR 2, fornecido em 14/10/2026, com 
 
 A versão 3 mostra a cabine somente no Campeonato Brasileiro Série A (ID 7) e Série B (ID 83), confirmados no banco instalado. A DLL consulta o ID da partida em wvWipe.leagueID, antes de getTournamentGraphics: uma troca de gráficos, a liga do clube ou um amistoso não habilitam a cabine. Copas, estaduais, Séries C/D e demais competições ficam excluídos. ID ausente ou inválido também mantém a cabine oculta. O filtro é reavaliado no início de cada protótipo e a cada segundo, incluindo trocas de partida na mesma sessão. O filtro da versão 3 foi mantido na troca do modelo.
 
-O RX3 do modelo 2 tem 40,440 vértices e 19,447 triângulos, com altura de 200 cm, largura de 132,6 cm e profundidade de 110,8 cm. Preserva os 48 triângulos dos quatro painéis de vidro/espelho do OBJ. O atlas DXT5 de 2048 × 4096 mantém a imagem fornecida em 2048 × 2048 e acrescenta células separadas de acabamento para estrutura e espelhos, sem ampliar artificialmente os detalhes. O monitor e o pedestal têm mapeamento plano para evitar costuras entre ilhas UV. As tangentes foram recalculadas para o mapeamento final; os mipmaps do mapa normal foram renormalizados. Erro máximo de posição: 0.0621 cm. O acabamento espelhado utiliza as entradas especulares e de ambiente do material nativo, não um reflexo planar de jogadores em tempo real.
+O RX3 do modelo 2 tem 40,440 vértices e 19,447 triângulos, com altura de 200 cm, largura de 132,6 cm e profundidade de 110,8 cm. Preserva os 48 triângulos dos quatro painéis de vidro/espelho do OBJ. A versão leve usa DXT5 com cor em 1024 × 2048, normais em 512 × 1024 e brilho/coeficientes em 256 × 512, mantendo as mesmas UVs e entradas do material nativo. Cada mapa tem todos os mipmaps até 1 × 1. O arquivo textures.rx3 passou de 32,0 MiB para 3,5 MiB (redução de 89,1%). O monitor e o pedestal têm mapeamento plano para evitar costuras entre ilhas UV. As tangentes foram recalculadas para o mapeamento final; os mipmaps do mapa normal foram renormalizados. Erro máximo de posição: 0.0621 cm. O acabamento espelhado utiliza as entradas especulares e de ambiente do material nativo, não um reflexo planar de jogadores em tempo real.
 
 A posição atual é X=0, Y=2, Z=4600 cm, centralizada na linha do meio-campo na lateral positiva. A rotação é 3,141593 radianos (180 graus), com o monitor voltado para o gramado. O eixo X acompanha o comprimento do campo e Z sua largura. O módulo não troca de lado no intervalo. O mesmo objeto estático vale durante partida, pausa e replay; a posição é independente do relógio.
 
 Arquivos:
 
-- data/sceneassets/var_cabin/model_v2.rx3 e textures_v2.rx3
+- data/sceneassets/var_cabin/model.rx3 e textures.rx3
 - ModCarrerMode/mods/var_cabin/var_cabin.dll (ativa no próximo início)
 - ModCarrerMode/mods/var_cabin/var_cabin.lua e var_cabin.ini
 - ModCarrerMode/logs/var_cabin.log
@@ -32,4 +32,4 @@ Validação da versão 3: compilação MSVC /W4 /WX; teste do leitor nativo nas 
 
 Para desativar agora, alterar enabled=0 no INI. Para desativar após reiniciar, comentar apenas var_cabin\var_cabin.dll na lista enabled.txt. Para remover, utilizar o script Desinstalar.ps1 após fechar o FIFA. Os backups preservam os demais mods anteriores à instalação; restaurar sle.lua inteiro manualmente pode remover alterações posteriores de outros mods.
 
-Modelo 2: fontes, conversão, prévias e backup em J:/mods/fifa 16/estudos fifa 16/41_CABINE_VAR_MODELO2_20261014. O ponto de posição, a rotação e a DLL v3 foram preservados. A revisão do modelo entra na próxima abertura do FIFA. Os arquivos model.rx3/textures.rx3 legados permanecem apenas como cópia de recuperação.
+Modelo 2: fontes, conversão, prévias e backup em J:/mods/fifa 16/estudos fifa 16/41_CABINE_VAR_MODELO2_20261014. O ponto de posição, a rotação e a DLL v3 foram preservados. A revisão do modelo entra na próxima abertura do FIFA. A pasta ativa contém somente model.rx3 e textures.rx3; as revisões anteriores ficam no backup externo ao jogo.

@@ -38,12 +38,36 @@
     ]
   ],
   "texture_size": [
-    2048,
-    4096
+    1024,
+    2048
   ],
-  "diffuse_source_preserved_at_native_resolution": [
+  "texture_sizes": {
+    "cm": [
+      1024,
+      2048
+    ],
+    "coeff": [
+      256,
+      512
+    ],
+    "nm": [
+      512,
+      1024
+    ]
+  },
+  "texture_mip_levels": {
+    "cm": 12,
+    "coeff": 10,
+    "nm": 11
+  },
+  "texture_compression": "DXT5",
+  "diffuse_source_size": [
     2048,
     2048
+  ],
+  "diffuse_detail_region_size": [
+    1024,
+    1024
   ],
   "material_triangle_counts": {
     "body": 6785,
@@ -63,13 +87,13 @@
     "CABINE+DO+VAR_normal.png": "15b8035686facd4e71aa413e14ae62d08c08c86395c151d62f52f9af794251bd"
   },
   "files": {
-    "model_v2.rx3": {
+    "model.rx3": {
       "size": 925840,
       "sha256": "921052377e527b22c9d42c864c6b7cc73ef9b5e88ffd940f9058a819ed0d0b8a"
     },
-    "textures_v2.rx3": {
-      "size": 33555472,
-      "sha256": "c0c6ce6a0f3703b6848572b2bb2426b0f89042ccb916049e5d2632e600af2e7b"
+    "textures.rx3": {
+      "size": 3670960,
+      "sha256": "f5bdc4f0ea06e5ff33e0bba45874edd3febf547a831469d9e3989fa1281c4296"
     }
   }
 }

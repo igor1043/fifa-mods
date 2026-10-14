@@ -14,3 +14,4 @@ stadium_pyrotechnics\stadium_pyrotechnics.dll
 crowd_ultra_kits\crowd_ultra_kits.dll
 entrance_props\entrance_props.dll
 var_cabin\var_cabin.dll
+smoke_machine\smoke_machine.dll

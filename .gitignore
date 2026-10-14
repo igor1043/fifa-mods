@@ -55,3 +55,7 @@ code-release/
 # Retired server-notice plugin: local rollback copies are not distributed.
 ModCarrerMode/mods/skip_server_shutdown_notice/
 ModCarrerMode/source/skip_server_shutdown_notice/
+# Local smoke-machine conversion backups and test-only dependencies.
+ModCarrerMode/source/smoke_machine/historico_carregado/
+ModCarrerMode/source/smoke_machine/test_dependencies/
+ModCarrerMode/source/smoke_machine/*.blend1

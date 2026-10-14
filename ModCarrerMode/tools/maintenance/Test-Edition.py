@@ -79,6 +79,7 @@ assert required_plugins <= active_plugins
 if edition=='v12':
     required_v12={'mascot_single/mascot_goal_line.dll','multiball_visual/multiball_visual.dll',
                   'kickoff_modern/kickoff_modern.dll','stadium_pyrotechnics/stadium_pyrotechnics.dll',
+                  'smoke_machine/smoke_machine.dll',
                   'entrance_props/entrance_props.dll','var_cabin/var_cabin.dll',
                   'career_ui_assets/career_ui_assets.dll','crowd_ultra_kits/crowd_ultra_kits.dll',
                   'tournament_compat_native/tournament_compat_native.dll'}

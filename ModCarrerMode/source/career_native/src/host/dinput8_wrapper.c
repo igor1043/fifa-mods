@@ -14,6 +14,7 @@
 #include <string.h>
 #include <wchar.h>
 #include "../platform/mod_paths.h"
+#include "../platform/stadium_thumbnail.h"
 #include "../core/fce_runtime.h"
 #include "../features/crowd/crowd_runtime.h"
 #include "../features/retirement/retirement_engine.h"
@@ -1971,6 +1972,9 @@ static SIZE_T g_stock_assist_count;
 static SIZE_T g_stock_minutes_count;
 static SIZE_T g_stock_yellow_count;
 static SIZE_T g_stock_red_count;
+static BOOL g_competition_scorer_present[5];
+static int g_competition_scorer_field = -1;
+static void *g_competition_scorer_provider;
 
 static void reset_stock_stat_capture(void)
 {
@@ -1979,6 +1983,31 @@ static void reset_stock_stat_capture(void)
     g_stock_minutes_count = 0;
     g_stock_yellow_count = 0;
     g_stock_red_count = 0;
+    memset(g_competition_scorer_present, 0, sizeof(g_competition_scorer_present));
+    g_competition_scorer_field = -1;
+    g_competition_scorer_provider = NULL;
+}
+
+/* Observe the actual NAME<n> field ID and its following PARAM/FALSE write.
+ * HEAD IDs are emitted even for empty rows, so they cannot establish that a
+ * scorer exists. These two call sites are inside the native scorer loop. */
+static void competition_scorer_name_capture(
+    void *provider, const char *attribute, const char *value)
+{
+    g_set_string(provider, attribute, value);
+    if (!provider || !attribute || !value) return;
+    if (!strcmp(attribute, "ID")) {
+        size_t length = strlen(value);
+        g_competition_scorer_provider = provider;
+        g_competition_scorer_field = length == 5 && !strncmp(value, "NAME", 4) &&
+            value[4] >= '0' && value[4] <= '4' ? value[4] - '0' : -1;
+    } else if (provider == g_competition_scorer_provider &&
+        g_competition_scorer_field >= 0) {
+        if (!strcmp(attribute, "PARAM"))
+            g_competition_scorer_present[g_competition_scorer_field] = value[0] != 0;
+        else if (!strcmp(attribute, "VISIBLE") && !_stricmp(value, "FALSE"))
+            g_competition_scorer_present[g_competition_scorer_field] = FALSE;
+    }
 }
 
 static SIZE_T stock_stat_count_for_prefix(const char *prefix)
@@ -3866,7 +3895,39 @@ static SIZE_T publish_top_assists(void *provider)
             (unsigned int)row);
         publish_int_field(provider, key, item->value);
     }
-    return g_assist_count;
+    return current_cache ? (g_assist_count < 5 ? g_assist_count : 5) : 0;
+}
+
+static void publish_competition_leader_states(void *provider, SIZE_T assist_count)
+{
+    SIZE_T row, scorer_count = 0;
+    static const char *suffixes[] = {"HEAD", "LOGO", "NAME", "VALUE"};
+    char key[48];
+    if (!provider) return;
+    for (row = 0; row < 5; ++row) {
+        SIZE_T k;
+        BOOL scorer_visible = g_competition_scorer_present[row];
+        BOOL assist_visible = row < assist_count;
+        if (scorer_visible) ++scorer_count;
+        snprintf(key, sizeof(key), "ROW%u", (unsigned)row);
+        publish_visibility_field(provider, key, scorer_visible);
+        snprintf(key, sizeof(key), "ASSIST_ROW%u", (unsigned)row);
+        publish_visibility_field(provider, key, assist_visible);
+        if (!scorer_visible) clear_ranked_row(provider, "", (int)row);
+        if (!assist_visible) clear_ranked_row(provider, "ASSIST_", (int)row);
+        for (k = 0; k < 4; ++k) {
+            if (scorer_visible) {
+                snprintf(key, sizeof(key), "%s%u", suffixes[k], (unsigned)row);
+                publish_visibility_field(provider, key, TRUE);
+            }
+            if (assist_visible) {
+                snprintf(key, sizeof(key), "ASSIST_%s%u", suffixes[k], (unsigned)row);
+                publish_visibility_field(provider, key, TRUE);
+            }
+        }
+    }
+    publish_ranked_empty_state(provider, "COMP_SCORERS_EMPTY", scorer_count);
+    publish_ranked_empty_state(provider, "COMP_ASSISTS_EMPTY", assist_count);
 }
 
 
@@ -4253,6 +4314,18 @@ static const CallPatchSpec g_call_patches[] = {
             0x05902045,
             0x05A511E0,
             (void *)injury_set_string_capture,
+        },
+        {
+            "competition_scorer_name_field",
+            0x059CE89F,
+            0x05A511E0,
+            (void *)competition_scorer_name_capture,
+        },
+        {
+            "competition_scorer_name_value",
+            0x059CE8D1,
+            0x05A511E0,
+            (void *)competition_scorer_name_capture,
         },
         {
             "statistics_publish_before_notify",

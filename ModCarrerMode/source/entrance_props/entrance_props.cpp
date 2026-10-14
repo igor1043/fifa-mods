@@ -10,6 +10,7 @@
 #include "entrance_policy.h"
 #include "club_atlas.h"
 #include "entrance_bounds.h"
+#include "entrance_selection.h"
 
 // The native SLE builder is called after mascot selection. Its temporary
 // placement vector has private storage; the engine-owned vector is restored
@@ -64,7 +65,7 @@ static unsigned selectedCompetition=0,selectedRound=0;
 static char selectionRequest[81]={};
 static FILETIME modelWrite{},textureWrite{},metadataWrite{};
 static unsigned selectedModelBytes=0,selectedTextureBytes=0;
-static char presentationPath[MAX_PATH]={},catalogPath[MAX_PATH]={};
+static char presentationPath[MAX_PATH]={},settingsPath[MAX_PATH]={};
 using BoundsGatherFn=void(__fastcall*)(void*,int,float*,void*,void*,const float*,const float*,unsigned char,float);
 using BoundsCullFn=void(__fastcall*)(void*,float*,int,void*);
 static BoundsGatherFn originalBoundsGather;
@@ -186,11 +187,9 @@ static void sample_selection(){
         if(selectionFixture!=fixture||!policy.armed)selectionAvailable=false;
         return;
     }
-    char key[24],name[81]={};
-    if(round){_snprintf_s(key,sizeof(key),_TRUNCATE,"%u",round);GetPrivateProfileStringA("competitions",key,"",name,sizeof(name),catalogPath);}
-    if(!name[0]&&competition){_snprintf_s(key,sizeof(key),_TRUNCATE,"%u",competition);GetPrivateProfileStringA("competitions",key,"",name,sizeof(name),catalogPath);}
-    if(!EntranceCatalog::slug(name)){
-        if(selectionAvailable||selectionRequest[0])event("competition_props_skipped v18 unmapped_or_invalid_asset");
+    char name[81]={};
+    if(!EntranceSelection::select(gameRoot,settingsPath,competition,round,name)){
+        if(selectionAvailable||selectionRequest[0])event("competition_props_skipped v19 settings_id_or_package_missing");
         selectionAvailable=false;selectionFixture=fixture;selectionRequest[0]=0;return;
     }
     char path[MAX_PATH];WIN32_FILE_ATTRIBUTE_DATA modelInfo{},textureInfo{},metadataInfo{};
@@ -218,7 +217,7 @@ static void sample_selection(){
     }
     selectionAvailable=available;
     if(!sameRequest||available){
-        char message[224];_snprintf_s(message,sizeof(message),_TRUNCATE,"competition_props v18 competition=%u round=%u asset=%s validated=%u",competition,round,name,(unsigned)available);event(message);
+        char message[224];_snprintf_s(message,sizeof(message),_TRUNCATE,"competition_props v19 source=FSW/settings.ini competition=%u round=%u asset=%s validated=%u",competition,round,name,(unsigned)available);event(message);
     }
 }
 static bool read_clock(int& value);
@@ -870,7 +869,7 @@ static DWORD WINAPI worker(void*){
         if(patch_call()){
             if(preserveOuterBuilder)event("outer_var_cabin_builder_preserved owned_v16_entry_forwarded");
             if(previousStop){previousStop();event("previous_revision_retired v18 owned_v16_hooks_replaced");}
-            event("installed v18 experimental_static_rx3 preload_independent after_second_lineup_closed_hidden_transform yaw180 native_hook=43ac173 mascot_hook_preserved");
+            event("installed v19 settings_ids source=FSW/settings.ini preload_independent after_second_lineup_closed_hidden_transform yaw180 native_hook=43ac173 mascot_hook_preserved");
             for(unsigned attempt=0;attempt<600&&!stopping;++attempt){
                 if(activate_lua_gate()){InterlockedExchange(&luaGateReady,1);event("lua_gate_ready dedicated_static_prototype_enabled");return 0;}
                 Sleep(200);
@@ -889,10 +888,10 @@ extern "C" __declspec(dllexport) BOOL WINAPI Fifa16ModStart(const char* root){
     heightCm=(float)GetPrivateProfileIntA("entrance_props","ground_lift_cm",2,configPath);
     if(heightCm<0||heightCm>20)heightCm=2;
     _snprintf_s(presentationPath,MAX_PATH,_TRUNCATE,"%s\\..\\config\\match_presentation.ini",root);
-    _snprintf_s(catalogPath,MAX_PATH,_TRUNCATE,"%s\\..\\config\\entrance_competitions.ini",root);
     image=(uintptr_t)GetModuleHandleA(nullptr);IMAGE_DOS_HEADER dos{};IMAGE_NT_HEADERS64 nt{};
     if(!GetModuleFileNameA((HMODULE)image,gameRoot,MAX_PATH))return FALSE;
     char* slash=strrchr(gameRoot,'\\');if(!slash)return FALSE;*slash=0;
+    _snprintf_s(settingsPath,MAX_PATH,_TRUNCATE,"%s\\FSW\\settings.ini",gameRoot);
     if(!get(image,dos)||dos.e_magic!=IMAGE_DOS_SIGNATURE||dos.e_lfanew<=0||dos.e_lfanew>4096||
        !get(image+(uintptr_t)dos.e_lfanew,nt)||nt.Signature!=IMAGE_NT_SIGNATURE||
        nt.FileHeader.TimeDateStamp!=0x577de45c||nt.FileHeader.Machine!=IMAGE_FILE_MACHINE_AMD64){event("unsupported_image");return FALSE;}

@@ -10,7 +10,7 @@ New-Item -ItemType Directory -Path $fixture | Out-Null
 # A marker file, never executed; this is NOT a real FIFA installation.
 [IO.File]::WriteAllBytes((Join-Path $fixture 'FIFA16.exe'),[byte[]](0,0,0))
 foreach($folder in @('ModCarrerMode\runtime\operations','data\loc')) { New-Item -ItemType Directory -Force -Path (Join-Path $fixture $folder) | Out-Null }
-foreach($name in @('model_v2.rx3','textures_v2.rx3')) {
+foreach($name in @('model.rx3','textures.rx3')) {
     $local=Join-Path $fixture ('data\sceneassets\var_cabin\'+$name)
     New-Item -ItemType Directory -Force -Path (Split-Path $local) | Out-Null
     # The fixture never runs FIFA or loads these marker assets.

@@ -24,7 +24,7 @@ counts={};gr={Create=function(self,name,i)return i end,AddSubObject=function(sel
 CreateSleVariations(gr,{},{});assert(counts[3]==2 and counts[6]==2 and counts[1]==3 and counts[18]==3)
 db.sle[1]={};makeRNA(3,1);SleUpdate(1);assert(db.sle[1].isVarCabin==0)
 FIFA16_VAR_CABIN_HOOK_READY=true;SleUpdate(1);assert(db.sle[1].isVarCabin==1 and db.sle[1].attribmatname=="simple_character_static")
-assert(GetTexture(1)=="data/sceneassets/var_cabin/textures_v2.rx3" and GetRMSle(1,0)=="data/sceneassets/var_cabin/model_v2.rx3;")
+assert(GetTexture(1)=="data/sceneassets/var_cabin/textures.rx3" and GetRMSle(1,0)=="data/sceneassets/var_cabin/model.rx3;")
 for _,id in ipairs({7,-1,83,350,7,351,83,101,31,29,0}) do
  rawCompetitionId=id;FIFA16_VAR_CABIN_REFRESH_COMPETITION(1);assert(db.sle[1].varCabinCompetitionId==id)
 end

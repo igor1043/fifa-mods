@@ -15,6 +15,7 @@ Mods para melhorar a carreira e a apresentação das partidas no FIFA 16. Este p
 | **Objetos de abertura por competição** | Escolhe arco e placas pelo campeonato; retira modelo e escudos juntos ao fim das escalações ou da apresentação avançada. |
 | **Escudos dinâmicos** | Aplica os escudos dos clubes de cada partida com recorte do fundo transparente. |
 | **Pirotecnia** | Fogos, fumaça e confete na abertura e nos gols do mandante, com as cores do clube. |
+| **Máquinas de fumaça** | Adiciona 20 equipamentos físicos; disparos e cores continuam sob controle da pirotecnia. |
 | **Torcida e público** | Estima a ocupação na carreira e permite ajustar o público pelo Server16. |
 | **Uniformes da torcida** | Usa os uniformes disponíveis para os clubes da partida. |
 | **Banco com 12 reservas** | Acrescenta os jogadores do banco e libera o atleta ao entrar em campo. |
@@ -59,7 +60,8 @@ Uma competição sem modelo de abertura fica sem esses objetos e a partida conti
 - [Cabine do VAR](ModCarrerMode/source/var_cabin/README.md)
 - [Mascotes](ModCarrerMode/source/mascot_photographer/README.md)
 - [Bolas de reposição](ModCarrerMode/source/multiball_visual/README.md)
-- [Pirotecnia](ModCarrerMode/source/flamengo_pyro/README.md)
+- [Pirotecnia](ModCarrerMode/source/stadium_pyrotechnics/README.md)
+- [Máquinas de fumaça](ModCarrerMode/mods/smoke_machine/README.txt)
 - [Ícones da carreira](ModCarrerMode/source/career_ui_assets/README.md)
 
 Para compilar, use MSVC x64 e execute o build do módulo. Copie a saída para a DLL correspondente em `ModCarrerMode/mods/`. `Verify-Package.ps1` confere o pacote compilado; `Test-Package.ps1` testa a instalação isolada, sem abrir FIFA nem usar saves. `Review-Code.py` confere os fontes. `Export-Code.py` cria um ZIP somente com código, configuração e documentação. Os scripts ficam em `ModCarrerMode/tools/maintenance/`.

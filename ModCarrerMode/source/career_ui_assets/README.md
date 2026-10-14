@@ -46,6 +46,24 @@ and their availability index. Without local icons the module keeps the original 
 The runtime log `ModCarrerMode/logs/career_ui_assets.log` records `CATALOG`, `READY` and `RESOLVE`.
 Actual calendar rendering must also be checked in the game; unit tests do not verify its display.
 
+Career stadium photos use the host's local image conversion and native movie
+package writer. The host reads the photo selected by FSW (or the career database
+fallback), preserves the original, and converts its pixels to DDS in
+`data/ui/imgAssets/stadium/stadium_<key>.dds`. It then generates a minimal six-member
+`image_mc` BIG in `data/ui/artAssets/stadium/stadium_cmphoto_<content-hash>.big`.
+Only the movie dimensions and rectangle geometry are adjusted; the embedded DDS
+is byte identical. The published stadium helper key names this generated package.
+No manual stadium BIG is needed. Missing/invalid photos or failed package writes
+keep the slot hidden. Source changes receive another content key, avoiding stale
+fallback cache entries. Existing game stadium BIGs are never overwritten.
+
+The earlier formatter redirect to loose stadium DDSs was removed: live RAM showed
+the card still requesting a movie and falling back to `notfound.big`, without any
+formatter redirect. A generated native package with the correct Elcyrzao DDS was
+confirmed in-game on 14 October 2026. The automatic writer is separately covered
+by tests for member offsets, exact DDS pixels, geometry, repair, content changes
+and invalid input; its installation still requires a game restart.
+
 ## Career Starting XI goalkeeper (14 October 2026)
 
 StartingXIDP reads one SHARED team-kit selector at team-sheet offset `+8`.
