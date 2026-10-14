@@ -8,6 +8,7 @@ O módulo `stadium_pyrotechnics.dll` oferece pirotecnia para qualquer time. Na a
 - Gol do mandante: 25 segundos de efeitos. Gol do visitante não inicia um novo show.
 - Fogos, confete e duas camadas de fumaça; encerramento gradual das fontes, com cauda de partículas incluída na duração.
 - Todas as 20 máquinas disparam na abertura; as 12 traseiras disparam imediatamente no gol do mandante.
+- Os 11 grupos de partículas respeitam o trigger externo: cada gol e reinício da partida renova o relógio de emissão das instâncias reutilizadas, mesmo depois de terminar a abertura. Instale o `.lnx` atualizado junto da DLL.
 - Os efeitos usam orientação fixa, sem rotação conforme o lado do campo. A posição de saída acompanha a boca da máquina.
 - Prévia de estádio, seleção de uniformes e outros menus não acionam abertura. Reiniciar Partida rearma abertura e detector de gols.
 - A pausa interrompe a emissão em curso e preserva o evento consumido e o placar. Voltar à partida, abrir seleção de lados/detalhes ou reconstruir tabelas Lua não rearma a fumaça. Abertura e gols do mandante são os únicos disparos automáticos.
@@ -24,6 +25,8 @@ Na raiz do repositório:
 O script executa sete testes antes de compilar `stadium_pyrotechnics.cpp`, com MSVC C++17 x64 e `/W4 /WX`. Saída: `ModCarrerMode/source/stadium_pyrotechnics/build/stadium_pyrotechnics.dll`.
 
 `prepare.py` prepara os recursos atuais de `assets/` para o build, preservando o código do runtime. Os estudos e revisões anteriores ficam separados do módulo atual.
+
+`python ModCarrerMode/source/stadium_pyrotechnics/test_assets.py` verifica os 11 grupos, o reinício por trigger externo e as referências entre partículas.
 
 ## Instalação manual
 

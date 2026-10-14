@@ -12,6 +12,10 @@ def setp(action,name,value):
 for g in tree.findall('.//particleGroup'):
     name=g.get('name')
     emit=next(a for a in g.findall('particleAction') if a.get('className') in ('ParticleActionEmitBox','ParticleActionEmitSphere'))
+    # Native Trigger clears the instance clock. The emit action only rebases
+    # its retained iTimeStartedMs when it respects that external trigger.
+    # Without this, reused opening instances eventually emit nothing on goals.
+    setp(emit,'bRespectExternalTrigger','1')
     render=g.find("particleAction[@className='ParticleActionRender']")
     if name.startswith('smoke_base') or name.startswith('smoke_black'):
         setp(emit,'vCenter','{ 0, 0, 0 }')
@@ -37,6 +41,7 @@ for g in tree.findall('.//particleGroup'):
         for p in render.findall("parameter[@name='vColorRamp']"):
             p.set('value','{ 1, 1, 1, %s }'%('0' if p.get('index')=='3' else '1'))
     elif name=='sparkle_trail':setp(emit,'fSizeMean','20')
+E.indent(tree,space='\t')
 tree.write(path,encoding='utf-8')
 shutil.copy2(path,root/'build/assets'/path.name)
 print('Outlet-centered smoke/rockets/paper; paired rocket trail overlays; paper immediately visible; rates/duration/dense smoke retained')

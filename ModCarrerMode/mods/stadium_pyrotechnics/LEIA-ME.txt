@@ -6,7 +6,7 @@ Log: ModCarrerMode/logs/stadium_pyrotechnics.log.
 Automatico para qualquer mandante; abertura 60 segundos e gol do mandante 25 segundos.
 Previa de selecao, KickOffHub, uniformes e outros menus: sem disparo, abertura rearmada.
 Apenas apresentacao real (pagina de carregamento/TV bumper) com duas equipes nativas libera inicio.
-Pausa/replay nao arma novos disparos; apenas conserva uma animacao ja iniciada.
+Pausa/replay nao arma novos disparos; o menu de pausa interrompe o show em curso.
 Server16: controles independentes em ModCarrerMode/config/match_presentation.ini, sem sobrescrever preferencia.
 Cores: duas cores institucionais do mandante recuperadas do banco FIFA instalado.
 Gol do visitante nao aciona novos efeitos. Um show ja iniciado segue sua duracao.
@@ -20,7 +20,5 @@ Historico e backups ficam na pasta de estudos, fora do mod instalado.
 Cada maquina corresponde a um emissor: 20 na abertura, 12 atras dos gols no gol do mandante.
 Origem na boca da maquina (57 cm de altura); foguete 12 cm, papel 3 cm; fumaca com crescimento ate nuvem densa.
 PARTICLE_AUDIT no log de pirotecnia verifica particulas uma vez por disparo. Menu de pausa interrompe o show em curso.
-
-Cada maquina corresponde a um emissor: 20 na abertura, 12 atras dos gols no gol do mandante.
-Origem na boca da maquina (57 cm de altura); foguete 12 cm, papel 3 cm; fumaca com crescimento ate nuvem densa.
-PARTICLE_AUDIT no log de pirotecnia verifica particulas uma vez por disparo. Menu de pausa interrompe o show em curso.
+Todos os grupos respeitam o trigger externo: o relogio de emissao reinicia a cada gol do mandante,
+mesmo depois de encerrar a abertura. O arquivo .lnx atualizado faz parte da correcao e deve ser instalado.
