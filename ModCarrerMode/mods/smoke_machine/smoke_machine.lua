@@ -29,6 +29,16 @@ function GetRMSle(idx,isModel)
     return MachineBaseRM(idx,isModel)
 end
 local function MachineAppend(gr,batch,sles)
+    -- Verify an existing native appearance; an old boolean is not scene ownership.
+    for k in pairs(sles) do
+        if type(k)=="number" then
+            local ok,existing=pcall(function()
+                local row=gSportsRNA:GetTable("wvSle",k)
+                return gSportsRNA:GetInt(row,"sletype")==16 and gSportsRNA:GetInt(row,"sleindex")==1
+            end)
+            if ok and existing then return true end
+        end
+    end
     local nextIndex=0
     for k in pairs(sles) do if type(k)=="number" and k>=nextIndex then nextIndex=k+1 end end
     if nextIndex>=176 then return false end
@@ -38,14 +48,17 @@ local function MachineAppend(gr,batch,sles)
     return true
 end
 local MachineBaseVariations=CreateSleVariations
-function CreateSleVariations(gr,batch,sles)
-    MachineBaseVariations(gr,batch,sles)
-    FIFA16_SMOKE_MACHINE_LIVE_CREATED=MachineAppend(gr,batch,sles)
+-- The earlier bootstrap already reserves this appearance. Do not wrap it twice.
+if not FIFA16_SMOKE_MACHINE_LUA_V1 then
+    function CreateSleVariations(gr,batch,sles)
+        MachineBaseVariations(gr,batch,sles)
+        FIFA16_SMOKE_MACHINE_LIVE_CREATED=MachineAppend(gr,batch,sles)
+    end
 end
 function FIFA16_SMOKE_MACHINE_CREATE_LIVE()
-    if FIFA16_SMOKE_MACHINE_LIVE_CREATED then return end
     if gRenderObj and gRenderObj.batchSle and gRenderObj.sles then
         FIFA16_SMOKE_MACHINE_LIVE_CREATED=MachineAppend(gRenderables,gRenderObj.batchSle,gRenderObj.sles)
     end
 end
 FIFA16_SMOKE_MACHINE_LUA_V1=true
+FIFA16_SMOKE_MACHINE_LUA_V2=true

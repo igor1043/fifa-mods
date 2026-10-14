@@ -7,6 +7,7 @@
 #include <math.h>
 #include "launch_sites.h"
 #include "presentation.h"
+#include "loading_policy.h"
 using BuildFn=void(__fastcall*)(void*);
 static uintptr_t image;
 static BuildFn nextBuild;
@@ -19,6 +20,8 @@ static bool matchVisible=false;
 static PyroMatchSession matchSession;
 static uint64_t nextConfig=0,nextDiagnostic=0;
 static uint64_t nextScene=0,nextCreate=0;
+static MachineLuaLifecycle luaLifecycle;
+static uintptr_t lastLuaGlobals=0;
 static char presentationPath[MAX_PATH],pyroPath[MAX_PATH];
 alignas(16) static unsigned char scratch[(128+machineCount)*0x50],records[machineCount][0x50];
 static unsigned char expectedCall[5],appliedCall[5];
@@ -47,10 +50,42 @@ static bool console(const char* script,size_t size){
 static bool activateLua(){
     static char script[16384];FILE* f=nullptr;
     if(fopen_s(&f,luaPath,"rb")||!f)return false;
-    const char prefix[]="if not FIFA16_SMOKE_MACHINE_LUA_V1 then ";memcpy(script,prefix,sizeof(prefix)-1);
+    const char prefix[]="if not FIFA16_SMOKE_MACHINE_LUA_V2 then ";memcpy(script,prefix,sizeof(prefix)-1);
     const size_t n=fread(script+sizeof(prefix)-1,1,sizeof(script)-256,f);const bool ok=!ferror(f)&&feof(f);fclose(f);if(!ok)return false;
-    const char suffix[]="\nFIFA16_SMOKE_MACHINE_LUA_V1=true end; FIFA16_SMOKE_MACHINE_HOOK_READY=true";
+    const char suffix[]="\nFIFA16_SMOKE_MACHINE_LUA_V2=true end; FIFA16_SMOKE_MACHINE_HOOK_READY=true";
     memcpy(script+sizeof(prefix)-1+n,suffix,sizeof(suffix));return console(script,sizeof(prefix)-1+n+sizeof(suffix)-1);
+}
+struct LuaValue{uint64_t bits;int tag,padding;};
+static bool luaFlag(uintptr_t table,const char* key){
+    unsigned char tag=0,power=0;uintptr_t nodes=0;
+    if(!get(table+8,tag)||tag!=5||!get(table+11,power)||power>12||!get(table+32,nodes)||!nodes)return false;
+    const size_t length=strlen(key);
+    struct Node{LuaValue value,key;uintptr_t next;};
+    for(unsigned i=0;i<(1u<<power);++i){
+        Node n{};size_t len=0;char text[64]={};
+        if(!get(nodes+i*40,n))return false;
+        if(n.key.tag!=4||!get((uintptr_t)n.key.bits+16,len)||len!=length||len>=sizeof(text))continue;
+        if(bytes((uintptr_t)n.key.bits+24,text,len)&&!memcmp(text,key,len))return n.value.tag==1&&n.value.bits!=0;
+    }
+    return false;
+}
+static void refreshLua(){
+    const uint64_t now=GetTickCount64();
+    if(now<luaLifecycle.nextCheck)return;
+    uintptr_t vm=0;LuaValue globals{};
+    const bool valid=get(image+0x3613fd0,vm)&&vm&&get(vm+0x78,globals)&&globals.tag==5;
+    const bool sameLua=valid&&luaLifecycle.vm==vm&&lastLuaGlobals==(uintptr_t)globals.bits;
+    luaLifecycle.sample(now,valid?vm:0);
+    if(sameLua&&luaLifecycle.ready){InterlockedExchange(&luaReady,1);return;}
+    lastLuaGlobals=valid?(uintptr_t)globals.bits:0;
+    const bool known=valid&&luaFlag((uintptr_t)globals.bits,"FIFA16_SMOKE_MACHINE_LUA_V2")&&luaFlag((uintptr_t)globals.bits,"FIFA16_SMOKE_MACHINE_HOOK_READY");
+    if(luaLifecycle.should_activate(now,known)){
+        // Lua callbacks and native factory calls belong to the scene thread.
+        activateLua();
+        if(get(vm+0x78,globals)&&globals.tag==5)luaLifecycle.ready=luaFlag((uintptr_t)globals.bits,"FIFA16_SMOKE_MACHINE_LUA_V2");
+        if(luaLifecycle.ready)event("lua_ready scene_thread verified_marker");
+    }
+    InterlockedExchange(&luaReady,luaLifecycle.ready?1:0);
 }
 static void scene() {
     const uint64_t now=GetTickCount64();if(now<nextScene)return;nextScene=now+250;
@@ -93,10 +128,15 @@ static bool ready(uintptr_t p,bool& requested,const char* message){
     if(fault)return false;
     __try{
         if(!requested){
-            if(!((Ready)(image+0x43b4500))((void*)p)){
+            const bool initialized=((Ready)(image+0x43b4500))((void*)p)!=0;
+            if(!initialized){
                 const int parameters[5]={-1,-1,-1,0,-1};((void(__fastcall*)(void*,const int*))(image+0x43b4640))((void*)p,parameters);
+            }
+            if(!initialized || p==prototype){
                 uintptr_t vt=0,load=0;if(!get(p,vt)||!get(vt+0x38,load)||load!=image+0x43b4530)return false;
-                ((void(__fastcall*)(void*,int))load)((void*)p,0);
+                // Startup can have prepared this reserved appearance as an official
+                // before the Lua gate became ready. Reload ONLY our private model.
+                ((void(__fastcall*)(void*,int))load)((void*)p,p==prototype?1:0);
             }
             requested=true;event(message);
         }
@@ -120,16 +160,18 @@ static void __fastcall buildHook(void* self){
     Vector saved{},temporary{};size_t n=0,normalBytes=0;unsigned mask=0;bool swapped=false,maskSaved=false;float submitted=-3000;
     const uintptr_t list=(uintptr_t)self+0x30*(16+0x2f),maskAt=(uintptr_t)self+0x4f604;
     __try{
-        config();scene();
-        if(luaReady&&!createdLive&&GetTickCount64()>=nextCreate){
+        config();scene();refreshLua();
+        uintptr_t p=0,s=0,b=0;
+        bool hasPrototype=luaReady&&ownPrototype(self,p,s,b);
+        if(luaReady&&!hasPrototype&&GetTickCount64()>=nextCreate){
             nextCreate=GetTickCount64()+500;
             // The same factory/AddSubObject path as normal startup, on the render
             // thread. No copied native resources and no concurrent vector mutation.
             static const char create[]="FIFA16_SMOKE_MACHINE_CREATE_LIVE()";
             console(create,sizeof(create)-1);
+            hasPrototype=ownPrototype(self,p,s,b);
         }
-        uintptr_t p=0,s=0,b=0;
-        if(luaReady&&ownPrototype(self,p,s,b)&&vector(list,0x50,saved,n)&&n<=128){
+        if(hasPrototype&&vector(list,0x50,saved,n)&&n<=128){
             createdLive=true;normalBytes=n*0x50;
             if(!normalBytes||bytes(saved.begin,scratch,normalBytes)){
                 // Any native random use of the reserved appearance keeps the
@@ -142,9 +184,18 @@ static void __fastcall buildHook(void* self){
                     memset(records,0,sizeof(records));
                     for(size_t i=0;i<machineCount;++i){records[i][0x40]=records[i][0x41]=0xff;records[i][0x42]=1;}
                     event("static_prototype_confirmed type=16 variation=1 machines=20");
+                    unsigned rna=0;char update[96];
+                    if(get(s+0x4c,rna)&&rna<176){
+                        const int length=_snprintf_s(update,sizeof(update),_TRUNCATE,"SleUpdate(%u)",rna);
+                        if(length>0)console(update,(size_t)length);
+                    }
                 }
 
                 const bool a=ready(p,resourceRequested,"model_texture_requested");const bool c=ready(b,shadowRequested,"shadow_dependency_requested");
+                if((!a||!c)&&GetTickCount64()>=nextDiagnostic){
+                    nextDiagnostic=GetTickCount64()+5000;char message[160];
+                    _snprintf_s(message,sizeof(message),_TRUNCATE,"model_deferred reason=resources_not_ready model=%u shadow=%u",(unsigned)a,(unsigned)c);event(message);
+                }
                 if(a&&c&&get(maskAt,mask)){
                     submitted=enabled&&!stopping&&matchVisible?yCm:-3000;
                     for(size_t i=0;i<machineCount;++i){position(i,submitted);memcpy(scratch+normalBytes+i*0x50,records[i],0x50);}
@@ -152,6 +203,10 @@ static void __fastcall buildHook(void* self){
                     memcpy((void*)list,&temporary,sizeof(temporary));swapped=true;*(unsigned*)maskAt=mask|(1u<<16);maskSaved=true;
                 }
             }
+        }
+        if(!hasPrototype&&GetTickCount64()>=nextDiagnostic){
+            nextDiagnostic=GetTickCount64()+5000;
+            char message[144];_snprintf_s(message,sizeof(message),_TRUNCATE,"model_deferred reason=%s vm=%p",luaReady?"prototype_missing_or_incompatible":"lua_not_ready",(void*)luaLifecycle.vm);event(message);
         }
         nextBuild(self);
     }__finally{
@@ -174,16 +229,16 @@ static void __fastcall buildHook(void* self){
     }
 }
 static bool signatures(){
-    struct Guard{uintptr_t rva;unsigned char bytes[16];};
+    struct Guard{uintptr_t rva;unsigned char bytes[16];size_t length;};
     const Guard guards[]={
-        {0x43b4500,{0x48,0x8b,0x41,0x10,0x0f,0xb6,0x40,0x4a,0xc3,0xc3,0x32,0x31,0xfb,0xe4,0x00,0x38}},
-        {0x43b4520,{0x48,0x8b,0x41,0x10,0x0f,0xb6,0x40,0x48,0xc3,0xcc,0xcc,0xcc,0xcc,0xcc,0xcc,0xcc}},
-        {0x43b4530,{0x57,0x48,0x83,0xec,0x20,0x48,0x89,0xcf,0x48,0x8b,0x49,0x10,0x80,0x79,0x4a,0x00}},
-        {0x43b43e0,{0x48,0x8b,0x51,0x10,0xb0,0x01,0x41,0xb8,0x0f,0x0b,0x4e,0xc3,0x48,0x83,0xc2,0x20}},
-        {0x43b4640,{0x57,0x48,0x83,0xec,0x70,0x48,0x8b,0x05,0x14,0x3e,0xee,0xfe,0x48,0x31,0xe0,0x48}},
-        {0x4ac35e0,{0x48,0x89,0x5c,0x24,0x08,0x48,0x89,0x74,0x24,0x10,0x57,0x48,0x83,0xec,0x30,0x48}}
+        {0x43b4500,{0x48,0x8b,0x41,0x10,0x0f,0xb6,0x40,0x4a,0xc3},9},
+        {0x43b4520,{0x48,0x8b,0x41,0x10,0x0f,0xb6,0x40,0x48,0xc3},9},
+        {0x43b4530,{0x57,0x48,0x83,0xec,0x20,0x48,0x89,0xcf,0x48,0x8b,0x49,0x10,0x80,0x79,0x4a,0x00},16},
+        {0x43b43e0,{0x48,0x8b,0x51,0x10,0xb0,0x01,0x41,0xb8,0x0f,0x0b,0x4e,0xc3,0x48,0x83,0xc2,0x20},16},
+        {0x43b4640,{0x57,0x48,0x83,0xec,0x70,0x48,0x8b,0x05,0x14,0x3e,0xee,0xfe,0x48,0x31,0xe0,0x48},16},
+        {0x4ac35e0,{0x48,0x89,0x5c,0x24,0x08,0x48,0x89,0x74,0x24,0x10,0x57,0x48,0x83,0xec,0x30,0x48},16}
     };
-    for(const auto& g:guards){unsigned char a[16];if(!bytes(image+g.rva,a,16)||memcmp(a,g.bytes,16))return false;}
+    for(const auto& g:guards){unsigned char a[16];if(!bytes(image+g.rva,a,g.length)||!machine_guard_matches(a,g.bytes,g.length))return false;}
     const unsigned char notification[9]={0x48,0x8b,0x41,0x10,0xc6,0x40,0x48,0x01,0xc3};unsigned char actualNotification[9];
     if(!bytes(image+0x43b47c0,actualNotification,9)||memcmp(actualNotification,notification,9))return false;
     unsigned char call[16];const unsigned char tail[11]={0xe8,0xb3,0xc8,0x71,0,0x48,0x8d,0x4c,0x24,0x30,0xe8};
@@ -222,7 +277,10 @@ static bool patch(){
 }
 static DWORD WINAPI worker(void*){
     for(unsigned i=0;i<600&&!stopping;++i){
-        if(!signatures()){Sleep(200);continue;}
+        if(!signatures()){
+            if(i%25==0){char message[192];_snprintf_s(message,sizeof(message),_TRUNCATE,"hook_pending entrance_required=%u var_required=%u reason=native_code_or_previous_builder_not_ready",(unsigned)requireEntrance,(unsigned)requireVar);event(message);}
+            Sleep(200);continue;
+        }
         auto relay=(unsigned char*)allocateNear(image+0x43ac173);if(!relay){event("relay_allocation_failed");return 0;}
         const unsigned char jump[6]={0xff,0x25,0,0,0,0};const uintptr_t target=(uintptr_t)buildHook;memcpy(relay,jump,6);memcpy(relay+6,&target,8);
         DWORD ignored=0;if(!VirtualProtect(relay,4096,PAGE_EXECUTE_READ,&ignored)){VirtualFree(relay,0,MEM_RELEASE);return 0;}
@@ -230,7 +288,8 @@ static DWORD WINAPI worker(void*){
         appliedCall[0]=0xe8;const int32_t d=(int32_t)rel;memcpy(appliedCall+1,&d,4);
         if(!patch()){VirtualFree(relay,0,MEM_RELEASE);Sleep(200);continue;}
         event("installed smoke_machine static_rx3 machines=20 native_builder_chain dedicated_type16 appearance1");
-        for(unsigned a=0;a<120&&!stopping;++a){if(activateLua()){InterlockedExchange(&luaReady,1);event("lua_ready");return 0;}Sleep(250);}event("lua_unavailable");return 0;
+        // Lua availability is retried on the scene thread, including future VMs.
+        return 0;
     }event("signature_conflict_or_timeout");return 0;
 }
 extern "C" __declspec(dllexport) unsigned WINAPI Fifa16ModGetApiVersion(){return 1;}
@@ -244,9 +303,19 @@ extern "C" __declspec(dllexport) BOOL WINAPI Fifa16ModStart(const char* root){
     // a startup race and prevent the other from installing.
     char enabledPath[MAX_PATH];_snprintf_s(enabledPath,MAX_PATH,_TRUNCATE,"%s\\enabled.txt",root);
     FILE* listFile=nullptr;
-    if(!fopen_s(&listFile,enabledPath,"rb")&&listFile){char line[512];while(fgets(line,sizeof(line),listFile)){char* p=line;while(*p==' '||*p=='\t')++p;if(*p!='#'&&strstr(p,"entrance_props\\"))requireEntrance=true;if(*p!='#'&&strstr(p,"var_cabin\\"))requireVar=true;}fclose(listFile);}
+    if(!fopen_s(&listFile,enabledPath,"rb")&&listFile){char line[512];while(fgets(line,sizeof(line),listFile)){char* p=line;while(*p==' '||*p=='\t')++p;for(char* c=p;*c;++c)if(*c=='/')*c='\\';if(*p!='#'&&strstr(p,"entrance_props\\"))requireEntrance=true;if(*p!='#'&&strstr(p,"var_cabin\\"))requireVar=true;}fclose(listFile);}
+    event("loading_policy lua_activation=scene_thread retry_vm=1 retry_missing_prototype=1 padding_guard=executed_bytes");
     _snprintf_s(presentationPath,MAX_PATH,_TRUNCATE,"%s\\..\\config\\match_presentation.ini",root);
     _snprintf_s(pyroPath,MAX_PATH,_TRUNCATE,"%s\\stadium_pyrotechnics\\pyro.ini",root);
+    char gameFile[MAX_PATH]={};
+    if(GetModuleFileNameA(nullptr,gameFile,MAX_PATH)){
+        char* end=strrchr(gameFile,'\\');if(end){
+            *end=0;char modelPath[MAX_PATH],texturePath[MAX_PATH],message[160];
+            _snprintf_s(modelPath,MAX_PATH,_TRUNCATE,"%s\\data\\sceneassets\\smoke_machine\\model.rx3",gameFile);
+            _snprintf_s(texturePath,MAX_PATH,_TRUNCATE,"%s\\data\\sceneassets\\smoke_machine\\textures.rx3",gameFile);
+            _snprintf_s(message,sizeof(message),_TRUNCATE,"asset_files model=%u textures=%u",GetFileAttributesA(modelPath)!=INVALID_FILE_ATTRIBUTES,GetFileAttributesA(texturePath)!=INVALID_FILE_ATTRIBUTES);event(message);
+        }
+    }
     image=(uintptr_t)GetModuleHandleA(nullptr);IMAGE_DOS_HEADER dos{};IMAGE_NT_HEADERS64 nt{};
     if(!get(image,dos)||dos.e_magic!=IMAGE_DOS_SIGNATURE||dos.e_lfanew<=0||dos.e_lfanew>4096||!get(image+(uintptr_t)dos.e_lfanew,nt)||nt.Signature!=IMAGE_NT_SIGNATURE||nt.FileHeader.TimeDateStamp!=0x577de45c||nt.FileHeader.Machine!=IMAGE_FILE_MACHINE_AMD64)return FALSE;
     HMODULE pinned=nullptr;if(!GetModuleHandleExA(GET_MODULE_HANDLE_EX_FLAG_FROM_ADDRESS|GET_MODULE_HANDLE_EX_FLAG_PIN,(LPCSTR)&started,&pinned))return FALSE;
