@@ -8,6 +8,7 @@ assert effect.get('name') == 'stadium_pyrotechnics'
 groups = effect.findall('particleGroup')
 assert len(groups) == 11
 for group in groups:
+    assert group.find("parameter[@name='iInstancing']").get('value') == '0', group.get('name')
     actions = [a for a in group.findall('particleAction')
                if a.get('className') in ('ParticleActionEmitBox', 'ParticleActionEmitSphere')]
     assert len(actions) == 1, group.get('name')
@@ -20,4 +21,4 @@ for group in groups:
             target_group, action, name = p.get('value').split('/')
             target = effect.find(f"particleGroup[@name='{target_group}']/particleAction[@name='{action}']/parameter[@name='{name}']")
             assert target is not None, p.attrib
-print('PASS: all 11 finite emitters restart on external triggers; particle references resolve.')
+print('PASS: 11 private finite emitters restart on external triggers; particle references resolve.')

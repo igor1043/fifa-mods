@@ -9,6 +9,7 @@ O módulo `stadium_pyrotechnics.dll` oferece pirotecnia para qualquer time. Na a
 - Fogos, confete e duas camadas de fumaça; encerramento gradual das fontes, com cauda de partículas incluída na duração.
 - Todas as 20 máquinas disparam na abertura; as 12 traseiras disparam imediatamente no gol do mandante.
 - Os 11 grupos de partículas respeitam o trigger externo: cada gol e reinício da partida renova o relógio de emissão das instâncias reutilizadas, mesmo depois de terminar a abertura. Instale o `.lnx` atualizado junto da DLL.
+- Cada máquina usa grupos privados (`iInstancing=0`). No modo compartilhado anterior, o caminho nativo de instâncias podia pular a emissão e a limpeza de um emissor atingia os buffers compartilhados. O modo privado preserva os limites por ponto e permite o reinício de cada máquina no gol.
 - Os efeitos usam orientação fixa, sem rotação conforme o lado do campo. A posição de saída acompanha a boca da máquina.
 - Prévia de estádio, seleção de uniformes e outros menus não acionam abertura. Reiniciar Partida rearma abertura e detector de gols.
 - O recurso de partículas é pré-carregado na prévia da partida, sem criar ou disparar emissores. O Server16 atualizado mostra o progresso de arquivos e a confirmação nativa da cena, junto dos carregadores de entradas, VAR e máquinas de fumaça.

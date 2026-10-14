@@ -3,7 +3,7 @@
 		<parameter name="iCullBehavior" index="0" value="0" />
 		<particleGroup name="smoke_trail">
 			<parameter name="iNumParticlesMax" index="0" value="850" />
-			<parameter name="iInstancing" index="0" value="1" />
+			<parameter name="iInstancing" index="0" value="0" />
 			<particleAction name="ParticleActionEmitBox" className="ParticleActionEmitBox">
 				<parameter name="iEmitRate" index="0" value="150" />
 				<parameter name="bEmitRatePerCenter" index="0" value="1" />
@@ -72,7 +72,7 @@
 		</particleGroup>
 		<particleGroup name="smoke_trail_overlay">
 			<parameter name="iNumParticlesMax" index="0" value="850" />
-			<parameter name="iInstancing" index="0" value="1" />
+			<parameter name="iInstancing" index="0" value="0" />
 			<particleAction name="ParticleActionEmitBox" className="ParticleActionEmitBox">
 				<parameter name="iEmitRate" index="0" value="150" />
 				<parameter name="bEmitRatePerCenter" index="0" value="1" />
@@ -141,7 +141,7 @@
 		</particleGroup>
 		<particleGroup name="sparkle_trail">
 			<parameter name="iNumParticlesMax" index="0" value="100" />
-			<parameter name="iInstancing" index="0" value="1" />
+			<parameter name="iInstancing" index="0" value="0" />
 			<particleAction name="ParticleActionEmitBox" className="ParticleActionEmitBox">
 				<parameter name="iEmitRate" index="0" value="25" />
 				<parameter name="bEmitRatePerCenter" index="0" value="1" />
@@ -209,7 +209,7 @@
 		</particleGroup>
 		<particleGroup name="ordinance">
 			<parameter name="iNumParticlesMax" index="0" value="1" />
-			<parameter name="iInstancing" index="0" value="1" />
+			<parameter name="iInstancing" index="0" value="0" />
 			<particleAction name="ParticleActionEmitBox" className="ParticleActionEmitBox">
 				<parameter name="iEmitRate" index="0" value="1000" />
 				<parameter name="fSizeMean" index="0" value="12" />
@@ -285,7 +285,7 @@
 		</particleGroup>
 		<particleGroup name="smoke_base">
 			<parameter name="iNumParticlesMax" index="0" value="850" />
-			<parameter name="iInstancing" index="0" value="1" />
+			<parameter name="iInstancing" index="0" value="0" />
 			<particleAction name="ParticleActionEmitBox" className="ParticleActionEmitBox">
 				<parameter name="iEmitRate" index="0" value="150" />
 				<parameter name="fSizeMean" index="0" value="380" />
@@ -352,7 +352,7 @@
 		</particleGroup>
 		<particleGroup name="smoke_base_overlay">
 			<parameter name="iNumParticlesMax" index="0" value="850" />
-			<parameter name="iInstancing" index="0" value="1" />
+			<parameter name="iInstancing" index="0" value="0" />
 			<particleAction name="ParticleActionEmitBox" className="ParticleActionEmitBox">
 				<parameter name="iEmitRate" index="0" value="150" />
 				<parameter name="fSizeMean" index="0" value="380" />
@@ -419,7 +419,7 @@
 		</particleGroup>
 		<particleGroup name="smoke_black">
 			<parameter name="iNumParticlesMax" index="0" value="850" />
-			<parameter name="iInstancing" index="0" value="1" />
+			<parameter name="iInstancing" index="0" value="0" />
 			<particleAction name="ParticleActionEmitBox" className="ParticleActionEmitBox">
 				<parameter name="iEmitRate" index="0" value="150" />
 				<parameter name="fSizeMean" index="0" value="380" />
@@ -486,7 +486,7 @@
 		</particleGroup>
 		<particleGroup name="smoke_black_overlay">
 			<parameter name="iNumParticlesMax" index="0" value="850" />
-			<parameter name="iInstancing" index="0" value="1" />
+			<parameter name="iInstancing" index="0" value="0" />
 			<particleAction name="ParticleActionEmitBox" className="ParticleActionEmitBox">
 				<parameter name="iEmitRate" index="0" value="150" />
 				<parameter name="fSizeMean" index="0" value="380" />
@@ -568,7 +568,7 @@
 				<parameter name="iEmitDelayMs" index="0" value="2800" />
 				<parameter name="bRespectExternalTrigger" index="0" value="1" />
 			</particleAction>
-			<parameter name="iInstancing" index="0" value="1" />
+			<parameter name="iInstancing" index="0" value="0" />
 			<particleAction name="ParticleActionKillAge" className="ParticleActionKillAge">
 				<parameter name="iAgeMs" index="0" value="1900" />
 			</particleAction>
@@ -611,7 +611,7 @@
 		</particleGroup>
 		<particleGroup name="confetti_primary">
 			<parameter name="iNumParticlesMax" index="0" value="1200" />
-			<parameter name="iInstancing" index="0" value="1" />
+			<parameter name="iInstancing" index="0" value="0" />
 			<particleAction name="ParticleActionEmitBox" className="ParticleActionEmitBox">
 				<parameter name="iEmitRate" index="0" value="2000" />
 				<parameter name="fSizeMean" index="0" value="3" />
@@ -672,7 +672,7 @@
 		</particleGroup>
 		<particleGroup name="confetti_secondary">
 			<parameter name="iNumParticlesMax" index="0" value="1200" />
-			<parameter name="iInstancing" index="0" value="1" />
+			<parameter name="iInstancing" index="0" value="0" />
 			<particleAction name="ParticleActionEmitBox" className="ParticleActionEmitBox">
 				<parameter name="iEmitRate" index="0" value="2000" />
 				<parameter name="fSizeMean" index="0" value="3" />

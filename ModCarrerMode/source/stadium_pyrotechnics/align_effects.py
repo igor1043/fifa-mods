@@ -11,6 +11,10 @@ def setp(action,name,value):
     p.set('value',str(value))
 for g in tree.findall('.//particleGroup'):
     name=g.get('name')
+    # Shared mode 1 only executes per-instance Render on an already-updated
+    # frame; native EmitBox/EmitSphere have flags {0,1} and are skipped there.
+    # Private groups run both emission and rendering on each machine's trigger.
+    setp(g,'iInstancing','0')
     emit=next(a for a in g.findall('particleAction') if a.get('className') in ('ParticleActionEmitBox','ParticleActionEmitSphere'))
     # Native Trigger clears the instance clock. The emit action only rebases
     # its retained iTimeStartedMs when it respects that external trigger.
