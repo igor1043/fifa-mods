@@ -5,12 +5,16 @@
 #include <stdio.h>
 #include <string.h>
 #include <math.h>
+#include "../common/scene_lua.h"
 using BuildFn=void(__fastcall*)(void*);
 static uintptr_t image;
 static BuildFn nextBuild;
 static LONG started,stopping,busy,luaReady;
 static char logPath[MAX_PATH],iniPath[MAX_PATH],luaPath[MAX_PATH];
-static bool enabled=true,createdLive=false,resourceRequested=false,shadowRequested=false,fault=false,placed=false,requireEntrance=false;
+static bool enabled=true,resourceRequested=false,shadowRequested=false,fault=false,placed=false,requireEntrance=false;
+static SceneLuaLifecycle luaLifecycle;
+static uint64_t nextCreate=0;
+static LONG sceneContentions;
 static uintptr_t owner=0,prototype=0,shadow=0,prototypeState=0;
 static float xCm=800,zCm=-3800,yCm=2,yaw=0;
 static uint64_t nextConfig=0,nextDiagnostic=0;
@@ -18,7 +22,7 @@ static uint64_t nextCompetition=0;
 static int competitionId=-1;
 alignas(16) static unsigned char scratch[129*0x50],record[0x50];
 static unsigned char expectedCall[5],appliedCall[5];
-static void event(const char* msg){FILE* f=nullptr;if(!fopen_s(&f,logPath,"ab")&&f){fprintf(f,"%llu %s\n",GetTickCount64(),msg);fclose(f);}}
+static void event(const char* msg){FILE* f=nullptr;if(!fopen_s(&f,logPath,"ab")&&f){fprintf(f,"%llu pid=%lu thread=%lu %s\n",GetTickCount64(),GetCurrentProcessId(),GetCurrentThreadId(),msg);fclose(f);}}
 template<class T>static bool get(uintptr_t a,T& v){SIZE_T n=0;return a&&ReadProcessMemory(GetCurrentProcess(),(void*)a,&v,sizeof(v),&n)&&n==sizeof(v);}
 static bool bytes(uintptr_t a,void* b,size_t size){SIZE_T n=0;return a&&ReadProcessMemory(GetCurrentProcess(),(void*)a,b,size,&n)&&n==size;}
 struct Vector{uintptr_t begin,end,capacity;};
@@ -43,10 +47,31 @@ static bool console(const char* script,size_t size){
 static bool activateLua(){
     static char script[16384];FILE* f=nullptr;
     if(fopen_s(&f,luaPath,"rb")||!f)return false;
-    const char prefix[]="if not FIFA16_VAR_CABIN_LUA_V3 then ";memcpy(script,prefix,sizeof(prefix)-1);
+    const char prefix[]="if not FIFA16_VAR_CABIN_LUA_V4 then ";memcpy(script,prefix,sizeof(prefix)-1);
     const size_t n=fread(script+sizeof(prefix)-1,1,sizeof(script)-256,f);const bool ok=!ferror(f)&&feof(f);fclose(f);if(!ok)return false;
-    const char suffix[]="\nFIFA16_VAR_CABIN_LUA_V3=true end; FIFA16_VAR_CABIN_HOOK_READY=true";
+    const char suffix[]="\nend; if FIFA16_VAR_CABIN_LUA_V4 then FIFA16_VAR_CABIN_HOOK_READY=true end";
     memcpy(script+sizeof(prefix)-1+n,suffix,sizeof(suffix));return console(script,sizeof(prefix)-1+n+sizeof(suffix)-1);
+}
+static bool luaMarkers(uintptr_t globals){
+    return globals&&scene_lua_flag(globals,"FIFA16_VAR_CABIN_LUA_V4")&&scene_lua_flag(globals,"FIFA16_VAR_CABIN_HOOK_READY");
+}
+static void refreshLua(){
+    const uint64_t now=GetTickCount64();if(now<luaLifecycle.nextCheck)return;
+    const auto snapshot=scene_lua_snapshot(image);
+    const bool changed=snapshot.vm!=luaLifecycle.current.vm||snapshot.globals!=luaLifecycle.current.globals;
+    const bool known=luaMarkers(snapshot.globals),lost=luaLifecycle.ready&&!known;
+    luaLifecycle.sample(now,snapshot);
+    if(changed||lost){
+        owner=prototype=shadow=prototypeState=0;resourceRequested=shadowRequested=fault=placed=false;
+        nextCreate=nextCompetition=0;competitionId=-1;
+        event(changed?"lua_context_changed scene_resources_rearmed":"lua_markers_lost scene_resources_rearmed");
+    }
+    if(luaLifecycle.should_activate(now,known)){
+        activateLua();const auto after=scene_lua_snapshot(image);
+        luaLifecycle.ready=after.vm==snapshot.vm&&after.globals==snapshot.globals&&luaMarkers(after.globals);
+        if(luaLifecycle.ready)event("lua_ready scene_thread verified_markers");
+    }
+    InterlockedExchange(&luaReady,luaLifecycle.ready?1:0);
 }
 // Lua 5.1 layout already used by the mascot mod. Read only on the SLE scene
 // thread, bound every table scan, and reject missing or malformed data.
@@ -109,10 +134,15 @@ static bool ready(uintptr_t p,bool& requested,const char* message){
     if(fault)return false;
     __try{
         if(!requested){
-            if(!((Ready)(image+0x43b4500))((void*)p)){
+            const bool initialized=((Ready)(image+0x43b4500))((void*)p)!=0;
+            if(!initialized){
                 const int parameters[5]={-1,-1,-1,0,-1};((void(__fastcall*)(void*,const int*))(image+0x43b4640))((void*)p,parameters);
-                uintptr_t vt=0,load=0;if(!get(p,vt)||!get(vt+0x38,load)||load<image||load>=image+0x9524000)return false;
-                ((void(__fastcall*)(void*,int))load)((void*)p,0);
+            }
+            if(!initialized||p==prototype){
+                uintptr_t vt=0,load=0;if(!get(p,vt)||!get(vt+0x38,load)||load!=image+0x43b4530)return false;
+                // The engine may have initialized our variation before its Lua
+                // gate was set. Refresh that private resource on this callback.
+                ((void(__fastcall*)(void*,int))load)((void*)p,p==prototype?1:0);
             }
             requested=true;event(message);
         }
@@ -129,19 +159,25 @@ static bool ready(uintptr_t p,bool& requested,const char* message){
 }
 static void position(float h){const float p[4]={xCm,h,zCm,yaw};memcpy(record+0x20,p,16);memcpy(record+0x30,p,16);}
 static void __fastcall buildHook(void* self){
-    if(InterlockedCompareExchange(&busy,1,0)){nextBuild(self);return;}
+    if(InterlockedCompareExchange(&busy,1,0)){
+        if(InterlockedIncrement(&sceneContentions)==1)event("scene_callback_overlap_or_reentry observed");
+        nextBuild(self);return;
+    }
     Vector saved{},temporary{};size_t n=0,normalBytes=0;unsigned mask=0;bool swapped=false,maskSaved=false;float submitted=-3000;
     const uintptr_t list=(uintptr_t)self+0x30*(3+0x2f),maskAt=(uintptr_t)self+0x4f604;
     __try{
-        config();
-        if(luaReady&&!createdLive){
+        config();refreshLua();
+        uintptr_t p=0,s=0,b=0;
+        bool hasPrototype=luaReady&&ownPrototype(self,p,s,b);
+        if(luaReady&&!hasPrototype&&GetTickCount64()>=nextCreate){
+            nextCreate=GetTickCount64()+500;
             // The same factory/AddSubObject path as normal startup, on the render
             // thread. No copied native resources and no concurrent vector mutation.
             static const char create[]="FIFA16_VAR_CABIN_CREATE_LIVE()";
-            createdLive=console(create,sizeof(create)-1);if(createdLive)event("live_creation_requested native_factory_and_batch");
+            console(create,sizeof(create)-1);
+            hasPrototype=ownPrototype(self,p,s,b);
         }
-        uintptr_t p=0,s=0,b=0;
-        if(luaReady&&ownPrototype(self,p,s,b)&&vector(list,0x50,saved,n)&&n<=127){
+        if(hasPrototype&&vector(list,0x50,saved,n)&&n<=127){
             normalBytes=n*0x50;
             if(!normalBytes||bytes(saved.begin,scratch,normalBytes)){
                 // Any native random use of the reserved appearance keeps the
@@ -152,6 +188,11 @@ static void __fastcall buildHook(void* self){
                     owner=(uintptr_t)self;prototype=p;prototypeState=s;shadow=b;resourceRequested=shadowRequested=fault=placed=false;
                     competitionId=-1;nextCompetition=0;
                     memset(record,0,sizeof(record));record[0x40]=record[0x41]=0xff;record[0x42]=1;event("static_prototype_confirmed type=3 variation=1");
+                    unsigned rna=0;char update[96];
+                    if(get(s+0x4c,rna)&&rna<176){
+                        const int length=_snprintf_s(update,sizeof(update),_TRUNCATE,"SleUpdate(%u)",rna);
+                        if(length>0)console(update,(size_t)length);
+                    }
                 }
                 refreshCompetition(s);
                 const bool a=ready(p,resourceRequested,"model_texture_requested");const bool c=ready(b,shadowRequested,"shadow_dependency_requested");
@@ -226,8 +267,7 @@ static DWORD WINAPI worker(void*){
         const int64_t rel=(int64_t)(uintptr_t)relay-(int64_t)(image+0x43ac178);if(rel<INT32_MIN||rel>INT32_MAX){VirtualFree(relay,0,MEM_RELEASE);return 0;}
         appliedCall[0]=0xe8;const int32_t d=(int32_t)rel;memcpy(appliedCall+1,&d,4);
         if(!patch()){VirtualFree(relay,0,MEM_RELEASE);Sleep(200);continue;}
-        event("installed var_cabin v3 static_rx3 native_builder_chain competition_filter=7,83 raw_wvWipe_leagueID");
-        for(unsigned a=0;a<120&&!stopping;++a){if(activateLua()){InterlockedExchange(&luaReady,1);event("lua_ready");return 0;}Sleep(250);}event("lua_unavailable");return 0;
+        event("installed var_cabin v4 scene_thread_lua verified_readiness retry_context competition_filter=7,83");return 0;
     }event("signature_conflict_or_timeout");return 0;
 }
 extern "C" __declspec(dllexport) unsigned WINAPI Fifa16ModGetApiVersion(){return 1;}

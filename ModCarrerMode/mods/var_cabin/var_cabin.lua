@@ -13,6 +13,7 @@ function FIFA16_VAR_CABIN_REFRESH_COMPETITION(idx)
         s.varCabinCompetitionId = id
     end
 end
+if not FIFA16_VAR_CABIN_LUA_V3 then
 local VarCabinBaseUpdate = SleUpdate
 function SleUpdate(idx)
     VarCabinBaseUpdate(idx)
@@ -44,7 +45,24 @@ function GetRMSle(idx, isModel)
     end
     return VarCabinBaseRM(idx, isModel)
 end
+end
+local VarCabinPendingSles, VarCabinPendingBatch, VarCabinPendingIndex, VarCabinPendingActor
 local function VarCabinAppend(gr, batch, sles)
+    -- A boolean from the previous scene is not proof of a live native object.
+    for k in pairs(sles) do
+        if type(k) == "number" then
+            local ok, existing = pcall(function()
+                local row = gSportsRNA:GetTable("wvSle", k)
+                return gSportsRNA:GetInt(row, "sletype") == 3 and gSportsRNA:GetInt(row, "sleindex") == 1
+            end)
+            if ok and existing then
+                FIFA16_VAR_CABIN_RNA_INDEX = k
+                return true
+            end
+        end
+    end
+    if VarCabinPendingSles == sles and VarCabinPendingBatch == batch and
+       VarCabinPendingActor ~= nil and sles[VarCabinPendingIndex] == VarCabinPendingActor then return true end
     local nextIndex = 0
     for k, v in pairs(sles) do
         if type(k) == "number" and k >= nextIndex then nextIndex = k + 1 end
@@ -53,21 +71,25 @@ local function VarCabinAppend(gr, batch, sles)
     if db.sle[nextIndex] == nil then db.sle[nextIndex] = {} end
     sles[nextIndex] = gr:Create("sle", nextIndex)
     gr:AddSubObject(batch, sles[nextIndex], 3)
+    VarCabinPendingSles, VarCabinPendingBatch = sles, batch
+    VarCabinPendingIndex, VarCabinPendingActor = nextIndex, sles[nextIndex]
     FIFA16_VAR_CABIN_RNA_INDEX = nextIndex
     return true
 end
 local VarCabinBaseVariations = CreateSleVariations
+if not FIFA16_VAR_CABIN_LUA_V1 then
 function CreateSleVariations(gr, batch, sles)
     VarCabinBaseVariations(gr, batch, sles)
     FIFA16_VAR_CABIN_LIVE_CREATED = VarCabinAppend(gr, batch, sles)
 end
+end
 FIFA16_VAR_CABIN_LUA_V1 = true
 FIFA16_VAR_CABIN_LUA_V3 = true
 function FIFA16_VAR_CABIN_CREATE_LIVE()
-    if FIFA16_VAR_CABIN_LIVE_CREATED then return end
     if gRenderObj and gRenderObj.batchSle and gRenderObj.sles then
         FIFA16_VAR_CABIN_LIVE_CREATED = VarCabinAppend(gRenderables, gRenderObj.batchSle, gRenderObj.sles)
     end
 end
 
 FIFA16_VAR_CABIN_MODEL_V2 = true
+FIFA16_VAR_CABIN_LUA_V4 = true

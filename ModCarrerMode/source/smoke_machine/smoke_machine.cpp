@@ -8,6 +8,7 @@
 #include "launch_sites.h"
 #include "presentation.h"
 #include "loading_policy.h"
+#include "../common/scene_lua.h"
 using BuildFn=void(__fastcall*)(void*);
 static uintptr_t image;
 static BuildFn nextBuild;
@@ -20,12 +21,12 @@ static bool matchVisible=false;
 static PyroMatchSession matchSession;
 static uint64_t nextConfig=0,nextDiagnostic=0;
 static uint64_t nextScene=0,nextCreate=0;
-static MachineLuaLifecycle luaLifecycle;
-static uintptr_t lastLuaGlobals=0;
+static SceneLuaLifecycle luaLifecycle;
+static LONG sceneContentions;
 static char presentationPath[MAX_PATH],pyroPath[MAX_PATH];
 alignas(16) static unsigned char scratch[(128+machineCount)*0x50],records[machineCount][0x50];
 static unsigned char expectedCall[5],appliedCall[5];
-static void event(const char* msg){FILE* f=nullptr;if(!fopen_s(&f,logPath,"ab")&&f){fprintf(f,"%llu %s\n",GetTickCount64(),msg);fclose(f);}}
+static void event(const char* msg){FILE* f=nullptr;if(!fopen_s(&f,logPath,"ab")&&f){fprintf(f,"%llu pid=%lu thread=%lu %s\n",GetTickCount64(),GetCurrentProcessId(),GetCurrentThreadId(),msg);fclose(f);}}
 template<class T>static bool get(uintptr_t a,T& v){SIZE_T n=0;return a&&ReadProcessMemory(GetCurrentProcess(),(void*)a,&v,sizeof(v),&n)&&n==sizeof(v);}
 static bool bytes(uintptr_t a,void* b,size_t size){SIZE_T n=0;return a&&ReadProcessMemory(GetCurrentProcess(),(void*)a,b,size,&n)&&n==size;}
 struct Vector{uintptr_t begin,end,capacity;};
@@ -52,38 +53,26 @@ static bool activateLua(){
     if(fopen_s(&f,luaPath,"rb")||!f)return false;
     const char prefix[]="if not FIFA16_SMOKE_MACHINE_LUA_V2 then ";memcpy(script,prefix,sizeof(prefix)-1);
     const size_t n=fread(script+sizeof(prefix)-1,1,sizeof(script)-256,f);const bool ok=!ferror(f)&&feof(f);fclose(f);if(!ok)return false;
-    const char suffix[]="\nFIFA16_SMOKE_MACHINE_LUA_V2=true end; FIFA16_SMOKE_MACHINE_HOOK_READY=true";
+    const char suffix[]="\nend; if FIFA16_SMOKE_MACHINE_LUA_V2 then FIFA16_SMOKE_MACHINE_HOOK_READY=true end";
     memcpy(script+sizeof(prefix)-1+n,suffix,sizeof(suffix));return console(script,sizeof(prefix)-1+n+sizeof(suffix)-1);
 }
-struct LuaValue{uint64_t bits;int tag,padding;};
-static bool luaFlag(uintptr_t table,const char* key){
-    unsigned char tag=0,power=0;uintptr_t nodes=0;
-    if(!get(table+8,tag)||tag!=5||!get(table+11,power)||power>12||!get(table+32,nodes)||!nodes)return false;
-    const size_t length=strlen(key);
-    struct Node{LuaValue value,key;uintptr_t next;};
-    for(unsigned i=0;i<(1u<<power);++i){
-        Node n{};size_t len=0;char text[64]={};
-        if(!get(nodes+i*40,n))return false;
-        if(n.key.tag!=4||!get((uintptr_t)n.key.bits+16,len)||len!=length||len>=sizeof(text))continue;
-        if(bytes((uintptr_t)n.key.bits+24,text,len)&&!memcmp(text,key,len))return n.value.tag==1&&n.value.bits!=0;
-    }
-    return false;
+static bool luaMarkers(uintptr_t globals){
+    return globals&&scene_lua_flag(globals,"FIFA16_SMOKE_MACHINE_LUA_V2")&&scene_lua_flag(globals,"FIFA16_SMOKE_MACHINE_HOOK_READY");
 }
 static void refreshLua(){
-    const uint64_t now=GetTickCount64();
-    if(now<luaLifecycle.nextCheck)return;
-    uintptr_t vm=0;LuaValue globals{};
-    const bool valid=get(image+0x3613fd0,vm)&&vm&&get(vm+0x78,globals)&&globals.tag==5;
-    const bool sameLua=valid&&luaLifecycle.vm==vm&&lastLuaGlobals==(uintptr_t)globals.bits;
-    luaLifecycle.sample(now,valid?vm:0);
-    if(sameLua&&luaLifecycle.ready){InterlockedExchange(&luaReady,1);return;}
-    lastLuaGlobals=valid?(uintptr_t)globals.bits:0;
-    const bool known=valid&&luaFlag((uintptr_t)globals.bits,"FIFA16_SMOKE_MACHINE_LUA_V2")&&luaFlag((uintptr_t)globals.bits,"FIFA16_SMOKE_MACHINE_HOOK_READY");
+    const uint64_t now=GetTickCount64();if(now<luaLifecycle.nextCheck)return;
+    const auto snapshot=scene_lua_snapshot(image);
+    const bool changed=snapshot.vm!=luaLifecycle.current.vm||snapshot.globals!=luaLifecycle.current.globals;
+    const bool known=luaMarkers(snapshot.globals),lost=luaLifecycle.ready&&!known;
+    luaLifecycle.sample(now,snapshot);
+    if(changed||lost){
+        owner=prototype=shadow=prototypeState=0;resourceRequested=shadowRequested=fault=placed=createdLive=false;
+        nextCreate=0;event(changed?"lua_context_changed scene_resources_rearmed":"lua_markers_lost scene_resources_rearmed");
+    }
     if(luaLifecycle.should_activate(now,known)){
-        // Lua callbacks and native factory calls belong to the scene thread.
-        activateLua();
-        if(get(vm+0x78,globals)&&globals.tag==5)luaLifecycle.ready=luaFlag((uintptr_t)globals.bits,"FIFA16_SMOKE_MACHINE_LUA_V2");
-        if(luaLifecycle.ready)event("lua_ready scene_thread verified_marker");
+        activateLua();const auto after=scene_lua_snapshot(image);
+        luaLifecycle.ready=after.vm==snapshot.vm&&after.globals==snapshot.globals&&luaMarkers(after.globals);
+        if(luaLifecycle.ready)event("lua_ready scene_thread verified_markers");
     }
     InterlockedExchange(&luaReady,luaLifecycle.ready?1:0);
 }
@@ -156,7 +145,10 @@ static void position(size_t i,float h){
     memcpy(records[i]+0x20,p,16);memcpy(records[i]+0x30,p,16);
 }
 static void __fastcall buildHook(void* self){
-    if(InterlockedCompareExchange(&busy,1,0)){nextBuild(self);return;}
+    if(InterlockedCompareExchange(&busy,1,0)){
+        if(InterlockedIncrement(&sceneContentions)==1)event("scene_callback_overlap_or_reentry observed");
+        nextBuild(self);return;
+    }
     Vector saved{},temporary{};size_t n=0,normalBytes=0;unsigned mask=0;bool swapped=false,maskSaved=false;float submitted=-3000;
     const uintptr_t list=(uintptr_t)self+0x30*(16+0x2f),maskAt=(uintptr_t)self+0x4f604;
     __try{
@@ -206,7 +198,7 @@ static void __fastcall buildHook(void* self){
         }
         if(!hasPrototype&&GetTickCount64()>=nextDiagnostic){
             nextDiagnostic=GetTickCount64()+5000;
-            char message[144];_snprintf_s(message,sizeof(message),_TRUNCATE,"model_deferred reason=%s vm=%p",luaReady?"prototype_missing_or_incompatible":"lua_not_ready",(void*)luaLifecycle.vm);event(message);
+            char message[144];_snprintf_s(message,sizeof(message),_TRUNCATE,"model_deferred reason=%s vm=%p",luaReady?"prototype_missing_or_incompatible":"lua_not_ready",(void*)luaLifecycle.current.vm);event(message);
         }
         nextBuild(self);
     }__finally{
@@ -287,7 +279,7 @@ static DWORD WINAPI worker(void*){
         const int64_t rel=(int64_t)(uintptr_t)relay-(int64_t)(image+0x43ac178);if(rel<INT32_MIN||rel>INT32_MAX){VirtualFree(relay,0,MEM_RELEASE);return 0;}
         appliedCall[0]=0xe8;const int32_t d=(int32_t)rel;memcpy(appliedCall+1,&d,4);
         if(!patch()){VirtualFree(relay,0,MEM_RELEASE);Sleep(200);continue;}
-        event("installed smoke_machine static_rx3 machines=20 native_builder_chain dedicated_type16 appearance1");
+        event("installed smoke_machine v3 verified_lua_context static_rx3 machines=20 native_builder_chain dedicated_type16 appearance1");
         // Lua availability is retried on the scene thread, including future VMs.
         return 0;
     }event("signature_conflict_or_timeout");return 0;

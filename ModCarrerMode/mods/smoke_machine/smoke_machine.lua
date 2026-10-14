@@ -1,4 +1,5 @@
 -- Dedicated appearance of type 16; normal officials, VAR cabin and entrance props are preserved.
+if not FIFA16_SMOKE_MACHINE_LUA_V1 then
 local MachineBaseUpdate=SleUpdate
 function SleUpdate(idx)
     MachineBaseUpdate(idx)
@@ -28,6 +29,8 @@ function GetRMSle(idx,isModel)
     end
     return MachineBaseRM(idx,isModel)
 end
+end
+local MachinePendingSles,MachinePendingBatch,MachinePendingIndex,MachinePendingActor
 local function MachineAppend(gr,batch,sles)
     -- Verify an existing native appearance; an old boolean is not scene ownership.
     for k in pairs(sles) do
@@ -39,12 +42,16 @@ local function MachineAppend(gr,batch,sles)
             if ok and existing then return true end
         end
     end
+    if MachinePendingSles==sles and MachinePendingBatch==batch and
+       MachinePendingActor~=nil and sles[MachinePendingIndex]==MachinePendingActor then return true end
     local nextIndex=0
     for k in pairs(sles) do if type(k)=="number" and k>=nextIndex then nextIndex=k+1 end end
     if nextIndex>=176 then return false end
     if db.sle[nextIndex]==nil then db.sle[nextIndex]={} end
     sles[nextIndex]=gr:Create("sle",nextIndex)
     gr:AddSubObject(batch,sles[nextIndex],16)
+    MachinePendingSles,MachinePendingBatch=sles,batch
+    MachinePendingIndex,MachinePendingActor=nextIndex,sles[nextIndex]
     return true
 end
 local MachineBaseVariations=CreateSleVariations

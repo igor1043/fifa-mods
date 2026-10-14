@@ -11,6 +11,7 @@
 #include "club_atlas.h"
 #include "entrance_bounds.h"
 #include "entrance_selection.h"
+#include "../common/scene_lua.h"
 
 // The native SLE builder is called after mascot selection. Its temporary
 // placement vector has private storage; the engine-owned vector is restored
@@ -19,6 +20,9 @@ using BuildFn=void(__fastcall*)(void*);
 static uintptr_t image;
 static BuildFn originalBuild;
 static LONG started,stopping,busy,luaGateReady;
+static SceneLuaLifecycle luaLifecycle;
+static LONG sceneContentions;
+static void refresh_lua_gate();
 static char logPath[MAX_PATH],configPath[MAX_PATH];
 static bool enabled=true;
 static float heightCm=2;
@@ -72,7 +76,7 @@ static BoundsGatherFn originalBoundsGather;
 static BoundsCullFn originalBoundsCull;
 
 static void event(const char* message){
-    FILE* f=nullptr;if(!fopen_s(&f,logPath,"ab")&&f){fprintf(f,"%llu %s\n",GetTickCount64(),message);fclose(f);}
+    FILE* f=nullptr;if(!fopen_s(&f,logPath,"ab")&&f){fprintf(f,"%llu pid=%lu thread=%lu %s\n",GetTickCount64(),GetCurrentProcessId(),GetCurrentThreadId(),message);fclose(f);}
 }
 template<class T>static bool get(uintptr_t at,T& out){
     SIZE_T n=0;return at && ReadProcessMemory(GetCurrentProcess(),(void*)at,&out,sizeof(T),&n)&&n==sizeof(T);
@@ -541,19 +545,29 @@ static bool ready_prototype(uintptr_t prototype,bool& requested,bool& logged,boo
         resourceFixture=fixture^selectedAsset.stamp;logged=false;
         event("native_club_badges_refreshed new_fixture");
     }
-    const bool ready=((Ready)(image+0x43b43e0))((void*)prototype)!=0&&
-        ((Ready)(image+0x43b4520))((void*)prototype)!=0;
+    const bool allLodsReady=((Ready)(image+0x43b43e0))((void*)prototype)!=0;
+    if(allLodsReady&&!((Ready)(image+0x43b4520))((void*)prototype)){
+        // Late activation can miss the batch's initial loaded notification.
+        // Use the same native completion path as VAR/cannons, after all LODs.
+        ((void(__fastcall*)(void*))(image+0x43b47c0))((void*)prototype);
+        event("native_loaded_notification all_five_lods_ready");
+    }
+    const bool ready=allLodsReady&&((Ready)(image+0x43b4520))((void*)prototype)!=0;
     if(ready&&!logged){event(shadow?"native_shadow_dependency_ready v18":"native_static_resource_ready v18");logged=true;}
     return ready;
     }__except(EXCEPTION_EXECUTE_HANDLER){resourceFault=true;event("native_static_resource_fault v18 actor_disabled_for_scene");return false;}
 }
 static void __fastcall build_hook(void* self){
-    if(InterlockedCompareExchange(&busy,1,0)){originalBuild(self);return;}
+    if(InterlockedCompareExchange(&busy,1,0)){
+        if(InterlockedIncrement(&sceneContentions)==1)event("scene_callback_overlap_or_reentry observed");
+        originalBuild(self);return;
+    }
     NativeVector saved{},temporary{};size_t count=0;unsigned mask=0;
     const uintptr_t placement=(uintptr_t)self+0x30*(6+0x2f);
     const uintptr_t maskAddress=(uintptr_t)self+0x4f604;
     bool swapped=false,maskSaved=false;size_t normalBytes=0;float submittedHeight=EntranceHiddenHeight;
     __try{
+        refresh_lua_gate();
         uintptr_t prototype=0,state=0,basePrototype=0;
         const bool show=visible(); // log scene state even if a prototype is absent
         if(!selectionAvailable&&atlasFixture&&InterlockedCompareExchange(&luaGateReady,0,0)){
@@ -728,6 +742,8 @@ static bool signatures(){
             if(memcmp(actual+5,g.bytes+5,11)||!compatible_builder_call(actual))return false;
         }else if(memcmp(actual,g.bytes,16))return false;
     }
+    const unsigned char loaded[9]={0x48,0x8b,0x41,0x10,0xc6,0x40,0x48,0x01,0xc3};unsigned char actualLoaded[9];
+    if(!read_bytes(image+0x43b47c0,actualLoaded,9)||memcmp(actualLoaded,loaded,9))return false;
     for(auto& p:overlayCalls){
         unsigned char actual[16];if(!read_bytes(image+p.rva,actual,16))return false;
         // Adjacent owned CALLs can occur within this 16-byte context.
@@ -774,13 +790,35 @@ static bool signatures(){
 static bool activate_lua_gate(){
     uintptr_t lua=0,globals=0;int tag=0;
     if(!get(image+0x3613fd0,lua)||!lua||!get(lua+0x80,tag)||tag!=5||!get(lua+0x78,globals)||!globals)return false;
-    // The verified console entry acquires/releases the engine's Lua critical
-    // section internally. This startup assignment calls no rendering/RNA API.
+    // Called on the scene callback. The console also acquires the engine's
+    // internal Lua critical section; readiness is verified by the caller.
     static const char script[]="FIFA16_ENTRANCE_PROPS_HOOK_READY=true";
     __try{
         ((void(__fastcall*)(const char*,size_t,const char*))(image+0x4ac35e0))(script,sizeof(script)-1,"entrance_props_native_ready");
         return true;
     }__except(EXCEPTION_EXECUTE_HANDLER){return false;}
+}
+static void refresh_lua_gate(){
+    const uint64_t now=GetTickCount64();if(now<luaLifecycle.nextCheck)return;
+    const auto snapshot=scene_lua_snapshot(image);
+    const bool changed=snapshot.vm!=luaLifecycle.current.vm||snapshot.globals!=luaLifecycle.current.globals;
+    const bool known=snapshot.globals&&scene_lua_flag(snapshot.globals,"FIFA16_ENTRANCE_PROPS_HOOK_READY");
+    const bool lost=luaLifecycle.ready&&!known;
+    luaLifecycle.sample(now,snapshot);
+    if(changed||lost){
+        // Forget ownership only: a retired scene may already have freed these.
+        extraOwner=extraPrototype=extraState=shadowPrototype=0;
+        atlasFixture=resourceFixture=0;resourceRequested=resourceFault=shadowRequested=false;
+        event(changed?"lua_context_changed scene_resources_rearmed":"lua_marker_lost scene_resources_rearmed");
+    }
+    if(luaLifecycle.should_activate(now,known)){
+        activate_lua_gate();
+        const auto after=scene_lua_snapshot(image);
+        luaLifecycle.ready=after.vm==snapshot.vm&&after.globals==snapshot.globals&&
+            scene_lua_flag(after.globals,"FIFA16_ENTRANCE_PROPS_HOOK_READY");
+        if(luaLifecycle.ready)event("lua_gate_ready scene_thread verified_marker");
+    }
+    InterlockedExchange(&luaGateReady,luaLifecycle.ready?1:0);
 }
 static void* allocate_near(uintptr_t origin){
     SYSTEM_INFO info{};GetSystemInfo(&info);const uintptr_t step=info.dwAllocationGranularity,aligned=origin&~(step-1);
@@ -876,12 +914,8 @@ static DWORD WINAPI worker(void*){
         if(patch_call()){
             if(preserveOuterBuilder)event("outer_var_cabin_builder_preserved owned_v16_entry_forwarded");
             if(previousStop){previousStop();event("previous_revision_retired v18 owned_v16_hooks_replaced");}
-            event("installed v20 settings_ids friendly_same_league_server_context source=FSW/settings.ini preload_independent after_second_lineup_closed_hidden_transform yaw180 native_hook=43ac173 mascot_hook_preserved");
-            for(unsigned attempt=0;attempt<600&&!stopping;++attempt){
-                if(activate_lua_gate()){InterlockedExchange(&luaGateReady,1);event("lua_gate_ready dedicated_static_prototype_enabled");return 0;}
-                Sleep(200);
-            }
-            event("lua_gate_unavailable normal_generic_models_preserved");return 0;
+            event("installed v21 scene_thread_lua verified_readiness retry_context settings_ids friendly_same_league source=FSW/settings.ini native_hook=43ac173");
+            return 0;
         }
         VirtualFree(relay,0,MEM_RELEASE);Sleep(200);
     }event("install_timeout_or_signature_conflict");return 0;
