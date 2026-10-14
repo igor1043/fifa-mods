@@ -3,7 +3,6 @@
 #include <stdint.h>
 #include <stdio.h>
 #include <string.h>
-#include <math.h>
 #include "launch_sites.h"
 #include "timing_v14.h"
 #include "goals.h"
@@ -329,9 +328,12 @@ static bool emit() {
         }
         if (!valid_slot(i)) return false;
         const auto& site=pyro_site(goalShow,i);
-        const float c=cosf(site.yaw),s=sinf(site.yaw);
-        __declspec(align(16)) float matrix[16]={c,0,-s,0, 0,1,0,0, s,0,c,0,
-            site.x+s*machineOutletForwardCm,machineOutletHeightCm,site.z+c*machineOutletForwardCm,1};
+        // Translation only: effects retain one fixed orientation at every site.
+        const bool rear=site.x<-5250 || site.x>5250;
+        const float outletX=site.x+(rear?(site.x<0?machineOutletForwardCm:-machineOutletForwardCm):0);
+        const float outletZ=site.z+(rear?0:(site.z<0?machineOutletForwardCm:-machineOutletForwardCm));
+        __declspec(align(16)) float matrix[16]={1,0,0,0, 0,1,0,0, 0,0,1,0,
+            outletX,machineOutletHeightCm,outletZ,1};
         ((void (__fastcall*)(void*,int,const float*))(image+0x441cd90))((void*)activeManager,handles[i],matrix);
         ((Slot)(image+0x441c720))((void*)activeManager,handles[i]);
         ((Slot)(image+0x441c940))((void*)activeManager,handles[i]);

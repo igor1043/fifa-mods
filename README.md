@@ -43,16 +43,16 @@ Para usar os mods diretamente deste desenvolvimento com um DB/DLC externo, execu
 
 Os fontes ficam em `ModCarrerMode/source/<mod>/`. A pasta `ModCarrerMode/mods/` contém os arquivos usados na execução e uma DLL atual por módulo. Os objetos de abertura usam `entrance_props.dll`; a cabine usa `var_cabin.dll`. As revisões internas continuam identificadas nos logs.
 
-Modelos, texturas, áudio, vídeos, caches e backups locais ficam fora do pacote de código. O histórico anterior do Git pode conter recursos publicados antes dessa organização.
+O pacote compilado desta branch inclui os efeitos de pirotecnia e o modelo e as texturas da máquina de fumaça. Modelos e texturas da cabine do VAR, mascotes e conjuntos de placas de abertura, além de áudio, vídeos, caches e backups, continuam locais. O ZIP somente de fontes não é um instalador completo.
 
 | Recurso local | Pasta na instalação do FIFA |
 |---|---|
 | Mascotes | `data/sceneassets/mascot/<ID_DO_CLUBE>/` |
 | Objetos de abertura | `data/sceneassets/entrance_props/competitions/<conjunto>/` |
-| Cabine do VAR | `data/sceneassets/var_cabin/` |
+| Cabine do VAR — assets locais, fora do pacote | `data/sceneassets/var_cabin/` |
 | Ícones da carreira | `data/ui/imgAssets/careerCompetitionIcons/` |
 
-Uma competição sem modelo de abertura fica sem esses objetos e a partida continua. Um mascote sem pacote válido não é exibido. A instalação do VAR exige seu modelo e textura locais. A cabine é visual, sem decisões de arbitragem. As bolas extras não têm física. Os suportes de bola encontrados no BMPES foram extraídos para estudo e ainda não fazem parte desse mod.
+Uma competição sem modelo de abertura fica sem esses objetos e a partida continua. Um mascote sem pacote válido não é exibido. Sem os assets locais da cabine, o instalador desabilita apenas o VAR na lista do destino e instala os demais mods, incluindo os fogos e a máquina de fumaça. Com os assets já instalados, preserva-os e habilita a cabine; instalar os assets e repetir a instalação também habilita o módulo. A cabine é visual, sem decisões de arbitragem. As bolas extras não têm física. Os suportes de bola encontrados no BMPES foram extraídos para estudo e ainda não fazem parte desse mod.
 
 ## Fontes e conferência
 

@@ -16,6 +16,8 @@ foreach($name in @('model.rx3','textures.rx3')) {
     # The fixture never runs FIFA or loads these marker assets.
     [IO.File]::WriteAllText($local,'preserved local VAR fixture '+$name)
 }
+$localVarModelHash=(Get-FileHash -LiteralPath (Join-Path $fixture 'data\sceneassets\var_cabin\model.rx3')).Hash
+$localVarTextureHash=(Get-FileHash -LiteralPath (Join-Path $fixture 'data\sceneassets\var_cabin\textures.rx3')).Hash
 # Check this isolated installation while the real game may still be open.
 function Get-Process { param([string]$Name,[string]$ErrorAction) return $null }
 $config=Join-Path $fixture 'ModCarrerMode\career_native_mode.ini'
@@ -61,6 +63,8 @@ $localIndex = Join-Path $localIcons 'index.tsv'
 $localDdsHash = (Get-FileHash -LiteralPath $localDds).Hash
 $localIndexHash = (Get-FileHash -LiteralPath $localIndex).Hash
 & (Join-Path $PSScriptRoot 'Install-Game.ps1') -GameDirectory $fixture -BackupDirectory (Join-Path $fixture 'installer-backups')
+if ((Get-FileHash -LiteralPath (Join-Path $fixture 'data\sceneassets\var_cabin\model.rx3')).Hash -ne $localVarModelHash -or
+    (Get-FileHash -LiteralPath (Join-Path $fixture 'data\sceneassets\var_cabin\textures.rx3')).Hash -ne $localVarTextureHash) { throw 'Cabine local alterada.' }
 if ((Get-FileHash -LiteralPath $localDds).Hash -ne $localDdsHash -or (Get-FileHash -LiteralPath $localIndex).Hash -ne $localIndexHash) { throw 'Icone local ou suas regras de disponibilidade alterados.' }
 foreach ($relative in $legacyFiles) {
     if (Test-Path -LiteralPath (Join-Path $fixture ('ModCarrerMode\mods\'+$relative))) { throw "Revisao antiga permaneceu instalada: $relative" }
@@ -97,4 +101,28 @@ if (-not (Test-Path -LiteralPath (Join-Path $fixture 'ModCarrerMode\crowd.ini'))
 if ((Get-FileHash -LiteralPath $db).Hash -ne (Get-FileHash -LiteralPath (Join-Path $repo 'data\loc\por_br.db')).Hash) { throw 'Restauracao opcional da localizacao falhou.' }
 $result=& (Join-Path $PSScriptRoot 'Install-Game.ps1') -GameDirectory $fixture -VerifyOnly
 if ($result[0].ToInstall -ne 0) { throw 'Instalacao nao e idempotente.' }
+# These exact marker files belong to this validated isolated fixture only.
+foreach($name in @('model.rx3','textures.rx3')) {
+    $target=[IO.Path]::GetFullPath((Join-Path $fixture ('data\sceneassets\var_cabin\'+$name)))
+    if (-not $target.StartsWith($fixture+'\',[StringComparison]::OrdinalIgnoreCase)) { throw 'Asset fora da fixture.' }
+    Remove-Item -LiteralPath $target
+}
+& (Join-Path $PSScriptRoot 'Install-Game.ps1') -GameDirectory $fixture -BackupDirectory (Join-Path $fixture 'installer-backups') | Out-Null
+foreach($relative in @('data\sceneassets\smoke_machine\model.rx3','data\sceneassets\smoke_machine\textures.rx3',
+                       'data\sceneassets\particles\stadium_pyrotechnics_0.lnx','ModCarrerMode\mods\stadium_pyrotechnics\stadium_pyrotechnics.dll')) {
+    if ((Get-FileHash -LiteralPath (Join-Path $fixture $relative)).Hash -ne (Get-FileHash -LiteralPath (Join-Path $repo $relative)).Hash) { throw "Modelo/efeito novo divergente: $relative" }
+}
+$fixtureEnabled=Get-Content -LiteralPath (Join-Path $fixture 'ModCarrerMode\mods\enabled.txt')
+if ($fixtureEnabled -contains 'var_cabin\var_cabin.dll' -or $fixtureEnabled -notcontains 'smoke_machine\smoke_machine.dll' -or
+    $fixtureEnabled -notcontains 'stadium_pyrotechnics\stadium_pyrotechnics.dll') { throw 'Falta do VAR bloqueou/desabilitou os efeitos.' }
+foreach($name in @('model.rx3','textures.rx3')) {
+    if (Test-Path -LiteralPath (Join-Path $fixture ('data\sceneassets\var_cabin\'+$name))) { throw 'Asset local de VAR incluido no pacote.' }
+}
+& (Join-Path $PSScriptRoot 'Verify-Package.ps1') -PackageRoot $fixture | Out-Null
+foreach($name in @('model.rx3','textures.rx3')) {
+    [IO.File]::WriteAllText((Join-Path $fixture ('data\sceneassets\var_cabin\'+$name)),'local fixture cabin restored')
+}
+& (Join-Path $PSScriptRoot 'Install-Game.ps1') -GameDirectory $fixture -BackupDirectory (Join-Path $fixture 'installer-backups') | Out-Null
+if ((Get-Content -LiteralPath (Join-Path $fixture 'ModCarrerMode\mods\enabled.txt')) -notcontains 'var_cabin\var_cabin.dll') { throw 'Cabine com assets locais nao foi reabilitada.' }
+Write-Output 'PASS: VAR ausente nao bloqueia fogos/maquina, assets do VAR nao distribuidos, cabine local preservada e reabilitada apos instalar assets.'
 Write-Output "PASS: pacote completo, uma DLL por mod, revisoes antigas arquivadas com hashes preservados, mods adicionais/configuracoes/DB/contratos preservados, restauracao opcional e reinstalacao idempotente. Fixture: $fixture"

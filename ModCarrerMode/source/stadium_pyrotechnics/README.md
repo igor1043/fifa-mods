@@ -7,6 +7,8 @@ O módulo `stadium_pyrotechnics.dll` oferece pirotecnia para qualquer time. Na a
 - Abertura de 60 segundos, acionada pela apresentação real da partida com duas equipes nativas confirmadas.
 - Gol do mandante: 25 segundos de efeitos. Gol do visitante não inicia um novo show.
 - Fogos, confete e duas camadas de fumaça; encerramento gradual das fontes, com cauda de partículas incluída na duração.
+- Todas as 20 máquinas disparam na abertura; as 12 traseiras disparam imediatamente no gol do mandante.
+- Os efeitos usam orientação fixa, sem rotação conforme o lado do campo. A posição de saída acompanha a boca da máquina.
 - Prévia de estádio, seleção de uniformes e outros menus não acionam abertura. Reiniciar Partida rearma abertura e detector de gols.
 - A pausa interrompe a emissão em curso e preserva o evento consumido e o placar. Voltar à partida, abrir seleção de lados/detalhes ou reconstruir tabelas Lua não rearma a fumaça. Abertura e gols do mandante são os únicos disparos automáticos.
 - Sem comandos F7/F8: os gatilhos são automáticos.

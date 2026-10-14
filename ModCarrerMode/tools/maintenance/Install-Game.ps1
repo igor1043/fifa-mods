@@ -34,12 +34,17 @@ foreach ($relative in @('data\db','data\loc','dlc')) {
 $modsItem = Get-Item -LiteralPath (Join-Path $gameMod 'mods') -Force -ErrorAction SilentlyContinue
 $liveMods = $modsItem -and $modsItem.LinkType
 $enabledPlugins=@(Get-Content -LiteralPath (Join-Path $modSource 'mods\enabled.txt') | ForEach-Object { $_.Trim() })
+$missingVarAssets=@()
 if ($enabledPlugins -contains 'var_cabin\var_cabin.dll') {
     foreach ($relative in @('data\sceneassets\var_cabin\model.rx3','data\sceneassets\var_cabin\textures.rx3')) {
         if (-not (Test-Path -LiteralPath (Join-Path $game $relative) -PathType Leaf)) {
-            throw "A cabine do VAR precisa do asset local: $relative. Instale o modelo antes de ativar o mod."
+            $missingVarAssets+=$relative
         }
     }
+}
+if ($missingVarAssets.Count) {
+    if ($liveMods) { Write-Warning 'Cabine do VAR sem assets locais: os outros mods serao instalados; a lista compartilhada do desenvolvimento sera preservada.' }
+    else { Write-Warning 'Cabine do VAR sem assets locais: os outros mods serao instalados. A cabine sera desabilitada nesta instalacao; instale seus assets e reinstale para habilitar.' }
 }
 if ($enabledPlugins -contains 'smoke_machine\smoke_machine.dll') {
     foreach ($relative in @('data\sceneassets\smoke_machine\model.rx3','data\sceneassets\smoke_machine\textures.rx3')) {
@@ -61,6 +66,16 @@ $files = [Collections.Generic.List[object]]::new()
 function Add-File([string]$Source,[string]$Relative) {
     if (-not (Test-Path -LiteralPath $Source -PathType Leaf)) { throw "Arquivo Dev ausente: $Source" }
     $target=Join-Path $game $Relative;Assert-Child $game $target
+    if ($Relative -eq 'ModCarrerMode\mods\enabled.txt' -and $missingVarAssets.Count -and -not $liveMods) {
+        # Destination-specific optional module gate; never rewrite the development list.
+        $text=[IO.File]::ReadAllText($Source)
+        $text=[regex]::Replace($text,'(?m)^[ \t]*var_cabin\\var_cabin\.dll[ \t]*\r?\n?','')
+        $content=[Text.UTF8Encoding]::new($false).GetBytes($text)
+        $sha=[Security.Cryptography.SHA256]::Create()
+        try { $hash=[BitConverter]::ToString($sha.ComputeHash($content)).Replace('-','') } finally { $sha.Dispose() }
+        $files.Add([pscustomobject]@{Source=$Source;Relative=$Relative;Target=$target;Hash=$hash;Content=$content})
+        return
+    }
     $files.Add([pscustomobject]@{Source=$Source;Relative=$Relative;Target=$target;Hash=(Get-Sha256 $Source)})
 }
 foreach($name in @('dinput8.dll','dinput8_orig.dll','dinput8_L9.ini','dinput8_patch.ini','winmm.dll','Server16Python.exe')) { Add-File (Join-Path $repoSource $name) $name }
@@ -228,7 +243,8 @@ foreach($log in Get-ChildItem -LiteralPath $gameMod -File -Filter '*.log') {
 }
 foreach($file in $changes) {
     New-Item -ItemType Directory -Force -Path ([IO.Path]::GetDirectoryName($file.Target)) | Out-Null
-    Copy-Item -LiteralPath $file.Source -Destination $file.Target -Force
+    if ($null -ne $file.Content) { [IO.File]::WriteAllBytes($file.Target,$file.Content) }
+    else { Copy-Item -LiteralPath $file.Source -Destination $file.Target -Force }
     if ((Get-Sha256 $file.Target) -ne $file.Hash) { throw "Copia divergente: $($file.Relative). Backup: $backup" }
 }
 if ($ArchiveDevelopmentFiles) {
