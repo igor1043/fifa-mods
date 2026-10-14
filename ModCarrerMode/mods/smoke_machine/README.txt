@@ -18,7 +18,8 @@ Log: ModCarrerMode/logs/smoke_machine.log.
 Validacoes de conversao, Lua 5.1, pontos de emissao e compilacao passaram.
 A visualizacao dentro do FIFA precisa ser confirmada no jogo.
 
-Quatro maquinas internas laterais a -14/+14 metros; nenhuma no meio-campo. Afastamento adicional de 50 cm preservado.
+Quatro maquinas internas laterais a -14/+14 metros; nenhuma no meio-campo.
+Oito bases laterais a 37,5 m do eixo do campo, com mais 50 cm de afastamento e saidas dos efeitos alinhadas.
 
 Equipamentos de pirotecnia para qualquer time; cores e eventos definidos pelo mandante.
 

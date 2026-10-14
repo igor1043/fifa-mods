@@ -1,12 +1,12 @@
 #pragma once
 #include <cstddef>
 struct SmokeMachineSite {float x,z,yaw;};
-// Union of the current emitters, moved 50cm outward from the original layout.
+// Shared bases/outlets: sidelines moved another 50cm outward; rear sites unchanged.
 static constexpr SmokeMachineSite machineSites[]={
-    {-2800,-3700,0},{-2800,3700,3.14159265f},
-    {-1400,-3700,0},{-1400,3700,3.14159265f},
-    {1400,-3700,0},{1400,3700,3.14159265f},
-    {2800,-3700,0},{2800,3700,3.14159265f},
+    {-2800,-3750,0},{-2800,3750,3.14159265f},
+    {-1400,-3750,0},{-1400,3750,3.14159265f},
+    {1400,-3750,0},{1400,3750,3.14159265f},
+    {2800,-3750,0},{2800,3750,3.14159265f},
     {-5900,-1800,1.57079633f},{5900,-1800,-1.57079633f},
     {-5900,1800,1.57079633f},{5900,1800,-1.57079633f},
     {-5900,-2100,1.57079633f},{5900,-2100,-1.57079633f},
