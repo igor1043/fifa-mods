@@ -12,6 +12,7 @@
 #include "ending.h"
 #include "presentation.h"
 #include "match_presentation.h"
+#include "../common/preload_status.h"
 
 // FIFA 16 PC x64 577de45c only. All particle mutations occur before the
 // native BatchParticles phase 0, after its previous-frame jobs have completed.
@@ -217,6 +218,7 @@ static bool valid_slot(int i) {
 }
 #include "palette_runtime.inc"
 static void forget_resource() {
+    scene_preload_publish(1,ScenePreloadState::Waiting);
     paletteHome=0;paletteEffect=0;
     configured=false; activeEffect=0; showing=false; deadline=0;
     for (int i=0;i<emitterCount;++i) { handles[i]=-1; activeInstances[i]=0; }
@@ -352,12 +354,14 @@ static void preload(ULONGLONG now) {
         if(!configure())return;
         assetSince=now;log_event("EARLY_PRELOAD configured_before_team_detection");
     }
-    if(activeEffect)return;
+    if(activeEffect){scene_preload_publish(1,ScenePreloadState::Ready);return;}
+    scene_preload_publish(1,ScenePreloadState::Loading);
     uintptr_t resource=0,effect=0;
     if(!get(activeState+0x50,resource) || !resource)return;
     const bool ready=((unsigned char (__fastcall*)(void*))(image+0x4383e30))((void*)activeObject)!=0;
     if(ready && get(activeManager+0x10,effect) && effect && !activeEffect) {
         activeEffect=effect;log_event("EARLY_PRELOAD ready_native_initialization_completed");
+        scene_preload_publish(1,ScenePreloadState::Ready);
     }
     if(!ready && now-lastDiagnostic>=5000) {
         lastDiagnostic=now; unsigned char fileReady=0,nativeReady=0;uintptr_t task=0;
@@ -442,6 +446,15 @@ static void tick(void* batch) {
                 cachedMatch=false;cachedZero=false;lastMatchSample=0;lastValid=0;
                 candidateSince=0;kickoffSince=0;showStarted=0;deadline=0;
                 paletteHome=0;paletteEffect=0;menuCleared=true;
+            }
+            // Prepare the owned resource while the real pre-match preview is
+            // visible. No emitter or show is started on this path.
+            if(currentPage==PyroPage::Outside&&scene_preload_preview(currentPageName)&&
+               (presentation.entrance_allowed()||presentation.goal_allowed())){
+                uintptr_t impl=0;
+                if(same((uintptr_t)batch,image+0x2214500)&&get((uintptr_t)batch+0x10,impl)&&impl){
+                    batchImpl=impl;preload(now);
+                }
             }
             return;
         }
@@ -621,6 +634,7 @@ extern "C" __declspec(dllexport) BOOL WINAPI Fifa16ModStart(const char* root) {
     enabled=GetPrivateProfileIntA("pyro","enabled",1,configPath)!=0;
     automatic=true;
     if(!presentationConfig.initialize())return FALSE;
+    scene_preload_publish(1,enabled?ScenePreloadState::Waiting:ScenePreloadState::Skipped);
     log_event("match_presentation_config separate_intro_and_goal_switches poll_ms=250");
     for (int& handle:handles) handle=-1;
     image=(uintptr_t)GetModuleHandleA(nullptr);

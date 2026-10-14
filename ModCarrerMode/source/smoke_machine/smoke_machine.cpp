@@ -9,6 +9,7 @@
 #include "presentation.h"
 #include "loading_policy.h"
 #include "../common/scene_lua.h"
+#include "../common/preload_status.h"
 using BuildFn=void(__fastcall*)(void*);
 static uintptr_t image;
 static BuildFn nextBuild;
@@ -150,6 +151,7 @@ static void __fastcall buildHook(void* self){
         nextBuild(self);return;
     }
     Vector saved{},temporary{};size_t n=0,normalBytes=0;unsigned mask=0;bool swapped=false,maskSaved=false;float submitted=-3000;
+    ScenePreloadState loadState=ScenePreloadState::Waiting;
     const uintptr_t list=(uintptr_t)self+0x30*(16+0x2f),maskAt=(uintptr_t)self+0x4f604;
     __try{
         config();scene();refreshLua();
@@ -184,6 +186,7 @@ static void __fastcall buildHook(void* self){
                 }
 
                 const bool a=ready(p,resourceRequested,"model_texture_requested");const bool c=ready(b,shadowRequested,"shadow_dependency_requested");
+                loadState=a&&c?ScenePreloadState::Ready:ScenePreloadState::Loading;
                 if((!a||!c)&&GetTickCount64()>=nextDiagnostic){
                     nextDiagnostic=GetTickCount64()+5000;char message[160];
                     _snprintf_s(message,sizeof(message),_TRUNCATE,"model_deferred reason=resources_not_ready model=%u shadow=%u",(unsigned)a,(unsigned)c);event(message);
@@ -217,6 +220,7 @@ static void __fastcall buildHook(void* self){
             }
         }
         if(maskSaved)*(unsigned*)maskAt=mask;
+        scene_preload_publish(3,!enabled?ScenePreloadState::Skipped:fault?ScenePreloadState::Failed:loadState);
         InterlockedExchange(&busy,0);
     }
 }
@@ -287,6 +291,7 @@ static DWORD WINAPI worker(void*){
 extern "C" __declspec(dllexport) unsigned WINAPI Fifa16ModGetApiVersion(){return 1;}
 extern "C" __declspec(dllexport) BOOL WINAPI Fifa16ModStart(const char* root){
     if(!root||InterlockedCompareExchange(&started,1,0))return FALSE;
+    scene_preload_publish(3,ScenePreloadState::Waiting);
     _snprintf_s(logPath,MAX_PATH,_TRUNCATE,"%s\\..\\logs\\smoke_machine.log",root);
     _snprintf_s(iniPath,MAX_PATH,_TRUNCATE,"%s\\smoke_machine\\smoke_machine.ini",root);
     _snprintf_s(luaPath,MAX_PATH,_TRUNCATE,"%s\\smoke_machine\\smoke_machine.lua",root);

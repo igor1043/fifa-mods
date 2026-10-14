@@ -6,6 +6,7 @@
 #include <string.h>
 #include <math.h>
 #include "../common/scene_lua.h"
+#include "../common/preload_status.h"
 using BuildFn=void(__fastcall*)(void*);
 static uintptr_t image;
 static BuildFn nextBuild;
@@ -164,6 +165,7 @@ static void __fastcall buildHook(void* self){
         nextBuild(self);return;
     }
     Vector saved{},temporary{};size_t n=0,normalBytes=0;unsigned mask=0;bool swapped=false,maskSaved=false;float submitted=-3000;
+    ScenePreloadState loadState=ScenePreloadState::Waiting;
     const uintptr_t list=(uintptr_t)self+0x30*(3+0x2f),maskAt=(uintptr_t)self+0x4f604;
     __try{
         config();refreshLua();
@@ -196,6 +198,7 @@ static void __fastcall buildHook(void* self){
                 }
                 refreshCompetition(s);
                 const bool a=ready(p,resourceRequested,"model_texture_requested");const bool c=ready(b,shadowRequested,"shadow_dependency_requested");
+                loadState=a&&c?ScenePreloadState::Ready:ScenePreloadState::Loading;
                 if(a&&c&&get(maskAt,mask)){
                     submitted=enabled&&!stopping&&competitionAllowed(competitionId)?yCm:-3000;position(submitted);memcpy(scratch+normalBytes,record,0x50);
                     temporary={(uintptr_t)scratch,(uintptr_t)scratch+normalBytes+0x50,(uintptr_t)scratch+sizeof(scratch)};
@@ -213,6 +216,7 @@ static void __fastcall buildHook(void* self){
             const uint64_t now=GetTickCount64();if(now>=nextDiagnostic){nextDiagnostic=now+5000;char msg[240];_snprintf_s(msg,sizeof(msg),_TRUNCATE,"position_cm=%g,%g,%g yaw=%g binding=%u normal_platforms=%zu enabled=%u competition_id=%d competition_allowed=%u",xCm,submitted,zCm,yaw,binding,n,(unsigned)enabled,competitionId,(unsigned)competitionAllowed(competitionId));event(msg);}
         }
         if(maskSaved)*(unsigned*)maskAt=mask;
+        scene_preload_publish(2,!enabled?ScenePreloadState::Skipped:fault?ScenePreloadState::Failed:loadState);
         InterlockedExchange(&busy,0);
     }
 }
@@ -273,6 +277,7 @@ static DWORD WINAPI worker(void*){
 extern "C" __declspec(dllexport) unsigned WINAPI Fifa16ModGetApiVersion(){return 1;}
 extern "C" __declspec(dllexport) BOOL WINAPI Fifa16ModStart(const char* root){
     if(!root||InterlockedCompareExchange(&started,1,0))return FALSE;
+    scene_preload_publish(2,ScenePreloadState::Waiting);
     _snprintf_s(logPath,MAX_PATH,_TRUNCATE,"%s\\..\\logs\\var_cabin.log",root);
     _snprintf_s(iniPath,MAX_PATH,_TRUNCATE,"%s\\var_cabin\\var_cabin.ini",root);
     _snprintf_s(luaPath,MAX_PATH,_TRUNCATE,"%s\\var_cabin\\var_cabin.lua",root);

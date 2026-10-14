@@ -11,6 +11,7 @@ O módulo `stadium_pyrotechnics.dll` oferece pirotecnia para qualquer time. Na a
 - Os 11 grupos de partículas respeitam o trigger externo: cada gol e reinício da partida renova o relógio de emissão das instâncias reutilizadas, mesmo depois de terminar a abertura. Instale o `.lnx` atualizado junto da DLL.
 - Os efeitos usam orientação fixa, sem rotação conforme o lado do campo. A posição de saída acompanha a boca da máquina.
 - Prévia de estádio, seleção de uniformes e outros menus não acionam abertura. Reiniciar Partida rearma abertura e detector de gols.
+- O recurso de partículas é pré-carregado na prévia da partida, sem criar ou disparar emissores. O Server16 atualizado mostra o progresso de arquivos e a confirmação nativa da cena, junto dos carregadores de entradas, VAR e máquinas de fumaça.
 - A pausa interrompe a emissão em curso e preserva o evento consumido e o placar. Voltar à partida, abrir seleção de lados/detalhes ou reconstruir tabelas Lua não rearma a fumaça. Abertura e gols do mandante são os únicos disparos automáticos.
 - Sem comandos F7/F8: os gatilhos são automáticos.
 
