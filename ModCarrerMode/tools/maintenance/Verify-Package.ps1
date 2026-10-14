@@ -1,6 +1,7 @@
 [CmdletBinding()]
-param([string]$PackageRoot = (Join-Path $PSScriptRoot '..\..\..'))
+param([string]$PackageRoot)
 $ErrorActionPreference = 'Stop'
+if (-not $PackageRoot) { $PackageRoot=Join-Path $PSScriptRoot '..\..\..' }
 $root = (Resolve-Path -LiteralPath $PackageRoot).Path.TrimEnd('\')
 $mods = Join-Path $root 'ModCarrerMode\mods'
 function Require-File([string]$Relative) {
@@ -38,5 +39,16 @@ if (@($entries | Where-Object { $_ -match '^mascot_single[\\/]' }).Count) {
 }
 if ($entries -contains 'stadium_pyrotechnics\stadium_pyrotechnics.dll') {
     foreach ($relative in @('ModCarrerMode\mods\stadium_pyrotechnics\pyro.ini','ModCarrerMode\config\match_presentation.ini','data\sceneassets\particles\stadium_pyrotechnics_0.lnx','data\sceneassets\particles\stadium_pyrotechnics_0.rx3')) { Require-File $relative }
+}
+if ($entries -contains 'entrance_props\entrance_props.dll') {
+    Require-File 'ModCarrerMode\config\entrance_competitions.ini'
+    Require-File 'ModCarrerMode\config\match_presentation.ini'
+}
+if ($entries -contains 'var_cabin\var_cabin.dll') {
+    Require-File 'ModCarrerMode\mods\var_cabin\var_cabin.lua'
+    Require-File 'ModCarrerMode\mods\var_cabin\var_cabin.ini'
+    $entranceIndex=[Array]::IndexOf($entries,'entrance_props\entrance_props.dll')
+    $varIndex=[Array]::IndexOf($entries,'var_cabin\var_cabin.dll')
+    if ($entranceIndex -ge 0 -and $varIndex -lt $entranceIndex) { throw 'Os objetos de abertura devem ser carregados antes da cabine do VAR.' }
 }
 [pscustomobject]@{Package=$root;Verified=$true;EnabledPlugins=$entries.Count;MascotModels='Local packages required; excluded from Git'}

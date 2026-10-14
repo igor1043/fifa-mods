@@ -23,6 +23,24 @@ $game = (Resolve-Path -LiteralPath $GameDirectory).Path.TrimEnd('\')
 if (-not (Test-Path -LiteralPath (Join-Path $game 'FIFA16.exe'))) { throw 'A pasta selecionada nao contem FIFA16.exe.' }
 if ($game -eq $repoSource) { throw 'O destino nao pode ser a pasta Dev.' }
 $gameMod = Join-Path $game 'ModCarrerMode'
+# Live integration keeps DB/localization/DLC owned by their external package.
+# An ordinary mod update must never write the repository's older data through
+# these junctions or archive files inside the live development modules.
+$externalPaths = @()
+foreach ($relative in @('data\db','data\loc','dlc')) {
+    $item = Get-Item -LiteralPath (Join-Path $game $relative) -Force -ErrorAction SilentlyContinue
+    if ($item -and $item.LinkType) { $externalPaths += $relative }
+}
+$modsItem = Get-Item -LiteralPath (Join-Path $gameMod 'mods') -Force -ErrorAction SilentlyContinue
+$liveMods = $modsItem -and $modsItem.LinkType
+$enabledPlugins=@(Get-Content -LiteralPath (Join-Path $modSource 'mods\enabled.txt') | ForEach-Object { $_.Trim() })
+if ($enabledPlugins -contains 'var_cabin\var_cabin.dll') {
+    foreach ($relative in @('data\sceneassets\var_cabin\model_v2.rx3','data\sceneassets\var_cabin\textures_v2.rx3')) {
+        if (-not (Test-Path -LiteralPath (Join-Path $game $relative) -PathType Leaf)) {
+            throw "A cabine do VAR precisa do asset local: $relative. Instale o modelo antes de ativar o mod."
+        }
+    }
+}
 $editionConfig = Join-Path $modSource 'config\edition.ini'
 if (-not (Test-Path -LiteralPath $editionConfig -PathType Leaf)) { throw 'Identificacao da edicao ausente no Dev.' }
 $edition = [regex]::Match((Get-Content -LiteralPath $editionConfig -Raw), '(?m)^id=(v12|new-experience)\s*$').Groups[1].Value
@@ -51,6 +69,8 @@ foreach($folder in @('config','data','mods','assets')) {
         # This payload belongs at the game root; do not recreate a legacy
         # ModCarrerMode/assets tree that V12 archives on every installation.
         if ($file.FullName -eq $swissMemorySource) { continue }
+        if ($folder -eq 'mods' -and $file.FullName -match '[\\/]skip_server_shutdown_notice[\\/]') { continue }
+        if ($folder -eq 'mods' -and ($file.FullName -match '[\\/]source[\\/]' -or $file.Extension -in @('.cpp','.c','.h','.cmd','.json','.log','.tmp'))) { continue }
         if ($file.Extension -in @('.md','.ps1','.example','.bak')) { continue }
         $relative='ModCarrerMode\'+$folder+'\'+$file.FullName.Substring($base.Length+1)
         Add-File $file.FullName $relative
@@ -59,15 +79,20 @@ foreach($folder in @('config','data','mods','assets')) {
 $dataSource=Join-Path $repoSource 'data'
 $localCalendarIcons=(Join-Path $dataSource 'ui\imgAssets\careerCompetitionIcons').TrimEnd('\')+'\'
 foreach($file in Get-ChildItem -LiteralPath $dataSource -Recurse -File) {
+    $relativeData = 'data\'+$file.FullName.Substring($dataSource.Length+1)
+    if (@($externalPaths | Where-Object { $relativeData.StartsWith($_+'\',[StringComparison]::OrdinalIgnoreCase) }).Count) { continue }
     # Calendar images/index are local resources; update only the lookup module.
     if ($file.FullName.StartsWith($localCalendarIcons,[StringComparison]::OrdinalIgnoreCase)) { continue }
+    if ($file.FullName -match '[\\/]sceneassets[\\/](entrance_props|var_cabin)[\\/]') { continue }
+    if ($file.FullName -match '[\\/]entrance_props[\\/].*[\\/]fixtures[\\/]') { continue }
+    if ($file.Extension -eq '.md' -or ($file.FullName -match '[\\/]entrance_props[\\/]' -and $file.Extension -in @('.png','.jpg','.html','.json'))) { continue }
     Add-File $file.FullName ('data\'+$file.FullName.Substring($dataSource.Length+1))
 }
 # Competition rules belong to this exact DLC path. Only source payload files
 # are installed; schedules and other existing DLC files remain game-owned.
 $compdataRelative = 'dlc\dlc_FootballCompEng\dlc\FootballCompEng\data\compdata'
 $compdataSource = Join-Path $repoSource $compdataRelative
-if (Test-Path -LiteralPath $compdataSource -PathType Container) {
+if (($externalPaths -notcontains 'dlc') -and (Test-Path -LiteralPath $compdataSource -PathType Container)) {
     foreach($file in Get-ChildItem -LiteralPath $compdataSource -File -Filter '*.txt') {
         Add-File $file.FullName ($compdataRelative+'\'+$file.Name)
     }
@@ -103,11 +128,12 @@ foreach($file in $files) {
     $changes.Add($file)
 }
 $obsoletePaths = @('dinput8_career_chain.dll','ModCarrerMode\mods\bench12_global_limit_12_v2')
+if (-not $liveMods) { $obsoletePaths += 'ModCarrerMode\mods\skip_server_shutdown_notice' }
 # Upgrade old packages to one DLL per mod. Archive only known module folders;
 # unrelated user-installed modules remain outside this migration.
 $installedMods = Join-Path $gameMod 'mods'
 $packageMods = Join-Path $modSource 'mods'
-if (Test-Path -LiteralPath $installedMods -PathType Container) {
+if (-not $liveMods -and (Test-Path -LiteralPath $installedMods -PathType Container)) {
     foreach ($directory in Get-ChildItem -LiteralPath $installedMods -Directory) {
         if ($directory.Name -match '^kickoff_modern(?:_restore)?_v\d+$') {
             $obsoletePaths += 'ModCarrerMode\mods\'+$directory.Name
@@ -131,11 +157,12 @@ if (Test-Path -LiteralPath $installedMods -PathType Container) {
     }
 }
 if ($edition -eq 'v12') {
-    $obsoletePaths += @('ModCarrerMode\assets','ModCarrerMode\career_operations_worker.exe','ModCarrerMode\config\ranking_overlay.ini','ModCarrerMode\ranking_overlay.ini')
+    if (-not $liveMods) { $obsoletePaths += 'ModCarrerMode\assets' }
+    $obsoletePaths += @('ModCarrerMode\career_operations_worker.exe','ModCarrerMode\config\ranking_overlay.ini','ModCarrerMode\ranking_overlay.ini')
 }
 $obsoletePaths = @($obsoletePaths | Select-Object -Unique | Where-Object { Test-Path -LiteralPath (Join-Path $game $_) })
 if ($VerifyOnly) {
-    [pscustomobject]@{Edition=$edition;DevFiles=$files.Count;Identical=$same;Preserved=$skip.Count;ToInstall=$changes.Count;ToArchive=$obsoletePaths.Count}
+    [pscustomobject]@{Edition=$edition;DevFiles=$files.Count;Identical=$same;Preserved=$skip.Count;ToInstall=$changes.Count;ToArchive=$obsoletePaths.Count;ExternalPaths=$externalPaths;LiveDevelopmentMods=[bool]$liveMods}
     $changes | Select-Object Relative
     $obsoletePaths | ForEach-Object { [pscustomobject]@{Archive=$_} }
     return

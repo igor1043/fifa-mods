@@ -1,0 +1,75 @@
+{
+  "source": "C:\\Users\\igorv\\OneDrive\\\u00c1rea de Trabalho\\CABINE DO VAR 2\\Cabine do Var.obj",
+  "vertices": 40440,
+  "triangles": 19447,
+  "static": true,
+  "skeleton": false,
+  "height_cm": 200,
+  "bounds_cm": [
+    [
+      -66.3125,
+      0.0,
+      -55.375
+    ],
+    [
+      66.3125,
+      200.0,
+      55.375
+    ]
+  ],
+  "position_error_cm": 0.0621185302734375,
+  "uv_error": 0.0002440810203552246,
+  "winding": {
+    "positive": 19409,
+    "negative": 38
+  },
+  "textures": [
+    [
+      2047566042,
+      "var_cabin_cm"
+    ],
+    [
+      2047566042,
+      "var_cabin_coeff"
+    ],
+    [
+      2047566042,
+      "var_cabin_nm"
+    ]
+  ],
+  "texture_size": [
+    2048,
+    4096
+  ],
+  "diffuse_source_preserved_at_native_resolution": [
+    2048,
+    2048
+  ],
+  "material_triangle_counts": {
+    "body": 6785,
+    "frame": 5998,
+    "mirror": 48,
+    "cabinet": 5058,
+    "screen": 259,
+    "black": 1299
+  },
+  "normal_map_green_inverted": true,
+  "normal_mips_renormalized": true,
+  "mirror_finish": "native environment/specular inputs, not planar real-time reflection",
+  "source_files": {
+    "Cabine do Var.mtl": "470c364726ccfc42a9b99d19df65e99946e84807cf5dc37937679dc15175f921",
+    "Cabine do Var.obj": "3276bc5faf4e39cfa0ff58fc6ac9df86b572d3f3132ce1967f9aec90f5001393",
+    "CABINE+DO+VAR_basecolor.jpg": "96a614f41a243b8d1d73cd23cf8a069de7a749a26d3ec3cc80c49ca0c9bd0b6a",
+    "CABINE+DO+VAR_normal.png": "15b8035686facd4e71aa413e14ae62d08c08c86395c151d62f52f9af794251bd"
+  },
+  "files": {
+    "model_v2.rx3": {
+      "size": 925840,
+      "sha256": "921052377e527b22c9d42c864c6b7cc73ef9b5e88ffd940f9058a819ed0d0b8a"
+    },
+    "textures_v2.rx3": {
+      "size": 33555472,
+      "sha256": "c0c6ce6a0f3703b6848572b2bb2426b0f89042ccb916049e5d2632e600af2e7b"
+    }
+  }
+}

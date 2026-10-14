@@ -225,6 +225,9 @@ end
 ---------------------------------------------------------------------------------------------------
 -- Get Texture based on character type
 function GetTexture( idx )
+    if db.sle[idx].isEntranceProps == 1 then
+        return "data/sceneassets/entrance_props/brasileirao/textures.rx3"
+    end
     local sletype = db.sle[idx].sletype
     if (db.sle[idx].isMascot == 1) then
         return "data/sceneassets/mascot/" .. db.sle[idx].teamid .. "/textures.rx3"
@@ -347,6 +350,13 @@ function CreateSleVariations(gr, batch, sleTable)
                 end
             end
         end
+        -- Reserve this row before the asynchronous native handshake. SleUpdate
+        -- keeps normal generic resources until the hook is confirmed.
+        if stype == SLC_GENERIC_TYPE then
+            sleTable[i] = gr:Create("sle", i)
+            gr:AddSubObject(batch, sleTable[i], stype)
+            i = i + 1
+        end
         -- Keep both normal photographer appearances and append a dedicated
         -- third prototype. Native assignment reserves one physical placement
         -- near a pitch corner. GetVariationsFromIndex(2) defaults to normal 0.
@@ -406,6 +416,10 @@ end
 
 
 function GetRMSle(idx,isModel)
+    if db.sle[idx].isEntranceProps == 1 then
+        if isModel == 1 then return "data/sceneassets/entrance_props/brasileirao/textures.rx3;" end
+        return "data/sceneassets/entrance_props/brasileirao/model.rx3;"
+    end
 	-- These legacy ballboy packages contain the club mascot. Only the
 	-- reserved photographer prototype may use it in the single-mascot mod.
 	if ((db.sle[idx].sletype == SLC_BALLBOY_TYPE or db.sle[idx].sletype == SLC_CHOREO_BALLBOY_TYPE) and MascotPackageReady(db.sle[idx].teamid)) then
@@ -438,3 +452,165 @@ end
 
 --Revolution Mod 16 V1.3.5
 --Edited by scouser09
+
+-- FIFA16_ENTRANCE_PROPS_V1: preserve the existing updater, including the mascot.
+local EntrancePropsBaseSleUpdate = SleUpdate
+function SleUpdate(idx)
+    EntrancePropsBaseSleUpdate(idx)
+    local s = db.sle[idx]
+    s.isEntranceProps = 0
+    if s.sletype == SLC_GENERIC_TYPE then
+        local row = gSportsRNA:GetTable("wvSle", idx)
+        if gSportsRNA:GetInt(row, "sleindex") == 1 and FIFA16_ENTRANCE_PROPS_HOOK_READY == true then
+            s.isEntranceProps = 1
+            s.isMascot = 0
+            s.slename = "cameramansitting"
+            s.attribmatname = "simple_character_static"
+            s.customcolor = 4294967295
+        end
+    end
+end
+
+
+-- FIFA16_VAR_CABIN_V1: dedicated static platform variation, preserving other mods.
+-- Read the match competition before getTournamentGraphics remaps its artwork.
+-- Club league assignments must not enable the cabin in cups or friendlies.
+function FIFA16_VAR_CABIN_REFRESH_COMPETITION(idx)
+    local s = db and db.sle and db.sle[idx]
+    if not s then return end
+    s.varCabinCompetitionId = -1
+    local ok, id = pcall(function()
+        local wipe = gSportsRNA:GetTable("wvWipe", 1)
+        return gSportsRNA:GetInt(wipe, "leagueID")
+    end)
+    if ok and type(id) == "number" and id == math.floor(id) then
+        s.varCabinCompetitionId = id
+    end
+end
+local VarCabinBaseUpdate = SleUpdate
+function SleUpdate(idx)
+    VarCabinBaseUpdate(idx)
+    local s = db.sle[idx]
+    s.isVarCabin = 0
+    if s.sletype == 3 and FIFA16_VAR_CABIN_HOOK_READY == true then
+        local row = gSportsRNA:GetTable("wvSle", idx)
+        if gSportsRNA:GetInt(row, "sleindex") == 1 then
+            s.isVarCabin = 1
+            s.isMascot = 0
+            s.isEntranceProps = 0
+            s.slename = "cameramansitting"
+            s.attribmatname = "simple_character_static"
+            s.customcolor = 4294967295
+            FIFA16_VAR_CABIN_REFRESH_COMPETITION(idx)
+        end
+    end
+end
+local VarCabinBaseTexture = GetTexture
+function GetTexture(idx)
+    if db.sle[idx].isVarCabin == 1 then return "data/sceneassets/var_cabin/textures_v2.rx3" end
+    return VarCabinBaseTexture(idx)
+end
+local VarCabinBaseRM = GetRMSle
+function GetRMSle(idx, isModel)
+    if db.sle[idx].isVarCabin == 1 then
+        if isModel == 1 then return "data/sceneassets/var_cabin/textures_v2.rx3;" end
+        return "data/sceneassets/var_cabin/model_v2.rx3;"
+    end
+    return VarCabinBaseRM(idx, isModel)
+end
+local function VarCabinAppend(gr, batch, sles)
+    local nextIndex = 0
+    for k, v in pairs(sles) do
+        if type(k) == "number" and k >= nextIndex then nextIndex = k + 1 end
+    end
+    if nextIndex >= 176 then return false end
+    if db.sle[nextIndex] == nil then db.sle[nextIndex] = {} end
+    sles[nextIndex] = gr:Create("sle", nextIndex)
+    gr:AddSubObject(batch, sles[nextIndex], 3)
+    FIFA16_VAR_CABIN_RNA_INDEX = nextIndex
+    return true
+end
+local VarCabinBaseVariations = CreateSleVariations
+function CreateSleVariations(gr, batch, sles)
+    VarCabinBaseVariations(gr, batch, sles)
+    FIFA16_VAR_CABIN_LIVE_CREATED = VarCabinAppend(gr, batch, sles)
+end
+FIFA16_VAR_CABIN_LUA_V1 = true
+FIFA16_VAR_CABIN_LUA_V3 = true
+function FIFA16_VAR_CABIN_CREATE_LIVE()
+    if FIFA16_VAR_CABIN_LIVE_CREATED then return end
+    if gRenderObj and gRenderObj.batchSle and gRenderObj.sles then
+        FIFA16_VAR_CABIN_LIVE_CREATED = VarCabinAppend(gRenderables, gRenderObj.batchSle, gRenderObj.sles)
+    end
+end
+
+FIFA16_VAR_CABIN_MODEL_V2 = true
+
+-- FIFA16_DYNAMIC_CLUB_ATLAS_V1
+-- One mesh and the already validated SLE colour shader. The native plugin
+-- composes the current clubs into an opaque atlas before requesting resources.
+local EntranceAtlasBaseTexture = GetTexture
+local EntranceAtlasBaseRMSle = GetRMSle
+function EntranceAtlasTexture()
+    if type(FIFA16_ENTRANCE_TEXTURE_ROOT) == "string" then
+        return FIFA16_ENTRANCE_TEXTURE_ROOT.."textures.rx3"
+    end
+    return "data/sceneassets/entrance_props/dynamic_main/template.rx3"
+end
+function GetTexture(idx)
+    if db.sle[idx] and db.sle[idx].isEntranceProps == 1 then return EntranceAtlasTexture() end
+    return EntranceAtlasBaseTexture(idx)
+end
+function GetRMSle(idx,isModel)
+    if db.sle[idx] and db.sle[idx].isEntranceProps == 1 then
+        if isModel == 1 then return EntranceAtlasTexture()..";" end
+        return "data/sceneassets/entrance_props/dynamic_main/model.rx3;"
+    end
+    return EntranceAtlasBaseRMSle(idx,isModel)
+end
+-- Kept as an alias for the already bound live v13 callback. New SLE instances
+-- use the original SleAssetBind and do not create separate crest renderables.
+function EntranceBadgeSleUpdate(idx) SleUpdate(idx) end
+FIFA16_ENTRANCE_BADGE_MODE="native_dynamic_opaque_atlas"
+
+-- FIFA16_ENTRANCE_COMPETITIONS_V17
+-- Resources are published only after the native catalogue validates both RX3s.
+local CompetitionPropsBaseUpdate = SleUpdate
+local CompetitionPropsBaseTexture = GetTexture
+local CompetitionPropsBaseRM = GetRMSle
+local function CompetitionPropsAvailable()
+    return type(FIFA16_ENTRANCE_MODEL_FILE) == "string" and
+           type(FIFA16_ENTRANCE_TEXTURE_FILE) == "string" and
+           FIFA16_ENTRANCE_MODEL_FILE ~= "" and FIFA16_ENTRANCE_TEXTURE_FILE ~= ""
+end
+function SleUpdate(idx)
+    CompetitionPropsBaseUpdate(idx)
+    local s = db.sle[idx]
+    if s.isEntranceProps == 1 and not CompetitionPropsAvailable() then s.isEntranceProps = 0 end
+end
+function GetTexture(idx)
+    local s = db.sle[idx]
+    if s and s.isEntranceProps == 1 then
+        if CompetitionPropsAvailable() then return FIFA16_ENTRANCE_TEXTURE_FILE end
+        s.isEntranceProps = 0
+        local result = CompetitionPropsBaseTexture(idx)
+        s.isEntranceProps = 1
+        return result
+    end
+    return CompetitionPropsBaseTexture(idx)
+end
+function GetRMSle(idx,isModel)
+    local s = db.sle[idx]
+    if s and s.isEntranceProps == 1 then
+        if CompetitionPropsAvailable() then
+            if isModel == 1 then return FIFA16_ENTRANCE_TEXTURE_FILE..";" end
+            return FIFA16_ENTRANCE_MODEL_FILE..";"
+        end
+        s.isEntranceProps = 0
+        local result = CompetitionPropsBaseRM(idx,isModel)
+        s.isEntranceProps = 1
+        return result
+    end
+    return CompetitionPropsBaseRM(idx,isModel)
+end
+FIFA16_ENTRANCE_COMPETITIONS_LUA_V17 = true

@@ -62,7 +62,7 @@ if edition == 'v12':
     assert all(action not in binary for action in actions), 'New Experience action leaked into V12 DLL'
     assert not (repo / 'ModCarrerMode/career_operations_worker.exe').exists()
     retirement_source = (native / 'src/features/retirement/retirement_engine.c').read_text(encoding='utf-8')
-    assert 'saia do save e escolha nao salvar' in retirement_source.lower()
+    assert 'saia do save sem salvar' in retirement_source.lower()
 else:
     assert len(subtiles) == 1 and subtiles[0].get('DESTINATION') == 'FifaModsOpenMyOffice'
     assert next_card.find('main_tile').get('DESTINATION') == 'FifaModsOpenNextMatch'
@@ -74,7 +74,16 @@ else:
 
 entries = [line.strip() for line in (repo / 'ModCarrerMode/mods/enabled.txt').read_text(encoding='utf-8').splitlines() if line.strip() and not line.lstrip().startswith('#')]
 required_plugins = {'crowd/crowd_plugin.dll', 'bench_native12/bench_native12.dll', 'substitution_all7_rulescan_native/substitution_all7_rulescan_native.dll', 'career_birthdate_2006/birthyear_range_2006_2012.dll'}
-assert {p.replace('\\', '/') for p in entries} == required_plugins
+active_plugins={p.replace('\\', '/') for p in entries}
+assert required_plugins <= active_plugins
+if edition=='v12':
+    required_v12={'mascot_single/mascot_goal_line.dll','multiball_visual/multiball_visual.dll',
+                  'kickoff_modern/kickoff_modern.dll','stadium_pyrotechnics/stadium_pyrotechnics.dll',
+                  'entrance_props/entrance_props.dll','var_cabin/var_cabin.dll',
+                  'career_ui_assets/career_ui_assets.dll','crowd_ultra_kits/crowd_ultra_kits.dll',
+                  'tournament_compat_native/tournament_compat_native.dll'}
+    assert active_plugins==required_plugins|required_v12
+    assert entries.index('entrance_props\\entrance_props.dll')<entries.index('var_cabin\\var_cabin.dll')
 for entry in entries:
     assert (repo / 'ModCarrerMode/mods' / entry.replace('\\', '/')).read_bytes()[:2] == b'MZ'
 for rel in ('Server16Python.exe', 'ModCarrerMode/retirement_offline_worker.exe', 'ModCarrerMode/mods/career_birthdate_2006/dist/Fifa16BirthdateWatcher2006.exe'):
@@ -84,4 +93,4 @@ assert hashlib.sha256(payload.read_bytes()).hexdigest().upper() == 'B5CFF1DF25EA
 retirement_config = (repo / 'ModCarrerMode/config/career_retirement_background.ini').read_text(encoding='utf-8')
 assert 'enabled=1' in retirement_config and 'defer_until_game_exit=0' in retirement_config
 assert not (repo / 'dinput8_career_chain.dll').exists()
-print(f'PASS: {edition}: cards, NAV, DLL edition, four shared plugins and required runtime files')
+print(f'PASS: {edition}: cards, NAV, DLL edition, {len(active_plugins)} plugins and required runtime files')

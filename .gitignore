@@ -44,3 +44,14 @@ ModCarrerMode/mods/enabled_*.txt
 # Duplicate/backup competition packages are not runtime inputs.
 dlc/dlc_FootballCompEng/dlc/FootballCompEng/FootballCompEng/
 *.rar
+
+# Competition models and dynamic fixture caches are installed locally.
+data/sceneassets/entrance_props/
+data/sceneassets/var_cabin/
+ModCarrerMode/mods/**/source/
+ModCarrerMode/mods/**/*_installation.json
+ModCarrerMode/source/var_cabin/test_dependencies/
+code-release/
+# Retired server-notice plugin: local rollback copies are not distributed.
+ModCarrerMode/mods/skip_server_shutdown_notice/
+ModCarrerMode/source/skip_server_shutdown_notice/

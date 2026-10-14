@@ -18,6 +18,7 @@
 #include "../features/crowd/crowd_runtime.h"
 #include "../features/retirement/retirement_engine.h"
 #include "swiss_delta.h"
+#include "card_refresh_schedule.h"
 static void native_prepare(void *owner);
 static void native_publish(void *provider);
 static void native_log_transfer_card_context(void *provider);
@@ -30,6 +31,7 @@ static int native_display_context_competition(int requested, int club);
 static int native_is_competition_round_provider(void *owner, void *provider);
 static void native_end(void);
 static void refresh_initial_competition_provider(unsigned long generation);
+static void drain_pending_stats_refresh(void);
 static void clear_pending_stats_refresh(void);
 static void remember_pending_stats_refresh(void *owner);
 static void stats_provider_with_diagnostics(void *provider_owner);
@@ -131,6 +133,7 @@ typedef void (*SetIntFn)(void *, const char *, int);
 typedef void (*SetStringFn)(void *, const char *, const char *);
 typedef void *(*StatsVectorFn)(void *, int, unsigned char);
 typedef void (*StatsProviderFn)(void *);
+typedef void (*StatsMarkDirtyFn)(void *, unsigned char);
 typedef void (*StandingProviderFn)(void *);
 typedef void (*GetServiceDescriptorFn)(void *);
 typedef int (*GetSelectionFn)(void *);
@@ -157,6 +160,7 @@ static SetIntFn g_set_int;
 static SetStringFn g_set_string;
 static StatsVectorFn g_stats_vector;
 static StatsProviderFn g_stats_provider;
+static StatsMarkDirtyFn g_stats_mark_dirty;
 static StandingProviderFn g_standing_provider;
 static GetServiceDescriptorFn g_get_competition_service_descriptor;
 static GetServiceDescriptorFn g_get_name_service_descriptor;
@@ -194,7 +198,14 @@ static void *g_current_stats_provider;
 static void *g_current_stats_provider_owner;
 static void *g_pending_stats_provider_owner;
 static void *g_pending_stats_provider_vtable;
-static unsigned long g_pending_stats_refresh_generation;
+static void *g_pending_stats_provider_registry;
+static CardRefreshSchedule g_stats_refresh_schedule;
+static unsigned long g_pending_stats_context_epoch;
+static DWORD g_pending_stats_thread;
+static volatile LONG g_stats_ready_generation;
+static volatile LONG g_stats_tick_thread_mismatch;
+static unsigned long g_stats_applied_generation;
+static BOOL g_stats_publication_completed;
 static volatile LONG g_pending_stats_refresh_busy;
 static volatile LONG g_last_requested_calendar_date;
 static char g_current_standing_field[32];
@@ -1943,8 +1954,13 @@ static void *stats_vector_capture(
     int category,
     unsigned char enabled)
 {
+    void *provider;
     g_current_stats_object = stats_object;
-    return g_stats_vector(stats_object, category, enabled);
+    provider = g_stats_vector(stats_object, category, enabled);
+    /* Capture the exact vector, including native queries without scorer rows. */
+    if (g_current_stats_provider_owner)
+        g_current_stats_provider = provider;
+    return provider;
 }
 
 /* Rows written by FIFA's own StatisticsData provider. These are deliberately
@@ -2484,54 +2500,102 @@ static void clear_pending_stats_refresh(void)
 {
     g_pending_stats_provider_owner = NULL;
     g_pending_stats_provider_vtable = NULL;
-    g_pending_stats_refresh_generation = 0;
+    g_pending_stats_provider_registry = NULL;
+    g_pending_stats_context_epoch = 0;
+    g_pending_stats_thread = 0;
+    memset(&g_stats_refresh_schedule, 0, sizeof(g_stats_refresh_schedule));
+    InterlockedExchange(&g_stats_ready_generation, 0);
 }
 
 
 static void remember_pending_stats_refresh(void *owner)
 {
-    if (!is_readable_range(owner, sizeof(void *)))
+    if (!is_readable_range(owner, 2 * sizeof(void *)))
         return;
     g_pending_stats_provider_owner = owner;
     g_pending_stats_provider_vtable = *(void **)owner;
-    g_pending_stats_refresh_generation = native_generation();
+    g_pending_stats_provider_registry = ((void **)owner)[1];
+    g_pending_stats_context_epoch = fce_runtime_context_epoch();
+    g_pending_stats_thread = GetCurrentThreadId();
+    card_refresh_enter(&g_stats_refresh_schedule, GetTickCount64());
 }
 
 
 static void refresh_initial_competition_provider(unsigned long generation)
 {
+    /* Do not re-enter UI code inside snapshot capture. */
+    InterlockedExchange(&g_stats_ready_generation, (LONG)generation);
+}
+
+
+static void log_card_refresh(const char *event, void *owner, void *provider,
+    unsigned reason)
+{
+    char path[MAX_PATH];
+    FILE *log;
+    if (!g_mod_dir[0] || !fce_runtime_log_verbose()) return;
+    snprintf(path, sizeof(path), "%s\\logs\\career_card_refresh.log", g_mod_dir);
+    log = fopen(path, "ab");
+    if (!log) return;
+    fprintf(log, "event=%s owner=%p provider=%p view=%lu applied=%lu "
+        "requested=%lu context=%lu thread=%lu owner_thread=%lu reason=%u completed=%d\n",
+        event, owner, provider, g_stats_refresh_schedule.view_revision,
+        g_stats_refresh_schedule.applied_generation,
+        g_stats_refresh_schedule.requested_generation,
+        fce_runtime_context_epoch(), GetCurrentThreadId(), g_pending_stats_thread, reason,
+        g_stats_publication_completed != FALSE);
+    fclose(log);
+}
+
+
+static void drain_pending_stats_refresh(void)
+{
     void *owner;
     void *expected_vtable;
-    if (!generation
-        || generation == g_pending_stats_refresh_generation
-        || InterlockedCompareExchange(&g_pending_stats_refresh_busy, 1, 0))
+    unsigned reason;
+    unsigned long ready_generation;
+    if (!g_pending_stats_provider_owner || g_current_stats_provider_owner)
         return;
-
+    if (GetCurrentThreadId() != g_pending_stats_thread) {
+        if (!InterlockedExchange(&g_stats_tick_thread_mismatch, 1))
+            log_card_refresh("owner_thread_mismatch", g_pending_stats_provider_owner, NULL, 0);
+        return;
+    }
+    if (g_pending_stats_context_epoch != fce_runtime_context_epoch()) {
+        clear_pending_stats_refresh();
+        return;
+    }
+    if (!fce_runtime_is_stable()) return;
+    ready_generation = (unsigned long)InterlockedExchange(&g_stats_ready_generation, 0);
+    card_refresh_request(&g_stats_refresh_schedule, ready_generation, GetTickCount64());
+    if (InterlockedCompareExchange(&g_pending_stats_refresh_busy, 1, 0)) return;
+    reason = card_refresh_take_due(&g_stats_refresh_schedule, GetTickCount64());
+    if (!reason) {
+        InterlockedExchange(&g_pending_stats_refresh_busy, 0);
+        return;
+    }
     owner = g_pending_stats_provider_owner;
     expected_vtable = g_pending_stats_provider_vtable;
     if (!owner
-        || !is_readable_range(owner, sizeof(void *))
-        || *(void **)owner != expected_vtable)
+        || !is_readable_range(owner, 2 * sizeof(void *))
+        || *(void **)owner != expected_vtable
+        || ((void **)owner)[1] != g_pending_stats_provider_registry)
     {
         clear_pending_stats_refresh();
         InterlockedExchange(&g_pending_stats_refresh_busy, 0);
         return;
     }
 
-    /* Mark before re-entry. The provider call remembers the current owner
-     * and generation again, keeping one refresh per FCE publication while
-     * suppressing recursion and duplicate redraws. */
-    g_pending_stats_refresh_generation = generation;
     __try
     {
         fce_runtime_suppress_refresh(1);
         stats_provider_with_diagnostics(owner);
-        append_loader_log("competition_generation_refresh_completed");
+        log_card_refresh("deferred_refresh", owner, NULL, reason);
     }
     __except(EXCEPTION_EXECUTE_HANDLER)
     {
         clear_pending_stats_refresh();
-        append_loader_log("competition_generation_refresh_guarded");
+        append_loader_log("career_card_deferred_refresh_guarded");
     }
     fce_runtime_suppress_refresh(0);
     InterlockedExchange(&g_pending_stats_refresh_busy, 0);
@@ -2968,11 +3032,18 @@ static void injury_refresh_cards_now(void)
 {
     void *owner = g_pending_stats_provider_owner;
     void *expected_vtable = g_pending_stats_provider_vtable;
-    if (!owner || !expected_vtable
-        || !is_readable_range(owner, sizeof(void *))
+    if (!owner || !expected_vtable || g_current_stats_provider_owner
+        || GetCurrentThreadId() != g_pending_stats_thread
+        || g_pending_stats_context_epoch != fce_runtime_context_epoch()
+        || !is_readable_range(owner, 2 * sizeof(void *))
         || *(void **)owner != expected_vtable
+        || ((void **)owner)[1] != g_pending_stats_provider_registry
         || InterlockedCompareExchange(&g_injury_refresh_busy, 1, 0))
         return;
+    if (InterlockedCompareExchange(&g_pending_stats_refresh_busy, 1, 0)) {
+        InterlockedExchange(&g_injury_refresh_busy, 0);
+        return;
+    }
     fce_runtime_suppress_refresh(1);
     __try
     {
@@ -2984,6 +3055,7 @@ static void injury_refresh_cards_now(void)
         append_loader_log("injury_card_immediate_refresh_guarded");
     }
     fce_runtime_suppress_refresh(0);
+    InterlockedExchange(&g_pending_stats_refresh_busy, 0);
     InterlockedExchange(&g_injury_refresh_busy, 0);
 }
 
@@ -3798,20 +3870,51 @@ static SIZE_T publish_top_assists(void *provider)
 }
 
 
+/* Native StatisticsData calls this immediately before setting its dirty flag
+ * (0x59CEA91 -> 0x5B14990). Add the whole custom payload BEFORE notifying UI,
+ * after all stock rows/empty markers have been written. */
+static void stats_mark_dirty_capture(void *notification, unsigned char dirty)
+{
+    void *owner = g_current_stats_provider_owner;
+    void *provider = g_current_stats_provider;
+    if (dirty && owner && provider) {
+        native_prepare(owner);
+        if (native_generation() && native_club > 0) {
+            /* Only the competition carousel owns a dynamic page count. */
+            if (native_is_competition_round_provider(owner, provider)) {
+                int subtiles = g_competition_count > 1
+                    ? (int)g_competition_count - 1 : 0;
+                if (subtiles > 2) subtiles = 2;
+                g_set_int(provider, "LENGTH", subtiles);
+            }
+            native_publish(provider);
+            native_log_transfer_card_context(provider);
+            g_stats_applied_generation = native_generation();
+            g_stats_publication_completed = TRUE;
+        }
+        native_end();
+    }
+    /* Preserve native notification even when custom data is not ready. */
+    g_stats_mark_dirty(notification, dirty);
+}
+
+
 static void stats_provider_with_diagnostics(void *provider_owner)
 {
     int requested = competition_from_statistics_provider(provider_owner);
     int observed_calendar_date = native_calendar_date(provider_owner);
-    void *ui_provider;
+    BOOL replay = InterlockedCompareExchange(&g_pending_stats_refresh_busy, 0, 0) != 0;
     /* Do not depend exclusively on save/load or calendar events. Some
      * competitions do not emit the same notifications as the Brazilian
      * career path. While this provider exists, sample the authoritative FCE
      * model once per second and republish any newly captured generation. */
-    fce_runtime_keep_fresh(45000, 1000);
+    if (!replay) fce_runtime_keep_fresh(45000, 1000);
     InterlockedExchange(&g_active_competition_id, requested);
     InterlockedExchange(&g_display_competition_id, requested);
     g_current_stats_object = NULL;
     g_current_stats_provider = NULL;
+    g_stats_applied_generation = 0;
+    g_stats_publication_completed = FALSE;
     /* A simulation advance can update the live career tables without a save
      * or load event. CalendarManager's TODAY value is the reliable signal.
      * Queue a fresh owner-thread capture once for each observed date. */
@@ -3821,41 +3924,22 @@ static void stats_provider_with_diagnostics(void *provider_owner)
         InterlockedExchange(&g_last_requested_calendar_date, observed_calendar_date);
         fce_runtime_request_refresh();
     }
-    /* Let FIFA finish its own live statistics query first.  That query can
-     * populate StatisticsData synchronously; capturing before it produced an
-     * empty assists card on the first screen after loading a save. */
+    /* The finish hook publishes after the query, before native notification. */
     reset_stock_stat_capture();
     g_current_stats_provider_owner = provider_owner;
-    g_stats_provider(provider_owner);
-    ui_provider = g_current_stats_provider;
-    InterlockedExchange(&g_active_competition_id, requested);
-    InterlockedExchange(&g_display_competition_id, requested);
-    native_prepare(provider_owner);
-    /* Keep the live provider while this career context exists. Every newly
-     * published FCE generation (including calendar advancement) can then
-     * redraw the card immediately, without requiring screen navigation. */
-    remember_pending_stats_refresh(provider_owner);
-    /* CM_STATISTICS_DP is shared by cards across several hub panels.  Only
-     * the custom competition-round tile owns the dynamic competition pages;
-     * changing LENGTH on another owner can manufacture pages over unrelated
-     * content such as the Central next-match card. */
-    if (ui_provider
-        && native_is_competition_round_provider(provider_owner, ui_provider))
-    {
-        int subtiles = g_competition_count > 1
-            ? (int)g_competition_count - 1
-            : 0;
-        /* The layout currently defines one main page and two subtile pages. */
-        if (subtiles > 2)
-            subtiles = 2;
-        g_set_int(ui_provider, "LENGTH", subtiles);
+    __try {
+        g_stats_provider(provider_owner);
+        if (!replay) remember_pending_stats_refresh(provider_owner);
+        if (g_stats_publication_completed)
+            card_refresh_applied(&g_stats_refresh_schedule, g_stats_applied_generation);
+        log_card_refresh(g_stats_publication_completed ? "published_before_notify" :
+            "publication_pending", provider_owner, g_current_stats_provider, replay ? 1 : 0);
+    } __finally {
+        g_current_stats_provider = NULL;
+        g_current_stats_provider_owner = NULL;
+        g_current_stats_object = NULL;
+        native_end();
     }
-    native_publish(ui_provider);
-    native_log_transfer_card_context(ui_provider);
-    g_current_stats_provider = NULL;
-    g_current_stats_provider_owner = NULL;
-    g_current_stats_object = NULL;
-    native_end();
 }
 
 
@@ -4170,6 +4254,12 @@ static const CallPatchSpec g_call_patches[] = {
             0x05A511E0,
             (void *)injury_set_string_capture,
         },
+        {
+            "statistics_publish_before_notify",
+            0x059CEA91,
+            0x05B14990,
+            (void *)stats_mark_dirty_capture,
+        },
 };
 
 /* The protected loader materializes different code regions separately. One
@@ -4287,6 +4377,7 @@ static DWORD WINAPI patch_standings_provider(LPVOID unused)
     g_set_string = (SetStringFn)(module_base + 0x05A511E0);
     g_stats_vector = (StatsVectorFn)(module_base + 0x05AC2C60);
     g_stats_provider = (StatsProviderFn)(module_base + 0x059CE0E0);
+    g_stats_mark_dirty = (StatsMarkDirtyFn)(module_base + 0x05B14990);
     g_standing_provider =
         (StandingProviderFn)(module_base + 0x059CC850);
     g_get_competition_service_descriptor =
@@ -4373,8 +4464,9 @@ static DWORD WINAPI patch_standings_provider(LPVOID unused)
 
     unsigned int patched = 0;
     unsigned int index;
+    unsigned int expected_calls = (unsigned int)(sizeof(g_call_patches) / sizeof(g_call_patches[0]));
     unsigned int call_patched = apply_call_patches(module_base, log);
-    if(call_patched!=19) { fclose(log); return 5; }
+    if(call_patched!=expected_calls) { fclose(log); return 5; }
     for (index = 0; index < sizeof(g_patches) / sizeof(g_patches[0]); index++)
     {
         if (apply_patch(module_base, &g_patches[index], log))
@@ -4382,16 +4474,17 @@ static DWORD WINAPI patch_standings_provider(LPVOID unused)
     }
     fprintf(log, "Patches de bytes=%u/%u\n", patched, (unsigned int)(
         sizeof(g_patches) / sizeof(g_patches[0])));
-    fprintf(log, "Patches de chamadas=%u/19\n", call_patched);
+    fprintf(log, "Patches de chamadas=%u/%u\n", call_patched, expected_calls);
     fclose(log);
-    if (patched == sizeof(g_patches) / sizeof(g_patches[0]) && call_patched == 19)
+    if (patched == sizeof(g_patches) / sizeof(g_patches[0]) && call_patched == expected_calls)
     {
         append_loader_log("career_native_card_hooks_installed");
+        append_loader_log("career_cards_redraw_v1_hooks_installed");
         swiss_delta_notify_ready(g_self, g_game_dir, g_mod_dir, SWISS_READY_NATIVE);
     }
     return (
         patched == sizeof(g_patches) / sizeof(g_patches[0])
-        && call_patched == 19)
+        && call_patched == expected_calls)
         ? 0
         : 5;
 }
@@ -4761,6 +4854,7 @@ BOOL WINAPI DllMain(HINSTANCE instance, DWORD reason, LPVOID reserved)
         g_self=instance; DisableThreadLibraryCalls(instance);
         initialize_paths(); fce_runtime_log_dir(g_mod_dir);
         fce_runtime_set_ready_callback(refresh_initial_competition_provider);
+        fce_runtime_set_ui_tick_callback(drain_pending_stats_refresh);
         worker=CreateThread(NULL,0,patch_standings_provider,NULL,0,NULL);
         if(worker) CloseHandle(worker);
         worker=CreateThread(NULL,0,start_optional_mod_host,NULL,0,NULL);

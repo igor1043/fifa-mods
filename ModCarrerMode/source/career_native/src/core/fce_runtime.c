@@ -39,6 +39,7 @@ static OneFn original_update;
 static TwoFn original_post,original_send,original_load;
 static ReadyFn original_ready;
 static FceRuntimeReadyCallback ready_callback;
+static FceRuntimeUiTickCallback ui_tick_callback;
 
 static int parse_log_mode(const char *dir) {
     char path[MAX_PATH], text[512];
@@ -75,6 +76,12 @@ int fce_runtime_log_verbose(void) {
 }
 void fce_runtime_set_ready_callback(FceRuntimeReadyCallback callback) {
     ready_callback=callback;
+}
+void fce_runtime_set_ui_tick_callback(FceRuntimeUiTickCallback callback) {
+    ui_tick_callback=callback;
+}
+unsigned long fce_runtime_context_epoch(void) {
+    return (unsigned long)InterlockedCompareExchange(&generation,0,0);
 }
 void fce_runtime_request_refresh(void) {
     /* Explicit requests come from a real context/date transition and must
@@ -298,11 +305,13 @@ static void update_hook(void *self) {
      * a UI-provider callback while that reconstruction is in progress. */
     if(InterlockedCompareExchange(&settle_ticks,0,0)<4) {
         InterlockedIncrement(&settle_ticks);
+        if(ui_tick_callback) ui_tick_callback();
         return;
     }
     if(InterlockedExchange(&requested,0)) {
         InterlockedExchange(&dirty,0); capture(self);
     }
+    if(ui_tick_callback) ui_tick_callback();
 }
 static void post_hook(void *self,void *request) {
     original_post(self,request);

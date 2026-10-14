@@ -1,0 +1,181 @@
+{
+  "schema": 1,
+  "edition": "v12",
+  "features": [
+    {
+      "id": "next_match",
+      "name": "Próxima Partida",
+      "behavior": "Adversário, competição, data, horário, estádio e público estimado quando disponíveis.",
+      "source": "ModCarrerMode/source/career_native",
+      "configuration": "data/ui/layout/careermanagerhubcfg.xml",
+      "limits": "Depende dos dados fornecidos pelo jogo.",
+      "status": "implemented"
+    },
+    {
+      "id": "my_team",
+      "name": "Meu Time",
+      "behavior": "Informações do clube, jogadores, líderes de estatísticas, cartões e lesões.",
+      "source": "ModCarrerMode/source/career_native",
+      "configuration": "data/ui/layout/careermanagerhubcfg.xml",
+      "limits": "Usa os dados da carreira ativa.",
+      "status": "implemented"
+    },
+    {
+      "id": "competition",
+      "name": "Competição",
+      "behavior": "Classificação e informações de ligas, copas, fases e partidas.",
+      "source": "ModCarrerMode/source/career_native",
+      "configuration": "data/ui/layout/careermanagerhubcfg.xml",
+      "limits": "Conforme os dados disponíveis da carreira.",
+      "status": "implemented"
+    },
+    {
+      "id": "var_cabin",
+      "name": "Cabine do VAR",
+      "behavior": "Cabine na beira do gramado nas Séries A e B do Brasileirão.",
+      "source": "ModCarrerMode/source/var_cabin",
+      "configuration": "ModCarrerMode/mods/var_cabin/var_cabin.ini",
+      "limits": "Objeto visual; não muda decisões da arbitragem. Requer modelo e textura locais.",
+      "status": "implemented"
+    },
+    {
+      "id": "mascot",
+      "name": "Mascotes",
+      "behavior": "Mascote do mandante com caminhada, apoio e comemoração.",
+      "source": "ModCarrerMode/source/mascot_photographer",
+      "configuration": "ModCarrerMode/config/match_presentation.ini",
+      "limits": "Depende do pacote local do clube.",
+      "status": "implemented"
+    },
+    {
+      "id": "multiball",
+      "name": "Bolas na beira do gramado",
+      "behavior": "13 bolas de reposição com a malha e textura da bola da partida.",
+      "source": "ModCarrerMode/source/multiball_visual",
+      "configuration": "ModCarrerMode/mods/enabled.txt",
+      "limits": "São visuais, sem física e sem suporte.",
+      "status": "implemented"
+    },
+    {
+      "id": "entrance_props",
+      "name": "Objetos de abertura por competição",
+      "behavior": "Escolhe arco e placas pelo campeonato; retira modelo e escudos juntos ao fim das escalações ou da apresentação avançada.",
+      "source": "ModCarrerMode/source/entrance_props",
+      "configuration": "ModCarrerMode/config/entrance_competitions.ini",
+      "limits": "Padrão Sim. Pacote ausente ou inválido deixa a partida sem objetos; assets são locais.",
+      "status": "implemented"
+    },
+    {
+      "id": "club_crests",
+      "name": "Escudos dinâmicos",
+      "behavior": "Aplica os escudos dos clubes de cada partida com recorte do fundo transparente.",
+      "source": "ModCarrerMode/source/entrance_props",
+      "configuration": "data/ui/imgAssets/crest/light",
+      "limits": "Um escudo ausente deixa sua superfície vazia.",
+      "status": "implemented"
+    },
+    {
+      "id": "pyrotechnics",
+      "name": "Pirotecnia",
+      "behavior": "Fogos, fumaça e confete na abertura e nos gols do mandante, com as cores do clube.",
+      "source": "ModCarrerMode/source/flamengo_pyro",
+      "configuration": "ModCarrerMode/config/match_presentation.ini",
+      "limits": "Requer os recursos locais de partículas.",
+      "status": "implemented"
+    },
+    {
+      "id": "crowd",
+      "name": "Torcida e público",
+      "behavior": "Estima a ocupação na carreira e permite ajustar o público pelo Server16.",
+      "source": "ModCarrerMode/source/career_native",
+      "configuration": "ModCarrerMode/crowd.ini",
+      "limits": "O ajuste manual depende da confirmação do módulo nativo.",
+      "status": "implemented"
+    },
+    {
+      "id": "crowd_kits",
+      "name": "Uniformes da torcida",
+      "behavior": "Usa os uniformes disponíveis para os clubes da partida.",
+      "source": "ModCarrerMode/source/crowd_ultra_kits",
+      "configuration": "ModCarrerMode/mods/crowd_ultra_kits/crowd_ultra_kits.ini",
+      "limits": "Pacotes de uniformes são locais.",
+      "status": "implemented"
+    },
+    {
+      "id": "bench",
+      "name": "Banco com 12 reservas",
+      "behavior": "Acrescenta os jogadores do banco e libera o atleta ao entrar em campo.",
+      "source": "ModCarrerMode/source/bench_native12",
+      "configuration": "ModCarrerMode/mods/enabled.txt",
+      "limits": "Depende dos atletas registrados na partida.",
+      "status": "implemented"
+    },
+    {
+      "id": "substitutions",
+      "name": "Sete substituições",
+      "behavior": "Permite até sete trocas.",
+      "source": "ModCarrerMode/source/substitution_all7_rulescan_native",
+      "configuration": "ModCarrerMode/mods/enabled.txt",
+      "limits": "A quantidade de reservas é controlada pelo módulo do banco.",
+      "status": "implemented"
+    },
+    {
+      "id": "kickoff",
+      "name": "Saída de bola moderna",
+      "behavior": "Organiza o primeiro passe para trás, receptor e jogadores fora do círculo central.",
+      "source": "ModCarrerMode/source/kickoff_modern",
+      "configuration": "ModCarrerMode/mods/enabled.txt",
+      "limits": "Mantém a bola real e as regras da partida.",
+      "status": "implemented"
+    },
+    {
+      "id": "calendar_icons",
+      "name": "Ícones da carreira",
+      "behavior": "Resolve os ícones disponíveis de competições e pré-temporada.",
+      "source": "ModCarrerMode/source/career_ui_assets",
+      "configuration": "data/ui/imgAssets/careerCompetitionIcons",
+      "limits": "Sem imagem válida, conserva o caminho original.",
+      "status": "implemented"
+    },
+    {
+      "id": "career_operations",
+      "name": "Aposentadoria e verba",
+      "behavior": "Remoção da aposentadoria, ajuste de idade e acréscimos de verba.",
+      "source": "ModCarrerMode/source/career_native",
+      "configuration": "ModCarrerMode/config/career_retirement_background.ini",
+      "limits": "Processamento fora do save aberto; siga a instrução exibida pela carreira.",
+      "status": "implemented"
+    },
+    {
+      "id": "birthdate",
+      "name": "Criação de jogador",
+      "behavior": "Adapta o intervalo de nascimento para 2006–2012.",
+      "source": "ModCarrerMode/mods/career_birthdate_2006",
+      "configuration": "ModCarrerMode/mods/enabled.txt",
+      "limits": "Usa o módulo e o payload de interface correspondentes.",
+      "status": "implemented"
+    },
+    {
+      "id": "tournament_compatibility",
+      "name": "Compatibilidade de competições",
+      "behavior": "Mantém a leitura das competições usadas pelos módulos da carreira.",
+      "source": "ModCarrerMode/source/tournament_compat_native",
+      "configuration": "ModCarrerMode/mods/enabled.txt",
+      "limits": "Requer o executável compatível com as assinaturas nativas.",
+      "status": "implemented"
+    }
+  ],
+  "not_implemented": [
+    {
+      "name": "Suportes de bola BMPES",
+      "status": "extracted_for_study_only"
+    },
+    {
+      "name": "Decisões de arbitragem pelo VAR",
+      "status": "visual_cabin_only"
+    }
+  ],
+  "reviewed_on": "2026-10-13",
+  "native_entrance_revision": 18,
+  "native_var_revision": 3
+}

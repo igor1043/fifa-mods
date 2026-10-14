@@ -51,6 +51,12 @@ data/sceneassets/mascot/1041/
 | São Paulo | 598 |
 | Vitória-BA | 1719 |
 | Paulista de Jundiaí | 130066 |
+| Botafogo | 517 |
+| Brasil (seleção) | 1370 |
+| Chapecoense | 112476 |
+| Coritiba | 111044 |
+| Mirassol | 113163 |
+| RB Bragantino | 123921 |
 
 Remo e Paulista usam IDs do banco customizado instalado. Se o seu banco tiver outro ID, o nome da pasta deve acompanhar o ID desse banco.
 
@@ -106,7 +112,7 @@ Se todas as categorias estiverem vazias, registra `placement_unavailable` e pres
 
 `Build-AuthoredMascot.py` converte os modelos autorais disponíveis localmente. `Build-MascotGoalClip.py` gera headers a partir de capturas locais. Modelos FBX originais e capturas não são necessários para executar o mod.
 
-Para Santos, Internacional, Palmeiras, Grêmio e Fluminense, a conversão usa `--review-body-weights`: os pivôs seguem as proporções do personagem, a parte superior do peito fica no osso 12, o pescoço no 13 e a cabeça no 14. O rosto e o crânio recebem peso rígido; a ligação do pescoço conserva a transição e os braços mantêm suas cadeias independentes. Isso é pintura de pesos do esqueleto; a textura visual fornecida é preservada e convertida para o RX3 com seus mipmaps.
+Para Santos, Internacional, Palmeiras, Grêmio, Fluminense, Botafogo, Brasil, Chapecoense, Coritiba, Mirassol e RB Bragantino, a conversão usa `--review-body-weights`: os pivôs seguem as proporções do personagem, a parte superior do peito fica no osso 12, o pescoço no 13 e a cabeça no 14. O rosto e o crânio recebem peso rígido; a ligação do pescoço conserva a transição e os braços mantêm suas cadeias independentes. Isso é pintura de pesos do esqueleto; a textura visual fornecida é preservada e convertida para o RX3 com seus mipmaps. A seleção usa o ID de equipe 1370 do banco instalado; o carregamento de pacotes é dinâmico e funciona também para seleções mandantes.
 
 O argumento `--tools` aponta para o bundle local `mascot_rig_adjuster`, que contém `vendor/rx3tools`, `assets/template_model_animated.rx3` e `texture_assets.py`. Essas dependências são de conversão, não de execução no FIFA.
 
@@ -114,4 +120,4 @@ O argumento `--tools` aponta para o bundle local `mascot_rig_adjuster`, que cont
 
 `verify.cmd` compila e executa as políticas de posição, seleção de atores, replay e animação. `verify_locomotion.cmd` verifica poses e deformação com uma pasta de fixtures contendo modelos, marcadores e matrizes de referência; essa pasta é um recurso de teste local, separado do pacote de jogo. `tests/run_performance.cmd` verifica o custo das consultas.
 
-A compensação e a gravação/leitura das poses do replay foram testadas com os 18 pacotes locais e a matriz capturada do renderizador. Os cinco pacotes da nova conversão passaram na validação offline e aguardam confirmação visual no FIFA. O usuário confirmou os mascotes anteriores no jogo local. A rotação relatada no replay de Flamengo/Cruzeiro não foi reproduzida na auditoria dos modelos ou na reconstrução das poses; sua causa na cena ainda precisa ser verificada no jogo. Consulte `ModCarrerMode/logs/mascot_goal_line.log` e o registro `installed version=29` para identificar o build interno; o caminho ativo não tem sufixo de versão.
+A compensação e a gravação/leitura das poses do replay foram testadas com os 24 pacotes locais e a matriz capturada do renderizador. As conversões novas passaram na validação offline e aguardam confirmação visual no FIFA. Os pacotes abrangem os 20 clubes da Série A cadastrados no banco instalado, mais Brasil, Fortaleza, Santa Cruz e Paulista de Jundiaí. O usuário confirmou os mascotes anteriores no jogo local. A rotação relatada no replay de Flamengo/Cruzeiro não foi reproduzida na auditoria dos modelos ou na reconstrução das poses; sua causa na cena ainda precisa ser verificada no jogo. Consulte `ModCarrerMode/logs/mascot_goal_line.log` e o registro `installed version=29` para identificar o build interno; o caminho ativo não tem sufixo de versão.

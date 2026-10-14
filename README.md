@@ -1,150 +1,69 @@
 # FIFA Friends V12
 
-FIFA Friends V12 reúne recursos de carreira e apresentação da partida para FIFA 16: torcida, banco de reservas, substituições, saída de bola moderna, mascotes e bolas de reposição visuais. A pirotecnia acrescenta fogos, fumaça e confete com as cores do mandante.
+Mods para melhorar a carreira e a apresentação das partidas no FIFA 16. Este projeto reúne os módulos nativos; o [Server16 Python](https://github.com/igor1043/CG-File-Server-16---Python-Port/tree/fifa-friends) fornece o painel de configuração, áudio e seleção de estádio.
 
-## Recursos
+## O que foi implementado
 
-### Modo carreira
-
-- **Meu Time:** estatísticas dos jogadores e informações do clube, uniformes, estádio, capacidade e prestígio.
-- **Competição:** informações de Liga e Copa, classificação, fases e partidas disponíveis.
-- **Próxima partida:** adversário, competição, data, horário, estádio e público estimado quando disponíveis.
-- **Aposentadoria:** remove a marca de aposentadoria; a opção de redefinir idade ajusta para 18 anos por padrão, preservando mês e dia.
-- **Verba:** acrescenta 1.000.000 ou 3.000.000 à verba de transferências.
-- **Integração do save:** publica o acesso ao save ativo e os dados nativos usados pelos cards da carreira.
-
-As ações de aposentadoria e verba são processadas depois que você sai do save. Aguarde o autosave; na aposentadoria, escolha sair sem salvar. Permaneça no menu enquanto a camada mostra o andamento e reabra a carreira após a confirmação. O FIFA pode continuar aberto no menu durante o processamento.
-
-### Apresentação e gameplay
-
-| Mod | Comportamento | Guia |
-|---|---|---|
-| Mascotes | Um mascote do mandante, caminhada entre pontos próximos, 30 segundos em cada ponto e 15 segundos de apoio. Seis variantes de gol, três gestos de apoio e restauração de poses pelo tempo do replay. | [Modelos, instalação e limitações](ModCarrerMode/source/mascot_photographer/README.md) |
-| Pirotecnia | Fogos, fumaça e confete nas cores do mandante. Abertura de 60 segundos e gols do mandante por 25 segundos, com controles separados. | [Instalação e configuração](ModCarrerMode/source/flamengo_pyro/README.md) |
-| Saída de bola | Primeiro passe para trás, receptor na diagonal, cobrador voltado à defesa e outros atletas fora do círculo central. | [Instalação](ModCarrerMode/source/kickoff_modern/README.md) |
-| Bolas de reposição | Treze cópias estáticas da malha e textura da bola da partida, ao redor do campo, sem física. | [Posições e funcionamento](ModCarrerMode/source/multiball_visual/README.md) |
-| Banco de reservas | Até 12 reservas reais; modelos adicionais ficam ocultos fora de campo e são liberados na substituição. | [Banco de 12 reservas](ModCarrerMode/source/bench_native12/README.md) |
-| Sete substituições | Limite de sete trocas; revisão 2 evita repetir a varredura completa enquanto o par de estruturas ativo permanece válido. O tamanho do banco é independente desse limite. | Fontes em `ModCarrerMode/source/substitution_all7_rulescan_native/` |
-| Aviso de encerramento dos servidores | Confirma automaticamente o aviso português identificado, apenas com a janela do FIFA em primeiro plano. | [Mod opcional](ModCarrerMode/source/skip_server_shutdown_notice/README.md) |
-
-Também inclui estimativa de ocupação da torcida na carreira, ícones de competições/pré-temporada, correção de miniaturas de goleiros, nascimento de jogadores entre 2006 e 2012 e integrações com Server16Python/CR16.
-
-## Código e recursos locais
-
-O pacote inclui DLLs/EXEs compilados, recursos de pirotecnia, configuração, Lua, fontes e documentação. Cada mod contém uma única DLL atual, sem sufixos de revisão; os fontes atuais da saída estão em `source/kickoff_modern`. Revisões antigas, modelos 3D dos mascotes, texturas, capturas, conversões e backups ficam na pasta externa de estudos; cópias publicadas anteriormente permanecem no histórico antigo do Git.
-
-Não é necessário compilar para instalar este pacote. Os modelos dos mascotes devem estar previamente no jogo ou ser obtidos separadamente. O instalador preserva os modelos existentes; sem o pacote do clube, o mascote não aparece. Os ícones DDS da carreira e seu índice ficam somente no jogo, em `data/ui/imgAssets/careerCompetitionIcons/`. A DLL e os fontes mantêm a lógica de busca, validação e disponibilidade por ID; sem um DDS válido, preservam o caminho original. A ferramenta opcional prepara os ícones diretamente no jogo. Os headers `mascot_goal_*_clip.h` já contêm as animações necessárias à compilação; os JSONs de captura não são necessários para gerar a DLL. Os modelos originais de edição também não são necessários à execução.
-
-## Requisitos
-
-- FIFA 16 **x64**, com executável compatível com as assinaturas verificadas pelos módulos.
-- Carregador de plugins do pacote (`dinput8.dll` e sua cadeia de dependências).
-- Windows e PowerShell para instalação.
-- Para compilar: Visual Studio Build Tools com MSVC C/C++ x64 e Windows SDK. Os `build.cmd` usam `vcvars64.bat`; ajuste seu caminho caso a instalação do Build Tools esteja em outro local.
-- Python 3 para as ferramentas opcionais de preparação/conversão; o Python não é necessário ao runtime das DLLs de mascote, saída, bolas ou pirotecnia.
-
-## Pastas no jogo
-
-Os caminhos abaixo são relativos à pasta que contém `FIFA16.exe`:
-
-```text
-FIFA16.exe
-dinput8.dll
-ModCarrerMode/
-  mods/
-    enabled.txt
-    mascot_single/mascot_goal_line.dll
-    kickoff_modern/kickoff_modern.dll
-    multiball_visual/multiball_visual.dll
-    stadium_pyrotechnics/stadium_pyrotechnics.dll
-    stadium_pyrotechnics/pyro.ini
-    bench_native12/bench_native12.dll
-    substitution_all7_rulescan_native/substitution_all7_rulescan_native.dll
-    skip_server_shutdown_notice/skip_server_shutdown_notice.dll
-  config/match_presentation.ini
-  logs/
-data/
-  fifarna/lua/assets/sle.lua
-  sceneassets/
-    mascot/<ID_DO_CLUBE>/
-    particles/stadium_pyrotechnics_0.lnx
-    particles/stadium_pyrotechnics_0.rx3
-```
-
-## Instalação
-
-Feche o FIFA e o Server16Python antes de instalar. Use a [branch FIFA Friends V12](https://github.com/igor1043/fifa-mods/tree/fifa-friends-v12).
-
-### Instalar o pacote publicado
-
-Baixe a branch FIFA Friends V12 e execute na raiz do pacote:
-
-```powershell
-.\ModCarrerMode\install-game.cmd -GameDirectory "C:\Caminho\para\FIFA 16"
-```
-
-O instalador verifica primeiro todas as DLLs habilitadas, copia o pacote e cria backups. Ele preserva configurações existentes e não obtém modelos externos. Para ativar também as opções de apresentação do pacote, acrescente -ReplaceConfiguration ao comando. Para atualizar só os mascotes, prefira o instalador específico descrito no guia.
-
-### Compilação opcional
-
-Execute os comandos na raiz do repositório, em PowerShell, conferindo o resultado de cada um:
-
-```powershell
-.\ModCarrerMode\source\mascot_photographer\build.cmd
-.\ModCarrerMode\source\kickoff_modern\build.cmd
-.\ModCarrerMode\source\flamengo_pyro\build.cmd
-.\ModCarrerMode\source\multiball_visual\build.cmd
-.\ModCarrerMode\source\substitution_all7_rulescan_native\build_v2.cmd
-```
-
-O build do mascote já copia sua DLL para `ModCarrerMode/mods/mascot_single/` no desenvolvimento. Para os demais, copie as saídas abaixo para os destinos do jogo, criando a pasta de cada módulo:
-
-| Saída da compilação | Destino relativo à pasta do jogo |
+| Implementação | O que muda no jogo |
 |---|---|
-| `source/kickoff_modern/build/kickoff_modern.dll` | `ModCarrerMode/mods/kickoff_modern/kickoff_modern.dll` |
-| `source/flamengo_pyro/build/stadium_pyrotechnics.dll` | `ModCarrerMode/mods/stadium_pyrotechnics/stadium_pyrotechnics.dll` |
-| `source/multiball_visual/build/multiball_visual.dll` | `ModCarrerMode/mods/multiball_visual/multiball_visual.dll` |
-| `source/substitution_all7_rulescan_native/substitution_all7_rulescan_native_v2.dll` | `ModCarrerMode/mods/substitution_all7_rulescan_native/substitution_all7_rulescan_native.dll` |
+| **Próxima Partida** | Adversário, competição, data, horário, estádio e público estimado quando disponíveis. |
+| **Meu Time** | Informações do clube, jogadores, líderes de estatísticas, cartões e lesões. |
+| **Competição** | Classificação e informações de ligas, copas, fases e partidas. |
+| **Cabine do VAR** | Cabine na beira do gramado nas Séries A e B do Brasileirão. |
+| **Mascotes** | Mascote do mandante com caminhada, apoio e comemoração. |
+| **Bolas na beira do gramado** | 13 bolas de reposição com a malha e textura da bola da partida. |
+| **Objetos de abertura por competição** | Escolhe arco e placas pelo campeonato; retira modelo e escudos juntos ao fim das escalações ou da apresentação avançada. |
+| **Escudos dinâmicos** | Aplica os escudos dos clubes de cada partida com recorte do fundo transparente. |
+| **Pirotecnia** | Fogos, fumaça e confete na abertura e nos gols do mandante, com as cores do clube. |
+| **Torcida e público** | Estima a ocupação na carreira e permite ajustar o público pelo Server16. |
+| **Uniformes da torcida** | Usa os uniformes disponíveis para os clubes da partida. |
+| **Banco com 12 reservas** | Acrescenta os jogadores do banco e libera o atleta ao entrar em campo. |
+| **Sete substituições** | Permite até sete trocas. |
+| **Saída de bola moderna** | Organiza o primeiro passe para trás, receptor e jogadores fora do círculo central. |
+| **Ícones da carreira** | Resolve os ícones disponíveis de competições e pré-temporada. |
+| **Aposentadoria e verba** | Remoção da aposentadoria, ajuste de idade e acréscimos de verba. |
+| **Criação de jogador** | Adapta o intervalo de nascimento para 2006–2012. |
+| **Compatibilidade de competições** | Mantém a leitura das competições usadas pelos módulos da carreira. |
 
-Os caminhos da coluna de origem começam em `ModCarrerMode/`. A pirotecnia exige também o par de recursos `.lnx/.rx3` e as configurações do seu guia. Para banco, carreira e outros módulos existentes, use os scripts próprios de seus diretórios; o build da carreira é `ModCarrerMode/source/career_native/build.cmd`.
-
-### Habilitação
-
-`ModCarrerMode/mods/enabled.txt` aceita um caminho de DLL por linha, relativo à pasta `mods`. `#` comenta uma linha. Adicione apenas módulos instalados e preserve as outras entradas do seu pacote. Exemplos:
-
-```text
-mascot_single\mascot_goal_line.dll
-kickoff_modern\kickoff_modern.dll
-multiball_visual\multiball_visual.dll
-stadium_pyrotechnics\stadium_pyrotechnics.dll
-bench_native12\bench_native12.dll
-substitution_all7_rulescan_native\substitution_all7_rulescan_native.dll
-```
-
-Use uma versão por módulo. Para desativar, comente a entrada correspondente e reinicie o FIFA. Trocar arquivos ou entradas não atualiza uma DLL já carregada na sessão aberta.
+O [catálogo das implementações](ModCarrerMode/docs/implementations.json) relaciona cada recurso com seus fontes, configuração e limitações.
 
 ## Como usar
 
-- **Mascote:** entre em partida com um clube que tenha pacote local de modelo. O mod usa o mandante; as ações são automáticas. Confira os IDs e o Lua exigido no guia.
-- **Pirotecnia:** habilite `pyrotechnics`, `entrance` e/ou `goal` em `ModCarrerMode/config/match_presentation.ini`. Não depende de teclas F7/F8.
-- **Saída de bola:** dê o primeiro passe normalmente. O módulo prepara receptor, direção e orientação durante a saída.
-- **Bolas extras:** aparecem automaticamente com a bola da partida; usam somente a bola, sem suporte adicional.
-- **Carreira:** use os cards e siga a orientação exibida para operações no save.
-- **Nascimento 2006–2012:** abra `ModCarrerMode/mods/career_birthdate_2006/dist/Fifa16BirthdateWatcher2006.exe` antes de criar o jogador.
+1. Use o FIFA 16 x64 compatível com os módulos e instale os assets locais desejados.
+2. Instale o pacote compilado com `ModCarrerMode/install-game.cmd -GameDirectory "C:\Seu FIFA 16"`.
+3. Abra o Server16 e o FIFA. No pré-jogo, use **Configurações da partida** para ligar ou desligar mascotes, pirotecnia e objetos de abertura. Os objetos de abertura começam em **Sim**.
+4. Para trocar uma DLL ou a lista de mods, feche e abra o FIFA. Reiniciar só a partida mantém a DLL antiga carregada.
 
-## Verificação
+O instalador preserva configurações e arquivos pessoais. `-ReplaceConfiguration` aplica os padrões do pacote. `-VerifyOnly` confere sem instalar.
 
-Os builds de saída e pirotecnia executam seus testes antes de gerar a DLL. Para conferir políticas do mascote e os testes compartilhados da carreira:
+Para usar os mods diretamente deste desenvolvimento com um DB/DLC externo, execute `ModCarrerMode/tools/maintenance/Connect-Development.ps1 -DatabasePackage "C:\Pasta do DB e DLC" -GameDirectory "U:\fifa 16"`. O comando conecta `ModCarrerMode/mods` ao desenvolvimento e `data/db`, `data/loc` e `dlc` ao pacote escolhido. Inclui os extras de uniformes, bandeiras, escudos e retratos, preserva as configurações existentes, os mascotes, as animações e os objetos 3D, e guarda os originais em backup. Use `-VerifyOnly` para conferir o plano. Mantenha as duas pastas de origem disponíveis; reinicie o FIFA depois de recompilar uma DLL. O instalador reconhece essas conexões e preserva o DB/DLC externo nas atualizações de mods.
 
-```powershell
-.\ModCarrerMode\source\mascot_photographer\verify.cmd
-.\ModCarrerMode\source\career_native\test.cmd
-```
+## Código e assets
 
-Consulte `ModCarrerMode/logs/` se algum módulo não aparecer. No mascote, pacote ausente/incompleto ou ausência das categorias de atores suportadas mantém a cena original. No replay, apenas o histórico registrado nesta sessão pode ser restaurado. A compensação de esqueleto foi verificada offline; a aparência final em campo depende também do modelo local e deve ser conferida no jogo.
+Os fontes ficam em `ModCarrerMode/source/<mod>/`. A pasta `ModCarrerMode/mods/` contém os arquivos usados na execução e uma DLL atual por módulo. Os objetos de abertura usam `entrance_props.dll`; a cabine usa `var_cabin.dll`. As revisões internas continuam identificadas nos logs.
 
-Para conferir o pacote baixado, execute `ModCarrerMode/tools/maintenance/Verify-Package.ps1`. A mesma verificação roda antes da instalação e interrompe a cópia quando falta alguma DLL habilitada, há revisões antigas ou mais de uma DLL por mod. Ao atualizar uma instalação antiga, o instalador arquiva suas revisões anteriores no backup externo. Pausar e voltar à partida conserva os eventos de pirotecnia consumidos: não inicia outra abertura.
+Modelos, texturas, áudio, vídeos, caches e backups locais ficam fora do pacote de código. O histórico anterior do Git pode conter recursos publicados antes dessa organização.
 
-## New Experience
+| Recurso local | Pasta na instalação do FIFA |
+|---|---|
+| Mascotes | `data/sceneassets/mascot/<ID_DO_CLUBE>/` |
+| Objetos de abertura | `data/sceneassets/entrance_props/competitions/<conjunto>/` |
+| Cabine do VAR | `data/sceneassets/var_cabin/` |
+| Ícones da carreira | `data/ui/imgAssets/careerCompetitionIcons/` |
 
-A New Experience é uma edição separada, com o card **Meu Escritório** e telas próprias de central/calendário, notícias, busca de clubes e ligas, competições, perfis, visualização 3D, ranking, operações, transferências, patrocinadores e sala de troféus. Está na [branch FIFA Friends New Experience](https://github.com/igor1043/fifa-mods/tree/fifa-friends-new-experience) e não faz parte deste pacote V12.
+Uma competição sem modelo de abertura fica sem esses objetos e a partida continua. Um mascote sem pacote válido não é exibido. A instalação do VAR exige seu modelo e textura locais. A cabine é visual, sem decisões de arbitragem. As bolas extras não têm física. Os suportes de bola encontrados no BMPES foram extraídos para estudo e ainda não fazem parte desse mod.
+
+## Fontes e conferência
+
+- [Objetos de abertura](ModCarrerMode/source/entrance_props/README.md)
+- [Cabine do VAR](ModCarrerMode/source/var_cabin/README.md)
+- [Mascotes](ModCarrerMode/source/mascot_photographer/README.md)
+- [Bolas de reposição](ModCarrerMode/source/multiball_visual/README.md)
+- [Pirotecnia](ModCarrerMode/source/flamengo_pyro/README.md)
+- [Ícones da carreira](ModCarrerMode/source/career_ui_assets/README.md)
+
+Para compilar, use MSVC x64 e execute o build do módulo. Copie a saída para a DLL correspondente em `ModCarrerMode/mods/`. `Verify-Package.ps1` confere o pacote compilado; `Test-Package.ps1` testa a instalação isolada, sem abrir FIFA nem usar saves. `Review-Code.py` confere os fontes. `Export-Code.py` cria um ZIP somente com código, configuração e documentação. Os scripts ficam em `ModCarrerMode/tools/maintenance/`.
+
+O ZIP de fontes precisa ser compilado e não é um instalador completo. O [Server16](https://github.com/igor1043/CG-File-Server-16---Python-Port/tree/fifa-friends) também precisa de suas bibliotecas nativas para gerar o executável.
+
+A **New Experience** é uma edição separada, na [outra branch](https://github.com/igor1043/fifa-mods/tree/fifa-friends-new-experience).

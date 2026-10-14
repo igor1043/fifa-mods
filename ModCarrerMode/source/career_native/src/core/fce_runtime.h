@@ -3,6 +3,7 @@
 #include "fce_model.h"
 typedef struct FceLiveSnapshot FceLiveSnapshot;
 typedef void (*FceRuntimeReadyCallback)(unsigned long generation);
+typedef void (*FceRuntimeUiTickCallback)(void);
 typedef enum FceRuntimeLogMode {
     FCE_RUNTIME_LOG_PRODUCTION = 0,
     FCE_RUNTIME_LOG_DEVELOPMENT = 1,
@@ -16,6 +17,10 @@ void fce_runtime_log_dir(const char *directory);
 int fce_runtime_log_mode(void);
 int fce_runtime_log_verbose(void);
 void fce_runtime_set_ready_callback(FceRuntimeReadyCallback callback);
+/* Runs after FCE Update/capture has returned, including unchanged data frames.
+ * The UI adapter must verify that this is its native provider's owner thread. */
+void fce_runtime_set_ui_tick_callback(FceRuntimeUiTickCallback callback);
+unsigned long fce_runtime_context_epoch(void);
 void fce_runtime_request_refresh(void);
 /* Keep sampling the live career model while a competition provider is
  * available. Repeated calls extend the window without resetting FCE's

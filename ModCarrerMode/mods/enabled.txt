@@ -12,4 +12,5 @@ kickoff_modern\kickoff_modern.dll
 multiball_visual\multiball_visual.dll
 stadium_pyrotechnics\stadium_pyrotechnics.dll
 crowd_ultra_kits\crowd_ultra_kits.dll
-skip_server_shutdown_notice\skip_server_shutdown_notice.dll
+entrance_props\entrance_props.dll
+var_cabin\var_cabin.dll

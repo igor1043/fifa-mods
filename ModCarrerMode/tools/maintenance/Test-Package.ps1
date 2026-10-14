@@ -10,6 +10,14 @@ New-Item -ItemType Directory -Path $fixture | Out-Null
 # A marker file, never executed; this is NOT a real FIFA installation.
 [IO.File]::WriteAllBytes((Join-Path $fixture 'FIFA16.exe'),[byte[]](0,0,0))
 foreach($folder in @('ModCarrerMode\runtime\operations','data\loc')) { New-Item -ItemType Directory -Force -Path (Join-Path $fixture $folder) | Out-Null }
+foreach($name in @('model_v2.rx3','textures_v2.rx3')) {
+    $local=Join-Path $fixture ('data\sceneassets\var_cabin\'+$name)
+    New-Item -ItemType Directory -Force -Path (Split-Path $local) | Out-Null
+    # The fixture never runs FIFA or loads these marker assets.
+    [IO.File]::WriteAllText($local,'preserved local VAR fixture '+$name)
+}
+# Check this isolated installation while the real game may still be open.
+function Get-Process { param([string]$Name,[string]$ErrorAction) return $null }
 $config=Join-Path $fixture 'ModCarrerMode\career_native_mode.ini'
 [IO.File]::WriteAllText($config,'[native]'+[Environment]::NewLine+'mode=trace')
 $snapshot=Join-Path $fixture 'ModCarrerMode\injury_snapshot.tsv'
@@ -21,6 +29,7 @@ $db=Join-Path $fixture 'data\loc\por_br.db'
 $hashes=@{Config=(Get-FileHash -LiteralPath $config).Hash;Snapshot=(Get-FileHash -LiteralPath $snapshot).Hash;Private=(Get-FileHash -LiteralPath $private).Hash;DB=(Get-FileHash -LiteralPath $db).Hash}
 # Simulate an upgrade from a package with inactive historical DLLs.
 $legacyFiles = @(
+    'skip_server_shutdown_notice\skip_server_shutdown_notice.dll',
     'kickoff_modern_v20\kickoff_modern_v20.dll',
     'kickoff_modern_restore_v18\kickoff_modern_restore_v18.dll',
     'multiball_visual\multiball_visual_v16.dll',
