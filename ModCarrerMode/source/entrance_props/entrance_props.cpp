@@ -65,7 +65,7 @@ static unsigned selectedCompetition=0,selectedRound=0;
 static char selectionRequest[81]={};
 static FILETIME modelWrite{},textureWrite{},metadataWrite{};
 static unsigned selectedModelBytes=0,selectedTextureBytes=0;
-static char presentationPath[MAX_PATH]={},settingsPath[MAX_PATH]={};
+static char presentationPath[MAX_PATH]={},settingsPath[MAX_PATH]={},serverContextPath[MAX_PATH]={};
 using BoundsGatherFn=void(__fastcall*)(void*,int,float*,void*,void*,const float*,const float*,unsigned char,float);
 using BoundsCullFn=void(__fastcall*)(void*,float*,int,void*);
 static BoundsGatherFn originalBoundsGather;
@@ -182,13 +182,20 @@ static void sample_selection(){
         selectionAvailable=false;selectionFixture=0;selectionRequest[0]=0;return;
     }
     unsigned competition=0,round=0;
-    if(!live_competition(competition,round)){
+    const bool live=live_competition(competition,round);
+    char name[81]={};bool friendly=false;
+    // A real competition or phase always wins, including unsupported cups.
+    // Only the Server's verified same-league friendly may use a league asset.
+    unsigned resolved=competition;
+    const bool selected=EntranceSelection::select_match(gameRoot,settingsPath,serverContextPath,competition,round,
+        (unsigned)(fixture>>32),(unsigned)fixture,resolved,friendly,name);
+    if(friendly){competition=resolved;round=0;}
+    if(!live&&!friendly){
         // A transient pointer gap cannot interrupt an already latched ceremony.
         if(selectionFixture!=fixture||!policy.armed)selectionAvailable=false;
         return;
     }
-    char name[81]={};
-    if(!EntranceSelection::select(gameRoot,settingsPath,competition,round,name)){
+    if(!selected){
         if(selectionAvailable||selectionRequest[0])event("competition_props_skipped v19 settings_id_or_package_missing");
         selectionAvailable=false;selectionFixture=fixture;selectionRequest[0]=0;return;
     }
@@ -217,7 +224,7 @@ static void sample_selection(){
     }
     selectionAvailable=available;
     if(!sameRequest||available){
-        char message[224];_snprintf_s(message,sizeof(message),_TRUNCATE,"competition_props v19 source=FSW/settings.ini competition=%u round=%u asset=%s validated=%u",competition,round,name,(unsigned)available);event(message);
+        char message[256];_snprintf_s(message,sizeof(message),_TRUNCATE,"competition_props v20 source=FSW/settings.ini mode=%s competition=%u round=%u asset=%s validated=%u",friendly?"friendly_same_league":"competition",competition,round,name,(unsigned)available);event(message);
     }
 }
 static bool read_clock(int& value);
@@ -869,7 +876,7 @@ static DWORD WINAPI worker(void*){
         if(patch_call()){
             if(preserveOuterBuilder)event("outer_var_cabin_builder_preserved owned_v16_entry_forwarded");
             if(previousStop){previousStop();event("previous_revision_retired v18 owned_v16_hooks_replaced");}
-            event("installed v19 settings_ids source=FSW/settings.ini preload_independent after_second_lineup_closed_hidden_transform yaw180 native_hook=43ac173 mascot_hook_preserved");
+            event("installed v20 settings_ids friendly_same_league_server_context source=FSW/settings.ini preload_independent after_second_lineup_closed_hidden_transform yaw180 native_hook=43ac173 mascot_hook_preserved");
             for(unsigned attempt=0;attempt<600&&!stopping;++attempt){
                 if(activate_lua_gate()){InterlockedExchange(&luaGateReady,1);event("lua_gate_ready dedicated_static_prototype_enabled");return 0;}
                 Sleep(200);
@@ -892,6 +899,7 @@ extern "C" __declspec(dllexport) BOOL WINAPI Fifa16ModStart(const char* root){
     if(!GetModuleFileNameA((HMODULE)image,gameRoot,MAX_PATH))return FALSE;
     char* slash=strrchr(gameRoot,'\\');if(!slash)return FALSE;*slash=0;
     _snprintf_s(settingsPath,MAX_PATH,_TRUNCATE,"%s\\FSW\\settings.ini",gameRoot);
+    _snprintf_s(serverContextPath,MAX_PATH,_TRUNCATE,"%s\\runtime\\entrance_props_context.ini",gameRoot);
     if(!get(image,dos)||dos.e_magic!=IMAGE_DOS_SIGNATURE||dos.e_lfanew<=0||dos.e_lfanew>4096||
        !get(image+(uintptr_t)dos.e_lfanew,nt)||nt.Signature!=IMAGE_NT_SIGNATURE||
        nt.FileHeader.TimeDateStamp!=0x577de45c||nt.FileHeader.Machine!=IMAGE_FILE_MACHINE_AMD64){event("unsupported_image");return FALSE;}

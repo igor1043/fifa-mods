@@ -12,7 +12,7 @@ Mods para melhorar a carreira e a apresentação das partidas no FIFA 16. Este p
 | **Cabine do VAR** | Cabine na beira do gramado nas Séries A e B do Brasileirão. |
 | **Mascotes** | Mascote do mandante com caminhada, apoio e comemoração. |
 | **Bolas na beira do gramado** | 13 bolas de reposição com a malha e textura da bola da partida. |
-| **Objetos de abertura por competição** | Escolhe arco e placas pelo campeonato; retira modelo e escudos juntos ao fim das escalações ou da apresentação avançada. |
+| **Objetos de abertura por competição** | Escolhe arco e placas pelo campeonato. Em amistosos, usa a liga quando os dois clubes pertencem a ela. Retira modelo e escudos juntos ao fim das escalações ou da apresentação avançada. |
 | **Escudos dinâmicos** | Aplica os escudos dos clubes de cada partida com recorte do fundo transparente. |
 | **Pirotecnia** | Fogos, fumaça e confete na abertura e nos gols do mandante, com as cores do clube. |
 | **Máquinas de fumaça** | Adiciona 20 equipamentos físicos; disparos e cores continuam sob controle da pirotecnia. |
@@ -48,7 +48,7 @@ O pacote compilado desta branch inclui os efeitos de pirotecnia e o modelo e as 
 | Recurso local | Pasta na instalação do FIFA |
 |---|---|
 | Mascotes | `data/sceneassets/mascot/<ID_DO_CLUBE>/` |
-| Objetos de abertura | `data/sceneassets/entrance_props/competitions/<conjunto>/` |
+| Objetos de abertura | `data/sceneassets/entrance_props/competitions/<ID_DA_COMPETICAO>/` |
 | Cabine do VAR — assets locais, fora do pacote | `data/sceneassets/var_cabin/` |
 | Ícones da carreira | `data/ui/imgAssets/careerCompetitionIcons/` |
 
