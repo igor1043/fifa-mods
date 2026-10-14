@@ -18,7 +18,10 @@ static BOOL normalize_output(char *buffer,size_t capacity) {
     return FALSE;
 }
 static int __cdecl ui_print(char *buffer,size_t capacity,const char *format,...) {
-    struct {char *buffer;size_t written;size_t capacity;} sink={buffer,0,buffer?capacity:0};
+    /* The native writer reads a truncation flag at +0x18 before writing.
+       Match all four fields; leaving that byte outside the sink lets stack
+       contents suppress ordinary formatting, including locale DB names. */
+    struct {char *buffer;size_t written;size_t capacity;BYTE truncated;} sink={buffer,0,buffer?capacity:0,0};
     va_list arguments;int result;
     va_start(arguments,format);result=native_print_core(ui_exe+0x3c9a720,&sink,format,arguments);va_end(arguments);
     if(buffer && result>=0) {

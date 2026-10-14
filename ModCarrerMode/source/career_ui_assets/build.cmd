@@ -12,5 +12,9 @@ powershell -NoProfile -ExecutionPolicy Bypass -File "%~dp0Prepare-TestFixture.ps
 if errorlevel 1 exit /b 1
 build\test_ui_assets.exe "%~dp0build\fixture"
 if errorlevel 1 exit /b 1
+cl /nologo /std:c11 /W4 /WX /O2 /MT test_keeper_pitch_sheet.c /Fobuild\test_keeper_pitch_sheet.obj /Febuild\test_keeper_pitch_sheet.exe
+if errorlevel 1 exit /b 1
+build\test_keeper_pitch_sheet.exe
+if errorlevel 1 exit /b 1
 popd
 endlocal

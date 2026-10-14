@@ -4,6 +4,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <math.h>
+#include <float.h>
 #include "crowd_runtime.h"
 #include "../../platform/mod_paths.h"
 #include "../retirement/retirement_engine.h"
@@ -115,6 +117,22 @@ static int crowd_config_int_from_section(const char *section,
 static int crowd_config_int(const char *key, int fallback)
 {
     return crowd_config_int_from_section("crowd", key, fallback);
+}
+
+float crowd_runtime_international_bonus(void)
+{
+    char path[MAX_PATH], value[64], *end;
+    double bonus;
+    if (!g_log_dir[0])
+        return 0.06f;
+    career_path_read(path, sizeof(path), g_log_dir, "config", "crowd.ini");
+    GetPrivateProfileStringA("crowd_weights", "international_competition_bonus",
+        "0.06", value, (DWORD)sizeof(value), path);
+    bonus = strtod(value, &end);
+    while (*end == ' ' || *end == '\t') ++end;
+    if (end == value || *end || !_finite(bonus) || bonus < 0.0 || bonus > 0.20)
+        return 0.06f;
+    return (float)bonus;
 }
 
 static void crowd_dynamic_limits(int *minimum, int *maximum)
@@ -767,7 +785,7 @@ static void log_decision(const CrowdDecision *decision)
             "form=%.3f reputation=%.3f league=%.3f rivalry=%.3f "
             "position=%.3f progress=%.3f danger=%.3f "
             "last_result=%d last_margin=%d streak=%d streak_sign=%d gap_safety=%d "
-            "momentum=%.3f escape=%.3f importance=%.3f phase=%.3f factor=%.3f "
+            "momentum=%.3f escape=%.3f importance=%.3f phase=%.3f international_bonus=%.3f factor=%.3f "
             "next_opponent=%d home=%d date=%d round=%d\\n",
             decision->enabled, decision->club_id, decision->competition_id,
             decision->rank, decision->team_count, decision->played,
@@ -778,7 +796,7 @@ static void log_decision(const CrowdDecision *decision)
             decision->streak_sign, decision->points_gap_to_safety,
             decision->momentum, decision->escape_opportunity,
             decision->importance, decision->phase,
-            decision->factor, decision->next_opponent, decision->next_is_home,
+            decision->international_bonus, decision->factor, decision->next_opponent, decision->next_is_home,
             decision->next_date, decision->next_round);
     } else {
         fputs("decision enabled=0 reason=context_reset\\n", log);

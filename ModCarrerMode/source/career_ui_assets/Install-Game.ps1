@@ -7,10 +7,13 @@ foreach($taskProcess in @(Get-Process FIFA16 -ErrorAction SilentlyContinue)){
 }
 $taskBuilt=Join-Path $PSScriptRoot 'build\career_ui_assets.dll'
 $taskTests=Join-Path $PSScriptRoot 'build\test_ui_assets.exe'
+$taskKeeperTests=Join-Path $PSScriptRoot 'build\test_keeper_pitch_sheet.exe'
 $taskFixture=Join-Path $PSScriptRoot 'build\fixture'
-if(-not (Test-Path -LiteralPath $taskBuilt) -or -not (Test-Path -LiteralPath $taskTests)){throw 'Execute build.cmd primeiro.'}
+if(-not (Test-Path -LiteralPath $taskBuilt) -or -not (Test-Path -LiteralPath $taskTests) -or -not (Test-Path -LiteralPath $taskKeeperTests)){throw 'Execute build.cmd primeiro.'}
 & $taskTests $taskFixture
 if($LASTEXITCODE -ne 0){throw 'Os testes do carregador falharam.'}
+& $taskKeeperTests
+if($LASTEXITCODE -ne 0){throw 'Os testes do uniforme de goleiro no campinho falharam.'}
 $taskIcons=Join-Path $taskGame 'data\ui\imgAssets\careerCompetitionIcons'
 # Images and index.tsv belong to the game, independently of the source package.
 $taskLocalFiles=@()

@@ -3,8 +3,10 @@
 #include "path_hooks.inc"
 #define CHECK(x) do {if(!(x)){printf("FAIL %d %s\n",__LINE__,#x);return 1;}} while(0)
 static int __cdecl test_print_core(void *writer,void *object,const char *format,va_list arguments) {
-    struct {char *buffer;size_t written;size_t capacity;} *sink=object;
-    (void)writer;return vsnprintf(sink->buffer,sink->capacity,format,arguments);
+    struct {char *buffer;size_t written;size_t capacity;BYTE truncated;} *sink=object;
+    (void)writer;
+    if(sink->truncated)return -1;
+    return vsnprintf(sink->buffer,sink->capacity,format,arguments);
 }
 static void __cdecl test_string_core(void *object,const char *format,va_list arguments) {
     char **parts=object;size_t capacity=(size_t)(parts[2]-parts[0]);
@@ -43,6 +45,9 @@ int main(int argc,char **argv) {
     CHECK(!resolve_image_path("imgAssets/league/light/l1693.dds",resolved,sizeof(resolved)));
     CHECK(!resolve_image_path("ui/imgAssets/kits/j30_110636_0.dds",resolved,sizeof(resolved)));
     native_print_core=test_print_core;native_string_core=test_string_core;
+    /* Locale formatting uses this same game function before any artwork. */
+    CHECK(ui_print(name,sizeof(name),"%s_%s","por","br")==6 && !strcmp(name,"por_br"));
+    CHECK(ui_print(name,sizeof(name),"data/loc/%s.db","por_br")==18 && !strcmp(name,"data/loc/por_br.db"));
     CHECK(ui_print(name,sizeof(name),"kit %d %s",30,"preserved")==16 && !strcmp(name,"kit 30 preserved"));
     CHECK(ui_print(name,sizeof(name),"artAssets/cmCalendarCompetitions/cmcomp_%d.swf",1693)==(int)strlen(expected) && !strcmp(name,expected));
     CHECK(ui_print(name,4,"%s","abcdef")==6 && !strcmp(name,"abc"));

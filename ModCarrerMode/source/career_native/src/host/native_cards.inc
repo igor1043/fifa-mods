@@ -1615,6 +1615,8 @@ static void native_log_transfer_card_context(void *provider)
     fclose(log);
 }
 
+#include "../features/crowd/international_competition.h"
+
 typedef struct NativeCrowdMetric {
     int team;
     int played;
@@ -1660,6 +1662,7 @@ static void native_update_crowd(const FceModel *model,int competition,int club) 
     NativeCrowdMetric metrics[64];
     const FceFixture *recent[5]={0};
     const FceFixture *next=NULL;
+    const FceFixture *actual_next;
     int root,count=0,my_index=-1,rank=1,team_count,expected_matches;
     int current_points=0,recent_points=0;
     int i,k,recent_count=0;
@@ -1858,6 +1861,11 @@ static void native_update_crowd(const FceModel *model,int competition,int club) 
         0.08f*native_crowd_clamp(rivalry)+
         0.10f*native_crowd_clamp(reputation)*escape_opportunity-
         0.12f*(1.0f-native_crowd_clamp(reputation))*danger*season_progress;
+    actual_next=crowd_next_actual_fixture(model,club);
+    if(crowd_fixture_is_international(model,actual_next)) {
+        decision.international_bonus=crowd_runtime_international_bonus();
+        factor+=decision.international_bonus;
+    }
     decision.enabled=1;
     decision.club_id=club;
     decision.competition_id=competition;

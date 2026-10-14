@@ -45,3 +45,49 @@ and their availability index. Without local icons the module keeps the original 
 
 The runtime log `ModCarrerMode/logs/career_ui_assets.log` records `CATALOG`, `READY` and `RESOLVE`.
 Actual calendar rendering must also be checked in the game; unit tests do not verify its display.
+
+## Career Starting XI goalkeeper (14 October 2026)
+
+StartingXIDP reads one SHARED team-kit selector at team-sheet offset `+8`.
+The goalkeeper interprets `-1` as unsigned team `262143`; the outfield branch
+already treats negative selectors as automatic team selection. The initial
+repair incorrectly wrote `(TeamID << 14) | 2` into that shared field, making
+all eleven players request the keeper kit. This regression was reported in-game.
+
+The final repair normalizes only `UINT32_MAX` to ZERO in a local `0x2DC`-byte
+sheet copy. Zero restores the native role-specific behavior: the keeper uses
+kit type 2 and the ten outfield players use type 0 for the sheet's own TeamID.
+It never writes the positive keeper key to the shared selector. Saved sheets,
+valid existing overrides and all other fields remain unchanged.
+
+`keeper_pitch_hook.inc` wraps only the StartingXIDP serializer call at native
+RVA `40B59F2`, on x64 timestamp `577DE45C`, with exact live signatures checked
+before installing. No DDS, APT or BIG replacement is needed.
+
+`test_keeper_pitch_sheet.c` now executes the actual native x64 keeper and
+outfield instruction sequences from `keeper_native_branches.h`. It reproduces
+both the original invalid-team failure and the all-keepers regression, then
+verifies all eleven rows for seven clubs with sentinel and automatic selectors.
+The ten outfield results must match their original native results exactly.
+The same tests compare all eleven outputs with the signed fallback branches
+read directly from the user-opened mod backup (PID 38504).
+The original source, valid keys, invalid teams and unrelated bytes are checked.
+`build.cmd` runs these tests and the existing UI asset resolver tests.
+
+The user-provided original and mod backups have matching executable hashes.
+The current Starting XI bytecode matches both; pitch/player resources and
+Flamengo's team/kit records match the mod backup, including keeper teamkitid
+1692. The issue is the shared selector's runtime interpretation. The live backup
+uses a signed <=0 fallback; the current expanded-ID path checks only zero.
+Normalizing the sentinel restores the reference behavior for both roles.
+
+The production module is `ModCarrerMode/mods/career_ui_assets/career_ui_assets.dll`.
+Installation preserves the DLL's existing public exports and the calendar
+resolver. A restart loads the corrected module; a process with restricted RAM
+access cannot be updated live from this session. On 14 October 2026, the user
+confirmed the final correction in-game. Earlier APT and native experiments are archived
+in the study directory and are not included in the production build.
+
+The international crowd change remains separate: a six-point bonus for type-1
+confederations and the type-0 FIFA world node, preserving the 90-percent cap
+and manual overrides. Domestic and preseason country nodes receive no bonus.

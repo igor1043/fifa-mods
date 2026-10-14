@@ -65,16 +65,24 @@ __declspec(dllexport) int WINAPI Fifa16UiAssetsResolvePreseason(int root,const v
 #include "compat_aliases.inc"
 #ifndef UI_ASSETS_TEST
 #include "path_hooks.inc"
+#include "keeper_pitch_hook.inc"
 #endif
 static DWORD WINAPI worker(void *unused) {
     unsigned attempt;(void)unused;prepare_aliases(game_dir);build_catalog();
-    if(!calendar_count){log_line("EMPTY careerCompetitionIcons; hooks not installed",3,0);return 0;}
+    if(!calendar_count)log_line("EMPTY careerCompetitionIcons; keeper repair remains enabled",4,0);
 #ifndef UI_ASSETS_TEST
-    for(attempt=0;attempt<900;attempt++) {
-        if(expanded_layout_ready() && install_path_hooks()){log_line("READY dedicated-calendar DDS resolver version",3,0);return 0;}
-        Sleep(100);
+    {
+        BOOL calendar_ready=calendar_count==0,keeper_ready=FALSE;
+        for(attempt=0;attempt<900;attempt++) {
+            if(expanded_layout_ready()) {
+                if(!keeper_ready)keeper_ready=install_keeper_pitch_hook();
+                if(!calendar_ready)calendar_ready=install_path_hooks();
+                if(keeper_ready && calendar_ready){log_line("READY calendar resolver and career keeper repair",4,0);return 0;}
+            }
+            Sleep(100);
+        }
+        log_line("UNSUPPORTED or busy calendar/keeper hooks",calendar_ready,keeper_ready);
     }
-    log_line("UNSUPPORTED or busy UI formatters; hooks not installed",3,0);
 #else
     (void)attempt;
 #endif

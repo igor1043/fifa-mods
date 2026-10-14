@@ -32,6 +32,7 @@ typedef struct CrowdDecision
     float escape_opportunity;
     float importance;
     float phase;
+    float international_bonus;
     float factor;
 } CrowdDecision;
 
@@ -42,6 +43,7 @@ float crowd_runtime_team_reputation(int team_id);
 int crowd_runtime_team_reputation_available(int team_id);
 float crowd_runtime_league_reputation(int team_id);
 float crowd_runtime_rivalry(int team_id, int opponent_id);
+float crowd_runtime_international_bonus(void);
 int crowd_runtime_attendance_percent(void);
 
 #endif
