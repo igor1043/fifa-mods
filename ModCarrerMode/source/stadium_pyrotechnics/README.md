@@ -14,7 +14,7 @@ O módulo `stadium_pyrotechnics.dll` oferece pirotecnia para qualquer time. Na a
 - Prévia de estádio, seleção de uniformes e outros menus não acionam abertura. Reiniciar Partida rearma abertura e detector de gols.
 - Pausa e replay preservam as instâncias e partículas do show em andamento. O tempo nesse menu não consome a duração restante; retornar continua o mesmo show, sem disparar outro gol.
 - O recurso de partículas é pré-carregado na prévia da partida, sem criar ou disparar emissores. O Server16 acompanha a preparação e a confirmação nativa da cena em segundo plano; os avisos de carregamento da apresentação estão ocultos.
-- A pausa interrompe a emissão em curso e preserva o evento consumido e o placar. Voltar à partida, abrir seleção de lados/detalhes ou reconstruir tabelas Lua não rearma a fumaça. Abertura e gols do mandante são os únicos disparos automáticos.
+- A pausa preserva o evento consumido e o placar. Voltar à partida, abrir seleção de lados/detalhes ou reconstruir tabelas Lua não rearma a fumaça. Abertura e gols do mandante são os únicos disparos automáticos.
 - Sem comandos F7/F8: os gatilhos são automáticos.
 
 ## Compilação
@@ -27,7 +27,15 @@ Na raiz do repositório:
 
 O script executa sete testes antes de compilar `stadium_pyrotechnics.cpp`, com MSVC C++17 x64 e `/W4 /WX`. Saída: `ModCarrerMode/source/stadium_pyrotechnics/build/stadium_pyrotechnics.dll`.
 
-`prepare.py` prepara os recursos atuais de `assets/` para o build, preservando o código do runtime. Os estudos e revisões anteriores ficam separados do módulo atual.
+`python ModCarrerMode/source/stadium_pyrotechnics/prepare.py` copia os recursos atuais de `assets/` para o build e usa a paleta publicada em `team_palettes.h`. Funciona sem uma instalação local do FIFA e preserva o código do runtime.
+
+Para regenerar as cores a partir de outro banco, informe a instalação explicitamente:
+
+```powershell
+python ModCarrerMode/source/stadium_pyrotechnics/prepare.py --game-dir 'C:\Games\FIFA 16'
+```
+
+O exportador `export_palettes.py` e seu leitor `fifa_db.py` estão incluídos nos fontes e usam somente a biblioteca padrão do Python. Leem `data/db/fifa_ng_db.db` e seu arquivo de metadados, sem modificá-los. A regeneração atualiza o cabeçalho e grava um diagnóstico local em `build/team_palettes.json`; recompile a DLL para aplicar uma nova paleta. Os estudos e revisões anteriores ficam separados do módulo atual.
 
 `python ModCarrerMode/source/stadium_pyrotechnics/test_assets.py` verifica os 11 grupos, o reinício por trigger externo e as referências entre partículas.
 
