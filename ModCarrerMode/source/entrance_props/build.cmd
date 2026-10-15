@@ -18,6 +18,10 @@ build\test_crest.exe
 if errorlevel 1 exit /b 1
 cl /nologo /std:c++17 /EHsc /W4 /WX /O2 /MT competition_catalog_test.cpp /Fobuild\ /Febuild\competition_catalog_test.exe /link /NOLOGO
 if errorlevel 1 exit /b 1
+cl /nologo /std:c++17 /EHsc /W4 /WX /O2 /MT test_resource_recovery.cpp /Fobuild\ /Febuild\test_resource_recovery.exe /link /NOLOGO
+if errorlevel 1 exit /b 1
+build\test_resource_recovery.exe
+if not "%errorlevel%"=="0" exit /b 1
 cl /nologo /std:c++17 /EHsc /W4 /WX /O2 /MT /LD entrance_props.cpp /Fobuild\ /Febuild\entrance_props.dll /link /NOLOGO
 if errorlevel 1 exit /b 1
 popd

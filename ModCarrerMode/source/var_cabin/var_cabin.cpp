@@ -7,6 +7,7 @@
 #include <math.h>
 #include "../common/scene_lua.h"
 #include "../common/scene_resource_cycle.h"
+#include "../common/scene_startup.h"
 using BuildFn=void(__fastcall*)(void*);
 static uintptr_t image;
 static BuildFn nextBuild;
@@ -14,6 +15,7 @@ static LONG started,stopping,busy,luaReady;
 static char logPath[MAX_PATH],iniPath[MAX_PATH],luaPath[MAX_PATH];
 static bool enabled=true,fault=false,placed=false,requireEntrance=false;
 static SceneLuaLifecycle luaLifecycle;
+static SceneStartupProbe startupRecovery;
 static uint64_t nextCreate=0;
 static LONG sceneContentions;
 static SceneResourceCycle modelCycle,shadowCycle;
@@ -178,6 +180,12 @@ static void __fastcall buildHook(void* self){
     Vector saved{},temporary{};size_t n=0,normalBytes=0;unsigned mask=0;bool swapped=false,maskSaved=false;float submitted=-3000;
     const uintptr_t list=(uintptr_t)self+0x30*(3+0x2f),maskAt=(uintptr_t)self+0x4f604;
     __try{
+        const bool reinforce=startupRecovery.poll(image,GetTickCount64())&&enabled&&!stopping;
+        if(startupRecovery.take_timeout())event("startup_reinforcement timeout pending_native_resources_or_binding");
+        if(reinforce){
+            luaLifecycle.nextCheck=luaLifecycle.nextAttempt=0;nextCreate=0;
+            char message[96];_snprintf_s(message,sizeof(message),_TRUNCATE,"startup_reinforcement attempt=%u window_ms=6000",startupRecovery.recovery.attempts);event(message);
+        }
         config();refreshLua();
         uintptr_t p=0,s=0,b=0;
         bool hasPrototype=luaReady&&ownPrototype(self,p,s,b);
@@ -206,6 +214,17 @@ static void __fastcall buildHook(void* self){
                         if(length>0)console(update,(size_t)length);
                     }
                 }
+                if(reinforce){
+                    // The prototype and private record have been validated for
+                    // this scene. Repeat only our callback/load and placement.
+                    modelCycle=shadowCycle=SceneResourceCycle{};fault=placed=false;
+                    scene_startup_rebind(record,1);nextCompetition=0;
+                    unsigned rna=0;char update[96];
+                    if(get(s+0x4c,rna)&&rna<176){
+                        const int length=_snprintf_s(update,sizeof(update),_TRUNCATE,"SleUpdate(%u)",rna);
+                        if(length>0)console(update,(size_t)length);
+                    }
+                }
                 refreshCompetition(s);
                 const bool a=ready(p,modelCycle,"model_texture_requested");const bool c=ready(b,shadowCycle,"shadow_dependency_requested");
                 if(a&&c&&get(maskAt,mask)){
@@ -222,6 +241,7 @@ static void __fastcall buildHook(void* self){
             memcpy(record,scratch+normalBytes,0x50);position(submitted);memcpy((void*)list,&saved,sizeof(saved));
             uint16_t binding=0xffff;memcpy(&binding,record+0x40,2);
             if(binding!=0xffff&&!placed){event("cabin_placed native_binding_assigned resources_ready");placed=true;}
+            if(startupRecovery.confirm(binding!=0xffff))event("startup_reinforcement confirmed native_binding_and_position");
             const uint64_t now=GetTickCount64();if(now>=nextDiagnostic){nextDiagnostic=now+5000;char msg[240];_snprintf_s(msg,sizeof(msg),_TRUNCATE,"position_cm=%g,%g,%g yaw=%g binding=%u normal_platforms=%zu enabled=%u competition_id=%d competition_allowed=%u",xCm,submitted,zCm,yaw,binding,n,(unsigned)enabled,competitionId,(unsigned)competitionAllowed(competitionId));event(msg);}
         }
         if(maskSaved)*(unsigned*)maskAt=mask;
@@ -279,6 +299,7 @@ static DWORD WINAPI worker(void*){
         const int64_t rel=(int64_t)(uintptr_t)relay-(int64_t)(image+0x43ac178);if(rel<INT32_MIN||rel>INT32_MAX){VirtualFree(relay,0,MEM_RELEASE);return 0;}
         appliedCall[0]=0xe8;const int32_t d=(int32_t)rel;memcpy(appliedCall+1,&d,4);
         if(!patch()){VirtualFree(relay,0,MEM_RELEASE);Sleep(200);continue;}
+        event("startup_reinforcement enabled window_ms=6000 max_attempts=3 first_checkpoint_ms=500");
         event("installed var_cabin v4 scene_thread_lua verified_readiness retry_context competition_filter=7,83");return 0;
     }event("signature_conflict_or_timeout");return 0;
 }

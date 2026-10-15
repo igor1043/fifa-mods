@@ -1,5 +1,21 @@
 Rotina de carregamento da cena, revisão de 14/10/2026
 
+Reforço inicial de 15/10/2026: `scene_startup.h` reconhece a apresentação do
+estádio pelo estado nativo, relógio em zero e página da partida. Os quatro
+módulos fazem uma passagem extra após 500 ms e, somente enquanto pendentes,
+até duas novas passagens, separadas por 1 e 2 segundos. A janela termina em
+6 segundos ou quando sai da abertura. Pausa e replay não iniciam nem rearmam
+o reforço; as regras de visibilidade e de competição continuam valendo.
+
+As passagens revalidam Lua/protótipos atuais e repetem a preparação dos recursos
+e vínculos privados antes de reaplicar as posições. Não escrevem em ponteiros
+da cena anterior nem criam atores duplicados. A confirmação exige recursos e
+vínculo nativo; no mascote, também posição junto ao fundo do campo. Isso não
+substitui uma conferência visual da malha no FIFA. Os logs incluem
+`startup_reinforcement enabled`, `attempt`, `confirmed` e `timeout`.
+`test_scene_startup.cpp` cobre janela, carregamento pendente, sucesso, reinício,
+pausa, replay, gameplay, amostragem nativa e preservação de atores comuns.
+
 Entradas v21 e VAR v4 ativam o Lua no callback nativo da cena. Os workers
 instalam os hooks; não executam os scripts de apresentação. O canhão v3
 compartilha a mesma verificação de contexto e prontidão.

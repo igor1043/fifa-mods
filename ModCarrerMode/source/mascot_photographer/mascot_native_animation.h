@@ -319,7 +319,7 @@ static void mascot_animate_instance(const MascotFrameContext& frame)
         float pose[31][16],position[3];int kind=0,clip=-1;bool clamped=false;
         const bool recorded=mascotReplayHistory.sample(replayClock.time,position,pose,kind,clip,clamped);
         if(recorded) {
-            memcpy((void*)(records+selected*0x50+0x20),position,sizeof(position));
+            mascot_store_position((unsigned char*)(records+selected*0x50),position);
             const float neutral=0;
             memcpy((void*)(records+selected*0x50+0x1c),&neutral,sizeof(neutral));
             memcpy((void*)(records+selected*0x50+0x2c),&neutral,sizeof(neutral));

@@ -1,4 +1,5 @@
 #pragma once
+#include "mascot_record_position.h"
 #include <limits.h>
 #include "mascot_locomotion_math.h"
 
@@ -235,9 +236,11 @@ static void mascot_walk_restore_live(uintptr_t renderer,uintptr_t records,size_t
     if(renderer==mascotAnimatedRenderer && records==mascotAnimatedRecords &&
        mascotAnimationBound && mascotAnimatedIndex<count &&
        get(records+mascotAnimatedIndex*0x50+0x40,binding) && binding==mascotPrivateSlot) {
-        memcpy((void*)(records+mascotAnimatedIndex*0x50+0x20),originalPosition,sizeof(originalPosition));
+        mascot_restore_positions((unsigned char*)(records+mascotAnimatedIndex*0x50),originalPosition,originalPreviousPosition);
+        mascot_restore_position_mode((unsigned char*)(records+mascotAnimatedIndex*0x50),originalPlacementMode);
         memcpy((void*)(records+mascotAnimatedIndex*0x50+0x2c),&originalYaw,sizeof(originalYaw));
         memcpy((void*)(records+mascotAnimatedIndex*0x50+0x1c),&originalYaw,sizeof(originalYaw));
+        memcpy((void*)(records+mascotAnimatedIndex*0x50+0x3c),&originalPreviousYaw,sizeof(originalPreviousYaw));
     }
     s.ready=false;s.walking=false;s.hasPose=false;
 }
@@ -315,11 +318,12 @@ static void mascot_walk_update(const MascotFrameContext& frame,LONG mode,uint64_
     s.position[0]=targetPosition[0];s.position[1]=originalPosition[1];
     if(frame.records&&frame.selected<frame.count) {
         const uintptr_t rec=frame.records+frame.selected*0x50;
-        memcpy((void*)(rec+0x20),s.position,sizeof(s.position));
+        mascot_store_position((unsigned char*)rec,s.position);
         // Heading is already applied to the private palette. Keep both native
         // record angles neutral to avoid a second actor rotation.
         const float paletteHeading=0;
         memcpy((void*)(rec+0x1c),&paletteHeading,sizeof(paletteHeading));
         memcpy((void*)(rec+0x2c),&paletteHeading,sizeof(paletteHeading));
+        memcpy((void*)(rec+0x3c),&paletteHeading,sizeof(paletteHeading));
     }
 }

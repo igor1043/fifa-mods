@@ -16,6 +16,8 @@ static LONG mascotPlacementSession=1;
 static unsigned int mascotPlacementGeneration=1;
 static wchar_t gameDirectory[MAX_PATH];
 static float targetPosition[3]={5850,0,3150},originalPosition[3]{},originalYaw=0;
+static float originalPreviousPosition[3]{},originalPreviousYaw=0;
+static unsigned char originalPlacementMode=0;
 static float mascotBindPose[31][16];
 static uintptr_t mascotAnimatedRenderer,mascotAnimatedRecords;
 static size_t mascotAnimatedIndex;

@@ -10,6 +10,7 @@
 #include "loading_policy.h"
 #include "../common/scene_lua.h"
 #include "../common/scene_resource_cycle.h"
+#include "../common/scene_startup.h"
 using BuildFn=void(__fastcall*)(void*);
 static uintptr_t image;
 static BuildFn nextBuild;
@@ -24,6 +25,7 @@ static PyroMatchSession matchSession;
 static uint64_t nextConfig=0,nextDiagnostic=0;
 static uint64_t nextScene=0,nextCreate=0;
 static SceneLuaLifecycle luaLifecycle;
+static SceneStartupProbe startupRecovery;
 static LONG sceneContentions;
 static char presentationPath[MAX_PATH],pyroPath[MAX_PATH];
 alignas(16) static unsigned char scratch[(128+machineCount)*0x50],records[machineCount][0x50];
@@ -163,6 +165,12 @@ static void __fastcall buildHook(void* self){
     Vector saved{},temporary{};size_t n=0,normalBytes=0;unsigned mask=0;bool swapped=false,maskSaved=false;float submitted=-3000;
     const uintptr_t list=(uintptr_t)self+0x30*(16+0x2f),maskAt=(uintptr_t)self+0x4f604;
     __try{
+        const bool reinforce=startupRecovery.poll(image,GetTickCount64())&&enabled&&!stopping;
+        if(startupRecovery.take_timeout())event("startup_reinforcement timeout pending_native_resources_or_bindings");
+        if(reinforce){
+            luaLifecycle.nextCheck=luaLifecycle.nextAttempt=0;nextCreate=0;
+            char message[96];_snprintf_s(message,sizeof(message),_TRUNCATE,"startup_reinforcement attempt=%u window_ms=6000",startupRecovery.recovery.attempts);event(message);
+        }
         config();scene();refreshLua();
         uintptr_t p=0,s=0,b=0;
         bool hasPrototype=luaReady&&ownPrototype(self,p,s,b);
@@ -194,6 +202,15 @@ static void __fastcall buildHook(void* self){
                     }
                 }
 
+                if(reinforce){
+                    modelCycle=shadowCycle=SceneResourceCycle{};fault=placed=false;
+                    scene_startup_rebind(&records[0][0],machineCount);
+                    unsigned rna=0;char update[96];
+                    if(get(s+0x4c,rna)&&rna<176){
+                        const int length=_snprintf_s(update,sizeof(update),_TRUNCATE,"SleUpdate(%u)",rna);
+                        if(length>0)console(update,(size_t)length);
+                    }
+                }
                 const bool a=ready(p,modelCycle,"model_texture_requested");const bool c=ready(b,shadowCycle,"shadow_dependency_requested");
                 if((!a||!c)&&GetTickCount64()>=nextDiagnostic){
                     nextDiagnostic=GetTickCount64()+5000;char message[160];
@@ -222,6 +239,7 @@ static void __fastcall buildHook(void* self){
             }
             memcpy((void*)list,&saved,sizeof(saved));
             if(bound&&!placed){event("machines_placed count=20 native_bindings_assigned resources_ready");placed=true;}
+            if(startupRecovery.confirm(bound))event("startup_reinforcement confirmed native_bindings_and_positions count=20");
             const uint64_t now=GetTickCount64();if(now>=nextDiagnostic){
                 nextDiagnostic=now+5000;char msg[160];
                 _snprintf_s(msg,sizeof(msg),_TRUNCATE,"machines=20 height_cm=%g originals=%zu visible=%u bound=%u",submitted,n,(unsigned)(submitted>-1000),(unsigned)bound);event(msg);
@@ -290,6 +308,7 @@ static DWORD WINAPI worker(void*){
         const int64_t rel=(int64_t)(uintptr_t)relay-(int64_t)(image+0x43ac178);if(rel<INT32_MIN||rel>INT32_MAX){VirtualFree(relay,0,MEM_RELEASE);return 0;}
         appliedCall[0]=0xe8;const int32_t d=(int32_t)rel;memcpy(appliedCall+1,&d,4);
         if(!patch()){VirtualFree(relay,0,MEM_RELEASE);Sleep(200);continue;}
+        event("startup_reinforcement enabled window_ms=6000 max_attempts=3 first_checkpoint_ms=500");
         event("installed smoke_machine v3 verified_lua_context static_rx3 machines=20 native_builder_chain dedicated_type16 appearance1");
         // Lua availability is retried on the scene thread, including future VMs.
         return 0;

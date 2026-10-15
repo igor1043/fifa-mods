@@ -12,6 +12,8 @@
 #include "entrance_bounds.h"
 #include "entrance_selection.h"
 #include "../common/scene_lua.h"
+#include "../common/scene_startup.h"
+#include "../common/scene_resource_cycle.h"
 
 // The native SLE builder is called after mascot selection. Its temporary
 // placement vector has private storage; the engine-owned vector is restored
@@ -19,8 +21,15 @@
 using BuildFn=void(__fastcall*)(void*);
 static uintptr_t image;
 static BuildFn originalBuild;
+using MascotBeforeBuild=uintptr_t(WINAPI*)(void*);
+using MascotAfterBuild=void(WINAPI*)(void*,uintptr_t);
+static MascotBeforeBuild mascotBeforeBuild=nullptr;
+static MascotAfterBuild mascotAfterBuild=nullptr;
+static uint64_t nextMascotBridgeProbe=0;
 static LONG started,stopping,busy,luaGateReady;
 static SceneLuaLifecycle luaLifecycle;
+static SceneStartupProbe startupRecovery;
+static SceneResourceCycle modelCycle,shadowCycle;
 static LONG sceneContentions;
 static void refresh_lua_gate();
 static char logPath[MAX_PATH],configPath[MAX_PATH];
@@ -513,15 +522,33 @@ static bool fixture_atlas(){
 }
 static bool ready_prototype(uintptr_t prototype,bool& requested,bool& logged,bool shadow){
     using Ready=unsigned char(__fastcall*)(void*);
-    if(resourceFault)return false;
     __try{
+    const bool initialized=((Ready)(image+0x43b4500))((void*)prototype)!=0;
+    const bool loaded=((Ready)(image+0x43b4520))((void*)prototype)!=0;
+    auto& cycle=shadow?shadowCycle:modelCycle;
+    cycle.requested=cycle.requested||requested||(!shadow&&retireBeforeReload);
+    const bool unloadedRetirement=!shadow&&retireBeforeReload&&!initialized;
+    if(cycle.refresh(initialized,loaded)||unloadedRetirement){
+        cycle=SceneResourceCycle{};requested=logged=false;resourceFault=false;
+        if(!shadow){
+            // The old model no longer exists. Waiting to draw it below the
+            // pitch would block the new fixture forever, even after retries.
+            retireBeforeReload=false;resourceFixture=atlasFixture=0;placedLogged=false;
+            scene_startup_rebind(extra,1);
+        }
+        event(shadow?"native_shadow_resource_cycle_reset reloading_same_actor":
+                     "native_static_resource_cycle_reset old_actor_unloaded retirement_released");
+    }
+    if(resourceFault)return false;
     if(!shadow&&(!selectionAvailable||retireBeforeReload)){
         // Retire the already retained actor without requesting any missing asset.
-        return requested&&((Ready)(image+0x43b43e0))((void*)prototype)!=0&&((Ready)(image+0x43b4520))((void*)prototype)!=0;
+        // A startup retry may clear 'requested'; native readiness still proves
+        // that an initialized old actor can receive its hidden transform.
+        return (requested||retireBeforeReload)&&initialized&&
+            ((Ready)(image+0x43b43e0))((void*)prototype)!=0&&loaded;
     }
     if(!shadow&&validFixture&&!fixture_atlas())return false;
     if(!requested){
-        const bool initialized=((Ready)(image+0x43b4500))((void*)prototype)!=0;
         if(!initialized){
             const int parameters[5]={-1,-1,-1,0,-1};
             ((void(__fastcall*)(void*,const int*))(image+0x43b4640))((void*)prototype,parameters);
@@ -534,7 +561,7 @@ static bool ready_prototype(uintptr_t prototype,bool& requested,bool& logged,boo
             ((void(__fastcall*)(void*,int))load)((void*)prototype,1);
         }
         if(!shadow&&validFixture)resourceFixture=fixture^selectedAsset.stamp;
-        requested=true;event(shadow?"native_shadow_dependency_requested v18":"native_static_resource_requested v18");
+        requested=cycle.requested=true;event(shadow?"native_shadow_dependency_requested v18":"native_static_resource_requested v18");
     }
     if(!shadow&&validFixture&&resourceFixture!=(fixture^selectedAsset.stamp)){
         // The prototype can survive a fixture change with identical appearance
@@ -552,10 +579,20 @@ static bool ready_prototype(uintptr_t prototype,bool& requested,bool& logged,boo
         ((void(__fastcall*)(void*))(image+0x43b47c0))((void*)prototype);
         event("native_loaded_notification all_five_lods_ready");
     }
-    const bool ready=allLodsReady&&((Ready)(image+0x43b4520))((void*)prototype)!=0;
+    const bool nowInitialized=((Ready)(image+0x43b4500))((void*)prototype)!=0;
+    const bool ready=nowInitialized&&allLodsReady&&((Ready)(image+0x43b4520))((void*)prototype)!=0;
+    cycle.complete(nowInitialized,ready);
     if(ready&&!logged){event(shadow?"native_shadow_dependency_ready v18":"native_static_resource_ready v18");logged=true;}
     return ready;
     }__except(EXCEPTION_EXECUTE_HANDLER){resourceFault=true;event("native_static_resource_fault v18 actor_disabled_for_scene");return false;}
+}
+static void refresh_mascot_bridge(){
+    if(mascotBeforeBuild||GetTickCount64()<nextMascotBridgeProbe)return;
+    nextMascotBridgeProbe=GetTickCount64()+1000;
+    HMODULE module=GetModuleHandleW(L"mascot_goal_line.dll");if(!module)return;
+    auto before=(MascotBeforeBuild)GetProcAddress(module,"Fifa16MascotBeforeNativeBuild");
+    auto after=(MascotAfterBuild)GetProcAddress(module,"Fifa16MascotAfterNativeBuild");
+    if(before&&after){mascotBeforeBuild=before;mascotAfterBuild=after;event("mascot_native_build_bridge ready version=1");}
 }
 static void __fastcall build_hook(void* self){
     if(InterlockedCompareExchange(&busy,1,0)){
@@ -567,6 +604,12 @@ static void __fastcall build_hook(void* self){
     const uintptr_t maskAddress=(uintptr_t)self+0x4f604;
     bool swapped=false,maskSaved=false;size_t normalBytes=0;float submittedHeight=EntranceHiddenHeight;
     __try{
+        const bool reinforce=startupRecovery.poll(image,GetTickCount64())&&enabled&&!stopping;
+        if(startupRecovery.take_timeout())event("startup_reinforcement timeout pending_native_resources_or_binding");
+        if(reinforce){
+            luaLifecycle.nextCheck=luaLifecycle.nextAttempt=0;nextSelection=0;
+            char message[96];_snprintf_s(message,sizeof(message),_TRUNCATE,"startup_reinforcement attempt=%u window_ms=6000",startupRecovery.recovery.attempts);event(message);
+        }
         refresh_lua_gate();
         uintptr_t prototype=0,state=0,basePrototype=0;
         const bool show=visible(); // log scene state even if a prototype is absent
@@ -588,9 +631,21 @@ static void __fastcall build_hook(void* self){
                 if(extraOwner!=(uintptr_t)self||extraPrototype!=prototype||extraState!=state||shadowPrototype!=basePrototype){
                     extraOwner=(uintptr_t)self;extraPrototype=prototype;extraState=state;shadowPrototype=basePrototype;
                     resourceRequested=false;resourceFault=false;resourceReadyLogged=false;placedLogged=false;
+                    modelCycle=shadowCycle=SceneResourceCycle{};
                     resourceFixture=0;retireBeforeReload=false;
                     shadowRequested=false;shadowReadyLogged=false;
                     entrance_new_record(extra,heightCm);event("scene_static_prototype_confirmed generic_variation=1");
+                }
+                if(reinforce){
+                    resourceRequested=resourceFault=resourceReadyLogged=placedLogged=false;
+                    shadowRequested=shadowReadyLogged=false;
+                    modelCycle=shadowCycle=SceneResourceCycle{};
+                    scene_startup_rebind(extra,1);
+                    unsigned rna=0;char update[96];
+                    if(get(state+0x4c,rna)&&rna<176){
+                        const int length=_snprintf_s(update,sizeof(update),_TRUNCATE,"SleUpdate(%u)",rna);
+                        if(length>0)((void(__fastcall*)(const char*,size_t,const char*))(image+0x4ac35e0))(update,(size_t)length,"entrance_startup_reinforcement");
+                    }
                 }
                 // Preload independently of visibility; loading must not depend
                 // on the match clock or on leaving the initial stadium pan.
@@ -625,7 +680,10 @@ static void __fastcall build_hook(void* self){
         }
         activeBuildThread=GetCurrentThreadId();activeBuildOwner=swapped?(uintptr_t)self:0;
         activePlacementIndex=(unsigned)count;activeHeight=submittedHeight;
+        refresh_mascot_bridge();
+        const uintptr_t mascotToken=mascotBeforeBuild?mascotBeforeBuild(self):0;
         originalBuild(self);
+        if(mascotToken&&mascotAfterBuild)mascotAfterBuild(self,mascotToken);
     }__finally{
         activeBuildOwner=0;activeBuildThread=0;
         if(swapped){
@@ -636,11 +694,14 @@ static void __fastcall build_hook(void* self){
             entrance_static_position(extra,submittedHeight);
             uint16_t binding=0xffff;memcpy(&binding,extra+0x40,sizeof(binding));
             if(binding!=0xffff&&!placedLogged){event("native_static_actor_placed v18 binding_assigned");placedLogged=true;}
+            if(startupRecovery.confirm(binding!=0xffff&&!retireBeforeReload&&selectionAvailable&&resourceFixture==(fixture^selectedAsset.stamp)))
+                event("startup_reinforcement confirmed native_binding_and_position");
             memcpy((void*)placement,&saved,sizeof(saved));
         }
         if(maskSaved)*(unsigned*)maskAddress=mask;
         if(swapped&&retireBeforeReload){
             retireBeforeReload=false;resourceRequested=false;resourceReadyLogged=false;
+            modelCycle=SceneResourceCycle{};
             event("old_competition_actor_retired v18 before_resource_reload");
         }
         InterlockedExchange(&busy,0);
@@ -809,6 +870,7 @@ static void refresh_lua_gate(){
         // Forget ownership only: a retired scene may already have freed these.
         extraOwner=extraPrototype=extraState=shadowPrototype=0;
         atlasFixture=resourceFixture=0;resourceRequested=resourceFault=shadowRequested=false;
+        modelCycle=shadowCycle=SceneResourceCycle{};
         event(changed?"lua_context_changed scene_resources_rearmed":"lua_marker_lost scene_resources_rearmed");
     }
     if(luaLifecycle.should_activate(now,known)){
@@ -914,6 +976,7 @@ static DWORD WINAPI worker(void*){
         if(patch_call()){
             if(preserveOuterBuilder)event("outer_var_cabin_builder_preserved owned_v16_entry_forwarded");
             if(previousStop){previousStop();event("previous_revision_retired v18 owned_v16_hooks_replaced");}
+            event("startup_reinforcement enabled window_ms=6000 max_attempts=3 first_checkpoint_ms=500");
             event("installed v21 scene_thread_lua verified_readiness retry_context settings_ids friendly_same_league source=FSW/settings.ini native_hook=43ac173");
             return 0;
         }
