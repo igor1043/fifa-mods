@@ -12,7 +12,8 @@ O módulo `stadium_pyrotechnics.dll` oferece pirotecnia para qualquer time. Na a
 - Cada máquina usa grupos privados (`iInstancing=0`). No modo compartilhado anterior, o caminho nativo de instâncias podia pular a emissão e a limpeza de um emissor atingia os buffers compartilhados. O modo privado preserva os limites por ponto e permite o reinício de cada máquina no gol.
 - Os efeitos usam orientação fixa, sem rotação conforme o lado do campo. A posição de saída acompanha a boca da máquina.
 - Prévia de estádio, seleção de uniformes e outros menus não acionam abertura. Reiniciar Partida rearma abertura e detector de gols.
-- O recurso de partículas é pré-carregado na prévia da partida, sem criar ou disparar emissores. O Server16 atualizado mostra o progresso de arquivos e a confirmação nativa da cena, junto dos carregadores de entradas, VAR e máquinas de fumaça.
+- Pausa e replay preservam as instâncias e partículas do show em andamento. O tempo nesse menu não consome a duração restante; retornar continua o mesmo show, sem disparar outro gol.
+- O recurso de partículas é pré-carregado na prévia da partida, sem criar ou disparar emissores. O Server16 acompanha a preparação e a confirmação nativa da cena em segundo plano; os avisos de carregamento da apresentação estão ocultos.
 - A pausa interrompe a emissão em curso e preserva o evento consumido e o placar. Voltar à partida, abrir seleção de lados/detalhes ou reconstruir tabelas Lua não rearma a fumaça. Abertura e gols do mandante são os únicos disparos automáticos.
 - Sem comandos F7/F8: os gatilhos são automáticos.
 

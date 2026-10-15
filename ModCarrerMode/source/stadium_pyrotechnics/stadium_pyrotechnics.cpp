@@ -39,6 +39,7 @@ static uintptr_t activeEffect=0, activeInstances[emitterCount]={};
 static ULONGLONG kickoffSince=0, assetSince=0;
 static bool showing=false;
 static ULONGLONG showStarted=0;
+static PyroShowPause showPause;
 static bool particleAuditDone=false;
 static bool emitterStarted[emitterCount]={};
 static bool emitterDraining[emitterCount]={};
@@ -218,12 +219,14 @@ static bool valid_slot(int i) {
 }
 #include "palette_runtime.inc"
 static void forget_resource() {
+    showPause=PyroShowPause{};
     scene_preload_publish(1,ScenePreloadState::Waiting);
     paletteHome=0;paletteEffect=0;
     configured=false; activeEffect=0; showing=false; deadline=0;
     for (int i=0;i<emitterCount;++i) { handles[i]=-1; activeInstances[i]=0; }
 }
 static void cleanup(bool clearRetained=false) {
+    showPause=PyroShowPause{};
     if ((showing || clearRetained) && owned()) {
         wait_jobs();
         for (int i=0;i<emitterCount;++i) if (valid_slot(i)) {
@@ -241,6 +244,7 @@ static void cleanup(bool clearRetained=false) {
 }
 static int active_count();
 static void finish_naturally() {
+    showPause=PyroShowPause{};
     // Normally all sources drained for >=7s. If rendering stalled or was paused,
     // do not freeze/clear particles merely because wall-clock time has elapsed.
     if(showing && owned()) {
@@ -433,7 +437,11 @@ static void tick(void* batch) {
     if(!enabled && !stopping) return;
     if(!stopping) {
         sample_presentation(now);
-        if(!pyro_can_continue(currentPage,cachedFixture,session.key!=0)) {
+        if(!pyro_can_continue(currentPage,cachedFixture,session.key!=0) &&
+           !(currentPage==PyroPage::Pause && showing && session.key && owned())) {
+            // Replay may temporarily replace the native team registry. An
+            // already running, validated owned effect can survive that gap;
+            // this exception cannot arm a new event or unlock a preview.
             // Clear retained particles once when entering a menu, including a finished show's tail.
             if(showing || (currentPage==PyroPage::Outside && !menuCleared && configured)) {
                 uintptr_t impl=0;
@@ -474,12 +482,20 @@ static void tick(void* batch) {
     }
     if(currentPage==PyroPage::Pause) {
         if(showing) {
-            uintptr_t impl=0;
-            if(!same((uintptr_t)batch,image+0x2214500) || !get((uintptr_t)batch+0x10,impl) || !impl)return;
-            batchImpl=impl;cleanup(true);consumed=true;
-            log_event("PAUSE_EFFECT_STOPPED opening_and_goal_baseline_preserved");
+            if(!(goalShow?presentation.goal_allowed():presentation.entrance_allowed())) {
+                uintptr_t impl=0;
+                if(!same((uintptr_t)batch,image+0x2214500) || !get((uintptr_t)batch+0x10,impl) || !impl)return;
+                batchImpl=impl;cleanup(true);consumed=true;
+            } else if(showPause.enter(now)) {
+                // Native instances keep updating/rendering. Do not clear,
+                // stop, retrigger or replace them when opening replay UI.
+                log_event("PAUSE_REPLAY_EFFECTS_RETAINED remaining_duration_preserved");
+            }
         }
         return;
+    }
+    if(showing && showPause.resume(now,showStarted)) {
+        log_event("PAUSE_REPLAY_RESUMED same_show_no_retrigger");
     }
     bool pendingGoal=false;
     // Dormant gameplay path: no renderer validation, tree walk, or job wait.
@@ -564,6 +580,7 @@ static void tick(void* batch) {
         assetSince=now;
     }
     if (emit()) {
+        showPause=PyroShowPause{};
         consumed=true; showing=true; showStarted=now; deadline=now+durationMs;particleAuditDone=false;
         kickoffSince=gameplay_present()?now:0;
         const int immediateCount=goalShow?active_count():2;

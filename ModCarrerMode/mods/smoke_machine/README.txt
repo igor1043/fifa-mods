@@ -19,7 +19,7 @@ Validacoes de conversao, Lua 5.1, pontos de emissao e compilacao passaram.
 A visualizacao dentro do FIFA precisa ser confirmada no jogo.
 
 Quatro maquinas internas laterais a -14/+14 metros; nenhuma no meio-campo.
-Oito bases laterais a 37,5 m do eixo do campo, com mais 50 cm de afastamento e saidas dos efeitos alinhadas.
+Oito bases laterais a 35 m do eixo do campo: 1 metro para fora da linha lateral, com saidas dos efeitos alinhadas.
 
 Equipamentos de pirotecnia para qualquer time; cores e eventos definidos pelo mandante.
 
