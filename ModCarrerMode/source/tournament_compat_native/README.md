@@ -1,4 +1,4 @@
-# Tournament compatibility — experimental revision 3
+# Tournament compatibility
 
 This is a restricted recovery experiment, not a save-schema expansion.
 It reads the current compobj root catalog and the installed 11-bit field metadata.
@@ -6,6 +6,12 @@ For a tournament load, it replaces the two runtime selection-cache integers only
 when exactly one root has the saved low 11 bits. Club league is diagnostic only.
 Collisions (including 63/2111 and 130/2178) are never resolved by guessing.
 No DB, XML, compdata, user record or save is written by this DLL.
+
+The tournament hub also reads the compact primary competition ID before
+requesting its standings payload. That read now resolves the full catalog root
+when both active CompetitionManager selections agree with it. Mismatched or
+ambiguous selections keep the original ID. The original provider still builds
+the standings and scorer pages from the game's existing data.
 
 The original L9 worker still owns its complete 61-site/400-entry layout patch.
 The plugin adapts its two incompatible descriptors and gates the load hook on
@@ -25,12 +31,14 @@ Ambiguous roots retain original behavior and may still crash.
 Build and isolated tests: run build_tournament_compat.cmd from this directory.
 Tests execute the actual RX load relay and creation guard, reproduce the league
 351 / stored 160 regression, refuse collisions, reject non-tournament records,
-check unchanged user records, future IDs, and the 61-site layout gate.
+check unchanged user records, future IDs, and the 61-site layout gate. They also
+execute the hub primary relay and refuse mismatched live selection roots.
 
 Enable: tournament_compat_native\tournament_compat_native.dll in mods/enabled.txt.
 Disable with FIFA closed: comment/remove only that entry.
-Log: ModCarrerMode/logs/tournament_compat_native.log. Look for START plugin=3,
-CREATION GUARD installed, READY version=3, and LOAD RECOVERED or LOAD UNCHANGED.
+Log: ModCarrerMode/logs/tournament_compat_native.log. Look for START plugin=4,
+CREATION GUARD installed, READY version=4, HUB READY, and LOAD RECOVERED or LOAD
+UNCHANGED. HUB PRIMARY recovered identifies a resolved hub query.
 
 In-game test: create a new affected tournament, play/advance, save, exit the
 whole game, restart, reopen the save, then play/advance and save/reopen again.

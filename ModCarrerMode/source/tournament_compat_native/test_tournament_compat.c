@@ -7,6 +7,9 @@ static BYTE *fixture_exe,*fixture_chain;
 static ULONGLONG fixture_ticks;
 static unsigned published,forwarded;
 static void *forwarded_args[3];
+static unsigned hub_forwarded;
+static int hub_primary_value;
+static void *hub_forwarded_career;
 static HMODULE WINAPI fixture_module(LPCSTR name) {return (HMODULE)(name?fixture_chain:fixture_exe);}
 static ULONGLONG WINAPI fixture_time(void) {return fixture_ticks;}
 static void WINAPI fixture_sleep(DWORD ms) {
@@ -30,6 +33,7 @@ static void WINAPI fixture_sleep(DWORD ms) {
 #undef Sleep
 #define CHECK(x) do {if(!(x)){printf("FAIL line %d: %s\n",__LINE__,#x);return 1;}} while(0)
 static void original_fixture(void *a,void *b,void *c) {forwarded_args[0]=a;forwarded_args[1]=b;forwarded_args[2]=c;forwarded++;}
+static int primary_fixture(void *career) {hub_forwarded_career=career;hub_forwarded++;return hub_primary_value;}
 int main(int argc,char **argv) {
     BYTE session[0x1350]={0},registry[32*122]={0},career[0x20]={0},row[0x318]={0},saved_row[0x318];
     BYTE *competition,*cw=career,*tw;int index=0,club=130251,league=86,primary=160;
@@ -60,7 +64,7 @@ int main(int argc,char **argv) {
     CHECK(load_roots(argv[1]));
     competition=(BYTE*)VirtualAlloc(NULL,0x9000,MEM_RESERVE|MEM_COMMIT,PAGE_READWRITE);CHECK(competition);
     tw=competition;
-    {BYTE *p=registry;memcpy(session+0x1348,&p,8);p=(BYTE*)&cw;
+    {BYTE *p=registry;memcpy(session+0x1348,&p,8);memcpy(career+8,&p,8);p=(BYTE*)&cw;
      memcpy(registry+121*32+24,&p,8);p=(BYTE*)&tw;memcpy(registry+20*32+24,&p,8);
      p=row;memcpy(career+0x18,&p,8);memcpy(career+0x14,&index,4);}
     memcpy(row+0x1A4,&club,4);memcpy(row+0x1A8,&league,4);memcpy(row+0x2B8,&primary,4);
@@ -69,6 +73,19 @@ int main(int argc,char **argv) {
     CHECK(recover_selection(session,&stored,&l,&r));CHECK(stored==160 && l==86 && r==2208);
     memcpy(caches,competition+0x8FD0,8);CHECK(caches[0]==2208 && caches[1]==2208);
     CHECK(!memcmp(row,saved_row,sizeof(row))); /* User/DB record stays unchanged. */
+    /* The stock standings card checks the packed primary ID before building
+     * its payload. Recover that UI read only if the live root agrees. */
+    CHECK(resolve_hub_primary(career,160)==2208);
+    CHECK(resolve_hub_primary(career,2208)==2208);
+    CHECK(resolve_hub_primary(NULL,160)==160);
+    original_hub_primary=primary_fixture;hub_primary_value=160;
+    CHECK(hub_primary_with_identity(career)==2208 && hub_forwarded==1 && hub_forwarded_career==career);
+    CHECK(!memcmp(row,saved_row,sizeof(row)));
+    caches[0]=100;caches[1]=2208;memcpy(competition+0x8FD0,caches,8);
+    CHECK(resolve_hub_primary(career,160)==160);
+    caches[0]=caches[1]=100;memcpy(competition+0x8FD0,caches,8);
+    CHECK(resolve_hub_primary(career,160)==160);
+    caches[0]=caches[1]=2208;memcpy(competition+0x8FD0,caches,8);
     /* Reproduce v2 failure: club league 351, tournament root in league 86. */
     league=351;memcpy(row+0x1A8,&league,4);memcpy(saved_row,row,sizeof(row));
     caches[0]=caches[1]=160;memcpy(competition+0x8FD0,caches,8);
@@ -140,8 +157,19 @@ int main(int argc,char **argv) {
      memcpy(&delta,image+LOAD_CALL_RVA+1,4);relay=(LoadFn)(image+LOAD_CALL_RVA+5+delta);
      original_load=original_fixture;relay((void*)5,(void*)6,session);CHECK(forwarded==3 && forwarded_args[0]==(void*)5 && forwarded_args[1]==(void*)6 && forwarded_args[2]==session);
      CHECK(!install_load_call());}
+    {BYTE before[8],after[8];int32_t delta;PrimaryFn relay;
+     CHECK(!install_hub_primary_call());
+     memcpy(image+0x05AAFF94,"\x8B\x88\xB8\x02\0\0",6);
+     memcpy(before,"\x48\x8B\x38\xE8",4);
+     delta=(int32_t)(PRIMARY_FUNCTION_RVA-(HUB_PRIMARY_CALL_RVA+5));memcpy(before+4,&delta,4);
+     memcpy(image+HUB_PRIMARY_CALL_RVA-3,before,8);CHECK(install_hub_primary_call());
+     memcpy(after,image+HUB_PRIMARY_CALL_RVA-3,8);CHECK(!memcmp(before,after,4));
+     memcpy(&delta,after+4,4);relay=(PrimaryFn)(image+HUB_PRIMARY_CALL_RVA+5+delta);
+     original_hub_primary=primary_fixture;hub_primary_value=160;
+     CHECK(relay(career)==2208 && hub_forwarded==2 && hub_forwarded_career==career);
+     CHECK(!memcmp(row,saved_row,sizeof(row)));CHECK(!install_hub_primary_call());}
     nt->FileHeader.TimeDateStamp=1;CHECK(compat_worker(NULL)==1);
     VirtualFree(competition,0,MEM_RELEASE);VirtualFree(fixture_exe,0,MEM_RELEASE);VirtualFree(fixture_chain,0,MEM_RELEASE);
-    puts("PASS: dynamic catalog; cross-league v2 regression; collisions refused; career gate; future IDs; reload forwarding; no user-record writes; 61-site capacity gate; atomic CALL/relay ABI; unsupported build rejected.");
+    puts("PASS: dynamic catalog; cross-league reload; collisions refused; standings hub primary recovery; mismatched live roots refused; no user-record writes; 61-site capacity gate; atomic CALL/relay ABI; unsupported build rejected.");
     return 0;
 }

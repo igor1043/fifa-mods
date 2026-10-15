@@ -15,12 +15,17 @@
 #define ROOT_CAPACITY 4096U
 #define LOAD_CALL_RVA 0x05B7AC91U
 #define LOAD_FUNCTION_RVA 0x05B747B0U
+#define HUB_PRIMARY_CALL_RVA 0x05968733U
+#define PRIMARY_FUNCTION_RVA 0x05AAFF50U
 typedef struct Root { int id, league; } Root;
 typedef void (*LoadFn)(void *, void *, void *);
+typedef int (*PrimaryFn)(void *);
 static Root roots[ROOT_CAPACITY];
 static size_t root_count;
 static uint32_t saved_mask;
 static LoadFn original_load;
+static PrimaryFn original_hub_primary;
+static volatile LONG hub_recovery_logs;
 static volatile LONG started;
 static BYTE *image;
 static char game_dir[MAX_PATH];
@@ -83,6 +88,29 @@ static BYTE *service(BYTE *registry,unsigned index) {
     if(!registry || !read_memory(registry+(size_t)index*32U+24U,&wrapper,sizeof(wrapper)) ||
        !read_memory(wrapper,&object,sizeof(object)))return NULL;
     return object;
+}
+/* CM_STANDINGS_DP first calls 59686E0, which checks the primary tournament
+ * returned by 5AAFF50 against CompetitionManager's active roots. The user
+ * record retains its packed 11-bit value after reload, although our load
+ * recovery already restored the complete root in the runtime selection.
+ * Resolve only this UI read, and require both live selection slots to agree.
+ * The user record and save remain untouched; scorer queries keep their root. */
+static int resolve_hub_primary(void *career,int stored) {
+    BYTE *registry=NULL,*competition;
+    int full=resolve_root(stored,0),cache[2];
+    if(full==stored || !career ||
+       !read_memory((BYTE*)career+8,&registry,sizeof(registry)))return stored;
+    competition=service(registry,20U);
+    if(!competition || !read_memory(competition+0x8FD0U,cache,sizeof(cache)) ||
+       cache[0]!=full || cache[1]!=full)return stored;
+    return full;
+}
+static int hub_primary_with_identity(void *career) {
+    int stored=original_hub_primary(career);
+    int full=resolve_hub_primary(career,stored);
+    if(full!=stored && InterlockedIncrement(&hub_recovery_logs)<=32)
+        log_line("HUB PRIMARY recovered saved=%d root=%d policy=unique-root-and-live-selection user_writes=0",stored,full);
+    return full;
 }
 static BOOL recover_selection(void *session,int *stored_out,int *league_out,int *root_out) {
     BYTE *registry=NULL,*career,*competition,*array=NULL,*row;
@@ -202,11 +230,44 @@ static BOOL install_load_call(void) {
         VirtualProtect(word,8,previous,&ignored);VirtualFree(relay,0,MEM_RELEASE);return FALSE;
     }
     FlushInstructionCache(GetCurrentProcess(),word,8);VirtualProtect(word,8,previous,&ignored);
-    log_line("READY version=3 reload_call=%p relay=%p roots=%llu save_mask=%u policy=unique-root-mask",call,relay,(unsigned long long)root_count,saved_mask);
+    log_line("READY version=4 reload_call=%p relay=%p roots=%llu save_mask=%u policy=unique-root-mask",call,relay,(unsigned long long)root_count,saved_mask);
+    return TRUE;
+}
+static BOOL install_hub_primary_call(void) {
+    BYTE *call=image+HUB_PRIMARY_CALL_RVA,*word=call-3,*relay;
+    BYTE bytes[8],replacement[8],getter[6];LONG64 before,after;
+    int32_t old_delta,new_delta;int64_t distance;DWORD previous,ignored;
+    uintptr_t function=(uintptr_t)&hub_primary_with_identity;
+    if(((uintptr_t)word&7U)!=0 || !capacity_complete() || !reload_code_ready() ||
+       !read_memory(word,bytes,8) || memcmp(bytes,"\x48\x8B\x38\xE8",4) ||
+       !read_memory(image+0x05AAFF94U,getter,6) ||
+       memcmp(getter,"\x8B\x88\xB8\x02\0\0",6))return FALSE;
+    memcpy(&old_delta,bytes+4,4);
+    if((uintptr_t)(call+5)+old_delta!=(uintptr_t)(image+PRIMARY_FUNCTION_RVA))return FALSE;
+    relay=allocate_relay((uintptr_t)call);if(!relay)return FALSE;
+    memcpy(relay,"\xFF\x25\0\0\0\0",6);memcpy(relay+6,&function,8);
+    distance=(int64_t)(uintptr_t)relay-(int64_t)(uintptr_t)(call+5);
+    if(distance<INT32_MIN || distance>INT32_MAX ||
+       !VirtualProtect(relay,0x1000,PAGE_EXECUTE_READ,&previous)) {
+        VirtualFree(relay,0,MEM_RELEASE);return FALSE;
+    }
+    FlushInstructionCache(GetCurrentProcess(),relay,14);
+    new_delta=(int32_t)distance;memcpy(replacement,bytes,8);memcpy(replacement+4,&new_delta,4);
+    memcpy(&before,bytes,8);memcpy(&after,replacement,8);
+    original_hub_primary=(PrimaryFn)(image+PRIMARY_FUNCTION_RVA);
+    if(!VirtualProtect(word,8,PAGE_EXECUTE_READWRITE,&previous)) {
+        VirtualFree(relay,0,MEM_RELEASE);return FALSE;
+    }
+    if(InterlockedCompareExchange64((volatile LONG64*)word,after,before)!=before) {
+        VirtualProtect(word,8,previous,&ignored);VirtualFree(relay,0,MEM_RELEASE);return FALSE;
+    }
+    FlushInstructionCache(GetCurrentProcess(),word,8);VirtualProtect(word,8,previous,&ignored);
+    log_line("HUB READY version=4 primary_call=%p relay=%p policy=unique-root-and-live-selection user_writes=0",call,relay);
     return TRUE;
 }
 static DWORD WINAPI plugin_worker(void *unused) {
-    char path[MAX_PATH];DWORD result;unsigned attempt;BOOL creation=FALSE;(void)unused;
+    char path[MAX_PATH];DWORD result;unsigned attempt;
+    BOOL creation=FALSE,load=FALSE,hub=FALSE;(void)unused;
     image=(BYTE*)GetModuleHandleA(NULL);
     snprintf(path,sizeof(path),"%s\\dlc\\dlc_FootballCompEng\\dlc\\FootballCompEng\\data\\compdata\\compobj.txt",game_dir);
     if(!load_roots(path)){log_line("SKIPPED invalid/missing compobj; no patches");return 1;}
@@ -227,10 +288,12 @@ static DWORD WINAPI plugin_worker(void *unused) {
     /* Disabled capacity must not silently authorize an expanded-cache hook. */
     for(attempt=0;attempt<3000U;attempt++) {
         if(!creation)creation=install_creation_guard();
-        if(creation && install_load_call())return 0;
+        if(creation && !hub)hub=install_hub_primary_call();
+        if(creation && !load)load=install_load_call();
+        if(creation && load && hub)return 0;
         Sleep(20);
     }
-    log_line("SKIPPED reload code mismatch; original call retained");return 4;
+    log_line("INCOMPLETE hooks creation=%d reload=%d hub=%d; unmatched calls retained",creation,load,hub);return 4;
 }
 __declspec(dllexport) unsigned int WINAPI Fifa16ModGetApiVersion(void) {return 1U;}
 __declspec(dllexport) BOOL WINAPI Fifa16ModStart(const char *mods_root) {
@@ -244,7 +307,7 @@ __declspec(dllexport) BOOL WINAPI Fifa16ModStart(const char *mods_root) {
     snprintf(g_ini,sizeof(g_ini),"%s\\dinput8_L9.ini",game_dir);
     if(!GetModuleHandleExA(GET_MODULE_HANDLE_EX_FLAG_FROM_ADDRESS|GET_MODULE_HANDLE_EX_FLAG_PIN,
         (LPCSTR)&started,&pinned))return FALSE;
-    log_line("START plugin=3 experimental=1 database_writes=0 save_writes=0 layout_gate=61/61");
+    log_line("START plugin=4 experimental=1 database_writes=0 save_writes=0 layout_gate=61/61");
     thread=CreateThread(NULL,0,plugin_worker,NULL,0,NULL);
     if(!thread)return FALSE;
     CloseHandle(thread);return TRUE;
