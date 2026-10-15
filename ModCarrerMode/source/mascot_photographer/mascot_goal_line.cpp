@@ -392,6 +392,27 @@ static bool assign_mascot_placement(void* object, MascotFrameContext& frame)
     return true;
 }
 
+// A partially built scene must not expose a reserved mascot appearance at
+// the native temporary origin. Every vector is reread and independently owned.
+static size_t hide_unplaced_reserved_appearances(uintptr_t renderer)
+{
+    size_t hidden=0;
+    for(unsigned int i=0;i<mascotPlacementTypeCount;++i){
+        const unsigned int type=mascotPlacementTypes[i];
+        const unsigned char reserved=(unsigned char)mascot_reserved_appearance(type);
+        uintptr_t prototypes=0,records=0;size_t prototypeCount=0,count=0;
+        if(!vector_bounds(renderer+0x30*(type+1),8,prototypes,prototypeCount)||
+           prototypeCount!=(size_t)reserved+1||
+           !vector_bounds(renderer+0x30*(type+0x2f),0x50,records,count))continue;
+        uintptr_t prototype=0;uint16_t actualType=0,variation=0;
+        if(!get(prototypes+(size_t)reserved*8,prototype)||
+           !get(prototype+12,actualType)||actualType!=type||
+           !get(prototype+14,variation)||variation!=reserved)continue;
+        hidden+=mascot_assign_none((unsigned char*)records,count,reserved);
+    }
+    return hidden;
+}
+
 static void __fastcall selection_hook(void* renderer)
 {
     originalSelect(renderer);
@@ -404,7 +425,14 @@ static void __fastcall selection_hook(void* renderer)
     __try {
     __try {
         if (assign_mascot_placement(renderer, frame)) mascot_animate_instance(frame);
-        else { mascotWalkRuntime={};mascotNativeClock={};mascot_unbind_pose(0,0,0); mascot_set_animation_active(false,-1); }
+        else {
+            const size_t hidden=hide_unplaced_reserved_appearances((uintptr_t)renderer);
+            if(hidden){
+                static DWORD lastHiddenLog=0;const DWORD tick=GetTickCount();
+                if(!lastHiddenLog||tick-lastHiddenLog>=5000){lastHiddenLog=tick;log_event("reserved_appearance_deferred count=%zu pending_valid_placement",hidden);}
+            }
+            mascotWalkRuntime={};mascotNativeClock={};mascot_unbind_pose(0,0,0);mascot_set_animation_active(false,-1);
+        }
     }
     __except(EXCEPTION_EXECUTE_HANDLER) {
         // A failed scene lookup supplies no ownership proof for old pointers.

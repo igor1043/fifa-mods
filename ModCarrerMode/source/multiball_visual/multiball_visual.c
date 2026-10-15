@@ -49,7 +49,7 @@ static void __fastcall render_hook(void *self,int phase) {
  render_previous(self,phase);
  if(phase==0 && snapshot(self,0x30,object,state,0)) {
   render_original(object,0);
-  if(InterlockedCompareExchange(&observed,1,0)==0)event("drawn 13 visual balls height=11.1252cm goal_retreat=100cm");
+  if(InterlockedCompareExchange(&observed,1,0)==0)event("drawn 13 visual balls height=11.1252cm spare_balls_inward=30cm");
  }
 }
 static unsigned char __fastcall bounds_hook(void *self,void *context) {
@@ -114,7 +114,7 @@ __declspec(dllexport) BOOL WINAPI Fifa16ModStart(const char *mods_root) {
  if(!mods_root || InterlockedCompareExchange(&started,1,0))return FALSE;
  if(_snprintf_s(log_path,sizeof(log_path),_TRUNCATE,"%s\\..\\logs\\multiball_visual.log",mods_root)<0)return FALSE;
  if(!GetModuleHandleExA(GET_MODULE_HANDLE_EX_FLAG_FROM_ADDRESS|GET_MODULE_HANDLE_EX_FLAG_PIN,(LPCSTR)&started,&pinned))return FALSE;
- event("start v16 balls_only_no_cone_no_support goal_retreat=100cm");worker=CreateThread(NULL,0,install_worker,NULL,0,NULL);
+ event("start balls_only_no_cone_no_support spare_balls_inward=30cm");worker=CreateThread(NULL,0,install_worker,NULL,0,NULL);
  if(!worker)return FALSE;CloseHandle(worker);return TRUE;
 }
 __declspec(dllexport) BOOL WINAPI Fifa16ModStop(void) {

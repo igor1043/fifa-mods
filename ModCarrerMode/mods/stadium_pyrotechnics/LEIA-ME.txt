@@ -3,10 +3,13 @@ Stadium Pyrotechnics - pirotecnia para qualquer time
 Arquivo unico: stadium_pyrotechnics.dll.
 Efeito e assets: stadium_pyrotechnics_0.lnx / .rx3.
 Log: ModCarrerMode/logs/stadium_pyrotechnics.log.
-Automatico para qualquer mandante; abertura 60 segundos e gol do mandante 25 segundos.
+Automatico para qualquer mandante; abertura 60 segundos reais e gol do mandante 25 segundos reais.
 Previa de selecao, KickOffHub, uniformes e outros menus: sem disparo, abertura rearmada.
-Apenas apresentacao real (pagina de carregamento/TV bumper) com duas equipes nativas libera inicio.
-Pausa/replay conserva o show em curso e sua duracao restante; retornar continua as mesmas instancias, sem novo disparo.
+Apenas apresentacao real (StadiumPan/carregamento/TV bumper) com duas equipes nativas libera inicio.
+Pausa/replay nao consome a duracao restante. Replay nativo e reconhecido mesmo com pagina vazia.
+Duracao e intervalo entre maquinas usam milissegundos reais do Windows, sem depender do contador nativo da cena.
+Entrar, buscar outro instante e sair do replay ajusta somente o relogio de emissao, sem apagar as particulas.
+Ausencia temporaria de equipes/Lua/placar preserva o show; recurso substituido recupera o evento sem ponteiros antigos.
 Server16: controles independentes em ModCarrerMode/config/match_presentation.ini, sem sobrescrever preferencia.
 Cores: duas cores institucionais do mandante recuperadas do banco FIFA instalado.
 Gol do visitante nao aciona novos efeitos. Um show ja iniciado segue sua duracao.
@@ -14,11 +17,11 @@ Duas camadas de cada fumaca na mesma origem, inclusive rastro do foguete.
 Encerramento: fontes diminuem em pares nos ultimos 12 segundos; cauda de 7 segundos incluida na duracao.
 Config: pyro.ini, enabled=0 ou 1. Sem teclas F7/F8.
 Feche e abra o FIFA para carregar uma atualizacao da DLL.
-Depois de carregada, Reiniciar Partida rearma abertura e detector de gols.
+Depois de carregada, Reiniciar Partida rearma abertura e detector de gols, inclusive antes do pontape inicial em 0 a 0.
 Historico e backups ficam na pasta de estudos, fora do mod instalado.
 
 Cada maquina corresponde a um emissor: 20 na abertura, 12 atras dos gols no gol do mandante.
-As oito bases laterais ficam a 35 m do eixo do campo: 1 metro para fora da linha lateral, com efeitos alinhados na boca da maquina.
+As oito bases laterais ficam a 38,5 m do eixo: 1 m para fora da posicao anterior de 37,5 m; efeitos alinhados na boca da maquina.
 Origem na boca da maquina (57 cm de altura); foguete 12 cm, papel 3 cm; fumaca com crescimento ate nuvem densa.
 PARTICLE_AUDIT no log de pirotecnia verifica particulas uma vez por disparo. Pausa/replay preserva as particulas do show em curso.
 Todos os grupos respeitam o trigger externo: o relogio de emissao reinicia a cada gol do mandante,

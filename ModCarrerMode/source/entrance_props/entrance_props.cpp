@@ -12,7 +12,6 @@
 #include "entrance_bounds.h"
 #include "entrance_selection.h"
 #include "../common/scene_lua.h"
-#include "../common/preload_status.h"
 
 // The native SLE builder is called after mascot selection. Its temporary
 // placement vector has private storage; the engine-owned vector is restored
@@ -45,8 +44,6 @@ static bool lastDrawDeferred=false;
 static uint64_t nextSample=0,nextDiagnostic=0;
 static uint64_t nextPrototypeDiagnostic=0;
 static uintptr_t fixture=0,fixtureRegistry=0;
-static uintptr_t preloadFixture=0;
-static unsigned preloadCompetition=0,preloadRound=0;
 static int clockValue=0;
 static int nativePhase=-1,sportsState=-1;
 static int introPhase=-1;
@@ -185,28 +182,26 @@ static void sample_selection(){
     const uint64_t now=GetTickCount64();if(now<nextSelection)return;nextSelection=now+250;
     char option[16]={};GetPrivateProfileStringA("match","entrance_props","1",option,sizeof(option),presentationPath);
     const bool permit=!strcmp(option,"1")||!_stricmp(option,"true")||!_stricmp(option,"yes")||!_stricmp(option,"on");
-    const uintptr_t selectionKey=validFixture?fixture:preloadFixture;
-    if(!selectionKey||!permit){
+    if(!validFixture||outside||!permit){
         selectionAvailable=false;selectionFixture=0;selectionRequest[0]=0;return;
     }
     unsigned competition=0,round=0;
-    const bool live=validFixture?live_competition(competition,round):preloadFixture!=0;
-    if(!validFixture){competition=preloadCompetition;round=preloadRound;}
+    const bool live=live_competition(competition,round);
     char name[81]={};bool friendly=false;
     // A real competition or phase always wins, including unsupported cups.
     // Only the Server's verified same-league friendly may use a league asset.
     unsigned resolved=competition;
     const bool selected=EntranceSelection::select_match(gameRoot,settingsPath,serverContextPath,competition,round,
-        (unsigned)(selectionKey>>32),(unsigned)selectionKey,resolved,friendly,name);
+        (unsigned)(fixture>>32),(unsigned)fixture,resolved,friendly,name);
     if(friendly){competition=resolved;round=0;}
     if(!live&&!friendly){
         // A transient pointer gap cannot interrupt an already latched ceremony.
-        if(selectionFixture!=selectionKey||!policy.armed)selectionAvailable=false;
+        if(selectionFixture!=fixture||!policy.armed)selectionAvailable=false;
         return;
     }
     if(!selected){
         if(selectionAvailable||selectionRequest[0])event("competition_props_skipped v19 settings_id_or_package_missing");
-        selectionAvailable=false;selectionFixture=selectionKey;selectionRequest[0]=0;return;
+        selectionAvailable=false;selectionFixture=fixture;selectionRequest[0]=0;return;
     }
     char path[MAX_PATH];WIN32_FILE_ATTRIBUTE_DATA modelInfo{},textureInfo{},metadataInfo{};
     _snprintf_s(path,MAX_PATH,_TRUNCATE,"%s\\data\\sceneassets\\entrance_props\\competitions\\%s\\model.rx3",gameRoot,name);
@@ -215,17 +210,17 @@ static void sample_selection(){
     const bool textureExists=GetFileAttributesExA(path,GetFileExInfoStandard,&textureInfo)!=0;
     _snprintf_s(path,MAX_PATH,_TRUNCATE,"%s\\data\\sceneassets\\entrance_props\\competitions\\%s\\asset.ini",gameRoot,name);
     const bool metadataExists=GetFileAttributesExA(path,GetFileExInfoStandard,&metadataInfo)!=0;
-    const bool sameRequest=selectionFixture==selectionKey&&selectedCompetition==competition&&selectedRound==round&&!strcmp(selectionRequest,name);
+    const bool sameRequest=selectionFixture==fixture&&selectedCompetition==competition&&selectedRound==round&&!strcmp(selectionRequest,name);
     if(sameRequest&&selectionAvailable&&modelExists&&textureExists&&metadataExists&&
        !modelInfo.nFileSizeHigh&&!textureInfo.nFileSizeHigh&&modelInfo.nFileSizeLow==selectedModelBytes&&textureInfo.nFileSizeLow==selectedTextureBytes&&
        !CompareFileTime(&modelWrite,&modelInfo.ftLastWriteTime)&&!CompareFileTime(&textureWrite,&textureInfo.ftLastWriteTime)&&!CompareFileTime(&metadataWrite,&metadataInfo.ftLastWriteTime))return;
     EntranceCatalog::Asset candidate{};
     const bool available=modelExists&&textureExists&&metadataExists&&EntranceCatalog::load(gameRoot,name,competition,round,candidate);
-    selectionFixture=selectionKey;selectedCompetition=competition;selectedRound=round;strcpy_s(selectionRequest,name);
+    selectionFixture=fixture;selectedCompetition=competition;selectedRound=round;strcpy_s(selectionRequest,name);
     if(available){
         selectedAsset=candidate;modelWrite=modelInfo.ftLastWriteTime;textureWrite=textureInfo.ftLastWriteTime;metadataWrite=metadataInfo.ftLastWriteTime;
         selectedModelBytes=modelInfo.nFileSizeLow;selectedTextureBytes=textureInfo.nFileSizeLow;
-        const uint64_t keyValue=selectionKey^candidate.stamp;
+        const uint64_t keyValue=fixture^candidate.stamp;
         if(keyValue!=lastValidatedKey){
             retireBeforeReload=resourceRequested;
             resourceFault=false;atlasFixture=0;lastValidatedKey=keyValue;boundsLogged=false;
@@ -414,7 +409,6 @@ static void sample(){
     // An unknown read does not hide an already verified, armed presentation.
     if(now<nextSample)return;nextSample=now+250;
     validFixture=!outside&&native_fixture(fixture,fixtureRegistry);
-    scene_preload_context(gameRoot,known&&scene_preload_preview(page),preloadFixture,preloadCompetition,preloadRound);
     sample_selection();
 }
 static bool visible(){
@@ -501,11 +495,10 @@ static bool own_prototype(void* self,uintptr_t& proto,uintptr_t& state,uintptr_t
         get(proto+16,state)&&state&&get(state+0x4c,rnaIndex)&&rnaIndex<4096;
 }
 static bool fixture_atlas(){
-    const uintptr_t selectionKey=validFixture?fixture:preloadFixture;
-    if(!selectionKey||selectionFixture!=selectionKey||!selectionAvailable)return false;
-    const uintptr_t key=selectionKey^selectedAsset.stamp;if(atlasFixture==key)return true;
+    if(!validFixture||!fixture||!selectionAvailable)return false;
+    const uintptr_t key=fixture^selectedAsset.stamp;if(atlasFixture==key)return true;
     char relative[MAX_PATH]={},modelFile[MAX_PATH]={},textureFile[MAX_PATH]={};
-    const unsigned home=(unsigned)(selectionKey>>32),away=(unsigned)selectionKey;
+    const unsigned home=(unsigned)(fixture>>32),away=(unsigned)fixture;
     const bool prepared=ClubAtlas::prepare(gameRoot,selectedAsset,home,away,relative);
     if(prepared){_snprintf_s(modelFile,MAX_PATH,_TRUNCATE,"%smodel.rx3",relative);_snprintf_s(textureFile,MAX_PATH,_TRUNCATE,"%stextures.rx3",relative);}
     else if(!selectedAsset.slots){
@@ -520,14 +513,13 @@ static bool fixture_atlas(){
 }
 static bool ready_prototype(uintptr_t prototype,bool& requested,bool& logged,bool shadow){
     using Ready=unsigned char(__fastcall*)(void*);
-    const uintptr_t selectionKey=validFixture?fixture:preloadFixture;
     if(resourceFault)return false;
     __try{
     if(!shadow&&(!selectionAvailable||retireBeforeReload)){
         // Retire the already retained actor without requesting any missing asset.
         return requested&&((Ready)(image+0x43b43e0))((void*)prototype)!=0&&((Ready)(image+0x43b4520))((void*)prototype)!=0;
     }
-    if(!shadow&&selectionKey&&!fixture_atlas())return false;
+    if(!shadow&&validFixture&&!fixture_atlas())return false;
     if(!requested){
         const bool initialized=((Ready)(image+0x43b4500))((void*)prototype)!=0;
         if(!initialized){
@@ -536,21 +528,21 @@ static bool ready_prototype(uintptr_t prototype,bool& requested,bool& logged,boo
             uintptr_t vt=0,load=0;
             if(!get(prototype,vt)||!get(vt+0x38,load)||load<image||load>=image+0x9524000)return false;
             ((void(__fastcall*)(void*,int))load)((void*)prototype,0);
-        }else if(!shadow&&selectionKey){
+        }else if(!shadow&&validFixture){
             uintptr_t vt=0,load=0;
             if(!get(prototype,vt)||!get(vt+0x38,load)||load!=image+0x43b4530)return false;
             ((void(__fastcall*)(void*,int))load)((void*)prototype,1);
         }
-        if(!shadow&&selectionKey)resourceFixture=selectionKey^selectedAsset.stamp;
+        if(!shadow&&validFixture)resourceFixture=fixture^selectedAsset.stamp;
         requested=true;event(shadow?"native_shadow_dependency_requested v18":"native_static_resource_requested v18");
     }
-    if(!shadow&&selectionKey&&resourceFixture!=(selectionKey^selectedAsset.stamp)){
+    if(!shadow&&validFixture&&resourceFixture!=(fixture^selectedAsset.stamp)){
         // The prototype can survive a fixture change with identical appearance
         // parameters. Force the native callback to resolve the new clubs' DDS.
         uintptr_t vt=0,load=0;
         if(!get(prototype,vt)||!get(vt+0x38,load)||load!=image+0x43b4530)return false;
         ((void(__fastcall*)(void*,int))load)((void*)prototype,1);
-        resourceFixture=selectionKey^selectedAsset.stamp;logged=false;
+        resourceFixture=fixture^selectedAsset.stamp;logged=false;
         event("native_club_badges_refreshed new_fixture");
     }
     const bool allLodsReady=((Ready)(image+0x43b43e0))((void*)prototype)!=0;
@@ -574,12 +566,10 @@ static void __fastcall build_hook(void* self){
     const uintptr_t placement=(uintptr_t)self+0x30*(6+0x2f);
     const uintptr_t maskAddress=(uintptr_t)self+0x4f604;
     bool swapped=false,maskSaved=false;size_t normalBytes=0;float submittedHeight=EntranceHiddenHeight;
-    ScenePreloadState loadState=ScenePreloadState::Waiting;
     __try{
         refresh_lua_gate();
         uintptr_t prototype=0,state=0,basePrototype=0;
         const bool show=visible(); // log scene state even if a prototype is absent
-        if((validFixture||preloadFixture)&&!selectionAvailable)loadState=ScenePreloadState::Skipped;
         if(!selectionAvailable&&atlasFixture&&InterlockedCompareExchange(&luaGateReady,0,0)){
             const char script[]="FIFA16_ENTRANCE_MODEL_FILE=nil; FIFA16_ENTRANCE_TEXTURE_FILE=nil";
             ((void(__fastcall*)(const char*,size_t,const char*))(image+0x4ac35e0))(script,sizeof(script)-1,"entrance_competition_disabled");
@@ -610,7 +600,6 @@ static void __fastcall build_hook(void* self){
                 // empty, so native selection never requests it by itself.
                 const bool shadowReady=gateReady&&(selectionAvailable||resourceRequested)&&ready_prototype(basePrototype,shadowRequested,shadowReadyLogged,true);
                 const bool ready=modelReady&&shadowReady;
-                if(selectionAvailable)loadState=ready?ScenePreloadState::Ready:ScenePreloadState::Loading;
                 deferReason=!modelReady?"static_resource_unready":!shadowReady?"shadow_resource_unready":"render_mask_unreadable";
                 if(ready&&get(maskAddress,mask)){
                     // Submit the hidden transform too. Omitting the record can
@@ -654,7 +643,6 @@ static void __fastcall build_hook(void* self){
             retireBeforeReload=false;resourceRequested=false;resourceReadyLogged=false;
             event("old_competition_actor_retired v18 before_resource_reload");
         }
-        scene_preload_publish(0,!enabled?ScenePreloadState::Skipped:resourceFault?ScenePreloadState::Failed:loadState);
         InterlockedExchange(&busy,0);
     }
 }
@@ -934,7 +922,6 @@ static DWORD WINAPI worker(void*){
 }
 extern "C" __declspec(dllexport) unsigned WINAPI Fifa16ModGetApiVersion(){return 1;}
 extern "C" __declspec(dllexport) BOOL WINAPI Fifa16ModStart(const char* root){
-    scene_preload_publish(0,ScenePreloadState::Waiting);
     if(!root||InterlockedCompareExchange(&started,1,0))return FALSE;
     _snprintf_s(logPath,MAX_PATH,_TRUNCATE,"%s\\..\\logs\\entrance_props.log",root);
     _snprintf_s(configPath,MAX_PATH,_TRUNCATE,"%s\\entrance_props\\entrance_props.ini",root);

@@ -1,11 +1,28 @@
 #define WIN32_LEAN_AND_MEAN
 #include "scene_lua.h"
+#include "scene_resource_cycle.h"
 #include <cassert>
 #include <cstdio>
 struct Value{uint64_t bits;int tag,padding;};
 struct Node{Value value,key;uintptr_t next;};
 struct Text{unsigned char header[16]{};size_t length=0;char value[64]{};};
 int main(){
+    SceneResourceCycle cycle;
+    assert(!cycle.refresh(false,false));cycle.requested=true;
+    cycle.complete(true,false);
+    // Pending asynchronous loading is never restarted every callback.
+    for(int i=0;i<120;++i)assert(!cycle.refresh(true,false));
+    cycle.complete(true,true);
+    assert(!cycle.refresh(true,true));
+    // Captured in the Mirassol failure: same pointers, initialized=0, loaded=1.
+    assert(cycle.refresh(false,true));assert(!cycle.requested);
+    cycle.requested=true;cycle.complete(true,false);
+    assert(!cycle.refresh(true,false));
+    // A scene may also unload during its first pending request.
+    assert(cycle.refresh(false,true));assert(!cycle.requested);
+    cycle.requested=true;cycle.complete(true,true);
+    assert(cycle.refresh(true,false));assert(!cycle.requested);
+
     alignas(8) unsigned char table[64]{};Node nodes[64]{};Text text;
     const char* marker="FIFA16_SMOKE_MACHINE_HOOK_READY";
     text.length=std::strlen(marker);strcpy_s(text.value,marker);

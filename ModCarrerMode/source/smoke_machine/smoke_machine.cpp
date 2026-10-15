@@ -9,13 +9,14 @@
 #include "presentation.h"
 #include "loading_policy.h"
 #include "../common/scene_lua.h"
-#include "../common/preload_status.h"
+#include "../common/scene_resource_cycle.h"
 using BuildFn=void(__fastcall*)(void*);
 static uintptr_t image;
 static BuildFn nextBuild;
 static LONG started,stopping,busy,luaReady;
 static char logPath[MAX_PATH],iniPath[MAX_PATH],luaPath[MAX_PATH];
-static bool enabled=true,createdLive=false,resourceRequested=false,shadowRequested=false,fault=false,placed=false,requireEntrance=false,requireVar=false;
+static bool enabled=true,createdLive=false,fault=false,placed=false,requireEntrance=false,requireVar=false;
+static SceneResourceCycle modelCycle,shadowCycle;
 static uintptr_t owner=0,prototype=0,shadow=0,prototypeState=0;
 static float yCm=2;
 static bool matchVisible=false;
@@ -67,7 +68,7 @@ static void refreshLua(){
     const bool known=luaMarkers(snapshot.globals),lost=luaLifecycle.ready&&!known;
     luaLifecycle.sample(now,snapshot);
     if(changed||lost){
-        owner=prototype=shadow=prototypeState=0;resourceRequested=shadowRequested=fault=placed=createdLive=false;
+        owner=prototype=shadow=prototypeState=0;modelCycle=shadowCycle=SceneResourceCycle{};fault=placed=createdLive=false;
         nextCreate=0;event(changed?"lua_context_changed scene_resources_rearmed":"lua_markers_lost scene_resources_rearmed");
     }
     if(luaLifecycle.should_activate(now,known)){
@@ -113,12 +114,18 @@ static bool ownPrototype(void* self,uintptr_t& p,uintptr_t& state,uintptr_t& bas
     if(!get(base+12,type)||type!=16||!get(base+14,variation)||variation!=0)return false;
     return get(p+12,type)&&type==16&&get(p+14,variation)&&variation==1&&get(p+16,state)&&get(state+0x4c,rna)&&rna<176;
 }
-static bool ready(uintptr_t p,bool& requested,const char* message){
+static bool ready(uintptr_t p,SceneResourceCycle& cycle,const char* message){
     using Ready=unsigned char(__fastcall*)(void*);
     if(fault)return false;
     __try{
-        if(!requested){
-            const bool initialized=((Ready)(image+0x43b4500))((void*)p)!=0;
+        const bool initialized=((Ready)(image+0x43b4500))((void*)p)!=0;
+        const bool loaded=((Ready)(image+0x43b4520))((void*)p)!=0;
+        if(cycle.refresh(initialized,loaded)){
+            for(size_t i=0;i<machineCount;++i){records[i][0x40]=records[i][0x41]=0xff;records[i][0x45]=0;}
+            placed=false;
+            event(p==prototype?"model_resource_cycle_reset reloading_same_actor":"shadow_resource_cycle_reset reloading_same_actor");
+        }
+        if(!cycle.requested){
             if(!initialized){
                 const int parameters[5]={-1,-1,-1,0,-1};((void(__fastcall*)(void*,const int*))(image+0x43b4640))((void*)p,parameters);
             }
@@ -128,7 +135,7 @@ static bool ready(uintptr_t p,bool& requested,const char* message){
                 // before the Lua gate became ready. Reload ONLY our private model.
                 ((void(__fastcall*)(void*,int))load)((void*)p,p==prototype?1:0);
             }
-            requested=true;event(message);
+            cycle.requested=true;event(message);
         }
         const bool allLodsReady=((Ready)(image+0x43b43e0))((void*)p)!=0;
         // A renderable created after the initial batch misses the startup
@@ -138,7 +145,10 @@ static bool ready(uintptr_t p,bool& requested,const char* message){
             ((void(__fastcall*)(void*))(image+0x43b47c0))((void*)p);
             event("native_loaded_notification all_five_lods_ready");
         }
-        return allLodsReady&&((Ready)(image+0x43b4520))((void*)p)!=0;
+        const bool nowInitialized=((Ready)(image+0x43b4500))((void*)p)!=0;
+        const bool complete=nowInitialized&&allLodsReady&&((Ready)(image+0x43b4520))((void*)p)!=0;
+        cycle.complete(nowInitialized,complete);
+        return complete;
     }__except(EXCEPTION_EXECUTE_HANDLER){fault=true;event("native_resource_fault_disabled");return false;}
 }
 static void position(size_t i,float h){
@@ -151,7 +161,6 @@ static void __fastcall buildHook(void* self){
         nextBuild(self);return;
     }
     Vector saved{},temporary{};size_t n=0,normalBytes=0;unsigned mask=0;bool swapped=false,maskSaved=false;float submitted=-3000;
-    ScenePreloadState loadState=ScenePreloadState::Waiting;
     const uintptr_t list=(uintptr_t)self+0x30*(16+0x2f),maskAt=(uintptr_t)self+0x4f604;
     __try{
         config();scene();refreshLua();
@@ -173,7 +182,7 @@ static void __fastcall buildHook(void* self){
                 for(size_t i=0;i<n;++i){auto r=scratch+i*0x50;if(r[0x42]==1){r[0x42]=0;r[0x40]=r[0x41]=0xff;r[0x45]=0;}}
                 if(normalBytes)memcpy((void*)saved.begin,scratch,normalBytes);
                 if(owner!=(uintptr_t)self||prototype!=p||prototypeState!=s||shadow!=b){
-                    owner=(uintptr_t)self;prototype=p;prototypeState=s;shadow=b;resourceRequested=shadowRequested=fault=placed=false;
+                    owner=(uintptr_t)self;prototype=p;prototypeState=s;shadow=b;modelCycle=shadowCycle=SceneResourceCycle{};fault=placed=false;
 
                     memset(records,0,sizeof(records));
                     for(size_t i=0;i<machineCount;++i){records[i][0x40]=records[i][0x41]=0xff;records[i][0x42]=1;}
@@ -185,8 +194,7 @@ static void __fastcall buildHook(void* self){
                     }
                 }
 
-                const bool a=ready(p,resourceRequested,"model_texture_requested");const bool c=ready(b,shadowRequested,"shadow_dependency_requested");
-                loadState=a&&c?ScenePreloadState::Ready:ScenePreloadState::Loading;
+                const bool a=ready(p,modelCycle,"model_texture_requested");const bool c=ready(b,shadowCycle,"shadow_dependency_requested");
                 if((!a||!c)&&GetTickCount64()>=nextDiagnostic){
                     nextDiagnostic=GetTickCount64()+5000;char message[160];
                     _snprintf_s(message,sizeof(message),_TRUNCATE,"model_deferred reason=resources_not_ready model=%u shadow=%u",(unsigned)a,(unsigned)c);event(message);
@@ -220,7 +228,6 @@ static void __fastcall buildHook(void* self){
             }
         }
         if(maskSaved)*(unsigned*)maskAt=mask;
-        scene_preload_publish(3,!enabled?ScenePreloadState::Skipped:fault?ScenePreloadState::Failed:loadState);
         InterlockedExchange(&busy,0);
     }
 }
@@ -291,7 +298,6 @@ static DWORD WINAPI worker(void*){
 extern "C" __declspec(dllexport) unsigned WINAPI Fifa16ModGetApiVersion(){return 1;}
 extern "C" __declspec(dllexport) BOOL WINAPI Fifa16ModStart(const char* root){
     if(!root||InterlockedCompareExchange(&started,1,0))return FALSE;
-    scene_preload_publish(3,ScenePreloadState::Waiting);
     _snprintf_s(logPath,MAX_PATH,_TRUNCATE,"%s\\..\\logs\\smoke_machine.log",root);
     _snprintf_s(iniPath,MAX_PATH,_TRUNCATE,"%s\\smoke_machine\\smoke_machine.ini",root);
     _snprintf_s(luaPath,MAX_PATH,_TRUNCATE,"%s\\smoke_machine\\smoke_machine.lua",root);

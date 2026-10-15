@@ -1,12 +1,13 @@
 #pragma once
 #include <cstddef>
 struct SmokeMachineSite {float x,z,yaw;};
-// Sideline bases: 100cm outside the 68m-wide pitch. Shared by models and outlets.
+// Move the eight sideline bases 100cm outward from the previous 3750cm layout.
+// Models and outlets share these coordinates; spare ball positions are independent.
 static constexpr SmokeMachineSite machineSites[]={
-    {-2800,-3500,0},{-2800,3500,3.14159265f},
-    {-1400,-3500,0},{-1400,3500,3.14159265f},
-    {1400,-3500,0},{1400,3500,3.14159265f},
-    {2800,-3500,0},{2800,3500,3.14159265f},
+    {-2800,-3850,0},{-2800,3850,3.14159265f},
+    {-1400,-3850,0},{-1400,3850,3.14159265f},
+    {1400,-3850,0},{1400,3850,3.14159265f},
+    {2800,-3850,0},{2800,3850,3.14159265f},
     {-5900,-1800,1.57079633f},{5900,-1800,-1.57079633f},
     {-5900,1800,1.57079633f},{5900,1800,-1.57079633f},
     {-5900,-2100,1.57079633f},{5900,-2100,-1.57079633f},

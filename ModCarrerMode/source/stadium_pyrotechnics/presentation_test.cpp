@@ -35,7 +35,10 @@ int main() {
     assert(!pyro_can_start(pyro_page("",true),false));
     assert(pyro_can_start(pyro_page(" \t",true),true));
     assert(pyro_can_start(pyro_page("game/screens/TV/bumper",true),true));
-    for(const char* pause:{"game/screens/misc/StadiumPan","game/screens/fluxHub/FluxHub",
+    assert(pyro_can_start(pyro_page("TV/bumper",true),true));
+    assert(pyro_can_start(pyro_page("game/screens/misc/StadiumPan",true),true));
+    assert(!pyro_can_start(pyro_page("game/screens/misc/StadiumPan",true),false));
+    for(const char* pause:{"game/screens/fluxHub/FluxHub",
                           "game/screens/instantReplay/ReplayScreen","game/screens/pause/PauseMenu"}) {
         const auto page=pyro_page(pause,true);
         assert(!pyro_can_start(page,true));

@@ -12,7 +12,7 @@
 #include "ending.h"
 #include "presentation.h"
 #include "match_presentation.h"
-#include "../common/preload_status.h"
+#include "scene_clock.h"
 
 // FIFA 16 PC x64 577de45c only. All particle mutations occur before the
 // native BatchParticles phase 0, after its previous-frame jobs have completed.
@@ -40,6 +40,10 @@ static ULONGLONG kickoffSince=0, assetSince=0;
 static bool showing=false;
 static ULONGLONG showStarted=0;
 static PyroShowPause showPause;
+static PyroSceneClock showClock;
+static PyroSceneSample sceneTime;
+static PyroSceneRestart sceneRestart;
+static bool recoveringShow=false,replayKnown=false,lastReplay=false,replayRefresh=false,restartPending=false;
 static bool particleAuditDone=false;
 static bool emitterStarted[emitterCount]={};
 static bool emitterDraining[emitterCount]={};
@@ -220,13 +224,13 @@ static bool valid_slot(int i) {
 #include "palette_runtime.inc"
 static void forget_resource() {
     showPause=PyroShowPause{};
-    scene_preload_publish(1,ScenePreloadState::Waiting);
     paletteHome=0;paletteEffect=0;
     configured=false; activeEffect=0; showing=false; deadline=0;
     for (int i=0;i<emitterCount;++i) { handles[i]=-1; activeInstances[i]=0; }
 }
-static void cleanup(bool clearRetained=false) {
+static void cleanup(bool clearRetained=false,const char* reason="unspecified") {
     showPause=PyroShowPause{};
+    recoveringShow=false;replayRefresh=false;
     if ((showing || clearRetained) && owned()) {
         wait_jobs();
         for (int i=0;i<emitterCount;++i) if (valid_slot(i)) {
@@ -235,7 +239,10 @@ static void cleanup(bool clearRetained=false) {
         }
         // Keep definition, asset and instances alive until native scene teardown.
         // Do not emit replay-recorded Delete/Hide/SetDefinition/Reload commands.
-        if (showing) log_event("SHOW_STOPPED emission_disabled asset_retained_for_replay");
+        if (showing) {
+            char event[192];_snprintf_s(event,sizeof(event),_TRUNCATE,
+                "SHOW_STOPPED reason=%s emission_disabled asset_retained_for_replay",reason);log_event(event);
+        }
     } else if (configured && !owned()) {
         log_event("RESOURCE_CHANGED discarded_stale_handles_without_native_calls");
         forget_resource();
@@ -243,6 +250,27 @@ static void cleanup(bool clearRetained=false) {
     showing=false; deadline=0;
 }
 static int active_count();
+static void recover_resource(ULONGLONG now) {
+    const bool retain=showing || recoveringShow;
+    forget_resource();recoveringShow=retain;
+    if(retain)consumed=false;
+    candidateSince=assetSince=now;
+    log_event(retain?"RESOURCE_RECOVERY pending_same_show remaining_scene_duration_retained":
+        "RESOURCE_REBUILD awaiting_native_resource");
+}
+static void refresh_replay_emission() {
+    if(!replayRefresh || !showing || !owned())return;
+    for(int i=0;i<active_count();++i)if(!valid_slot(i))return;
+    wait_jobs();
+    for(int i=0;i<active_count();++i)if(emitterStarted[i] && !emitterDraining[i]) {
+        // Restart only the native emission clock. Neither function clears the
+        // particle groups; old smoke survives replay entry, seeks and return.
+        ((Slot)(image+0x441ce00))((void*)activeManager,handles[i]);
+        ((Slot)(image+0x441c8d0))((void*)activeManager,handles[i]);
+    }
+    replayRefresh=false;
+    log_event("REPLAY_EMISSION_CLOCK_REFRESHED existing_particles_retained");
+}
 static void finish_naturally() {
     showPause=PyroShowPause{};
     // Normally all sources drained for >=7s. If rendering stalled or was paused,
@@ -305,7 +333,7 @@ static void audit_particles() {
         if(!get(activeInstances[i]+0x240,count)||count<0||count>32||!get(activeInstances[i]+0x238,groups)||!groups)continue;
         for(int j=0;j<count;++j){
             uintptr_t group=0;int n=0;
-            if(get(groups+j*8,group)&&group&&get(group+0x10,n)&&n>=0&&n<=100000)live+=(unsigned)n;
+            if(get(groups+j*8,group)&&group&&get(group+0x1c,n)&&n>=0&&n<=100000)live+=(unsigned)n;
         }
         ++sources;if(live)++liveSources;particles+=live;
         if(!live){char event[144];_snprintf_s(event,sizeof(event),_TRUNCATE,"SOURCE_EMPTY mode=%s source=%d site=%d",goalShow?"home_goal":"opening",i,goalShow?i+pyroSidelineCount:i);log_event(event);}
@@ -347,7 +375,7 @@ static bool emit() {
     }
     *(unsigned char*)(activeState+4)=0;
     char event[160];
-    _snprintf_s(event,sizeof(event),_TRUNCATE,"SHOW_STARTED mode=%s sources=%d all_machine_outlets_aligned intro_ms=60000 goal_ms=25000",goalShow?"home_goal":"opening",active_count());
+    _snprintf_s(event,sizeof(event),_TRUNCATE,"SHOW_STARTED mode=%s sources=%d intro_ms=60000 goal_ms=25000 duration_clock=monotonic_real_ms",goalShow?"home_goal":"opening",active_count());
     log_event(event);return true;
 }
 static ULONGLONG lastPreload=0,lastDiagnostic=0;
@@ -358,14 +386,12 @@ static void preload(ULONGLONG now) {
         if(!configure())return;
         assetSince=now;log_event("EARLY_PRELOAD configured_before_team_detection");
     }
-    if(activeEffect){scene_preload_publish(1,ScenePreloadState::Ready);return;}
-    scene_preload_publish(1,ScenePreloadState::Loading);
+    if(activeEffect)return;
     uintptr_t resource=0,effect=0;
     if(!get(activeState+0x50,resource) || !resource)return;
     const bool ready=((unsigned char (__fastcall*)(void*))(image+0x4383e30))((void*)activeObject)!=0;
     if(ready && get(activeManager+0x10,effect) && effect && !activeEffect) {
         activeEffect=effect;log_event("EARLY_PRELOAD ready_native_initialization_completed");
-        scene_preload_publish(1,ScenePreloadState::Ready);
     }
     if(!ready && now-lastDiagnostic>=5000) {
         lastDiagnostic=now; unsigned char fileReady=0,nativeReady=0;uintptr_t task=0;
@@ -385,6 +411,16 @@ static bool read_score(int& home,int& away) {
 }
 static PyroLifecycle lifecycle;
 static ULONGLONG lastLifecycleSample=0;
+static PyroSceneSample read_scene_time() {
+    PyroSceneSample sample;
+    uintptr_t object=0,again=0;double time=0,timeAgain=0;unsigned char replay=0,replayAgain=0;
+    if(!get(image+0x3517c10,object) || !same(object,image+0x20ff390) ||
+       !same(image+0x20ff390+0x30,image+0x39fee10) || !same(image+0x20ff390+0x70,image+0x3a00d60) ||
+       !get(object+0x20,time) || !get(object+0x39,replay) || replay>1 ||
+       !get(object+0x20,timeAgain) || !get(object+0x39,replayAgain) || time!=timeAgain || replay!=replayAgain ||
+       !(time>=0 && time<=1e9) || !get(image+0x3517c10,again) || again!=object)return sample;
+    sample.source=object;sample.time=(uint64_t)time;sample.valid=true;sample.replay=replay!=0;return sample;
+}
 template<size_t N> static bool chain(uintptr_t rva,const unsigned int (&offsets)[N],uintptr_t& out) {
     uintptr_t p=0;if(!get(image+rva,p) || !p)return false;
     for(size_t i=0;i+1<N;++i)if(!get(p+offsets[i],p) || !p)return false;
@@ -420,7 +456,9 @@ static bool restarted(ULONGLONG now) {
     uintptr_t stats=0;int clock=0,h=0,a=0;
     const bool valid=get(image+56299464,stats) && stats && get(stats+5500,clock) &&
         clock>=0 && clock<100000000 && read_score(h,a);
-    return lifecycle.sample(valid,clock,h,a,currentPage!=PyroPage::Match,now);
+    const bool replay=currentPage!=PyroPage::Match || (sceneTime.valid && sceneTime.replay);
+    const bool sceneReset=sceneRestart.sample(sceneTime,!replay,valid && h==0 && a==0,now);
+    return lifecycle.sample(valid,clock,h,a,replay,now) || sceneReset;
 }
 static bool gameplay_present() {
     uintptr_t manager=0,world=0,game=0,registry=0;
@@ -437,16 +475,31 @@ static void tick(void* batch) {
     if(!enabled && !stopping) return;
     if(!stopping) {
         sample_presentation(now);
-        if(!pyro_can_continue(currentPage,cachedFixture,session.key!=0) &&
-           !(currentPage==PyroPage::Pause && showing && session.key && owned())) {
-            // Replay may temporarily replace the native team registry. An
-            // already running, validated owned effect can survive that gap;
-            // this exception cannot arm a new event or unlock a preview.
+        const auto previousScene=sceneTime;
+        sceneTime=read_scene_time();
+        if(sceneTime.valid) {
+            if(replayKnown && sceneTime.replay!=lastReplay)replayRefresh=true;
+            if(sceneTime.replay && previousScene.valid && previousScene.replay &&
+               (sceneTime.time+500<previousScene.time || sceneTime.time>previousScene.time+1500))replayRefresh=true;
+            replayKnown=true;lastReplay=sceneTime.replay;
+        }
+        if(showing || recoveringShow)showClock.advance(sceneTime,now,recoveringShow || currentPage==PyroPage::Pause ||
+            currentPage==PyroPage::Unreadable || !cachedFixture || (sceneTime.valid && sceneTime.replay));
+        if(session.key && restarted(now))restartPending=true;
+        if(!pyro_can_continue(currentPage,cachedFixture,session.key!=0)) {
+            // Match and replay can temporarily replace the native team registry
+            // even while the page name is blank. A gap is never a stop/new event.
+            if(currentPage!=PyroPage::Outside && session.key && (showing || recoveringShow) &&
+               (goalShow?presentation.goal_allowed():presentation.entrance_allowed())) {
+                if(showing && !owned())recover_resource(now);
+                if(showPause.enter(now))log_event("SCENE_METADATA_GAP same_show_retained no_new_event");
+                return;
+            }
             // Clear retained particles once when entering a menu, including a finished show's tail.
             if(showing || (currentPage==PyroPage::Outside && !menuCleared && configured)) {
                 uintptr_t impl=0;
                 if(!same((uintptr_t)batch,image+0x2214500) || !get((uintptr_t)batch+0x10,impl) || !impl)return;
-                batchImpl=impl;cleanup(currentPage==PyroPage::Outside);
+                batchImpl=impl;cleanup(currentPage==PyroPage::Outside,"left_match_or_disabled");
             }
             if(currentPage==PyroPage::Outside) {
                 if(session.key)log_event("MATCH_LEFT_FOR_MENU rearm_opening_and_home_goals");
@@ -454,45 +507,44 @@ static void tick(void* batch) {
                 cachedMatch=false;cachedZero=false;lastMatchSample=0;lastValid=0;
                 candidateSince=0;kickoffSince=0;showStarted=0;deadline=0;
                 paletteHome=0;paletteEffect=0;menuCleared=true;
-            }
-            // Prepare the owned resource while the real pre-match preview is
-            // visible. No emitter or show is started on this path.
-            if(currentPage==PyroPage::Outside&&scene_preload_preview(currentPageName)&&
-               (presentation.entrance_allowed()||presentation.goal_allowed())){
-                uintptr_t impl=0;
-                if(same((uintptr_t)batch,image+0x2214500)&&get((uintptr_t)batch+0x10,impl)&&impl){
-                    batchImpl=impl;preload(now);
-                }
+                recoveringShow=false;sceneRestart=PyroSceneRestart{};restartPending=false;replayKnown=false;replayRefresh=false;
             }
             return;
         }
         menuCleared=false;
     }
-    const bool canStart=pyro_can_start(currentPage,cachedFixture);
-    if(session.key && restarted(now)) {
+    const bool canStart=pyro_can_start(currentPage,cachedFixture) && !(sceneTime.valid && sceneTime.replay);
+    if(session.key && restartPending) {
         // Ensure any old show is stopped on the render thread before resetting.
         uintptr_t impl=0;
         if(!same((uintptr_t)batch,image+0x2214500) || !get((uintptr_t)batch+0x10,impl) || !impl)return;
-        batchImpl=impl;cleanup();
+        batchImpl=impl;cleanup(false,"confirmed_restart");restartPending=false;
         goals=PyroGoals{};session=PyroMatchSession{};consumed=false;goalShow=false;
         kickoffSince=0;candidateSince=now;showStarted=0;deadline=0;
         lastMatchSample=0;cachedMatch=false;cachedZero=false;
         for(int i=0;i<emitterCount;++i)emitterStarted[i]=false;
         log_event("MATCH_RESTART_CONFIRMED reset_intro_and_goal_baseline");
     }
-    if(currentPage==PyroPage::Pause) {
+    if(configured && (showing || recoveringShow) && !owned())recover_resource(now);
+    if(replayRefresh && showing && (goalShow?presentation.goal_allowed():presentation.entrance_allowed())) {
+        uintptr_t impl=0;
+        if(same((uintptr_t)batch,image+0x2214500) && get((uintptr_t)batch+0x10,impl) && impl) {
+            batchImpl=impl;refresh_replay_emission();
+        }
+    }
+    if(!stopping && (currentPage==PyroPage::Pause || (sceneTime.valid && sceneTime.replay))) {
         if(showing) {
             if(!(goalShow?presentation.goal_allowed():presentation.entrance_allowed())) {
                 uintptr_t impl=0;
                 if(!same((uintptr_t)batch,image+0x2214500) || !get((uintptr_t)batch+0x10,impl) || !impl)return;
-                batchImpl=impl;cleanup(true);consumed=true;
+                batchImpl=impl;cleanup(true,"presentation_switch_disabled");consumed=true;
             } else if(showPause.enter(now)) {
-                // Native instances keep updating/rendering. Do not clear,
-                // stop, retrigger or replace them when opening replay UI.
+                // Native instances keep updating/rendering. A named pause
+                // never clears particles; actual replay only refreshes emission time.
                 log_event("PAUSE_REPLAY_EFFECTS_RETAINED remaining_duration_preserved");
             }
         }
-        return;
+        if(!recoveringShow)return;
     }
     if(showing && showPause.resume(now,showStarted)) {
         log_event("PAUSE_REPLAY_RESUMED same_show_no_retrigger");
@@ -508,8 +560,8 @@ static void tick(void* batch) {
     uintptr_t impl=0;
     if (!same((uintptr_t)batch,image+0x2214500) || !get((uintptr_t)batch+0x10,impl) || !impl) return;
     batchImpl=impl;
-    if (stopping) { cleanup(); return; }
-    if(!canStart && !showing)return;
+    if (stopping) { cleanup(false,"module_stop"); return; }
+    if(!canStart && !showing && !recoveringShow)return;
     // Preload in the first available batch while the player tables are still loading.
     if(!showing && (presentation.entrance_allowed() || presentation.goal_allowed()))preload(now);
     // Fully automatic: keyboard input cannot arm, cancel or restart the show.
@@ -518,50 +570,53 @@ static void tick(void* batch) {
         cachedMatch=match(key,zero); cachedZero=zero; lastMatchSample=now;
     } else { key=session.key; zero=cachedZero; }
     if (!cachedMatch) {
-        cleanup();
-        // A missing scene sample is not a new match and cannot rearm opening.
+        if(showing || recoveringShow) {
+            if(showPause.enter(now))log_event("MATCH_METADATA_GAP same_show_retained no_new_event");
+        }
+        // Missing Lua/score samples cannot clear particles or consume an event.
         return;
     }
     lastValid=now;
     if (session.observe(key,fixtureHome,fixtureAway)) {
-        cleanup(); consumed=!automatic || !zero || !presentation.entrance_allowed();
-        candidateSince=now; kickoffSince=0; goals=PyroGoals{}; goalShow=false; lifecycle=PyroLifecycle{}; paletteHome=0;paletteEffect=0;
+        cleanup(false,"new_fixture"); consumed=!automatic || !zero || !presentation.entrance_allowed();
+        candidateSince=assetSince=now; kickoffSince=0; goals=PyroGoals{}; goalShow=false; lifecycle=PyroLifecycle{}; paletteHome=0;paletteEffect=0;
+        sceneRestart=PyroSceneRestart{};restartPending=false;
         log_event("MATCH_DETECTED automatic_intro_armed");
     }
     if (configured && (showing || !consumed) && !owned()) {
-        forget_resource(); candidateSince=now;assetSince=0;
-        log_event("RESOURCE_REBUILD consumed_event_preserved_without_stale_pointers");
+        recover_resource(now);
     }
     int h=0,a=0;
     if (canStart && (pendingGoal || (read_score(h,a) && goals.update(now,h,a))) && enabled && presentation.goal_allowed()) {
-        cleanup(); consumed=false; candidateSince=now; kickoffSince=0; goalShow=true;
+        cleanup(false,"new_home_goal"); consumed=false; candidateSince=assetSince=now; kickoffSince=0; goalShow=true;
         read_score(h,a);
         char event[128];_snprintf_s(event,sizeof(event),_TRUNCATE,"HOME_GOAL_CONFIRMED score=%d:%d rear_machines=%d automatic_show_armed",h,a,pyroGoalCount);log_event(event);
     }
     if (!enabled) return;
     if (!(goalShow ? presentation.goal_allowed() : presentation.entrance_allowed())) {
-        if(showing)cleanup();
+        if(showing || recoveringShow)cleanup(false,"presentation_switch_disabled");
         consumed=true;
         return;
     }
     if (showing) {
         if (!kickoffSince && gameplay_present()) kickoffSince=now;
-        if (pyro_show_expired(now,showStarted,goalShow)) { finish_naturally(); consumed=true; return; }
+        const uint64_t elapsed=showClock.elapsed;
+        if (pyro_show_expired(elapsed,0,goalShow)) { finish_naturally(); consumed=true; return; }
         bool waited=false;
         for (int i=0;i<active_count();++i) {
-            if (!emitterStarted[i] && now-showStarted>=(ULONGLONG)(i/2)*160) {
+            if (!emitterStarted[i] && elapsed>=(ULONGLONG)(i/2)*160) {
                 if (!waited) { wait_jobs(); waited=true; }
-                if (!valid_slot(i)) { cleanup(); consumed=true; return; }
+                if (!valid_slot(i)) { recover_resource(now); return; }
                 ((Slot)(image+0x441ce00))((void*)activeManager,handles[i]);
                 ((Slot)(image+0x441c8d0))((void*)activeManager,handles[i]);
                 emitterStarted[i]=true;
             }
         }
-        if(!particleAuditDone && now-showStarted>=2500){audit_particles();particleAuditDone=true;}
+        if(!particleAuditDone && elapsed>=2500){audit_particles();particleAuditDone=true;}
         for(int i=0;i<active_count();++i) {
-            if(emitterStarted[i] && !emitterDraining[i] && pyro_drain_due(now,showStarted,goalShow,i)) {
+            if(emitterStarted[i] && !emitterDraining[i] && pyro_drain_due(elapsed,0,goalShow,i)) {
                 if(!waited) {wait_jobs();waited=true;}
-                if(!valid_slot(i)) {cleanup();consumed=true;return;}
+                if(!valid_slot(i)) {recover_resource(now);return;}
                 // Native state 2 suppresses new emission but continues particle updates.
                 ((Slot)(image+0x441c980))((void*)activeManager,handles[i]);
                 emitterDraining[i]=true;
@@ -570,7 +625,7 @@ static void tick(void* batch) {
         }
         return;
     }
-    if (!canStart || consumed) return;
+    if ((!canStart && !recoveringShow) || consumed) return;
     if (!configured) {
         if (now-candidateSince<100) return;
         if (!configure()) {
@@ -580,6 +635,10 @@ static void tick(void* batch) {
         assetSince=now;
     }
     if (emit()) {
+        const bool restored=recoveringShow;recoveringShow=false;
+        if(!restored)showClock.begin(sceneTime,now);
+        else {showClock.previous=sceneTime;showClock.wall=now;showClock.blocked=false;log_event("SHOW_RECOVERED same_event remaining_scene_duration_retained");}
+        replayRefresh=false;
         showPause=PyroShowPause{};
         consumed=true; showing=true; showStarted=now; deadline=now+durationMs;particleAuditDone=false;
         kickoffSince=gameplay_present()?now:0;
@@ -588,7 +647,7 @@ static void tick(void* batch) {
             ((Slot)(image+0x441ce00))((void*)activeManager,handles[i]);
             ((Slot)(image+0x441c8d0))((void*)activeManager,handles[i]); emitterStarted[i]=true;
         }
-    } else if (now-assetSince>15000) { cleanup(); consumed=true; log_event("ASSET_TIMEOUT"); }
+    } else if (now-assetSince>15000) { cleanup(false,"asset_timeout"); consumed=true; log_event("ASSET_TIMEOUT"); }
 }
 static void __fastcall draw_hook(void* self,int phase) {
     if (phase>=0 && phase<8) {
@@ -651,7 +710,6 @@ extern "C" __declspec(dllexport) BOOL WINAPI Fifa16ModStart(const char* root) {
     enabled=GetPrivateProfileIntA("pyro","enabled",1,configPath)!=0;
     automatic=true;
     if(!presentationConfig.initialize())return FALSE;
-    scene_preload_publish(1,enabled?ScenePreloadState::Waiting:ScenePreloadState::Skipped);
     log_event("match_presentation_config separate_intro_and_goal_switches poll_ms=250");
     for (int& handle:handles) handle=-1;
     image=(uintptr_t)GetModuleHandleA(nullptr);

@@ -32,6 +32,14 @@ cl /nologo /std:c++17 /W4 /WX /O2 /MT presentation_test.cpp /Fobuild\ /Febuild\p
 if errorlevel 1 exit /b 1
 build\presentation_test.exe
 if errorlevel 1 exit /b 1
+cl /nologo /std:c++17 /W4 /WX /O2 /MT scene_clock_test.cpp /Fobuild\ /Febuild\scene_clock_test.exe /link /NOLOGO
+if errorlevel 1 exit /b 1
+build\scene_clock_test.exe
+if errorlevel 1 exit /b 1
+cl /nologo /std:c++17 /W4 /WX /O2 /MT runtime_scene_test.cpp /Fobuild\ /Febuild\runtime_scene_test.exe /link /NOLOGO user32.lib
+if errorlevel 1 exit /b 1
+build\runtime_scene_test.exe
+if errorlevel 1 exit /b 1
 cl /nologo /std:c++17 /W4 /WX /O2 /MT /LD stadium_pyrotechnics.cpp /Fobuild\ /Febuild\stadium_pyrotechnics.dll /link /NOLOGO user32.lib
 set result=%errorlevel%
 popd

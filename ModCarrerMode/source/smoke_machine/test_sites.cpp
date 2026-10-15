@@ -6,6 +6,12 @@
 #include <initializer_list>
 int main(){
     static_assert(machineCount==20,"All opening and goal emitters need a physical base");
+    for(int i=0;i<pyroSidelineCount;++i){
+        // The failed 3500cm adjustment moved hardware inward. Restore the
+        // previous 3750cm base and add the requested 100cm outward movement.
+        assert(std::fabs(machineSites[i].z)==3750+100);
+        assert(std::fabs(machineSites[i].x)==1400 || std::fabs(machineSites[i].x)==2800);
+    }
     for(size_t i=0;i<machineCount;++i){
         const auto& s=machineSites[i];assert(std::isfinite(s.x)&&std::isfinite(s.z)&&std::isfinite(s.yaw));
         // All hardware stays outside a 105m x 68m playable rectangle.

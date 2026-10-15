@@ -4,17 +4,18 @@ O módulo `stadium_pyrotechnics.dll` oferece pirotecnia para qualquer time. Na a
 
 ## Comportamento
 
-- Abertura de 60 segundos, acionada pela apresentação real da partida com duas equipes nativas confirmadas.
-- Gol do mandante: 25 segundos de efeitos. Gol do visitante não inicia um novo show.
+- Abertura de 60 segundos reais, acionada pela apresentação real da partida (incluindo StadiumPan/TV bumper) com duas equipes nativas confirmadas. Pausa e replay não consomem a duração.
+- Gol do mandante: 25 segundos reais de efeitos. Gol do visitante não inicia um novo show. Duração e intervalo entre máquinas usam relógio monotônico do Windows, sem depender da escala do contador nativo da cena.
 - Fogos, confete e duas camadas de fumaça; encerramento gradual das fontes, com cauda de partículas incluída na duração.
 - Todas as 20 máquinas disparam na abertura; as 12 traseiras disparam imediatamente no gol do mandante.
 - Os 11 grupos de partículas respeitam o trigger externo: cada gol e reinício da partida renova o relógio de emissão das instâncias reutilizadas, mesmo depois de terminar a abertura. Instale o `.lnx` atualizado junto da DLL.
 - Cada máquina usa grupos privados (`iInstancing=0`). No modo compartilhado anterior, o caminho nativo de instâncias podia pular a emissão e a limpeza de um emissor atingia os buffers compartilhados. O modo privado preserva os limites por ponto e permite o reinício de cada máquina no gol.
 - Os efeitos usam orientação fixa, sem rotação conforme o lado do campo. A posição de saída acompanha a boca da máquina.
 - Prévia de estádio, seleção de uniformes e outros menus não acionam abertura. Reiniciar Partida rearma abertura e detector de gols.
-- Pausa e replay preservam as instâncias e partículas do show em andamento. O tempo nesse menu não consome a duração restante; retornar continua o mesmo show, sem disparar outro gol.
-- O recurso de partículas é pré-carregado na prévia da partida, sem criar ou disparar emissores. O Server16 acompanha a preparação e a confirmação nativa da cena em segundo plano; os avisos de carregamento da apresentação estão ocultos.
-- A pausa preserva o evento consumido e o placar. Voltar à partida, abrir seleção de lados/detalhes ou reconstruir tabelas Lua não rearma a fumaça. Abertura e gols do mandante são os únicos disparos automáticos.
+- Pausa e replay preservam as instâncias e partículas do show em andamento. O estado nativo de replay também é reconhecido quando o nome da tela está vazio. Entrar, buscar outro instante e sair do replay ajusta somente o relógio de emissão, sem apagar as partículas nem registrar um novo gol.
+- O recurso de partículas é solicitado no primeiro batch disponível da apresentação real, antes da leitura das tabelas de jogadores. O módulo não depende de um aviso de carregamento do Server16.
+- Uma ausência temporária do registro de equipes, das tabelas Lua ou do placar mantém o evento em curso. Se o FIFA substituir o recurso, o módulo valida os novos objetos e recupera o tempo restante, sem usar ponteiros antigos.
+- A pausa preserva o evento consumido e o placar. Voltar à partida, abrir seleção de lados/detalhes ou reconstruir tabelas Lua não rearma a fumaça. O relógio nativo permite reconhecer um reinício antes do pontapé inicial, mesmo com placar 0 a 0. Abertura e gols do mandante são os únicos disparos automáticos.
 - Sem comandos F7/F8: os gatilhos são automáticos.
 
 ## Compilação
@@ -25,7 +26,7 @@ Na raiz do repositório:
 .\ModCarrerMode\source\stadium_pyrotechnics\build.cmd
 ```
 
-O script executa sete testes antes de compilar `stadium_pyrotechnics.cpp`, com MSVC C++17 x64 e `/W4 /WX`. Saída: `ModCarrerMode/source/stadium_pyrotechnics/build/stadium_pyrotechnics.dll`.
+O script executa nove testes antes de compilar `stadium_pyrotechnics.cpp`, com MSVC C++17 x64 e `/W4 /WX`. O teste de integração executa o tick real sobre uma imagem de memória privada, sem abrir o processo do FIFA. Saída: `ModCarrerMode/source/stadium_pyrotechnics/build/stadium_pyrotechnics.dll`.
 
 `python ModCarrerMode/source/stadium_pyrotechnics/prepare.py` copia os recursos atuais de `assets/` para o build e usa a paleta publicada em `team_palettes.h`. Funciona sem uma instalação local do FIFA e preserva o código do runtime.
 

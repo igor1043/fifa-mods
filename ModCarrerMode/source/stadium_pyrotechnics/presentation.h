@@ -13,9 +13,9 @@ inline PyroPage pyro_page(const char* text, bool known, bool matchSession=false)
     if(text[n])return PyroPage::Unreadable;
     bool blank=true;
     for(std::size_t i=0;i<n;++i)if(page[i]!=' ' && page[i]!='\r' && page[i]!='\n' && page[i]!='\t')blank=false;
-    if(blank || !std::strcmp(page,"game/screens/tv/bumper"))return PyroPage::Match;
-    if(!std::strcmp(page,"game/screens/misc/stadiumpan") ||
-       !std::strcmp(page,"game/screens/fluxhub/fluxhub") ||
+    if(blank || !std::strcmp(page,"game/screens/tv/bumper") || !std::strcmp(page,"tv/bumper") ||
+       !std::strcmp(page,"game/screens/misc/stadiumpan"))return PyroPage::Match;
+    if(!std::strcmp(page,"game/screens/fluxhub/fluxhub") ||
        std::strstr(page,"game/screens/instantreplay/") ||
        std::strstr(page,"game/screens/pause/"))return PyroPage::Pause;
     // FIFA also uses these pre-match pages as overlays of a running match.

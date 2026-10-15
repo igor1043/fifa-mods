@@ -5,14 +5,15 @@
 #include <string.h>
 #define BALL_STATE_BYTES 0x820
 #define SPARE_BALLS 13
-/* FIFA world coordinates are centimetres: X along the pitch, Z across it. */
+/* FIFA world coordinates are centimetres: X along the pitch, Z across it.
+   Spare balls are 30cm closer to their nearest pitch boundary. */
 static const float ball_positions[SPARE_BALLS][3] = {
- {-5550,11.1252f,-2016},{-5550,11.1252f,2016},
- {5550,11.1252f,-2016},{5550,11.1252f,2016},
- {-4200,11.1252f,-3650},{-2100,11.1252f,-3650},
- {0,11.1252f,-3650},{2100,11.1252f,-3650},{4200,11.1252f,-3650},
- {-4200,11.1252f,3650},{-1400,11.1252f,3650},
- {1400,11.1252f,3650},{4200,11.1252f,3650}
+ {-5520,11.1252f,-2016},{-5520,11.1252f,2016},
+ {5520,11.1252f,-2016},{5520,11.1252f,2016},
+ {-4200,11.1252f,-3620},{-2100,11.1252f,-3620},
+ {0,11.1252f,-3620},{2100,11.1252f,-3620},{4200,11.1252f,-3620},
+ {-4200,11.1252f,3620},{-1400,11.1252f,3620},
+ {1400,11.1252f,3620},{4200,11.1252f,3620}
 };
 /* Only a PRIVATE rendering snapshot is changed; never the live ball state. */
 static int ball_expand_snapshot(unsigned char *state, int include_match_ball) {

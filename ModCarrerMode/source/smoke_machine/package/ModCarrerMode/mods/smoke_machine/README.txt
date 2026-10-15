@@ -18,17 +18,15 @@ Log: ModCarrerMode/logs/smoke_machine.log.
 Validacoes de conversao, Lua 5.1, pontos de emissao e compilacao passaram.
 A visualizacao dentro do FIFA precisa ser confirmada no jogo.
 
-Quatro maquinas internas laterais a -14/+14 metros; nenhuma no meio-campo. Afastamento adicional de 50 cm preservado.
+Quatro maquinas internas laterais a -14/+14 metros; nenhuma no meio-campo.
+Oito bases laterais a 38,5 m do eixo: 1 m para fora da posicao anterior de 37,5 m; emissores alinhados.
 
 Equipamentos de pirotecnia para qualquer time; cores e eventos definidos pelo mandante.
 
-Cada maquina corresponde a um emissor: 20 na abertura, 12 atras dos gols no gol do mandante.
-Origem na boca da maquina (57 cm de altura); foguete 12 cm, papel 3 cm; fumaca com crescimento ate nuvem densa.
-PARTICLE_AUDIT no log de pirotecnia verifica particulas uma vez por disparo. Menu de pausa interrompe o show em curso.
 
 Cada maquina corresponde a um emissor: 20 na abertura, 12 atras dos gols no gol do mandante.
 Origem na boca da maquina (57 cm de altura); foguete 12 cm, papel 3 cm; fumaca com crescimento ate nuvem densa.
-PARTICLE_AUDIT no log de pirotecnia verifica particulas uma vez por disparo. Menu de pausa interrompe o show em curso.
+PARTICLE_AUDIT no log de pirotecnia verifica particulas uma vez por disparo. Pausa/replay preserva o show em curso.
 
 Carregamento: ativacao Lua na thread da cena, retry em nova VM/cena, deteccao nativa sem booleano antigo, guardas sem bytes apos o RET.
 Diagnostico: asset_files, hook_pending, lua_ready scene_thread, model_deferred e machines_placed.

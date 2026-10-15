@@ -8,7 +8,7 @@ T=Path(r'J:\mods\fifa 16\02_Ferramentas\mascot_rig_adjuster')
 sys.path[:0]=[str(T),str(T/'vendor/rx3tools')]
 from rx3 import Rx3,read_model,VERTEX,INDEX,MESH,TEXTURE,align
 from texture_assets import rx3_colour_png
-S=Path('C:/Users/igorv/OneDrive/\u00c1rea de Trabalho/CABINE DO VAR 2')
+S=Path('J:\\mods\\fifa 16\\estudos fifa 16\\58_VAR_TEXTURAS_20261015\\source')
 D=R/'package/data/sceneassets/var_cabin';D.mkdir(parents=True,exist_ok=True)
 # Keep the proportional atlas UVs, but allocate each map at the resolution
 # needed for its detail. The coefficient map contains broad constant regions.
@@ -57,10 +57,10 @@ def texture(im,output_size,is_normal=False):
         if is_normal:im=normalized_map(im)
     struct.pack_into('<I',b,0,len(b));struct.pack_into('<4H',b,8,w,h,1,count);return bytes(b)
 colour=Image.new('RGBA',(2048,4096),(28,33,38,255))
-source_colour=Image.open(S/'CABINE+DO+VAR_basecolor.jpg').convert('RGBA');assert source_colour.size==(2048,2048)
+source_colour=Image.open(S/'COLOR.png').convert('RGBA');assert source_colour.size==(2048,2048)
 colour.paste(source_colour,(0,0))
 normal=Image.new('RGBA',(2048,4096),(128,128,255,255))
-red,green,blue=Image.open(S/'CABINE+DO+VAR_normal.png').convert('RGB').split()
+red,green,blue=Image.open(S/'nm.png').convert('RGB').split()
 normal.paste(Image.merge('RGBA',(red,ImageOps.invert(green),blue,Image.new('L',(2048,2048),255))),(0,0))
 coeff=Image.new('RGBA',(2048,4096),(18,35,0,255))
 # Native coefficient inputs already connected to the character environment
@@ -82,6 +82,6 @@ for key,section in zip(('cm','coeff','nm'),checked.get(TEXTURE)):
     assert at==len(section)
 (R/'colour_rx3.png').write_bytes(rx3_colour_png(D/'textures.rx3'))
 (R/'converted_mesh.json').write_text(json.dumps(part),encoding='utf8')
-report={'source':str(S/'Cabine do Var.obj'),'vertices':len(vertices),'triangles':len(indices)//3,'static':True,'skeleton':False,'height_cm':200,'bounds_cm':[p.min(axis=0).tolist(),p.max(axis=0).tolist()],'position_error_cm':position_error,'uv_error':uv_error,'winding':winding,'textures':checked.names(),'texture_size':list(TEXTURE_SIZES['cm']),'texture_sizes':{k:list(v) for k,v in TEXTURE_SIZES.items()},'texture_mip_levels':{k:max(v).bit_length() for k,v in TEXTURE_SIZES.items()},'texture_compression':'DXT5','diffuse_source_size':[2048,2048],'diffuse_detail_region_size':[1024,1024],'material_triangle_counts':data['material_triangle_counts'],'normal_map_green_inverted':True,'normal_mips_renormalized':True,'mirror_finish':'native environment/specular inputs, not planar real-time reflection','source_files':{q.name:hashlib.sha256(q.read_bytes()).hexdigest() for q in S.iterdir() if q.is_file()},'files':{q.name:{'size':q.stat().st_size,'sha256':hashlib.sha256(q.read_bytes()).hexdigest()} for q in D.iterdir() if q.suffix=='.rx3'}}
+report={'source':str(S/'Cabine_geometry.blend'),'vertices':len(vertices),'triangles':len(indices)//3,'static':True,'skeleton':False,'height_cm':200,'bounds_cm':[p.min(axis=0).tolist(),p.max(axis=0).tolist()],'position_error_cm':position_error,'uv_error':uv_error,'winding':winding,'textures':checked.names(),'texture_size':list(TEXTURE_SIZES['cm']),'texture_sizes':{k:list(v) for k,v in TEXTURE_SIZES.items()},'texture_mip_levels':{k:max(v).bit_length() for k,v in TEXTURE_SIZES.items()},'texture_compression':'DXT5','uv_layout':'original OBJ UVs matched to the supplied COLOR.png/nm.png','maximum_geometry_change_cm':data['maximum_geometry_change_cm'],'diffuse_source_size':[2048,2048],'diffuse_detail_region_size':[1024,1024],'material_triangle_counts':data['material_triangle_counts'],'normal_map_green_inverted':True,'normal_mips_renormalized':True,'mirror_finish':'native environment/specular inputs, not planar real-time reflection','source_files':{q.name:hashlib.sha256(q.read_bytes()).hexdigest() for q in S.iterdir() if q.is_file()},'files':{q.name:{'size':q.stat().st_size,'sha256':hashlib.sha256(q.read_bytes()).hexdigest()} for q in D.iterdir() if q.suffix=='.rx3'}}
 (R/'conversion_validation.json').write_text(json.dumps(report,indent=2),encoding='utf8');(R/'model_metadata.json').write_text(json.dumps(report,indent=2),encoding='utf8')
 print(json.dumps(report,indent=2))

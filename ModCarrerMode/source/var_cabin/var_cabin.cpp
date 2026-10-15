@@ -6,16 +6,17 @@
 #include <string.h>
 #include <math.h>
 #include "../common/scene_lua.h"
-#include "../common/preload_status.h"
+#include "../common/scene_resource_cycle.h"
 using BuildFn=void(__fastcall*)(void*);
 static uintptr_t image;
 static BuildFn nextBuild;
 static LONG started,stopping,busy,luaReady;
 static char logPath[MAX_PATH],iniPath[MAX_PATH],luaPath[MAX_PATH];
-static bool enabled=true,resourceRequested=false,shadowRequested=false,fault=false,placed=false,requireEntrance=false;
+static bool enabled=true,fault=false,placed=false,requireEntrance=false;
 static SceneLuaLifecycle luaLifecycle;
 static uint64_t nextCreate=0;
 static LONG sceneContentions;
+static SceneResourceCycle modelCycle,shadowCycle;
 static uintptr_t owner=0,prototype=0,shadow=0,prototypeState=0;
 static float xCm=800,zCm=-3800,yCm=2,yaw=0;
 static uint64_t nextConfig=0,nextDiagnostic=0;
@@ -63,7 +64,7 @@ static void refreshLua(){
     const bool known=luaMarkers(snapshot.globals),lost=luaLifecycle.ready&&!known;
     luaLifecycle.sample(now,snapshot);
     if(changed||lost){
-        owner=prototype=shadow=prototypeState=0;resourceRequested=shadowRequested=fault=placed=false;
+        owner=prototype=shadow=prototypeState=0;modelCycle=shadowCycle=SceneResourceCycle{};fault=placed=false;
         nextCreate=nextCompetition=0;competitionId=-1;
         event(changed?"lua_context_changed scene_resources_rearmed":"lua_markers_lost scene_resources_rearmed");
     }
@@ -130,12 +131,19 @@ static bool ownPrototype(void* self,uintptr_t& p,uintptr_t& state,uintptr_t& bas
     if(!get(base+12,type)||type!=3||!get(base+14,variation)||variation!=0)return false;
     return get(p+12,type)&&type==3&&get(p+14,variation)&&variation==1&&get(p+16,state)&&get(state+0x4c,rna)&&rna<176;
 }
-static bool ready(uintptr_t p,bool& requested,const char* message){
+static bool ready(uintptr_t p,SceneResourceCycle& cycle,const char* message){
     using Ready=unsigned char(__fastcall*)(void*);
     if(fault)return false;
     __try{
-        if(!requested){
-            const bool initialized=((Ready)(image+0x43b4500))((void*)p)!=0;
+        const bool initialized=((Ready)(image+0x43b4500))((void*)p)!=0;
+        const bool loaded=((Ready)(image+0x43b4520))((void*)p)!=0;
+        if(cycle.refresh(initialized,loaded)){
+            record[0x40]=record[0x41]=0xff;record[0x45]=0;
+            nextCompetition=0;competitionId=-1;
+            placed=false;
+            event(p==prototype?"model_resource_cycle_reset reloading_same_actor":"shadow_resource_cycle_reset reloading_same_actor");
+        }
+        if(!cycle.requested){
             if(!initialized){
                 const int parameters[5]={-1,-1,-1,0,-1};((void(__fastcall*)(void*,const int*))(image+0x43b4640))((void*)p,parameters);
             }
@@ -145,7 +153,7 @@ static bool ready(uintptr_t p,bool& requested,const char* message){
                 // gate was set. Refresh that private resource on this callback.
                 ((void(__fastcall*)(void*,int))load)((void*)p,p==prototype?1:0);
             }
-            requested=true;event(message);
+            cycle.requested=true;event(message);
         }
         const bool allLodsReady=((Ready)(image+0x43b43e0))((void*)p)!=0;
         // A renderable created after the initial batch misses the startup
@@ -155,7 +163,10 @@ static bool ready(uintptr_t p,bool& requested,const char* message){
             ((void(__fastcall*)(void*))(image+0x43b47c0))((void*)p);
             event("native_loaded_notification all_five_lods_ready");
         }
-        return allLodsReady&&((Ready)(image+0x43b4520))((void*)p)!=0;
+        const bool nowInitialized=((Ready)(image+0x43b4500))((void*)p)!=0;
+        const bool complete=nowInitialized&&allLodsReady&&((Ready)(image+0x43b4520))((void*)p)!=0;
+        cycle.complete(nowInitialized,complete);
+        return complete;
     }__except(EXCEPTION_EXECUTE_HANDLER){fault=true;event("native_resource_fault_disabled");return false;}
 }
 static void position(float h){const float p[4]={xCm,h,zCm,yaw};memcpy(record+0x20,p,16);memcpy(record+0x30,p,16);}
@@ -165,7 +176,6 @@ static void __fastcall buildHook(void* self){
         nextBuild(self);return;
     }
     Vector saved{},temporary{};size_t n=0,normalBytes=0;unsigned mask=0;bool swapped=false,maskSaved=false;float submitted=-3000;
-    ScenePreloadState loadState=ScenePreloadState::Waiting;
     const uintptr_t list=(uintptr_t)self+0x30*(3+0x2f),maskAt=(uintptr_t)self+0x4f604;
     __try{
         config();refreshLua();
@@ -187,7 +197,7 @@ static void __fastcall buildHook(void* self){
                 for(size_t i=0;i<n;++i){auto r=scratch+i*0x50;if(r[0x42]==1){r[0x42]=0;r[0x40]=r[0x41]=0xff;r[0x45]=0;}}
                 if(normalBytes)memcpy((void*)saved.begin,scratch,normalBytes);
                 if(owner!=(uintptr_t)self||prototype!=p||prototypeState!=s||shadow!=b){
-                    owner=(uintptr_t)self;prototype=p;prototypeState=s;shadow=b;resourceRequested=shadowRequested=fault=placed=false;
+                    owner=(uintptr_t)self;prototype=p;prototypeState=s;shadow=b;modelCycle=shadowCycle=SceneResourceCycle{};fault=placed=false;
                     competitionId=-1;nextCompetition=0;
                     memset(record,0,sizeof(record));record[0x40]=record[0x41]=0xff;record[0x42]=1;event("static_prototype_confirmed type=3 variation=1");
                     unsigned rna=0;char update[96];
@@ -197,8 +207,7 @@ static void __fastcall buildHook(void* self){
                     }
                 }
                 refreshCompetition(s);
-                const bool a=ready(p,resourceRequested,"model_texture_requested");const bool c=ready(b,shadowRequested,"shadow_dependency_requested");
-                loadState=a&&c?ScenePreloadState::Ready:ScenePreloadState::Loading;
+                const bool a=ready(p,modelCycle,"model_texture_requested");const bool c=ready(b,shadowCycle,"shadow_dependency_requested");
                 if(a&&c&&get(maskAt,mask)){
                     submitted=enabled&&!stopping&&competitionAllowed(competitionId)?yCm:-3000;position(submitted);memcpy(scratch+normalBytes,record,0x50);
                     temporary={(uintptr_t)scratch,(uintptr_t)scratch+normalBytes+0x50,(uintptr_t)scratch+sizeof(scratch)};
@@ -216,7 +225,6 @@ static void __fastcall buildHook(void* self){
             const uint64_t now=GetTickCount64();if(now>=nextDiagnostic){nextDiagnostic=now+5000;char msg[240];_snprintf_s(msg,sizeof(msg),_TRUNCATE,"position_cm=%g,%g,%g yaw=%g binding=%u normal_platforms=%zu enabled=%u competition_id=%d competition_allowed=%u",xCm,submitted,zCm,yaw,binding,n,(unsigned)enabled,competitionId,(unsigned)competitionAllowed(competitionId));event(msg);}
         }
         if(maskSaved)*(unsigned*)maskAt=mask;
-        scene_preload_publish(2,!enabled?ScenePreloadState::Skipped:fault?ScenePreloadState::Failed:loadState);
         InterlockedExchange(&busy,0);
     }
 }
@@ -277,7 +285,6 @@ static DWORD WINAPI worker(void*){
 extern "C" __declspec(dllexport) unsigned WINAPI Fifa16ModGetApiVersion(){return 1;}
 extern "C" __declspec(dllexport) BOOL WINAPI Fifa16ModStart(const char* root){
     if(!root||InterlockedCompareExchange(&started,1,0))return FALSE;
-    scene_preload_publish(2,ScenePreloadState::Waiting);
     _snprintf_s(logPath,MAX_PATH,_TRUNCATE,"%s\\..\\logs\\var_cabin.log",root);
     _snprintf_s(iniPath,MAX_PATH,_TRUNCATE,"%s\\var_cabin\\var_cabin.ini",root);
     _snprintf_s(luaPath,MAX_PATH,_TRUNCATE,"%s\\var_cabin\\var_cabin.lua",root);

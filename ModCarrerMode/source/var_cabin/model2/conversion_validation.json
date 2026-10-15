@@ -1,6 +1,6 @@
 {
-  "source": "C:\\Users\\igorv\\OneDrive\\\u00c1rea de Trabalho\\CABINE DO VAR 2\\Cabine do Var.obj",
-  "vertices": 40440,
+  "source": "J:\\mods\\fifa 16\\estudos fifa 16\\58_VAR_TEXTURAS_20261015\\source\\Cabine_geometry.blend",
+  "vertices": 12324,
   "triangles": 19447,
   "static": true,
   "skeleton": false,
@@ -61,6 +61,8 @@
     "nm": 11
   },
   "texture_compression": "DXT5",
+  "uv_layout": "original OBJ UVs matched to the supplied COLOR.png/nm.png",
+  "maximum_geometry_change_cm": 0,
   "diffuse_source_size": [
     2048,
     2048
@@ -81,19 +83,18 @@
   "normal_mips_renormalized": true,
   "mirror_finish": "native environment/specular inputs, not planar real-time reflection",
   "source_files": {
-    "Cabine do Var.mtl": "470c364726ccfc42a9b99d19df65e99946e84807cf5dc37937679dc15175f921",
-    "Cabine do Var.obj": "3276bc5faf4e39cfa0ff58fc6ac9df86b572d3f3132ce1967f9aec90f5001393",
-    "CABINE+DO+VAR_basecolor.jpg": "96a614f41a243b8d1d73cd23cf8a069de7a749a26d3ec3cc80c49ca0c9bd0b6a",
-    "CABINE+DO+VAR_normal.png": "15b8035686facd4e71aa413e14ae62d08c08c86395c151d62f52f9af794251bd"
+    "Cabine_geometry.blend": "3790126638307d8afe1c4462be2c1f935ab4ae039c8f1b0e11dbb162631b4391",
+    "COLOR.png": "3e5690436663f567b0075e7410fa385d17ea213bea04b43f4f5af223e11d343f",
+    "nm.png": "78d7ca9c904a13290cfb396fa0ef0f92e36738c2bd6a09e6761077856f11510a"
   },
   "files": {
     "model.rx3": {
-      "size": 925840,
-      "sha256": "921052377e527b22c9d42c864c6b7cc73ef9b5e88ffd940f9058a819ed0d0b8a"
+      "size": 363520,
+      "sha256": "90f5e1bcc820c600cf8eb5682cf1f21852c256f81681c466c1ea18ce63aaa667"
     },
     "textures.rx3": {
       "size": 3670960,
-      "sha256": "f5bdc4f0ea06e5ff33e0bba45874edd3febf547a831469d9e3989fa1281c4296"
+      "sha256": "404f57d1cdd17c7f00503473cf25e8f271be30c8c5060dad1d63993a80c8073d"
     }
   }
 }
