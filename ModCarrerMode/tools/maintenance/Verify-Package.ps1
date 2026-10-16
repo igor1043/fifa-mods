@@ -51,6 +51,12 @@ if ($entries -contains 'var_cabin\var_cabin.dll') {
     $varIndex=[Array]::IndexOf($entries,'var_cabin\var_cabin.dll')
     if ($entranceIndex -ge 0 -and $varIndex -lt $entranceIndex) { throw 'Os objetos de abertura devem ser carregados antes da cabine do VAR.' }
 }
+if ($entries -contains 'multiball_visual\multiball_visual.dll') {
+    Require-File 'ModCarrerMode\mods\multiball_visual\standball.lua'
+    Require-File 'ModCarrerMode\mods\multiball_visual\standball.ini'
+    # Stand models/textures are installed locally and excluded from Git.
+    # The module keeps the 13 balls on the ground when those assets are absent.
+}
 if ($entries -contains 'smoke_machine\smoke_machine.dll') {
     foreach ($relative in @('ModCarrerMode\mods\smoke_machine\smoke_machine.ini','ModCarrerMode\mods\smoke_machine\smoke_machine.lua','data\sceneassets\smoke_machine\model.rx3','data\sceneassets\smoke_machine\textures.rx3')) { Require-File $relative }
     if ($entries -notcontains 'stadium_pyrotechnics\stadium_pyrotechnics.dll') { throw 'A máquina de fumaça precisa do módulo stadium_pyrotechnics para os disparos.' }

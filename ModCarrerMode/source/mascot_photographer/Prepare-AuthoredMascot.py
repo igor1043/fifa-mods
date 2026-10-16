@@ -9,6 +9,7 @@ parser.add_argument('--tools',required=True);parser.add_argument('--clips',requi
 parser.add_argument('--club-id',type=int,required=True);parser.add_argument('--club-name',required=True)
 parser.add_argument('--texture-template',required=True)
 parser.add_argument('--basecolor',help='Explicit diffuse map when the supplied filename is not basecolor/tripo_rgb')
+parser.add_argument('--normal',help='Explicit tangent-space normal map when the supplied filename does not contain normal')
 args=parser.parse_args()
 ROOT=Path(args.output);TOOLS=Path(args.tools);SRC=Path(args.source)
 sys.path[:0]=[str(TOOLS),str(TOOLS/'vendor/rx3tools'),str(Path(__file__).resolve().parent)]
@@ -35,7 +36,7 @@ def texture(image,limit,mips=None):
 sections=[s for s in rx.sections if s[0]==TEXTURE]
 basecolor=Path(args.basecolor) if args.basecolor else next((p for p in SRC.rglob('*') if p.is_file() and ('basecolor' in p.name.lower() or 'tripo_rgb' in p.name.lower())))
 sections[0][1]=texture(Image.open(basecolor),2048)
-normal=next(p for p in SRC.rglob('*') if p.is_file() and 'normal' in p.name.lower())
+normal=Path(args.normal) if args.normal else next(p for p in SRC.rglob('*') if p.is_file() and 'normal' in p.name.lower())
 sections[2][1]=texture(Image.open(normal),1024)
 (dest/'textures.rx3').write_bytes(rx.build())
 (ROOT/'exported_basecolor.png').write_bytes(rx3_colour_png(dest/'textures.rx3'))

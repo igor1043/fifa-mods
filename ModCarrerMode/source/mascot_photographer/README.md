@@ -62,6 +62,35 @@ Remo e Paulista usam IDs do banco customizado instalado. Se o seu banco tiver ou
 
 Modelos, texturas, marcadores, prévias e originais de edição ficam no jogo e nos backups locais, fora da versão atual do Git. A DLL e o Lua estão incluídos no pacote publicado. Os modelos devem estar previamente instalados ou ser obtidos separadamente; sem o pacote completo do clube, permanece o fotógrafo normal. Cópias enviadas anteriormente continuam no histórico antigo.
 
+## Pacotes da Série B
+
+Os 20 clubes da Série B do banco local têm pacotes convertidos com `--review-body-weights`: pivôs proporcionais a cada personagem, peito superior separado do pescoço, cabeça rígida e braços em cadeias independentes. O Fortaleza usa o mesmo ID do pacote anterior, atualizado com os arquivos desta importação.
+
+| Clube | ID usado no banco local |
+|---|---:|
+| América-MG | 112001 |
+| Athletic SJR-MG | 130388 |
+| Atlético-GO | 112119 |
+| Avaí | 111976 |
+| Botafogo-RP | 130028 |
+| Ceará | 111059 |
+| CRB | 120005 |
+| Criciúma | 111046 |
+| Cuiabá | 120006 |
+| Fortaleza | 111052 |
+| Goiás | 111042 |
+| Juventude | 111041 |
+| Londrina | 130021 |
+| Náutico | 111050 |
+| Grêmio Novorizontino | 130045 |
+| Operário-PR | 113116 |
+| Ponte Preta | 111043 |
+| São Bernardo | 130046 |
+| Sport Recife | 111057 |
+| Vila Nova | 120016 |
+
+Botafogo-SP aparece como Botafogo-RP no banco local; Athletic-MG como Athletic SJR-MG. Nos arquivos com nomes genéricos, `Prepare-AuthoredMascot.py --basecolor <imagem> --normal <imagem>` seleciona explicitamente os mapas de cor e normal. As texturas visuais fornecidas são preservadas. O Botafogo-SP tinha dois vértices sem peso; `--repair-unweighted` preencheu somente esses pontos usando vizinhos locais ponderados pela distância. Relatórios e prévias ficam no estudo local, fora do pacote de execução.
+
 ## Compilar e instalar
 
 Na raiz do repositório, com MSVC x64 disponível:
@@ -120,6 +149,6 @@ O argumento `--tools` aponta para o bundle local `mascot_rig_adjuster`, que cont
 
 `verify.cmd` compila e executa as políticas de posição, seleção de atores, replay e animação. `verify_locomotion.cmd` verifica poses e deformação com uma pasta de fixtures contendo modelos, marcadores e matrizes de referência; essa pasta é um recurso de teste local, separado do pacote de jogo. `tests/run_performance.cmd` verifica o custo das consultas.
 
-A compensação e a gravação/leitura das poses do replay foram testadas com os 24 pacotes locais e a matriz capturada do renderizador. As conversões novas passaram na validação offline e aguardam confirmação visual no FIFA. Os pacotes abrangem os 20 clubes da Série A cadastrados no banco instalado, mais Brasil, Fortaleza, Santa Cruz e Paulista de Jundiaí. O usuário confirmou os mascotes anteriores no jogo local. A rotação relatada no replay de Flamengo/Cruzeiro não foi reproduzida na auditoria dos modelos ou na reconstrução das poses; sua causa na cena ainda precisa ser verificada no jogo. Consulte `ModCarrerMode/logs/mascot_goal_line.log` e o registro `installed version=30` para identificar o build interno; o caminho ativo não tem sufixo de versão.
+A compensação e a gravação/leitura das poses do replay foram testadas com os 43 pacotes locais e a matriz capturada do renderizador. As conversões novas passaram na validação offline e aguardam confirmação visual no FIFA. Os pacotes abrangem os 20 clubes da Série A e os 20 da Série B cadastrados no banco instalado, mais Brasil, Santa Cruz e Paulista de Jundiaí. O usuário confirmou os mascotes anteriores no jogo local. A rotação relatada no replay de Flamengo/Cruzeiro não foi reproduzida na auditoria dos modelos ou na reconstrução das poses; sua causa na cena ainda precisa ser verificada no jogo. Consulte `ModCarrerMode/logs/mascot_goal_line.log` e o registro `installed version=30` para identificar o build interno; o caminho ativo não tem sufixo de versão.
 
-Revis�o 30: a atualiza��o Lua confirma sua conclus�o antes de mover o ator e pode tentar novamente ap�s uma falha tempor�ria, mesmo sem trocar de partida. Os wrappers do mascote s�o instalados uma vez por contexto, preservando os m�dulos carregados depois. O estado da sele��o tem prote��o contra reentrada com libera��o em finally. Logs incluem processo e thread. Consulte `../common/README.md` para testes e limites da hip�tese de concorr�ncia.
+Revisão 30: a atualização Lua confirma sua conclusão antes de mover o ator e pode tentar novamente após uma falha temporária, mesmo sem trocar de partida. Os wrappers do mascote são instalados uma vez por contexto, preservando os módulos carregados depois. O estado da seleção tem proteção contra reentrada com liberação em finally. Logs incluem processo e thread. Consulte `../common/README.md` para testes e limites da hipótese de concorrência.

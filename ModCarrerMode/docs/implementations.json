@@ -39,6 +39,15 @@
       "status": "implemented"
     },
     {
+      "id": "cloth_motion",
+      "name": "Física de roupas",
+      "behavior": "Simula o movimento e as dobras de camisas e calções. A revisão 0.8.2 começa desativada, salva a escolha feita no Server16 antes ou durante a partida e eleva progressivamente a barra do calção em até 3 mm adicionais, sem mover a cintura ou os pontos presos. Mantém os demais parâmetros de física, tamanho da camisa e proteções de curvatura, autocolisão local e contato da revisão anterior.",
+      "source": "ModCarrerMode/source/cloth_motion",
+      "configuration": "ModCarrerMode/mods/cloth_motion/cloth_motion.ini; Server16 > Módulos > Física de roupas; F12 > Configurações/Ajustes da partida",
+      "limits": "Experimental. Mantém a resolução das malhas físicas do FIFA. A autocolisão local de partículas não cobre todos os triângulos nem movimentos rápidos. Braços usam volumes nativos ou aproximações das mangas animadas. Aparência e FPS precisam de teste na partida.",
+      "status": "implemented"
+    },
+    {
       "id": "mascot",
       "name": "Mascotes",
       "behavior": "Mascote do mandante com caminhada, apoio e comemoração.",
@@ -50,10 +59,10 @@
     {
       "id": "multiball",
       "name": "Bolas na beira do gramado",
-      "behavior": "13 bolas de reposição com a malha e textura da bola da partida.",
+      "behavior": "Mantém as 13 bolas de reposição e acrescenta suportes 3D por competição: Série A, CBF para B/C/D, Paulista e dois genéricos.",
       "source": "ModCarrerMode/source/multiball_visual",
-      "configuration": "ModCarrerMode/mods/enabled.txt",
-      "limits": "São visuais, sem física e sem suporte.",
+      "configuration": "ModCarrerMode/mods/multiball_visual/standball.ini",
+      "limits": "São visuais, sem física. Suportes dependem dos RX3; sem recursos prontos, as bolas ficam no gramado. Conferência visual no FIFA pendente.",
       "status": "implemented"
     },
     {
@@ -184,7 +193,9 @@
       "status": "visual_cabin_only"
     }
   ],
-  "reviewed_on": "2026-10-14",
+  "reviewed_on": "2026-10-16",
   "native_entrance_revision": 19,
-  "native_var_revision": 3
+  "native_var_revision": 3,
+  "native_cloth_revision": 9,
+  "native_cloth_control_revision": 1
 }

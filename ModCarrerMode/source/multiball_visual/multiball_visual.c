@@ -3,6 +3,9 @@
 #include <stdint.h>
 #include <stdio.h>
 #include "ball_layout.h"
+extern float standball_height(void);
+extern unsigned char standball_start(const char *root);
+extern void standball_stop(void);
 typedef void (__fastcall *RenderFn)(void*,int);
 typedef unsigned char (__fastcall *SceneFn)(void*,void*);
 static RenderFn render_original,render_previous;
@@ -39,7 +42,7 @@ static BOOL snapshot(void *self,SIZE_T state_offset,unsigned char *object,unsign
   LeaveCriticalSection((CRITICAL_SECTION*)state_address);
   if(!ok)return FALSE;
  }
- if(!ball_expand_snapshot(state,include_ball))return FALSE;
+ if(!ball_expand_snapshot_at_height(state,include_ball,standball_height()))return FALSE;
  memcpy(object+state_offset,&state,8);
  return TRUE;
 }
@@ -49,7 +52,7 @@ static void __fastcall render_hook(void *self,int phase) {
  render_previous(self,phase);
  if(phase==0 && snapshot(self,0x30,object,state,0)) {
   render_original(object,0);
-  if(InterlockedCompareExchange(&observed,1,0)==0)event("drawn 13 visual balls height=11.1252cm spare_balls_inward=30cm");
+  if(InterlockedCompareExchange(&observed,1,0)==0)event("drawn 13 visual balls support_height=automatic spare_balls_inward=30cm");
  }
 }
 static unsigned char __fastcall bounds_hook(void *self,void *context) {
@@ -114,11 +117,11 @@ __declspec(dllexport) BOOL WINAPI Fifa16ModStart(const char *mods_root) {
  if(!mods_root || InterlockedCompareExchange(&started,1,0))return FALSE;
  if(_snprintf_s(log_path,sizeof(log_path),_TRUNCATE,"%s\\..\\logs\\multiball_visual.log",mods_root)<0)return FALSE;
  if(!GetModuleHandleExA(GET_MODULE_HANDLE_EX_FLAG_FROM_ADDRESS|GET_MODULE_HANDLE_EX_FLAG_PIN,(LPCSTR)&started,&pinned))return FALSE;
- event("start balls_only_no_cone_no_support spare_balls_inward=30cm");worker=CreateThread(NULL,0,install_worker,NULL,0,NULL);
- if(!worker)return FALSE;CloseHandle(worker);return TRUE;
+ event("start balls_with_competition_supports spare_balls_inward=30cm");worker=CreateThread(NULL,0,install_worker,NULL,0,NULL);
+ if(!worker)return FALSE;CloseHandle(worker);if(!standball_start(mods_root))event("support_start_failed balls_on_ground");return TRUE;
 }
 __declspec(dllexport) BOOL WINAPI Fifa16ModStop(void) {
- unsigned int i;BOOL ok=TRUE;InterlockedExchange(&stop_requested,1);
+ unsigned int i;BOOL ok=TRUE;InterlockedExchange(&stop_requested,1);standball_stop();
  for(i=0;i<2;i++)if(installed[i]){
   if(exchange(i,hooks[i],i==0?(void*)render_previous:(void*)(base+native[i])))installed[i]=FALSE;else ok=FALSE;
  }

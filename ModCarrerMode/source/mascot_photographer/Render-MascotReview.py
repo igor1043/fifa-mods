@@ -8,6 +8,8 @@ p=argparse.ArgumentParser()
 p.add_argument('--model',required=True);p.add_argument('--texture',required=True)
 p.add_argument('--tools',required=True);p.add_argument('--output',required=True)
 p.add_argument('--frames',type=int,default=12)
+p.add_argument('--width',type=int,default=480)
+p.add_argument('--samples',type=int,default=8)
 a=p.parse_args(sys.argv[sys.argv.index('--')+1:])
 sys.path.insert(0,str(Path(a.tools)/'vendor/rx3tools'))
 from rx3 import Rx3,read_model
@@ -39,8 +41,8 @@ def pose(clip,fraction):
     return [(v.x/100,-v.z/100,(v.y+lift)/100) for v in xyz]
 
 bpy.ops.wm.read_factory_settings(use_empty=True)
-s=bpy.context.scene;s.render.engine='CYCLES';s.cycles.samples=8;s.cycles.use_denoising=True
-s.render.resolution_x=480;s.render.resolution_y=600;s.render.resolution_percentage=100
+s=bpy.context.scene;s.render.engine='CYCLES';s.cycles.samples=max(1,a.samples);s.cycles.use_denoising=True
+s.render.resolution_x=a.width;s.render.resolution_y=round(a.width*1.25);s.render.resolution_percentage=100
 s.world=bpy.data.worlds.new('World');s.world.use_nodes=True
 s.world.node_tree.nodes['Background'].inputs[0].default_value=(.065,.08,.11,1)
 s.world.node_tree.nodes['Background'].inputs[1].default_value=.8

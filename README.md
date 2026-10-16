@@ -9,9 +9,10 @@ Mods para melhorar a carreira e a apresentação das partidas no FIFA 16. Este p
 | **Próxima Partida** | Adversário, competição, data, horário, estádio e público estimado quando disponíveis. |
 | **Meu Time** | Informações do clube, jogadores, líderes de estatísticas, cartões e lesões. |
 | **Competição** | Classificação e informações de ligas, copas, fases e partidas. |
+| **Física de roupas** | Movimento e dobras de camisas e calções. Revisão 0.8.2: desativada por padrão, escolha salva no CF16 antes e durante a partida e barra do calção até 3 mm mais alta. |
 | **Cabine do VAR** | Cabine na beira do gramado nas Séries A e B do Brasileirão. |
 | **Mascotes** | Mascote do mandante com caminhada, apoio e comemoração. |
-| **Bolas na beira do gramado** | 13 bolas de reposição com a malha e textura da bola da partida. |
+| **Bolas na beira do gramado** | 13 bolas de reposição com a malha e textura da bola da partida e suportes 3D por competição: Série A, CBF para B/C/D, Paulista e dois genéricos. |
 | **Objetos de abertura por competição** | Escolhe arco e placas pelo campeonato. Em amistosos, usa a liga quando os dois clubes pertencem a ela. Retira modelo e escudos juntos ao fim das escalações ou da apresentação avançada. |
 | **Escudos dinâmicos** | Aplica os escudos dos clubes de cada partida com recorte do fundo transparente. |
 | **Pirotecnia** | Fogos, fumaça e confete na abertura e nos gols do mandante, com as cores do clube. |
@@ -43,16 +44,17 @@ Para usar os mods diretamente deste desenvolvimento com um DB/DLC externo, execu
 
 Os fontes ficam em `ModCarrerMode/source/<mod>/`. A pasta `ModCarrerMode/mods/` contém os arquivos usados na execução e uma DLL atual por módulo. Os objetos de abertura usam `entrance_props.dll`; a cabine usa `var_cabin.dll`. As revisões internas continuam identificadas nos logs.
 
-O pacote compilado desta branch inclui os efeitos de pirotecnia e o modelo e as texturas da máquina de fumaça. Modelos e texturas da cabine do VAR, mascotes e conjuntos de placas de abertura, além de áudio, vídeos, caches e backups, continuam locais. O ZIP somente de fontes não é um instalador completo.
+O pacote compilado desta branch inclui os efeitos de pirotecnia e o modelo e as texturas da máquina de fumaça. Modelos e texturas dos suportes das bolas, da cabine do VAR, mascotes e conjuntos de placas de abertura, além de áudio, vídeos, caches e backups, continuam locais. Os RX3 dos suportes permanecem instalados no jogo e são excluídos do Git. O ZIP somente de fontes não é um instalador completo.
 
 | Recurso local | Pasta na instalação do FIFA |
 |---|---|
 | Mascotes | `data/sceneassets/mascot/<ID_DO_CLUBE>/` |
 | Objetos de abertura | `data/sceneassets/entrance_props/competitions/<ID_DA_COMPETICAO>/` |
 | Cabine do VAR — assets locais, fora do pacote | `data/sceneassets/var_cabin/` |
+| Suportes das bolas de reposição — assets locais, fora do Git | `data/sceneassets/standball/<variação>/` |
 | Ícones da carreira | `data/ui/imgAssets/careerCompetitionIcons/` |
 
-Uma competição sem modelo de abertura fica sem esses objetos e a partida continua. Um mascote sem pacote válido não é exibido. Sem os assets locais da cabine, o instalador desabilita apenas o VAR na lista do destino e instala os demais mods, incluindo os fogos e a máquina de fumaça. Com os assets já instalados, preserva-os e habilita a cabine; instalar os assets e repetir a instalação também habilita o módulo. A cabine é visual, sem decisões de arbitragem. As bolas extras não têm física. Os suportes de bola encontrados no BMPES foram extraídos para estudo e ainda não fazem parte desse mod.
+Uma competição sem modelo de abertura fica sem esses objetos e a partida continua. Um mascote sem pacote válido não é exibido. Sem os assets locais da cabine, o instalador desabilita apenas o VAR na lista do destino e instala os demais mods, incluindo os fogos e a máquina de fumaça. Com os assets já instalados, preserva-os e habilita a cabine; instalar os assets e repetir a instalação também habilita o módulo. A cabine é visual, sem decisões de arbitragem. As bolas extras e seus suportes não têm física. Os cinco suportes foram convertidos dos FBX fornecidos em STANDBALL; `ModCarrerMode/mods/multiball_visual/standball.ini` seleciona-os pelos IDs da competição/fase e permite alternar ou fixar os genéricos. Sem suporte pronto, as mesmas 13 bolas permanecem no gramado.
 
 ## Fontes e conferência
 
@@ -62,6 +64,7 @@ Uma competição sem modelo de abertura fica sem esses objetos e a partida conti
 - [Bolas de reposição](ModCarrerMode/source/multiball_visual/README.md)
 - [Pirotecnia](ModCarrerMode/source/stadium_pyrotechnics/README.md)
 - [Máquinas de fumaça](ModCarrerMode/mods/smoke_machine/README.txt)
+- [Física de roupas](ModCarrerMode/source/cloth_motion/README.md)
 - [Ícones da carreira](ModCarrerMode/source/career_ui_assets/README.md)
 
 Para compilar, use MSVC x64 e execute o build do módulo. Copie a saída para a DLL correspondente em `ModCarrerMode/mods/`. `Verify-Package.ps1` confere o pacote compilado; `Test-Package.ps1` testa a instalação isolada, sem abrir FIFA nem usar saves. `Review-Code.py` confere os fontes. `Export-Code.py` cria um ZIP somente com código, configuração e documentação. Os scripts ficam em `ModCarrerMode/tools/maintenance/`.

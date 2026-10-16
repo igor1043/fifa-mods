@@ -1,27 +1,78 @@
-# Bolas extras visuais — v16, somente bolas
+# Bolas de reposição com suportes 3D por competição
 
-Treze cópias estáticas usam a malha e a textura da bola atual do FIFA 16 x64.
-Não possuem física. Centro a 11,1252 cm do gramado, sem cone ou suporte redondo.
-Quatro bolas atrás dos gols em X ±5550 cm: recuo de exatamente 1 metro.
-As demais permanecem nas laterais do campo de 105 × 68 m.
+O `multiball_visual.dll` mantém as mesmas 13 bolas do mod existente, usando a
+malha e a textura da bola da partida. Acrescenta um suporte RX3 sob cada bola,
+sem física. A bola de gameplay permanece intacta.
 
-## Implementação
+| Competição | Suporte |
+|---|---|
+| Brasileirão Série A — 1738 | `brasileirao` |
+| Série B — 1741; Série C — 1747; Série D — 1757 | `cbf` |
+| Paulista — 2325, incluindo quartas 2330, semifinal 2335 e final 2338 | `paulistao` |
+| Outras competições e amistosos sem associação | `generic1` ou `generic2` |
 
-A DLL reutiliza os recursos gráficos já carregados da bola da partida.
-Não executa Lua nem cria ou recarrega recursos RX3 durante a renderização.
-Copia o objeto e seu estado gráfico de 0x820 bytes para memória privada.
-Preserva os 1–3 slots originais e acrescenta 13 cópias até o limite de 16.
-Não altera a bola real, a saída de bola, o banco, substituições ou mascote.
-Mantém um callback anterior de pirotecnia reconhecido, quando ele já ocupa o slot.
-A API Stop restaura os callbacks anteriores; a DLL permanece fixada na memória.
+`standball.ini`, na pasta da DLL, contém os IDs exatos das competições e dos
+seus descendentes no `compobj.txt` instalado. A fase tem prioridade sobre a
+competição principal quando consta no mapa. IDs de liga como 7 e 83 não são
+tratados como IDs de competição. Não existem associações por intervalo ou nome.
 
-## Instalação e validação
+Em amistosos da mesma liga, utiliza o contexto produzido pelo Server16 para as
+entradas, validando o processo, a data do arquivo e os dois clubes. Uma copa real
+sempre mantém sua própria seleção. Sem contexto válido, utiliza o genérico.
+Essa escolha independe do botão de objetos de abertura e da pirotecnia.
 
-`multiball_visual.dll` está habilitada no jogo e na pasta de desenvolvimento.
-O arquivo contém a implementação v16; o nome fixo evita acumular revisões no pacote.
-Os binários nas duas pastas têm o mesmo SHA-256.
-Compilação `/W4 /WX` e testes passaram: distribuição, altura no chão, preservação
- dos slots originais, exclusão do menu, bola oculta e limite de slots ocupados.
-O próximo reinício do FIFA ainda precisa de conferência visual pelo usuário.
+`[standball] enabled=1` habilita os suportes. `generic_variant=0` alterna os dois
+genéricos entre partidas, mantendo uma única variação nas 13 posições durante
+pausas e replays. `1` ou `2` fixa o genérico correspondente. Desabilitar os
+suportes conserva as bolas no gramado.
 
-Log: `ModCarrerMode/logs/multiball_visual.log`.
+## Modelos e posicionamento
+
+Os cinco FBX fornecidos em STANDBALL foram convertidos para malhas estáticas
+RX3, com UV, textura difusa, normal e mipmaps. Os PNGs não são usados no jogo.
+Os modelos ficam em `data/sceneassets/standball/<variação>/model.rx3` e
+`textures.rx3`, no jogo e no desenvolvimento. A largura é de aproximadamente
+26 cm, preservando as proporções dos modelos, com cerca de 2.400 triângulos
+por suporte. A prévia de conversão foi renderizada lendo os RX3 produzidos.
+
+Os dez RX3 ficam fora do Git e permanecem instalados na pasta do jogo.
+Um clone desta branch inclui o código e a configuração dos suportes; seus
+modelos e texturas precisam estar instalados localmente. A verificação do
+pacote aceita essa ausência. Sem os assets, a DLL mantém as bolas no gramado.
+
+Os suportes compartilham os centros X/Z das bolas existentes. As marcas ficam
+voltadas para o campo. A altura visual das bolas acompanha o encaixe medido na
+geometria de cada suporte. Sem recursos prontos ou com assets ausentes/alterados,
+as bolas ficam na altura original de 11,1252 cm. As posições atuais permanecem:
+quatro bolas atrás dos gols em X ±5520 cm e nove nas laterais em Z ±3620 cm.
+
+## Carregamento e validação
+
+O callback nativo de cena cria uma aparência privada do tipo 17, variação 1,
+mantendo a aparência 0 dos câmeras. A DLL aguarda os hooks de entrada, VAR e
+máquina de fumaça habilitados e preserva a cadeia. O Lua só redireciona essa
+aparência privada. A troca de competição esconde os suportes anteriores antes
+de recarregar o modelo; os cinco LODs devem estar prontos antes da exibição.
+Os arquivos RX3 são conferidos por tamanho e SHA-256 antes da solicitação.
+
+O desenho das bolas continua usando snapshots privados de 0x820 bytes,
+preservando os 1–3 slots originais e acrescentando apenas as 13 cópias já
+existentes. Não carrega RX3 nem executa Lua no callback de desenho da bola.
+O Stop restaura os callbacks das bolas e esconde os suportes; o callback de cena
+permanece encadeado até fechar o processo, como nos outros objetos estáticos.
+
+`build.cmd` compila com MSVC x64 `/W4 /WX` e executa os testes de bolas e de
+alinhamento. `verify.cmd "<raiz dos assets>"` executa o callback de produção em
+uma cena nativa simulada: carregamento assíncrono, 13 bindings, troca de modelo,
+retirada anterior à recarga, ciclo de recursos e Stop. Não abre nem modifica FIFA.
+`test_standball.py --lua-python-path <pasta com lupa.lua51>` verifica seleção e
+as seis ordens dos wrappers Lua de suporte, VAR e máquina de fumaça.
+
+Para reproduzir a conversão: extrair os ZIPs, executar `export_stands.py` pelo
+Blender, depois `convert_stands.py` e `render_stands.py`. Seus argumentos estão
+disponíveis com `--help`. `install_stands.py` instala o módulo e os assets nas
+duas raízes, preserva configurações existentes e registra backup/manifesto.
+
+Compilação, testes e prévia dos RX3 verificados. A aparência e a estabilidade
+dentro do FIFA ainda precisam de confirmação em uma partida após reiniciar.
+Logs: `ModCarrerMode/logs/multiball_visual.log` e `standball.log`.
