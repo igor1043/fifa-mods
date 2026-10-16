@@ -27,6 +27,8 @@ static SceneLuaLifecycle luaLifecycle;
 static PyroMatchSession session;
 static int desired=-1,loaded=-1;
 static unsigned competition=0,roundId=0,serial=0;
+enum class SelectionSource { None,Native,Friendly,Generic };
+static SelectionSource selectionSource=SelectionSource::None;
 static uint64_t nextConfig=0,nextScene=0,nextCreate=0,nextDiagnostic=0;
 static bool validated[sizeof(standAssets)/sizeof(standAssets[0])];
 static uint64_t nextAssetCheck[sizeof(standAssets)/sizeof(standAssets[0])];
@@ -124,7 +126,7 @@ static void scene(){
  for(unsigned offset:offsets)if(known)known=get(p+offset,p)&&p;
  known=known&&get(p,page)&&memchr(page,0,sizeof(page));const auto kind=pyro_page(page,known,session.key!=0);
  visible=false;
- if(kind==PyroPage::Outside){session=PyroMatchSession{};desired=-1;ground();return;}
+ if(kind==PyroPage::Outside){session=PyroMatchSession{};desired=-1;selectionSource=SelectionSource::None;ground();return;}
  if(kind==PyroPage::Unreadable)return;
  uintptr_t manager=0,world=0,game=0,registry=0,pairs=0;int key=0,count=0;
  if(!get(image+0x3517420,manager)||!get(manager,p)||p!=image+0x2226730||!get(manager+8,world)||!get(world,p)||p!=image+0x2225d90||
@@ -136,15 +138,22 @@ static void scene(){
      !get(team+0x58,side)||side<0||side>1||clubs[side]||!get(team+0x50,stats)||!get(stats+0x80,club)||club<=0||club>1000000)return;
   clubs[side]=club;
  }
- if(kind==PyroPage::Match&&session.observe(registry,clubs[0],clubs[1]))++serial;
+ if(kind==PyroPage::Match&&session.observe(registry,clubs[0],clubs[1])){++serial;desired=-1;competition=roundId=0;selectionSource=SelectionSource::None;}
  if(!session.key||session.home!=clubs[0]||session.away!=clubs[1])return;
- unsigned comp=0,round=0;if(!liveCompetition((unsigned)clubs[0],(unsigned)clubs[1],comp,round))return;
- if(!comp&&!round)comp=friendlyCompetition((unsigned)clubs[0],(unsigned)clubs[1]);
+ unsigned comp=0,round=0;
+ const bool live=liveCompetition((unsigned)clubs[0],(unsigned)clubs[1],comp,round);
+ if(!live)comp=round=0; // Never use a partial or rejected native context.
+ SelectionSource source=live?SelectionSource::Native:SelectionSource::Generic;
+ // A friendly can have no career tournament chain at all. Its verified Server
+ // context remains usable, just as it is for entrance_props. Without either,
+ // a confirmed native match still receives a generic support.
+ if(!comp&&!round){const unsigned friendly=friendlyCompetition((unsigned)clubs[0],(unsigned)clubs[1]);if(friendly){comp=friendly;source=SelectionSource::Friendly;}}
+ if(!live&&!comp&&desired>=0){visible=enabled&&pyro_can_continue(kind,true,true);return;}
  int choice=mapped(round);if(choice<0)choice=mapped(comp);
  if(choice<0){const unsigned variant=GetPrivateProfileIntA("standball","generic_variant",0,iniPath);choice=asset(variant==1?"generic1":variant==2?"generic2":serial%2?"generic1":"generic2");}
- if(choice!=desired||comp!=competition||round!=roundId){
-  desired=choice;competition=comp;roundId=round;char message[192];
-  _snprintf_s(message,sizeof(message),_TRUNCATE,"selection competition=%u round=%u variant=%s count=13",comp,round,standAssets[choice].slug);event(message);
+ if(choice!=desired||comp!=competition||round!=roundId||source!=selectionSource){
+  desired=choice;competition=comp;roundId=round;selectionSource=source;char message[224];
+  _snprintf_s(message,sizeof(message),_TRUNCATE,"selection v2 competition=%u round=%u variant=%s count=13 source=%s native_context=%u",comp,round,standAssets[choice].slug,source==SelectionSource::Friendly?"friendly_same_league":source==SelectionSource::Native?"native":"generic_fallback",(unsigned)live);event(message);
  }
  visible=enabled&&pyro_can_continue(kind,true,true);
 }
@@ -275,7 +284,7 @@ static DWORD WINAPI worker(void*){
   if(rel<INT32_MIN||rel>INT32_MAX){VirtualFree(relay,0,MEM_RELEASE);return 0;}
   appliedCall[0]=0xe8;const int32_t d=(int32_t)rel;memcpy(appliedCall+1,&d,4);
   if(!patch()){VirtualFree(relay,0,MEM_RELEASE);Sleep(200);continue;}
-  event("installed standball v1 native_builder_chain type=17 variation=1 supports=13");return 0;
+  event("installed standball v2 native_builder_chain type=17 variation=1 supports=13 friendly_without_tournament_chain=1");return 0;
  }event("signature_conflict_or_builder_timeout supports_unavailable");return 0;
 }
 extern "C" unsigned char standball_start(const char* root){

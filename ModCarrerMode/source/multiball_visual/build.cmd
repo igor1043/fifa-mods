@@ -19,6 +19,7 @@ if not "%errorlevel%"=="0" exit /b 1
 cl /nologo /LD build\multiball_visual.obj build\standball.obj /Febuild\multiball_visual.dll /link /NOLOGO
 if not "%errorlevel%"=="0" exit /b 1
 popd
+if /I "%~1"=="--build-only" exit /b 0
 if not exist "%~dp0..\..\mods\multiball_visual" mkdir "%~dp0..\..\mods\multiball_visual"
 copy /y "%~dp0build\multiball_visual.dll" "%~dp0..\..\mods\multiball_visual\multiball_visual.dll" >nul
 if errorlevel 1 exit /b 1

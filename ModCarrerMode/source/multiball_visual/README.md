@@ -21,6 +21,12 @@ entradas, validando o processo, a data do arquivo e os dois clubes. Uma copa rea
 sempre mantém sua própria seleção. Sem contexto válido, utiliza o genérico.
 Essa escolha independe do botão de objetos de abertura e da pirotecnia.
 
+Revisão 2: amistosos podem não ter o ponteiro de competição da carreira. A
+ausência desse ponteiro agora permite consultar o contexto válido do Server16
+e, sem ele, aplicar o genérico a uma partida nativa confirmada. Uma falha de
+leitura posterior conserva a seleção da mesma partida. O log informa a origem
+da seleção (`native`, `friendly_same_league` ou `generic_fallback`).
+
 `[standball] enabled=1` habilita os suportes. `generic_variant=0` alterna os dois
 genéricos entre partidas, mantendo uma única variação nas 13 posições durante
 pausas e replays. `1` ou `2` fixa o genérico correspondente. Desabilitar os
@@ -32,7 +38,8 @@ Os cinco FBX fornecidos em STANDBALL foram convertidos para malhas estáticas
 RX3, com UV, textura difusa, normal e mipmaps. Os PNGs não são usados no jogo.
 Os modelos ficam em `data/sceneassets/standball/<variação>/model.rx3` e
 `textures.rx3`, no jogo e no desenvolvimento. A largura é de aproximadamente
-26 cm, preservando as proporções dos modelos, com cerca de 2.400 triângulos
+19,5 cm (75% dos 26 cm originais), preservando as proporções dos modelos,
+com cerca de 2.400 triângulos
 por suporte. A prévia de conversão foi renderizada lendo os RX3 produzidos.
 
 Os dez RX3 ficam fora do Git e permanecem instalados na pasta do jogo.
@@ -42,7 +49,9 @@ pacote aceita essa ausência. Sem os assets, a DLL mantém as bolas no gramado.
 
 Os suportes compartilham os centros X/Z das bolas existentes. As marcas ficam
 voltadas para o campo. A altura visual das bolas acompanha o encaixe medido na
-geometria de cada suporte. Sem recursos prontos ou com assets ausentes/alterados,
+geometria de cada suporte, recalculado para a escala de 75%. As bolas mantêm
+seu tamanho original; somente os suportes foram reduzidos nos três eixos.
+Sem recursos prontos ou com assets ausentes/alterados,
 as bolas ficam na altura original de 11,1252 cm. As posições atuais permanecem:
 quatro bolas atrás dos gols em X ±5520 cm e nove nas laterais em Z ±3620 cm.
 
@@ -65,14 +74,21 @@ permanece encadeado até fechar o processo, como nos outros objetos estáticos.
 alinhamento. `verify.cmd "<raiz dos assets>"` executa o callback de produção em
 uma cena nativa simulada: carregamento assíncrono, 13 bindings, troca de modelo,
 retirada anterior à recarga, ciclo de recursos e Stop. Não abre nem modifica FIFA.
+O mesmo comando executa a seleção real de cena com a cadeia de competição
+ausente, o contexto de amistoso, o genérico, o replay, a chegada tardia do contexto,
+a prioridade de uma copa real e a rejeição de outro processo/clube.
 `test_standball.py --lua-python-path <pasta com lupa.lua51>` verifica seleção e
 as seis ordens dos wrappers Lua de suporte, VAR e máquina de fumaça.
 
 Para reproduzir a conversão: extrair os ZIPs, executar `export_stands.py` pelo
 Blender, depois `convert_stands.py` e `render_stands.py`. Seus argumentos estão
-disponíveis com `--help`. `install_stands.py` instala o módulo e os assets nas
+disponíveis com `--help`. A conversão usa `--scale 0.75` por padrão sobre o
+export original de 26 cm; o raio utilizado no encaixe da bola permanece igual.
+`install_stands.py` instala o módulo e os assets nas
 duas raízes, preserva configurações existentes e registra backup/manifesto.
 
-Compilação, testes e prévia dos RX3 verificados. A aparência e a estabilidade
-dentro do FIFA ainda precisam de confirmação em uma partida após reiniciar.
+Compilação, testes e prévia dos RX3 verificados. O carregamento da revisão 2
+foi confirmado no FIFA pelos registros de seleção, recursos e 13 suportes
+posicionados. A escala de 75% foi conferida na geometria convertida e na prévia;
+sua aparência dentro do FIFA precisa de confirmação após reiniciar.
 Logs: `ModCarrerMode/logs/multiball_visual.log` e `standball.log`.

@@ -15,8 +15,12 @@ parser = argparse.ArgumentParser()
 parser.add_argument('--meshes', type=Path, required=True)
 parser.add_argument('--game', type=Path, required=True)
 parser.add_argument('--output', type=Path, required=True)
+parser.add_argument('--scale', type=float, default=0.75,
+                    help='Uniform support scale relative to the original 26 cm FBX export; ball size is unchanged')
 parser.add_argument('--tools', type=Path, default=Path(r'J:\mods\fifa 16\02_Ferramentas\mascot_rig_adjuster'))
 args = parser.parse_args()
+if not math.isfinite(args.scale) or not 0.1 <= args.scale <= 3:
+    parser.error('--scale must be between 0.1 and 3')
 sys.path[:0] = [str(args.tools), str(args.tools / 'vendor/rx3tools')]
 from rx3 import Rx3, read_model, VERTEX, INDEX, MESH, TEXTURE, align
 from texture_assets import rx3_colour_png
@@ -52,7 +56,10 @@ reports = []
 args.output.mkdir(parents=True, exist_ok=True)
 for mesh_path in sorted(p for p in args.meshes.glob('*.json') if not p.stem.endswith('_decoded')):
     data = json.loads(mesh_path.read_text(encoding='utf8'))
-    slug = data['variant']; vertices = data['vertices']; indices = data['indices']
+    slug = data['variant']; indices = data['indices']
+    # Scale only support geometry. Normals, UVs, textures and the match ball
+    # retain their original size/data; contact below still uses the full ball.
+    vertices = [[[x * args.scale for x in v[0]], *v[1:]] for v in data['vertices']]
     dest = args.output / slug; dest.mkdir(exist_ok=True)
     assert len(data['materials']) == 1 and all(v[4] == 0 for v in vertices)
     rx = Rx3((args.game / 'data/sceneassets/slc/specificcameramansitting_0_24_0.rx3').read_bytes())
@@ -120,6 +127,8 @@ for mesh_path in sorted(p for p in args.meshes.glob('*.json') if not p.stem.ends
     (args.meshes / (slug + '_decoded.json')).write_text(json.dumps(part), encoding='utf8')
     (args.meshes / (slug + '_colour.png')).write_bytes(rx3_colour_png(dest / 'textures.rx3'))
     reports.append({'variant': slug, 'vertices': len(vertices), 'triangles': len(indices)//3,
+                    'support_scale': args.scale, 'width_cm': data['width_cm'] * args.scale,
+                    'ball_radius_cm': radius,
                     'bounds_cm': [p.min(axis=0).tolist(), p.max(axis=0).tolist()],
                     'position_error_cm': position_error, 'uv_error': uv_error,
                     'ball_center_y_cm': round(contact_y, 4),
