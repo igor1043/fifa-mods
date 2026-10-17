@@ -340,11 +340,8 @@ static int native_league_logo_asset_exists(int asset);
 static int native_logo(int object) {
     FceCompetition c;
     int mapped,installed;
-    /* Expansion Compdata Supercopa Rei. Some builds expose the root and
-     * others its related object. The direct compact card asset is l1687.dds;
-     * unlike legacy l9.dds it follows the same padded 128px convention as
-     * every other dynamically installed competition logo. */
-    if(object==1687 || object==1688) return 1687;
+    /* Resolve stages through the active competition hierarchy. Historical
+     * Supercopa object IDs now collide with Copa do Brasil group objects. */
     mapped=career_ui_competition_asset(object,native_ui_asset_owner);
     if(mapped>0)return mapped;
     if(fce_resolve_competition(native_view.nodes,native_view.node_count,object,&c)==FCE_OK) {

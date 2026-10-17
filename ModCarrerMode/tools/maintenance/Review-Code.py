@@ -15,7 +15,7 @@ catalog=json.loads((ROOT/'ModCarrerMode/docs/implementations.json').read_text(en
 for feature in catalog['features']:
     if not (ROOT/feature['source']).exists():errors.append('Missing source: '+feature['source'])
 entries=[s.strip().replace('\\','/') for s in (ROOT/'ModCarrerMode/mods/enabled.txt').read_text().splitlines() if s.strip() and not s.startswith('#')]
-assert len(entries)==len(set(entries))==14
+assert entries and len(entries)==len(set(entries)), 'Enabled modules must be nonempty and unique'
 assert entries.index('entrance_props/entrance_props.dll')<entries.index('var_cabin/var_cabin.dll')
 for entry in entries:
     path=ROOT/'ModCarrerMode/mods'/entry

@@ -11,6 +11,7 @@ parser.add_argument('--club-id',type=int,required=True);parser.add_argument('--c
 parser.add_argument('--repair-unweighted',action='store_true',help='Fill only unweighted source vertices from three weighted neighbours within 2 cm')
 parser.add_argument('--corinthians-body-review',action='store_true',help='Reviewed Corinthians cape attachment and chest/neck separation, club 1041 only')
 parser.add_argument('--review-body-weights',action='store_true',help='Separate upper chest from neck and strengthen the authored large-head region')
+parser.add_argument('--rigid-right-hand-prop',action='store_true',help='Reviewed Chapolin mallet: preserve authored right-hand region as a rigid held object')
 args=parser.parse_args(sys.argv[sys.argv.index('--')+1:] if '--' in sys.argv else sys.argv[1:])
 ROOT=Path(args.output);ROOT.mkdir(parents=True,exist_ok=True)
 TOOLS=Path(args.tools);SRC=Path(args.source);CLIPS=Path(args.clips)
@@ -21,6 +22,8 @@ spec=importlib.util.spec_from_file_location('builder',builder_path);b=importlib.
 vertices,indices,name,unit=b.load_source_mesh(next(SRC.glob('*.fbx')))
 mesh=next(o for o in bpy.context.scene.objects if o.type=='MESH')
 arm=next(o for o in bpy.context.scene.objects if o.type=='ARMATURE')
+if args.rigid_right_hand_prop and (args.club_id!=130248 or len(mesh.data.vertices)!=8701):
+    raise ValueError('Held-prop review applies only to the inspected Chapolin mesh')
 repaired=[]
 unweighted=[v.index for v in mesh.data.vertices if not any(g.weight>1e-6 for g in v.groups)]
 if unweighted and args.repair_unweighted:
@@ -75,7 +78,7 @@ if args.corinthians_body_review:
     # merge both authored chest bones onto bone 12 at the upper chest pivot.
     mapping['Spine2']=12
 names={g.index:g.name.split(':')[-1] for g in mesh.vertex_groups}
-joints=[];weights=[];head_count=0;fixed_sides=0
+joints=[];weights=[];head_count=0;fixed_sides=0;rigid_prop_vertices=[]
 hip_y=b.game_position(arm.matrix_world@arm.data.bones['mixamorig:Hips'].head_local).y
 shoulder_y=min(b.game_position(arm.matrix_world@arm.data.bones['mixamorig:'+n].head_local).y for n in ['LeftArm','RightArm'])
 shoulder_x=min(abs(b.game_position(arm.matrix_world@arm.data.bones['mixamorig:'+n].head_local).x) for n in ['LeftArm','RightArm'])
@@ -97,7 +100,13 @@ for vertex_index,v in enumerate(vertices):
         if n=='Head':source_head+=g.weight
     y=v['position'].y;x=v['position'].x
     reviewed_head=args.review_body_weights and source_head>=.25 and y>=neck_y+neck_span*.15
-    if reviewed_head or source_head>=.55 or y>=head_y or (y>=face_floor and raw.get(13,0)+source_head>=.65):
+    held_prop=args.rigid_right_hand_prop and x<-shoulder_x and source_head<.05 and raw.get(24,0)>=.5
+    if held_prop:
+        # The mallet head sits as high as the character's skull in the source
+        # T pose. Height alone must not repaint it onto the head bone. Keep
+        # the inspected authored hand/prop region on the wrist as one solid.
+        raw={24:1};rigid_prop_vertices.append(vertex_index)
+    elif reviewed_head or source_head>=.55 or y>=head_y or (y>=face_floor and raw.get(13,0)+source_head>=.65):
         raw={14:1};head_count+=1
     # Only neck junction blends; the face/skull remain rigid together.
     elif source_head>0 and y>=neck_blend_floor:
@@ -121,6 +130,8 @@ for vertex_index,v in enumerate(vertices):
     joints.extend([k for k,_ in chosen]+[0]*(4-len(chosen)));weights.extend(q+[0]*(4-len(chosen)))
     v['position']=(v['position']-center)*scale
     v['uv']=(v['uv'][0],1-v['uv'][1])
+if args.rigid_right_hand_prop and not 1500<=len(rigid_prop_vertices)<=2500:
+    raise ValueError('Unexpected Chapolin hand/prop region')
 template=(TOOLS/'assets/template_model_animated.rx3').read_bytes()
 _,bones=b.read_model(b.Rx3(template));positions={i:Vector(bones[i][12:15]) for i in range(31)}
 for n,i in mapping.items():
@@ -171,3 +182,5 @@ if args.corinthians_body_review:
 print('CONVERTED',len(vertices),len(indices)//3,head_count,'rigid head vertices')
 if args.review_body_weights:
     (ROOT/'body_weights_review.json').write_text(json.dumps(dict(clubId=args.club_id,chestBone=12,neckBone=13,headBone=14,rigidHeadVertices=head_count,method='Authored per-character Mixamo pivots; upper chest separated from neck, head region rigid, smooth neck junction, independent arm chains, normalized four-influence weights'),indent=2),encoding='utf8')
+if args.rigid_right_hand_prop:
+    (ROOT/'held_prop_review.json').write_text(json.dumps(dict(clubId=args.club_id,bone=24,vertices=rigid_prop_vertices,method='Inspected authored right-hand region, including mallet; rigid wrist weights override head-height rule'),indent=2),encoding='utf8')

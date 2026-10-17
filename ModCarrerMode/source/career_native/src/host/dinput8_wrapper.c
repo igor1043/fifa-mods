@@ -2370,15 +2370,11 @@ static int calendar_asset_for_date_capture(
      * the event type and skips this loader for empty, press and processing
      * cells.  CalendarManager+0x4c is merely the selected day, not the day of
      * each rendered cell, so it must never be used to validate a fixture. */
-    /* Expansion Compdata exposes Supercopa Rei through both its root object
-     * (1687) and related tournament object (1688).  They share l9.dds. */
+    /* Preseason has a guarded live identity. Official competitions and their
+     * stages use the installed CompData map below; historical object numbers
+     * can belong to different competitions after a calendar update. */
     int candidate = career_ui_competition_asset(competition_id,calendar_service);
     if(!candidate)candidate=career_ui_competition_asset(related_id,calendar_service);
-    if(!candidate)candidate=
-        (competition_id == 1687 || competition_id == 1688
-            || related_id == 1687 || related_id == 1688)
-        ? 9
-        : 0;
     if (!candidate)
     {
         int mapped = calendar_mapped_competition_asset(competition_id);

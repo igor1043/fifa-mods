@@ -1,5 +1,22 @@
 # Dedicated career calendar DDS icons (version 3)
 
+## Automatic artwork import (Server16)
+
+Users can place PNG/JPG/WEBP/BMP artwork directly in `data/ui/imgAssets/careerCompetitionIcons/`
+and open the updated Server16 before FIFA. Name the file after the installed competition ID
+(for example `1738.png`) or its full FSW movies/Scoreboard name. Server16 generates
+`COMPETICOES.txt` in that directory with accepted filenames for the selected installation.
+It converts to the validated 128x128 DXT5 canvas, preserves the original, resolves the visual ID
+with the host's explicit-map/TrophyName/C<ID> precedence, and updates `host_available`
+internally for that visual only. Users do not edit `index.tsv` or the mapping table.
+Ambiguous/unknown names, duplicate sources for one visual ID and invalid artwork are skipped
+and explained in Server16 Logs. Backups live in `runtime/backups/career_competition_icons/`.
+Import runs only with FIFA closed; the launch button flushes pending images before starting FIFA.
+This imports artwork for installed competitions; it does not create competition structures.
+The native DDS lookup and its index remain compatible with manual/prebuilt asset packages.
+
+## Native catalogue
+
 The calendar's competition images live in `data/ui/imgAssets/careerCompetitionIcons/c<ID_VISUAL>.dds`.
 These DDSs, their local `index.tsv` and generated metadata are excluded from the source package.
 The published mod retains the directory lookup, validation, ID availability and fallback rules.
@@ -9,6 +26,13 @@ this module. `index.tsv` preserves the original host's ID availability through `
 1 accepts an initial ID; 0 avoids activating an old ambiguous alias which the host did not accept.
 The module's `HasCompetition` export reads this availability from the new directory, allowing the
 host's old DDS existence checks to fall back to the new catalogue without changing the ID order.
+The installed index must explicitly allow the visual IDs referenced by
+`ModCarrerMode/data/catalogs/career_competition_icon_map.tsv`. Legacy indices can mark these
+as unavailable even when their DDS exists, causing a fallback to an outdated competition alias.
+When importing new league artwork, rebuild the dedicated calendar images and set
+`host_available=1` for the mapped visual IDs, leaving unrelated availability entries intact.
+Use the supplied dark variant for the calendar when available; common light/dark league images
+remain separate. Validate the 128x128 DXT5 canvas and the upper-left 48x48 logo bounds.
 New IDs absent from the index are accepted when a valid dedicated DDS exists. Preseason identity
 continues to use the guarded native competition registry.
 
@@ -109,3 +133,39 @@ in the study directory and are not included in the production build.
 The international crowd change remains separate: a six-point bonus for type-1
 confederations and the type-0 FIFA world node, preserving the 90-percent cap
 and manual overrides. Domestic and preseason country nodes receive no bonus.
+
+## Squad management and formations goalkeeper (17 October 2026)
+
+The root fix is now in `career_native/src/host/swiss_byte_patches.h`: all SIX
+keeper entries retain the original signed JLE automatic fallback while retaining
+the unsigned shift for positive packed IDs. The central unsigned-key adaptation
+previously changed JLE to JE, converting the automatic -1 into team 262143.
+This affects five Squad-family producers plus the Starting XI serializer. The
+visible active Squad path is RVA `409ACB5`, distinct from the saved-roster paths.
+The two local guards below remain compatible with corrected central descriptors.
+`career_native/scripts/tests/test_keeper_auto_keys.cmd` executes all six actual
+native keeper branches using the production byte table, seven clubs and six
+selectors. The Starting XI signature check accepts both the older JE and the
+corrected JLE, requiring the rest of the live branch to match exactly.
+
+The editable roster and formation screens have two separate producers, both
+different from StartingXIDP. Both requested `2_262143_0` for the keeper while the
+ten outfield rows correctly requested `0_1043_0` for Flamengo. Formation uses
+the branch at RVA `40948A5`; the editable roster uses RVA `409979E`. Repairing
+one does not cover the other, and the Starting XI serializer covers neither.
+
+`keeper_squad_hook.inc` validates the x64 executable timestamp and the complete
+31-byte formation and 24-byte roster branches, then changes their conditional
+opcodes at `40948AD` and `40997A3` from JE to JLE. A nonpositive selector now uses the native sheet TeamID, matching
+the outfield branch. Positive explicit selectors retain their native decoding.
+The branch length, target, source sheet and ten outfield instructions are untouched.
+The installer accepts an already corrected branch and rejects other signatures.
+`Fifa16UiAssetsSquadKeeperReady` reports activation independently of Starting XI.
+
+`test_keeper_squad.c` executes both captured native x64 branches for all eleven
+positions on BOTH screens, seven club IDs, automatic, negative and positive explicit selectors.
+It reproduces the original keeper's invalid team, verifies type 2 for the keeper
+and type 0 for automatic outfield rows, preserves positive overrides and source
+sheets, and tests signature rejection. `build.cmd` runs it alongside the existing
+Starting XI and calendar tests. The normal worker now requires all three repairs
+before reporting READY. No image, lineup or career-save replacement is involved.

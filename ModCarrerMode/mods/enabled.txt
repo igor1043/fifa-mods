@@ -9,6 +9,7 @@ mascot_single\mascot_goal_line.dll
 tournament_compat_native\tournament_compat_native.dll
 career_ui_assets\career_ui_assets.dll
 kickoff_modern\kickoff_modern.dll
+goal_kick_short_pass\goal_kick_short_pass.dll
 multiball_visual\multiball_visual.dll
 stadium_pyrotechnics\stadium_pyrotechnics.dll
 crowd_ultra_kits\crowd_ultra_kits.dll

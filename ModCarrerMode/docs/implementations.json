@@ -149,10 +149,10 @@
     {
       "id": "calendar_icons",
       "name": "Ícones da carreira",
-      "behavior": "Resolve os ícones disponíveis de competições e pré-temporada.",
+      "behavior": "Resolve os ícones das competições e da pré-temporada. O Server16 atualizado importa imagens pelo nome ou ID da competição, converte e atualiza o índice automaticamente, preservando os originais.",
       "source": "ModCarrerMode/source/career_ui_assets",
       "configuration": "data/ui/imgAssets/careerCompetitionIcons",
-      "limits": "Sem imagem válida, conserva o caminho original.",
+      "limits": "A importação exige o Server16 atualizado e ocorre com o FIFA fechado. Sem imagem válida, conserva o caminho original. Novas estruturas de competição continuam pertencendo ao CompData.",
       "status": "implemented"
     },
     {
@@ -181,6 +181,15 @@
       "configuration": "ModCarrerMode/mods/enabled.txt",
       "limits": "Requer o executável compatível com as assinaturas nativas.",
       "status": "implemented"
+    },
+    {
+      "id": "goal_kick_short_pass",
+      "name": "Tiro de meta moderno",
+      "behavior": "Usa quatro hooks específicos para reposicionar/preparar o tiro de meta e reduz a velocidade usada pelo solver de trajetórias em passes rasteiros curtos do goleiro para um dos zagueiros selecionados próximos.",
+      "source": "ModCarrerMode/source/goal_kick_short_pass",
+      "configuration": "ModCarrerMode/mods/goal_kick_short_pass/goal_kick_short_pass.ini; ModCarrerMode/mods/enabled.txt",
+      "limits": "Experimental e limitado ao hash de fifa16.exe compatível com o pacote original. Não altera quando a bola passa a estar em jogo dentro da área. Posicionamento e sensação do passe precisam ser avaliados em partida.",
+      "status": "experimental"
     }
   ],
   "not_implemented": [
@@ -193,7 +202,7 @@
       "status": "visual_cabin_only"
     }
   ],
-  "reviewed_on": "2026-10-16",
+  "reviewed_on": "2026-10-17",
   "native_entrance_revision": 19,
   "native_var_revision": 3,
   "native_cloth_revision": 9,

@@ -16,5 +16,9 @@ cl /nologo /std:c11 /W4 /WX /O2 /MT test_keeper_pitch_sheet.c /Fobuild\test_keep
 if errorlevel 1 exit /b 1
 build\test_keeper_pitch_sheet.exe
 if errorlevel 1 exit /b 1
+cl /nologo /std:c11 /W4 /WX /O2 /MT test_keeper_squad.c /Fobuild\test_keeper_squad.obj /Febuild\test_keeper_squad.exe
+if errorlevel 1 exit /b 1
+build\test_keeper_squad.exe
+if errorlevel 1 exit /b 1
 popd
 endlocal

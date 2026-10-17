@@ -222,6 +222,61 @@ static void test_next_match_stadium(void)
     g_game_dir[0] = 0; g_mod_dir[0] = 0;
 }
 
+static void test_updated_competition_identities(void)
+{
+    /* These used to be Supercopa IDs. In the current CompData they are
+     * Copa do Brasil groups; cover both menu logos and calendar cells. */
+    FceCompNode nodes[] = {
+        {1597, 0, 3, 229, 0}, {1664, 1597, 4, 0, 0},
+        {1687, 1664, 5, 0, 0}, {1688, 1664, 5, 0, 0},
+        {1816, 0, 3, 9, 0}, {1817, 1816, 4, 0, 0}, {1818, 1817, 5, 0, 0}
+    };
+    const char *folders[] = {"data", "data\\ui", "data\\ui\\imgAssets",
+        "data\\ui\\imgAssets\\cmCalendarCompetitions"};
+    char temporary[MAX_PATH], fixture[MAX_PATH], path[MAX_PATH];
+    SIZE_T i;
+    FILE *file;
+    int parts[3] = {1687, 1597, 1664};
+    if (!GetTempPathA(sizeof(temporary), temporary) ||
+        !GetTempFileNameA(temporary, "c16", 0, fixture)) {
+        check(0, "competition fixture path"); return;
+    }
+    DeleteFileA(fixture); check(CreateDirectoryA(fixture, NULL), "competition fixture directory");
+    for (i = 0; i < sizeof(folders) / sizeof(folders[0]); ++i) {
+        snprintf(path, sizeof(path), "%s\\%s", fixture, folders[i]);
+        check(CreateDirectoryA(path, NULL), "competition fixture subdirectory");
+    }
+    lstrcpynA(g_game_dir, fixture, sizeof(g_game_dir));
+    native_view.nodes = nodes; native_view.node_count = sizeof(nodes) / sizeof(nodes[0]);
+    InterlockedExchange(&g_compdata_index_state, 2);
+    for (i = 0; i < native_view.node_count; ++i) {
+        int id = nodes[i].id;
+        g_compdata_type[id] = (unsigned char)nodes[i].type;
+        g_compdata_parent[id] = (short)nodes[i].parent;
+        g_compdata_asset[id] = nodes[i].asset;
+    }
+    g_competition_icon_asset_by_id[1597] = 229;
+    g_competition_icon_asset_by_id[1816] = 9;
+    snprintf(path, sizeof(path), "%s\\data\\ui\\imgAssets\\cmCalendarCompetitions\\cmCalendarCompetitions229.dds", fixture);
+    file = fopen(path, "wb"); check(file != NULL, "Copa image fixture"); if (file) fclose(file);
+    check(native_logo(1687) == 229 && native_logo(1688) == 229,
+        "Copa do Brasil groups cannot select historical Supercopa logo");
+    check(native_logo(1816) == 9 && native_logo(1818) == 9,
+        "Supercopa root and group resolve through the active hierarchy");
+    check(calendar_asset_for_date_capture(NULL, parts) == 229,
+        "Copa calendar cell ignores historical Supercopa special case");
+    parts[0] = 1688;
+    check(calendar_asset_for_date_capture(NULL, parts) == 229,
+        "second Copa group uses the same authoritative visual identity");
+    DeleteFileA(path);
+    for (i = sizeof(folders) / sizeof(folders[0]); i > 0; --i) {
+        snprintf(path, sizeof(path), "%s\\%s", fixture, folders[i - 1]); RemoveDirectoryA(path);
+    }
+    RemoveDirectoryA(fixture);
+    native_view.nodes = NULL; native_view.node_count = 0;
+    g_game_dir[0] = 0;
+}
+
 int main(void)
 {
     SIZE_T i;
@@ -304,6 +359,7 @@ int main(void)
         "context reset cancels pending view retries");
     test_competition_leader_empty_states();
     test_next_match_stadium();
+    test_updated_competition_identities();
     printf("Career native patch readiness: %s (%d failures)\n",
         failures ? "FAIL" : "PASS", failures);
     return failures ? 1 : 0;

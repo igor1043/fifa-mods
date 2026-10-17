@@ -16,6 +16,7 @@ ModCarrerMode/runtime/injury_snapshot.tsv
 # Local backup copies never belong in the published package.
 ModCarrerMode/backups/
 runtime/backups/
+runtime/career_icons/
 ModCarrerMode/mods/*.bak
 
 # Mascot models, textures, captures and conversion data stay local.

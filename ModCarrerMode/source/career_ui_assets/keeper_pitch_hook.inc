@@ -45,7 +45,11 @@ static BOOL install_keeper_pitch_hook(void)
     /* Verify the live serializer's own TeamID source and the keeper-only path.
        The on-disk executable is packed, so these checks use decoded RAM. */
     if(!read_memory(base+0x40ca402,signature,17) || memcmp(signature,"\x44\x8b\x46\x04",4) ||
-       !read_memory(base+0x40ca8f8,signature,21) || memcmp(signature,"\x4d\x85\xff\x75\x2f\x8b\x5e\x08\x85\xdb\x74\x06\xc1\xeb\x0e\xeb\x04",17))return FALSE;
+       !read_memory(base+0x40ca8f8,signature,21) || (signature[10]!=0x74 && signature[10]!=0x7e))return FALSE;
+    /* The central kit-key table preserves the native signed automatic fallback.
+       Accept that corrected JLE as well as the legacy JE; all other bytes match. */
+    signature[10]=0x74;
+    if(memcmp(signature,"\x4d\x85\xff\x75\x2f\x8b\x5e\x08\x85\xdb\x74\x06\xc1\xeb\x0e\xeb\x04",17))return FALSE;
     relay=(BYTE*)keeper_pitch_relay(site);if(!relay)return FALSE;
     relay[0]=0xff;relay[1]=0x25;memset(relay+2,0,4);memcpy(relay+6,&wrapper,8);
     if(!VirtualProtect(relay,4096,PAGE_EXECUTE_READ,&old)){VirtualFree(relay,0,MEM_RELEASE);return FALSE;}

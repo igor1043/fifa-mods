@@ -91,6 +91,39 @@ Os 20 clubes da Série B do banco local têm pacotes convertidos com `--review-b
 
 Botafogo-SP aparece como Botafogo-RP no banco local; Athletic-MG como Athletic SJR-MG. Nos arquivos com nomes genéricos, `Prepare-AuthoredMascot.py --basecolor <imagem> --normal <imagem>` seleciona explicitamente os mapas de cor e normal. As texturas visuais fornecidas são preservadas. O Botafogo-SP tinha dois vértices sem peso; `--repair-unweighted` preencheu somente esses pontos usando vizinhos locais ponderados pela distância. Relatórios e prévias ficam no estudo local, fora do pacote de execução.
 
+## Pacotes da Série C e extras
+
+O envio `SERIE C.rar` contém 22 modelos: 19 clubes da Série C do banco local, Novorizontino (já presente na Série B), Jabaquara e o Chapolin do Fifa Friends Team. O usuário confirmou o ID 130248 para este último. Volta Redonda (120433) não veio no envio e não recebe modelo substituto. Santa Cruz e Novorizontino atualizam seus pacotes anteriores.
+
+| Clube | ID usado no banco local |
+|---|---:|
+| Amazonas FC | 130285 |
+| Anápolis | 130190 |
+| Barra-SC | 130326 |
+| Botafogo-PB | 120004 |
+| Brusque | 113121 |
+| Caxias | 120003 |
+| Fifa Friends Team | 130248 |
+| Confiança | 130024 |
+| Ferroviária | 113101 |
+| Figueirense | 111045 |
+| Floresta | 130100 |
+| Guarani | 111049 |
+| Inter de Limeira | 130091 |
+| Itabaiana | 113104 |
+| Ituano | 113105 |
+| Jabaquara | 130127 |
+| Maranhão | 130072 |
+| Maringá | 130108 |
+| Grêmio Novorizontino | 130045 |
+| Paysandu | 120002 |
+| Santa Cruz | 111058 |
+| Ypiranga | 130025 |
+
+Os 22 modelos usam a revisão de pesos de cabeça, pescoço, peito e braços, preservando texturas e pivôs proporcionais a cada personagem. Todos os FBX fornecidos tinham um esqueleto Mixamo e nenhum vértice sem peso. No Chapolin, `--rigid-right-hand-prop` mantém a região autoral da mão e da marreta rígida no osso 24: o acessório elevado não recebe a pintura da cabeça por estar na mesma altura. A preservação da forma foi verificada em 63 poses. Essa opção é limitada ao modelo inspecionado do clube 130248. Prévia renderizada e testes offline não substituem a conferência visual dentro de uma partida.
+
+O ZIP de distribuição deste envio contém somente `data/sceneassets/mascot/<ID>/model.rx3`, `model_animated.rx3`, `textures.rx3` e `locomotion_feet.bin`, para os 22 IDs acima. Não inclui outros mascotes, DLL, Lua, fontes, metadados de conversão ou prévias. Extraia na raiz do FIFA 16 com o mod de mascotes já instalado e IDs de banco compatíveis.
+
 ## Compilar e instalar
 
 Na raiz do repositório, com MSVC x64 disponível:
@@ -149,6 +182,6 @@ O argumento `--tools` aponta para o bundle local `mascot_rig_adjuster`, que cont
 
 `verify.cmd` compila e executa as políticas de posição, seleção de atores, replay e animação. `verify_locomotion.cmd` verifica poses e deformação com uma pasta de fixtures contendo modelos, marcadores e matrizes de referência; essa pasta é um recurso de teste local, separado do pacote de jogo. `tests/run_performance.cmd` verifica o custo das consultas.
 
-A compensação e a gravação/leitura das poses do replay foram testadas com os 43 pacotes locais e a matriz capturada do renderizador. As conversões novas passaram na validação offline e aguardam confirmação visual no FIFA. Os pacotes abrangem os 20 clubes da Série A e os 20 da Série B cadastrados no banco instalado, mais Brasil, Santa Cruz e Paulista de Jundiaí. O usuário confirmou os mascotes anteriores no jogo local. A rotação relatada no replay de Flamengo/Cruzeiro não foi reproduzida na auditoria dos modelos ou na reconstrução das poses; sua causa na cena ainda precisa ser verificada no jogo. Consulte `ModCarrerMode/logs/mascot_goal_line.log` e o registro `installed version=30` para identificar o build interno; o caminho ativo não tem sufixo de versão.
+A compensação e a gravação/leitura das poses do replay foram testadas com os 63 pacotes locais e a matriz capturada do renderizador. As conversões novas passaram na validação offline e aguardam confirmação visual no FIFA. Os pacotes abrangem os 20 clubes da Série A, os 20 da Série B e 19 da Série C cadastrados no banco instalado, mais Brasil, Paulista de Jundiaí, Jabaquara e Fifa Friends Team. O usuário confirmou os mascotes anteriores no jogo local. A rotação relatada no replay de Flamengo/Cruzeiro não foi reproduzida na auditoria dos modelos ou na reconstrução das poses; sua causa na cena ainda precisa ser verificada no jogo. Consulte `ModCarrerMode/logs/mascot_goal_line.log` e o registro `installed version=30` para identificar o build interno; o caminho ativo não tem sufixo de versão.
 
 Revisão 30: a atualização Lua confirma sua conclusão antes de mover o ator e pode tentar novamente após uma falha temporária, mesmo sem trocar de partida. Os wrappers do mascote são instalados uma vez por contexto, preservando os módulos carregados depois. O estado da seleção tem proteção contra reentrada com liberação em finally. Logs incluem processo e thread. Consulte `../common/README.md` para testes e limites da hipótese de concorrência.

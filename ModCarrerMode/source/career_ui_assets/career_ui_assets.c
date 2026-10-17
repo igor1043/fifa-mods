@@ -66,22 +66,25 @@ __declspec(dllexport) int WINAPI Fifa16UiAssetsResolvePreseason(int root,const v
 #ifndef UI_ASSETS_TEST
 #include "path_hooks.inc"
 #include "keeper_pitch_hook.inc"
+#include "keeper_squad_hook.inc"
 #endif
 static DWORD WINAPI worker(void *unused) {
     unsigned attempt;(void)unused;prepare_aliases(game_dir);build_catalog();
     if(!calendar_count)log_line("EMPTY careerCompetitionIcons; keeper repair remains enabled",4,0);
 #ifndef UI_ASSETS_TEST
     {
-        BOOL calendar_ready=calendar_count==0,keeper_ready=FALSE;
+        BOOL calendar_ready=calendar_count==0,keeper_ready=FALSE,squad_ready=FALSE;
         for(attempt=0;attempt<900;attempt++) {
             if(expanded_layout_ready()) {
                 if(!keeper_ready)keeper_ready=install_keeper_pitch_hook();
+                if(!squad_ready)squad_ready=install_keeper_squad_hook();
                 if(!calendar_ready)calendar_ready=install_path_hooks();
-                if(keeper_ready && calendar_ready){log_line("READY calendar resolver and career keeper repair",4,0);return 0;}
+                if(keeper_ready && calendar_ready && squad_ready){log_line("READY calendar resolver, Starting XI and squad keeper repair",5,0);return 0;}
             }
             Sleep(100);
         }
         log_line("UNSUPPORTED or busy calendar/keeper hooks",calendar_ready,keeper_ready);
+        log_line("SQUAD keeper hook ready",squad_ready,0);
     }
 #else
     (void)attempt;
