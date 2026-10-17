@@ -20,6 +20,7 @@
 #include "../features/retirement/retirement_engine.h"
 #include "swiss_delta.h"
 #include "card_refresh_schedule.h"
+#include "../../../common/competition_identity.h"
 static void native_prepare(void *owner);
 static void native_publish(void *provider);
 static void native_log_transfer_card_context(void *provider);
@@ -2123,6 +2124,7 @@ static int g_compdata_asset[65536];
 static int g_competition_icon_asset_by_id[65536];
 static unsigned char g_calendar_direct_asset[65536];
 static volatile LONG g_compdata_index_state;
+static CompIdentityIndex g_competition_identity;
 
 typedef int (WINAPI *UiCompetitionAssetFn)(int,const void *);
 static int career_ui_competition_asset(int root,const void *owner)
@@ -2148,6 +2150,7 @@ static void load_compdata_competition_index(void)
     snprintf(path, sizeof(path),
         "%s\\dlc\\dlc_FootballCompEng\\dlc\\FootballCompEng\\data\\compdata\\compobj.txt",
         g_game_dir);
+    comp_identity_load(&g_competition_identity,path);
     file = fopen(path, "rb");
     if (file)
     {
@@ -2179,9 +2182,8 @@ static void load_compdata_competition_index(void)
         }
         fclose(file);
     }
-    /* The server IDs are stable competition identities, while UI DDS files
-     * use the legacy resource IDs. Keep that relationship in a text catalogue
-     * so career screens can share one mapping without changing the DB. */
+    /* Resolve catalogue identities against this installed CompData. Numeric
+     * hints from older releases must never override a different competition. */
     snprintf(path, sizeof(path),
         "%s\\data\\catalogs\\career_competition_icon_map.tsv", g_mod_dir);
     file = fopen(path, "rb");
@@ -2189,12 +2191,11 @@ static void load_compdata_competition_index(void)
     {
         while (fgets(line, sizeof(line), file))
         {
-            int competition_id, asset_id;
+            int competition_id, asset_id=0;
             if (line[0] == '#' || line[0] == '\r' || line[0] == '\n')
                 continue;
-            if (sscanf(line, "%d|%d", &competition_id, &asset_id) == 2
-                && competition_id > 0 && competition_id <= 65535
-                && asset_id > 0 && asset_id <= 65535)
+            competition_id=comp_identity_mapping(&g_competition_identity,line,&asset_id);
+            if (competition_id > 0 && competition_id <= 65535)
                 g_competition_icon_asset_by_id[competition_id] = asset_id;
         }
         fclose(file);

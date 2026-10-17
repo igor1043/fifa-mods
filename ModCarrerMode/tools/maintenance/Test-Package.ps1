@@ -26,6 +26,10 @@ $snapshot=Join-Path $fixture 'ModCarrerMode\injury_snapshot.tsv'
 [IO.File]::WriteAllText($snapshot,'fixture injury snapshot')
 $private=Join-Path $fixture 'ModCarrerMode\runtime\operations\preserve.bin'
 [IO.File]::WriteAllBytes($private,[byte[]](1,2,3,4))
+$clothConfig=Join-Path $fixture 'ModCarrerMode\mods\cloth_motion\cloth_motion.ini'
+New-Item -ItemType Directory -Force -Path (Split-Path $clothConfig) | Out-Null
+[IO.File]::WriteAllText($clothConfig,"[cloth_motion]`nenabled=1`nsolver_hz=120`n")
+$clothConfigHash=(Get-FileHash -LiteralPath $clothConfig).Hash
 $db=Join-Path $fixture 'data\loc\por_br.db'
 [IO.File]::WriteAllBytes($db,[byte[]](5,6,7,8))
 $hashes=@{Config=(Get-FileHash -LiteralPath $config).Hash;Snapshot=(Get-FileHash -LiteralPath $snapshot).Hash;Private=(Get-FileHash -LiteralPath $private).Hash;DB=(Get-FileHash -LiteralPath $db).Hash}
@@ -125,4 +129,19 @@ foreach($name in @('model.rx3','textures.rx3')) {
 & (Join-Path $PSScriptRoot 'Install-Game.ps1') -GameDirectory $fixture -BackupDirectory (Join-Path $fixture 'installer-backups') | Out-Null
 if ((Get-Content -LiteralPath (Join-Path $fixture 'ModCarrerMode\mods\enabled.txt')) -notcontains 'var_cabin\var_cabin.dll') { throw 'Cabine com assets locais nao foi reabilitada.' }
 Write-Output 'PASS: VAR ausente nao bloqueia fogos/maquina, assets do VAR nao distribuidos, cabine local preservada e reabilitada apos instalar assets.'
+$baseCompobj=Join-Path $fixture 'dlc\dlc_FootballCompEng\dlc\FootballCompEng\data\compdata\compobj.txt'
+$baseSettings=Join-Path $fixture 'FSW\settings.ini'
+[IO.File]::WriteAllText($baseCompobj,"0,0,FIFA,FIFA,-1`n10,3,C7,OldCalendar,0`n")
+[IO.File]::WriteAllText($baseSettings,"[movies]`n10=OldCalendar`n")
+$oldCompHash=Get-FileHash -LiteralPath $baseCompobj
+$oldSettingsHash=Get-FileHash -LiteralPath $baseSettings
+& (Join-Path $PSScriptRoot 'Install-Game.ps1') -GameDirectory $fixture -BackupDirectory (Join-Path $fixture 'installer-backups') | Out-Null
+if ((Get-FileHash -LiteralPath $baseCompobj).Hash -ne $oldCompHash.Hash -or (Get-FileHash -LiteralPath $baseSettings).Hash -ne $oldSettingsHash.Hash) { throw 'Atualizacao de mods misturou a base do usuario com outro calendario.' }
+& (Join-Path $PSScriptRoot 'Install-Game.ps1') -GameDirectory $fixture -BackupDirectory (Join-Path $fixture 'installer-backups') -UpdateCompetitionData | Out-Null
+foreach ($relative in @('FSW\settings.ini','dlc\dlc_FootballCompEng\dlc\FootballCompEng\data\compdata\compobj.txt','dlc\dlc_FootballCompEng\dlc\FootballCompEng\data\internationals.txt','data\db\fifa_ng_db.db','data\loc\por_br.db')) {
+    if ((Get-FileHash -LiteralPath (Join-Path $fixture $relative)).Hash -ne (Get-FileHash -LiteralPath (Join-Path $repo $relative)).Hash) { throw "Base oficial nao sincronizada: $relative" }
+}
+Write-Output 'PASS: atualizacao de mods preserva CompData/FSW existentes; atualizacao explicita da base sincroniza DLC, FSW, DB e traducoes.'
+if ((Get-FileHash -LiteralPath $clothConfig).Hash -ne $clothConfigHash) { throw 'Preferencia pessoal de fisica de roupas sobrescrita.' }
+Write-Output 'PASS: escolha pessoal da fisica de roupas preservada na instalacao e atualizacao da base.'
 Write-Output "PASS: pacote completo, uma DLL por mod, revisoes antigas arquivadas com hashes preservados, mods adicionais/configuracoes/DB/contratos preservados, restauracao opcional e reinstalacao idempotente. Fixture: $fixture"

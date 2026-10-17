@@ -55,3 +55,9 @@ módulos, RNA atrasado, troca de cena, limite de índices, reativação e falha 
 script do mascote. A aparência no FIFA e o comportamento nos PCs afetados
 ainda precisam de validação no jogo. A hipótese de concorrência não foi
 confirmada por esses testes offline.
+# Identidades de competições — 17/10/2026
+
+`competition_identity.h` resolve os objetos do CompData instalado, os ícones por
+nome/display e as aberturas pelo caminho completo da competição e de suas fases.
+`test_competition_identity.cmd` verifica renumeração, IDs reutilizados, vínculos
+de modelos e identidades ambíguas com o mesmo código usado pelas DLLs.

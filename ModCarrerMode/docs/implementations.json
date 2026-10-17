@@ -59,7 +59,7 @@
     {
       "id": "multiball",
       "name": "Bolas na beira do gramado",
-      "behavior": "Mantém as 13 bolas de reposição e acrescenta suportes 3D por competição: Série A, CBF para B/C/D, Paulista e dois genéricos.",
+      "behavior": "Mantém as 13 bolas de reposição e acrescenta suportes 3D por competição: Série A, CBF para B/C/D, Paulista e dois genéricos. Resolve as identidades das ligas no CompData instalado, inclusive após a renumeração da base Honduras.",
       "source": "ModCarrerMode/source/multiball_visual",
       "configuration": "ModCarrerMode/mods/multiball_visual/standball.ini",
       "limits": "São visuais, sem física. Suportes dependem dos RX3; sem recursos prontos, as bolas ficam no gramado. Conferência visual no FIFA pendente.",
@@ -68,9 +68,9 @@
     {
       "id": "entrance_props",
       "name": "Objetos de abertura por competição",
-      "behavior": "Escolhe arco e placas pelo campeonato; retira modelo e escudos juntos ao fim das escalações ou da apresentação avançada.",
+      "behavior": "Escolhe arco e placas pelo campeonato; retira modelo e escudos juntos ao fim das escalações ou da apresentação avançada. Os 116 pacotes existentes seguem a identidade completa de competição e fase, sem renomear pastas após a mudança de IDs.",
       "source": "ModCarrerMode/source/entrance_props",
-      "configuration": "ModCarrerMode/config/match_presentation.ini; IDs em FSW/settings.ini",
+      "configuration": "ModCarrerMode/config/match_presentation.ini; IDs em FSW/settings.ini; vínculos internos em ModCarrerMode/data/catalogs/entrance_competition_bindings.tsv",
       "limits": "Padrão Sim. Pacote ausente ou inválido deixa a partida sem objetos; assets são locais.",
       "status": "implemented"
     },
@@ -149,7 +149,7 @@
     {
       "id": "calendar_icons",
       "name": "Ícones da carreira",
-      "behavior": "Resolve os ícones das competições e da pré-temporada. O Server16 atualizado importa imagens pelo nome ou ID da competição, converte e atualiza o índice automaticamente, preservando os originais.",
+      "behavior": "Resolve os ícones das competições e da pré-temporada. O Server16 atualizado importa imagens pelo nome ou ID da competição, converte e atualiza o índice automaticamente, preservando os originais. Na base Honduras, resolve os IDs atuais pela identidade do CompData e preserva as artes personalizadas.",
       "source": "ModCarrerMode/source/career_ui_assets",
       "configuration": "data/ui/imgAssets/careerCompetitionIcons",
       "limits": "A importação exige o Server16 atualizado e ocorre com o FIFA fechado. Sem imagem válida, conserva o caminho original. Novas estruturas de competição continuam pertencendo ao CompData.",
@@ -190,6 +190,15 @@
       "configuration": "ModCarrerMode/mods/goal_kick_short_pass/goal_kick_short_pass.ini; ModCarrerMode/mods/enabled.txt",
       "limits": "Experimental e limitado ao hash de fifa16.exe compatível com o pacote original. Não altera quando a bola passa a estar em jogo dentro da área. Posicionamento e sensação do passe precisam ser avaliados em partida.",
       "status": "experimental"
+    },
+    {
+      "id": "competition_base",
+      "name": "Base Honduras sincronizada",
+      "behavior": "Instala CompData, DB v12.11, traduções e FSW/settings.ini da mesma versão. O settings.ini é mantido como recebido do autor.",
+      "source": "ModCarrerMode/tools/maintenance",
+      "configuration": "ModCarrerMode/install-game.cmd -UpdateCompetitionData",
+      "limits": "Não converte carreiras salvas. Uma atualização somente dos mods preserva a base já instalada.",
+      "status": "implemented"
     }
   ],
   "not_implemented": [

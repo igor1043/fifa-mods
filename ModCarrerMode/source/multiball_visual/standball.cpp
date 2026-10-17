@@ -11,6 +11,7 @@
 #include "stand_assets.h"
 #include "../common/scene_lua.h"
 #include "../common/scene_resource_cycle.h"
+#include "../common/competition_identity.h"
 #include "../stadium_pyrotechnics/presentation.h"
 #pragma comment(lib,"bcrypt.lib")
 
@@ -27,6 +28,8 @@ static SceneLuaLifecycle luaLifecycle;
 static PyroMatchSession session;
 static int desired=-1,loaded=-1;
 static unsigned competition=0,roundId=0,serial=0;
+static CompIdentityIndex standIdentityIndex;
+static bool standIdentityReady=false;
 enum class SelectionSource { None,Native,Friendly,Generic };
 static SelectionSource selectionSource=SelectionSource::None;
 static uint64_t nextConfig=0,nextScene=0,nextCreate=0,nextDiagnostic=0;
@@ -113,10 +116,17 @@ static unsigned friendlyCompetition(unsigned home,unsigned away){
     GetPrivateProfileIntA("selection","home",0,contextPath)!=home||GetPrivateProfileIntA("selection","away",0,contextPath)!=away||
     GetPrivateProfileIntA("selection","competition",1,contextPath)||GetPrivateProfileIntA("selection","round",1,contextPath))return 0;
  char mode[64];GetPrivateProfileStringA("selection","mode","",mode,sizeof(mode),contextPath);
- return !strcmp(mode,"friendly_same_league")?GetPrivateProfileIntA("selection","asset",0,contextPath):0;
+ return !strcmp(mode,"friendly_same_league")?GetPrivateProfileIntA("selection","resolved_competition",GetPrivateProfileIntA("selection","asset",0,contextPath),contextPath):0;
 }
 static int mapped(unsigned id){
  if(!id)return -1;char key[16],slug[32];_snprintf_s(key,sizeof(key),_TRUNCATE,"%u",id);
+ if(GetPrivateProfileIntA("standball","identity_schema",0,iniPath)==1){
+  if(!standIdentityReady){char path[MAX_PATH];_snprintf_s(path,sizeof(path),_TRUNCATE,"%s\\dlc\\dlc_FootballCompEng\\dlc\\FootballCompEng\\data\\compdata\\compobj.txt",gameRoot);standIdentityReady=comp_identity_load(&standIdentityIndex,path)!=0;}
+  const int visual=comp_identity_visual(comp_identity_root(&standIdentityIndex,(int)id));
+  if(!visual)return -1;
+  _snprintf_s(key,sizeof(key),_TRUNCATE,"%d",visual);
+  GetPrivateProfileStringA("identities",key,"",slug,sizeof(slug),iniPath);return asset(slug);
+ }
  GetPrivateProfileStringA("competitions",key,"",slug,sizeof(slug),iniPath);return asset(slug);
 }
 static void scene(){

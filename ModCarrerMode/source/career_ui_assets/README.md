@@ -4,7 +4,7 @@
 
 Users can place PNG/JPG/WEBP/BMP artwork directly in `data/ui/imgAssets/careerCompetitionIcons/`
 and open the updated Server16 before FIFA. Name the file after the installed competition ID
-(for example `1738.png`) or its full FSW movies/Scoreboard name. Server16 generates
+(for example `1761.png` in the Honduras base) or its full FSW movies/Scoreboard name. Server16 generates
 `COMPETICOES.txt` in that directory with accepted filenames for the selected installation.
 It converts to the validated 128x128 DXT5 canvas, preserves the original, resolves the visual ID
 with the host's explicit-map/TrophyName/C<ID> precedence, and updates `host_available`
@@ -16,6 +16,13 @@ This imports artwork for installed competitions; it does not create competition 
 The native DDS lookup and its index remain compatible with manual/prebuilt asset packages.
 
 ## Native catalogue
+
+The Honduras update resolves explicit artwork mappings by the installed CompData's
+exact name/display identity. The internal map now has four pipe-separated fields:
+numeric hint, visual ID, CompData name and display. Numeric hints never override a
+different installed identity. Legacy two-field maps are accepted only when the
+installed root confirms the same visual ID. Both Server16 and the native host use
+this rule; the user-facing image import requires no table editing.
 
 The calendar's competition images live in `data/ui/imgAssets/careerCompetitionIcons/c<ID_VISUAL>.dds`.
 These DDSs, their local `index.tsv` and generated metadata are excluded from the source package.

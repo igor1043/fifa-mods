@@ -8,6 +8,8 @@ O FIFA Friends V12 reúne melhorias para acompanhar seu clube, personalizar a ex
 
 ## Destaques desta atualização — 17/10/2026
 
+- **Base v12.11 com Honduras:** calendário e configuração sincronizados com o pacote oficial. Os recursos reconhecem a identidade da competição e da fase, acompanhando mudanças de numeração.
+
 - **Camisas e calções com movimento:** física de roupas 0.8.2, com dobras, ajuste na barra do calção e controle pelo Server. Sua escolha fica salva. O recurso é experimental e começa desligado.
 - **Goleiro com o uniforme correto:** corrigida a miniatura que aparecia branca no campo da aba Elenco e nas rotinas de escalação.
 - **Ícones das competições corrigidos:** vínculos ajustados ao calendário instalado, evitando associações antigas entre competições e fases.
@@ -50,7 +52,7 @@ O FIFA Friends V12 reúne melhorias para acompanhar seu clube, personalizar a ex
 ## Como começar
 
 1. Use a instalação compatível do **FIFA 16 para Windows, 64 bits** e os pacotes de imagens, modelos e áudio desejados.
-2. Com os programas fechados, instale o pacote compilado: `ModCarrerMode/install-game.cmd -GameDirectory "C:\Seu FIFA 16"`.
+2. Com os programas fechados, instale o pacote compilado: `ModCarrerMode/install-game.cmd -GameDirectory "C:\Seu FIFA 16" -UpdateCompetitionData`.
 3. Abra o **Server16 atualizado** e depois o FIFA.
 4. No pré-jogo, entre em **Configurações da partida**, escolha as opções e confirme em **Aplicar**. Durante a partida, use o painel de **F12**.
 
@@ -59,10 +61,12 @@ Para ativar o movimento das roupas, escolha **Física de roupas > Aplicar** no S
 ## Colocar outro ícone ficou simples
 
 1. Com o FIFA fechado, coloque um **PNG ou JPG** em `data/ui/imgAssets/careerCompetitionIcons/`, dentro da pasta do jogo.
-2. Use o nome ou ID da competição. Nesta edição, por exemplo: **`1738.png`** para a Série A. O arquivo **`COMPETICOES.txt`**, criado pelo Server nessa pasta, lista os nomes aceitos.
+2. Use o nome ou ID da competição. Nesta edição, por exemplo: **`1761.png`** para a Série A. O arquivo **`COMPETICOES.txt`**, criado pelo Server nessa pasta, lista os nomes aceitos.
 3. Abra o Server atualizado, aguarde alguns segundos e inicie o FIFA.
 
 O Server cuida do tamanho, do formato e do cadastro. **Não é preciso editar o index.tsv nem converter a imagem manualmente.** Para trocar um logo, substitua a imagem original. Prefira PNG com fundo transparente e mantenha apenas uma imagem por competição.
+
+Para instalar apenas os mods mantendo sua base atual, omita `-UpdateCompetitionData`. Essa opção instala a base oficial completa e guarda backup do DLC, settings.ini, banco e traduções substituídos. Consulte o [guia da base de competições](ModCarrerMode/docs/COMPDATA.md).
 
 ## Pacotes e disponibilidade
 

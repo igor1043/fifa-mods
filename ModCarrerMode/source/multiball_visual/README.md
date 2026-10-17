@@ -6,15 +6,17 @@ sem física. A bola de gameplay permanece intacta.
 
 | Competição | Suporte |
 |---|---|
-| Brasileirão Série A — 1738 | `brasileirao` |
-| Série B — 1741; Série C — 1747; Série D — 1757 | `cbf` |
-| Paulista — 2325, incluindo quartas 2330, semifinal 2335 e final 2338 | `paulistao` |
+| Brasileirão Série A — 1761 | `brasileirao` |
+| Série B — 1764; Série C — 1770; Série D — 1780 | `cbf` |
+| Paulista — 2348, incluindo suas fases no CompData | `paulistao` |
 | Outras competições e amistosos sem associação | `generic1` ou `generic2` |
 
-`standball.ini`, na pasta da DLL, contém os IDs exatos das competições e dos
-seus descendentes no `compobj.txt` instalado. A fase tem prioridade sobre a
-competição principal quando consta no mapa. IDs de liga como 7 e 83 não são
-tratados como IDs de competição. Não existem associações por intervalo ou nome.
+Na base Honduras de 17/10/2026, `standball.ini` usa `identity_schema=1` e a
+seção interna `[identities]`: 7, 83, 350, 351 e 22 identificam as ligas.
+O módulo encontra a raiz da partida no `compobj.txt` instalado e resolve sua
+identidade visual. Assim, fases acompanham a competição após renumerações.
+A seção `[competitions]` também está atualizada para compatibilidade; números
+antigos não substituem uma identidade diferente no modo novo.
 
 Em amistosos da mesma liga, utiliza o contexto produzido pelo Server16 para as
 entradas, validando o processo, a data do arquivo e os dois clubes. Uma copa real
