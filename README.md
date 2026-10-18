@@ -10,6 +10,16 @@ O FIFA Friends V12 reúne melhorias para acompanhar seu clube, personalizar a ex
 
 - **ID direto:** cada modelo usa a pasta com o ID atual da competição ou fase, sem tabela de conversão. Uma fase sem pacote próprio fica sem arco e placas; não herda o modelo principal.
 
+## Câmeras do jogador — 18/10/2026
+
+O Server16 incluído no pacote traz **Primeira pessoa** e **Terceira pessoa · carreira**.
+No FIFA, escolha a câmera **Profissional**. Durante a partida, abra **Select + Start / F12 → Câmera**.
+Ativação, modo e campo de visão ficam salvos. A abertura padrão é 85° nos dois modos, com suavização
+Forte e enquadramento de campo e bola fixos. O acompanhamento inclui a espera para
+reiniciar a jogada com a bola parada. Na terceira pessoa, Distância oferece Perto,
+Intermediária e Afastada, com escolha salva e transição suave. O módulo da câmera está embutido no executável
+do Server; o instalador do pacote distribui esse mesmo executável com os demais recursos.
+
 ## Destaques desta atualização — 17/10/2026
 
 - **Base v12.11 com Honduras:** calendário e configuração sincronizados com o pacote oficial. Ícones e suportes reconhecem as identidades instaladas; as pastas de abertura foram alinhadas aos IDs atuais.

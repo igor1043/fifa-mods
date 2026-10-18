@@ -3,6 +3,15 @@
   "edition": "v12",
   "features": [
     {
+      "id": "player_cameras",
+      "name": "Câmeras do jogador",
+      "behavior": "Primeira pessoa e Terceira pessoa · carreira pelo Server16. Salva ativação, modo, FOV separado por modo e distância (Perto, Intermediária, Afastada). Padrão 85 graus nos dois modos, suavização Forte e campo e bola fixos. Acompanha também a bola parada e mantém o cache de pose coerente nas transições.",
+      "source": "Server16 Python: native_mods/first_person; server16_py/first_person_runtime.py",
+      "configuration": "Server16Python.exe; Select + Start / F12 > Câmera; runtime/first_person_camera.json",
+      "limits": "Experimental. Requer a câmera Profissional do FIFA e o Server aberto. A DLL da câmera está embutida no Server; não é um plugin adicional de enabled.txt. Terceira pessoa sem colisão com objetos do estádio.",
+      "status": "implemented"
+    },
+    {
       "id": "next_match",
       "name": "Próxima Partida",
       "behavior": "Adversário, competição, data, horário, estádio e público estimado quando disponíveis.",

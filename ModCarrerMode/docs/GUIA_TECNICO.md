@@ -9,6 +9,7 @@ Mods para melhorar a carreira e a apresentação das partidas no FIFA 16. Este p
 | **Próxima Partida** | Adversário, competição, data, horário, estádio e público estimado quando disponíveis. |
 | **Meu Time** | Informações do clube, jogadores, líderes de estatísticas, cartões e lesões. |
 | **Competição** | Classificação e informações de ligas, copas, fases e partidas. |
+| **Câmeras do jogador** | Primeira pessoa e Terceira pessoa · carreira pelo Server16, usando a câmera Profissional do FIFA. Salva ativação, modo e abertura; padrão 85° nos dois modos, três distâncias na terceira pessoa, suavização Forte e campo e bola. Inclui acompanhamento na bola parada. |
 | **Física de roupas** | Movimento e dobras de camisas e calções. Revisão 0.8.2: desativada por padrão, escolha salva no CF16 antes e durante a partida e barra do calção até 3 mm mais alta. |
 | **Cabine do VAR** | Cabine na beira do gramado nas Séries A e B do Brasileirão. |
 | **Mascotes** | Mascote do mandante com caminhada, apoio e comemoração. |
@@ -29,6 +30,14 @@ Mods para melhorar a carreira e a apresentação das partidas no FIFA 16. Este p
 | **Compatibilidade de competições** | Mantém a leitura das competições usadas pelos módulos da carreira. |
 
 O [catálogo das implementações](implementations.json) relaciona cada recurso com seus fontes, configuração e limitações.
+
+As câmeras são fornecidas pelo `Server16Python.exe` da raiz do pacote. A DLL
+`server16_first_person_v5.dll` está embutida nesse executável e é carregada pelo
+Server; não há entrada adicional em `ModCarrerMode/mods/enabled.txt`. Os fontes
+pertencem ao projeto Server16 Python (`native_mods/first_person` e
+`server16_py/first_person_runtime.py`). O menu é Select + Start / F12 → Câmera.
+A câmera nativa Profissional e o Server aberto são necessários nos dois modos.
+A terceira pessoa é experimental e não detecta colisões com objetos do estádio.
 
 ## Como usar
 

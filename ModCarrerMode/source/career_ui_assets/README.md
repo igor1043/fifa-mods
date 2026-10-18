@@ -176,3 +176,19 @@ and type 0 for automatic outfield rows, preserves positive overrides and source
 sheets, and tests signature rejection. `build.cmd` runs it alongside the existing
 Starting XI and calendar tests. The normal worker now requires all three repairs
 before reporting READY. No image, lineup or career-save replacement is involved.
+
+## Do calendar-icon changes require synchronizing BIG templates?
+
+No. The current calendar competition-icon path resolves to
+`data/ui/imgAssets/careerCompetitionIcons/c<VISUAL_ID>.dds`. Server16 imports
+ordinary artwork into that directory and updates the availability index.
+`prepare_calendar_icons.py` can extract old BIG artwork once as a migration tool;
+it is not the runtime image source. The formatter redirects legacy BIG/SWF image
+requests to a validated dedicated DDS. If the DDS is absent or invalid, the
+original path is left intact as fallback.
+
+Distribute the dedicated artwork, its index, and the updated native resolver and
+Server. Rebuilding or synchronizing the old cmcomp BIGs is unnecessary for those
+redirected icons. BIG files that define calendar layout or unrelated screen
+templates are separate resources; changing those templates still requires
+distributing the changed files. This icon migration does not replace every BIG.
