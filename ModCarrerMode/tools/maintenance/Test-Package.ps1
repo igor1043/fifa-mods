@@ -66,7 +66,14 @@ $localIndex = Join-Path $localIcons 'index.tsv'
 [IO.File]::WriteAllText($localIndex, "9999`t1`n")
 $localDdsHash = (Get-FileHash -LiteralPath $localDds).Hash
 $localIndexHash = (Get-FileHash -LiteralPath $localIndex).Hash
+$oldEntranceMap=Join-Path $fixture 'ModCarrerMode\data\catalogs\entrance_competition_bindings.tsv'
+New-Item -ItemType Directory -Force -Path (Split-Path $oldEntranceMap) | Out-Null
+[IO.File]::WriteAllText($oldEntranceMap,'1738|legacy competition identity')
+$oldEntranceMapHash=(Get-FileHash -LiteralPath $oldEntranceMap).Hash
 & (Join-Path $PSScriptRoot 'Install-Game.ps1') -GameDirectory $fixture -BackupDirectory (Join-Path $fixture 'installer-backups')
+if (Test-Path -LiteralPath $oldEntranceMap) { throw 'Tabela antiga de aberturas permaneceu ativa.' }
+$savedEntranceMap=@(Get-ChildItem -LiteralPath (Join-Path $fixture 'installer-backups') -Recurse -File -Filter 'entrance_competition_bindings.tsv')
+if (-not ($savedEntranceMap | Where-Object { (Get-FileHash -LiteralPath $_.FullName).Hash -eq $oldEntranceMapHash })) { throw 'Tabela antiga de aberturas nao foi preservada no backup.' }
 if ((Get-FileHash -LiteralPath (Join-Path $fixture 'data\sceneassets\var_cabin\model.rx3')).Hash -ne $localVarModelHash -or
     (Get-FileHash -LiteralPath (Join-Path $fixture 'data\sceneassets\var_cabin\textures.rx3')).Hash -ne $localVarTextureHash) { throw 'Cabine local alterada.' }
 if ((Get-FileHash -LiteralPath $localDds).Hash -ne $localDdsHash -or (Get-FileHash -LiteralPath $localIndex).Hash -ne $localIndexHash) { throw 'Icone local ou suas regras de disponibilidade alterados.' }

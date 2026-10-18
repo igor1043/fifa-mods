@@ -171,7 +171,8 @@ foreach($file in $files) {
     $changes.Add($file)
 }
 $obsoletePaths = @('dinput8_career_chain.dll','ModCarrerMode\mods\bench12_global_limit_12_v2',
-    'ModCarrerMode\config\entrance_competitions.ini','ModCarrerMode\entrance_competitions.ini')
+    'ModCarrerMode\config\entrance_competitions.ini','ModCarrerMode\entrance_competitions.ini',
+    'ModCarrerMode\data\catalogs\entrance_competition_bindings.tsv')
 if (-not $liveMods) { $obsoletePaths += 'ModCarrerMode\mods\skip_server_shutdown_notice' }
 # Upgrade old packages to one DLL per mod. Archive only known module folders;
 # unrelated user-installed modules remain outside this migration.

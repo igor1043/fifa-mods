@@ -81,25 +81,4 @@ static __inline int comp_identity_key(const CompIdentityIndex *index,int id,char
     }
     return 1;
 }
-/* 1 = bound asset; 0 = unbound; -1 = this numeric folder belongs elsewhere. */
-static __inline int comp_identity_binding(const CompIdentityIndex *index,const char *path,int id,int *folder) {
-    FILE *file=NULL;char key[1024],line[1200];int claimed=0,found=0;
-    if(fopen_s(&file,path,"rb") || !file)return 0;
-    if(!comp_identity_key(index,id,key,sizeof(key))){fclose(file);return -1;}
-    while(fgets(line,sizeof(line),file)) {
-        char *split=strchr(line,'|'),*end;long candidate;
-        if(!split || line[0]=='#')continue;
-        *split++=0;candidate=strtol(line,&end,10);
-        if(*end || candidate<=0 || candidate>65535)continue;
-        split[strcspn(split,"\r\n")]=0;
-        if(candidate==id)claimed=1;
-        if(!strcmp(key,split)) {
-            if(found && found!=candidate){fclose(file);return -1;}
-            found=(int)candidate;
-        }
-    }
-    fclose(file);
-    if(found){*folder=found;return 1;}
-    return claimed?-1:0;
-}
 #endif

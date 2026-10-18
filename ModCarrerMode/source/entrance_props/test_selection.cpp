@@ -18,7 +18,7 @@ int main(){
     assert(DeleteFileA(root));assert(CreateDirectoryA(root,nullptr));
     directory(root,"FSW");directory(root,"data");directory(root,"data\\sceneassets");
     directory(root,"data\\sceneassets\\entrance_props");directory(root,"data\\sceneassets\\entrance_props\\competitions");
-    for(const char* id:{"195","245","9999"}){
+    for(const char* id:{"195","245","9999","1738","1761","1764"}){
         char suffix[128];_snprintf_s(suffix,sizeof(suffix),_TRUNCATE,"data\\sceneassets\\entrance_props\\competitions\\%s",id);
         directory(root,suffix);
         _snprintf_s(metadata,MAX_PATH,_TRUNCATE,"%s\\%s\\asset.ini",root,suffix);
@@ -31,25 +31,35 @@ int main(){
     assert(WritePrivateProfileStringA("movies","0","Default must never select",settings));
     assert(WritePrivateProfileStringA("unrelated","9999","Never select",settings));
     assert(EntranceSelection::select(root,settings,195,245,name)&&!strcmp(name,"245"));
-    assert(EntranceSelection::select(root,settings,195,219,name)&&!strcmp(name,"195"));
-    assert(EntranceSelection::select(root,settings,195,9999,name)&&!strcmp(name,"195"));
+    assert(!EntranceSelection::select(root,settings,195,219,name));
+    assert(!EntranceSelection::select(root,settings,195,9999,name));
     assert(!EntranceSelection::select(root,settings,9999,0,name));
     assert(!EntranceSelection::select(root,settings,0,0,name));
     assert(!EntranceSelection::configured(settings,1000000));
     _snprintf_s(metadata,MAX_PATH,_TRUNCATE,"%s\\data\\sceneassets\\entrance_props\\competitions\\245\\asset.ini",root);
     assert(DeleteFileA(metadata));
-    assert(EntranceSelection::select(root,settings,195,245,name)&&!strcmp(name,"195"));
+    assert(!EntranceSelection::select(root,settings,195,245,name));
     assert(WritePrivateProfileStringA("movies","195",nullptr,settings));
     assert(!EntranceSelection::select(root,settings,195,245,name));
     assert(WritePrivateProfileStringA("SCOREBOARD","195","Any scoreboard name",settings));
     assert(EntranceSelection::select(root,settings,195,0,name)&&!strcmp(name,"195"));
+    // Current competition/final IDs select exactly the identically named folder.
+    // An old folder must never substitute for a missing current package.
+    assert(WritePrivateProfileStringA("movies","1761","Serie A",settings));
+    assert(WritePrivateProfileStringA("comp","1764","Phase",settings));
+    assert(EntranceSelection::select(root,settings,1761,1764,name)&&!strcmp(name,"1764"));
+    assert(EntranceSelection::select(root,settings,1761,0,name)&&!strcmp(name,"1761"));
+    _snprintf_s(metadata,MAX_PATH,_TRUNCATE,"%s\\data\\sceneassets\\entrance_props\\competitions\\1761\\asset.ini",root);
+    assert(DeleteFileA(metadata));
+    assert(!EntranceSelection::select(root,settings,1761,0,name));
+    assert(WritePrivateProfileStringA("asset","schema","1",metadata));
     _snprintf_s(context,MAX_PATH,_TRUNCATE,"%s\\friendly_context.ini",root);
     unsigned resolved=0;bool isFriendly=false;char pid[16];
     _snprintf_s(pid,sizeof(pid),_TRUNCATE,"%lu",GetCurrentProcessId());
     assert(!EntranceSelection::select_match(root,settings,context,0,0,1043,567,resolved,isFriendly,name));
     for(const auto& item:{std::pair<const char*,const char*>{"schema","1"},{"process_id",pid},{"home","1043"},
                         {"away","567"},{"competition","0"},{"round","0"},{"mode","friendly_same_league"},
-                        {"league","13"},{"asset","195"}})
+                        {"league","13"},{"asset","1738"},{"resolved_competition","195"}})
         assert(WritePrivateProfileStringA("selection",item.first,item.second,context));
     assert(EntranceSelection::select_match(root,settings,context,0,0,1043,567,resolved,isFriendly,name));
     assert(isFriendly&&resolved==195&&!strcmp(name,"195"));
@@ -72,7 +82,7 @@ int main(){
     assert(!EntranceSelection::select_match(root,settings,context,0,0,1043,567,resolved,isFriendly,name));
     assert(DeleteFileA(context));
     assert(DeleteFileA(settings));
-    for(const char* id:{"195","245","9999"}){
+    for(const char* id:{"195","245","9999","1738","1761","1764"}){
         _snprintf_s(metadata,MAX_PATH,_TRUNCATE,"%s\\data\\sceneassets\\entrance_props\\competitions\\%s\\asset.ini",root,id);
         if(strcmp(id,"245"))assert(DeleteFileA(metadata));
         char* slash=strrchr(metadata,'\\');*slash=0;assert(RemoveDirectoryA(metadata));
@@ -80,5 +90,5 @@ int main(){
     for(const char* suffix:{"data\\sceneassets\\entrance_props\\competitions","data\\sceneassets\\entrance_props","data\\sceneassets","data","FSW"}){
         _snprintf_s(metadata,MAX_PATH,_TRUNCATE,"%s\\%s",root,suffix);assert(RemoveDirectoryA(metadata));
     }
-    assert(RemoveDirectoryA(root));puts("PASS settings IDs, phase/cup priority, same-league friendly, wrong clubs/process/stale context rejected");
+    assert(RemoveDirectoryA(root));puts("PASS exact competition/phase folders, no old-folder/root fallback, same-league friendly, wrong clubs/process/stale context rejected");
 }

@@ -68,9 +68,9 @@
     {
       "id": "entrance_props",
       "name": "Objetos de abertura por competição",
-      "behavior": "Escolhe arco e placas pelo campeonato; retira modelo e escudos juntos ao fim das escalações ou da apresentação avançada. Os 116 pacotes existentes seguem a identidade completa de competição e fase, sem renomear pastas após a mudança de IDs.",
+      "behavior": "Escolhe arco e placas somente na pasta com o ID atual da competição ou fase. Sem pacote para o ID selecionado, não exibe objetos nem herda o modelo principal. As 251 pastas foram alinhadas à base Honduras, preservando 116 modelos.",
       "source": "ModCarrerMode/source/entrance_props",
-      "configuration": "ModCarrerMode/config/match_presentation.ini; IDs em FSW/settings.ini; vínculos internos em ModCarrerMode/data/catalogs/entrance_competition_bindings.tsv",
+      "configuration": "ModCarrerMode/config/match_presentation.ini; IDs em FSW/settings.ini; data/sceneassets/entrance_props/competitions/<ID_ATUAL>",
       "limits": "Padrão Sim. Pacote ausente ou inválido deixa a partida sem objetos; assets são locais.",
       "status": "implemented"
     },
@@ -211,7 +211,7 @@
       "status": "visual_cabin_only"
     }
   ],
-  "reviewed_on": "2026-10-17",
+  "reviewed_on": "2026-10-18",
   "native_entrance_revision": 19,
   "native_var_revision": 3,
   "native_cloth_revision": 9,

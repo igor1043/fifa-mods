@@ -54,11 +54,13 @@ recebem um recurso de outra competição.
   identidade da liga (7, 83, 350, 351 e 22). Fases e amistosos verificados são
   resolvidos pelo calendário atual. A configuração numérica foi atualizada
   também para compatibilidade com os arquivos do pacote.
-- **Objetos de abertura:** os modelos permanecem nas pastas existentes.
-  `entrance_competition_bindings.tsv` associa cada pacote à identidade completa
-  da competição/fase. O Server e a DLL consultam o mesmo vínculo. A numeração
-  antiga no nome de uma pasta é apenas a localização do modelo, não o ID usado
-  para escolher a competição atual.
+- **Objetos de abertura (18/10/2026):** cada pasta usa exatamente o ID atual
+  da competição ou fase: `competitions/1761` para a Série A. Server e DLL
+  buscam diretamente esse número, sem tabela de conversão. Quando há ID de
+  fase, somente ele é consultado; uma fase sem modelo não herda o pacote da
+  competição principal. Sem pacote válido para o ID selecionado, não há objetos.
+  As 251 pastas foram atualizadas, com 116 modelos. Ao instalar em outra máquina,
+  substitua a pasta completa de modelos pelo pacote atual para não misturar IDs.
 - **VAR:** continua usando as identidades das ligas 7 e 83, sem alterar decisões
   de arbitragem. Mascotes, escudos e cores dos clubes continuam ligados aos
   IDs dos clubes do banco.
@@ -81,11 +83,12 @@ identificam o objeto; a dica numérica não substitui uma identidade diferente.
 Arquivos antigos com dois campos só são aceitos quando a raiz instalada já
 confirma o mesmo ID visual.
 
-Os vínculos de abertura usam o caminho semântico completo da raiz, estágio e
-grupo. O mesmo resolvedor em `source/common/competition_identity.h` é usado
-pelos módulos nativos; `server16_py/competition_catalog.py` fornece a resolução
-equivalente no Server. Os testes incluem renumeração, colisão com IDs antigos,
-fases, raízes duplicadas, amistosos e preservação dos modelos existentes.
+Os ícones e suportes usam `source/common/competition_identity.h`; o Server
+possui a resolução equivalente em `server16_py/competition_catalog.py`.
+As aberturas usam IDs diretos em `entrance_selection.h` e
+`server16_py/entrance_props_runtime.py`. Os testes verificam que tabelas antigas
+não redirecionam a seleção e que fases sem pacote ficam sem objetos, mesmo
+quando existe um modelo para a competição principal.
 
 Ao atualizar o pacote de CompData, mantenha seus nomes e identidades coerentes.
 Se essas identidades também mudarem, revise os vínculos internos; não reutilize

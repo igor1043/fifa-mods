@@ -58,6 +58,7 @@ confirmada por esses testes offline.
 # Identidades de competições — 17/10/2026
 
 `competition_identity.h` resolve os objetos do CompData instalado, os ícones por
-nome/display e as aberturas pelo caminho completo da competição e de suas fases.
-`test_competition_identity.cmd` verifica renumeração, IDs reutilizados, vínculos
-de modelos e identidades ambíguas com o mesmo código usado pelas DLLs.
+nome/display e as raízes usadas pelos suportes de bola.
+`test_competition_identity.cmd` verifica renumeração, IDs reutilizados e
+identidades ambíguas com o mesmo código usado pelas DLLs. Desde 18/10/2026,
+as aberturas usam diretamente a pasta com o ID atual, sem conversão ou herança.

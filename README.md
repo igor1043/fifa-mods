@@ -4,11 +4,15 @@ Mais vida na carreira, nos uniformes e na apresentação das partidas do FIFA 16
 
 O FIFA Friends V12 reúne melhorias para acompanhar seu clube, personalizar a experiência e dar mais identidade a cada competição. O [Server16](https://github.com/igor1043/CG-File-Server-16---Python-Port/tree/fifa-friends) é o painel que acompanha o projeto e permite escolher os recursos antes e durante a partida.
 
-**Edição:** FIFA Friends V12 · **Atualizado em:** 17/10/2026
+**Edição:** FIFA Friends V12 · **Atualizado em:** 18/10/2026
+
+## Aberturas — 18/10/2026
+
+- **ID direto:** cada modelo usa a pasta com o ID atual da competição ou fase, sem tabela de conversão. Uma fase sem pacote próprio fica sem arco e placas; não herda o modelo principal.
 
 ## Destaques desta atualização — 17/10/2026
 
-- **Base v12.11 com Honduras:** calendário e configuração sincronizados com o pacote oficial. Os recursos reconhecem a identidade da competição e da fase, acompanhando mudanças de numeração.
+- **Base v12.11 com Honduras:** calendário e configuração sincronizados com o pacote oficial. Ícones e suportes reconhecem as identidades instaladas; as pastas de abertura foram alinhadas aos IDs atuais.
 
 - **Camisas e calções com movimento:** física de roupas 0.8.2, com dobras, ajuste na barra do calção e controle pelo Server. Sua escolha fica salva. O recurso é experimental e começa desligado.
 - **Goleiro com o uniforme correto:** corrigida a miniatura que aparecia branca no campo da aba Elenco e nas rotinas de escalação.
