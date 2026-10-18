@@ -88,3 +88,10 @@ A revisão v6 da câmera embutida no Server espera a flag de inicialização do 
 de ossos do FIFA (RVA 3518200, executável 577DE45C). A espera mantém a preferência
 salva e repete a ativação, sem consultar o resolvedor nativo antes de a tabela existir.
 Isso corrige o acesso nulo durante a recuperação automática da câmera na abertura.
+
+A revisão v7 mantém essa proteção e amplia somente o FOV da primeira pessoa para
+75–150 graus, incluindo menu, preferências e enquadramento nativo. O padrão continua
+85 graus nos dois modos; a terceira pessoa mantém a faixa 60–90 graus.
+A terceira pessoa filtra a translação em duas etapas, limita a velocidade e a
+aceleração das viradas e preserva a suavização ao trocar para jogadores próximos.
+Mudança de contexto, fase ou um alvo muito distante readquirem a câmera.

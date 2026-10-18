@@ -14,11 +14,14 @@ O FIFA Friends V12 reúne melhorias para acompanhar seu clube, personalizar a ex
 
 O Server16 incluído no pacote traz **Primeira pessoa** e **Terceira pessoa · carreira**.
 No FIFA, escolha a câmera **Profissional**. Durante a partida, abra **Select + Start / F12 → Câmera**.
-Ativação, modo e campo de visão ficam salvos. A abertura padrão é 85° nos dois modos, com suavização
+Ativação, modo e campo de visão ficam salvos. A primeira pessoa permite ajustar de 75° até 150°;
+a terceira pessoa mantém a faixa de 60° a 90°. A abertura padrão é 85° nos dois modos, com suavização
 Forte e enquadramento de campo e bola fixos. O acompanhamento inclui a espera para
 reiniciar a jogada com a bola parada. Na terceira pessoa, Distância oferece Perto,
 Intermediária e Afastada, com escolha salva e transição suave. O módulo da câmera está embutido no executável
 do Server; o instalador do pacote distribui esse mesmo executável com os demais recursos.
+O acompanhamento em terceira pessoa suaviza a translação e as viradas, com entrada
+gradual dos movimentos e transição entre jogadores próximos.
 A recuperação da câmera salva aguarda a inicialização nativa do FIFA antes de
 consultar os ossos do jogador, evitando o crash durante a abertura do jogo.
 
