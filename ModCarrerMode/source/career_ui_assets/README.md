@@ -1,99 +1,41 @@
-# Dedicated career calendar DDS icons (version 3)
+# Unified career competition artwork (revision 4)
 
-## Automatic artwork import (Server16)
+User-editable sources are `data/ui/imgAssets/careerCompetitionIcons/<INI_ID>.png`.
+The current CompData hierarchy supplies the main competition ID that is also used
+in FSW's installed INI. Server16 prepares two proportional DDS views from that
+same source: `calendar/c<ID>.dds` and `cards/c<ID>.dds`. Both are distributed with
+the PNGs and `competitions.tsv`. A package installation works without launching
+Server16; only changing PNGs requires preparation before the next FIFA launch.
 
-Users can place PNG/JPG/WEBP/BMP artwork directly in `data/ui/imgAssets/careerCompetitionIcons/`
-and open the updated Server16 before FIFA. Name the file after the installed competition ID
-(for example `1761.png` in the Honduras base) or its full FSW movies/Scoreboard name. Server16 generates
-`COMPETICOES.txt` in that directory with accepted filenames for the selected installation.
-It converts to the validated 128x128 DXT5 canvas, preserves the original, resolves the visual ID
-with the host's explicit-map/TrophyName/C<ID> precedence, and updates `host_available`
-internally for that visual only. Users do not edit `index.tsv` or the mapping table.
-Ambiguous/unknown names, duplicate sources for one visual ID and invalid artwork are skipped
-and explained in Server16 Logs. Backups live in `runtime/backups/career_competition_icons/`.
-Import runs only with FIFA closed; the launch button flushes pending images before starting FIFA.
-This imports artwork for installed competitions; it does not create competition structures.
-The native DDS lookup and its index remain compatible with manual/prebuilt asset packages.
+The calendar, Central next-match card and competition next/results cards use
+one identity resolver. A live career's object number is never interpreted using
+another release's on-disk object numbering. Its semantic visual identity maps
+to the current installed competition ID. CalendarCell's reference fields are
+`competition`, `stage`, **`fixture ID`**; the third field never participates in
+competition lookup. This fixes the month-dependent Portuguese/English cup icons.
 
-## Native catalogue
+Internally the host tags explicitly resolved IDs with 1000000 to distinguish them
+from stock visual IDs passed through the same FIFA formatters. This is an internal
+UI namespace, not a second editable ID or table. The emitted path strips the tag
+and always names the INI ID in the shared folder. Unrelated crests/kits/stadium
+paths retain their behavior. Legacy league light/dark requests resolve through
+the manifest only when the visual identity is unambiguous.
 
-The Honduras update resolves explicit artwork mappings by the installed CompData's
-exact name/display identity. The internal map now has four pipe-separated fields:
-numeric hint, visual ID, CompData name and display. Numeric hints never override a
-different installed identity. Legacy two-field maps are accepted only when the
-installed root confirms the same visual ID. Both Server16 and the native host use
-this rule; the user-facing image import requires no table editing.
+Legacy `cmcomp_<ID>.big/.swf` strings are recognized at the formatter boundary;
+no BIG is opened, scanned, extracted or rebuilt for competition icons. Missing
+calendar artwork routes to a transparent DDS, not an old BIG. Screen/layout BIGs
+and the separate stadium-photo movie writer are unrelated resources.
 
-The calendar's competition images live in `data/ui/imgAssets/careerCompetitionIcons/c<ID_VISUAL>.dds`.
-These DDSs, their local `index.tsv` and generated metadata are excluded from the source package.
-The published mod retains the directory lookup, validation, ID availability and fallback rules.
-The host's existing competition/stage resolution chooses the visual ID. This is not necessarily the
-league ID or the raw career competition object ID. Official competition IDs are not remapped by
-this module. `index.tsv` preserves the original host's ID availability through `host_available`:
-1 accepts an initial ID; 0 avoids activating an old ambiguous alias which the host did not accept.
-The module's `HasCompetition` export reads this availability from the new directory, allowing the
-host's old DDS existence checks to fall back to the new catalogue without changing the ID order.
-The installed index must explicitly allow the visual IDs referenced by
-`ModCarrerMode/data/catalogs/career_competition_icon_map.tsv`. Legacy indices can mark these
-as unavailable even when their DDS exists, causing a fallback to an outdated competition alias.
-When importing new league artwork, rebuild the dedicated calendar images and set
-`host_available=1` for the mapped visual IDs, leaving unrelated availability entries intact.
-Use the supplied dark variant for the calendar when available; common light/dark league images
-remain separate. Validate the 128x128 DXT5 canvas and the upper-left 48x48 logo bounds.
-New IDs absent from the index are accepted when a valid dedicated DDS exists. Preseason identity
-continues to use the guarded native competition registry.
+Build: `build.cmd`; tests use synthetic DDSs with no BIG or league directories,
+check the shared identity contract, formatter bounds and keeper regressions.
+The host regression test `career_native/scripts/tests/test_calendar_icon_identity.cmd`
+checks all 65535 fixture IDs for four competitions from the captured old career.
+`career_ui_assets.log` records CATALOG/READY/RESOLVE. Visual verification of all
+three screens is required after installation; unit tests do not prove rendering.
 
-`prepare_calendar_icons.py` copies the exact embedded DDS payload of each working `cmcomp_<ID>.big`.
-It performs no resampling, recoloring or re-encoding. `index.tsv` records the source and DDS SHA-256.
-The prepared images use DXT5/BC3, a 128x128 transparent canvas, and a proportional logo within the
-upper-left 48x48 area. Center the logo within that 48x48 area, not within the whole canvas.
-
-Guarded formatter adapters redirect `artAssets/cmCalendarCompetitions/cmcomp_<ID>.swf`/`.big`
-and the legacy flat/light/dark DDS requests in the `cmCalendarCompetitions` namespace to the
-dedicated DDS directory. There is no runtime league/light, league/dark or BIG scan
-for these images. Existing images can be replaced directly; restart the game after changing DDSs.
-Market/transfer events in `cmCalendar`, club crests, kit paths and the calendar screen stay unchanged.
-Missing or malformed DDSs leave the original path untouched rather than redirecting to a broken file.
-Existing BIGs remain as rollback/fallback resources, but successfully redirected icons do not use them.
-
-The module preserves the installed version's goalkeeper-thumbnail alias compatibility and exports.
-It requires FIFA 16 x64 timestamp `577DE45C`, the verified expanded-layout patches, and the original
-formatter bytes. It refuses to overwrite other hooks. DLLs are pinned and activate on the next launch.
-
-Preparation and installation from PowerShell:
-
-```powershell
-py -3 .\prepare_calendar_icons.py --source 'U:\fifa 16' --destination 'U:\fifa 16'
-.\build.cmd
-.\Install-Game.ps1 -GameDirectory 'U:\fifa 16'
-```
-
-`build.cmd` creates synthetic transparent DDSs in its ignored test fixture; no game images, league or BIG
-resources are required. Tests cover ID bounds, bad/missing DDSs, path prefixes, unrelated UI paths,
-formatter truncation, and native preseason identity. Installation backs up the previous module and
-enabled list and provides `Restore-CalendarDds.ps1`. It installs only the module and preserves local DDSs
-and their availability index. Without local icons the module keeps the original path. It does not replace `dinput8.dll`.
-
-The runtime log `ModCarrerMode/logs/career_ui_assets.log` records `CATALOG`, `READY` and `RESOLVE`.
-Actual calendar rendering must also be checked in the game; unit tests do not verify its display.
-
-Career stadium photos use the host's local image conversion and native movie
-package writer. The host reads the photo selected by FSW (or the career database
-fallback), preserves the original, and converts its pixels to DDS in
-`data/ui/imgAssets/stadium/stadium_<key>.dds`. It then generates a minimal six-member
-`image_mc` BIG in `data/ui/artAssets/stadium/stadium_cmphoto_<content-hash>.big`.
-Only the movie dimensions and rectangle geometry are adjusted; the embedded DDS
-is byte identical. The published stadium helper key names this generated package.
-No manual stadium BIG is needed. Missing/invalid photos or failed package writes
-keep the slot hidden. Source changes receive another content key, avoiding stale
-fallback cache entries. Existing game stadium BIGs are never overwritten.
-
-The earlier formatter redirect to loose stadium DDSs was removed: live RAM showed
-the card still requesting a movie and falling back to `notfound.big`, without any
-formatter redirect. A generated native package with the correct Elcyrzao DDS was
-confirmed in-game on 14 October 2026. The automatic writer is separately covered
-by tests for member offsets, exact DDS pixels, geometry, repair, content changes
-and invalid input; its installation still requires a game restart.
+The package installer distributes the library while preserving user-edited PNGs
+and their matching generated views. The source-only export intentionally excludes
+images; use the full FIFA Friends package for a ready-to-run installation.
 
 ## Career Starting XI goalkeeper (14 October 2026)
 
@@ -176,19 +118,3 @@ and type 0 for automatic outfield rows, preserves positive overrides and source
 sheets, and tests signature rejection. `build.cmd` runs it alongside the existing
 Starting XI and calendar tests. The normal worker now requires all three repairs
 before reporting READY. No image, lineup or career-save replacement is involved.
-
-## Do calendar-icon changes require synchronizing BIG templates?
-
-No. The current calendar competition-icon path resolves to
-`data/ui/imgAssets/careerCompetitionIcons/c<VISUAL_ID>.dds`. Server16 imports
-ordinary artwork into that directory and updates the availability index.
-`prepare_calendar_icons.py` can extract old BIG artwork once as a migration tool;
-it is not the runtime image source. The formatter redirects legacy BIG/SWF image
-requests to a validated dedicated DDS. If the DDS is absent or invalid, the
-original path is left intact as fallback.
-
-Distribute the dedicated artwork, its index, and the updated native resolver and
-Server. Rebuilding or synchronizing the old cmcomp BIGs is unnecessary for those
-redirected icons. BIG files that define calendar layout or unrelated screen
-templates are separate resources; changing those templates still requires
-distributing the changed files. This icon migration does not replace every BIG.

@@ -158,10 +158,10 @@
     {
       "id": "calendar_icons",
       "name": "Ícones da carreira",
-      "behavior": "Resolve os ícones das competições e da pré-temporada. O Server16 atualizado importa imagens pelo nome ou ID da competição, converte e atualiza o índice automaticamente, preservando os originais. Na base Honduras, resolve os IDs atuais pela identidade do CompData e preserva as artes personalizadas.",
+      "behavior": "Usa um PNG por ID do INI na mesma pasta para Calendário, Próxima Partida da Central e cards de Competições. Traduz a identidade da carreira salva para o ID instalado e prepara duas vistas proporcionais da mesma imagem. O ID da partida não participa da resolução.",
       "source": "ModCarrerMode/source/career_ui_assets",
       "configuration": "data/ui/imgAssets/careerCompetitionIcons",
-      "limits": "A importação exige o Server16 atualizado e ocorre com o FIFA fechado. Sem imagem válida, conserva o caminho original. Novas estruturas de competição continuam pertencendo ao CompData.",
+      "limits": "A preparação de imagens editadas exige o Server16 atualizado e ocorre com o FIFA fechado. O pacote já inclui PNGs e vistas DDS. Imagens ausentes ou identidade ambígua não recebem logo de outra competição. Não lê BIG de ícones; BIG de layout continuam necessários.",
       "status": "implemented"
     },
     {

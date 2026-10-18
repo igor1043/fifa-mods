@@ -73,7 +73,7 @@ static DWORD WINAPI worker(void *unused) {
     if(!calendar_count)log_line("EMPTY careerCompetitionIcons; keeper repair remains enabled",4,0);
 #ifndef UI_ASSETS_TEST
     {
-        BOOL calendar_ready=calendar_count==0,keeper_ready=FALSE,squad_ready=FALSE;
+        BOOL calendar_ready=FALSE,keeper_ready=FALSE,squad_ready=FALSE;
         for(attempt=0;attempt<900;attempt++) {
             if(expanded_layout_ready()) {
                 if(!keeper_ready)keeper_ready=install_keeper_pitch_hook();

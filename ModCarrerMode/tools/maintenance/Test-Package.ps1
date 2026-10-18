@@ -66,6 +66,13 @@ $localIndex = Join-Path $localIcons 'index.tsv'
 [IO.File]::WriteAllText($localIndex, "9999`t1`n")
 $localDdsHash = (Get-FileHash -LiteralPath $localDds).Hash
 $localIndexHash = (Get-FileHash -LiteralPath $localIndex).Hash
+$customSource=Join-Path $localIcons '1761.png'
+[IO.File]::WriteAllText($customSource,'user custom source PNG marker')
+foreach($kind in @('calendar','cards')) {
+    $customView=Join-Path $localIcons ($kind+'\c1761.dds')
+    New-Item -ItemType Directory -Force -Path (Split-Path $customView) | Out-Null
+    [IO.File]::WriteAllText($customView,'user custom proportional view '+$kind)
+}
 $oldEntranceMap=Join-Path $fixture 'ModCarrerMode\data\catalogs\entrance_competition_bindings.tsv'
 New-Item -ItemType Directory -Force -Path (Split-Path $oldEntranceMap) | Out-Null
 [IO.File]::WriteAllText($oldEntranceMap,'1738|legacy competition identity')
@@ -77,6 +84,14 @@ if (-not ($savedEntranceMap | Where-Object { (Get-FileHash -LiteralPath $_.FullN
 if ((Get-FileHash -LiteralPath (Join-Path $fixture 'data\sceneassets\var_cabin\model.rx3')).Hash -ne $localVarModelHash -or
     (Get-FileHash -LiteralPath (Join-Path $fixture 'data\sceneassets\var_cabin\textures.rx3')).Hash -ne $localVarTextureHash) { throw 'Cabine local alterada.' }
 if ((Get-FileHash -LiteralPath $localDds).Hash -ne $localDdsHash -or (Get-FileHash -LiteralPath $localIndex).Hash -ne $localIndexHash) { throw 'Icone local ou suas regras de disponibilidade alterados.' }
+if ([IO.File]::ReadAllText($customSource) -ne 'user custom source PNG marker') { throw 'PNG personalizado sobrescrito.' }
+foreach($kind in @('calendar','cards')) {
+    if ([IO.File]::ReadAllText((Join-Path $localIcons ($kind+'\c1761.dds'))) -ne ('user custom proportional view '+$kind)) { throw 'Vista de icone personalizado sobrescrita.' }
+    $installedIcon=Join-Path $localIcons ($kind+'\c1460.dds')
+    $packageIcon=Join-Path $repo ('data\ui\imgAssets\careerCompetitionIcons\'+$kind+'\c1460.dds')
+    if ((Get-FileHash -LiteralPath $installedIcon).Hash -ne (Get-FileHash -LiteralPath $packageIcon).Hash) { throw 'Icone Libertadores nao distribuido.' }
+}
+if (-not (Test-Path -LiteralPath (Join-Path $localIcons '1460.png'))) { throw 'Fonte do icone Libertadores nao distribuida.' }
 foreach ($relative in $legacyFiles) {
     if (Test-Path -LiteralPath (Join-Path $fixture ('ModCarrerMode\mods\'+$relative))) { throw "Revisao antiga permaneceu instalada: $relative" }
     $saved = @(Get-ChildItem -LiteralPath (Join-Path $fixture 'installer-backups') -Recurse -File | Where-Object { $_.FullName.EndsWith('\edition-switch\ModCarrerMode\mods\'+$relative,[StringComparison]::OrdinalIgnoreCase) })

@@ -94,6 +94,7 @@ foreach($folder in @('config','data','mods','assets')) {
     $base=Join-Path $modSource $folder
     if (-not (Test-Path -LiteralPath $base)) { continue }
     foreach($file in Get-ChildItem -LiteralPath $base -Recurse -File) {
+        if ($file.Name -like 'runtime_state.txt*') { continue }
         # This payload belongs at the game root; do not recreate a legacy
         # ModCarrerMode/assets tree that V12 archives on every installation.
         if ($file.FullName -eq $swissMemorySource) { continue }
@@ -109,8 +110,12 @@ $localCalendarIcons=(Join-Path $dataSource 'ui\imgAssets\careerCompetitionIcons'
 foreach($file in Get-ChildItem -LiteralPath $dataSource -Recurse -File) {
     $relativeData = 'data\'+$file.FullName.Substring($dataSource.Length+1)
     if (@($externalPaths | Where-Object { $relativeData.StartsWith($_+'\',[StringComparison]::OrdinalIgnoreCase) }).Count) { continue }
-    # Calendar images/index are local resources; update only the lookup module.
-    if ($file.FullName.StartsWith($localCalendarIcons,[StringComparison]::OrdinalIgnoreCase)) { continue }
+    if ($file.FullName.StartsWith($localCalendarIcons,[StringComparison]::OrdinalIgnoreCase)) {
+        $iconRelative=$file.FullName.Substring($localCalendarIcons.Length)
+        # Ship the INI-ID library and its two views. Never resurrect legacy
+        # visual-ID DDS/index files or copy raw migration inputs.
+        if ($iconRelative -notmatch '^(\d+\.png|competitions\.tsv|COMPETICOES\.txt|(calendar|cards)\\(c\d+|empty)\.dds)$') { continue }
+    }
     if ($file.FullName -match '[\\/]sceneassets[\\/](entrance_props|var_cabin)[\\/]') { continue }
     if ($file.FullName -match '[\\/]entrance_props[\\/].*[\\/]fixtures[\\/]') { continue }
     if ($file.Extension -eq '.md' -or ($file.FullName -match '[\\/]entrance_props[\\/]' -and $file.Extension -in @('.png','.jpg','.html','.json'))) { continue }
@@ -152,6 +157,16 @@ $skip=[Collections.Generic.List[object]]::new();$changes=[Collections.Generic.Li
 foreach($file in $files) {
     $exists=Test-Path -LiteralPath $file.Target -PathType Leaf
     $legacyConfig=$null
+    if ($file.Relative -match '^data\\ui\\imgAssets\\careerCompetitionIcons\\(?:(calendar|cards)\\c)?(\d+)\.(png|dds)$') {
+        $iconId=$Matches[2]
+        $sourceIcon=Join-Path $localCalendarIcons ($iconId+'.png')
+        $targetIcon=Join-Path $game ('data\ui\imgAssets\careerCompetitionIcons\'+$iconId+'.png')
+        # A locally edited source owns BOTH generated views. Installing one
+        # package view over it would make calendar and cards disagree again.
+        if ((Test-Path -LiteralPath $targetIcon -PathType Leaf) -and
+            (Test-Path -LiteralPath $sourceIcon -PathType Leaf) -and
+            (Get-Sha256 $targetIcon) -ne (Get-Sha256 $sourceIcon)) { $skip.Add($file);continue }
+    }
     $editionOwnedConfig = $file.Relative -in @('ModCarrerMode\config\edition.ini','ModCarrerMode\config\career_retirement_background.ini')
     $careerDatabase = $file.Relative -in @('data\db\fifa_ng_db.db','data\db\fifa_ng_db-meta.xml')
     if ($file.Relative -eq 'ModCarrerMode\mods\cloth_motion\cloth_motion.ini' -and $exists -and -not $ReplaceConfiguration) {

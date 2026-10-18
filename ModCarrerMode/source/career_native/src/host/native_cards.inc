@@ -338,29 +338,15 @@ static void native_context_reset(void) {
 static int native_league_logo_asset_exists(int asset);
 
 static int native_logo(int object) {
-    FceCompetition c;
-    int mapped,installed;
-    /* Resolve stages through the active competition hierarchy. Historical
-     * Supercopa object IDs now collide with Copa do Brasil group objects. */
-    mapped=career_ui_competition_asset(object,native_ui_asset_owner);
-    if(mapped>0)return mapped;
-    if(fce_resolve_competition(native_view.nodes,native_view.node_count,object,&c)==FCE_OK) {
-        mapped=career_ui_competition_asset(c.competition,native_ui_asset_owner);
-        if(mapped>0)return mapped;
-        /* Resolve the stable server competition ID to the shared visual ID
-         * before consulting the older CompData alias. */
-        mapped=career_competition_icon_asset(c.competition);
-        if(mapped>0 && native_league_logo_asset_exists(mapped)) return mapped;
-        installed=installed_competition_asset(c.competition);
-        if(installed>0) return installed;
-        return c.asset>0 ? c.asset : 0;
+    FceCompetition competition;int asset;
+    if(fce_resolve_competition(native_view.nodes,native_view.node_count,object,&competition)==FCE_OK){
+        if(competition.asset>0)return career_competition_icon_from_live_asset(competition.asset);
+        return career_competition_icon_from_live_asset(career_ui_competition_asset(competition.competition,native_ui_asset_owner));
     }
-    /* Pre-season competitions can use temporary roots outside the compact
-     * CompData model. Their stable root IDs are still covered by the map. */
-    mapped=career_competition_icon_asset(object);
-    if(mapped>0 && native_league_logo_asset_exists(mapped)) return mapped;
-    installed=installed_competition_asset(object);
-    return installed>0 ? installed : 0;
+    /* Do not reinterpret an old career object as an installed competition or
+     * a league artwork ID. The CRTR registry is the only temporary-root path. */
+    asset=career_ui_competition_asset(object,native_ui_asset_owner);
+    return career_competition_icon_from_live_asset(asset);
 }
 
 /* Pre-season fixtures can be backed by a temporary competition object which
@@ -392,14 +378,7 @@ static int native_fixture_object_for_club(int object,int club) {
 }
 
 static int native_history_league_logo(int league_id) {
-    size_t i;
-    if(league_id<=0) return 0;
-    for(i=0;i<native_view.node_count;++i) {
-        const FceCompNode *node=native_view.nodes+i;
-        if(node->type==3 && (node->id==league_id || node->asset==league_id))
-            return node->asset>0?node->asset:0;
-    }
-    return native_logo(league_id);
+    return career_competition_icon_from_live_asset(league_id);
 }
 static int native_root_contains_club(int root,int club) {
     size_t i;
@@ -2799,33 +2778,12 @@ static int native_active_competition_trophy(int competition_id,int title_asset) 
 }
 
 static int native_league_logo_asset_exists(int asset) {
-    char path[MAX_PATH];
-    DWORD attributes;
-    if(asset<=0 || asset>2000000 || !g_game_dir[0]) return 0;
-    if(career_ui_competition_exists(asset))return 1;
-    snprintf(path,sizeof(path),"%s\\data\\ui\\imgAssets\\league\\dark\\l%d.dds",
-        g_game_dir,asset);
-    attributes=GetFileAttributesA(path);
-    if(attributes!=INVALID_FILE_ATTRIBUTES && !(attributes&FILE_ATTRIBUTE_DIRECTORY))
-        return 1;
-    snprintf(path,sizeof(path),"%s\\data\\ui\\imgAssets\\league\\light\\l%d.dds",
-        g_game_dir,asset);
-    attributes=GetFileAttributesA(path);
-    return attributes!=INVALID_FILE_ATTRIBUTES && !(attributes&FILE_ATTRIBUTE_DIRECTORY);
+    return calendar_competition_asset_exists(asset);
 }
-
 static int native_active_competition_logo(int root,int visual_asset) {
-    SIZE_T i;
-    int logo;
-    logo=native_logo(root);
-    if(native_league_logo_asset_exists(logo)) return logo;
-    if(native_league_logo_asset_exists(visual_asset)) return visual_asset;
-    for(i=0;i<g_competition_count;++i) {
-        if(g_competition_rows[i].competition_id==root &&
-           native_league_logo_asset_exists(g_competition_rows[i].league_id))
-            return g_competition_rows[i].league_id;
-    }
-    return native_league_logo_asset_exists(root)?root:0;
+    int logo=native_logo(root);
+    (void)visual_asset;
+    return native_league_logo_asset_exists(logo)?logo:0;
 }
 
 static void native_active_competition_add(NativeActiveCompetition *rows,

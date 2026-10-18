@@ -59,6 +59,19 @@ static __inline int comp_identity_mapping(const CompIdentityIndex *index,const c
     if(found)*visual=value;
     return found;
 }
+/* Translate a saved career's semantic visual identity to the installed
+ * competition ID. Numeric object coincidences never choose artwork. */
+static __inline int comp_identity_live_id(const CompIdentityIndex *index,int asset) {
+    unsigned i;int found=0;
+    if(asset<=0 || asset>65535)return 0;
+    for(i=0;i<index->count;++i) {
+        const CompIdentityNode *node=&index->nodes[i];
+        if(node->type!=3 || comp_identity_visual(node)!=asset)continue;
+        if(found && found!=node->id)return 0;
+        found=node->id;
+    }
+    return found;
+}
 static __inline int comp_identity_key(const CompIdentityIndex *index,int id,char *out,size_t capacity) {
     const CompIdentityNode *chain[64],*node;unsigned count=0,i;size_t used=0;
     if(!capacity)return 0;out[0]=0;

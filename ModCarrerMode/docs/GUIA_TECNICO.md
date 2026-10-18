@@ -24,7 +24,7 @@ Mods para melhorar a carreira e a apresentação das partidas no FIFA 16. Este p
 | **Sete substituições** | Permite até sete trocas. |
 | **Saída de bola moderna** | Organiza o primeiro passe para trás, receptor e jogadores fora do círculo central. |
 | **Tiro de meta moderno** | Experimental: reposiciona a formação do tiro de meta e suaviza passes rasteiros curtos para zagueiros próximos. Mantém a saída de bola v20; não muda quando a bola passa a estar em jogo. |
-| **Ícones da carreira** | Resolve os ícones de competições e pré-temporada. O Server16 atualizado importa PNG/JPG pelo nome ou ID da competição, converte e cadastra automaticamente, sem editar tabelas. |
+| **Ícones da carreira** | Uma pasta de PNG por ID do INI, compartilhada pelo Calendário, Próxima Partida da Central e cards de Competições. O Server prepara as proporções, sem BIG de ícones. Carreiras antigas usam sua identidade visual para achar o ID atual. |
 | **Aposentadoria e verba** | Remoção da aposentadoria, ajuste de idade e acréscimos de verba. |
 | **Criação de jogador** | Adapta o intervalo de nascimento para 2006–2012. |
 | **Compatibilidade de competições** | Mantém a leitura das competições usadas pelos módulos da carreira. |

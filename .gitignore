@@ -21,8 +21,14 @@ ModCarrerMode/mods/*.bak
 
 # Mascot models, textures, captures and conversion data stay local.
 data/sceneassets/mascot/
-# Calendar DDS payloads and their local availability index stay in the game.
-data/ui/imgAssets/careerCompetitionIcons/
+# Competition artwork by INI ID is distributed; old visual-ID migration files stay local.
+data/ui/imgAssets/careerCompetitionIcons/*
+!data/ui/imgAssets/careerCompetitionIcons/*.png
+!data/ui/imgAssets/careerCompetitionIcons/README.md
+!data/ui/imgAssets/careerCompetitionIcons/COMPETICOES.txt
+!data/ui/imgAssets/careerCompetitionIcons/competitions.tsv
+!data/ui/imgAssets/careerCompetitionIcons/calendar/
+!data/ui/imgAssets/careerCompetitionIcons/cards/
 ModCarrerMode/source/mascot_photographer/assets/
 ModCarrerMode/source/mascot_photographer/last_install.json
 ModCarrerMode/source/mascot_photographer/tests/*.bin

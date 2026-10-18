@@ -21,6 +21,7 @@
 #include "swiss_delta.h"
 #include "card_refresh_schedule.h"
 #include "../../../common/competition_identity.h"
+#include "calendar_icon_identity.h"
 static void native_prepare(void *owner);
 static void native_publish(void *provider);
 static void native_log_transfer_card_context(void *provider);
@@ -834,10 +835,8 @@ static SIZE_T g_fixture_competition_asset_count;
 
 
 /*
- * Match cards store the season/competition instance id, while the UI asset
- * catalogue is keyed by the league id (l<ID>.dds).  Resolve the instance
- * through the already loaded competition cache, falling back to the raw id
- * for competitions whose ids are themselves present in the asset catalogue.
+ * All career match cards use the same live identity -> installed INI ID
+ * resolver as CalendarCell. No raw object, fixture or artwork-existence guess.
  */
 static int competition_icon_asset_id(int competition_id)
 {
@@ -2091,40 +2090,23 @@ static BOOL is_readable_range(const void *address, SIZE_T size)
 }
 
 
-static BOOL career_ui_competition_exists(int asset)
+/* Calendar artwork has one source. Old BIG/DDS existence cannot choose an ID. */
+static BOOL calendar_competition_asset_exists(int asset)
 {
-    typedef int (WINAPI *HasCompetitionFn)(int);
-    HMODULE module=GetModuleHandleA("career_ui_assets.dll");
-    HasCompetitionFn has=module?(HasCompetitionFn)GetProcAddress(module,"Fifa16UiAssetsHasCompetition"):NULL;
-    return has && has(asset);
+    char path[MAX_PATH];unsigned char header[128];FILE *file;long length;size_t got;
+    int size=0,width=0,height=0;
+    if(asset<=1000000 || asset>1065535)return FALSE;
+    asset-=1000000;
+    snprintf(path,sizeof(path),"%s/data/ui/imgAssets/careerCompetitionIcons/calendar/c%d.dds",g_game_dir,asset);
+    file=fopen(path,"rb");if(!file)return FALSE;
+    got=fread(header,1,sizeof(header),file);length=fseek(file,0,SEEK_END)?0:ftell(file);fclose(file);
+    if(got!=sizeof(header))return FALSE;
+    memcpy(&size,header+4,4);memcpy(&height,header+12,4);memcpy(&width,header+16,4);
+    return length>=16512 && !memcmp(header,"DDS ",4) && size==124 && width==128 && height==128 && !memcmp(header+84,"DXT5",4);
 }
-static BOOL calendar_competition_asset_exists(int competition_id)
-{
-    char path[MAX_PATH];
-    if (competition_id <= 0 || competition_id > 65535)
-        return FALSE;
-    snprintf(
-        path,
-        sizeof(path),
-        "%s\\data\\ui\\imgAssets\\cmCalendarCompetitions\\"
-        "cmCalendarCompetitions%d.dds",
-        g_game_dir,
-        competition_id);
-    return GetFileAttributesA(path) != INVALID_FILE_ATTRIBUTES || career_ui_competition_exists(competition_id);
-}
-
-
-/* compobj.txt is the authoritative hierarchy used by this Expansion
- * Compdata. CalendarManager supplies a stage/group object, not the display
- * asset. Resolve that object to its type-3 competition and C<ID> asset even
- * before the first live FCE snapshot exists. */
-static short g_compdata_parent[65536];
-static unsigned char g_compdata_type[65536];
-static int g_compdata_asset[65536];
-static int g_competition_icon_asset_by_id[65536];
-static unsigned char g_calendar_direct_asset[65536];
 static volatile LONG g_compdata_index_state;
 static CompIdentityIndex g_competition_identity;
+static int g_preseason_competition[65536];
 
 typedef int (WINAPI *UiCompetitionAssetFn)(int,const void *);
 static int career_ui_competition_asset(int root,const void *owner)
@@ -2139,309 +2121,60 @@ static int career_ui_competition_asset(int root,const void *owner)
 
 static void load_compdata_competition_index(void)
 {
-    char path[MAX_PATH];
-    char line[512];
-    FILE *file;
-    int i;
-    if (InterlockedCompareExchange(&g_compdata_index_state, 1, 0) != 0)
-        return;
-    for (i = 0; i < 65536; ++i)
-        g_compdata_parent[i] = -1;
-    snprintf(path, sizeof(path),
-        "%s\\dlc\\dlc_FootballCompEng\\dlc\\FootballCompEng\\data\\compdata\\compobj.txt",
-        g_game_dir);
+    char path[MAX_PATH],line[512];FILE *file;
+    if(InterlockedCompareExchange(&g_compdata_index_state,1,0)!=0)return;
+    snprintf(path,sizeof(path),"%s\\dlc\\dlc_FootballCompEng\\dlc\\FootballCompEng\\data\\compdata\\compobj.txt",g_game_dir);
     comp_identity_load(&g_competition_identity,path);
-    file = fopen(path, "rb");
-    if (file)
-    {
-        while (fgets(line, sizeof(line), file))
-        {
-            int id, type, parent;
-            char name[64], display[160];
-            if (sscanf(line, "%d,%d,%63[^,],%159[^,],%d",
-                &id, &type, name, display, &parent) != 5
-                || id < 0 || id > 65535)
-                continue;
-            g_compdata_parent[id] = (short)parent;
-            g_compdata_type[id] = (unsigned char)type;
-            if (type == 3 && name[0] == 'C')
-                g_compdata_asset[id] = atoi(name + 1);
-            /* Match the live decoder: an explicit TrophyName identity wins
-             * over a reused generic C<ID> alias. */
-            if (type == 3)
-            {
-                const char *prefix = "TrophyName_Abbr15_";
-                char *identity = strstr(display, prefix);
-                if (identity)
-                {
-                    int explicit_asset = atoi(identity + strlen(prefix));
-                    if (explicit_asset > 0)
-                        g_compdata_asset[id] = explicit_asset;
-                }
-            }
+    snprintf(path,sizeof(path),"%s\\data\\catalogs\\career_competition_icon_map.tsv",g_mod_dir);
+    file=fopen(path,"rb");
+    if(file){while(fgets(line,sizeof(line),file)){
+        int asset=0,root=comp_identity_mapping(&g_competition_identity,line,&asset);
+        const CompIdentityNode *node=comp_identity_node(&g_competition_identity,root);
+        if(root>0 && !comp_identity_visual(node) && asset>0 && asset<=65535){
+            if(g_preseason_competition[asset] && g_preseason_competition[asset]!=root)g_preseason_competition[asset]=-1;
+            else g_preseason_competition[asset]=root;
         }
-        fclose(file);
-    }
-    /* Resolve catalogue identities against this installed CompData. Numeric
-     * hints from older releases must never override a different competition. */
-    snprintf(path, sizeof(path),
-        "%s\\data\\catalogs\\career_competition_icon_map.tsv", g_mod_dir);
-    file = fopen(path, "rb");
-    if (file)
-    {
-        while (fgets(line, sizeof(line), file))
-        {
-            int competition_id, asset_id=0;
-            if (line[0] == '#' || line[0] == '\r' || line[0] == '\n')
-                continue;
-            competition_id=comp_identity_mapping(&g_competition_identity,line,&asset_id);
-            if (competition_id > 0 && competition_id <= 65535)
-                g_competition_icon_asset_by_id[competition_id] = asset_id;
-        }
-        fclose(file);
-    }
-    /* FIFA Friends/FSW declares the installed competition identities in its
-     * [movies] section. These IDs can collide numerically with FCE stage
-     * objects (for example 1707), so an explicit installed competition must
-     * win before walking the compobj hierarchy. */
-    snprintf(path, sizeof(path), "%s\\FSW\\settings.ini", g_game_dir);
-    file = fopen(path, "rb");
-    if (file)
-    {
-        int in_movies = 0;
-        while (fgets(line, sizeof(line), file))
-        {
-            int id;
-            if (line[0] == '[')
-            {
-                in_movies = _strnicmp(line, "[movies]", 8) == 0;
-                if (!in_movies && g_calendar_direct_asset[0]) break;
-                continue;
-            }
-            if (in_movies && sscanf(line, "%d=", &id) == 1
-                && id >= 0 && id <= 65535)
-            {
-                g_calendar_direct_asset[id] = 1;
-                /* Slot zero doubles as a cheap marker that [movies] was
-                 * found; competition zero is a valid catalogue entry. */
-                g_calendar_direct_asset[0] = 1;
-            }
-        }
-        fclose(file);
-    }
-    InterlockedExchange(&g_compdata_index_state, 2);
+    }fclose(file);}
+    InterlockedExchange(&g_compdata_index_state,2);
 }
-
-static int career_competition_icon_asset(int competition_id)
+static int career_competition_icon_from_live_asset(int asset)
 {
-    if (competition_id <= 0 || competition_id > 65535)
-        return 0;
-    if (InterlockedCompareExchange(&g_compdata_index_state, 0, 0) == 0)
-        load_compdata_competition_index();
-    if (InterlockedCompareExchange(&g_compdata_index_state, 0, 0) != 2)
-        return 0;
-    return g_competition_icon_asset_by_id[competition_id];
+    int id;
+    if(InterlockedCompareExchange(&g_compdata_index_state,0,0)==0)load_compdata_competition_index();
+    if(InterlockedCompareExchange(&g_compdata_index_state,0,0)!=2)return 0;
+    id=comp_identity_live_id(&g_competition_identity,asset);
+    if(!id && asset>0 && asset<=65535)id=g_preseason_competition[asset];
+    /* Explicit artwork namespace avoids numeric collisions with ordinary
+     * league IDs in other FIFA screens. The filename still uses the INI ID. */
+    return id>0?1000000+id:0;
 }
-
-static int calendar_competition_root_from_compdata(int object_id)
+static int calendar_asset_for_date_capture(void *calendar_service,const void *competition_value)
 {
-    int hop;
-    if (InterlockedCompareExchange(&g_compdata_index_state, 0, 0) == 0)
-        load_compdata_competition_index();
-    if (InterlockedCompareExchange(&g_compdata_index_state, 0, 0) != 2)
-        return 0;
-    for (hop = 0; hop < 64 && object_id >= 0 && object_id <= 65535; ++hop)
-    {
-        if (g_compdata_type[object_id] == 3)
-            return object_id;
-        object_id = g_compdata_parent[object_id];
+    FceLiveSnapshot *snapshot;const FceModel *model;FceCompetition competition;
+    FceResult identity=FCE_UNKNOWN;int reference[3],candidate=0,resolved=0;
+    if(!is_readable_range(competition_value,sizeof(reference)))return 0;
+    memcpy(reference,competition_value,sizeof(reference));
+    snapshot=fce_runtime_cached_acquire();model=fce_runtime_model(snapshot);
+    if(model)identity=calendar_icon_identity(model->nodes,model->node_count,reference,&competition);
+    if(identity==FCE_OK){
+        candidate=competition.asset>0?career_competition_icon_from_live_asset(competition.asset):
+            career_competition_icon_from_live_asset(career_ui_competition_asset(competition.competition,calendar_service));
+    }else if(identity!=FCE_CONFLICT){
+        /* Temporary preseason roots are accepted only by the guarded native
+         * CRTR registry. Never guess a competition from reference[2]. */
+        candidate=career_competition_icon_from_live_asset(career_ui_competition_asset(reference[0],calendar_service));
     }
-    return 0;
-}
-
-static int calendar_competition_root_from_model(int object_id)
-{
-    FceLiveSnapshot *snapshot;
-    const FceModel *model;
-    FceCompetition competition;
-    int root = 0;
-    snapshot = fce_runtime_cached_acquire();
-    model = fce_runtime_model(snapshot);
-    if (model && fce_resolve_competition(model->nodes, model->node_count,
-            object_id, &competition) == FCE_OK)
-        root = competition.competition;
     fce_runtime_release(snapshot);
-    return root;
-}
-
-static int calendar_mapped_competition_asset(int object_id)
-{
-    int root = calendar_competition_root_from_model(object_id);
-    if (!root)
-        root = calendar_competition_root_from_compdata(object_id);
-    if (!root)
-        root = object_id;
-    return career_competition_icon_asset(root);
-}
-
-static int calendar_competition_asset_from_compdata(int object_id)
-{
-    int hop;
-    if (InterlockedCompareExchange(&g_compdata_index_state, 0, 0) == 0)
-        load_compdata_competition_index();
-    if (InterlockedCompareExchange(&g_compdata_index_state, 0, 0) != 2)
-        return 0;
-    for (hop = 0; hop < 64 && object_id >= 0 && object_id <= 65535; ++hop)
-    {
-        if (g_compdata_type[object_id] == 3)
-            return g_compdata_asset[object_id];
-        object_id = g_compdata_parent[object_id];
-    }
-    return 0;
-}
-
-static int installed_competition_asset(int object_id)
-{
-    char dark_path[MAX_PATH], light_path[MAX_PATH];
-    if (object_id < 0 || object_id > 65535)
-        return 0;
-    if (InterlockedCompareExchange(&g_compdata_index_state, 0, 0) == 0)
-        load_compdata_competition_index();
-    if (InterlockedCompareExchange(&g_compdata_index_state, 0, 0) != 2
-        || !g_calendar_direct_asset[object_id])
-        return 0;
-    snprintf(dark_path, sizeof(dark_path),
-        "%s\\data\\ui\\imgAssets\\league\\dark\\l%d.dds",
-        g_game_dir, object_id);
-    snprintf(light_path, sizeof(light_path),
-        "%s\\data\\ui\\imgAssets\\league\\light\\l%d.dds",
-        g_game_dir, object_id);
-    return GetFileAttributesA(dark_path) != INVALID_FILE_ATTRIBUTES
-        && GetFileAttributesA(light_path) != INVALID_FILE_ATTRIBUTES
-        ? object_id : 0;
-}
-
-/* Use the same object -> root competition -> visual asset resolution used by
- * the Upcoming/Previous cards.  Calendar receives raw object/related/stage
- * ids, while the DDS catalogue is keyed by the competition asset id. */
-static int calendar_competition_asset_from_model(int object_id)
-{
-    FceLiveSnapshot *snapshot;
-    const FceModel *model;
-    FceCompetition competition;
-    int asset = 0;
-    if (object_id <= 0)
-        return 0;
-    snapshot = fce_runtime_cached_acquire();
-    model = fce_runtime_model(snapshot);
-    if (
-        model
-        && fce_resolve_competition(
-            model->nodes,
-            model->node_count,
-            object_id,
-            &competition) == FCE_OK)
-        asset = competition.asset;
-    fce_runtime_release(snapshot);
-    return asset;
-}
-
-static int calendar_asset_for_date_capture(
-    void *calendar_service,
-    const void *competition_value)
-{
-    int fallback = g_calendar_asset_for_date
-        ? g_calendar_asset_for_date(calendar_service, competition_value)
-        : 0;
-    if (!is_readable_range(competition_value, 12))
-        return 0;
-
-    /* CalendarManager passes the exact career competition object, its related
-     * league/tournament and the current stage.  FIFA's helper collapses this
-     * reference to generic cup/league assets.  Keep the exact object id when
-     * a matching cmCalendarCompetitions<ID>.dds exists. */
-    const int *parts = (const int *)competition_value;
-    int competition_id = parts[0];
-    int related_id = parts[1];
-    int stage_id = parts[2];
-    int resolved = 0;
-
-    /* This call is reached only through CalendarCell's real-match branch.
-     * Keep ID selection independent from visibility: the APT bytecode owns
-     * the event type and skips this loader for empty, press and processing
-     * cells.  CalendarManager+0x4c is merely the selected day, not the day of
-     * each rendered cell, so it must never be used to validate a fixture. */
-    /* Preseason has a guarded live identity. Official competitions and their
-     * stages use the installed CompData map below; historical object numbers
-     * can belong to different competitions after a calendar update. */
-    int candidate = career_ui_competition_asset(competition_id,calendar_service);
-    if(!candidate)candidate=career_ui_competition_asset(related_id,calendar_service);
-    if (!candidate)
-    {
-        int mapped = calendar_mapped_competition_asset(competition_id);
-        if (mapped > 0 && calendar_competition_asset_exists(mapped))
-            candidate = mapped;
-    }
-    if (!candidate)
-    {
-        int mapped = calendar_mapped_competition_asset(related_id);
-        if (mapped > 0 && calendar_competition_asset_exists(mapped))
-            candidate = mapped;
-    }
-    if (!candidate)
-    {
-        int mapped = calendar_mapped_competition_asset(stage_id);
-        if (mapped > 0 && calendar_competition_asset_exists(mapped))
-            candidate = mapped;
-    }
-    if (!candidate && InterlockedCompareExchange(&g_compdata_index_state,0,0) == 0)
-        load_compdata_competition_index();
-    if (!candidate && competition_id >= 0 && competition_id <= 65535
-        && g_calendar_direct_asset[competition_id]
-        && calendar_competition_asset_exists(competition_id))
-        candidate = competition_id;
-    if (!candidate)
-        candidate = calendar_competition_asset_from_model(competition_id);
-    if (!candidate)
-        candidate = calendar_competition_asset_from_model(related_id);
-    if (!candidate)
-        candidate = calendar_competition_asset_from_model(stage_id);
-    if (!candidate)
-        candidate = calendar_competition_asset_from_compdata(competition_id);
-    if (!candidate)
-        candidate = calendar_competition_asset_from_compdata(related_id);
-    if (!candidate)
-        candidate = calendar_competition_asset_from_compdata(stage_id);
-    if (calendar_competition_asset_exists(candidate))
-        resolved = candidate;
-    /* Startup fallback: before the first stable FCE snapshot, retain the
-     * former exact-id behavior instead of suppressing the calendar icon. */
-    else if (calendar_competition_asset_exists(competition_id))
-        resolved = competition_id;
-    else if (calendar_competition_asset_exists(related_id))
-        resolved = related_id;
-
-    if (fce_runtime_log_verbose())
-    {
-        char log_path[MAX_PATH];
-        wsprintfA(log_path, "%s\\logs\\calendar_native_hook.log", g_mod_dir);
-        FILE *log = fopen(log_path, "ab");
-        if (log)
-        {
-            fprintf(
-                log,
-                "calendar-cell ref=(%d,%d,%d) generic=%d asset=%d\n",
-                competition_id,
-                related_id,
-                stage_id,
-                fallback,
-                resolved);
-            fclose(log);
-        }
+    if(calendar_competition_asset_exists(candidate))resolved=candidate;
+    if(fce_runtime_log_verbose()){
+        char path[MAX_PATH];FILE *log;
+        snprintf(path,sizeof(path),"%s\\logs\\calendar_native_hook.log",g_mod_dir);
+        log=fopen(path,"ab");
+        if(log){fprintf(log,"calendar-cell-v2 competition=%d stage=%d fixture=%d identity=%d asset=%d\n",
+            reference[0],reference[1],reference[2],identity,resolved);fclose(log);}
     }
     return resolved;
 }
-
 
 static void startup_object_noop(void *self, void *observer, int remove)
 {

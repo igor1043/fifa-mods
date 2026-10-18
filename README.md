@@ -10,6 +10,14 @@ O FIFA Friends V12 reúne melhorias para acompanhar seu clube, personalizar a ex
 
 - **ID direto:** cada modelo usa a pasta com o ID atual da competição ou fase, sem tabela de conversão. Uma fase sem pacote próprio fica sem arco e placas; não herda o modelo principal.
 
+## Ícones por ID da competição — 18/10/2026
+
+Calendário, card Próxima Partida da Central e cards de Competições compartilham
+[uma pasta de ícones](data/ui/imgAssets/careerCompetitionIcons/README.md).
+Use `<ID_DO_INI>.png`; o pacote já inclui as versões proporcionais para cada área.
+Carreiras antigas são resolvidas pela identidade da competição, preservando o
+mesmo logo em todos os meses. Não depende dos antigos BIG de ícones.
+
 ## Câmeras do jogador — 18/10/2026
 
 O Server16 incluído no pacote traz **Primeira pessoa** e **Terceira pessoa · carreira**.

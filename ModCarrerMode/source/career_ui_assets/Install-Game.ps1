@@ -19,9 +19,9 @@ if(-not (Test-Path -LiteralPath $taskSquadKeeperTests)){throw 'Execute build.cmd
 & $taskSquadKeeperTests
 if($LASTEXITCODE -ne 0){throw 'Os testes do uniforme de goleiro na aba Elenco falharam.'}
 $taskIcons=Join-Path $taskGame 'data\ui\imgAssets\careerCompetitionIcons'
-# Images and index.tsv belong to the game, independently of the source package.
+# Sources and proportional DDS views ship with the package; preserve local edits.
 $taskLocalFiles=@()
-if(Test-Path -LiteralPath $taskIcons -PathType Container){$taskLocalFiles=@(Get-ChildItem -LiteralPath $taskIcons -File -Filter '*.dds')}
+if(Test-Path -LiteralPath $taskIcons -PathType Container){$taskLocalFiles=@(Get-ChildItem -LiteralPath $taskIcons -Recurse -File -Filter '*.dds')}
 $taskPlugin=Join-Path $taskGame 'ModCarrerMode\mods\career_ui_assets\career_ui_assets.dll'
 $taskList=Join-Path $taskGame 'ModCarrerMode\mods\enabled.txt'
 $taskBackup=Join-Path $taskGame ('ModCarrerMode\backups\calendar_dds_'+(Get-Date -Format 'yyyyMMdd_HHmmss_fff'))
@@ -33,12 +33,29 @@ if($taskPackageDll -ne $taskPlugin -and (Test-Path -LiteralPath $taskPackageDll)
     Copy-Item -LiteralPath $taskPackageDll -Destination (Join-Path $taskBackup 'package-career_ui_assets.dll')
 }
 $taskBefore=@{}
-foreach($taskRelative in @('dinput8.dll','data\ui\game\screens\career\calendar.big','data_front_end_extra.big')){
+foreach($taskRelative in @('dinput8.dll')){
     $taskBefore[$taskRelative]=(Get-FileHash -LiteralPath (Join-Path $taskGame $taskRelative)).Hash
 }
 Copy-Item -LiteralPath $taskBuilt -Destination $taskPackageDll -Force
 Copy-Item -LiteralPath $taskBuilt -Destination $taskPlugin -Force
 if((Get-FileHash -LiteralPath $taskBuilt).Hash -ne (Get-FileHash -LiteralPath $taskPlugin).Hash){throw 'Hash da DLL diferente.'}
+$taskLibrary=Join-Path $taskRepo 'data\ui\imgAssets\careerCompetitionIcons'
+foreach($taskImage in Get-ChildItem -LiteralPath $taskLibrary -File -Filter '*.png') {
+    $taskId=$taskImage.BaseName
+    if($taskId -notmatch '^\d+$'){continue}
+    $taskDestination=Join-Path $taskIcons $taskImage.Name
+    if((Test-Path -LiteralPath $taskDestination) -and (Get-FileHash -LiteralPath $taskDestination).Hash -ne (Get-FileHash -LiteralPath $taskImage.FullName).Hash){continue}
+    foreach($taskRelative in @($taskImage.Name,('calendar\c'+$taskId+'.dds'),('cards\c'+$taskId+'.dds'))) {
+        $taskDestination=Join-Path $taskIcons $taskRelative
+        New-Item -ItemType Directory -Force -Path (Split-Path $taskDestination) | Out-Null
+        Copy-Item -LiteralPath (Join-Path $taskLibrary $taskRelative) -Destination $taskDestination -Force
+    }
+}
+foreach($taskRelative in @('competitions.tsv','calendar\empty.dds','cards\empty.dds')) {
+    $taskDestination=Join-Path $taskIcons $taskRelative
+    New-Item -ItemType Directory -Force -Path (Split-Path $taskDestination) | Out-Null
+    Copy-Item -LiteralPath (Join-Path $taskLibrary $taskRelative) -Destination $taskDestination -Force
+}
 $taskText=[IO.File]::ReadAllText($taskList)
 if($taskText -notmatch '(?m)^career_ui_assets\\career_ui_assets\.dll\s*$'){
     [IO.File]::AppendAllText($taskList,"`r`n# Dedicated career calendar DDS icons.`r`ncareer_ui_assets\career_ui_assets.dll`r`n",[Text.UTF8Encoding]::new($false))
