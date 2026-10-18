@@ -19,6 +19,8 @@ Forte e enquadramento de campo e bola fixos. O acompanhamento inclui a espera pa
 reiniciar a jogada com a bola parada. Na terceira pessoa, Distância oferece Perto,
 Intermediária e Afastada, com escolha salva e transição suave. O módulo da câmera está embutido no executável
 do Server; o instalador do pacote distribui esse mesmo executável com os demais recursos.
+A recuperação da câmera salva aguarda a inicialização nativa do FIFA antes de
+consultar os ossos do jogador, evitando o crash durante a abertura do jogo.
 
 ## Destaques desta atualização — 17/10/2026
 

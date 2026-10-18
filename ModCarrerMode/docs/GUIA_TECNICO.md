@@ -83,3 +83,8 @@ Para compilar, use MSVC x64 e execute o build do módulo. Copie a saída para a 
 O ZIP de fontes precisa ser compilado e não é um instalador completo. O [Server16](https://github.com/igor1043/CG-File-Server-16---Python-Port/tree/fifa-friends) também precisa de suas bibliotecas nativas para gerar o executável.
 
 A **New Experience** é uma edição separada, na [outra branch](https://github.com/igor1043/fifa-mods/tree/fifa-friends-new-experience).
+
+A revisão v6 da câmera embutida no Server espera a flag de inicialização do cache
+de ossos do FIFA (RVA 3518200, executável 577DE45C). A espera mantém a preferência
+salva e repete a ativação, sem consultar o resolvedor nativo antes de a tabela existir.
+Isso corrige o acesso nulo durante a recuperação automática da câmera na abertura.
