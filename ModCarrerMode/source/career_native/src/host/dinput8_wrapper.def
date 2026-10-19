@@ -12,3 +12,6 @@ EXPORTS
     Fifa16CareerGetSnapshotModel @10
     Fifa16CareerGetSnapshotGeneration @11
     Fifa16CareerReleaseSnapshot @12
+    Fifa16CareerAcquireCachedSnapshot @13
+    Fifa16CareerJobOfferProtocol @14 DATA
+    Fifa16CareerRegisterJobUiCallback @15

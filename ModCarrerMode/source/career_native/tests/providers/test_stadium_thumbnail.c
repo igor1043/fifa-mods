@@ -129,6 +129,18 @@ int main(int argc, char **argv)
     CHECK(write_stadium_fixture(source));
     CHECK(stadium_thumbnail_sync(source, copied) != 0);
     CHECK(test_package(copied, root) == 0);
+    {char native_path[MAX_PATH],native_key[40];
+     CHECK(!stadium_thumbnail_native(root,156,native_key,sizeof(native_key)));
+     snprintf(native_path,sizeof(native_path),"%sstadium_156_0.big",root);
+     /* Only the native BIG header is needed to locate an existing movie. */
+     file=CreateFileA(native_path,GENERIC_WRITE,0,NULL,CREATE_NEW,0,NULL);
+     CHECK(file!=INVALID_HANDLE_VALUE);
+     CHECK(WriteFile(file,"BIG4\0\0\0\0\0\0\0\6\0\0\0\20",16,&count,NULL));CloseHandle(file);
+     CHECK(stadium_thumbnail_native(root,156,native_key,sizeof(native_key)));
+     CHECK(!strcmp(native_key,"156_0"));
+     CHECK(!stadium_thumbnail_native(root,156,native_key,3));
+     CHECK(!stadium_thumbnail_native(root,0,native_key,sizeof(native_key)));
+     DeleteFileA(native_path);}
     DeleteFileA(source); DeleteFileA(destination); DeleteFileA(copied);
     puts("PASS: exact DDS pixels, native movie geometry/payload, content keys, repaired cache, source preservation and invalid image rejection.");
     return 0;

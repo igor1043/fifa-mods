@@ -1,3 +1,11 @@
+# Compatibilidade das competições — 18/10/2026
+
+Os suportes agora traduzem competição e fase de uma carreira antiga pela
+identidade do snapshot FCE antes da seleção no compobj instalado. Essa tradução
+mantém Brasileirão, CBF e Paulista associados aos seus respectivos modelos.
+Os cinco pares de modelo/textura e suas alturas de contato passaram pelos testes
+nativos. As bolas visuais continuam usando o recurso 3D da bola da partida.
+
 # Bolas de reposição com suportes 3D por competição
 
 O `multiball_visual.dll` mantém as mesmas 13 bolas do mod existente, usando a

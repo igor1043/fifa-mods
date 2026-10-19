@@ -694,6 +694,15 @@ static int native_stadium_image_key(const char *config_name,
            GetLastError()!=ERROR_ALREADY_EXISTS) return 0;
     } else if(!(attributes&FILE_ATTRIBUTE_DIRECTORY)) return 0;
     length=strlen(candidate);
+    /* Built-in DB venues already have a native APT movie. Use that key
+     * directly, without requiring a StadiumGBD thumbnail. */
+    if(native_ini_integer_token(candidate) &&
+       stadium_thumbnail_native(art_directory,atoi(candidate),asset,sizeof(asset))){
+        if(strlen(asset)>=size)return 0;
+        lstrcpynA(out,asset,(int)size);
+        native_stadium_log_image_lookup(original,"native-movie",art_directory,asset);
+        return 1;
+    }
     while(candidate[0] && length>0) {
         written=snprintf(destination,sizeof(destination),
             "%s\\stadium_%s.dds",destination_dir,candidate);
@@ -761,6 +770,8 @@ static int native_game_stadium_fallback(int team_id,char *name,size_t name_size,
         if(parsed_team!=team_id) continue;
         if(name && name_size) lstrcpynA(name,field[3],(int)name_size);
         if(image && image_size) lstrcpynA(image,field[4],(int)image_size);
+        if(image && image_size && !image[0] && atoi(field[1])>0)
+            snprintf(image,image_size,"%d",atoi(field[1]));
         if(capacity) *capacity=atoi(field[2]);
         if(domestic && count>5) *domestic=atoi(field[5]);
         if(international && count>6) *international=atoi(field[6]);
@@ -1629,6 +1640,7 @@ static int native_crowd_rank_for_metric(
     return rank;
 }
 
+#include "../features/crowd/competition_attendance.h"
 static void native_update_crowd(const FceModel *model,int competition,int club) {
     CrowdDecision decision;
     NativeCrowdMetric metrics[64];
@@ -1834,9 +1846,15 @@ static void native_update_crowd(const FceModel *model,int competition,int club) 
         0.10f*native_crowd_clamp(reputation)*escape_opportunity-
         0.12f*(1.0f-native_crowd_clamp(reputation))*danger*season_progress;
     actual_next=crowd_next_actual_fixture(model,club);
-    if(crowd_fixture_is_international(model,actual_next)) {
-        decision.international_bonus=crowd_runtime_international_bonus();
-        factor+=decision.international_bonus;
+    if(actual_next) {
+        CrowdCompetitionProfile profile=crowd_competition_profile(model,actual_next);
+        profile.bonus_percent=crowd_runtime_competition_setting(profile.key,"bonus",profile.bonus_percent,40);
+        profile.minimum_percent=crowd_runtime_competition_setting(profile.key,"minimum",profile.minimum_percent,90);
+        profile.maximum_percent=crowd_runtime_competition_setting(profile.key,"maximum",profile.maximum_percent,90);
+        /* Includes the former international bonus once, not on top of it. */
+        if(crowd_fixture_is_international(model,actual_next))
+            decision.international_bonus=(float)profile.bonus_percent/100.0f;
+        factor=crowd_competition_apply(factor,&profile);
     }
     decision.enabled=1;
     decision.club_id=club;
@@ -1861,11 +1879,11 @@ static void native_update_crowd(const FceModel *model,int competition,int club) 
     decision.importance=importance;
     decision.phase=phase;
     decision.factor=factor;
-    if(next) {
-        decision.next_opponent=next->home==club?next->away:next->home;
-        decision.next_is_home=next->home==club;
-        decision.next_date=next->date_raw;
-        decision.next_round=next->round;
+    if(actual_next) {
+        decision.next_opponent=actual_next->home==club?actual_next->away:actual_next->home;
+        decision.next_is_home=actual_next->home==club;
+        decision.next_date=actual_next->date_raw;
+        decision.next_round=actual_next->round;
     }
     crowd_runtime_set_decision(&decision);
 }

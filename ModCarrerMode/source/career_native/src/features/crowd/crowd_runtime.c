@@ -135,6 +135,21 @@ float crowd_runtime_international_bonus(void)
     return (float)bonus;
 }
 
+int crowd_runtime_competition_setting(const char *key,const char *suffix,
+    int fallback,int maximum)
+{
+    char name[96],path[MAX_PATH],value[32],*end;
+    long number;
+    if(!key || !suffix || !g_log_dir[0])return fallback;
+    if(snprintf(name,sizeof(name),"%s_%s_percent",key,suffix)>=(int)sizeof(name))return fallback;
+    career_path_read(path,sizeof(path),g_log_dir,"config","crowd.ini");
+    if(!GetPrivateProfileStringA("competition_attendance",name,"",value,sizeof(value),path))return fallback;
+    number=strtol(value,&end,10);
+    while(*end==' ' || *end=='\t')++end;
+    if(end==value || *end || number<0 || number>maximum)return fallback;
+    return (int)number;
+}
+
 static void crowd_dynamic_limits(int *minimum, int *maximum)
 {
     int low = crowd_config_int_from_section(

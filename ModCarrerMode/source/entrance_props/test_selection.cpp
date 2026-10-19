@@ -31,20 +31,20 @@ int main(){
     assert(WritePrivateProfileStringA("movies","0","Default must never select",settings));
     assert(WritePrivateProfileStringA("unrelated","9999","Never select",settings));
     assert(EntranceSelection::select(root,settings,195,245,name)&&!strcmp(name,"245"));
-    assert(!EntranceSelection::select(root,settings,195,219,name));
-    assert(!EntranceSelection::select(root,settings,195,9999,name));
+    assert(EntranceSelection::select(root,settings,195,219,name)&&!strcmp(name,"195"));
+    assert(EntranceSelection::select(root,settings,195,9999,name)&&!strcmp(name,"195"));
     assert(!EntranceSelection::select(root,settings,9999,0,name));
     assert(!EntranceSelection::select(root,settings,0,0,name));
     assert(!EntranceSelection::configured(settings,1000000));
     _snprintf_s(metadata,MAX_PATH,_TRUNCATE,"%s\\data\\sceneassets\\entrance_props\\competitions\\245\\asset.ini",root);
     assert(DeleteFileA(metadata));
-    assert(!EntranceSelection::select(root,settings,195,245,name));
+    assert(EntranceSelection::select(root,settings,195,245,name)&&!strcmp(name,"195"));
     assert(WritePrivateProfileStringA("movies","195",nullptr,settings));
     assert(!EntranceSelection::select(root,settings,195,245,name));
     assert(WritePrivateProfileStringA("SCOREBOARD","195","Any scoreboard name",settings));
     assert(EntranceSelection::select(root,settings,195,0,name)&&!strcmp(name,"195"));
     // Current competition/final IDs select exactly the identically named folder.
-    // An old folder must never substitute for a missing current package.
+    // A phase has priority; missing phase packages inherit the main competition.
     assert(WritePrivateProfileStringA("movies","1761","Serie A",settings));
     assert(WritePrivateProfileStringA("comp","1764","Phase",settings));
     assert(EntranceSelection::select(root,settings,1761,1764,name)&&!strcmp(name,"1764"));
@@ -90,5 +90,5 @@ int main(){
     for(const char* suffix:{"data\\sceneassets\\entrance_props\\competitions","data\\sceneassets\\entrance_props","data\\sceneassets","data","FSW"}){
         _snprintf_s(metadata,MAX_PATH,_TRUNCATE,"%s\\%s",root,suffix);assert(RemoveDirectoryA(metadata));
     }
-    assert(RemoveDirectoryA(root));puts("PASS exact competition/phase folders, no old-folder/root fallback, same-league friendly, wrong clubs/process/stale context rejected");
+    assert(RemoveDirectoryA(root));puts("PASS exact phase override and main competition inheritance, same-league friendly, wrong clubs/process/stale context rejected");
 }

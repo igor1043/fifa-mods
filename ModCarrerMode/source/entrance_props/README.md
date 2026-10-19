@@ -1,3 +1,15 @@
+# Correção de compatibilidade com Robson 12.12 — 18/10/2026
+
+A seleção voltou a procurar primeiro o pacote da fase e depois o da competição
+principal. Uma fase sem pasta própria recebe a entrada principal, como na 12.12.
+Um pacote específico presente e inválido continua sendo recusado.
+O módulo traduz os IDs de uma carreira antiga pela identidade do snapshot FCE
+para a competição instalada antes de escolher a pasta. Fase final com identidade
+única conserva seu pacote específico; o nome da competição nunca vira caminho.
+Os 116 pacotes RX3 instalados passaram pela validação nativa do catálogo; 79 deles
+também passaram pela construção das malhas transparentes de escudos.
+Os arquivos de modelo e as posições ajustadas pelo autor não são substituídos.
+
 # Entrada 3D por ID direto — 18/10/2026
 
 O Server16 identifica a competição (`TOURNAME`) e a fase (`TOURROUNDID`) da partida. O arquivo `U:\fifa 16\FSW\settings.ini`, sincronizado do INI da atualização, fornece os IDs aceitos nas seções `[movies]`, `[Scoreboard]` e `[comp]`. Os nomes de vídeo, placar e estádio não são usados como caminhos de modelos.

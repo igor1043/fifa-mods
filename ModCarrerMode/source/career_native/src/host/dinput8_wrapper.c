@@ -113,6 +113,8 @@ static char g_game_dir[MAX_PATH];
 static char g_mod_dir[MAX_PATH];
 static unsigned char *g_module_base;
 static SIZE_T g_module_size;
+/* Read by the Server through the PE export table; no remote call needed. */
+const DWORD Fifa16CareerJobOfferProtocol = 1;
 static CreateFileAFn g_original_create_file_a;
 static CreateFileWFn g_original_create_file_w;
 static ReadFileFn g_original_read_file;
@@ -3690,6 +3692,8 @@ static void stats_mark_dirty_capture(void *notification, unsigned char dirty)
 }
 
 
+#include "career_job_offer.inc"
+
 static void stats_provider_with_diagnostics(void *provider_owner)
 {
     int requested = competition_from_statistics_provider(provider_owner);
@@ -3731,6 +3735,7 @@ static void stats_provider_with_diagnostics(void *provider_owner)
         g_current_stats_object = NULL;
         native_end();
     }
+    career_job_offer_deliver(provider_owner);
 }
 
 
@@ -4624,6 +4629,25 @@ void *WINAPI Fifa16CareerAcquireSnapshot(void)
     return snapshot;
 }
 
+/* Match scene callbacks may run without the menu registry service or a career
+ * date. Retain only the already-owned snapshot; never call the live registry
+ * from those callbacks. The existing crowd-facing acquisition stays intact. */
+void *WINAPI Fifa16CareerAcquireCachedSnapshot(void)
+{
+    FceLiveSnapshot *source = fce_runtime_cached_acquire();
+    const FceModel *model = fce_runtime_model(source);
+    CrowdApiSnapshot *snapshot = NULL;
+    if (model && model->nodes && model->node_count > 0) {
+        snapshot = (CrowdApiSnapshot *)calloc(1, sizeof(*snapshot));
+        if (snapshot) {
+            snapshot->source = source;
+            snapshot->model = *model;
+        }
+    }
+    if (!snapshot) fce_runtime_release(source);
+    return snapshot;
+}
+
 const FceModel *WINAPI Fifa16CareerGetSnapshotModel(const void *snapshot)
 {
     const FceModel *model = snapshot
@@ -4649,6 +4673,8 @@ void WINAPI Fifa16CareerReleaseSnapshot(void *snapshot)
 }
 
 
+#include "career_ui_jobs.inc"
+
 BOOL WINAPI DllMain(HINSTANCE instance, DWORD reason, LPVOID reserved)
 {
     (void)reserved;
@@ -4657,7 +4683,7 @@ BOOL WINAPI DllMain(HINSTANCE instance, DWORD reason, LPVOID reserved)
         g_self=instance; DisableThreadLibraryCalls(instance);
         initialize_paths(); fce_runtime_log_dir(g_mod_dir);
         fce_runtime_set_ready_callback(refresh_initial_competition_provider);
-        fce_runtime_set_ui_tick_callback(drain_pending_stats_refresh);
+        fce_runtime_set_ui_tick_callback(career_ui_jobs_tick);
         worker=CreateThread(NULL,0,patch_standings_provider,NULL,0,NULL);
         if(worker) CloseHandle(worker);
         worker=CreateThread(NULL,0,start_optional_mod_host,NULL,0,NULL);

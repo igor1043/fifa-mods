@@ -12,6 +12,7 @@
 #include "../common/scene_lua.h"
 #include "../common/scene_resource_cycle.h"
 #include "../common/competition_identity.h"
+#include "../common/live_competition.h"
 #include "../stadium_pyrotechnics/presentation.h"
 #pragma comment(lib,"bcrypt.lib")
 
@@ -153,6 +154,10 @@ static void scene(){
  unsigned comp=0,round=0;
  const bool live=liveCompetition((unsigned)clubs[0],(unsigned)clubs[1],comp,round);
  if(!live)comp=round=0; // Never use a partial or rejected native context.
+ if(live && (comp || round)){
+  if(!standIdentityReady){char path[MAX_PATH];_snprintf_s(path,sizeof(path),_TRUNCATE,"%s\\dlc\\dlc_FootballCompEng\\dlc\\FootballCompEng\\data\\compdata\\compobj.txt",gameRoot);standIdentityReady=comp_identity_load(&standIdentityIndex,path)!=0;}
+  if(standIdentityReady && comp_live_current(&standIdentityIndex,comp,round)<0){desired=-1;ground();return;}
+ }
  SelectionSource source=live?SelectionSource::Native:SelectionSource::Generic;
  // A friendly can have no career tournament chain at all. Its verified Server
  // context remains usable, just as it is for entrance_props. Without either,

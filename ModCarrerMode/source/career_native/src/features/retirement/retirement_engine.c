@@ -88,7 +88,7 @@ static char g_retirement_deferred_paths[RETIREMENT_WATCH_CAPACITY][1024];
 #define RETIREMENT_FEEDBACK_HIDE_TIMER 1U
 #define RETIREMENT_FEEDBACK_WIDTH 780
 #define RETIREMENT_FEEDBACK_HEIGHT 176
-#define RETIREMENT_FEEDBACK_DURATION_MS 20000U
+#define RETIREMENT_FEEDBACK_DURATION_MS 5000U
 #define RETIREMENT_CARD_REQUEST_COOLDOWN_MS 500ULL
 #define RETIREMENT_CARD_REQUEST_WINDOW_MS 15000ULL
 /* Kept only for the legacy input helper below.  The helper is no longer
@@ -104,6 +104,7 @@ static SRWLOCK g_retirement_feedback_lock = SRWLOCK_INIT;
 static HANDLE g_retirement_feedback_ready;
 static HWND g_retirement_feedback_window;
 static char g_retirement_feedback_text[512];
+static int g_retirement_feedback_persistent;
 
 static void retirement_feedback_start(void);
 
@@ -1616,6 +1617,8 @@ static int retirement_peek_requested_mode(char *mode, size_t capacity)
     return ready;
 }
 
+#include "retirement_feedback_paint.inc"
+
 static LRESULT CALLBACK retirement_feedback_window_proc(HWND window,
     UINT message, WPARAM wparam, LPARAM lparam)
 {
@@ -1625,76 +1628,13 @@ static LRESULT CALLBACK retirement_feedback_window_proc(HWND window,
     {
         PAINTSTRUCT paint;
         RECT client;
-        RECT heading;
-        RECT body;
-        HBRUSH background;
-        HFONT heading_font;
-        HFONT body_font;
-        HGDIOBJ previous_font;
         char text[512];
         HDC dc = BeginPaint(window, &paint);
         GetClientRect(window, &client);
-        background = CreateSolidBrush(RGB(23, 30, 43));
-        FillRect(dc, &client, background);
-        DeleteObject(background);
-        {
-            HBRUSH accent = CreateSolidBrush(RGB(52, 194, 196));
-            RECT stripe = client;
-            stripe.bottom = stripe.top + 5;
-            FillRect(dc, &stripe, accent);
-            DeleteObject(accent);
-        }
-        {
-            HPEN border = CreatePen(PS_SOLID, 1, RGB(82, 94, 112));
-            HGDIOBJ previous_pen = SelectObject(dc, border);
-            HGDIOBJ previous_brush = SelectObject(dc, GetStockObject(HOLLOW_BRUSH));
-            Rectangle(dc, client.left, client.top, client.right - 1,
-                client.bottom - 1);
-            SelectObject(dc, previous_brush);
-            SelectObject(dc, previous_pen);
-            DeleteObject(border);
-        }
-        SetBkMode(dc, TRANSPARENT);
         AcquireSRWLockShared(&g_retirement_feedback_lock);
         lstrcpynA(text, g_retirement_feedback_text, sizeof(text));
         ReleaseSRWLockShared(&g_retirement_feedback_lock);
-
-        heading.left = client.left + 27;
-        heading.right = client.right - 24;
-        heading.top = client.top + 15;
-        heading.bottom = client.top + 38;
-        SetTextColor(dc, RGB(116, 218, 216));
-        heading_font = CreateFontA(12, 0, 0, 0, FW_BOLD, FALSE, FALSE, FALSE,
-            DEFAULT_CHARSET, OUT_DEFAULT_PRECIS, CLIP_DEFAULT_PRECIS,
-            CLEARTYPE_QUALITY, DEFAULT_PITCH | FF_SWISS, "Arial");
-        previous_font = SelectObject(dc, heading_font);
-        DrawTextA(dc, "FIFA FRIENDS  |  CARREIRA", -1, &heading,
-            DT_LEFT | DT_VCENTER | DT_SINGLELINE | DT_NOPREFIX);
-        SelectObject(dc, previous_font);
-        DeleteObject(heading_font);
-
-        {
-            HPEN divider = CreatePen(PS_SOLID, 1, RGB(57, 70, 87));
-            HGDIOBJ previous_pen = SelectObject(dc, divider);
-            MoveToEx(dc, client.left + 24, client.top + 43, NULL);
-            LineTo(dc, client.right - 24, client.top + 43);
-            SelectObject(dc, previous_pen);
-            DeleteObject(divider);
-        }
-
-        body.left = client.left + 27;
-        body.right = client.right - 27;
-        body.top = client.top + 51;
-        body.bottom = client.bottom - 13;
-        SetTextColor(dc, RGB(243, 246, 250));
-        body_font = CreateFontA(20, 0, 0, 0, FW_SEMIBOLD, FALSE, FALSE, FALSE,
-            DEFAULT_CHARSET, OUT_DEFAULT_PRECIS, CLIP_DEFAULT_PRECIS,
-            CLEARTYPE_QUALITY, DEFAULT_PITCH | FF_SWISS, "Arial");
-        previous_font = SelectObject(dc, body_font);
-        DrawTextA(dc, text, -1, &body,
-            DT_LEFT | DT_VCENTER | DT_WORDBREAK | DT_NOPREFIX);
-        SelectObject(dc, previous_font);
-        DeleteObject(body_font);
+        retirement_feedback_paint(dc, &client, text);
         EndPaint(window, &paint);
         return 0;
     }
@@ -1702,15 +1642,34 @@ static LRESULT CALLBACK retirement_feedback_window_proc(HWND window,
     {
         const COPYDATASTRUCT *copy = (const COPYDATASTRUCT *)lparam;
         SIZE_T length;
-        if (!copy || copy->dwData != RETIREMENT_FEEDBACK_RESULT
+        char incoming[512];
+        int persistent;
+        if (copy && copy->dwData == 0x16403U) {
+            if (g_retirement_feedback_persistent) {
+                g_retirement_feedback_persistent=0;
+                KillTimer(window, RETIREMENT_FEEDBACK_HIDE_TIMER);
+                ShowWindow(window, SW_HIDE);
+            }
+            return 1;
+        }
+        if (!copy || (copy->dwData != RETIREMENT_FEEDBACK_RESULT && copy->dwData != 0x16402U)
             || !copy->lpData || !copy->cbData)
             return 0;
+        persistent=copy->dwData == 0x16402U;
         length = copy->cbData;
         if (length >= sizeof(g_retirement_feedback_text))
             length = sizeof(g_retirement_feedback_text) - 1U;
+        memcpy(incoming, copy->lpData, length);
+        incoming[length] = '\0';
         AcquireSRWLockExclusive(&g_retirement_feedback_lock);
-        memcpy(g_retirement_feedback_text, copy->lpData, length);
-        g_retirement_feedback_text[length] = '\0';
+        /* A duplicate does not restart the five-second display timer. */
+        if (!strcmp(g_retirement_feedback_text, incoming) && IsWindowVisible(window)
+                && persistent == g_retirement_feedback_persistent) {
+            ReleaseSRWLockExclusive(&g_retirement_feedback_lock);
+            return 1;
+        }
+        lstrcpynA(g_retirement_feedback_text, incoming, sizeof(g_retirement_feedback_text));
+        g_retirement_feedback_persistent=persistent;
         ReleaseSRWLockExclusive(&g_retirement_feedback_lock);
         SendMessageA(window, RETIREMENT_FEEDBACK_SHOW, 0, 0);
         return 1;
@@ -1731,13 +1690,16 @@ static LRESULT CALLBACK retirement_feedback_window_proc(HWND window,
         SetWindowPos(window, HWND_TOPMOST, x, y,
             RETIREMENT_FEEDBACK_WIDTH, RETIREMENT_FEEDBACK_HEIGHT,
             SWP_NOACTIVATE | SWP_SHOWWINDOW);
-        SetTimer(window, RETIREMENT_FEEDBACK_HIDE_TIMER,
-            RETIREMENT_FEEDBACK_DURATION_MS, NULL);
+        KillTimer(window, RETIREMENT_FEEDBACK_HIDE_TIMER);
+        if (!g_retirement_feedback_persistent)
+            SetTimer(window, RETIREMENT_FEEDBACK_HIDE_TIMER,
+                RETIREMENT_FEEDBACK_DURATION_MS, NULL);
         InvalidateRect(window, NULL, TRUE);
         return 0;
     }
     case WM_TIMER:
         if (wparam == RETIREMENT_FEEDBACK_HIDE_TIMER) {
+            if (g_retirement_feedback_persistent)return 0;
             KillTimer(window, RETIREMENT_FEEDBACK_HIDE_TIMER);
             ShowWindow(window, SW_HIDE);
             return 0;
@@ -1771,13 +1733,20 @@ static DWORD WINAPI retirement_feedback_worker(void *unused)
     g_retirement_feedback_window = CreateWindowExA(
         WS_EX_TOPMOST | WS_EX_TOOLWINDOW | WS_EX_NOACTIVATE
             | WS_EX_LAYERED | WS_EX_TRANSPARENT,
-        class_name, "FIFA 16", WS_POPUP, 0, 0, 640, 96, NULL, NULL,
+        class_name, "FIFA 16", WS_POPUP, 0, 0, RETIREMENT_FEEDBACK_WIDTH,
+        RETIREMENT_FEEDBACK_HEIGHT, NULL, NULL,
         instance, NULL);
     if (!g_retirement_feedback_window) {
         SetEvent(g_retirement_feedback_ready);
         return 0;
     }
-    SetLayeredWindowAttributes(g_retirement_feedback_window, 0, 235, LWA_ALPHA);
+    {
+        HRGN rounded = CreateRoundRectRgn(0, 0, RETIREMENT_FEEDBACK_WIDTH,
+            RETIREMENT_FEEDBACK_HEIGHT, 20, 20);
+        if (rounded && !SetWindowRgn(g_retirement_feedback_window, rounded, FALSE))
+            DeleteObject(rounded);
+    }
+    SetLayeredWindowAttributes(g_retirement_feedback_window, 0, 255, LWA_ALPHA);
     SetEvent(g_retirement_feedback_ready);
     while (GetMessageA(&message, NULL, 0, 0) > 0) {
         TranslateMessage(&message);

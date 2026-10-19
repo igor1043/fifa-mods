@@ -36,6 +36,8 @@ ModCarrerMode/source/mascot_photographer/tests/*.jpg
 ModCarrerMode/source/mascot_photographer/tests/validation_*.json
 **/__pycache__/
 ModCarrerMode/source/**/build/
+!ModCarrerMode/source/career_native/scripts/build/
+!ModCarrerMode/source/career_native/scripts/build/*.cmd
 ModCarrerMode/source/**/backups/
 *.obj
 *.exp
@@ -72,3 +74,12 @@ data/sceneassets/standball/
 ModCarrerMode/mods/cloth_motion/runtime_state.txt
 # Loaded binaries renamed during an authorized update remain local until restart.
 *.in_use_backup_*
+
+# Local update rollbacks, runtime preferences and per-machine provenance.
+.codex-test-backups/
+*.before-base-robson-*
+*.before-robson1212-fix*
+ModCarrerMode/mods/cloth_motion/runtime_state.txt.*.tmp
+ModCarrerMode/docs/BASE_ROBSON.json
+ModCarrerMode/docs/CORRECAO_ICONES_ENTRADAS_ROBSON.md
+desktop.ini

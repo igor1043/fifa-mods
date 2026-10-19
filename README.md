@@ -4,11 +4,21 @@ Mais vida na carreira, nos uniformes e na apresentação das partidas do FIFA 16
 
 O FIFA Friends V12 reúne melhorias para acompanhar seu clube, personalizar a experiência e dar mais identidade a cada competição. O [Server16](https://github.com/igor1043/CG-File-Server-16---Python-Port/tree/fifa-friends) é o painel que acompanha o projeto e permite escolher os recursos antes e durante a partida.
 
-**Edição:** FIFA Friends V12 · **Atualizado em:** 18/10/2026
+**Edição:** FIFA Friends V12 · **Atualizado em:** 19/10/2026
+
+## Atualização — 19/10/2026
+
+- **Carreira:** painel do Server16 para transferência de clube, proposta nativa de treinador, solicitação de verba e aposentadoria, com identificação automática da carreira aberta.
+- **Ícones:** calendário e cards usam a mesma imagem por competição. Foram corrigidos os DDS e os BIGs necessários ao calendário; o teste no jogo confirmou os ícones após reiniciar.
+- **Entradas e bolas:** prioridade da fase com herança da competição principal da base Robson 12.12 e tradução dos IDs de carreiras antigas. A exibição 3D ainda aguarda confirmação em partida.
+- **Público e estádio:** pesos por competição na ocupação automática e suporte à foto nativa do estádio no card.
+- **Técnico nativo:** ferramentas de conversão e reparo de braços, pesos e texturas para Eduardo Domingues/Atlético-MG. Os modelos ficam no pacote local; a estabilidade em partida continua pendente de teste.
+
+Veja a [lista de arquivos e recursos publicados](ModCarrerMode/docs/ATUALIZACAO_2026-10-19.md).
 
 ## Aberturas — 18/10/2026
 
-- **ID direto:** cada modelo usa a pasta com o ID atual da competição ou fase, sem tabela de conversão. Uma fase sem pacote próprio fica sem arco e placas; não herda o modelo principal.
+- **Base Robson 12.12:** o pacote da fase tem prioridade; uma fase sem pacote próprio herda o modelo da competição principal. A identidade de carreiras antigas é traduzida para a base instalada.
 
 ## Ícones por ID da competição — 18/10/2026
 
@@ -16,7 +26,25 @@ Calendário, card Próxima Partida da Central e cards de Competições compartil
 [uma pasta de ícones](data/ui/imgAssets/careerCompetitionIcons/README.md).
 Use `<ID_DO_INI>.png`; o pacote já inclui as versões proporcionais para cada área.
 Carreiras antigas são resolvidas pela identidade da competição, preservando o
-mesmo logo em todos os meses. Não depende dos antigos BIG de ícones.
+mesmo logo em todos os meses. A DLL gera o BIG/APT e as texturas nativas de cada ícone ao iniciar.
+
+### Atualização sobre a base do Robson
+
+Com FIFA e Server fechados, copie os arquivos atualizados preservando os caminhos:
+
+- `dinput8.dll` e os módulos `career_ui_assets`, `entrance_props` e `multiball_visual` em `ModCarrerMode/mods/`.
+- A biblioteca `data/ui/imgAssets/careerCompetitionIcons/`, incluindo `calendar/`, `cards/` e `competitions.tsv`.
+- Os BIGs e DDS de `data/ui/artAssets/cmCalendarCompetitions/`, `data/ui/imgAssets/cmCalendarCompetitions/` e os novos arquivos `l100*.dds` de `data/ui/imgAssets/league/light/` e `dark/` que acompanham a atualização.
+
+Os BIGs do calendário são necessários; não os apague. A DLL os recria no próximo
+início se faltarem. Para trocar a arte, edite `<ID_DO_INI>.png`, como `1761.png`
+para a Série A e `1460.png` para a Libertadores nesta base. Confira os IDs aceitos
+em `COMPETICOES.txt`. O Server prepara as texturas antes da próxima abertura do FIFA.
+
+A atualização preserva os modelos de `entrance_props` e `standball` já instalados.
+Após reiniciar, confira calendário, Central e cards de Competições; depois confira
+a entrada e os suportes numa partida. Os ícones já tiveram confirmação visual
+nesta instalação; entradas e suportes ainda aguardam essa confirmação.
 
 ## Câmeras do jogador — 18/10/2026
 

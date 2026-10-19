@@ -11,6 +11,9 @@ enum {
  * are read-only; converted DDSs preserve decoded dimensions/pixels/alpha. */
 int stadium_thumbnail_sync(const char *source, const char *destination);
 int stadium_thumbnail_valid_dds(const char *path);
+/* Resolve an installed stadium's existing native movie by DB stadium ID. */
+int stadium_thumbnail_native(const char *art_directory,int stadium,
+    char *key,size_t capacity);
 /* The native asset tile loads a movie, not a loose DDS. Generate its small
  * image_mc wrapper locally and return a content-addressed stadium helper key.
  * No original BIG or photo is overwritten. */

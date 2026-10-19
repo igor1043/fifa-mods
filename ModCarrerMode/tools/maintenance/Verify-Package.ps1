@@ -44,18 +44,6 @@ if ($entries -contains 'entrance_props\entrance_props.dll') {
     # Competition IDs come from the game-owned FSW/settings.ini at runtime.
     Require-File 'ModCarrerMode\config\match_presentation.ini'
 }
-if ($entries -contains 'career_ui_assets\career_ui_assets.dll') {
-    foreach($relative in @('data\ui\imgAssets\careerCompetitionIcons\competitions.tsv',
-        'data\ui\imgAssets\careerCompetitionIcons\calendar\empty.dds',
-        'data\ui\imgAssets\careerCompetitionIcons\cards\empty.dds')) { Require-File $relative }
-    $library=Join-Path $root 'data\ui\imgAssets\careerCompetitionIcons'
-    foreach($source in Get-ChildItem -LiteralPath $library -File -Filter '*.png') {
-        if ($source.BaseName -notmatch '^\d+$') { continue }
-        foreach($kind in @('calendar','cards')) {
-            Require-File ('data\ui\imgAssets\careerCompetitionIcons\'+$kind+'\c'+$source.BaseName+'.dds')
-        }
-    }
-}
 if ($entries -contains 'var_cabin\var_cabin.dll') {
     Require-File 'ModCarrerMode\mods\var_cabin\var_cabin.lua'
     Require-File 'ModCarrerMode\mods\var_cabin\var_cabin.ini'

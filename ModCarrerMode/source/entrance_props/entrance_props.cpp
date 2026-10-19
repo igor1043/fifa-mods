@@ -14,6 +14,7 @@
 #include "../common/scene_lua.h"
 #include "../common/scene_startup.h"
 #include "../common/scene_resource_cycle.h"
+#include "../common/live_competition.h"
 
 // The native SLE builder is called after mascot selection. Its temporary
 // placement vector has private storage; the engine-owned vector is restored
@@ -46,6 +47,8 @@ static uintptr_t extraOwner=0,extraPrototype=0,extraState=0,shadowPrototype=0;
 static uintptr_t resourceFixture=0;
 static uintptr_t atlasFixture=0;
 static char gameRoot[MAX_PATH]={};
+static CompIdentityIndex competitionIdentity;
+static bool competitionIdentityReady=false;
 static bool resourceRequested=false,resourceFault=false,resourceReadyLogged=false,lastShowing=false,placedLogged=false;
 static bool retireBeforeReload=false;
 static bool shadowRequested=false,shadowReadyLogged=false;
@@ -196,6 +199,15 @@ static void sample_selection(){
     }
     unsigned competition=0,round=0;
     const bool live=live_competition(competition,round);
+    if(live && (competition || round)){
+        if(!competitionIdentityReady){
+            char path[MAX_PATH];_snprintf_s(path,sizeof(path),_TRUNCATE,"%s\\dlc\\dlc_FootballCompEng\\dlc\\FootballCompEng\\data\\compdata\\compobj.txt",gameRoot);
+            competitionIdentityReady=comp_identity_load(&competitionIdentity,path)!=0;
+        }
+        if(competitionIdentityReady && comp_live_current(&competitionIdentity,competition,round)<0){
+            selectionAvailable=false;return;
+        }
+    }
     char name[81]={};bool friendly=false;
     // A real competition or phase always wins, including unsupported cups.
     // Only the Server's verified same-league friendly may use a league asset.

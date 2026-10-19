@@ -9,7 +9,6 @@ Mods para melhorar a carreira e a apresentação das partidas no FIFA 16. Este p
 | **Próxima Partida** | Adversário, competição, data, horário, estádio e público estimado quando disponíveis. |
 | **Meu Time** | Informações do clube, jogadores, líderes de estatísticas, cartões e lesões. |
 | **Competição** | Classificação e informações de ligas, copas, fases e partidas. |
-| **Câmeras do jogador** | Primeira pessoa e Terceira pessoa · carreira pelo Server16, usando a câmera Profissional do FIFA. Salva ativação, modo e abertura; padrão 85° nos dois modos, três distâncias na terceira pessoa, suavização Forte e campo e bola. Inclui acompanhamento na bola parada. |
 | **Física de roupas** | Movimento e dobras de camisas e calções. Revisão 0.8.2: desativada por padrão, escolha salva no CF16 antes e durante a partida e barra do calção até 3 mm mais alta. |
 | **Cabine do VAR** | Cabine na beira do gramado nas Séries A e B do Brasileirão. |
 | **Mascotes** | Mascote do mandante com caminhada, apoio e comemoração. |
@@ -24,20 +23,12 @@ Mods para melhorar a carreira e a apresentação das partidas no FIFA 16. Este p
 | **Sete substituições** | Permite até sete trocas. |
 | **Saída de bola moderna** | Organiza o primeiro passe para trás, receptor e jogadores fora do círculo central. |
 | **Tiro de meta moderno** | Experimental: reposiciona a formação do tiro de meta e suaviza passes rasteiros curtos para zagueiros próximos. Mantém a saída de bola v20; não muda quando a bola passa a estar em jogo. |
-| **Ícones da carreira** | Uma pasta de PNG por ID do INI, compartilhada pelo Calendário, Próxima Partida da Central e cards de Competições. O Server prepara as proporções, sem BIG de ícones. Carreiras antigas usam sua identidade visual para achar o ID atual. |
+| **Ícones da carreira** | Resolve os ícones de competições e pré-temporada. O Server16 atualizado importa PNG/JPG pelo nome ou ID da competição, converte e cadastra automaticamente, sem editar tabelas. |
 | **Aposentadoria e verba** | Remoção da aposentadoria, ajuste de idade e acréscimos de verba. |
 | **Criação de jogador** | Adapta o intervalo de nascimento para 2006–2012. |
 | **Compatibilidade de competições** | Mantém a leitura das competições usadas pelos módulos da carreira. |
 
 O [catálogo das implementações](implementations.json) relaciona cada recurso com seus fontes, configuração e limitações.
-
-As câmeras são fornecidas pelo `Server16Python.exe` da raiz do pacote. A DLL
-`server16_first_person_v5.dll` está embutida nesse executável e é carregada pelo
-Server; não há entrada adicional em `ModCarrerMode/mods/enabled.txt`. Os fontes
-pertencem ao projeto Server16 Python (`native_mods/first_person` e
-`server16_py/first_person_runtime.py`). O menu é Select + Start / F12 → Câmera.
-A câmera nativa Profissional e o Server aberto são necessários nos dois modos.
-A terceira pessoa é experimental e não detecta colisões com objetos do estádio.
 
 ## Como usar
 
@@ -83,15 +74,3 @@ Para compilar, use MSVC x64 e execute o build do módulo. Copie a saída para a 
 O ZIP de fontes precisa ser compilado e não é um instalador completo. O [Server16](https://github.com/igor1043/CG-File-Server-16---Python-Port/tree/fifa-friends) também precisa de suas bibliotecas nativas para gerar o executável.
 
 A **New Experience** é uma edição separada, na [outra branch](https://github.com/igor1043/fifa-mods/tree/fifa-friends-new-experience).
-
-A revisão v6 da câmera embutida no Server espera a flag de inicialização do cache
-de ossos do FIFA (RVA 3518200, executável 577DE45C). A espera mantém a preferência
-salva e repete a ativação, sem consultar o resolvedor nativo antes de a tabela existir.
-Isso corrige o acesso nulo durante a recuperação automática da câmera na abertura.
-
-A revisão v7 mantém essa proteção e amplia somente o FOV da primeira pessoa para
-75–150 graus, incluindo menu, preferências e enquadramento nativo. O padrão continua
-85 graus nos dois modos; a terceira pessoa mantém a faixa 60–90 graus.
-A terceira pessoa filtra a translação em duas etapas, limita a velocidade e a
-aceleração das viradas e preserva a suavização ao trocar para jogadores próximos.
-Mudança de contexto, fase ou um alvo muito distante readquirem a câmera.

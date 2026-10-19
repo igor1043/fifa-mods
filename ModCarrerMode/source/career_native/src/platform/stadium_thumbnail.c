@@ -11,6 +11,28 @@
 #include "stadium_thumbnail.h"
 #include "stadium_art_template.h"
 
+int stadium_thumbnail_native(const char *directory,int stadium,char *key,size_t capacity)
+{
+    static const int variants[]={0,1,3,4};
+    size_t i;char path[MAX_PATH],candidate[40];
+    if(!key || !capacity)return 0;
+    key[0]=0;
+    if(!directory || stadium<=0 || stadium>1000000)return 0;
+    for(i=0;i<sizeof(variants)/sizeof(variants[0]);++i){
+        FILE *file;BYTE header[16];size_t got;int length;
+        length=snprintf(candidate,sizeof(candidate),"%d_%d",stadium,variants[i]);
+        if(length<=0 || (size_t)length>=capacity)return 0;
+        length=snprintf(path,sizeof(path),"%s\\stadium_%s.big",directory,candidate);
+        if(length<=0 || (size_t)length>=sizeof(path))return 0;
+        file=fopen(path,"rb");if(!file)continue;
+        got=fread(header,1,sizeof(header),file);fclose(file);
+        if(got==sizeof(header) && (!memcmp(header,"BIG4",4) || !memcmp(header,"BIGF",4))){
+            strcpy(key,candidate);return 1;
+        }
+    }
+    return 0;
+}
+
 static int wide_path(const char *path, WCHAR *out, int capacity)
 {
     return path && MultiByteToWideChar(CP_ACP, 0, path, -1, out, capacity) > 0;

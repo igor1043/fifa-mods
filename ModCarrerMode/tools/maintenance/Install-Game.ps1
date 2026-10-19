@@ -5,7 +5,6 @@ param(
     [switch]$RestoreLocalization,
     [switch]$ReplaceDatabase,
     [switch]$ReplaceConfiguration,
-    [switch]$UpdateCompetitionData,
     [switch]$ArchiveDevelopmentFiles,
     [switch]$VerifyOnly
 )
@@ -34,11 +33,6 @@ foreach ($relative in @('data\db','data\loc','dlc')) {
 }
 $modsItem = Get-Item -LiteralPath (Join-Path $gameMod 'mods') -Force -ErrorAction SilentlyContinue
 $liveMods = $modsItem -and $modsItem.LinkType
-if ($UpdateCompetitionData) {
-    if ($externalPaths.Count) { throw 'A base usa pastas conectadas a outro pacote. Atualize a origem dessa base antes de instalar; nenhuma conexao sera sobrescrita.' }
-    $ReplaceDatabase=$true
-    $RestoreLocalization=$true
-}
 $enabledPlugins=@(Get-Content -LiteralPath (Join-Path $modSource 'mods\enabled.txt') | ForEach-Object { $_.Trim() })
 $missingVarAssets=@()
 if ($enabledPlugins -contains 'var_cabin\var_cabin.dll') {
@@ -94,7 +88,6 @@ foreach($folder in @('config','data','mods','assets')) {
     $base=Join-Path $modSource $folder
     if (-not (Test-Path -LiteralPath $base)) { continue }
     foreach($file in Get-ChildItem -LiteralPath $base -Recurse -File) {
-        if ($file.Name -like 'runtime_state.txt*') { continue }
         # This payload belongs at the game root; do not recreate a legacy
         # ModCarrerMode/assets tree that V12 archives on every installation.
         if ($file.FullName -eq $swissMemorySource) { continue }
@@ -110,12 +103,8 @@ $localCalendarIcons=(Join-Path $dataSource 'ui\imgAssets\careerCompetitionIcons'
 foreach($file in Get-ChildItem -LiteralPath $dataSource -Recurse -File) {
     $relativeData = 'data\'+$file.FullName.Substring($dataSource.Length+1)
     if (@($externalPaths | Where-Object { $relativeData.StartsWith($_+'\',[StringComparison]::OrdinalIgnoreCase) }).Count) { continue }
-    if ($file.FullName.StartsWith($localCalendarIcons,[StringComparison]::OrdinalIgnoreCase)) {
-        $iconRelative=$file.FullName.Substring($localCalendarIcons.Length)
-        # Ship the INI-ID library and its two views. Never resurrect legacy
-        # visual-ID DDS/index files or copy raw migration inputs.
-        if ($iconRelative -notmatch '^(\d+\.png|competitions\.tsv|COMPETICOES\.txt|(calendar|cards)\\(c\d+|empty)\.dds)$') { continue }
-    }
+    # Calendar images/index are local resources; update only the lookup module.
+    if ($file.FullName.StartsWith($localCalendarIcons,[StringComparison]::OrdinalIgnoreCase)) { continue }
     if ($file.FullName -match '[\\/]sceneassets[\\/](entrance_props|var_cabin)[\\/]') { continue }
     if ($file.FullName -match '[\\/]entrance_props[\\/].*[\\/]fixtures[\\/]') { continue }
     if ($file.Extension -eq '.md' -or ($file.FullName -match '[\\/]entrance_props[\\/]' -and $file.Extension -in @('.png','.jpg','.html','.json'))) { continue }
@@ -125,22 +114,10 @@ foreach($file in Get-ChildItem -LiteralPath $dataSource -Recurse -File) {
 # are installed; schedules and other existing DLC files remain game-owned.
 $compdataRelative = 'dlc\dlc_FootballCompEng\dlc\FootballCompEng\data\compdata'
 $compdataSource = Join-Path $repoSource $compdataRelative
-$installedCompobj=Join-Path $game ($compdataRelative+'\compobj.txt')
-$installCompdata=$UpdateCompetitionData -or -not (Test-Path -LiteralPath $installedCompobj -PathType Leaf)
-if ($UpdateCompetitionData) {
-    $dlcSource=Join-Path $repoSource 'dlc'
-    foreach ($file in Get-ChildItem -LiteralPath $dlcSource -Recurse -File) {
-        if ($file.FullName -match '[\\/]FootballCompEng[\\/]FootballCompEng[\\/]' -or $file.Extension -in @('.rar','.xlsx')) { continue }
-        Add-File $file.FullName ('dlc\'+$file.FullName.Substring($dlcSource.Length+1))
-    }
-} elseif (($externalPaths -notcontains 'dlc') -and $installCompdata -and (Test-Path -LiteralPath $compdataSource -PathType Container)) {
+if (($externalPaths -notcontains 'dlc') -and (Test-Path -LiteralPath $compdataSource -PathType Container)) {
     foreach($file in Get-ChildItem -LiteralPath $compdataSource -File -Filter '*.txt') {
         Add-File $file.FullName ($compdataRelative+'\'+$file.Name)
     }
-}
-$fswSource=Join-Path $repoSource 'FSW\settings.ini'
-if (($UpdateCompetitionData -or -not (Test-Path -LiteralPath (Join-Path $game 'FSW\settings.ini'))) -and (Test-Path -LiteralPath $fswSource)) {
-    Add-File $fswSource 'FSW\settings.ini'
 }
 $birthdateSource = Join-Path $modSource 'mods\career_birthdate_2006\payload\vpro_proinfo.big'
 $birthdateRelative = 'data\ui\game\screens\virtualpro\vpro_proinfo.big'
@@ -157,21 +134,8 @@ $skip=[Collections.Generic.List[object]]::new();$changes=[Collections.Generic.Li
 foreach($file in $files) {
     $exists=Test-Path -LiteralPath $file.Target -PathType Leaf
     $legacyConfig=$null
-    if ($file.Relative -match '^data\\ui\\imgAssets\\careerCompetitionIcons\\(?:(calendar|cards)\\c)?(\d+)\.(png|dds)$') {
-        $iconId=$Matches[2]
-        $sourceIcon=Join-Path $localCalendarIcons ($iconId+'.png')
-        $targetIcon=Join-Path $game ('data\ui\imgAssets\careerCompetitionIcons\'+$iconId+'.png')
-        # A locally edited source owns BOTH generated views. Installing one
-        # package view over it would make calendar and cards disagree again.
-        if ((Test-Path -LiteralPath $targetIcon -PathType Leaf) -and
-            (Test-Path -LiteralPath $sourceIcon -PathType Leaf) -and
-            (Get-Sha256 $targetIcon) -ne (Get-Sha256 $sourceIcon)) { $skip.Add($file);continue }
-    }
     $editionOwnedConfig = $file.Relative -in @('ModCarrerMode\config\edition.ini','ModCarrerMode\config\career_retirement_background.ini')
     $careerDatabase = $file.Relative -in @('data\db\fifa_ng_db.db','data\db\fifa_ng_db-meta.xml')
-    if ($file.Relative -eq 'ModCarrerMode\mods\cloth_motion\cloth_motion.ini' -and $exists -and -not $ReplaceConfiguration) {
-        $skip.Add($file);continue
-    }
     # Keep DB and metadata together. Replacing a career DB is an explicit
     # installation choice, separate from restoring interface localization.
     if ($careerDatabase -and -not $ReplaceDatabase -and (Test-Path -LiteralPath (Join-Path $game 'data\db\fifa_ng_db.db'))) {
@@ -186,8 +150,7 @@ foreach($file in $files) {
     $changes.Add($file)
 }
 $obsoletePaths = @('dinput8_career_chain.dll','ModCarrerMode\mods\bench12_global_limit_12_v2',
-    'ModCarrerMode\config\entrance_competitions.ini','ModCarrerMode\entrance_competitions.ini',
-    'ModCarrerMode\data\catalogs\entrance_competition_bindings.tsv')
+    'ModCarrerMode\config\entrance_competitions.ini','ModCarrerMode\entrance_competitions.ini')
 if (-not $liveMods) { $obsoletePaths += 'ModCarrerMode\mods\skip_server_shutdown_notice' }
 # Upgrade old packages to one DLL per mod. Archive only known module folders;
 # unrelated user-installed modules remain outside this migration.
@@ -227,8 +190,8 @@ if ($VerifyOnly) {
     $obsoletePaths | ForEach-Object { [pscustomobject]@{Archive=$_} }
     return
 }
-if (Get-Process FIFA16 -ErrorAction SilentlyContinue | Where-Object { -not $_.Path -or [IO.Path]::GetDirectoryName($_.Path) -eq $game }) { throw 'Feche o FIFA desta instalacao antes de instalar. Os arquivos Dev ja estao prontos.' }
-if (($changes | Where-Object { $_.Relative -eq 'Server16Python.exe' }) -and (Get-Process Server16Python -ErrorAction SilentlyContinue | Where-Object { -not $_.Path -or [IO.Path]::GetDirectoryName($_.Path) -eq $game })) { throw 'Feche o Server16Python desta instalacao antes de atualizar seu executavel.' }
+if (Get-Process FIFA16 -ErrorAction SilentlyContinue) { throw 'Feche o FIFA antes de instalar. Os arquivos Dev ja estao prontos.' }
+if (($changes | Where-Object { $_.Relative -eq 'Server16Python.exe' }) -and (Get-Process Server16Python -ErrorAction SilentlyContinue)) { throw 'Feche o Server16Python antes de atualizar seu executavel.' }
 $backup=Join-Path ([IO.Path]::GetFullPath($BackupDirectory)) ('ModCarrerMode_install_'+(Get-Date -Format 'yyyyMMdd_HHmmss_fff'))
 New-Item -ItemType Directory -Path $backup | Out-Null
 function Backup-File([string]$Target,[string]$Relative) {

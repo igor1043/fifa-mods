@@ -14,13 +14,16 @@ static bool select(const char* game,const char* settings,unsigned competition,un
     name[0]=0;
     const DWORD attributes=GetFileAttributesA(settings);
     if(attributes==INVALID_FILE_ATTRIBUTES||(attributes&FILE_ATTRIBUTE_DIRECTORY))return false;
-    const unsigned id=round?round:competition;
-    if(!configured(settings,id))return false;
-    char path[MAX_PATH],key[16];
-    _snprintf_s(key,sizeof(key),_TRUNCATE,"%u",id);
-    if(_snprintf_s(path,MAX_PATH,_TRUNCATE,"%s\\data\\sceneassets\\entrance_props\\competitions\\%s\\asset.ini",game,key)<0)return false;
-    const DWORD file=GetFileAttributesA(path);
-    if(file!=INVALID_FILE_ATTRIBUTES&&!(file&FILE_ATTRIBUTE_DIRECTORY)){strcpy_s(name,key);return true;}
+    // An optional round package overrides its competition. Most league rounds
+    // have no separate artwork: retain the author's main competition package.
+    for(unsigned id:{round,competition}){
+        if(!configured(settings,id))continue;
+        char path[MAX_PATH],key[16];
+        _snprintf_s(key,sizeof(key),_TRUNCATE,"%u",id);
+        if(_snprintf_s(path,MAX_PATH,_TRUNCATE,"%s\\data\\sceneassets\\entrance_props\\competitions\\%s\\asset.ini",game,key)<0)continue;
+        const DWORD file=GetFileAttributesA(path);
+        if(file!=INVALID_FILE_ATTRIBUTES&&!(file&FILE_ATTRIBUTE_DIRECTORY)){strcpy_s(name,key);return true;}
+    }
     return false;
 }
 static bool friendly(const char* game,const char* settings,const char* context,unsigned home,unsigned away,

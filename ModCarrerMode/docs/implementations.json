@@ -3,15 +3,6 @@
   "edition": "v12",
   "features": [
     {
-      "id": "player_cameras",
-      "name": "Câmeras do jogador",
-      "behavior": "Primeira pessoa e Terceira pessoa · carreira pelo Server16. Salva ativação, modo, FOV separado por modo e distância (Perto, Intermediária, Afastada). Padrão 85 graus nos dois modos, suavização Forte e campo e bola fixos. Acompanha também a bola parada e mantém o cache de pose coerente nas transições.",
-      "source": "Server16 Python: native_mods/first_person; server16_py/first_person_runtime.py",
-      "configuration": "Server16Python.exe; Select + Start / F12 > Câmera; runtime/first_person_camera.json",
-      "limits": "Experimental. Requer a câmera Profissional do FIFA e o Server aberto. A DLL da câmera está embutida no Server; não é um plugin adicional de enabled.txt. Terceira pessoa sem colisão com objetos do estádio.",
-      "status": "implemented"
-    },
-    {
       "id": "next_match",
       "name": "Próxima Partida",
       "behavior": "Adversário, competição, data, horário, estádio e público estimado quando disponíveis.",
@@ -68,7 +59,7 @@
     {
       "id": "multiball",
       "name": "Bolas na beira do gramado",
-      "behavior": "Mantém as 13 bolas de reposição e acrescenta suportes 3D por competição: Série A, CBF para B/C/D, Paulista e dois genéricos. Resolve as identidades das ligas no CompData instalado, inclusive após a renumeração da base Honduras.",
+      "behavior": "Mantém as 13 bolas de reposição e acrescenta suportes 3D por competição: Série A, CBF para B/C/D, Paulista e dois genéricos.",
       "source": "ModCarrerMode/source/multiball_visual",
       "configuration": "ModCarrerMode/mods/multiball_visual/standball.ini",
       "limits": "São visuais, sem física. Suportes dependem dos RX3; sem recursos prontos, as bolas ficam no gramado. Conferência visual no FIFA pendente.",
@@ -77,9 +68,9 @@
     {
       "id": "entrance_props",
       "name": "Objetos de abertura por competição",
-      "behavior": "Escolhe arco e placas somente na pasta com o ID atual da competição ou fase. Sem pacote para o ID selecionado, não exibe objetos nem herda o modelo principal. As 251 pastas foram alinhadas à base Honduras, preservando 116 modelos.",
+      "behavior": "Escolhe arco e placas pelo campeonato; retira modelo e escudos juntos ao fim das escalações ou da apresentação avançada.",
       "source": "ModCarrerMode/source/entrance_props",
-      "configuration": "ModCarrerMode/config/match_presentation.ini; IDs em FSW/settings.ini; data/sceneassets/entrance_props/competitions/<ID_ATUAL>",
+      "configuration": "ModCarrerMode/config/match_presentation.ini; IDs em FSW/settings.ini",
       "limits": "Padrão Sim. Pacote ausente ou inválido deixa a partida sem objetos; assets são locais.",
       "status": "implemented"
     },
@@ -158,10 +149,10 @@
     {
       "id": "calendar_icons",
       "name": "Ícones da carreira",
-      "behavior": "Usa um PNG por ID do INI na mesma pasta para Calendário, Próxima Partida da Central e cards de Competições. Traduz a identidade da carreira salva para o ID instalado e prepara duas vistas proporcionais da mesma imagem. O ID da partida não participa da resolução.",
+      "behavior": "Resolve os ícones das competições e da pré-temporada. O Server16 atualizado importa imagens pelo nome ou ID da competição, converte e atualiza o índice automaticamente, preservando os originais.",
       "source": "ModCarrerMode/source/career_ui_assets",
       "configuration": "data/ui/imgAssets/careerCompetitionIcons",
-      "limits": "A preparação de imagens editadas exige o Server16 atualizado e ocorre com o FIFA fechado. O pacote já inclui PNGs e vistas DDS. Imagens ausentes ou identidade ambígua não recebem logo de outra competição. Não lê BIG de ícones; BIG de layout continuam necessários.",
+      "limits": "A importação exige o Server16 atualizado e ocorre com o FIFA fechado. Sem imagem válida, conserva o caminho original. Novas estruturas de competição continuam pertencendo ao CompData.",
       "status": "implemented"
     },
     {
@@ -199,15 +190,6 @@
       "configuration": "ModCarrerMode/mods/goal_kick_short_pass/goal_kick_short_pass.ini; ModCarrerMode/mods/enabled.txt",
       "limits": "Experimental e limitado ao hash de fifa16.exe compatível com o pacote original. Não altera quando a bola passa a estar em jogo dentro da área. Posicionamento e sensação do passe precisam ser avaliados em partida.",
       "status": "experimental"
-    },
-    {
-      "id": "competition_base",
-      "name": "Base Honduras sincronizada",
-      "behavior": "Instala CompData, DB v12.11, traduções e FSW/settings.ini da mesma versão. O settings.ini é mantido como recebido do autor.",
-      "source": "ModCarrerMode/tools/maintenance",
-      "configuration": "ModCarrerMode/install-game.cmd -UpdateCompetitionData",
-      "limits": "Não converte carreiras salvas. Uma atualização somente dos mods preserva a base já instalada.",
-      "status": "implemented"
     }
   ],
   "not_implemented": [
@@ -220,7 +202,7 @@
       "status": "visual_cabin_only"
     }
   ],
-  "reviewed_on": "2026-10-18",
+  "reviewed_on": "2026-10-17",
   "native_entrance_revision": 19,
   "native_var_revision": 3,
   "native_cloth_revision": 9,

@@ -5,6 +5,9 @@ typedef struct SaveReadHandle {
     HANDLE handle;
     char path[1024];
     BOOL recorded;
+    unsigned char header[160];
+    unsigned char seen[160];
+    ULONGLONG read_end, write_end;
 } SaveReadHandle;
 
 #define SAVE_READ_HANDLE_CAPACITY 64
@@ -83,6 +86,7 @@ static void track_save_data_handle(HANDLE handle)
     }
     if (target == SAVE_READ_HANDLE_CAPACITY)
         target = (SIZE_T)(GetTickCount64() % SAVE_READ_HANDLE_CAPACITY);
+    memset(&g_save_read_handles[target], 0, sizeof(g_save_read_handles[target]));
     g_save_read_handles[target].handle = path[0] ? handle : NULL;
     g_save_read_handles[target].recorded = FALSE;
     lstrcpynA(g_save_read_handles[target].path, path,
@@ -90,33 +94,90 @@ static void track_save_data_handle(HANDLE handle)
     ReleaseSRWLockExclusive(&g_save_read_handles_lock);
 }
 
-static BOOL take_unreported_save_handle(HANDLE handle, char *path, size_t capacity)
+/* List previews read the container header too. Only a complete, contiguous
+ * DATA payload with the Career type identifies the career FIFA loaded.
+ * ReadFile/WriteFile buffers are observed after success; FIFA's buffer and
+ * file position are never changed. Settings saves cannot replace this bridge. */
+static BOOL observe_career_save_io(HANDLE handle, const void *buffer, DWORD amount,
+    LPOVERLAPPED overlapped, BOOL writing, char *path, size_t capacity,
+    ULONGLONG *file_size)
 {
+    LARGE_INTEGER size, position, zero;
+    ULONGLONG offset, end;
     SIZE_T index;
-    BOOL found = FALSE;
+    BOOL ready = FALSE;
+    BOOL tracked = FALSE;
     char current_path[1024];
-    if (!path || capacity == 0)
-        return FALSE;
-    path[0] = '\0';
+    if (!buffer || !amount || !path || !capacity || !file_size) return FALSE;
+    /* Resource streaming also uses ReadFile. Do no filesystem work for an
+     * untracked handle; revalidate only the small set of FIFA save handles. */
+    AcquireSRWLockShared(&g_save_read_handles_lock);
+    for(index=0;index<SAVE_READ_HANDLE_CAPACITY;++index)
+        if(g_save_read_handles[index].handle==handle) {tracked=TRUE;break;}
+    ReleaseSRWLockShared(&g_save_read_handles_lock);
+    if (!tracked
+        || !get_save_data_path(handle,current_path,sizeof(current_path))
+        || !GetFileSizeEx(handle,&size) || size.QuadPart<0) return FALSE;
+    if (overlapped) {
+        offset=((ULONGLONG)overlapped->OffsetHigh<<32)|overlapped->Offset;
+    } else {
+        zero.QuadPart=0;
+        if(!SetFilePointerEx(handle,zero,&position,FILE_CURRENT)
+            || position.QuadPart<(LONGLONG)amount) return FALSE;
+        offset=(ULONGLONG)position.QuadPart-amount;
+    }
+    if(offset>~(ULONGLONG)0-amount) return FALSE;
+    end=offset+amount;
     AcquireSRWLockExclusive(&g_save_read_handles_lock);
-    for (index = 0; index < SAVE_READ_HANDLE_CAPACITY; ++index) {
-        SaveReadHandle *entry = &g_save_read_handles[index];
-        if (entry->handle == handle && !entry->recorded) {
-            lstrcpynA(path, entry->path, (int)capacity);
-            entry->recorded = TRUE;
-            found = path[0] != '\0';
-            break;
+    for(index=0;index<SAVE_READ_HANDLE_CAPACITY;++index) {
+        SaveReadHandle *entry=&g_save_read_handles[index];
+        ULONGLONG *covered;
+        SIZE_T first,last,i;
+        if(entry->handle!=handle || _stricmp(entry->path,current_path))continue;
+        if(offset==0) {
+            memset(entry->header,0,sizeof(entry->header));
+            memset(entry->seen,0,sizeof(entry->seen));
+            entry->read_end=entry->write_end=0;
+            entry->recorded=FALSE;
         }
+        first=offset<160?(SIZE_T)offset:160;
+        last=end<160?(SIZE_T)end:160;
+        for(i=first;i<last;++i) {
+            entry->header[i]=((const unsigned char *)buffer)[i-(SIZE_T)offset];
+            entry->seen[i]=1;
+        }
+        covered=writing?&entry->write_end:&entry->read_end;
+        if(!writing && *covered==0 && offset==116)*covered=116;
+        if(offset<=*covered && end>*covered)*covered=end;
+        /* FIFA may read its outer header on a separate handle and then seek
+         * this handle straight to the 116-byte payload boundary. Observing
+         * that entire Career payload is sufficient; a title/list preview is
+         * still far too small to satisfy this condition. */
+        if(!entry->recorded && size.QuadPart>=220
+            && (*covered>=(ULONGLONG)size.QuadPart
+                || (!writing && offset<=116 && end>=(ULONGLONG)size.QuadPart
+                    && amount>=(ULONGLONG)size.QuadPart-116))) {
+            DWORD format=0,payload_size=0;
+            for(i=116;i<140 && entry->seen[i];++i) {}
+            memcpy(&format,entry->header+136,sizeof(format));
+            memcpy(&payload_size,entry->header+100,sizeof(payload_size));
+            if(i==140 && format==56
+                /* Outer header says how much DATA follows its 116 bytes.
+                 * A growing output file is not complete after its first chunk. */
+                && (!writing || (entry->seen[100] && entry->seen[101]
+                    && entry->seen[102] && entry->seen[103]
+                    && (ULONGLONG)payload_size+116==(ULONGLONG)size.QuadPart))
+                && !memcmp(entry->header+116,"SaveType_Career",16)) {
+                lstrcpynA(path,current_path,(int)capacity);
+                *file_size=(ULONGLONG)size.QuadPart;
+                entry->recorded=TRUE;
+                ready=TRUE;
+            }
+        }
+        break;
     }
     ReleaseSRWLockExclusive(&g_save_read_handles_lock);
-    /* Windows can reuse a closed HANDLE for an unrelated asset. Never publish
-     * a cached save name unless it still identifies the open DATA file. */
-    if (found && (!get_save_data_path(handle, current_path, sizeof(current_path))
-        || _stricmp(path, current_path) != 0)) {
-        path[0] = '\0';
-        return FALSE;
-    }
-    return found;
+    return ready;
 }
 
 static BOOL write_career_save_bridge(const char *runtime_dir,
@@ -149,7 +210,7 @@ static BOOL write_career_save_bridge(const char *runtime_dir,
 }
 
 static void publish_active_save_access(const char *path, const char *operation,
-                                       DWORD bytes_transferred)
+                                       DWORD bytes_transferred, ULONGLONG file_size)
 {
     char runtime_dir[MAX_PATH];
     char record[1600];
@@ -166,12 +227,13 @@ static void publish_active_save_access(const char *path, const char *operation,
     if (!CreateDirectoryA(runtime_dir, NULL) &&
         GetLastError() != ERROR_ALREADY_EXISTS) return;
     length = snprintf(record, sizeof(record),
-        "schema=2\r\npid=%lu\r\nprocess_created_100ns=%llu\r\n"
-        "access_tick_ms=%llu\r\noperation=%s\r\nio_bytes=%lu\r\npath=%s\r\n",
+        "schema=3\r\npid=%lu\r\nprocess_created_100ns=%llu\r\n"
+        "access_tick_ms=%llu\r\noperation=%s\r\nio_bytes=%lu\r\n"
+        "save_type=SaveType_Career\r\ncomplete_file=1\r\nsize_bytes=%llu\r\npath=%s\r\n",
         (unsigned long)GetCurrentProcessId(),
         (unsigned long long)created_value.QuadPart,
         (unsigned long long)GetTickCount64(), operation,
-        (unsigned long)bytes_transferred, path);
+        (unsigned long)bytes_transferred, (unsigned long long)file_size, path);
     if (length <= 0 || (size_t)length >= sizeof(record)) return;
     /* Keep the established bridge for existing mod tools and publish a
      * dedicated source bridge that cannot be confused with unrelated assets. */
@@ -250,13 +312,15 @@ static BOOL WINAPI read_file_capture(HANDLE handle, LPVOID buffer, DWORD length,
     BOOL result;
     DWORD error;
     char path[1024];
+    ULONGLONG file_size;
     if (!g_original_read_file)
         return FALSE;
     result = g_original_read_file(handle, buffer, length, bytes_read, overlapped);
     error = GetLastError();
     if (result && bytes_read && *bytes_read > 0
-        && take_unreported_save_handle(handle, path, sizeof(path)))
-        publish_active_save_access(path, "read", *bytes_read);
+        && observe_career_save_io(handle, buffer, *bytes_read, overlapped, FALSE,
+            path, sizeof(path), &file_size))
+        publish_active_save_access(path, "read", *bytes_read, file_size);
     SetLastError(error);
     return result;
 }
@@ -268,25 +332,16 @@ static BOOL WINAPI write_file_capture(HANDLE handle, LPCVOID buffer, DWORD lengt
     char path[1024];
     DWORD amount;
     DWORD error;
+    ULONGLONG file_size;
     if (!g_original_write_file)
         return FALSE;
-    path[0] = '\0';
-    /* Do not edit the buffer while Career Mode still owns the save.  Merely
-     * capture the DATA path; the worker applies the pending card action after
-     * FIFA releases the file on leaving the save. */
-    error = GetLastError();
-    (void)get_save_data_path(handle, path, sizeof(path));
-    SetLastError(error);
     result = g_original_write_file(handle, buffer, length, bytes_written,
         overlapped);
     error = GetLastError();
     amount = bytes_written ? *bytes_written : length;
-    if (result && amount > 0 && path[0]) {
-        publish_active_save_access(path, "write", amount);
-        retirement_engine_note_write(path);
-    } else if (result && amount > 0
-        && take_unreported_save_handle(handle, path, sizeof(path))) {
-        publish_active_save_access(path, "write", amount);
+    if (result && amount > 0 && observe_career_save_io(handle,buffer,amount,
+            overlapped,TRUE,path,sizeof(path),&file_size)) {
+        publish_active_save_access(path,"write",amount,file_size);
         retirement_engine_note_write(path);
     }
     SetLastError(error);

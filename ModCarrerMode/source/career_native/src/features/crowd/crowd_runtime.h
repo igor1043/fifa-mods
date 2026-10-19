@@ -44,6 +44,9 @@ int crowd_runtime_team_reputation_available(int team_id);
 float crowd_runtime_league_reputation(int team_id);
 float crowd_runtime_rivalry(int team_id, int opponent_id);
 float crowd_runtime_international_bonus(void);
+/* Configurable competition profile, expressed in percentage points. */
+int crowd_runtime_competition_setting(const char *key, const char *suffix,
+    int fallback, int maximum);
 int crowd_runtime_attendance_percent(void);
 
 #endif

@@ -21,12 +21,13 @@ edição manual. A tradução de uma carreira antiga usa a identidade visual da
 própria carreira para achar o ID do INI atual. O ID de uma partida nunca escolhe
 uma competição. Identidade ambígua ou imagem ausente não é substituída por outra.
 
-Não são necessários os antigos `artAssets/cmCalendarCompetitions/cmcomp_*.big`
-para estes ícones. O código reconhece o pedido antigo e o direciona ao DDS;
-não lê nem extrai BIG durante o jogo. Não apague os BIG que montam as telas,
-como `game/screens/career/calendar.big`, ou outros recursos do FIFA.
+O calendário precisa de um BIG/APT e das texturas com os nomes nativos.
+Ao iniciar o FIFA, career_ui_assets gera `cmcomp_<1000000+ID>.big`,
+`cmCalendarCompetitions<1000000+ID>.dds` e as versões light/dark do mesmo ID.
+Os cards recebem `league/light|dark/l<1000000+ID>.dds` da mesma imagem.
+Os BIGs gerados são necessários. Se forem apagados, a DLL os recria no
+próximo início. Os DDS preparados usam cabeçalhos DXT5 compatíveis com o FIFA.
 
-O pacote possui imagens para 153 competições. Cinco entradas assinaladas `***`
-no INI não possuem arte de liga na instalação de origem: 1061 (Bélgica 2),
-1159 (League Cup), 1257 (Costa Rica), 1277 (Honduras), 1918 (CAF CL).
-Elas precisam de seu PNG correspondente; nenhuma recebe um logo de outro torneio.
+A biblioteca possui 158 competições. As raízes alternativas 1061, 1257 e 1277
+usam a arte da mesma liga identificada no INI. Leagues Cup (1159) e CAF CL (1918)
+usam seu próprio troféu nativo; os arquivos recebidos não contêm seus logos.

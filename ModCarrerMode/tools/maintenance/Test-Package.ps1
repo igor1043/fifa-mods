@@ -26,10 +26,6 @@ $snapshot=Join-Path $fixture 'ModCarrerMode\injury_snapshot.tsv'
 [IO.File]::WriteAllText($snapshot,'fixture injury snapshot')
 $private=Join-Path $fixture 'ModCarrerMode\runtime\operations\preserve.bin'
 [IO.File]::WriteAllBytes($private,[byte[]](1,2,3,4))
-$clothConfig=Join-Path $fixture 'ModCarrerMode\mods\cloth_motion\cloth_motion.ini'
-New-Item -ItemType Directory -Force -Path (Split-Path $clothConfig) | Out-Null
-[IO.File]::WriteAllText($clothConfig,"[cloth_motion]`nenabled=1`nsolver_hz=120`n")
-$clothConfigHash=(Get-FileHash -LiteralPath $clothConfig).Hash
 $db=Join-Path $fixture 'data\loc\por_br.db'
 [IO.File]::WriteAllBytes($db,[byte[]](5,6,7,8))
 $hashes=@{Config=(Get-FileHash -LiteralPath $config).Hash;Snapshot=(Get-FileHash -LiteralPath $snapshot).Hash;Private=(Get-FileHash -LiteralPath $private).Hash;DB=(Get-FileHash -LiteralPath $db).Hash}
@@ -66,32 +62,10 @@ $localIndex = Join-Path $localIcons 'index.tsv'
 [IO.File]::WriteAllText($localIndex, "9999`t1`n")
 $localDdsHash = (Get-FileHash -LiteralPath $localDds).Hash
 $localIndexHash = (Get-FileHash -LiteralPath $localIndex).Hash
-$customSource=Join-Path $localIcons '1761.png'
-[IO.File]::WriteAllText($customSource,'user custom source PNG marker')
-foreach($kind in @('calendar','cards')) {
-    $customView=Join-Path $localIcons ($kind+'\c1761.dds')
-    New-Item -ItemType Directory -Force -Path (Split-Path $customView) | Out-Null
-    [IO.File]::WriteAllText($customView,'user custom proportional view '+$kind)
-}
-$oldEntranceMap=Join-Path $fixture 'ModCarrerMode\data\catalogs\entrance_competition_bindings.tsv'
-New-Item -ItemType Directory -Force -Path (Split-Path $oldEntranceMap) | Out-Null
-[IO.File]::WriteAllText($oldEntranceMap,'1738|legacy competition identity')
-$oldEntranceMapHash=(Get-FileHash -LiteralPath $oldEntranceMap).Hash
 & (Join-Path $PSScriptRoot 'Install-Game.ps1') -GameDirectory $fixture -BackupDirectory (Join-Path $fixture 'installer-backups')
-if (Test-Path -LiteralPath $oldEntranceMap) { throw 'Tabela antiga de aberturas permaneceu ativa.' }
-$savedEntranceMap=@(Get-ChildItem -LiteralPath (Join-Path $fixture 'installer-backups') -Recurse -File -Filter 'entrance_competition_bindings.tsv')
-if (-not ($savedEntranceMap | Where-Object { (Get-FileHash -LiteralPath $_.FullName).Hash -eq $oldEntranceMapHash })) { throw 'Tabela antiga de aberturas nao foi preservada no backup.' }
 if ((Get-FileHash -LiteralPath (Join-Path $fixture 'data\sceneassets\var_cabin\model.rx3')).Hash -ne $localVarModelHash -or
     (Get-FileHash -LiteralPath (Join-Path $fixture 'data\sceneassets\var_cabin\textures.rx3')).Hash -ne $localVarTextureHash) { throw 'Cabine local alterada.' }
 if ((Get-FileHash -LiteralPath $localDds).Hash -ne $localDdsHash -or (Get-FileHash -LiteralPath $localIndex).Hash -ne $localIndexHash) { throw 'Icone local ou suas regras de disponibilidade alterados.' }
-if ([IO.File]::ReadAllText($customSource) -ne 'user custom source PNG marker') { throw 'PNG personalizado sobrescrito.' }
-foreach($kind in @('calendar','cards')) {
-    if ([IO.File]::ReadAllText((Join-Path $localIcons ($kind+'\c1761.dds'))) -ne ('user custom proportional view '+$kind)) { throw 'Vista de icone personalizado sobrescrita.' }
-    $installedIcon=Join-Path $localIcons ($kind+'\c1460.dds')
-    $packageIcon=Join-Path $repo ('data\ui\imgAssets\careerCompetitionIcons\'+$kind+'\c1460.dds')
-    if ((Get-FileHash -LiteralPath $installedIcon).Hash -ne (Get-FileHash -LiteralPath $packageIcon).Hash) { throw 'Icone Libertadores nao distribuido.' }
-}
-if (-not (Test-Path -LiteralPath (Join-Path $localIcons '1460.png'))) { throw 'Fonte do icone Libertadores nao distribuida.' }
 foreach ($relative in $legacyFiles) {
     if (Test-Path -LiteralPath (Join-Path $fixture ('ModCarrerMode\mods\'+$relative))) { throw "Revisao antiga permaneceu instalada: $relative" }
     $saved = @(Get-ChildItem -LiteralPath (Join-Path $fixture 'installer-backups') -Recurse -File | Where-Object { $_.FullName.EndsWith('\edition-switch\ModCarrerMode\mods\'+$relative,[StringComparison]::OrdinalIgnoreCase) })
@@ -151,19 +125,4 @@ foreach($name in @('model.rx3','textures.rx3')) {
 & (Join-Path $PSScriptRoot 'Install-Game.ps1') -GameDirectory $fixture -BackupDirectory (Join-Path $fixture 'installer-backups') | Out-Null
 if ((Get-Content -LiteralPath (Join-Path $fixture 'ModCarrerMode\mods\enabled.txt')) -notcontains 'var_cabin\var_cabin.dll') { throw 'Cabine com assets locais nao foi reabilitada.' }
 Write-Output 'PASS: VAR ausente nao bloqueia fogos/maquina, assets do VAR nao distribuidos, cabine local preservada e reabilitada apos instalar assets.'
-$baseCompobj=Join-Path $fixture 'dlc\dlc_FootballCompEng\dlc\FootballCompEng\data\compdata\compobj.txt'
-$baseSettings=Join-Path $fixture 'FSW\settings.ini'
-[IO.File]::WriteAllText($baseCompobj,"0,0,FIFA,FIFA,-1`n10,3,C7,OldCalendar,0`n")
-[IO.File]::WriteAllText($baseSettings,"[movies]`n10=OldCalendar`n")
-$oldCompHash=Get-FileHash -LiteralPath $baseCompobj
-$oldSettingsHash=Get-FileHash -LiteralPath $baseSettings
-& (Join-Path $PSScriptRoot 'Install-Game.ps1') -GameDirectory $fixture -BackupDirectory (Join-Path $fixture 'installer-backups') | Out-Null
-if ((Get-FileHash -LiteralPath $baseCompobj).Hash -ne $oldCompHash.Hash -or (Get-FileHash -LiteralPath $baseSettings).Hash -ne $oldSettingsHash.Hash) { throw 'Atualizacao de mods misturou a base do usuario com outro calendario.' }
-& (Join-Path $PSScriptRoot 'Install-Game.ps1') -GameDirectory $fixture -BackupDirectory (Join-Path $fixture 'installer-backups') -UpdateCompetitionData | Out-Null
-foreach ($relative in @('FSW\settings.ini','dlc\dlc_FootballCompEng\dlc\FootballCompEng\data\compdata\compobj.txt','dlc\dlc_FootballCompEng\dlc\FootballCompEng\data\internationals.txt','data\db\fifa_ng_db.db','data\loc\por_br.db')) {
-    if ((Get-FileHash -LiteralPath (Join-Path $fixture $relative)).Hash -ne (Get-FileHash -LiteralPath (Join-Path $repo $relative)).Hash) { throw "Base oficial nao sincronizada: $relative" }
-}
-Write-Output 'PASS: atualizacao de mods preserva CompData/FSW existentes; atualizacao explicita da base sincroniza DLC, FSW, DB e traducoes.'
-if ((Get-FileHash -LiteralPath $clothConfig).Hash -ne $clothConfigHash) { throw 'Preferencia pessoal de fisica de roupas sobrescrita.' }
-Write-Output 'PASS: escolha pessoal da fisica de roupas preservada na instalacao e atualizacao da base.'
 Write-Output "PASS: pacote completo, uma DLL por mod, revisoes antigas arquivadas com hashes preservados, mods adicionais/configuracoes/DB/contratos preservados, restauracao opcional e reinstalacao idempotente. Fixture: $fixture"

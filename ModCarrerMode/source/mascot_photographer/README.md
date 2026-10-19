@@ -172,6 +172,37 @@ Se todas as categorias estiverem vazias, registra `placement_unavailable` e pres
 
 ## Ferramentas e validação
 
+### Técnico nativo: Atlético-MG
+
+Estado local em 18/10/2026: a revisão com correção da tabela interna de texturas foi aplicada ao técnico do Atlético-MG (1035), no jogo, desenvolvimento e backup de modelos. As versões anteriores, que tiveram relatos de crash, estão preservadas em quarentena. Foi encontrado um defeito concreto no exportador: os mapas estavam em DXT5, mas a tabela duplicada de informações das texturas ainda declarava DXT1 e tamanhos menores. Essa divergência foi corrigida e a validação agora rejeita o pacote anterior. O novo dump apresenta falha em uma rotina compatível com gerenciamento de memória; o defeito de empacotamento é compatível com corrupção do heap, mas a correção da estabilidade ainda depende de teste real. O usuário fará esse teste depois.
+
+A seleção segue o ID do time usado pelo pacote do Flamengo (1043), para técnico mandante e visitante. Reabra o FIFA após instalar: uma partida já carregada mantém o modelo anterior em memória. Prévias e testes de poses não confirmam estabilidade em partida.
+
+`Build-NativeManager.py` converte um FBX humano com esqueleto/pesos Mixamo para os 31 ossos do técnico nativo. O modelo é ajustado à pose de descanso do técnico e mantém a seção de matrizes de referência do RX3 original byte a byte. Ele não usa o retarget de mascotes em tempo de execução. Arquivos sem esqueleto ou sem pesos são rejeitados.
+
+A exportação agora conserva também a tabela nativa de 19 ossos ativos, byte a byte: os pesos das pontas dos pés usam os ossos dos pés. A versão anterior acrescentava dois canais a essa tabela; essa divergência foi encontrada na comparação com o técnico genérico e o pacote do Flamengo (1043), sem comprovação de que tenha causado o crash. `Validate-NativeManager.py --package <pasta_slc> --native-model <rx3_generico> --reference-model <rx3_flamengo> --tools <bundle> --output <relatorio.json>` verifica o conjunto de ossos ativos, as matrizes, o formato dos vértices, os índices, os contadores do renderizável e as texturas das duas variantes. O relatório mantém `runtimeValidated=false` até o teste real.
+
+A revisão de Eduardo Domingues usa o novo FBX com 65 ossos e 8.827 vértices de origem. Braços/pernas recebem ajuste de comprimento axial; a circunferência dos antebraços é preservada. Mãos têm proporção própria e os pesos autorais dos dedos produzem uma pose relaxada antes de serem mapeados ao punho. O SLC nativo tem um osso por mão, sem canais independentes para animar os dedos. Cabeça, rosto e barba permanecem juntos; a transição do pescoço conserva seus pesos.
+
+O FBX de origem tem pele na frente dos antebraços e tecido de manga comprida atrás, causando a aparência de mão saindo da camisa em algumas poses. `Build-NativeManager.py` exporta `authored_surface.json` antes do ajuste à pose nativa. `Repair-NativeManagerForearms.py --surface authored_surface.json --basecolor <cor_original> --normal <normal_original> --output <pasta>` usa essa superfície para projetar a pele original ao redor dos dois antebraços e neutralizar as dobras de tecido no mapa normal da região repintada. Passe `forearms_basecolor.png` e `forearms_normal.png` ao preparador de texturas. Essa correção mantém a geometria, os pesos e o desenho dos dedos; não altera o FBX original.
+
+Use `--clean-cuff` nesse reparador para reconstruir uma borda estreita e contínua entre camisa e pele, em vez de manter a faixa larga de mistura de cores. Essa opção trata os dois lados da manga e amplia a margem de cor fora das ilhas UV, sem escrever nas outras ilhas. A revisão da textura também continua pendente de conferência no jogo.
+
+`Refine-NativeManagerArms.py` é a revisão posterior da malha e dos pesos. Execute no Blender com `--input <modelo_rx3> --output <pasta> --surface authored_surface.json --skin-map source_skin_map.json --conversion conversion.json --tools <bundle>`. Suaviza os relevos dos antebraços com deslocamento limitado a 0,9 cm e uniformiza a transição dos pesos ao redor dos punhos. Mantém a topologia, UVs, matrizes nativas, rosto e dedos. Gera o RX3 revisado, o mapa de pesos atualizado, uma superfície editável em `.blend` e o relatório `forearm_geometry_review.json`; use o RX3 revisado como entrada do preparador para gerar as duas variantes. A verificação offline compara 81 poses com a versão anterior e mede o esticamento na região do punho. A aparência nas animações específicas do técnico continua dependendo de teste em partida.
+
+`Prepare-NativeManager.py` converte os mapas de cor e normal nos slots próprios do técnico, preserva o mapa de coeficientes do material e prepara estes arquivos em `data/sceneassets/slc/`:
+
+O preparador atualiza também as cópias dos cabeçalhos de textura na seção `0x6BD085DC`, que precisam corresponder aos primeiros 16 bytes de cada seção `0x7A0B60DA`. A verificação de cada mip isolado não detectava a divergência entre essa tabela e os dados DXT5. `Validate-NativeManager.py` verifica agora a correspondência completa e rejeita descritores de formato, dimensões ou tamanho divergentes. A comparação com os pacotes nativos confirmou que seus cabeçalhos duplicados coincidem.
+
+```text
+specificmanager_1035_0_0.rx3
+specificmanager_1035_0_0_textures.rx3
+specificmanager_1035_0_1.rx3
+specificmanager_1035_0_1_textures.rx3
+```
+
+O Revolution Mod já procura esses arquivos pelo ID da equipe, para técnico mandante e visitante. As variantes 0/1 usam o mesmo modelo e roupa em tempo normal/frio. Não há alteração de DLL, Lua ou do mascote do Galo. Os modelos são recursos locais, fora do código versionado. As prévias usam poses capturadas compatíveis com o esqueleto comum; as reações específicas do técnico ainda precisam de conferência visual numa nova partida do Atlético-MG. O estudo local registra 81 poses verificadas e hashes de aplicação no jogo, desenvolvimento e backup de técnicos.
+
 `Build-AuthoredMascot.py` converte os modelos autorais disponíveis localmente. `Build-MascotGoalClip.py` gera headers a partir de capturas locais. Modelos FBX originais e capturas não são necessários para executar o mod.
 
 Para Santos, Internacional, Palmeiras, Grêmio, Fluminense, Botafogo, Brasil, Chapecoense, Coritiba, Mirassol e RB Bragantino, a conversão usa `--review-body-weights`: os pivôs seguem as proporções do personagem, a parte superior do peito fica no osso 12, o pescoço no 13 e a cabeça no 14. O rosto e o crânio recebem peso rígido; a ligação do pescoço conserva a transição e os braços mantêm suas cadeias independentes. Isso é pintura de pesos do esqueleto; a textura visual fornecida é preservada e convertida para o RX3 com seus mipmaps. A seleção usa o ID de equipe 1370 do banco instalado; o carregamento de pacotes é dinâmico e funciona também para seleções mandantes.
