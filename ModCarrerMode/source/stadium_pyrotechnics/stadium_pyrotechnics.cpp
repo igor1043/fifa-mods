@@ -23,7 +23,9 @@ static uintptr_t image;
 static Draw original;
 static LONG started, stopping, busy, faulted, replayRequested, phasesSeen;
 static constexpr int emitterCount=pyroIntroCount;
-static constexpr ULONGLONG durationMs=60000;
+static ULONGLONG showLengthMs=60000;
+static unsigned showEmitterMask=(1u<<20)-1;
+static bool emitter_selected(int index) {return index>=0 && index<emitterCount && (showEmitterMask&(1u<<index))!=0;}
 static constexpr char effectName[]="stadium_pyrotechnics";
 static char logPath[MAX_PATH], configPath[MAX_PATH];
 static bool enabled=true, automatic=true;
@@ -277,7 +279,7 @@ static void finish_naturally() {
     // do not freeze/clear particles merely because wall-clock time has elapsed.
     if(showing && owned()) {
         bool waited=false;
-        for(int i=0;i<active_count();++i)if(!emitterDraining[i] && valid_slot(i)) {
+        for(int i=0;i<active_count();++i)if(emitterStarted[i] && !emitterDraining[i] && valid_slot(i)) {
             if(!waited) {wait_jobs();waited=true;}
             ((Slot)(image+0x441c980))((void*)activeManager,handles[i]);
             emitterDraining[i]=true;
@@ -375,7 +377,7 @@ static bool emit() {
     }
     *(unsigned char*)(activeState+4)=0;
     char event[160];
-    _snprintf_s(event,sizeof(event),_TRUNCATE,"SHOW_STARTED mode=%s sources=%d intro_ms=60000 goal_ms=25000 duration_clock=monotonic_real_ms",goalShow?"home_goal":"opening",active_count());
+    _snprintf_s(event,sizeof(event),_TRUNCATE,"SHOW_STARTED mode=%s sources=%d emitter_mask=%u duration_ms=%llu duration_clock=monotonic_real_ms",goalShow?"home_goal":"opening",active_count(),showEmitterMask,showLengthMs);
     log_event(event);return true;
 }
 static ULONGLONG lastPreload=0,lastDiagnostic=0;
@@ -601,10 +603,10 @@ static void tick(void* batch) {
     if (showing) {
         if (!kickoffSince && gameplay_present()) kickoffSince=now;
         const uint64_t elapsed=showClock.elapsed;
-        if (pyro_show_expired(elapsed,0,goalShow)) { finish_naturally(); consumed=true; return; }
+        if (pyro_show_expired(elapsed,0,goalShow,showLengthMs)) { finish_naturally(); consumed=true; return; }
         bool waited=false;
         for (int i=0;i<active_count();++i) {
-            if (!emitterStarted[i] && elapsed>=(ULONGLONG)(i/2)*160) {
+            if (emitter_selected(i) && !emitterStarted[i] && elapsed>=(ULONGLONG)(i/2)*160) {
                 if (!waited) { wait_jobs(); waited=true; }
                 if (!valid_slot(i)) { recover_resource(now); return; }
                 ((Slot)(image+0x441ce00))((void*)activeManager,handles[i]);
@@ -614,7 +616,7 @@ static void tick(void* batch) {
         }
         if(!particleAuditDone && elapsed>=2500){audit_particles();particleAuditDone=true;}
         for(int i=0;i<active_count();++i) {
-            if(emitterStarted[i] && !emitterDraining[i] && pyro_drain_due(elapsed,0,goalShow,i)) {
+            if(emitterStarted[i] && !emitterDraining[i] && pyro_drain_due(elapsed,0,goalShow,i,showLengthMs)) {
                 if(!waited) {wait_jobs();waited=true;}
                 if(!valid_slot(i)) {recover_resource(now);return;}
                 // Native state 2 suppresses new emission but continues particle updates.
@@ -634,16 +636,20 @@ static void tick(void* batch) {
         }
         assetSince=now;
     }
+    if(!recoveringShow) {
+        showLengthMs=presentation.duration_ms(goalShow);
+        showEmitterMask=presentation.emitter_mask(goalShow);
+    }
     if (emit()) {
         const bool restored=recoveringShow;recoveringShow=false;
         if(!restored)showClock.begin(sceneTime,now);
         else {showClock.previous=sceneTime;showClock.wall=now;showClock.blocked=false;log_event("SHOW_RECOVERED same_event remaining_scene_duration_retained");}
         replayRefresh=false;
         showPause=PyroShowPause{};
-        consumed=true; showing=true; showStarted=now; deadline=now+durationMs;particleAuditDone=false;
+        consumed=true; showing=true; showStarted=now; deadline=now+showLengthMs;particleAuditDone=false;
         kickoffSince=gameplay_present()?now:0;
         const int immediateCount=goalShow?active_count():2;
-        for(int i=0;i<immediateCount;++i) if(valid_slot(i)) {
+        for(int i=0;i<immediateCount;++i) if(emitter_selected(i) && valid_slot(i)) {
             ((Slot)(image+0x441ce00))((void*)activeManager,handles[i]);
             ((Slot)(image+0x441c8d0))((void*)activeManager,handles[i]); emitterStarted[i]=true;
         }

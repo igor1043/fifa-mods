@@ -509,6 +509,39 @@ static void native_trim_token(char *value) {
     while(end>value && (end[-1]==' ' || end[-1]=='\t')) --end;
     *end=0;
 }
+static void native_stadium_text(const char *source,char *out,size_t size,int strip_location) {
+    char text[1024];
+    wchar_t wide[512];
+    char *p,*last=NULL,*previous=NULL;
+    size_t length;
+    int count;
+    if(!out || !size) return;
+    out[0]=0;
+    if(!source || !source[0]) return;
+    /* The native text fields consume UTF-8. FSW packs also exist in Windows
+     * 1252; convert those without double-encoding an already UTF-8 name. */
+    count=MultiByteToWideChar(CP_UTF8,MB_ERR_INVALID_CHARS,source,-1,wide,512);
+    if(!count) count=MultiByteToWideChar(1252,0,source,-1,wide,512);
+    if(!count || !WideCharToMultiByte(CP_UTF8,0,wide,-1,text,sizeof(text),NULL,NULL)) return;
+    if(strip_location) {
+        /* Scoreboard names end in city + state/country. Keep stadium aliases
+         * such as "Santa Cruz - Arena NicNet", removing only the last two
+         * location components. Both separators occur in the installed FSW. */
+        for(p=text;*p;++p) {
+            if(!strncmp(p," - ",3) || !strncmp(p," \xE2\x80\x93 ",5) ||
+               !strncmp(p," \xE2\x80\x94 ",5)) { previous=last; last=p; }
+        }
+        if(previous) *previous=0;
+    }
+    native_trim_token(text);
+    length=strlen(text);
+    if(length>=size) {
+        length=size-1;
+        // Never cut an accented character in the middle of its UTF-8 bytes.
+        while(length && ((unsigned char)text[length]&0xC0)==0x80) --length;
+    }
+    memcpy(out,text,length); out[length]=0;
+}
 static int native_stadium_display_name(const char *config_name,char *out,size_t size) {
     char path[MAX_PATH],display[256],key[256];
     size_t key_length;
@@ -534,9 +567,9 @@ static int native_stadium_display_name(const char *config_name,char *out,size_t 
         char *comma=strchr(display,',');
         if(comma) *comma=0;
         native_trim_token(display);
-        if(display[0]) { lstrcpynA(out,display,(int)size); return 1; }
+        if(display[0]) { native_stadium_text(display,out,size,1); return out[0]!=0; }
     }
-    lstrcpynA(out,config_name,(int)size);
+    native_stadium_text(config_name,out,size,0);
     return out[0]!=0;
 }
 static int native_stadium_location(const char *config_name,char *out,size_t size) {
@@ -768,7 +801,7 @@ static int native_game_stadium_fallback(int team_id,char *name,size_t name_size,
         if(count<5) continue;
         parsed_team=atoi(field[0]);
         if(parsed_team!=team_id) continue;
-        if(name && name_size) lstrcpynA(name,field[3],(int)name_size);
+        if(name && name_size) native_stadium_text(field[3],name,name_size,0);
         if(image && image_size) lstrcpynA(image,field[4],(int)image_size);
         if(image && image_size && !image[0] && atoi(field[1])>0)
             snprintf(image,image_size,"%d",atoi(field[1]));

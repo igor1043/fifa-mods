@@ -168,5 +168,37 @@ int main() {
     advance(5200,1000);assert(!showing && triggers==endTriggers && waits==endWaits);
     std::puts("Real tick with native clock at 60 units/s: opening stops at 60000 real ms, goal at 25000 real ms, no idle retrigger: PASS");
     std::puts("Real tick: intro pan, blank-page team gap, score gap, long pause, native replay, resource recovery, 0:0 restart, home/away goals and natural fade: PASS");
+    // User-selected masks and duration are read before the next event; current
+    // shows retain their settings through replay and native resource recovery.
+    char executable[MAX_PATH]{};assert(GetModuleFileNameA(nullptr,executable,MAX_PATH));
+    const auto config=(std::filesystem::path(executable).parent_path()/"ModCarrerMode/config/match_presentation.ini").string();
+    assert(WritePrivateProfileStringA("match","smoke_entrance_seconds","15",config.c_str()));
+    assert(WritePrivateProfileStringA("match","smoke_goal_seconds","20",config.c_str()));
+    const unsigned introMask=(1u<<2)|(1u<<18),goalMask=(1u<<1)|(1u<<10);
+    char maskText[32]{};sprintf_s(maskText,"%u",introMask);
+    assert(WritePrivateProfileStringA("match","smoke_entrance_emitters",maskText,config.c_str()));
+    sprintf_s(maskText,"%u",goalMask);
+    assert(WritePrivateProfileStringA("match","smoke_goal_emitters",maskText,config.c_str()));
+    page("game/screens/playNow/KickOffHub");advance(0);
+    put(scoreRows.address()+21*16,0);put(scoreRows.address()+6*16,0);
+    page("game/screens/misc/StadiumPan");ready=false;advance(0);
+    const auto selectedIntroTriggers=triggers;
+    ready=true;cache_palette(1);advance(0,100);
+    assert(showing && !goalShow && showLengthMs==15000 && showEmitterMask==introMask);
+    assert(triggers==selectedIntroTriggers); // The immediate first pair is disabled.
+    advance(180,3000);assert(triggers==selectedIntroTriggers+2);
+    for(int i=0;i<active_count();++i)assert(emitterStarted[i]==(i==2 || i==18));
+    assert(WritePrivateProfileStringA("match","smoke_entrance_seconds","120",config.c_str()));
+    advance(240,1000);assert(showLengthMs==15000); // No mid-event extension.
+    advance(900,11000);assert(!showing && consumed);
+    put(scoreRows.address()+21*16,1);advance(910,100);advance(920,100);
+    assert(showing && goalShow && showLengthMs==20000 && showEmitterMask==goalMask);
+    for(int i=0;i<active_count();++i)assert(emitterStarted[i]==(i==1 || i==10));
+    const auto selectedGoalTriggers=triggers;
+    advance(2120,20000);assert(!showing && triggers==selectedGoalTriggers);
+    assert(WritePrivateProfileStringA("match","smoke_goal_emitters","0",config.c_str()));
+    advance(2200,500);put(scoreRows.address()+21*16,2);advance(2300);advance(2400);
+    assert(!showing && triggers==selectedGoalTriggers);
+    std::puts("Selected intro/goal emitters, 15s/20s actual event bounds, zero mask and frozen current-show options: PASS");
     VirtualFree((void*)image,0,MEM_RELEASE);
 }

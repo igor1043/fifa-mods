@@ -83,3 +83,7 @@ ModCarrerMode/mods/cloth_motion/runtime_state.txt.*.tmp
 ModCarrerMode/docs/BASE_ROBSON.json
 ModCarrerMode/docs/CORRECAO_ICONES_ENTRADAS_ROBSON.md
 desktop.ini
+
+# Rejected camera experiments are not release components.
+bin/server16_first_person_v[8-9].dll
+bin/server16_first_person_v10.dll

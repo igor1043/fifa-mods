@@ -1,7 +1,7 @@
 #pragma once
 #include <stdint.h>
-static bool pyro_show_expired(uint64_t now,uint64_t start,bool goal) {
-    return now<start || now-start>=(goal?25000ULL:60000ULL);
+static bool pyro_show_expired(uint64_t now,uint64_t start,bool goal,uint64_t duration=0) {
+    return now<start || now-start>=(duration?duration:(goal?25000ULL:60000ULL));
 }
 // Keep the current show and its remaining duration across pause/replay UI.
 struct PyroShowPause {
