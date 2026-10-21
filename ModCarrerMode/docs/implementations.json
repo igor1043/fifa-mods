@@ -161,7 +161,7 @@
       "behavior": "Remoção da aposentadoria, ajuste de idade e acréscimos de verba.",
       "source": "ModCarrerMode/source/career_native",
       "configuration": "ModCarrerMode/config/career_retirement_background.ini",
-      "limits": "Processamento fora do save aberto; siga a instrução exibida pela carreira.",
+      "limits": "Processamento fora do save aberto; siga a instrução exibida pela carreira. Painel revisado no Server16 0.2.9, com avisos separados dos botões e rodapé.",
       "status": "implemented"
     },
     {
@@ -197,7 +197,7 @@
       "behavior": "Prepara o estadio do clube ou a escolha manual e solicita a recarga nativa do menu.",
       "source": "ModCarrerMode/source/native_mods/frontend_stadium",
       "configuration": "ModCarrerMode/config/frontend_stadium.ini",
-      "limits": "Comeca desligado; modelos permanecem nos pacotes locais; usa a imagem padrao quando nao ha estadio disponivel.",
+      "limits": "Começa desligado; modelos permanecem nos pacotes locais; usa a imagem padrão quando não há estádio disponível. Seletor com teclado QWERTY escalonado e navegação geométrica.",
       "status": "implemented"
     },
     {

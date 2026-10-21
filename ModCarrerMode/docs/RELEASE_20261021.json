@@ -1,5 +1,5 @@
 {
-  "version": "0.2.8",
+  "version": "0.2.9",
   "branch": "fifa-friends-v12",
   "date": "2026-10-21",
   "features": {
@@ -9,13 +9,15 @@
     "custom_stadium_default": false,
     "career_header_branding": true,
     "main_menu_header_branding": true,
-    "career_team_name_identity": true
+    "career_team_name_identity": true,
+    "overlay_layout_review": true,
+    "qwerty_keyboard": true
   },
   "enabled_plugins": 18,
   "files": {
     "Server16Python.exe": {
-      "bytes": 45709099,
-      "sha256": "eaf73ea9912e1a48e81ca85a0770ba4f46816eb4ce97ea7b9ed0397c5f52d2d2"
+      "bytes": 45710208,
+      "sha256": "7589634a7e89d6cf3b3e40e20d0c6afdac3d34a531f6db8bbf875545483e599f"
     },
     "ModCarrerMode/tools/frontend_stadium_prepare.exe": {
       "bytes": 8418377,

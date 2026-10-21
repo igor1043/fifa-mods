@@ -6,10 +6,11 @@ O FIFA Friends V12 reúne melhorias para acompanhar seu clube, personalizar a ex
 
 **Edição:** FIFA Friends V12 · **Atualizado em:** 21/10/2026
 
-**Server16 incluído:** 0.2.8. As DLLs compiladas ficam nesta branch, organizadas em uma pasta por mod. O [índice dos 18 módulos ativos](ModCarrerMode/mods/README.md) informa arquivos, funções e configurações.
+**Server16 incluído:** 0.2.9. As DLLs compiladas ficam nesta branch, organizadas em uma pasta por mod. O [índice dos 18 módulos ativos](ModCarrerMode/mods/README.md) informa arquivos, funções e configurações.
 
 ## Atualização — 21/10/2026
 
+- **Layouts do Server16:** corrigidas as sobreposições no painel da carreira e no rodapé da fumaça; textos respeitam o espaço dos atalhos, switches e botões. A busca de estádio usa teclado QWERTY com fileiras escalonadas e navegação por posição. São 117 testes aprovados e 52 estados renderizados; conferência visual dentro do FIFA pendente.
 - **Estádio de fundo:** pacote completo do módulo v11, preparador, scripts e interface nativa ajustada para o menu e a carreira. O recurso começa desligado; atualizações preservam as escolhas salvas. Os estádios continuam nos pacotes locais do usuário.
 - **Panorâmica:** módulo v5 com 37 tomadas, incluindo a órbita externa do estádio com velocidade dobrada: cerca de 83 segundos por volta no padrão.
 - **Pênaltis:** o Server mantém o placar durante a disputa, e a pirotecnia bloqueia os disparos nessa fase.
