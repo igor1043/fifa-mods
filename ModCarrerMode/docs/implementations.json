@@ -248,10 +248,10 @@
     {
       "id": "startup_diagnostics",
       "name": "Diagnóstico da inicialização",
-      "behavior": "Por execução: referência SHA-256 de 729 arquivos, módulos detectados com versão e caminho, última tela e código de saída observado. ZIP automático em runtime/diagnostics.",
+      "behavior": "Por sessão do FIFA: logs ativos zerados antes da abertura pelo Server; arquivos separados por mod, última tela, arquivos/DLLs e código da exceção/módulo do dump quando disponível. ZIP encerrado preservado para envio.",
       "source": "ModCarrerMode/source/server16_py/startup_diagnostics.py",
       "configuration": "Automático ao abrir FIFA com o Server16; referência embutida no executável.",
-      "limits": "Somente leitura; diferenças não provam a causa de um crash. Coleta incompleta é identificada. Não inclui saves ou arquivos de configuração com credenciais.",
+      "limits": "Só logs são zerados; configurações e saves preservados. Ao conectar em jogo já aberto, coleta somente registros posteriores. Dumps antigos/outro PID não entram. Local da exceção não prova a causa.",
       "status": "implemented"
     }
   ],

@@ -1,5 +1,5 @@
 {
-  "version": "0.2.11",
+  "version": "0.2.12",
   "branch": "fifa-friends-v12",
   "date": "2026-10-21",
   "features": {
@@ -17,8 +17,8 @@
   "enabled_plugins": 18,
   "files": {
     "Server16Python.exe": {
-      "bytes": 45761403,
-      "sha256": "aacaf1744f86d0bfc85984ea7cb84cb0f8993f35676aade8e349f5a91ec3b205"
+      "bytes": 45767001,
+      "sha256": "234ecb19dd582c19e3974cc6bff4e81b76dcbba1e434b190428c28321c023350"
     },
     "ModCarrerMode/tools/frontend_stadium_prepare.exe": {
       "bytes": 8418377,
@@ -234,6 +234,9 @@
     "directory": "runtime/diagnostics",
     "automatic_zip": true,
     "read_only": true,
-    "python_tests": 7
+    "python_tests": 10,
+    "reset_logs_before_launch": true,
+    "per_mod_logs": true,
+    "session_dump_metadata": true
   }
 }
