@@ -6,7 +6,9 @@
     "extra_scenes": false,
     "narrator_selection": false,
     "narration_notifications": false,
-    "custom_stadium_default": false
+    "custom_stadium_default": false,
+    "career_header_branding": true,
+    "main_menu_header_branding": true
   },
   "enabled_plugins": 18,
   "files": {
@@ -97,6 +99,46 @@
     "ModCarrerMode/mods/panorama_drone/panorama_drone_v5.dll": {
       "bytes": 189440,
       "sha256": "4860f5fd375fd74b27dfeab00f1ae418e5a0df7b80e1ece0a77df45d9f0dc2bc"
+    },
+    "data/ui/game/components/careercomponents/careerhubwidget.big": {
+      "bytes": 196566,
+      "sha256": "63268080f9bc4ee42d0e8bd031b4e5d8353aa4d2c3489587934ae06c059d1cc4"
+    },
+    "data/ui/pow/components/easfcwidget.big": {
+      "bytes": 250958,
+      "sha256": "7cc7e23e65c88d8331953113d0d02e88831f286ac3b38d384cee27b8126443fa"
+    },
+    "data/ui/game/widgets/mainhubwidget.big": {
+      "bytes": 241398,
+      "sha256": "63ac93e559269aa3f693fe4d5bb2bbe676c9b4fe1705a041c7fce51205200879"
     }
+  },
+  "career_header_branding": {
+    "scope": [
+      "career_hub",
+      "main_menu"
+    ],
+    "artwork": "FIFA Friends Premium! Plus",
+    "visual_validation": "revision_7_transitions_pending_user_test",
+    "native_action_vm": "passed",
+    "revision": 7,
+    "startup_validation": "revision_6_confirmed_by_user_revision_7_pending",
+    "startup_fix": "replace embedded End padding; preserve constructor hook and all other runtime bytes",
+    "career_revision2_visual": "confirmed_by_user",
+    "alignment": {
+      "native_right": 1811,
+      "native_top": 73,
+      "height": 79
+    },
+    "main_menu_activation": "native_constructor_and_publish",
+    "main_menu_revision3_visual": "logo_displayed_but_original_banner_remained",
+    "rollback": false,
+    "global_access_fix": "use native 0x71 global object instead of 0x58 _global string",
+    "revision_5_result": "no_crash_but_main_menu_banner_still_visible",
+    "native_global_handlers_read_only": true,
+    "banner_first_paint": "transparent native root before constructor",
+    "banner_refresh": "zero opacity after native InitializeLayout and ChangeWidgetState",
+    "banner_suppression_scope": "all native EASFCWidget instances including transitions",
+    "career_and_main_logo_files": "identical to user-validated revision 6"
   }
 }

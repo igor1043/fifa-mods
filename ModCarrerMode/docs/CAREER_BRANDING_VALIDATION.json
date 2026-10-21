@@ -1,0 +1,31 @@
+{
+  "native_action_vm": "passed",
+  "checks": [
+    "career entry/repeated publishes",
+    "connection refresh and argument order",
+    "widget recreation",
+    "career exit restoration",
+    "initially hidden widget",
+    "tournament unchanged",
+    "overlapping header unload",
+    "missing widget",
+    "idempotent class initialization",
+    "original methods invoked",
+    "real main-menu constructor without timeline/data-provider publish",
+    "main-menu late EASFC creation",
+    "main-menu connection and publish refresh",
+    "late main-menu publish preserves career ownership",
+    "main-menu/career overlapping transitions",
+    "shared right/top alignment",
+    "banner transparent before its native constructor",
+    "banner transparent between hub owners and after connection refresh"
+  ],
+  "steps": 2833,
+  "native_function_headers": "non-null names and parameter tables verified",
+  "native_relocation_stream": "no embedded End instructions in function bodies",
+  "native_global_access": "0x58 is a string; ownership uses the 0x71 global object",
+  "native_banner_first_paint": "zero root alpha and alpha bias; opacity enforced after native updates",
+  "revision_6_first_paint_regression": "failed as expected: initial root lacks opacity transform",
+  "revision_6_visual": "confirmed by user; card briefly visible during transitions",
+  "revision_7_transition_visual": "pending user validation"
+}

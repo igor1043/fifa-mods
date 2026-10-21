@@ -226,6 +226,15 @@
       "configuration": "ModCarrerMode/source/server16_py/__init__.py",
       "limits": "Selecao manual/automatica, progresso e avisos ocultos por NARRATION_PICKER_AVAILABLE=False.",
       "status": "disabled"
+    },
+    {
+      "id": "career_branding",
+      "name": "Logo FIFA Friends no menu inicial e na carreira",
+      "behavior": "Mostra a logo FIFA Friends nos hubs inicial e da carreira. Mantém a faixa EA transparente desde sua criação, inclusive nas transições entre telas.",
+      "source": "ModCarrerMode/source/tools/career_branding",
+      "configuration": "data/ui/game/components/careercomponents/careerhubwidget.big; data/ui/pow/components/easfcwidget.big; data/ui/game/widgets/mainhubwidget.big",
+      "limits": "Logo e ocultação da revisão 6 confirmadas pelo usuário. Revisão 7 elimina a dependência do momento de ativação do hub com opacidade zero na colocação APT inicial e após atualizações nativas; testes passaram e a conferência visual das transições está pendente. Sem DLL ou executável adicional.",
+      "status": "pending_transition_visual_validation"
     }
   ],
   "not_implemented": [

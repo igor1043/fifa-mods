@@ -13,6 +13,7 @@ O FIFA Friends V12 reúne melhorias para acompanhar seu clube, personalizar a ex
 - **Estádio de fundo:** pacote completo do módulo v11, preparador, scripts e interface nativa ajustada para o menu e a carreira. O recurso começa desligado; atualizações preservam as escolhas salvas. Os estádios continuam nos pacotes locais do usuário.
 - **Panorâmica:** módulo v5 com 37 tomadas, incluindo a órbita externa do estádio.
 - **Pênaltis:** o Server mantém o placar durante a disputa, e a pirotecnia bloqueia os disparos nessa fase.
+- **Logo nos hubs:** logo FIFA Friends transparente no lugar da faixa de reconexão, alinhada à borda direita dos cards. O [ajuste para a carreira e o menu inicial](ModCarrerMode/source/tools/career_branding/README.md) foi confirmado na revisão 6. A revisão 7 mantém a faixa EA transparente desde o primeiro desenho, inclusive entre telas; validação visual das transições pendente.
 - **Instalação:** as DLLs atuais entram no Git; versões antigas, caches e diagnósticos locais ficam fora da distribuição. SubsOn acompanha o pacote no lugar do banco antigo.
 - **Cenas extras:** mod de técnicos e mascotes desativado e removido dos menus. Seu código permanece no desenvolvimento.
 - **Narração:** seleção de narrador, aplicação automática, progresso e aviso de narração aplicada ocultos nesta versão. O código e os recursos embarcados permanecem disponíveis para uma futura ativação.
