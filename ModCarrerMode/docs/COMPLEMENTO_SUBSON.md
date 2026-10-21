@@ -3,10 +3,12 @@
 O pacote `FIFA_Friends_V12_Subson_assets.zip` acompanha esta edição separadamente.
 Ele contém `data/ant.cbac`, com 141.909.975 bytes (cerca de 142 MB), e também:
 
-- `SubsOn.dll` e `SubsOn.ini`, com `BENCH_SIZE=12`.
-- `ModCarrerMode/mods/subson/subson_bridge.dll`.
 - `dlc/dlc_FootballCompEng/dlc/FootballCompEng/data/compdata/settings.txt`, com `rule_numsubsbench=12`.
 - Instruções e um manifesto SHA-256 dos arquivos.
+
+`SubsOn.dll`, `SubsOn.ini` e `ModCarrerMode/mods/subson/subson_bridge.dll` ficam
+no pacote de desenvolvimento e são distribuídos pela branch do FIFA Friends.
+Eles não são duplicados neste ZIP.
 
 O ZIP tem aproximadamente 131 MB e fica fora do repositório Git.
 
