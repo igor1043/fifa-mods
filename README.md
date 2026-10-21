@@ -6,6 +6,8 @@ O FIFA Friends V12 reúne melhorias para acompanhar seu clube, personalizar a ex
 
 **Edição:** FIFA Friends V12 · **Atualizado em:** 21/10/2026
 
+**Server16 incluído:** 0.2.8. As DLLs compiladas ficam nesta branch, organizadas em uma pasta por mod. O [índice dos 18 módulos ativos](ModCarrerMode/mods/README.md) informa arquivos, funções e configurações.
+
 ## Atualização — 21/10/2026
 
 - **Estádio de fundo:** pacote completo do módulo v11, preparador, scripts e interface nativa ajustada para o menu e a carreira. O recurso começa desligado; atualizações preservam as escolhas salvas. Os estádios continuam nos pacotes locais do usuário.
@@ -13,7 +15,7 @@ O FIFA Friends V12 reúne melhorias para acompanhar seu clube, personalizar a ex
 - **Pênaltis:** o Server mantém o placar durante a disputa, e a pirotecnia bloqueia os disparos nessa fase.
 - **Instalação:** as DLLs atuais entram no Git; versões antigas, caches e diagnósticos locais ficam fora da distribuição. SubsOn acompanha o pacote no lugar do banco antigo.
 - **Cenas extras:** mod de técnicos e mascotes desativado e removido dos menus. Seu código permanece no desenvolvimento.
-- **Narração:** seleção de narrador e aplicação automática ocultas nesta versão. O código e os recursos embarcados permanecem disponíveis para uma futura ativação.
+- **Narração:** seleção de narrador, aplicação automática, progresso e aviso de narração aplicada ocultos nesta versão. O código e os recursos embarcados permanecem disponíveis para uma futura ativação.
 - **Complemento SubsOn:** `data/ant.cbac` acompanha um ZIP separado de 131 MB; o instalador verifica o arquivo já extraído no jogo. Veja as [instruções do complemento](ModCarrerMode/docs/COMPLEMENTO_SUBSON.md).
 
 ## Atualização — 19/10/2026
@@ -116,7 +118,7 @@ consultar os ossos do jogador, evitando o crash durante a abertura do jogo.
 
 ## Como começar
 
-1. Use a instalação compatível do **FIFA 16 para Windows, 64 bits** e os pacotes de imagens, modelos e áudio desejados.
+1. Use a instalação compatível do **FIFA 16 para Windows, 64 bits** e os pacotes de imagens, modelos e áudio desejados. Para o banco de 12 reservas, extraia primeiro o [complemento SubsOn](ModCarrerMode/docs/COMPLEMENTO_SUBSON.md): ele entrega `data/ant.cbac` e a compdata; DLLs e configuração acompanham esta branch.
 2. Com os programas fechados, instale o pacote compilado: `ModCarrerMode/install-game.cmd -GameDirectory "C:\Seu FIFA 16" -UpdateCompetitionData`.
 3. Abra o **Server16 atualizado** e depois o FIFA.
 4. No pré-jogo, entre em **Configurações da partida**, escolha as opções e confirme em **Aplicar**. Durante a partida, use o painel de **F12**.
@@ -142,6 +144,7 @@ A cabine do VAR é visual: não altera decisões de arbitragem. As bolas de repo
 ## Para quem desenvolve ou monta o pacote
 
 - [Guia técnico, instalação e estrutura dos arquivos](ModCarrerMode/docs/GUIA_TECNICO.md).
+- [Índice dos módulos ativos e suas configurações](ModCarrerMode/mods/README.md).
 - [Catálogo completo das implementações](ModCarrerMode/docs/implementations.json).
 - [Detalhes da física de roupas](ModCarrerMode/source/cloth_motion/README.md).
 - [Server16: configuração, áudio e personalização](https://github.com/igor1043/CG-File-Server-16---Python-Port/tree/fifa-friends).

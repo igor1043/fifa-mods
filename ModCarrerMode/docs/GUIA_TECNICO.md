@@ -45,6 +45,12 @@ Para usar os mods diretamente deste desenvolvimento com um DB/DLC externo, execu
 
 Os fontes ficam em `ModCarrerMode/source/<mod>/`. A pasta `ModCarrerMode/mods/` contém os arquivos usados na execução e uma DLL atual por módulo. Os objetos de abertura usam `entrance_props.dll`; a cabine usa `var_cabin.dll`. As revisões internas continuam identificadas nos logs.
 
+O [índice dos 18 módulos ativos](../mods/README.md) relaciona cada DLL com sua configuração. Os fontes de estádio de fundo, panorâmica e cenas extras ficam em `ModCarrerMode/source/native_mods/`. As cenas extras estão desativadas; o código permanece nesse diretório. Backups ficam em `ModCarrerMode/backups/`, e relatórios de sessão em `ModCarrerMode/runtime/`; ambos permanecem locais.
+
+O Server16 incluído é o 0.2.8. Seleção de narrador, aplicação automática e avisos de narração estão ocultos por opções internas de desenvolvimento. O estádio de fundo começa desligado e preserva a preferência salva nas atualizações.
+
+O banco de 12 reservas usa `SubsOn.dll`, `SubsOn.ini` e `mods/subson/subson_bridge.dll`. Extraia primeiro o [ZIP complementar](COMPLEMENTO_SUBSON.md), com `data/ant.cbac` e `compdata/settings.txt`. O instalador verifica o arquivo grande já instalado e entrega as DLLs/configuração desta branch.
+
 O pacote compilado desta branch inclui os efeitos de pirotecnia e o modelo e as texturas da máquina de fumaça. Modelos e texturas dos suportes das bolas, da cabine do VAR, mascotes e conjuntos de placas de abertura, além de áudio, vídeos, caches e backups, continuam locais. Os RX3 dos suportes permanecem instalados no jogo e são excluídos do Git. O ZIP somente de fontes não é um instalador completo.
 
 | Recurso local | Pasta na instalação do FIFA |

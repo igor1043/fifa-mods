@@ -111,6 +111,7 @@ foreach($folder in @('config','data','mods','assets')) {
         if ($folder -eq 'mods' -and $file.FullName -match '[\\/]skip_server_shutdown_notice[\\/]') { continue }
         if ($folder -eq 'mods' -and $file.Name -eq 'runtime_state.txt') { continue }
         if ($file.Name -like '*.in_use_backup_*') { continue }
+        if ($file.Name -like '*.before-*') { continue }
         if ($folder -eq 'mods' -and ($file.FullName -match '[\\/]source[\\/]' -or $file.Extension -in @('.cpp','.c','.h','.cmd','.json','.log','.tmp'))) { continue }
         if ($file.Extension -in @('.md','.ps1','.example','.bak')) { continue }
         $relative='ModCarrerMode\'+$folder+'\'+$file.FullName.Substring($base.Length+1)
@@ -171,7 +172,12 @@ foreach($file in $files) {
 $obsoletePaths = @('dinput8_career_chain.dll','ModCarrerMode\mods\bench12_global_limit_12_v2',
     'ModCarrerMode\config\entrance_competitions.ini','ModCarrerMode\entrance_competitions.ini')
 if ($enabledPlugins -contains 'subson\subson_bridge.dll') { $obsoletePaths += 'ModCarrerMode\mods\bench_native12' }
-if (-not $liveMods) { $obsoletePaths += 'ModCarrerMode\mods\skip_server_shutdown_notice' }
+if (-not $liveMods) {
+    $obsoletePaths += 'ModCarrerMode\mods\skip_server_shutdown_notice'
+    if (-not @($enabledPlugins | Where-Object { $_ -match '^extra_scenes[\\/]' }).Count) {
+        $obsoletePaths += 'ModCarrerMode\mods\extra_scenes'
+    }
+}
 # Upgrade old packages to one DLL per mod. Archive only known module folders;
 # unrelated user-installed modules remain outside this migration.
 $installedMods = Join-Path $gameMod 'mods'
@@ -186,7 +192,8 @@ if (-not $liveMods -and (Test-Path -LiteralPath $installedMods -PathType Contain
         $installedModule = Join-Path $installedMods $directory.Name
         if (-not (Test-Path -LiteralPath $installedModule -PathType Container)) { continue }
         foreach ($oldFile in Get-ChildItem -LiteralPath $installedModule -Recurse -File) {
-            if ($oldFile.Extension -ne '.dll' -and $oldFile.Name -notlike '*animation_command*.txt') { continue }
+            $isBackup=$oldFile.Name -like '*.before-*' -or $oldFile.Name -like '*.in_use_backup_*'
+            if ($oldFile.Extension -ne '.dll' -and $oldFile.Name -notlike '*animation_command*.txt' -and -not $isBackup) { continue }
             $moduleRelative = $oldFile.FullName.Substring($installedMods.Length+1)
             if (-not (Test-Path -LiteralPath (Join-Path $packageMods $moduleRelative) -PathType Leaf)) {
                 $obsoletePaths += 'ModCarrerMode\mods\'+$moduleRelative

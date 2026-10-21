@@ -36,7 +36,7 @@ if ($entries -contains 'subson\subson_bridge.dll') {
 # Check disabled files too: ignoring them in enabled.txt does not remove them
 # from the downloaded package or from a subsequent installation.
 foreach ($file in Get-ChildItem -LiteralPath $mods -Recurse -File) {
-    if ($file.Extension -eq '.bak' -or ($file.Name -match '_v\d+(?:_\d+)*\.dll$' -and -not $seen.ContainsKey($file.FullName))) { throw "Revisao antiga/backup na pasta de mods: $($file.FullName)" }
+    if ($file.Extension -eq '.bak' -or $file.Name -like '*.before-*' -or ($file.Name -match '_v\d+(?:_\d+)*\.dll$' -and -not $seen.ContainsKey($file.FullName))) { throw "Revisao antiga/backup na pasta de mods: $($file.FullName)" }
 }
 foreach ($directory in Get-ChildItem -LiteralPath $mods -Directory) {
     if ($directory.Name -match '_v\d+$') { throw "Pasta de mod versionada: $($directory.Name)" }

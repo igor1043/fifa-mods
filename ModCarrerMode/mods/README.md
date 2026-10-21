@@ -1,0 +1,52 @@
+# Módulos do FIFA Friends V12
+
+O pacote usa 18 módulos ativos, com uma DLL atual em cada pasta. `enabled.txt`
+define os caminhos e a ordem de carregamento. `mod_host.dll` é o carregador
+compartilhado e fica na raiz desta pasta.
+
+| Pasta / DLL | Recurso | Configuração |
+|---|---|---|
+| [crowd/crowd_plugin.dll](crowd/crowd_plugin.dll) | Público do estádio | [crowd.ini](../crowd.ini) |
+| [career_birthdate_2006/birthyear_range_2006_2012.dll](career_birthdate_2006/birthyear_range_2006_2012.dll) | Intervalo de nascimento do jogador | Payload na própria pasta |
+| [substitution_all7_rulescan_native/substitution_all7_rulescan_native.dll](substitution_all7_rulescan_native/substitution_all7_rulescan_native.dll) | Até sete substituições | Regras nativas |
+| [subson/subson_bridge.dll](subson/subson_bridge.dll) | Integração do banco com 12 reservas | [SubsOn.ini](../../SubsOn.ini), ao lado de [SubsOn.dll](../../SubsOn.dll) |
+| [mascot_single/mascot_goal_line.dll](mascot_single/mascot_goal_line.dll) | Mascotes dos clubes | [match_presentation.ini](../config/match_presentation.ini) |
+| [tournament_compat_native/tournament_compat_native.dll](tournament_compat_native/tournament_compat_native.dll) | Identidade das competições | Base de competições instalada |
+| [career_ui_assets/career_ui_assets.dll](career_ui_assets/career_ui_assets.dll) | Ícones e assets da carreira | Catálogos e imagens do pacote |
+| [kickoff_modern/kickoff_modern.dll](kickoff_modern/kickoff_modern.dll) | Saída de bola moderna | Comportamento nativo do módulo |
+| [goal_kick_short_pass/goal_kick_short_pass.dll](goal_kick_short_pass/goal_kick_short_pass.dll) | Tiro de meta curto experimental | [goal_kick_short_pass.ini](goal_kick_short_pass/goal_kick_short_pass.ini) |
+| [multiball_visual/multiball_visual.dll](multiball_visual/multiball_visual.dll) | Bolas de reposição e suportes | [standball.ini](multiball_visual/standball.ini) |
+| [stadium_pyrotechnics/stadium_pyrotechnics.dll](stadium_pyrotechnics/stadium_pyrotechnics.dll) | Fogos, fumaça e confete; bloqueio durante a disputa de pênaltis | [pyro.ini](stadium_pyrotechnics/pyro.ini) e [match_presentation.ini](../config/match_presentation.ini) |
+| [crowd_ultra_kits/crowd_ultra_kits.dll](crowd_ultra_kits/crowd_ultra_kits.dll) | Uniformes da torcida | [crowd_ultra_kits.ini](crowd_ultra_kits/crowd_ultra_kits.ini) |
+| [entrance_props/entrance_props.dll](entrance_props/entrance_props.dll) | Objetos da apresentação | [entrance_props.ini](entrance_props/entrance_props.ini) |
+| [var_cabin/var_cabin.dll](var_cabin/var_cabin.dll) | Cabine visual do VAR | [var_cabin.ini](var_cabin/var_cabin.ini) |
+| [smoke_machine/smoke_machine.dll](smoke_machine/smoke_machine.dll) | Máquinas visuais de fumaça | [smoke_machine.ini](smoke_machine/smoke_machine.ini) |
+| [cloth_motion/cloth_motion.dll](cloth_motion/cloth_motion.dll) | Física das roupas | [cloth_motion.ini](cloth_motion/cloth_motion.ini) |
+| [frontend_stadium/frontend_stadium_native_v11.dll](frontend_stadium/frontend_stadium_native_v11.dll) | Estádio de fundo do menu e da carreira | [frontend_stadium.ini](../config/frontend_stadium.ini) |
+| [panorama_drone/panorama_drone_v5.dll](panorama_drone/panorama_drone_v5.dll) | 37 tomadas da panorâmica | [panorama_drone.ini](../config/panorama_drone.ini) |
+
+## Organização e dependências
+
+Os caminhos de execução e os nomes das DLLs permanecem fixos. O preparador do
+estádio de fundo fica em `ModCarrerMode/tools/frontend_stadium_prepare.exe`.
+Os fontes ficam em `ModCarrerMode/source/`, incluindo `source/native_mods/`
+para estádio de fundo, panorâmica e cenas extras.
+
+SubsOn mantém sua DLL e seu INI na raiz do jogo, onde o módulo os procura.
+O [ZIP complementar](../docs/COMPLEMENTO_SUBSON.md) entrega o arquivo grande
+`data/ant.cbac` e a compdata. As DLLs e configurações ficam nesta branch.
+
+`entrance_props` precede `var_cabin` em `enabled.txt`; `frontend_stadium`
+precede `panorama_drone`. Preserve a ordem da lista ao instalar.
+
+As cenas extras de técnicos e mascotes estão desativadas e seus fontes ficam
+em `source/native_mods/extra_scenes/`. O Server16 0.2.8 oculta também o seletor
+de narrador, a seleção automática e os avisos de narração.
+
+Backups pertencem a `ModCarrerMode/backups/`, fora do Git. Arquivos de estado
+gerados pelos módulos são locais; o instalador não os distribui. Atualizações
+arquivam revisões antigas conhecidas e preservam módulos adicionais do usuário.
+
+Antes de publicar, execute `ModCarrerMode/tools/maintenance/Verify-Package.ps1`.
+O teste de instalação é `Test-Package.ps1 -SupplementalAssetDirectory "PASTA_DO_FIFA"`,
+usando uma instalação com o complemento SubsOn para fornecer o asset à fixture.

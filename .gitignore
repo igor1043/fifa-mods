@@ -61,6 +61,7 @@ data/sceneassets/entrance_props/
 data/sceneassets/var_cabin/
 ModCarrerMode/mods/**/source/
 ModCarrerMode/mods/**/*_installation.json
+ModCarrerMode/mods/**/release.json
 ModCarrerMode/source/var_cabin/test_dependencies/
 code-release/
 # Retired server-notice plugin: local rollback copies are not distributed.

@@ -122,10 +122,10 @@
     {
       "id": "bench",
       "name": "Banco com 12 reservas",
-      "behavior": "Acrescenta os jogadores do banco e libera o atleta ao entrar em campo.",
-      "source": "ModCarrerMode/source/bench_native12",
-      "configuration": "ModCarrerMode/mods/enabled.txt",
-      "limits": "Depende dos atletas registrados na partida.",
+      "behavior": "Configura o banco com 12 reservas usando SubsOn e a integracao nativa.",
+      "source": "ModCarrerMode/source/subson",
+      "configuration": "SubsOn.ini",
+      "limits": "Requer SubsOn.dll, SubsOn.ini, subson_bridge.dll e o complemento com data/ant.cbac e compdata/settings.txt.",
       "status": "implemented"
     },
     {
@@ -190,6 +190,42 @@
       "configuration": "ModCarrerMode/mods/goal_kick_short_pass/goal_kick_short_pass.ini; ModCarrerMode/mods/enabled.txt",
       "limits": "Experimental e limitado ao hash de fifa16.exe compatível com o pacote original. Não altera quando a bola passa a estar em jogo dentro da área. Posicionamento e sensação do passe precisam ser avaliados em partida.",
       "status": "experimental"
+    },
+    {
+      "id": "frontend_stadium",
+      "name": "Estadio de fundo do perfil e carreira",
+      "behavior": "Prepara o estadio do clube ou a escolha manual e solicita a recarga nativa do menu.",
+      "source": "ModCarrerMode/source/native_mods/frontend_stadium",
+      "configuration": "ModCarrerMode/config/frontend_stadium.ini",
+      "limits": "Comeca desligado; modelos permanecem nos pacotes locais; usa a imagem padrao quando nao ha estadio disponivel.",
+      "status": "implemented"
+    },
+    {
+      "id": "panorama_drone",
+      "name": "Panoramica com 37 tomadas",
+      "behavior": "Travessias do campo, aproximacoes do gol e orbita externa do estadio.",
+      "source": "ModCarrerMode/source/native_mods/panorama_drone",
+      "configuration": "ModCarrerMode/config/panorama_drone.ini",
+      "limits": "Atua no cenario nativo de estadio do menu.",
+      "status": "implemented"
+    },
+    {
+      "id": "extra_scenes",
+      "name": "Cenas extras de tecnicos e mascotes",
+      "behavior": "Implementacao experimental preservada para desenvolvimento.",
+      "source": "ModCarrerMode/source/native_mods/extra_scenes",
+      "configuration": "ModCarrerMode/config/extra_scenes.ini",
+      "limits": "Modulo desativado e acesso oculto no Server16 0.2.8.",
+      "status": "disabled"
+    },
+    {
+      "id": "narration_selection",
+      "name": "Seletor de narrador",
+      "behavior": "Implementacao de selecao e aplicacao de narracao preservada.",
+      "source": "ModCarrerMode/source/server16_py/narration_runtime.py",
+      "configuration": "ModCarrerMode/source/server16_py/__init__.py",
+      "limits": "Selecao manual/automatica, progresso e avisos ocultos por NARRATION_PICKER_AVAILABLE=False.",
+      "status": "disabled"
     }
   ],
   "not_implemented": [
@@ -202,7 +238,7 @@
       "status": "visual_cabin_only"
     }
   ],
-  "reviewed_on": "2026-10-17",
+  "reviewed_on": "2026-10-21",
   "native_entrance_revision": 19,
   "native_var_revision": 3,
   "native_cloth_revision": 9,

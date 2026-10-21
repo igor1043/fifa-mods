@@ -45,7 +45,11 @@ $legacyFiles = @(
     'multiball_visual\multiball_visual_v3.dll',
     'mascot_single\mascot_goal_line_v28.dll',
     'mascot_single\mascot_corner.dll',
+    'mascot_single\mascot_goal_line.dll.before-base-robson-test',
+    'mascot_single\mascot_goal_line.dll.in_use_backup_test',
     'mascot_single\animation_command.txt',
+    'extra_scenes\extra_scenes_native_v5.dll',
+    'extra_scenes\release.json',
     'bench_native12\bench_native12_v5.dll',
     'enabled.txt.before-test.bak',
     'enabled_birthdate_2006.txt'
