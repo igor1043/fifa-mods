@@ -1,5 +1,5 @@
 {
-  "version": "0.2.10",
+  "version": "0.2.11",
   "branch": "fifa-friends-v12",
   "date": "2026-10-21",
   "features": {
@@ -17,8 +17,8 @@
   "enabled_plugins": 18,
   "files": {
     "Server16Python.exe": {
-      "bytes": 45711821,
-      "sha256": "1dcabfb8d8c587324b899d930f1d74916c904e9b63f1d0b45221cfe86c80e422"
+      "bytes": 45761403,
+      "sha256": "aacaf1744f86d0bfc85984ea7cb84cb0f8993f35676aade8e349f5a91ec3b205"
     },
     "ModCarrerMode/tools/frontend_stadium_prepare.exe": {
       "bytes": 8418377,
@@ -190,9 +190,9 @@
   "panorama_scene_pack_revision": 6,
   "panorama_shots": 39,
   "player_camera": {
-    "revision": 12,
-    "embedded_dll": "bin\\server16_first_person_v12.dll",
-    "sha256": "e727faa0a57741a042534e655e1f89c528688b04490e997e2aa3d4569d774604",
+    "revision": 13,
+    "embedded_dll": "bin\\server16_first_person_v13.dll",
+    "sha256": "da35f1c37fba41d6a36103bd91df5be8b9716a243a5b6844bd772079c55e7bd9",
     "restart_phases": [
       2,
       3,
@@ -211,13 +211,29 @@
     ],
     "native_math_and_protocol": "passed",
     "python_camera_tests": 9,
-    "visual_validation": "user reported substantial improvement on 2026-10-21; individual edge cases still pending",
+    "visual_validation": {
+      "curve_disabled": "center sharpened, excessive rectilinear stretching reported by user",
+      "distortion_0_25_zoom_1": "user confirmed good center clarity and better proportions; residual extreme-corner motion",
+      "distortion_0_20_zoom_1": "applied in RAM; awaiting visual confirmation",
+      "head_clearance_and_off_ball_follow": "compiled and tested; awaiting game reload and visual test"
+    },
     "mesh_visibility_hook": false,
-    "invisible_players": "unresolved; separate investigation"
+    "invisible_players": "unresolved; separate investigation",
+    "wide_fov_lens": "half native distortion, maximum 0.20, neutral inverse zoom; first person only",
+    "sharp_turn_yaw_lag_degrees": 20,
+    "off_ball_follow": true
   },
   "cloth_preference": {
     "fresh_default": false,
     "update_preserves_choice": true,
     "installer_test": "passed"
+  },
+  "startup_diagnostics": {
+    "reference_files": 729,
+    "embedded_baseline_sha256": "7c785025dbb82962c4f47c92d1c295d47cbae5cc5d624dc66bbea6a447996958",
+    "directory": "runtime/diagnostics",
+    "automatic_zip": true,
+    "read_only": true,
+    "python_tests": 7
   }
 }

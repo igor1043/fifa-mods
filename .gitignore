@@ -100,3 +100,6 @@ bin/server16_first_person_v10.dll
 
 # Local snapshots of disabled interfaces are preserved outside the release.
 ModCarrerMode/disabled/
+
+# Local startup evidence can contain personal paths and is never published.
+runtime/diagnostics/

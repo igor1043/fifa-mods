@@ -239,10 +239,19 @@
     {
       "id": "player_camera",
       "name": "Câmeras do jogador",
-      "behavior": "Primeira pessoa e terceira pessoa na câmera Profissional. Revisão 12 mantém a pose nas cobranças, limita oscilações e viradas da terceira pessoa, fixa o atleta no modo de um jogador e desativa desfoque nos quadros modificados.",
+      "behavior": "RevisÃ£o 13: lente mais leve e sem ampliaÃ§Ã£o adicional na primeira pessoa; atraso horizontal limitado nas viradas e proteÃ§Ã£o da cabeÃ§a pela direÃ§Ã£o final. Terceira pessoa acompanha a bola sem posse, com Ã³rbita suave e estÃ¡vel.",
       "source": "ModCarrerMode/source/native_mods/first_person",
       "configuration": "Server16 > Câmera; runtime/first_person_camera.json",
-      "limits": "Testes isolados aprovados; usuário relatou melhora significativa em 21/10/2026. Casos específicos ainda aguardam validação. Não modifica malhas; a invisibilidade permanece em investigação.",
+      "limits": "Nitidez confirmada em RAM; compensaÃ§Ã£o final de cantos, viradas e foco sem posse aguardam validaÃ§Ã£o visual. NÃ£o altera malhas nem corrige a invisibilidade geral de jogadores.",
+      "status": "implemented"
+    },
+    {
+      "id": "startup_diagnostics",
+      "name": "Diagnóstico da inicialização",
+      "behavior": "Por execução: referência SHA-256 de 729 arquivos, módulos detectados com versão e caminho, última tela e código de saída observado. ZIP automático em runtime/diagnostics.",
+      "source": "ModCarrerMode/source/server16_py/startup_diagnostics.py",
+      "configuration": "Automático ao abrir FIFA com o Server16; referência embutida no executável.",
+      "limits": "Somente leitura; diferenças não provam a causa de um crash. Coleta incompleta é identificada. Não inclui saves ou arquivos de configuração com credenciais.",
       "status": "implemented"
     }
   ],
