@@ -2,7 +2,7 @@
 0,rule_bookings,on
 0,rule_offsides,on
 0,rule_injuries,on
-0,rule_numsubsbench,7
+0,rule_numsubsbench,12
 0,rule_numsubsmatch,5
 0,rule_suspension,0
 0,rule_numyellowstored,5

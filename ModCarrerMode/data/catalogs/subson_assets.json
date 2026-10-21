@@ -1,0 +1,33 @@
+{
+  "component": "SubsOn",
+  "archive": "FIFA_Friends_V12_Subson_assets.zip",
+  "files": [
+    {
+      "path": "data/ant.cbac",
+      "bytes": 141909975,
+      "sha256": "abde4d8f5246b5082321e16900905e48cfc70026dbd652749534b53f858dfa98"
+    }
+  ],
+  "companions": [
+    {
+      "path": "SubsOn.dll",
+      "bytes": 49664,
+      "sha256": "c66ee4e64a4823c99b5f3a74a7b5a4e58537130bf810492e34d6d34710dded77"
+    },
+    {
+      "path": "SubsOn.ini",
+      "bytes": 232,
+      "sha256": "c2b2d3544f2acf3f7b9d1df2a72850d58e366a73e0e9331849e3b259cfc95c00"
+    },
+    {
+      "path": "ModCarrerMode/mods/subson/subson_bridge.dll",
+      "bytes": 179200,
+      "sha256": "d37af9429d59f1128108dfee1381df0489836744e11ca9ed67fb92113e7f9f20"
+    },
+    {
+      "path": "dlc/dlc_FootballCompEng/dlc/FootballCompEng/data/compdata/settings.txt",
+      "bytes": 149506,
+      "sha256": "701edc1c450e05dff11855eeff9890072a46d09298b92160585231f7c40eed07"
+    }
+  ]
+}

@@ -14,6 +14,7 @@
 #include "mascot_placement_policy.h"
 #include "../common/scene_lua.h"
 #include "../common/scene_startup.h"
+#include "scene_actor_api.h"
 
 static uintptr_t image;
 static char logPath[MAX_PATH];
@@ -234,6 +235,30 @@ static int lua_number(uintptr_t table, const char* key)
 
 #include "mascot_attack_side.h"
 #include "mascot_native_animation.h"
+
+// Camera consumers get a copied, versioned snapshot, never private DLL RVAs.
+// Publishing does not alter any actor/animation/resource selection.
+static SRWLOCK sceneCameraLock=SRWLOCK_INIT;
+static SceneActorSnapshot sceneCameraSnapshot;
+static void publish_scene_camera(const MascotFrameContext& frame) {
+    SceneActorSnapshot next{};
+    next.tick=GetTickCount64();next.renderer=frame.renderer;
+    next.generation=frame.generation;next.home=frame.home>0?(uint32_t)frame.home:0;
+    if(frame.mascotActive&&frame.packageAnimated&&mascotAnimationBound&&
+       mascotAnimatedRenderer==frame.renderer&&mascotAnimatedRecords==frame.records&&
+       mascotAnimatedIndex==frame.selected&&mascotWalkRuntime.hasPose) {
+        memcpy(next.mascotPosition,mascotWalkRuntime.position,sizeof(next.mascotPosition));
+        memcpy(next.mascotHead,mascotLastPose[14],sizeof(next.mascotHead));next.mascotValid=1;
+    }
+    AcquireSRWLockExclusive(&sceneCameraLock);sceneCameraSnapshot=next;ReleaseSRWLockExclusive(&sceneCameraLock);
+}
+extern "C" __declspec(dllexport) BOOL WINAPI Fifa16ReadSceneActors(SceneActorSnapshot* out) {
+    if(!out||out->version!=1||out->size!=sizeof(SceneActorSnapshot))return FALSE;
+    AcquireSRWLockShared(&sceneCameraLock);const SceneActorSnapshot copy=sceneCameraSnapshot;ReleaseSRWLockShared(&sceneCameraLock);
+    if(!copy.renderer||GetTickCount64()-copy.tick>400)return FALSE;
+    *out=copy;return TRUE;
+}
+
 
 static bool same_position(const float* a, const float* b)
 {
@@ -467,6 +492,7 @@ static void __fastcall selection_hook(void* renderer)
         if(startupRecovery.take_timeout())log_event("startup_reinforcement timeout pending_native_binding_or_position");
         if (assign_mascot_placement(renderer, frame)) {
             mascot_animate_instance(frame);
+            publish_scene_camera(frame);
             if(frame.mascotActive&&frame.selected<frame.count){
                 mascotBuildSnapshot={frame.renderer,frame.records,frame.count,frame.selected,
                     frame.appearanceType,frame.generation,GetTickCount64(),{}};

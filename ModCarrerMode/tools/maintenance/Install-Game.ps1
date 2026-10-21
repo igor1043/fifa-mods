@@ -34,6 +34,16 @@ foreach ($relative in @('data\db','data\loc','dlc')) {
 $modsItem = Get-Item -LiteralPath (Join-Path $gameMod 'mods') -Force -ErrorAction SilentlyContinue
 $liveMods = $modsItem -and $modsItem.LinkType
 $enabledPlugins=@(Get-Content -LiteralPath (Join-Path $modSource 'mods\enabled.txt') | ForEach-Object { $_.Trim() })
+if ($enabledPlugins -contains 'subson\subson_bridge.dll') {
+    $subsonAsset=Get-Content -LiteralPath (Join-Path $modSource 'data\catalogs\subson_assets.json') -Raw | ConvertFrom-Json
+    $payload=$subsonAsset.files[0]
+    $installedPayload=Join-Path $game 'data\ant.cbac'
+    if (-not (Test-Path -LiteralPath $installedPayload -PathType Leaf) -or
+        (Get-Item -LiteralPath $installedPayload).Length -ne $payload.bytes -or
+        (Get-Sha256 $installedPayload) -ne ([string]$payload.sha256).ToUpperInvariant()) {
+        throw "Instale primeiro o complemento $($subsonAsset.archive) na pasta do jogo. O arquivo data\ant.cbac necessario ao SubsOn esta ausente ou diferente."
+    }
+}
 $missingVarAssets=@()
 if ($enabledPlugins -contains 'var_cabin\var_cabin.dll') {
     foreach ($relative in @('data\sceneassets\var_cabin\model.rx3','data\sceneassets\var_cabin\textures.rx3')) {
@@ -79,11 +89,18 @@ function Add-File([string]$Source,[string]$Relative) {
     $files.Add([pscustomobject]@{Source=$Source;Relative=$Relative;Target=$target;Hash=(Get-Sha256 $Source)})
 }
 foreach($name in @('dinput8.dll','dinput8_orig.dll','dinput8_L9.ini','dinput8_patch.ini','winmm.dll','Server16Python.exe')) { Add-File (Join-Path $repoSource $name) $name }
+# SubsOn root payload: the original dinput8 chain remains authoritative.
+if ($enabledPlugins -contains 'subson\subson_bridge.dll') {
+    foreach ($name in @('SubsOn.dll','SubsOn.ini')) { Add-File (Join-Path $repoSource $name) $name }
+}
 $swissMemorySource = Join-Path $modSource 'assets\swiss\memoryfw.ini'
 if (Test-Path -LiteralPath $swissMemorySource -PathType Leaf) { Add-File $swissMemorySource 'memoryfw.ini' }
 $runtimeFiles = @('retirement_offline_worker.exe','crowd.ini')
 if ($edition -eq 'new-experience') { $runtimeFiles += 'career_operations_worker.exe' }
 foreach($name in $runtimeFiles) { Add-File (Join-Path $modSource $name) ('ModCarrerMode\'+$name) }
+if (@($enabledPlugins | Where-Object { $_ -match '^frontend_stadium[\\/]' }).Count) {
+    Add-File (Join-Path $modSource 'tools\frontend_stadium_prepare.exe') 'ModCarrerMode\tools\frontend_stadium_prepare.exe'
+}
 foreach($folder in @('config','data','mods','assets')) {
     $base=Join-Path $modSource $folder
     if (-not (Test-Path -LiteralPath $base)) { continue }
@@ -92,6 +109,8 @@ foreach($folder in @('config','data','mods','assets')) {
         # ModCarrerMode/assets tree that V12 archives on every installation.
         if ($file.FullName -eq $swissMemorySource) { continue }
         if ($folder -eq 'mods' -and $file.FullName -match '[\\/]skip_server_shutdown_notice[\\/]') { continue }
+        if ($folder -eq 'mods' -and $file.Name -eq 'runtime_state.txt') { continue }
+        if ($file.Name -like '*.in_use_backup_*') { continue }
         if ($folder -eq 'mods' -and ($file.FullName -match '[\\/]source[\\/]' -or $file.Extension -in @('.cpp','.c','.h','.cmd','.json','.log','.tmp'))) { continue }
         if ($file.Extension -in @('.md','.ps1','.example','.bak')) { continue }
         $relative='ModCarrerMode\'+$folder+'\'+$file.FullName.Substring($base.Length+1)
@@ -151,6 +170,7 @@ foreach($file in $files) {
 }
 $obsoletePaths = @('dinput8_career_chain.dll','ModCarrerMode\mods\bench12_global_limit_12_v2',
     'ModCarrerMode\config\entrance_competitions.ini','ModCarrerMode\entrance_competitions.ini')
+if ($enabledPlugins -contains 'subson\subson_bridge.dll') { $obsoletePaths += 'ModCarrerMode\mods\bench_native12' }
 if (-not $liveMods) { $obsoletePaths += 'ModCarrerMode\mods\skip_server_shutdown_notice' }
 # Upgrade old packages to one DLL per mod. Archive only known module folders;
 # unrelated user-installed modules remain outside this migration.
@@ -184,6 +204,15 @@ if ($edition -eq 'v12') {
     $obsoletePaths += @('ModCarrerMode\career_operations_worker.exe','ModCarrerMode\config\ranking_overlay.ini','ModCarrerMode\ranking_overlay.ini')
 }
 $obsoletePaths = @($obsoletePaths | Select-Object -Unique | Where-Object { Test-Path -LiteralPath (Join-Path $game $_) })
+# A directory already carries its children into the backup. Do not move a child
+# a second time after its parent has been archived.
+$archiveRoots = @()
+foreach ($relative in @($obsoletePaths | Sort-Object Length)) {
+    if (-not @($archiveRoots | Where-Object { $relative.StartsWith($_.TrimEnd('\')+'\',[StringComparison]::OrdinalIgnoreCase) }).Count) {
+        $archiveRoots += $relative
+    }
+}
+$obsoletePaths = $archiveRoots
 if ($VerifyOnly) {
     [pscustomobject]@{Edition=$edition;DevFiles=$files.Count;Identical=$same;Preserved=$skip.Count;ToInstall=$changes.Count;ToArchive=$obsoletePaths.Count;ExternalPaths=$externalPaths;LiveDevelopmentMods=[bool]$liveMods}
     $changes | Select-Object Relative
@@ -248,7 +277,8 @@ foreach($file in $changes) {
     if ((Get-Sha256 $file.Target) -ne $file.Hash) { throw "Copia divergente: $($file.Relative). Backup: $backup" }
 }
 if ($ArchiveDevelopmentFiles) {
-    foreach($folder in @('source','tools','backups')) {
+    # tools contains the runtime stadium preparer, required after installation.
+    foreach($folder in @('source','backups')) {
         $old=Join-Path $gameMod $folder
         if (-not (Test-Path -LiteralPath $old -PathType Container)) { continue }
         $dest=Join-Path $backup ('development-files\'+$folder)

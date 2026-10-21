@@ -4,7 +4,7 @@
 crowd\crowd_plugin.dll
 career_birthdate_2006\birthyear_range_2006_2012.dll
 substitution_all7_rulescan_native\substitution_all7_rulescan_native.dll
-bench_native12\bench_native12.dll
+subson\subson_bridge.dll
 mascot_single\mascot_goal_line.dll
 tournament_compat_native\tournament_compat_native.dll
 career_ui_assets\career_ui_assets.dll
@@ -17,4 +17,6 @@ entrance_props\entrance_props.dll
 var_cabin\var_cabin.dll
 smoke_machine\smoke_machine.dll
 cloth_motion\cloth_motion.dll
-panorama_drone\panorama_drone_v3_1.dll
+
+frontend_stadium\frontend_stadium_native_v11.dll
+panorama_drone\panorama_drone_v5.dll

@@ -1,0 +1,789 @@
+from __future__ import annotations
+
+from dataclasses import dataclass
+from pathlib import Path
+import tkinter as tk
+from tkinter import messagebox, ttk
+
+from .chants_runtime import MciAudioPlayer
+from .file_tools import discover_stadium_names
+
+
+@dataclass(frozen=True)
+class SectionSpec:
+    section: str
+    title: str
+    kind: str = "simple"
+    value_label: str = "Value"
+    directory: str | None = None
+    recursive: bool = False
+
+
+class SettingsAreaEditor(tk.Toplevel):
+    def __init__(self, app, title: str, specs: list[SectionSpec], initial_section: str | None = None) -> None:
+        owner = app._window() if hasattr(app, "_window") else app
+        super().__init__(owner)
+        self.app = app
+        self.specs = specs
+        self.configure(bg=app.bg)
+        self.title(title)
+        self.geometry("1120x700")
+        self.minsize(1000, 640)
+        self.transient(owner)
+        self.deiconify()
+        self.lift()
+        try:
+            self.focus_force()
+        except Exception:
+            pass
+        self.notebook = ttk.Notebook(self, style="Server16.TNotebook")
+        self.notebook.pack(fill="both", expand=True, padx=10, pady=10)
+        self.frames: dict[str, SettingsSectionFrame] = {}
+        for spec in specs:
+            frame = SettingsSectionFrame(self.notebook, app, spec)
+            self.notebook.add(frame, text=app.tr(spec.title) if hasattr(app, "tr") else spec.title)
+            self.frames[spec.section.lower()] = frame
+        self.notebook.bind("<<NotebookTabChanged>>", self._on_tab_changed)
+        if initial_section:
+            for index, spec in enumerate(specs):
+                if spec.section.lower() == initial_section.lower():
+                    self.notebook.select(index)
+                    break
+        self._refresh_active_frame()
+
+    def _on_tab_changed(self, _event=None) -> None:
+        self._refresh_active_frame()
+
+    def _refresh_active_frame(self) -> None:
+        current_tab = self.notebook.nametowidget(self.notebook.select())
+        if isinstance(current_tab, SettingsSectionFrame):
+            current_tab.reload_entries()
+
+
+class SettingsSectionFrame(tk.Frame):
+    STADIUM_DEFAULTS = {"police": "4", "pitch": "0", "net": "0"}
+    NET_DEFAULTS = {"down": "1086199011", "high": "1087199011", "rig": "4", "shape": "0"}
+    STADIUM_NAME_DEFAULTS = {"name": "", "active": "1"}
+    CHANTS_DEFAULTS = {
+        "folder": "",
+        "default": "0.12",
+        "winning": "0.15",
+        "lose1": "0.10",
+        "lose2": "0.05",
+        "lose3": "0.15",
+        "goal": "0.13",
+        "silence_prob": "0.15",
+        "silence_max": "8.0",
+        "away_prob": "0.35",
+        "entrance_volume": "0.16",
+        "entrance_delay": "7.0",
+    }
+
+    def __init__(self, parent: tk.Misc, app, spec: SectionSpec) -> None:
+        super().__init__(parent, bg=app.bg)
+        self.app = app
+        self.spec = spec
+        self.selected_key: str | None = None
+        self._refresh_job = None
+        self._display_keys: list[str] = []
+        self._preview_player: MciAudioPlayer | None = None
+        self._preview_playing_path: Path | None = None
+        self._preview_poll_job = None
+        self._preview_buttons: dict[Path, ttk.Button] = {}
+        self._setup_ui()
+        self.bind("<Destroy>", self._on_destroy)
+
+    def tr(self, key: str, **kwargs) -> str:
+        if hasattr(self.app, "tr"):
+            return self.app.tr(key, **kwargs)
+        return key.format(**kwargs) if kwargs else key
+
+    def _setup_ui(self) -> None:
+        self.grid_columnconfigure(0, weight=2)
+        self.grid_columnconfigure(1, weight=3)
+        self.grid_rowconfigure(1, weight=1)
+
+        header = tk.Frame(self, bg=self.app.bg)
+        header.grid(row=0, column=0, columnspan=2, sticky="ew", padx=12, pady=(12, 8))
+        header.grid_columnconfigure(0, weight=1)
+        tk.Label(
+            header,
+            text=f"[{self.spec.section}]",
+            bg=self.app.bg,
+            fg=self.app.gold,
+            font=("Bahnschrift", 15, "bold"),
+        ).grid(row=0, column=0, sticky="w")
+        tk.Label(
+            header,
+            text=self.tr("dialog.editor.active_file", path=self.app.settings_ini.path),
+            bg=self.app.bg,
+            fg=self.app.muted,
+            font=("Bahnschrift", 9),
+        ).grid(row=1, column=0, sticky="w", pady=(2, 0))
+        ttk.Button(header, text=self.tr("button.refresh"), command=self.reload_entries).grid(row=0, column=1, rowspan=2, sticky="e")
+
+        left_card = tk.Frame(self, bg=self.app.card, highlightthickness=1, highlightbackground="#243654")
+        left_card.grid(row=1, column=0, sticky="nsew", padx=(12, 6), pady=(0, 12))
+        left_card.grid_rowconfigure(1, weight=1)
+        left_card.grid_columnconfigure(0, weight=1)
+
+        left_top = tk.Frame(left_card, bg=self.app.card)
+        left_top.grid(row=0, column=0, sticky="ew", padx=12, pady=(10, 8))
+        left_top.grid_columnconfigure(0, weight=1)
+        self.search_var = tk.StringVar()
+        search = tk.Entry(
+            left_top,
+            textvariable=self.search_var,
+            bg=self.app.panel_alt,
+            fg=self.app.fg,
+            insertbackground=self.app.fg,
+            relief="flat",
+            font=("Consolas", 10),
+        )
+        search.grid(row=0, column=0, sticky="ew", padx=(0, 8))
+        search.bind("<KeyRelease>", lambda _event: self.reload_entries(preserve=False))
+        ttk.Button(left_top, text=self.tr("button.new"), command=self.new_entry).grid(row=0, column=1)
+
+        self.entries_list = tk.Listbox(
+            left_card,
+            exportselection=False,
+            bg=self.app.panel,
+            fg=self.app.fg,
+            selectbackground="#19324d",
+            selectforeground=self.app.fg,
+            relief="flat",
+            font=("Consolas", 10),
+        )
+        entries_scroll = ttk.Scrollbar(
+            left_card,
+            orient="vertical",
+            command=self.entries_list.yview,
+            style="Server16.Vertical.TScrollbar",
+        )
+        self.entries_list.configure(yscrollcommand=entries_scroll.set)
+        self.entries_list.grid(row=1, column=0, sticky="nsew", padx=(12, 0), pady=(0, 8))
+        entries_scroll.grid(row=1, column=1, sticky="ns", padx=(8, 12), pady=(0, 8))
+        self.entries_list.bind("<<ListboxSelect>>", self._on_entry_selected)
+
+        self.count_label = tk.Label(left_card, text=self.tr("dialog.editor.entries_count", count=0), bg=self.app.card, fg=self.app.muted, font=("Bahnschrift", 9))
+        self.count_label.grid(row=2, column=0, sticky="w", padx=12, pady=(0, 10))
+
+        right_card = tk.Frame(self, bg=self.app.card, highlightthickness=1, highlightbackground="#243654")
+        right_card.grid(row=1, column=1, sticky="nsew", padx=(6, 12), pady=(0, 12))
+        right_card.grid_rowconfigure(2, weight=1)
+        right_card.grid_columnconfigure(0, weight=1)
+
+        form = tk.Frame(right_card, bg=self.app.card)
+        form.grid(row=0, column=0, sticky="ew", padx=12, pady=(12, 8))
+        form.grid_columnconfigure(1, weight=1)
+
+        tk.Label(form, text=self.tr("dialog.editor.key"), bg=self.app.card, fg=self.app.muted, font=("Bahnschrift", 10)).grid(row=0, column=0, sticky="w", pady=(0, 6))
+        self.key_var = tk.StringVar()
+        self.key_entry = tk.Entry(
+            form,
+            textvariable=self.key_var,
+            bg=self.app.panel_alt,
+            fg=self.app.fg,
+            insertbackground=self.app.fg,
+            relief="flat",
+            font=("Consolas", 11),
+        )
+        self.key_entry.grid(row=0, column=1, sticky="ew", pady=(0, 6))
+
+        self.body = tk.Frame(right_card, bg=self.app.card)
+        self.body.grid(row=1, column=0, sticky="nsew", padx=12, pady=(0, 8))
+        self.body.grid_columnconfigure(0, weight=1)
+
+        self._build_editor_body()
+        if self.spec.kind == "chants":
+            self._build_chants_preview_panel(right_card)
+
+        actions = tk.Frame(right_card, bg=self.app.card)
+        actions.grid(row=3, column=0, sticky="ew", padx=12, pady=(0, 12))
+        actions.grid_columnconfigure(0, weight=1)
+        ttk.Button(actions, text=self.tr("button.save_settings"), command=self.save_entry).grid(row=0, column=0, sticky="ew", padx=(0, 6))
+        ttk.Button(actions, text=self.tr("button.delete_entry"), command=self.delete_entry).grid(row=0, column=1, sticky="ew", padx=6)
+        ttk.Button(actions, text=self.tr("button.apply_runtime"), command=self._apply_runtime).grid(row=0, column=2, sticky="ew", padx=(6, 0))
+
+        self.status_var = tk.StringVar(value=self.tr("dialog.editor.no_selection"))
+        tk.Label(
+            right_card,
+            textvariable=self.status_var,
+            bg=self.app.card,
+            fg=self.app.muted,
+            font=("Bahnschrift", 9),
+            anchor="w",
+            justify="left",
+        ).grid(row=4, column=0, sticky="ew", padx=12, pady=(0, 12))
+
+    def _build_editor_body(self) -> None:
+        if self.spec.kind == "simple":
+            self.value_var = tk.StringVar()
+            self.value_combo = self._add_combo_row(self.body, 0, self.spec.value_label, self.value_var, self._available_choices())
+        elif self.spec.kind == "stadium":
+            self._build_stadium_editor()
+        elif self.spec.kind == "net":
+            self._build_net_editor()
+        elif self.spec.kind == "scoreboardstdname":
+            self._build_scoreboard_name_editor()
+        elif self.spec.kind == "chants":
+            self._build_chants_editor()
+        elif self.spec.kind == "exclude":
+            self.exclude_var = tk.StringVar(value="excluded from stadium server")
+            self.exclude_entry = self._add_entry_row(self.body, 0, "Reason", self.exclude_var, readonly=True)
+
+    def _build_stadium_editor(self) -> None:
+        self.stadium_list = tk.Listbox(
+            self.body,
+            selectmode="extended",
+            exportselection=False,
+            height=14,
+            bg=self.app.panel,
+            fg=self.app.fg,
+            selectbackground="#19324d",
+            selectforeground=self.app.fg,
+            relief="flat",
+            font=("Consolas", 10),
+        )
+        stadium_scroll = ttk.Scrollbar(
+            self.body,
+            orient="vertical",
+            command=self.stadium_list.yview,
+            style="Server16.Vertical.TScrollbar",
+        )
+        self.stadium_list.configure(yscrollcommand=stadium_scroll.set)
+        self.stadium_list.grid(row=0, column=0, sticky="nsew", pady=(0, 10))
+        stadium_scroll.grid(row=0, column=1, sticky="ns", padx=(8, 0), pady=(0, 10))
+        self.body.grid_columnconfigure(0, weight=1)
+        self.body.grid_columnconfigure(1, weight=0)
+        for entry in self._available_choices():
+            self.stadium_list.insert("end", entry)
+        self.police_var = tk.StringVar(value=self.STADIUM_DEFAULTS["police"])
+        self.pitch_var = tk.StringVar(value=self.STADIUM_DEFAULTS["pitch"])
+        self.net_var = tk.StringVar(value=self.STADIUM_DEFAULTS["net"])
+        self._add_combo_row(self.body, 1, "Police", self.police_var, [str(i) for i in range(1, 11)])
+        self._add_combo_row(self.body, 2, "Pitch", self.pitch_var, self._file_stems(self.app.PitchMowsource))
+        self._add_combo_row(self.body, 3, "Net", self.net_var, self._file_stems(self.app.Nsource))
+
+    def _build_net_editor(self) -> None:
+        self.down_var = tk.StringVar(value=self.NET_DEFAULTS["down"])
+        self.high_var = tk.StringVar(value=self.NET_DEFAULTS["high"])
+        self.rig_var = tk.StringVar(value=self.NET_DEFAULTS["rig"])
+        self.shape_var = tk.StringVar(value=self.NET_DEFAULTS["shape"])
+        self._add_entry_row(self.body, 0, "Down Deep", self.down_var)
+        self._add_entry_row(self.body, 1, "High Deep", self.high_var)
+        self._add_combo_row(self.body, 2, "Rig", self.rig_var, [str(i) for i in range(0, 11)])
+        self._add_combo_row(self.body, 3, "Shape", self.shape_var, ["0", "1", "2", "3", "4"])
+
+    def _build_scoreboard_name_editor(self) -> None:
+        self.display_name_var = tk.StringVar()
+        self._add_entry_row(self.body, 0, "Displayed Name", self.display_name_var)
+
+    def _build_chants_editor(self) -> None:
+        self.chants_folder_var = tk.StringVar(value=self.CHANTS_DEFAULTS["folder"])
+        self.default_var = tk.StringVar(value=self.CHANTS_DEFAULTS["default"])
+        self.winning_var = tk.StringVar(value=self.CHANTS_DEFAULTS["winning"])
+        self.lose1_var = tk.StringVar(value=self.CHANTS_DEFAULTS["lose1"])
+        self.lose2_var = tk.StringVar(value=self.CHANTS_DEFAULTS["lose2"])
+        self.lose3_var = tk.StringVar(value=self.CHANTS_DEFAULTS["lose3"])
+        self.goal_var = tk.StringVar(value=self.CHANTS_DEFAULTS["goal"])
+        self.silence_prob_var = tk.StringVar(value=self.CHANTS_DEFAULTS["silence_prob"])
+        self.silence_max_var = tk.StringVar(value=self.CHANTS_DEFAULTS["silence_max"])
+        self.away_prob_var = tk.StringVar(value=self.CHANTS_DEFAULTS["away_prob"])
+        self.entrance_volume_var = tk.StringVar(value=self.CHANTS_DEFAULTS["entrance_volume"])
+        self.entrance_delay_var = tk.StringVar(value=self.CHANTS_DEFAULTS["entrance_delay"])
+        folder_choices = self._available_choices()
+        self._add_combo_row(self.body, 0, "Chants Folder", self.chants_folder_var, folder_choices or [""])
+        self._add_entry_row(self.body, 1, "Vol. Empate", self.default_var)
+        self._add_entry_row(self.body, 2, "Vol. Ganando", self.winning_var)
+        self._add_entry_row(self.body, 3, "Vol. Perdiendo -1", self.lose1_var)
+        self._add_entry_row(self.body, 4, "Vol. Perdiendo -2", self.lose2_var)
+        self._add_entry_row(self.body, 5, "Vol. Complaint -3+", self.lose3_var)
+        self._add_entry_row(self.body, 6, "Vol. ClubSong (gol)", self.goal_var)
+        self._add_entry_row(self.body, 7, "Prob. Silencio (0-1)", self.silence_prob_var)
+        self._add_entry_row(self.body, 8, "Max. Silencio (seg)", self.silence_max_var)
+        self._add_entry_row(self.body, 9, "Prob. Away Crowd (0-1)", self.away_prob_var)
+        self._add_entry_row(self.body, 10, "Vol. Entrada", self.entrance_volume_var)
+        self._add_entry_row(self.body, 11, "Atraso da entrada (seg)", self.entrance_delay_var)
+
+    def _build_chants_preview_panel(self, parent: tk.Misc) -> None:
+        preview = tk.LabelFrame(
+            parent,
+            text="Preview dos cânticos",
+            bg=self.app.card,
+            fg=self.app.gold,
+            font=("Bahnschrift", 9, "bold"),
+            bd=1,
+            relief="groove",
+        )
+        preview.grid(row=2, column=0, sticky="nsew", padx=12, pady=(0, 8))
+        preview.grid_rowconfigure(0, weight=1)
+        preview.grid_columnconfigure(0, weight=1)
+
+        canvas = tk.Canvas(preview, bg=self.app.panel, highlightthickness=0, height=120)
+        canvas.grid(row=0, column=0, sticky="nsew")
+        scroll = ttk.Scrollbar(preview, orient="vertical", command=canvas.yview, style="Server16.Vertical.TScrollbar")
+        scroll.grid(row=0, column=1, sticky="ns")
+        canvas.configure(yscrollcommand=scroll.set)
+        rows = tk.Frame(canvas, bg=self.app.panel)
+        window_id = canvas.create_window((0, 0), window=rows, anchor="nw")
+        rows.bind("<Configure>", lambda _event: canvas.configure(scrollregion=canvas.bbox("all")))
+        canvas.bind("<Configure>", lambda event: canvas.itemconfigure(window_id, width=event.width))
+        self._preview_rows_frame = rows
+        self._preview_canvas = canvas
+        self.chants_folder_var.trace_add("write", lambda *_: self._refresh_chants_preview())
+        self._refresh_chants_preview()
+
+    def _refresh_chants_preview(self) -> None:
+        rows = getattr(self, "_preview_rows_frame", None)
+        if rows is None:
+            return
+        self._stop_preview()
+        for child in rows.winfo_children():
+            child.destroy()
+        self._preview_buttons = {}
+
+        folder = self.chants_folder_var.get().strip()
+        base = self.app.exedir / "FSW" / "Chants" / folder if folder else None
+        files: list[Path] = []
+        if base is not None and base.is_dir():
+            files = sorted(path for path in base.rglob("*.mp3") if not path.name.endswith(".original.mp3"))
+        if not files or base is None:
+            tk.Label(
+                rows,
+                text="Nenhum MP3 encontrado nessa pasta.",
+                bg=self.app.panel,
+                fg=self.app.muted,
+                font=("Bahnschrift", 9),
+            ).pack(anchor="w", padx=8, pady=6)
+            return
+        for path in files:
+            line = tk.Frame(rows, bg=self.app.panel)
+            line.pack(fill="x", padx=6, pady=2)
+            try:
+                display_name = path.relative_to(base).as_posix()
+            except ValueError:
+                display_name = path.name
+            tk.Label(
+                line,
+                text=display_name,
+                bg=self.app.panel,
+                fg=self.app.fg,
+                font=("Consolas", 9),
+                anchor="w",
+            ).pack(side="left", fill="x", expand=True)
+            button = ttk.Button(line, text="▶", width=3, command=lambda item=path: self._toggle_chants_preview(item))
+            button.pack(side="right")
+            self._preview_buttons[path] = button
+
+    def _toggle_chants_preview(self, path: Path) -> None:
+        if self._preview_playing_path == path:
+            self._stop_preview()
+            return
+        self._stop_preview()
+        try:
+            player = MciAudioPlayer()
+            player.open(path)
+            player.play()
+        except Exception as exc:
+            self.app.log(f"Chants preview playback failed for {path}", exc)
+            return
+        self._preview_player = player
+        self._preview_playing_path = path
+        button = self._preview_buttons.get(path)
+        if button is not None:
+            button.configure(text="■")
+        self._schedule_preview_poll()
+
+    def _schedule_preview_poll(self) -> None:
+        if self._preview_player is not None:
+            self._preview_poll_job = self.after(400, self._poll_preview_state)
+
+    def _poll_preview_state(self) -> None:
+        self._preview_poll_job = None
+        if self._preview_player is None:
+            return
+        try:
+            still_playing = self._preview_player.is_playing()
+        except Exception:
+            still_playing = False
+        if still_playing:
+            self._schedule_preview_poll()
+        else:
+            self._stop_preview()
+
+    def _stop_preview(self) -> None:
+        if self._preview_poll_job is not None:
+            try:
+                self.after_cancel(self._preview_poll_job)
+            except Exception:
+                pass
+            self._preview_poll_job = None
+        path = self._preview_playing_path
+        if path is not None:
+            button = self._preview_buttons.get(path)
+            if button is not None:
+                try:
+                    button.configure(text="▶")
+                except Exception:
+                    pass
+        if self._preview_player is not None:
+            try:
+                self._preview_player.close()
+            except Exception:
+                pass
+        self._preview_player = None
+        self._preview_playing_path = None
+
+    def _add_entry_row(self, parent: tk.Misc, row: int, label: str, variable: tk.StringVar, readonly: bool = False):
+        tk.Label(parent, text=label, bg=self.app.card, fg=self.app.muted, font=("Bahnschrift", 10)).grid(row=row, column=0, sticky="w", pady=4, padx=(0, 10))
+        entry = tk.Entry(
+            parent,
+            textvariable=variable,
+            bg=self.app.panel_alt,
+            fg=self.app.fg,
+            insertbackground=self.app.fg,
+            relief="flat",
+            bd=0,
+            highlightthickness=0,
+            font=("Consolas", 11),
+        )
+        if readonly:
+            entry.configure(
+                readonlybackground=self.app.panel_alt,
+                disabledbackground=self.app.card_soft,
+                disabledforeground=self.app.muted,
+                state="readonly",
+            )
+        entry.grid(row=row, column=1, sticky="ew", pady=4)
+        parent.grid_columnconfigure(1, weight=1)
+        return entry
+
+    def _add_combo_row(self, parent: tk.Misc, row: int, label: str, variable: tk.StringVar, values: list[str]):
+        tk.Label(parent, text=label, bg=self.app.card, fg=self.app.muted, font=("Bahnschrift", 10)).grid(row=row, column=0, sticky="w", pady=4, padx=(0, 10))
+        combo = ttk.Combobox(parent, textvariable=variable, values=values, font=("Consolas", 10), style="Server16.TCombobox")
+        combo.grid(row=row, column=1, sticky="ew", pady=4)
+        parent.grid_columnconfigure(1, weight=1)
+        return combo
+
+    def _on_destroy(self, _event=None) -> None:
+        self._stop_preview()
+        if self._refresh_job is not None:
+            try:
+                self.after_cancel(self._refresh_job)
+            except Exception:
+                pass
+            self._refresh_job = None
+
+    def _available_choices(self) -> list[str]:
+        directory = self.spec.directory
+        if not directory:
+            return []
+        base = self.app.exedir / directory
+        if self.spec.recursive:
+            entries = []
+            if base.exists():
+                for path in sorted(p for p in base.rglob("*") if p.is_dir()):
+                    try:
+                        entries.append(path.relative_to(base).as_posix())
+                    except ValueError:
+                        continue
+            return entries
+        if not base.exists():
+            return []
+        if directory.replace("/", "\\").casefold() == "stadiumgbd":
+            return discover_stadium_names(base)
+        return sorted(path.name for path in base.iterdir() if path.is_dir())
+
+    def _file_stems(self, folder: Path) -> list[str]:
+        if not folder.exists():
+            return ["0"]
+        values = [item.stem for item in sorted(folder.iterdir()) if item.is_file()]
+        return values or ["0"]
+
+    def _on_entry_selected(self, _event=None) -> None:
+        selection = self.entries_list.curselection()
+        if not selection:
+            return
+        key = self._display_keys[selection[0]]
+        self.load_entry(key)
+
+    def reload_entries(self, preserve: bool = True) -> None:
+        current_selection = self.selected_key if preserve else None
+        # Use reload_if_needed instead of force-reload to avoid re-reading the
+        # file right after a save (which already updated _last_mtime_ns).
+        self.app.settings_ini._reload_if_needed()
+        items = self.app.settings_ini.items(self.spec.section)
+        query = self.search_var.get().strip().lower()
+        if query:
+            items = [(key, value) for key, value in items if query in key.lower() or query in value.lower()]
+        self.entries_list.delete(0, "end")
+        self._display_keys = []
+        for key, value in items:
+            preview = value if len(value) <= 58 else value[:55] + "..."
+            self.entries_list.insert("end", f"{key}  ->  {preview}")
+            self._display_keys.append(key)
+        self.count_label.configure(text=self.tr("dialog.editor.entries_count", count=len(items)))
+        if current_selection:
+            for index, (key, _value) in enumerate(items):
+                if key == current_selection:
+                    self.entries_list.selection_clear(0, "end")
+                    self.entries_list.selection_set(index)
+                    self.entries_list.activate(index)
+                    break
+        self._schedule_refresh()
+
+    def _schedule_refresh(self) -> None:
+        # Do not schedule auto-refresh while the user is actively editing an entry
+        # — it would overwrite what they typed in the form fields before they save.
+        if self.selected_key is not None:
+            return
+        if self._refresh_job is not None:
+            try:
+                self.after_cancel(self._refresh_job)
+            except Exception:
+                pass
+        self._refresh_job = self.after(3000, self.reload_entries)
+
+    def new_entry(self) -> None:
+        self.selected_key = None
+        self.key_var.set("")
+        if self.spec.kind == "simple":
+            choices = self._available_choices()
+            self.value_var.set(choices[0] if choices else "")
+        elif self.spec.kind == "stadium":
+            self.stadium_list.selection_clear(0, "end")
+            self.police_var.set(self.STADIUM_DEFAULTS["police"])
+            self.pitch_var.set(self.STADIUM_DEFAULTS["pitch"])
+            self.net_var.set(self.STADIUM_DEFAULTS["net"])
+        elif self.spec.kind == "net":
+            self.down_var.set(self.NET_DEFAULTS["down"])
+            self.high_var.set(self.NET_DEFAULTS["high"])
+            self.rig_var.set(self.NET_DEFAULTS["rig"])
+            self.shape_var.set(self.NET_DEFAULTS["shape"])
+        elif self.spec.kind == "scoreboardstdname":
+            self.display_name_var.set("")
+        elif self.spec.kind == "chants":
+            choices = self._available_choices()
+            self.chants_folder_var.set(choices[0] if choices else self.CHANTS_DEFAULTS["folder"])
+            self.default_var.set(self.CHANTS_DEFAULTS["default"])
+            self.winning_var.set(self.CHANTS_DEFAULTS["winning"])
+            self.lose1_var.set(self.CHANTS_DEFAULTS["lose1"])
+            self.lose2_var.set(self.CHANTS_DEFAULTS["lose2"])
+            self.lose3_var.set(self.CHANTS_DEFAULTS["lose3"])
+            self.goal_var.set(self.CHANTS_DEFAULTS["goal"])
+            self.silence_prob_var.set(self.CHANTS_DEFAULTS["silence_prob"])
+            self.silence_max_var.set(self.CHANTS_DEFAULTS["silence_max"])
+            self.away_prob_var.set(self.CHANTS_DEFAULTS["away_prob"])
+            self.entrance_volume_var.set(self.CHANTS_DEFAULTS["entrance_volume"])
+            self.entrance_delay_var.set(self.CHANTS_DEFAULTS["entrance_delay"])
+        elif self.spec.kind == "exclude":
+            self.exclude_var.set("excluded from stadium server")
+        self.status_var.set(self.tr("dialog.editor.new_ready"))
+
+    def load_entry(self, key: str) -> None:
+        self.app.settings_ini.reload()
+        value = self.app.settings_ini.read(key, self.spec.section)
+        self.selected_key = key
+        self.key_var.set(key)
+        if self.spec.kind == "simple":
+            self.value_var.set(value)
+        elif self.spec.kind == "stadium":
+            self._load_stadium_value(value)
+        elif self.spec.kind == "net":
+            self._load_net_value(value)
+        elif self.spec.kind == "scoreboardstdname":
+            self._load_scoreboard_name_value(key, value)
+        elif self.spec.kind == "chants":
+            self._load_chants_value(value)
+        elif self.spec.kind == "exclude":
+            self.exclude_var.set(value or "excluded from stadium server")
+        self.status_var.set(self.tr("dialog.editor.editing", section=self.spec.section, key=key))
+
+    def _load_stadium_value(self, value: str) -> None:
+        self.stadium_list.selection_clear(0, "end")
+        if not value or value == "None":
+            self.police_var.set(self.STADIUM_DEFAULTS["police"])
+            self.pitch_var.set(self.STADIUM_DEFAULTS["pitch"])
+            self.net_var.set(self.STADIUM_DEFAULTS["net"])
+            return
+        parts = [part.strip() for part in value.split(",") if part.strip()]
+        if len(parts) >= 4:
+            stadiums, police, pitch, net = parts[:-3], parts[-3], parts[-2], parts[-1]
+        else:
+            stadiums, police, pitch, net = parts[:1], self.STADIUM_DEFAULTS["police"], self.STADIUM_DEFAULTS["pitch"], self.STADIUM_DEFAULTS["net"]
+        choices = self._available_choices()
+        for stadium in stadiums:
+            if stadium in choices:
+                index = choices.index(stadium)
+                self.stadium_list.selection_set(index)
+        self.police_var.set(police)
+        self.pitch_var.set(pitch)
+        self.net_var.set(net)
+
+    def _load_net_value(self, value: str) -> None:
+        parts = [part.strip() for part in value.split(",")]
+        while len(parts) < 4:
+            parts.append("")
+        self.down_var.set(parts[0] or self.NET_DEFAULTS["down"])
+        self.high_var.set(parts[1] or self.NET_DEFAULTS["high"])
+        self.rig_var.set(parts[2] or self.NET_DEFAULTS["rig"])
+        self.shape_var.set(parts[3] or self.NET_DEFAULTS["shape"])
+
+    def _load_scoreboard_name_value(self, key: str, value: str) -> None:
+        # Format: DisplayName  (comma-separated values are supported, we take first part)
+        display_name = value.split(",")[0].strip() if value else key
+        self.display_name_var.set(display_name)
+
+    def _load_chants_value(self, value: str) -> None:
+        parts = [part.strip() for part in value.split(",")]
+        # Backward compatibility:
+        # old format (7): folder,default,winning,lose1,lose2,lose3,goal
+        # current format (12): folder,default,winning,lose1,lose2,lose3,goal,
+        # silence_prob,silence_max,away_prob,entrance_volume,entrance_delay
+        if len(parts) >= 7:
+            folder = parts[0]
+            default = parts[1] if len(parts) > 1 else ""
+            winning = parts[2] if len(parts) > 2 else ""
+            lose1 = parts[3] if len(parts) > 3 else ""
+            lose2 = parts[4] if len(parts) > 4 else ""
+            lose3 = parts[5] if len(parts) > 5 else ""
+            goal = parts[6] if len(parts) > 6 else ""
+            silence_prob = parts[7] if len(parts) > 7 else ""
+            silence_max = parts[8] if len(parts) > 8 else ""
+            away_prob = parts[9] if len(parts) > 9 else ""
+            entrance_volume = parts[10] if len(parts) > 10 else ""
+            entrance_delay = parts[11] if len(parts) > 11 else ""
+        else:
+            # Very old/invalid payload: keep best effort with defaults.
+            while len(parts) < 12:
+                parts.append("")
+            (
+                folder, default, winning, lose1, lose2, lose3, goal,
+                silence_prob, silence_max, away_prob, entrance_volume, entrance_delay,
+            ) = parts[:12]
+        self.chants_folder_var.set(folder or self.CHANTS_DEFAULTS["folder"])
+        self.default_var.set(default or self.CHANTS_DEFAULTS["default"])
+        self.winning_var.set(winning or self.CHANTS_DEFAULTS["winning"])
+        self.lose1_var.set(lose1 or self.CHANTS_DEFAULTS["lose1"])
+        self.lose2_var.set(lose2 or self.CHANTS_DEFAULTS["lose2"])
+        self.lose3_var.set(lose3 or self.CHANTS_DEFAULTS["lose3"])
+        self.goal_var.set(goal or self.CHANTS_DEFAULTS["goal"])
+        self.silence_prob_var.set(silence_prob or self.CHANTS_DEFAULTS["silence_prob"])
+        self.silence_max_var.set(silence_max or self.CHANTS_DEFAULTS["silence_max"])
+        self.away_prob_var.set(away_prob or self.CHANTS_DEFAULTS["away_prob"])
+        self.entrance_volume_var.set(entrance_volume or self.CHANTS_DEFAULTS["entrance_volume"])
+        self.entrance_delay_var.set(entrance_delay or self.CHANTS_DEFAULTS["entrance_delay"])
+
+    def _compose_value(self) -> str:
+        if self.spec.kind == "simple":
+            return self.value_var.get().strip()
+        if self.spec.kind == "stadium":
+            selected = [self.stadium_list.get(index) for index in self.stadium_list.curselection()]
+            if not selected:
+                return "None"
+            return ",".join(selected + [self.police_var.get().strip(), self.pitch_var.get().strip(), self.net_var.get().strip()])
+        if self.spec.kind == "net":
+            return ",".join(
+                [
+                    self.down_var.get().strip(),
+                    self.high_var.get().strip(),
+                    self.rig_var.get().strip(),
+                    self.shape_var.get().strip(),
+                ]
+            )
+        if self.spec.kind == "scoreboardstdname":
+            return self.display_name_var.get().strip() or self.key_var.get().strip()
+        if self.spec.kind == "chants":
+            return ",".join(
+                [
+                    self.chants_folder_var.get().strip(),
+                    self.default_var.get().strip(),
+                    self.winning_var.get().strip(),
+                    self.lose1_var.get().strip(),
+                    self.lose2_var.get().strip(),
+                    self.lose3_var.get().strip(),
+                    self.goal_var.get().strip(),
+                    self.silence_prob_var.get().strip(),
+                    self.silence_max_var.get().strip(),
+                    self.away_prob_var.get().strip(),
+                    self.entrance_volume_var.get().strip(),
+                    self.entrance_delay_var.get().strip(),
+                ]
+            )
+        if self.spec.kind == "exclude":
+            return self.exclude_var.get().strip() or "excluded from stadium server"
+        return ""
+
+    def save_entry(self) -> None:
+        key = self.key_var.get().strip()
+        if not key:
+            messagebox.showwarning(self.tr("message.settings"), self.tr("message.settings.enter_key"))
+            return
+        if self.spec.section.lower() == "modules":
+            messagebox.showwarning(self.tr("message.settings"), self.tr("message.settings.modules_locked"))
+            return
+        value = self._compose_value()
+        if not value:
+            messagebox.showwarning(self.tr("message.settings"), self.tr("message.settings.enter_valid_value"))
+            return
+        original_key = self.selected_key
+        if original_key and original_key != key:
+            self.app.settings_ini.delete_key(original_key, self.spec.section)
+        self.app.settings_ini.write(key, value, self.spec.section)
+        self.app.settings_ini.save()
+        self.selected_key = key
+        self.status_var.set(self.tr("dialog.editor.saved", section=self.spec.section, key=key))
+        self.reload_entries()
+        self._apply_runtime()
+
+    def delete_entry(self) -> None:
+        key = self.key_var.get().strip() or self.selected_key
+        if not key:
+            return
+        if not messagebox.askyesno(self.tr("message.settings"), self.tr("message.settings.remove_entry", section=self.spec.section, key=key)):
+            return
+        self.app.settings_ini.delete_key(key, self.spec.section)
+        self.app.settings_ini.save()
+        self.status_var.set(self.tr("dialog.editor.removed", section=self.spec.section, key=key))
+        self.new_entry()
+        self.reload_entries(preserve=False)
+        self._apply_runtime()
+
+    def _apply_runtime(self) -> None:
+        try:
+            self.app.refresh_modules()
+            self.app.apply_all_runtime()
+            self.status_var.set(self.status_var.get() + self.tr("dialog.editor.runtime_updated"))
+        except Exception as exc:
+            self.app.log("Failed to apply runtime after settings edit", exc)
+
+
+def stadium_specs() -> list[SectionSpec]:
+    return [
+        SectionSpec("stadium", "Team Stadiums", kind="stadium", directory="StadiumGBD"),
+        SectionSpec("comp", "Competition Stadiums", kind="stadium", directory="StadiumGBD"),
+        SectionSpec("stadiumnetname", "Net By Stadium Name", kind="net", directory="StadiumGBD"),
+        SectionSpec("stadiumnetid", "Net By Stadium ID", kind="net"),
+        SectionSpec("scoreboardstdname", "Scoreboard Stadium Name (slot 176)", kind="scoreboardstdname", directory="StadiumGBD"),
+        SectionSpec("scoreboardstdnamem", "Scoreboard Stadium Name (slot 261)", kind="scoreboardstdname", directory="StadiumGBD"),
+        SectionSpec("exclude", "Excluded Competitions", kind="exclude"),
+    ]
+
+
+def asset_specs() -> list[SectionSpec]:
+    return [
+        SectionSpec("Scoreboard", "dialog.editor.choice.competition_scoreboards", kind="simple", directory="ScoreBoardGBD"),
+        SectionSpec("TVLogo", "dialog.editor.choice.competition_tvlogos", kind="simple", directory="TVLogoGBD"),
+        SectionSpec("HomeTeamScoreBoard", "dialog.editor.choice.home_team_scoreboards", kind="simple", directory="ScoreBoardGBD"),
+        SectionSpec("HomeTeamTvLogo", "dialog.editor.choice.home_team_tvlogos", kind="simple", directory="TVLogoGBD"),
+        SectionSpec("movies", "dialog.editor.choice.competition_movies", kind="simple", directory="MoviesGBD"),
+        SectionSpec("TeamMovies", "dialog.editor.choice.team_movies", kind="simple", directory="MoviesGBD"),
+        SectionSpec("DerbyMatch", "dialog.editor.choice.derby_movies", kind="simple", directory="MoviesGBD"),
+    ]
+
+
+def audio_specs() -> list[SectionSpec]:
+    return [
+        SectionSpec("chantsid", "dialog.editor.choice.chants_ids", kind="chants", directory="FSW\\Chants", recursive=True),
+    ]

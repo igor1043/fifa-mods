@@ -6,3 +6,7 @@ ModCarrerMode/source/mascot_photographer/assets/** -text whitespace=cr-at-eol
 *.rx3 -text
 *.lnx -text whitespace=cr-at-eol
 *.bin -text
+*.big -text
+*.dds -text
+*.cbac -text
+*.ico -text

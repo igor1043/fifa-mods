@@ -1,3 +1,8 @@
+-- Server16 frontend stadium v1
+if not Server16FrontendCrowdUpdate then
+ local script = gSportsRNA:LoadScriptAsync("data/fifarna/lua/assets/server16_frontend_stadium.lua")
+ gSportsRNA:LoadScriptAsyncComplete(script)
+end
 IsCrowd3D = 1
 
 function CrowdUpdate(idx)
@@ -48,6 +53,7 @@ function CrowdUpdate(idx)
 	leagueID = getTournamentGraphics(leagueID)
 	
 	db.crowd[idx].stadiumID = as:GetInt(state, "wvAttribStadID")
+	Server16FrontendCrowdUpdate(idx)
 
 	if (idx > 0) then
 	local player = as:GetTable("wvPlayer", 9)
@@ -881,6 +887,8 @@ end
 
 
 function GetRMChairMod(idx)
+	local server16 = Server16FrontendChair(idx)
+	if server16 ~= "" then return server16 end
 	local chair = ""
 	
 	if (getRemoveSeats(db.crowd[idx].homeKitTeamID,db.crowd[idx].stadiumID)) then

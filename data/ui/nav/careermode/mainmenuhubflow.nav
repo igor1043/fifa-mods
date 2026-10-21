@@ -65,7 +65,7 @@
 							,["loadView",["screen", "game/screens/fluxHub/FluxHub"]]
 							,["sendAction",["updateLocGender", "checkGender"]]
 							,["sendAction", ["setStadiumPosition", ""] ] /* CareerHubViewModel knows what camera to set depending on PAP/PAM Career */
-							,["loadView",["background", "BOOTFLOW"]]
+							,["loadView",["background", "FIFA", "BOOTFLOW"]]
 						]
 						,"onExit":
 						[

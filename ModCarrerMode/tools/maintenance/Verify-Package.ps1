@@ -25,10 +25,18 @@ foreach ($entry in $entries) {
     if ($enabledModules.ContainsKey($module)) { throw "Mais de uma DLL habilitada no mod: $module" }
     $enabledModules[$module] = $true
 }
+# Original WorkLab SubsOn replaces the retired local bench implementation.
+if ($entries -contains 'subson\subson_bridge.dll') {
+    foreach ($relative in @('SubsOn.dll','SubsOn.ini','ModCarrerMode\data\catalogs\subson_assets.json')) { Require-File $relative }
+    $subsonAsset=Get-Content -LiteralPath (Join-Path $root 'ModCarrerMode\data\catalogs\subson_assets.json') -Raw | ConvertFrom-Json
+    if ($subsonAsset.files.Count -ne 1 -or $subsonAsset.files[0].path -ne 'data/ant.cbac' -or
+        $subsonAsset.files[0].sha256 -notmatch '^[a-fA-F0-9]{64}$' -or $subsonAsset.files[0].bytes -le 0) { throw 'Manifesto do complemento SubsOn invalido.' }
+    if (Test-Path -LiteralPath (Join-Path $mods 'bench_native12')) { throw 'Banco antigo bench_native12 presente junto com SubsOn.' }
+}
 # Check disabled files too: ignoring them in enabled.txt does not remove them
 # from the downloaded package or from a subsequent installation.
 foreach ($file in Get-ChildItem -LiteralPath $mods -Recurse -File) {
-    if ($file.Extension -eq '.bak' -or $file.Name -match '_v\d+\.dll$') { throw "Revisao antiga/backup na pasta de mods: $($file.FullName)" }
+    if ($file.Extension -eq '.bak' -or ($file.Name -match '_v\d+(?:_\d+)*\.dll$' -and -not $seen.ContainsKey($file.FullName))) { throw "Revisao antiga/backup na pasta de mods: $($file.FullName)" }
 }
 foreach ($directory in Get-ChildItem -LiteralPath $mods -Directory) {
     if ($directory.Name -match '_v\d+$') { throw "Pasta de mod versionada: $($directory.Name)" }
@@ -61,4 +69,15 @@ if ($entries -contains 'smoke_machine\smoke_machine.dll') {
     foreach ($relative in @('ModCarrerMode\mods\smoke_machine\smoke_machine.ini','ModCarrerMode\mods\smoke_machine\smoke_machine.lua','data\sceneassets\smoke_machine\model.rx3','data\sceneassets\smoke_machine\textures.rx3')) { Require-File $relative }
     if ($entries -notcontains 'stadium_pyrotechnics\stadium_pyrotechnics.dll') { throw 'A máquina de fumaça precisa do módulo stadium_pyrotechnics para os disparos.' }
 }
+if ($enabledModules.ContainsKey('frontend_stadium')) {
+    foreach ($relative in @('ModCarrerMode\tools\frontend_stadium_prepare.exe','ModCarrerMode\config\frontend_stadium.ini',
+        'ModCarrerMode\data\catalogs\club_stadium_fallback.tsv','data\fifarna\lua\assets\stadium.lua',
+        'data\fifarna\lua\assets\crowd.lua','data\fifarna\lua\assets\server16_frontend_stadium.lua',
+        'data\fifarna\lua\assets\server16_frontend_176.lua','data\fifarna\lua\assets\server16_frontend_261.lua',
+        'data\ui\game\background\backgroundfifa.big','data\ui\game\screens\misc\stadiumpan.big',
+        'data\ui\nav\mainfeflow.nav','data\ui\nav\careermode\mainmenuhubflow.nav',
+        'data\ui\imgAssets\backgroundstadiums\st_server16_frontend_clear.dds')) { Require-File $relative }
+}
+if ($enabledModules.ContainsKey('panorama_drone')) { Require-File 'ModCarrerMode\config\panorama_drone.ini' }
+if ($enabledModules.ContainsKey('extra_scenes')) { Require-File 'ModCarrerMode\config\extra_scenes.ini' }
 [pscustomobject]@{Package=$root;Verified=$true;EnabledPlugins=$entries.Count;MascotModels='Local packages required; excluded from Git'}

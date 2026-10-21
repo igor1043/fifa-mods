@@ -1,0 +1,102 @@
+{
+  "version": "0.2.8",
+  "branch": "fifa-friends-v12",
+  "date": "2026-10-21",
+  "features": {
+    "extra_scenes": false,
+    "narrator_selection": false,
+    "narration_notifications": false,
+    "custom_stadium_default": false
+  },
+  "enabled_plugins": 18,
+  "files": {
+    "Server16Python.exe": {
+      "bytes": 45709099,
+      "sha256": "eaf73ea9912e1a48e81ca85a0770ba4f46816eb4ce97ea7b9ed0397c5f52d2d2"
+    },
+    "ModCarrerMode/tools/frontend_stadium_prepare.exe": {
+      "bytes": 8418377,
+      "sha256": "0c1c1bc86f06ccec86da9fc5812a805a01949bab26d0091655242ac80867a510"
+    },
+    "SubsOn.dll": {
+      "bytes": 49664,
+      "sha256": "c66ee4e64a4823c99b5f3a74a7b5a4e58537130bf810492e34d6d34710dded77"
+    },
+    "SubsOn.ini": {
+      "bytes": 232,
+      "sha256": "c2b2d3544f2acf3f7b9d1df2a72850d58e366a73e0e9331849e3b259cfc95c00"
+    },
+    "ModCarrerMode/mods/crowd/crowd_plugin.dll": {
+      "bytes": 192000,
+      "sha256": "9f5f76a7bb48e185ad6e3158b4793f3a80d44cd857e052a7a96baee1ec248284"
+    },
+    "ModCarrerMode/mods/career_birthdate_2006/birthyear_range_2006_2012.dll": {
+      "bytes": 164864,
+      "sha256": "99a50d5a4eb99fe0674586fc865fed6b6bddcf6ec77f85ab1053a2ba98f7e179"
+    },
+    "ModCarrerMode/mods/substitution_all7_rulescan_native/substitution_all7_rulescan_native.dll": {
+      "bytes": 158208,
+      "sha256": "e818b67756b5610c42ba8c77b6d4114d8c35167af57c6f593c38186bf058ed4e"
+    },
+    "ModCarrerMode/mods/subson/subson_bridge.dll": {
+      "bytes": 179200,
+      "sha256": "d37af9429d59f1128108dfee1381df0489836744e11ca9ed67fb92113e7f9f20"
+    },
+    "ModCarrerMode/mods/mascot_single/mascot_goal_line.dll": {
+      "bytes": 945152,
+      "sha256": "c6c41f1c433a154e651aebe3f061e480f84c29ec561506b23f14c55f3492b9c4"
+    },
+    "ModCarrerMode/mods/tournament_compat_native/tournament_compat_native.dll": {
+      "bytes": 192512,
+      "sha256": "138dbc757a8af7e76a75ef0a7821166d08e8b2344b9eae60d61d8af6ff3525fc"
+    },
+    "ModCarrerMode/mods/career_ui_assets/career_ui_assets.dll": {
+      "bytes": 201728,
+      "sha256": "f06f92c471c5d3be99740a45b085d9d8765e43e19e4d0245ab7d526991872420"
+    },
+    "ModCarrerMode/mods/kickoff_modern/kickoff_modern.dll": {
+      "bytes": 187392,
+      "sha256": "ae124bf1b6a82fd90eb0c929e9b26ed0eb4bee6c3d1678648d74a853f44bb004"
+    },
+    "ModCarrerMode/mods/goal_kick_short_pass/goal_kick_short_pass.dll": {
+      "bytes": 264704,
+      "sha256": "c41f163c77f645bcef3a2ec3fb7569f471e1075e63f43d43138697da35c1062f"
+    },
+    "ModCarrerMode/mods/multiball_visual/multiball_visual.dll": {
+      "bytes": 216576,
+      "sha256": "8296ac4223e32dd9f5e75a4546935e4bbc0d5985b99c1d4f44a2606c17c95e76"
+    },
+    "ModCarrerMode/mods/stadium_pyrotechnics/stadium_pyrotechnics.dll": {
+      "bytes": 225792,
+      "sha256": "7a7cdf25c27b4d4734368881c04a345c413769c73da0a6234e1a4dbb053f0382"
+    },
+    "ModCarrerMode/mods/crowd_ultra_kits/crowd_ultra_kits.dll": {
+      "bytes": 220160,
+      "sha256": "ed15c407dda4d5cec79442156c2545bf5cd77584dee51d7fa4960109564dccc2"
+    },
+    "ModCarrerMode/mods/entrance_props/entrance_props.dll": {
+      "bytes": 311808,
+      "sha256": "06c88b46534d8e14d82262e6495ecf7c2e9407ec1efba8a454c59f1218a785b5"
+    },
+    "ModCarrerMode/mods/var_cabin/var_cabin.dll": {
+      "bytes": 187904,
+      "sha256": "1c1495e68b1f352f2ea82fb97bc1c5b0c3abd12613caf8b9f54f9233d0d1a92d"
+    },
+    "ModCarrerMode/mods/smoke_machine/smoke_machine.dll": {
+      "bytes": 194048,
+      "sha256": "9ee40ed3fc4023901108b392b52cf488fc91e2eca0bc16f78fa159be226e21b5"
+    },
+    "ModCarrerMode/mods/cloth_motion/cloth_motion.dll": {
+      "bytes": 322560,
+      "sha256": "1106f6fb9209698886bd6fb5cb4b1523255cf9587361437e0749eaa522d43161"
+    },
+    "ModCarrerMode/mods/frontend_stadium/frontend_stadium_native_v11.dll": {
+      "bytes": 202752,
+      "sha256": "b4301386ef30095434de24085b84fb0b8dc8a2b6c809f7a2daa01110195bd97a"
+    },
+    "ModCarrerMode/mods/panorama_drone/panorama_drone_v5.dll": {
+      "bytes": 189440,
+      "sha256": "4860f5fd375fd74b27dfeab00f1ae418e5a0df7b80e1ece0a77df45d9f0dc2bc"
+    }
+  }
+}

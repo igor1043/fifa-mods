@@ -1,7 +1,7 @@
 ﻿ÍCONES DAS COMPETIÇÕES — UMA IMAGEM POR ID DO INI
 
 Use <ID>.png nesta pasta. Calendário, Central e Competições usam esta mesma imagem.
-Abra o Server16 antes do FIFA para preparar as proporções. Não precisa de BIG.
+Abra o Server16 antes do FIFA para preparar as proporções. O módulo gera o BIG do calendário ao iniciar o FIFA.
 As subpastas calendar e cards são geradas automaticamente; não as edite.
 
 1 - FIFA - Copa do Mundo WORLD CUP.png

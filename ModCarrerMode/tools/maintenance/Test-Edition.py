@@ -50,8 +50,9 @@ if edition == 'v12':
     assert club.find('main_tile').get('DESTINATION') == ''
     assert not any(e.get('DESTINATION', '').startswith('FifaModsOpen') for e in root.iter())
     assert 'FifaModsOpen' not in nav
-    assert retirement.find('subtile1').get('DESTINATION') == 'RetirementRemove'
-    assert retirement.find('subtile2').get('DESTINATION') == 'RetirementResetAge'
+    # V12 manages retirement in the Server16 panel; keep native Settings intact.
+    assert retirement.find('main_tile').get('DESTINATION') == 'EnterGameSettings'
+    assert retirement.find('number_of_subtiles').get('LENGTH') == '0'
     for event in ('RetirementRemove', 'RetirementResetAge'):
         transition = re.search(r'\{\s*"event"\s*:\s*"' + event + r'"[^{}]*\}', nav)
         assert transition and '"targets"' in transition.group(0) and event + 'Flow' in transition.group(0)
@@ -73,7 +74,7 @@ else:
         assert (native / path).is_file(), path
 
 entries = [line.strip() for line in (repo / 'ModCarrerMode/mods/enabled.txt').read_text(encoding='utf-8').splitlines() if line.strip() and not line.lstrip().startswith('#')]
-required_plugins = {'crowd/crowd_plugin.dll', 'bench_native12/bench_native12.dll', 'substitution_all7_rulescan_native/substitution_all7_rulescan_native.dll', 'career_birthdate_2006/birthyear_range_2006_2012.dll'}
+required_plugins = {'crowd/crowd_plugin.dll', 'subson/subson_bridge.dll', 'substitution_all7_rulescan_native/substitution_all7_rulescan_native.dll', 'career_birthdate_2006/birthyear_range_2006_2012.dll'}
 active_plugins={p.replace('\\', '/') for p in entries}
 assert required_plugins <= active_plugins
 if edition=='v12':
@@ -82,11 +83,35 @@ if edition=='v12':
                   'smoke_machine/smoke_machine.dll',
                   'entrance_props/entrance_props.dll','var_cabin/var_cabin.dll',
                   'career_ui_assets/career_ui_assets.dll','crowd_ultra_kits/crowd_ultra_kits.dll',
-                  'tournament_compat_native/tournament_compat_native.dll'}
+                  'tournament_compat_native/tournament_compat_native.dll',
+                  'frontend_stadium/frontend_stadium_native_v11.dll',
+                  'panorama_drone/panorama_drone_v5.dll',
+                  'cloth_motion/cloth_motion.dll',
+                  'goal_kick_short_pass/goal_kick_short_pass.dll'}
     assert active_plugins==required_plugins|required_v12
+    assert not any(entry.startswith('extra_scenes/') for entry in active_plugins)
     assert entries.index('entrance_props\\entrance_props.dll')<entries.index('var_cabin\\var_cabin.dll')
 for entry in entries:
     assert (repo / 'ModCarrerMode/mods' / entry.replace('\\', '/')).read_bytes()[:2] == b'MZ'
+if edition == 'v12':
+    frontend_config = configparser.ConfigParser()
+    frontend_config.read(repo / 'ModCarrerMode/config/frontend_stadium.ini', encoding='utf-8')
+    assert not frontend_config.getboolean('frontend_stadium', 'enabled')
+    assert not frontend_config.has_section('frontend_stadium_clubs')
+    assert (repo / 'ModCarrerMode/tools/frontend_stadium_prepare.exe').read_bytes()[:2] == b'MZ'
+    for name in ('stadium.lua', 'crowd.lua'):
+        assert 'server16_frontend_stadium.lua' in (repo / 'data/fifarna/lua/assets' / name).read_text(encoding='utf-8-sig')
+    for slot in (176, 261):
+        route = (repo / f'data/fifarna/lua/assets/server16_frontend_{slot}.lua').read_text(encoding='ascii')
+        assert f'Server16FrontendRoutes[{slot}] = nil' in route
+        assert 'model =' not in route
+    assert '["background", "FIFA", "BOOTFLOW"]' in nav
+    assert '["background", "FIFA", "BOOTFLOW"]' in (repo / 'data/ui/nav/mainfeflow.nav').read_text(encoding='utf-8-sig')
+    extras_config = configparser.ConfigParser()
+    extras_config.read(repo / 'ModCarrerMode/config/extra_scenes.ini', encoding='utf-8')
+    assert not extras_config.getboolean('scenes', 'test_mode')
+    assert not extras_config.getboolean('scenes', 'enabled')
+    assert extras_config.getint('scenes', 'preview_serial') == 0
 for rel in ('Server16Python.exe', 'ModCarrerMode/retirement_offline_worker.exe', 'ModCarrerMode/mods/career_birthdate_2006/dist/Fifa16BirthdateWatcher2006.exe'):
     assert (repo / rel).read_bytes()[:2] == b'MZ', rel
 payload = repo / 'ModCarrerMode/mods/career_birthdate_2006/payload/vpro_proinfo.big'
