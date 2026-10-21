@@ -17,3 +17,4 @@ entrance_props\entrance_props.dll
 var_cabin\var_cabin.dll
 smoke_machine\smoke_machine.dll
 cloth_motion\cloth_motion.dll
+panorama_drone\panorama_drone_v3_1.dll
