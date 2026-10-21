@@ -150,11 +150,18 @@ if (Test-Path -LiteralPath $birthdateTarget -PathType Leaf) {
     if ($currentHash -ne $stockBirthdateHash -and $currentHash -ne $patchedBirthdateHash) { throw 'Interface de nascimento desconhecida; preserve essa variante antes de instalar.' }
 }
 Add-File $birthdateSource $birthdateRelative
+$birthyearUiHelper = Join-Path $PSScriptRoot 'Enable-BirthyearUI.ps1'
+Add-File $birthyearUiHelper 'ModCarrerMode\tools\maintenance\Enable-BirthyearUI.ps1'
+# Copying a loose APT is insufficient while the original BH entry is active.
+# Plan against the installed archives before changing any files. The payload
+# argument is the already validated source, which may not be installed yet.
+$birthyearUiPlan = & $birthyearUiHelper -GameDirectory $game -PayloadPath $birthdateSource -VerifyOnly
 $skip=[Collections.Generic.List[object]]::new();$changes=[Collections.Generic.List[object]]::new();$same=0
 foreach($file in $files) {
     $exists=Test-Path -LiteralPath $file.Target -PathType Leaf
     $legacyConfig=$null
     $editionOwnedConfig = $file.Relative -in @('ModCarrerMode\config\edition.ini','ModCarrerMode\config\career_retirement_background.ini')
+    $clothPreference = $file.Relative -eq 'ModCarrerMode\mods\cloth_motion\cloth_motion.ini'
     $careerDatabase = $file.Relative -in @('data\db\fifa_ng_db.db','data\db\fifa_ng_db-meta.xml')
     # Keep DB and metadata together. Replacing a career DB is an explicit
     # installation choice, separate from restoring interface localization.
@@ -162,7 +169,7 @@ foreach($file in $files) {
         $skip.Add($file);continue
     }
     if ($file.Relative.StartsWith('ModCarrerMode\config\')) { $legacyConfig=Join-Path $gameMod ([IO.Path]::GetFileName($file.Target)) }
-    if (((($file.Relative.StartsWith('ModCarrerMode\config\') -or $file.Relative -eq 'ModCarrerMode\crowd.ini') -and -not $editionOwnedConfig -and -not $ReplaceConfiguration -and ($exists -or ($legacyConfig -and (Test-Path -LiteralPath $legacyConfig)))) -or
+    if (((($file.Relative.StartsWith('ModCarrerMode\config\') -or $file.Relative -eq 'ModCarrerMode\crowd.ini' -or $clothPreference) -and -not $editionOwnedConfig -and -not $ReplaceConfiguration -and ($exists -or ($legacyConfig -and (Test-Path -LiteralPath $legacyConfig)))) -or
          ($file.Relative.EndsWith('.db') -and $exists -and -not $RestoreLocalization -and -not ($careerDatabase -and $ReplaceDatabase)))) {
         $skip.Add($file);continue
     }
@@ -221,7 +228,7 @@ foreach ($relative in @($obsoletePaths | Sort-Object Length)) {
 }
 $obsoletePaths = $archiveRoots
 if ($VerifyOnly) {
-    [pscustomobject]@{Edition=$edition;DevFiles=$files.Count;Identical=$same;Preserved=$skip.Count;ToInstall=$changes.Count;ToArchive=$obsoletePaths.Count;ExternalPaths=$externalPaths;LiveDevelopmentMods=[bool]$liveMods}
+    [pscustomobject]@{Edition=$edition;DevFiles=$files.Count;Identical=$same;Preserved=$skip.Count;ToInstall=$changes.Count;ToArchive=$obsoletePaths.Count;ExternalPaths=$externalPaths;LiveDevelopmentMods=[bool]$liveMods;BirthyearUI=$birthyearUiPlan.Status;BirthyearIndexesToActivate=$birthyearUiPlan.Pending}
     $changes | Select-Object Relative
     $obsoletePaths | ForEach-Object { [pscustomobject]@{Archive=$_} }
     return
@@ -283,6 +290,7 @@ foreach($file in $changes) {
     else { Copy-Item -LiteralPath $file.Source -Destination $file.Target -Force }
     if ((Get-Sha256 $file.Target) -ne $file.Hash) { throw "Copia divergente: $($file.Relative). Backup: $backup" }
 }
+$birthyearUiResult = & $birthyearUiHelper -GameDirectory $game -BackupDirectory (Join-Path $backup 'ui-indexes')
 if ($ArchiveDevelopmentFiles) {
     # tools contains the runtime stadium preparer, required after installation.
     foreach($folder in @('source','backups')) {
@@ -294,4 +302,4 @@ if ($ArchiveDevelopmentFiles) {
         Move-Item -LiteralPath $old -Destination $dest
     }
 }
-[pscustomobject]@{Edition=$edition;Installed=$changes.Count;Identical=$same;Preserved=$skip.Count;Archived=$obsoletePaths.Count;Backup=$backup;Game=$game}
+[pscustomobject]@{Edition=$edition;Installed=$changes.Count;Identical=$same;Preserved=$skip.Count;Archived=$obsoletePaths.Count;Backup=$backup;Game=$game;BirthyearUI=$birthyearUiResult.Status;BirthyearIndexesActivated=$birthyearUiResult.Changed}

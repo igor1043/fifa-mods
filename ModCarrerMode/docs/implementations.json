@@ -44,7 +44,7 @@
       "behavior": "Simula o movimento e as dobras de camisas e calções. A revisão 0.8.2 começa desativada, salva a escolha feita no Server16 antes ou durante a partida e eleva progressivamente a barra do calção em até 3 mm adicionais, sem mover a cintura ou os pontos presos. Mantém os demais parâmetros de física, tamanho da camisa e proteções de curvatura, autocolisão local e contato da revisão anterior.",
       "source": "ModCarrerMode/source/cloth_motion",
       "configuration": "ModCarrerMode/mods/cloth_motion/cloth_motion.ini; Server16 > Módulos > Física de roupas; F12 > Configurações/Ajustes da partida",
-      "limits": "Experimental. Mantém a resolução das malhas físicas do FIFA. A autocolisão local de partículas não cobre todos os triângulos nem movimentos rápidos. Braços usam volumes nativos ou aproximações das mangas animadas. Aparência e FPS precisam de teste na partida.",
+      "limits": "Experimental. Mantém a resolução das malhas físicas do FIFA. A autocolisão local de partículas não cobre todos os triângulos nem movimentos rápidos. Braços usam volumes nativos ou aproximações das mangas animadas. Aparência e FPS precisam de teste na partida. O instalador preserva a escolha existente, inclusive quando está ativada.",
       "status": "implemented"
     },
     {
@@ -170,7 +170,7 @@
       "behavior": "Adapta o intervalo de nascimento para 2006–2012.",
       "source": "ModCarrerMode/mods/career_birthdate_2006",
       "configuration": "ModCarrerMode/mods/enabled.txt",
-      "limits": "Usa o módulo e o payload de interface correspondentes.",
+      "limits": "Ativacao do BIG solto corrigida no indice BH local. Desbloqueio e lista confirmados pelo usuario em 21/10/2026. O reparo nao edita saves.",
       "status": "implemented"
     },
     {
@@ -202,11 +202,11 @@
     },
     {
       "id": "panorama_drone",
-      "name": "Panoramica com 37 tomadas",
-      "behavior": "Travessias do campo, aproximacoes do gol e orbita externa do estadio.",
+      "name": "Panorâmica com 39 tomadas",
+      "behavior": "Acrescenta 39 cenas na panorâmica dos menus, incluindo órbita alta mais lenta, órbita horizontal do estádio e travessia completa da linha central.",
       "source": "ModCarrerMode/source/native_mods/panorama_drone",
       "configuration": "ModCarrerMode/config/panorama_drone.ini",
-      "limits": "Atua no cenario nativo de estadio do menu.",
+      "limits": "Somente panorâmica FE; preserva as transições nativas. Revisão de tomadas 6 testada, com conferência visual pendente após reiniciar o FIFA. A vista externa depende da geometria do modelo.",
       "status": "implemented"
     },
     {
@@ -230,10 +230,19 @@
     {
       "id": "career_branding",
       "name": "Logo FIFA Friends no menu inicial e na carreira",
-      "behavior": "Mostra a logo FIFA Friends nos hubs inicial e da carreira. Mantém a faixa EA transparente desde sua criação, inclusive nas transições entre telas.",
+      "behavior": "Interface anterior restaurada nos hubs inicial e da carreira.",
       "source": "ModCarrerMode/source/tools/career_branding",
       "configuration": "data/ui/game/components/careercomponents/careerhubwidget.big; data/ui/pow/components/easfcwidget.big; data/ui/game/widgets/mainhubwidget.big",
-      "limits": "Revisão 7 confirmada pelo usuário dentro do FIFA em 21/10/2026, incluindo as transições entre telas. A faixa EA permanece transparente desde sua criação e após atualizações nativas. Sem DLL ou executável adicional.",
+      "limits": "Logo e ocultacao desativadas por solicitacao do usuario para isolar o crash recorrente do Robson. Fontes e arquivos modificados preservados em ModCarrerMode/disabled/career_branding; causa exata do crash ainda nao confirmada.",
+      "status": "disabled"
+    },
+    {
+      "id": "player_camera",
+      "name": "Câmeras do jogador",
+      "behavior": "Primeira pessoa e terceira pessoa na câmera Profissional. Revisão 12 mantém a pose nas cobranças, limita oscilações e viradas da terceira pessoa, fixa o atleta no modo de um jogador e desativa desfoque nos quadros modificados.",
+      "source": "ModCarrerMode/source/native_mods/first_person",
+      "configuration": "Server16 > Câmera; runtime/first_person_camera.json",
+      "limits": "Testes isolados aprovados; usuário relatou melhora significativa em 21/10/2026. Casos específicos ainda aguardam validação. Não modifica malhas; a invisibilidade permanece em investigação.",
       "status": "implemented"
     }
   ],

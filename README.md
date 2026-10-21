@@ -6,16 +6,19 @@ O FIFA Friends V12 reúne melhorias para acompanhar seu clube, personalizar a ex
 
 **Edição:** FIFA Friends V12 · **Atualizado em:** 21/10/2026
 
-**Server16 incluído:** 0.2.9. As DLLs compiladas ficam nesta branch, organizadas em uma pasta por mod. O [índice dos 18 módulos ativos](ModCarrerMode/mods/README.md) informa arquivos, funções e configurações.
+**Server16 incluído:** 0.2.10. As DLLs compiladas ficam nesta branch, organizadas em uma pasta por mod. O [índice dos 18 módulos ativos](ModCarrerMode/mods/README.md) informa arquivos, funções e configurações.
 
 ## Atualização — 21/10/2026
 
+- **Câmeras — revisão 12:** acompanhamento nas cobranças e reinícios, correção da pose após a transição nativa e flags de desfoque desligadas nos quadros modificados. A terceira pessoa reduz oscilações e limita as viradas; no modo de um jogador, o vínculo do atleta permanece fixo. Testes isolados aprovados; usuário relatou melhora significativa. Casos específicos ainda aguardam validação.
+- **Física de roupas:** começa desligada e mantém a escolha salva, inclusive ao atualizar a instalação.
 - **Layouts do Server16:** corrigidas as sobreposições no painel da carreira e no rodapé da fumaça; textos respeitam o espaço dos atalhos, switches e botões. A busca de estádio usa teclado QWERTY com fileiras escalonadas e navegação por posição. São 117 testes aprovados e 52 estados renderizados; conferência visual dentro do FIFA pendente.
+- **Ano de nascimento:** corrigida a prioridade da interface que removia o cadeado e listava 2006–2012. O instalador agora ativa essa tela no índice BH local, com backup, sem substituir o índice de outros mods. [Detalhes e reparo manual](ModCarrerMode/source/tools/birthyear_ui/README.md). Desbloqueio e lista confirmados pelo usuário.
 - **Estádio de fundo:** pacote completo do módulo v11, preparador, scripts e interface nativa ajustada para o menu e a carreira. O recurso começa desligado; atualizações preservam as escolhas salvas. Os estádios continuam nos pacotes locais do usuário.
-- **Panorâmica:** módulo v5 com 37 tomadas, incluindo a órbita externa do estádio com velocidade dobrada: cerca de 83 segundos por volta no padrão.
+- **Panorâmica:** módulo v5, revisão de tomadas 6, com 39 cenas. A órbita alta leva cerca de 99 segundos, com rotação mais lenta e o tempo de parada preservado. Há uma nova órbita a 65 m para ver o perfil do estádio e uma travessia completa dos 68 m da linha central.
 - **Pênaltis:** o Server mantém o placar durante a disputa, e a pirotecnia bloqueia os disparos nessa fase.
 - **Próxima partida:** os nomes usam `teams.teamid` da carreira, mantendo a identidade dos clubes junto aos escudos, inclusive nos times adicionados pelo mod. O teste do publicador reproduz a troca por nomes de países no código antigo e passa com a correção; conferência visual após reiniciar o FIFA pendente.
-- **Logo nos hubs:** logo FIFA Friends transparente no lugar da faixa de reconexão, alinhada à borda direita dos cards. O [ajuste para a carreira e o menu inicial](ModCarrerMode/source/tools/career_branding/README.md), na revisão 7, mantém a faixa EA transparente desde o primeiro desenho, inclusive entre telas; funcionamento e transições confirmados pelo usuário dentro do FIFA.
+- **Logo nos hubs:** troca da faixa online pela logo desativada para isolar o crash recorrente do Robson. A interface anterior foi restaurada; os arquivos modificados e seus fontes foram preservados.
 - **Instalação:** as DLLs atuais entram no Git; versões antigas, caches e diagnósticos locais ficam fora da distribuição. SubsOn acompanha o pacote no lugar do banco antigo.
 - **Cenas extras:** mod de técnicos e mascotes desativado e removido dos menus. Seu código permanece no desenvolvimento.
 - **Narração:** seleção de narrador, aplicação automática, progresso e aviso de narração aplicada ocultos nesta versão. O código e os recursos embarcados permanecem disponíveis para uma futura ativação.

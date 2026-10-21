@@ -23,7 +23,7 @@ compartilhado e fica na raiz desta pasta.
 | [smoke_machine/smoke_machine.dll](smoke_machine/smoke_machine.dll) | Máquinas visuais de fumaça | [smoke_machine.ini](smoke_machine/smoke_machine.ini) |
 | [cloth_motion/cloth_motion.dll](cloth_motion/cloth_motion.dll) | Física das roupas | [cloth_motion.ini](cloth_motion/cloth_motion.ini) |
 | [frontend_stadium/frontend_stadium_native_v11.dll](frontend_stadium/frontend_stadium_native_v11.dll) | Estádio de fundo do menu e da carreira | [frontend_stadium.ini](../config/frontend_stadium.ini) |
-| [panorama_drone/panorama_drone_v5.dll](panorama_drone/panorama_drone_v5.dll) | 37 tomadas da panorâmica | [panorama_drone.ini](../config/panorama_drone.ini) |
+| [panorama_drone/panorama_drone_v5.dll](panorama_drone/panorama_drone_v5.dll) | 39 tomadas da panorâmica | [panorama_drone.ini](../config/panorama_drone.ini) |
 
 ## Organização e dependências
 

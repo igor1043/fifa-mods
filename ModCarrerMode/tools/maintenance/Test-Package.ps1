@@ -11,6 +11,24 @@ $repo=[IO.Directory]::GetParent($mod).FullName
 New-Item -ItemType Directory -Path $fixture | Out-Null
 # A marker file, never executed; this is NOT a real FIFA installation.
 [IO.File]::WriteAllBytes((Join-Path $fixture 'FIFA16.exe'),[byte[]](0,0,0))
+# A miniature BIG/BH pair tests activation of the loose birth-year interface.
+# The game is never launched; this entry is deliberately not at retail index 1675.
+$birthName=[Text.Encoding]::ASCII.GetBytes("data/ui/game/screens/virtualpro/vpro_proinfo.big`0")
+$bigFixture=[byte[]]::new(128)
+[Array]::Copy([Text.Encoding]::ASCII.GetBytes('BIG4'),0,$bigFixture,0,4)
+[Array]::Copy([BitConverter]::GetBytes([uint32]128),0,$bigFixture,4,4)
+$bigFixture[11]=1;$bigFixture[15]=[byte](24+$birthName.Length)
+$bigFixture[19]=112;$bigFixture[23]=16
+[Array]::Copy($birthName,0,$bigFixture,24,$birthName.Length)
+$bhFixture=[byte[]]::new(36)
+[Array]::Copy([Text.Encoding]::ASCII.GetBytes('ViV4'),0,$bhFixture,0,4)
+$bhFixture[4]=36;$bhFixture[11]=1;$bhFixture[15]=36
+$bhFixture[19]=112;$bhFixture[23]=16
+for($i=28;$i -lt 36;$i++) { $bhFixture[$i]=[byte]($i+1) }
+[IO.File]::WriteAllBytes((Join-Path $fixture 'data_front_end_extra.big'),$bigFixture)
+$birthIndex=Join-Path $fixture 'data_front_end_extra.bh'
+[IO.File]::WriteAllBytes($birthIndex,$bhFixture)
+$birthIndexBeforeHash=(Get-FileHash -LiteralPath $birthIndex).Hash
 foreach($folder in @('ModCarrerMode\runtime\operations','data\loc')) { New-Item -ItemType Directory -Force -Path (Join-Path $fixture $folder) | Out-Null }
 $supplementalRoot=if ($SupplementalAssetDirectory) { $SupplementalAssetDirectory } else { $repo }
 $supplementalFile=Join-Path $supplementalRoot 'data\ant.cbac'
@@ -74,12 +92,24 @@ $localIndex = Join-Path $localIcons 'index.tsv'
 $localDdsHash = (Get-FileHash -LiteralPath $localDds).Hash
 $localIndexHash = (Get-FileHash -LiteralPath $localIndex).Hash
 & (Join-Path $PSScriptRoot 'Install-Game.ps1') -GameDirectory $fixture -BackupDirectory (Join-Path $fixture 'installer-backups')
+$activatedBirthIndex=[IO.File]::ReadAllBytes($birthIndex)
+for($i=0;$i -lt 36;$i++) {
+    $expected=if ($i -ge 28) {0} else {$bhFixture[$i]}
+    if ($activatedBirthIndex[$i] -ne $expected) { throw "BH de nascimento incorreto no byte $i." }
+}
+$birthBackups=@(Get-ChildItem -LiteralPath (Join-Path $fixture 'installer-backups') -Recurse -File -Filter 'data_front_end_extra.bh')
+if ($birthBackups.Count -ne 1 -or (Get-FileHash -LiteralPath $birthBackups[0].FullName).Hash -ne $birthIndexBeforeHash) { throw 'Backup BH de nascimento ausente/divergente.' }
 $helperRelative='ModCarrerMode\tools\frontend_stadium_prepare.exe'
 if ((Get-FileHash -LiteralPath (Join-Path $fixture $helperRelative)).Hash -ne (Get-FileHash -LiteralPath (Join-Path $repo $helperRelative)).Hash) { throw 'Preparador do estadio ausente/divergente.' }
 $frontendConfig=Join-Path $fixture 'ModCarrerMode\config\frontend_stadium.ini'
 if ((Get-Content -LiteralPath $frontendConfig -Raw) -notmatch '(?m)^enabled=0\s*$') { throw 'Estadio personalizado deve comecar desligado.' }
 [IO.File]::WriteAllText($frontendConfig,"[frontend_stadium]`r`nenabled=1`r`nselected_stadium=auto`r`n[frontend_stadium_clubs]`r`n42=User choice`r`n")
 $frontendHash=(Get-FileHash -LiteralPath $frontendConfig).Hash
+$clothConfig=Join-Path $fixture 'ModCarrerMode\mods\cloth_motion\cloth_motion.ini'
+if ((Get-Content -LiteralPath $clothConfig -Raw) -notmatch '(?m)^enabled=0\s*$') { throw 'Fisica de roupas deve comecar desligada.' }
+$clothUserConfig=[IO.File]::ReadAllText($clothConfig) -replace '(?m)^enabled=0\s*$','enabled=1'
+[IO.File]::WriteAllText($clothConfig,$clothUserConfig)
+$clothUserHash=(Get-FileHash -LiteralPath $clothConfig).Hash
 if ((Get-FileHash -LiteralPath (Join-Path $fixture 'data\sceneassets\var_cabin\model.rx3')).Hash -ne $localVarModelHash -or
     (Get-FileHash -LiteralPath (Join-Path $fixture 'data\sceneassets\var_cabin\textures.rx3')).Hash -ne $localVarTextureHash) { throw 'Cabine local alterada.' }
 if ((Get-FileHash -LiteralPath $localDds).Hash -ne $localDdsHash -or (Get-FileHash -LiteralPath $localIndex).Hash -ne $localIndexHash) { throw 'Icone local ou suas regras de disponibilidade alterados.' }
@@ -116,6 +146,7 @@ if (Test-Path -LiteralPath (Join-Path $fixture 'ModCarrerMode\source')) { throw 
 if ((Get-FileHash -LiteralPath (Join-Path $fixture 'dinput8.dll')).Hash -ne (Get-FileHash -LiteralPath (Join-Path $repo 'dinput8.dll')).Hash) { throw 'DLL incorreta.' }
 if (-not (Test-Path -LiteralPath (Join-Path $fixture 'ModCarrerMode\crowd.ini'))) { throw 'Configuracao do plugin legado ausente.' }
 & (Join-Path $PSScriptRoot 'Install-Game.ps1') -GameDirectory $fixture -BackupDirectory (Join-Path $fixture 'installer-backups') -RestoreLocalization -ArchiveDevelopmentFiles
+if ((Get-FileHash -LiteralPath $clothConfig).Hash -ne $clothUserHash) { throw 'Escolha salva da fisica de roupas alterada pela atualizacao.' }
 if ((Get-FileHash -LiteralPath $frontendConfig).Hash -ne $frontendHash) { throw 'Preferencia do estadio personalizado alterada.' }
 if (-not (Test-Path -LiteralPath (Join-Path $fixture $helperRelative) -PathType Leaf)) { throw 'Preparador do estadio arquivado como ferramenta de desenvolvimento.' }
 if ((Get-FileHash -LiteralPath $db).Hash -ne (Get-FileHash -LiteralPath (Join-Path $repo 'data\loc\por_br.db')).Hash) { throw 'Restauracao opcional da localizacao falhou.' }
