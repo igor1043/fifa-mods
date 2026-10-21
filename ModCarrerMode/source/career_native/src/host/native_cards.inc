@@ -464,14 +464,12 @@ static int native_display_context_competition(int requested,int club) {
     return native_best_competition(club,0);
 }
 static void native_team_name(int team,char *out,size_t size) {
-    unsigned char result[256]={0};
-    if(!size) return; out[0]=0;
-    __try {
-        if(native_names && team>0) g_resolve_team(native_names,team,result);
-        result[0x63]=0;
-        if(result[4] && result[4]!='#') lstrcpynA(out,(const char *)result+4,(int)size);
-    } __except(EXCEPTION_EXECUTE_HANDLER) { out[0]=0; }
-    if(!out[0]) native_team_name_query(team,out,size);
+    if(!out || !size) return;
+    /* 5b8e430 resolves nations.nationid, not teams.teamid. A valid country
+     * name there is still the wrong identity (e.g. team 1 becomes Albania).
+     * Every career card must resolve the actual fixture/club teamid through
+     * the current teams row, including clubs added by the mod. */
+    native_team_name_query(team,out,size);
 }
 static void native_player(const FceStat *s,FceStatSort field,RankedPlayer *out) {
     memset(out,0,sizeof(*out)); out->head=s->player; out->logo=s->team;

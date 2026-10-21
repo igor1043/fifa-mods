@@ -8,7 +8,8 @@
     "narration_notifications": false,
     "custom_stadium_default": false,
     "career_header_branding": true,
-    "main_menu_header_branding": true
+    "main_menu_header_branding": true,
+    "career_team_name_identity": true
   },
   "enabled_plugins": 18,
   "files": {
@@ -111,6 +112,10 @@
     "data/ui/game/widgets/mainhubwidget.big": {
       "bytes": 241398,
       "sha256": "63ac93e559269aa3f693fe4d5bb2bbe676c9b4fe1705a041c7fce51205200879"
+    },
+    "dinput8.dll": {
+      "bytes": 603136,
+      "sha256": "98ae0e56b3d8fb68d935a7c2a3aeaa729a2a1b739c4e9f44bfeb132568171543"
     }
   },
   "panorama_exterior_orbit": {
@@ -146,5 +151,12 @@
     "banner_suppression_scope": "all native EASFCWidget instances including transitions",
     "career_and_main_logo_files": "identical to user-validated revision 6",
     "validated_on": "2026-10-21"
+  },
+  "career_team_name_identity": {
+    "table": "teams",
+    "key": "teamid",
+    "value": "teamname",
+    "native_regression_tests": "passed",
+    "visual_validation": "pending user test after restart"
   }
 }

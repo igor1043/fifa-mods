@@ -149,7 +149,6 @@ typedef int (*StatContainerCountFn)(void *);
 typedef void *(*StatContainerItemFn)(void *, int);
 typedef int (*StatItemValueFn)(void *, int);
 typedef void (*ResolvePlayerNameFn)(void *, void *, char *, int);
-typedef void (*ResolveTeamFn)(void *, int, void *);
 typedef int (*FullStatsCategoryFn)(void *, const char *);
 typedef void *(*GetCareerContextFn)(void *);
 typedef void *(*GetUserTeamFn)(void *, int);
@@ -186,7 +185,6 @@ static StatContainerCountFn g_stat_container_count;
 static StatContainerItemFn g_stat_container_item;
 static StatItemValueFn g_stat_item_value;
 static ResolvePlayerNameFn g_resolve_player_name;
-static ResolveTeamFn g_resolve_team;
 static FullStatsCategoryFn g_full_stats_category;
 static GetServiceDescriptorFn g_get_career_service_descriptor;
 static GetCareerContextFn g_get_career_context;
@@ -4218,7 +4216,6 @@ static DWORD WINAPI patch_standings_provider(LPVOID unused)
         (StatItemValueFn)(module_base + 0x05C44BC0);
     g_resolve_player_name =
         (ResolvePlayerNameFn)(module_base + 0x05C38130);
-    g_resolve_team = (ResolveTeamFn)(module_base + 0x05B8E430);
     native_name_db_bind();
     g_full_stats_category =
         (FullStatsCategoryFn)(module_base + 0x05AB40F0);

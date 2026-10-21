@@ -1,5 +1,5 @@
 /* Current database service, not disk tables. Verified x64 query ABI:
- * 5b90470/5b8e430 -> query ctor 445a2f0, where 44629b0,
+ * query ctor 445a2f0, where 44629b0,
  * backend vtable+8, result count/int/string, result/query destructors.
  * The scorer name resolver 5c38130 expects a NAME key, not a player ID. */
 typedef struct NativeNameDbApi {
@@ -62,10 +62,9 @@ static int native_name_query(int player,int edited,char *out,size_t size,int key
     return found;
 }
 static int native_team_name_query(int team,char *out,size_t size) {
-    /* The team resolver can return an empty value during Career Hub refreshes
-     * even though the live DB name is present. Read the current teams row via
-     * the same in-process DB service used for player names; this also respects
-     * the installed database instead of baking club names into the DLL. */
+    /* Use teams.teamid directly: the similarly shaped resolver at 5b8e430
+     * reads nations.nationid and can return a plausible but unrelated name.
+     * This in-process service respects the current database and mod clubs. */
     unsigned __int64 query[7]={0},result=0;
     int query_ready=0,result_ready=0,found=0;
     size_t i;

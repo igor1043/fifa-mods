@@ -5,10 +5,10 @@
     {
       "id": "next_match",
       "name": "Próxima Partida",
-      "behavior": "Adversário, competição, data, horário, estádio e público estimado quando disponíveis.",
+      "behavior": "Nomes dos clubes, escudos, competição, data, horário, estádio e público estimado da próxima partida.",
       "source": "ModCarrerMode/source/career_native",
       "configuration": "data/ui/layout/careermanagerhubcfg.xml",
-      "limits": "Depende dos dados fornecidos pelo jogo.",
+      "limits": "Resolve nomes na tabela teams pelo teamid da partida, incluindo times do mod. Correção do resolvedor de países testada no publicador real; conferência visual pendente após reiniciar o FIFA.",
       "status": "implemented"
     },
     {
