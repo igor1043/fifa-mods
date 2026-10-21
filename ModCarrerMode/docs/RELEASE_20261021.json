@@ -98,7 +98,7 @@
     },
     "ModCarrerMode/mods/panorama_drone/panorama_drone_v5.dll": {
       "bytes": 189440,
-      "sha256": "4860f5fd375fd74b27dfeab00f1ae418e5a0df7b80e1ece0a77df45d9f0dc2bc"
+      "sha256": "bb84a1073e0daa4c528bbf474707117623293c1ea0be19a0e473c4d8a6a67f9c"
     },
     "data/ui/game/components/careercomponents/careerhubwidget.big": {
       "bytes": 196566,
@@ -113,16 +113,21 @@
       "sha256": "63ac93e559269aa3f693fe4d5bb2bbe676c9b4fe1705a041c7fce51205200879"
     }
   },
+  "panorama_exterior_orbit": {
+    "default_seconds": 83.2,
+    "speed_multiplier": 2,
+    "timing_patch": "2026-10-21"
+  },
   "career_header_branding": {
     "scope": [
       "career_hub",
       "main_menu"
     ],
     "artwork": "FIFA Friends Premium! Plus",
-    "visual_validation": "revision_7_transitions_pending_user_test",
+    "visual_validation": "revision_7_transitions_confirmed_by_user",
     "native_action_vm": "passed",
     "revision": 7,
-    "startup_validation": "revision_6_confirmed_by_user_revision_7_pending",
+    "startup_validation": "revision_7_confirmed_by_user",
     "startup_fix": "replace embedded End padding; preserve constructor hook and all other runtime bytes",
     "career_revision2_visual": "confirmed_by_user",
     "alignment": {
@@ -139,6 +144,7 @@
     "banner_first_paint": "transparent native root before constructor",
     "banner_refresh": "zero opacity after native InitializeLayout and ChangeWidgetState",
     "banner_suppression_scope": "all native EASFCWidget instances including transitions",
-    "career_and_main_logo_files": "identical to user-validated revision 6"
+    "career_and_main_logo_files": "identical to user-validated revision 6",
+    "validated_on": "2026-10-21"
   }
 }

@@ -233,8 +233,8 @@
       "behavior": "Mostra a logo FIFA Friends nos hubs inicial e da carreira. Mantém a faixa EA transparente desde sua criação, inclusive nas transições entre telas.",
       "source": "ModCarrerMode/source/tools/career_branding",
       "configuration": "data/ui/game/components/careercomponents/careerhubwidget.big; data/ui/pow/components/easfcwidget.big; data/ui/game/widgets/mainhubwidget.big",
-      "limits": "Logo e ocultação da revisão 6 confirmadas pelo usuário. Revisão 7 elimina a dependência do momento de ativação do hub com opacidade zero na colocação APT inicial e após atualizações nativas; testes passaram e a conferência visual das transições está pendente. Sem DLL ou executável adicional.",
-      "status": "pending_transition_visual_validation"
+      "limits": "Revisão 7 confirmada pelo usuário dentro do FIFA em 21/10/2026, incluindo as transições entre telas. A faixa EA permanece transparente desde sua criação e após atualizações nativas. Sem DLL ou executável adicional.",
+      "status": "implemented"
     }
   ],
   "not_implemented": [

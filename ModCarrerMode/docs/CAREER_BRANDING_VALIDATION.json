@@ -27,5 +27,6 @@
   "native_banner_first_paint": "zero root alpha and alpha bias; opacity enforced after native updates",
   "revision_6_first_paint_regression": "failed as expected: initial root lacks opacity transform",
   "revision_6_visual": "confirmed by user; card briefly visible during transitions",
-  "revision_7_transition_visual": "pending user validation"
+  "revision_7_transition_visual": "confirmed by user",
+  "validated_on": "2026-10-21"
 }
