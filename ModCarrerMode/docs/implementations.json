@@ -239,10 +239,10 @@
     {
       "id": "player_camera",
       "name": "Câmeras do jogador",
-      "behavior": "RevisÃ£o 13: lente mais leve e sem ampliaÃ§Ã£o adicional na primeira pessoa; atraso horizontal limitado nas viradas e proteÃ§Ã£o da cabeÃ§a pela direÃ§Ã£o final. Terceira pessoa acompanha a bola sem posse, com Ã³rbita suave e estÃ¡vel.",
+      "behavior": "Revisão 14: lente sem arrasto nos cantos com escala central preservada; busca da bola suavizada e olhadas ocasionais para os pés na primeira pessoa. Terceira pessoa gira mais rápido sem a posse, preservando o acompanhamento com a bola.",
       "source": "ModCarrerMode/source/native_mods/first_person",
       "configuration": "Server16 > Câmera; runtime/first_person_camera.json",
-      "limits": "Nitidez confirmada em RAM; compensaÃ§Ã£o final de cantos, viradas e foco sem posse aguardam validaÃ§Ã£o visual. NÃ£o altera malhas nem corrige a invisibilidade geral de jogadores.",
+      "limits": "Lente confirmada pelo usuário em RAM. Movimentos novos aguardam validação visual da DLL v14. Não modifica malhas nem corrige a invisibilidade geral de jogadores.",
       "status": "implemented"
     },
     {

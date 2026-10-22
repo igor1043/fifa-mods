@@ -1,5 +1,5 @@
 {
-  "version": "0.2.12",
+  "version": "0.2.13",
   "branch": "fifa-friends-v12",
   "date": "2026-10-21",
   "features": {
@@ -17,8 +17,8 @@
   "enabled_plugins": 18,
   "files": {
     "Server16Python.exe": {
-      "bytes": 45767001,
-      "sha256": "234ecb19dd582c19e3974cc6bff4e81b76dcbba1e434b190428c28321c023350"
+      "bytes": 45767534,
+      "sha256": "455969be053698bd3625f22fa02f9b713573dd470d543b26e527d1da431d293c"
     },
     "ModCarrerMode/tools/frontend_stadium_prepare.exe": {
       "bytes": 8418377,
@@ -190,9 +190,9 @@
   "panorama_scene_pack_revision": 6,
   "panorama_shots": 39,
   "player_camera": {
-    "revision": 13,
-    "embedded_dll": "bin\\server16_first_person_v13.dll",
-    "sha256": "da35f1c37fba41d6a36103bd91df5be8b9716a243a5b6844bd772079c55e7bd9",
+    "revision": 14,
+    "embedded_dll": "bin\\server16_first_person_v14.dll",
+    "sha256": "4b15fcc7793213c50d3831d1e9cc7f1d3839f76605c1d80ab79c2f7ece96ccad",
     "restart_phases": [
       2,
       3,
@@ -212,16 +212,18 @@
     "native_math_and_protocol": "passed",
     "python_camera_tests": 9,
     "visual_validation": {
-      "curve_disabled": "center sharpened, excessive rectilinear stretching reported by user",
-      "distortion_0_25_zoom_1": "user confirmed good center clarity and better proportions; residual extreme-corner motion",
-      "distortion_0_20_zoom_1": "applied in RAM; awaiting visual confirmation",
-      "head_clearance_and_off_ball_follow": "compiled and tested; awaiting game reload and visual test"
+      "lens": "user confirmed in RAM: borders corrected and center sharp at FOV 140",
+      "new_movements": "awaiting reload of production v14 DLL"
     },
     "mesh_visibility_hook": false,
     "invisible_players": "unresolved; separate investigation",
-    "wide_fov_lens": "half native distortion, maximum 0.20, neutral inverse zoom; first person only",
+    "wide_fov_lens": "center-preserving native shader pair; no out-of-range screen UVs",
     "sharp_turn_yaw_lag_degrees": 20,
-    "off_ball_follow": true
+    "off_ball_follow": true,
+    "first_person_ball_look": "eased speed, max 0.45 rad/s",
+    "foot_glance": "event driven, 1.8 s, max 0.18 rad, min 5.5 s interval",
+    "off_ball_orbit_rad_s": 1.05,
+    "off_ball_acceleration_rad_s2": 2.6
   },
   "cloth_preference": {
     "fresh_default": false,
@@ -230,7 +232,7 @@
   },
   "startup_diagnostics": {
     "reference_files": 729,
-    "embedded_baseline_sha256": "7c785025dbb82962c4f47c92d1c295d47cbae5cc5d624dc66bbea6a447996958",
+    "embedded_baseline_sha256": "269b3121de66546fa0317dea89d1c2d429f5be3f67ee3c90f0b3e20f4d4404fa",
     "directory": "runtime/diagnostics",
     "automatic_zip": true,
     "read_only": true,

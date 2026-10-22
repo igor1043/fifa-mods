@@ -6,9 +6,11 @@ O FIFA Friends V12 reúne melhorias para acompanhar seu clube, personalizar a ex
 
 **Edição:** FIFA Friends V12 · **Atualizado em:** 21/10/2026
 
-**Server16 incluído:** 0.2.12. As DLLs compiladas ficam nesta branch, organizadas em uma pasta por mod. O [índice dos 18 módulos ativos](ModCarrerMode/mods/README.md) informa arquivos, funções e configurações.
+**Server16 incluído:** 0.2.13. As DLLs compiladas ficam nesta branch, organizadas em uma pasta por mod. O [índice dos 18 módulos ativos](ModCarrerMode/mods/README.md) informa arquivos, funções e configurações.
 
 ## Atualização — 21/10/2026
+
+- **Câmeras — revisão 14:** corrigido o arrasto dos cantos preservando a escala central, confirmado pelo usuário em RAM. A primeira pessoa busca a bola com mais suavidade e olha brevemente para os pés em condução. Sem posse, a terceira pessoa gira mais rápido. Os movimentos novos aguardam validação visual.
 
 - **Diagnóstico por sessão:** logs ativos zerados antes de abrir pelo Server e arquivos separados por mod. O ZIP da tentativa reúne arquivos/DLLs, última tela e dados do dump quando disponível. Fica em `runtime/diagnostics/`. [Como coletar e interpretar](ModCarrerMode/docs/DIAGNOSTICO_INICIALIZACAO.md).
 - **Câmeras — revisão 13:** lente da primeira pessoa mais leve e sem ampliação adicional, com nitidez confirmada em RAM; proteção da cabeça nas viradas rápidas. A terceira pessoa acompanha mais a bola sem a posse, preservando a órbita suave. Ajustes finais aguardam validação visual no jogo.
