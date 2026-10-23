@@ -64,7 +64,7 @@ class Bridge:
         m.process_id=process.pid
         m.process_handle=m.kernel32.OpenProcess(0x410,False,process.pid)
         if not m.process_handle:raise OSError('FIFA nao permite leitura')
-        m.base_module=m._get_base_address(process.info['exe'])
+        m.base_module=m._get_base_address(process.exe())
         self.offsets=json.loads(portable.OFFSETS.read_text())
         self.save=read_active_save(GAME,m)
         self.session=f"{self.save['process_created_100ns']}:{process.pid}"

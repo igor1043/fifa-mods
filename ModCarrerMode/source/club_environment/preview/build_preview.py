@@ -200,12 +200,9 @@ def script(data,dictionaries,payload,head_ids):
     a.function('OnAnimateInComplete',0,complete)
     carousel.methods(a,payload,b)
     def shutdown(a):
+        a.when(T('exiting'),lambda a:a.ret());a.set(R(1),'exiting',True);a.set(R(1),'onEnterFrame',None)
         a.do(PATH('game','uif','UIFUtility'),'UnregisterDataProvider',R(1))
         a.do(M('InputManager'),'DisableCurrentLocalEventHandler');a.do(M('HelpManager'),'Clear');a.do(R(1),'Shutdown')
-        # Same class-release pattern used by GridControl.Shutdown. A later
-        # opening must initialize the freshly prepared payload, not old AS data.
-        a.do(PATH('Object'),'registerClass',FULL,None)
-        a.expr(PATH(*CLASS[:-1]));a.string(CLASS[-1]);a.op(58);a.op(23)
     a.function('OnExitScreen',0,shutdown);a.op(0);a.finish()
     a.align();register=len(data);data.extend(dictionaries[1]);a.string(FULL);a.op(28);a.string(FULL);a.expr(2);a.expr(PATH('Object'));a.method('registerClass');a.op(23);a.op(0);a.finish()
     return start,register

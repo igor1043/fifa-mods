@@ -71,8 +71,9 @@ def screen(payload=None,asset_reader=None):
   a.do(M('InputManager'),'SetLocalEventHandler',CALL(PATH('cafe','utility','Delegate'),'Create',R(1),T('LocalEventHandler')));a.do(M('HelpManager'),'Update')
  a.function('OnAnimateInComplete',0,complete)
  def exit(a):
+  a.when(T('exiting'),lambda a:a.ret());a.set(R(1),'exiting',True);a.set(R(1),'onEnterFrame',None);a.set(R(1),'onKeyDown',None)
   a.do(PATH('Key'),'removeListener',R(1))
-  a.do(M('InputManager'),'DisableCurrentLocalEventHandler');a.do(M('HelpManager'),'Clear');a.do(R(1),'Shutdown');a.do(PATH('Object'),'registerClass',FULL,None);a.expr(PATH(*CLASS[:-1]));a.string(CLASS[-1]);a.op(58);a.op(23)
+  a.do(M('InputManager'),'DisableCurrentLocalEventHandler');a.do(M('HelpManager'),'Clear');a.do(R(1),'Shutdown')
  a.function('OnExitScreen',0,exit);a.op(0);a.finish();a.align();reg=len(data);data.extend(dictionaries[1]);a.string(FULL);a.op(28);a.string(FULL);a.expr(2);a.expr(PATH('Object'));a.method('registerClass');a.op(23);a.op(0);a.finish()
  for tag,target in ((apt.root_frames[0][1],start),(apt.root_frames[0][2],reg)):
   matches=[i for i in range(0,len(apt.entry.original)-7,8) if apt.entry.original[i:i+8]==struct.pack('<Q',tag[-1])];assert len(matches)==1;struct.pack_into('<Q',data,matches[0],target)

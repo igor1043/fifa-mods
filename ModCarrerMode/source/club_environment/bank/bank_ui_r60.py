@@ -4,7 +4,7 @@ import sys,json,struct
 import build_screen as b
 sys.path.insert(0,str(b.HERE.parent/'career_match_preview_20261022'))
 from build_preview import Code
-from loans import BANKS,AMOUNTS,TERMS,quote,next_month
+from loans import BANKS,AMOUNTS,TERMS,quote,next_month,parse_date
 b.Code=Code
 R=b.reg;T=b.this;P=b.prop;M=b.MANAGER;EQ=b.equal;ADD=b.plus;CALL=b.call
 ORIGINAL=b.make_script;VIEW={}
@@ -15,7 +15,13 @@ FIELDS+=tuple((f'cell{i}_{j}',x,348+i*47,w,43,24) for i in range(9) for j,(x,w) 
 def label(a,name,value):a.set(T(name),'text',value)
 def show(a,name,value):a.set(T(name),'_visible',value)
 def go(a,page,focus=0):a.set(R(1),'page',page);a.set(R(1),'focus',focus);a.do(R(1),'Refresh')
-def datestr(value):s=str(value);return s[6:8]+'/'+s[4:6]+'/'+s[:4]
+def datestr(value):
+ try:return parse_date(value).strftime('%d/%m/%Y')
+ except (ValueError,TypeError):return 'Não disponível'
+
+def due_date(value,count):
+ try:return datestr(next_month(value,count))
+ except (ValueError,TypeError):return 'Não disponível'
 
 def script(data,dictionaries):
  old=b.Code.function
@@ -35,7 +41,7 @@ def init(a):
  for bank in range(3):
   for amount in AMOUNTS:
    for term in TERMS:
-    q=quote(bank,amount,term);plans.append(('array',tuple(('array',(str(p['number']).zfill(2),datestr(next_month(VIEW.get('date',20260101),p['number'])),b.money(p['amount']),'Prevista')) for p in q['payments'])))
+    q=quote(bank,amount,term);plans.append(('array',tuple(('array',(str(p['number']).zfill(2),due_date(VIEW.get('date'),p['number']),b.money(p['amount']),'Prevista')) for p in q['payments'])))
  a.set(R(1),'plans',('array',tuple(plans)))
  a.set(R(1),'_visible',True);a.set(R(1),'_alpha',100);show(a,'mcGridControl',False);a.do(R(1),'Refresh');a.set(R(1),'onEnterFrame',T('WaitButtons'))
 
@@ -67,9 +73,10 @@ def refresh(a):
  for name,*_ in BUTTONS:show(a,name,False)
  show(a,'mcGridControl',False);label(a,'title','FINANÇAS DO CLUBE')
  wage=VIEW.get('wage_budget');wage_text=b.money(wage) if wage is not None else 'Não informado'
- label(a,'subtitle',f"Transferências: {b.money(VIEW.get('budget',0))}    ·    Salários: {wage_text}    ·    {VIEW.get('used',0)}/2 empréstimos em {str(VIEW.get('date',20260000))[:4]}")
+ year=str(VIEW['date'])[:4] if VIEW.get('date') else 'Não disponível'
+ label(a,'subtitle',f"Transferências: {b.money(VIEW.get('budget',0))}    ·    Salários: {wage_text}    ·    {VIEW.get('used',0)}/2 empréstimos em {year}")
  label(a,'status','Cima/baixo: selecionar  ·  Esquerda/direita: ajustar  ·  Enter/A: confirmar  ·  Esc/B: voltar')
- active=VIEW.get('active');today=VIEW.get('date',20260101)
+ active=VIEW.get('active');today=VIEW.get('date')
  def home(a):
   label(a,'section','O que você deseja fazer?')
   draw_row(a,'row0',0,'Novo empréstimo','Escolher banco, valor e prazo' if VIEW.get('can_borrow') else 'Indisponível: contrato ativo ou limite anual atingido')
@@ -96,7 +103,7 @@ def refresh(a):
    for ai,amount in enumerate(AMOUNTS):
     for ti,months in enumerate(TERMS):
      q=quote(bank,amount,months);cond=('bin',16,('bin',16,EQ(T('bank'),bank),EQ(T('amountIndex'),ai)),EQ(T('termIndex'),ti))
-     values=['SIMULAÇÃO · '+BANKS[bank]['name'],'Saldo atual: '+b.money(VIEW.get('budget',0)),'Crédito: +'+b.money(amount),'Saldo após crédito: '+b.money(VIEW.get('budget',0)+amount),'Salários permanecem: '+wage_text,'Parcela mensal: '+b.money(q['payment']),'Primeira cobrança: '+datestr(next_month(today,1)),'Última cobrança: '+datestr(next_month(today,months)),'Total contratado: '+b.money(q['total']),'Juros totais: '+b.money(q['total']-amount),'Juros: '+str(BANKS[bank]['rate_bps']/100).replace('.',',')+'% ao mês']
+     values=['SIMULAÇÃO · '+BANKS[bank]['name'],'Saldo atual: '+b.money(VIEW.get('budget',0)),'Crédito: +'+b.money(amount),'Saldo após crédito: '+b.money(VIEW.get('budget',0)+amount),'Salários permanecem: '+wage_text,'Parcela mensal: '+b.money(q['payment']),'Primeira cobrança: '+due_date(today,1),'Última cobrança: '+due_date(today,months),'Total contratado: '+b.money(q['total']),'Juros totais: '+b.money(q['total']-amount),'Juros: '+str(BANKS[bank]['rate_bps']/100).replace('.',',')+'% ao mês']
      def fill(a,values=values):
       for i,text in enumerate(values):label(a,'detail'+str(i),text)
      a.when(cond,fill)
@@ -195,7 +202,10 @@ def key(a):
  a.ret(True)
 def animate(a):a.do(M('ScreenManager'),'BeginAnimateIn',CALL(b.path('cafe','utility','Delegate'),'Create',R(1),T('OnAnimateInComplete')));a.do(R(1),'OnAnimateInComplete')
 def shutdown(a):
- a.do(M('InputManager'),'DisableCurrentLocalEventHandler');a.do(M('HelpManager'),'Clear');a.do(R(1),'Shutdown');a.do(b.path('Object'),'registerClass',b.FULL,None);a.expr(b.path(*b.CLASS[:-1]));a.string(b.CLASS[-1]);a.op(58);a.op(23)
+ a.when(T('exiting'),lambda a:a.ret());a.set(R(1),'exiting',True);a.set(R(1),'onEnterFrame',None)
+ for name,*_ in BUTTONS:
+  for event in ('onRelease','onRollOver'):a.set(T(name),event,None)
+ a.do(M('InputManager'),'DisableCurrentLocalEventHandler');a.do(M('HelpManager'),'Clear');a.do(R(1),'Shutdown')
 REPLACE={'InitComponents':init,'InitBankCards':lambda a:None,'Refresh':refresh,'Submit':submit,'Select':select,'Back':back,'Shift':shift,'LocalEventHandler':key,'AnimateIn':animate,'OnExitScreen':shutdown,
  'getHelpContext':lambda a:a.ret(('array',(CALL(b.path('ion','manager','HelpItem'),'CreateHelpTickerItem','ADVANCE','Selecionar'),CALL(b.path('ion','manager','HelpItem'),'CreateHelpTickerItem','BACK','Voltar'))))}
 EXTRA=[('WaitButtons',0,wait),('RowOver',0,row_over),('RowClick',0,row_click),('PaymentOver',0,row_over),('PaymentClick',0,row_click),('AdjustClick',0,adjust_click),('PageClick',0,page_click),('MoveFocus',1,focus),('StatementPage',1,statement)]
@@ -221,4 +231,7 @@ def graphics(data,apt,template,shape,append,new_chars,controls,count):
 
 def build(view=None):
  global VIEW
- VIEW=view or json.loads((b.HERE/'runtime/finance_view.json').read_text(encoding='utf8'));b.NONCE=VIEW.get('nonce','DISABLED');b.FIELDS=FIELDS;b.make_script=script;b.USE_R57=True;b.USE_R60=True;b.build()
+ VIEW=dict(view if view is not None else json.loads((b.HERE/'runtime/finance_view.json').read_text(encoding='utf8')))
+ try:parse_date(VIEW.get('date'))
+ except (ValueError,TypeError):VIEW.update(date=None,ready=False,can_borrow=False,nonce='DISABLED',active=None,schedule=[])
+ b.NONCE=VIEW.get('nonce','DISABLED');b.FIELDS=FIELDS;b.make_script=script;b.USE_R57=True;b.USE_R60=True;b.build()

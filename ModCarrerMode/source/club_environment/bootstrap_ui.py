@@ -4,7 +4,7 @@ import portable_paths as p
 
 def generate():
     import bank_ui_r60,build_screen as b
-    bank_ui_r60.build({'club':0,'budget':0,'date':20260101,'used':0,'can_borrow':False,'schedule':[],
+    bank_ui_r60.build({'club':0,'budget':0,'date':None,'used':0,'can_borrow':False,'schedule':[],
                       'active':None,'ready':False,'nonce':'DISABLED','error':'Aguardando dados da carreira'})
     import build_preview
     side={'team_id':0,'name':'Aguardando dados da carreira','players':[],'portrait_ids':[],

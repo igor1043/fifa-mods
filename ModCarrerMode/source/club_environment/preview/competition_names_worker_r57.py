@@ -1,5 +1,6 @@
-import portable_paths as portable
 import sys,json
+from pathlib import Path
+sys.path.insert(0,str(Path(__file__).resolve().parent))
 from db_worker import _prefer_bundled_site_packages
 _prefer_bundled_site_packages()
 import clr

@@ -182,6 +182,7 @@ def make_script(data,dictionaries):
         a.do(reg(1),'OnAnimateInComplete')
     a.function('AnimateIn',0,animate)
     def complete(a):
+        a.when(('bin',17,this('exiting'),this('screenReady')),lambda a:a.ret());a.set(reg(1),'screenReady',True)
         a.set(reg(1),'_visible',True);a.set(reg(1),'_alpha',100)
         a.do(ION,'SendEvent',prop(this('staticData'),'SCREEN_CONTROLLER_ID'),'SCREEN_READY','')
         a.do(ION,'SendSystemEvent',prop(this('staticData'),'SCREEN_CONTROLLER_ID'),'DONE_LOADING','')
@@ -262,12 +263,11 @@ def make_script(data,dictionaries):
         a.ret(True)
     a.function('LocalEventHandler',2,key)
     def shutdown(a):
+        a.when(this('exiting'),lambda a:a.ret());a.set(reg(1),'exiting',True);a.set(reg(1),'onEnterFrame',None)
         a.do(MANAGER('InputManager'),'DisableCurrentLocalEventHandler')
         a.do(this('mcGridControl'),'Shutdown')
         a.do(MANAGER('HelpManager'),'Clear')
         a.do(reg(1),'Shutdown')
-        a.do(path('Object'),'registerClass',FULL,None)
-        a.expr(path(*CLASS[:-1]));a.string(CLASS[-1]);a.op(58);a.op(23)
     a.function('OnExitScreen',0,shutdown)
     a.op(0);a.finish()
     a.align();register_start=len(data)

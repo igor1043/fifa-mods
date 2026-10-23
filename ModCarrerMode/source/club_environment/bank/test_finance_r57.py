@@ -8,6 +8,11 @@ from apt_vm import Object,Native
 from apt_test_vm import NativeVM
 
 class FinanceTests(unittest.TestCase):
+ def test_unavailable_career_date_builds_disabled_view(self):
+  for value in (None,0,20260000,20260230):
+   ui.build({'date':value,'club':0,'budget':0,'used':0,'ready':True,'can_borrow':True,'nonce':'UNSAFE','schedule':[],'active':None})
+   self.assertFalse(ui.VIEW['ready']);self.assertFalse(ui.VIEW['can_borrow']);self.assertEqual(ui.VIEW['nonce'],'DISABLED')
+   self.assertEqual(ui.due_date(value,1),'Não disponível')
  def loan(self,state,today,ident):return borrow(state,request_id=ident,club=1043,today=today,budget=20_000_000,bank=0,amount=AMOUNTS[0],months=6)
  def test_two_contracts_per_year_and_only_one_active(self):
   state,budget,_=self.loan(empty(1043,20260101),20260101,'a')
@@ -48,6 +53,9 @@ class FinanceTests(unittest.TestCase):
    obj=screen.get(name)
    for child in ('label','hint','selected','less','more'):obj.set(child,Object())
   vm.invoke(klass,screen);self.assertEqual(screen.get('page'),0);self.assertEqual(screen.get('focus'),1)
+  ready_count=sum(name=='SetLocalEventHandler' for name,args in calls)
+  vm.invoke(screen.get('OnAnimateInComplete'),screen)
+  self.assertEqual(sum(name=='SetLocalEventHandler' for name,args in calls),ready_count)
   def export(name):
    def plain(o):
     if isinstance(o,Object):return {str(k):plain(v) for k,v in o.values.items() if k not in ('owner','staticData','navEvents') and not callable(v) and not hasattr(v,'body')}
@@ -82,5 +90,8 @@ class FinanceTests(unittest.TestCase):
   vm.invoke(screen.get('LocalEventHandler'),screen,(4,0));self.assertEqual(screen.get('focus'),0)
   vm.invoke(screen.get('LocalEventHandler'),screen,(2,0));self.assertIn('|0|1|1|2|END_S16BANK',vm.global_.get('Server16BankRequestV2'))
   self.assertFalse(any(name in ('StartCalendarSim','Save') for name,args in calls))
+  vm.invoke(screen.get('OnExitScreen'),screen)
+  count=len(calls);vm.invoke(screen.get('OnExitScreen'),screen);vm.invoke(screen.get('OnAnimateInComplete'),screen)
+  self.assertEqual(len(calls),count);self.assertIs(vm.path(ui.b.FULL),klass)
 
 if __name__=='__main__':unittest.main(verbosity=2)

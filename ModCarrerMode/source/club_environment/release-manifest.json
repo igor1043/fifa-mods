@@ -38,8 +38,8 @@
     },
     {
       "path": "ModCarrerMode/source/club_environment/bank/bank_ui_r60.py",
-      "bytes": 18295,
-      "sha256": "7bf26c56d6ac7029eaac196a56f5e16afa76eda2f326105b331e9e2526e9a3b3"
+      "bytes": 18758,
+      "sha256": "4f1e0fc4165c0fa7a68048f0db960dae34f84546467114fe5353067029245b5c"
     },
     {
       "path": "ModCarrerMode/source/club_environment/bank/build_package.py",
@@ -48,8 +48,8 @@
     },
     {
       "path": "ModCarrerMode/source/club_environment/bank/build_screen.py",
-      "bytes": 23171,
-      "sha256": "a2a1aadaaaad2c4cb9f31e3eecd3669e6d4584d83d337a85db2ed90b2e5e9584"
+      "bytes": 23269,
+      "sha256": "881147d08d0c87b53209820615ddc6ac9b52ecdbd4a536f2ba77cf9446b6963e"
     },
     {
       "path": "ModCarrerMode/source/club_environment/bank/careertype.big",
@@ -63,18 +63,18 @@
     },
     {
       "path": "ModCarrerMode/source/club_environment/bank/runtime.py",
-      "bytes": 20280,
-      "sha256": "29de285264019185960c660cc35b53476276d60653c06dfcf4766b29dcefd861"
+      "bytes": 20274,
+      "sha256": "2db9b390e144d0fc75512554b7b4c3f3b900f4ffdb159f2f553a310a352eda2a"
     },
     {
       "path": "ModCarrerMode/source/club_environment/bank/watch_r57.py",
-      "bytes": 1516,
-      "sha256": "940c5aba38e7d64aa1fd75a92c02057713f3fab6e16a8416a4086942ac27abde"
+      "bytes": 1627,
+      "sha256": "e49e2f10d787f204fc4768fcf962690f9e1e5636703bbf39af97d0fe7384183d"
     },
     {
       "path": "ModCarrerMode/source/club_environment/bootstrap_ui.py",
-      "bytes": 1572,
-      "sha256": "4b532f2574f687cb5c4ebac5084c6a2de803ebc022097d6da845ebe41532cd69"
+      "bytes": 1568,
+      "sha256": "c4ba62be47dc2960faaf337f42c173d9808216eb9c80f385c147993b98acff16"
     },
     {
       "path": "ModCarrerMode/source/club_environment/portable_paths.py",
@@ -83,8 +83,8 @@
     },
     {
       "path": "ModCarrerMode/source/club_environment/preview/build_preview.py",
-      "bytes": 28069,
-      "sha256": "807b8b847f07036ab45f2c7bfa5c25faa2bac7dc85b49e0b2fbbeb32603c87b5"
+      "bytes": 27888,
+      "sha256": "63ecba82745d54002d72e1700affa817a03a26947d25df2f3347b3568acadca6"
     },
     {
       "path": "ModCarrerMode/source/club_environment/preview/competition_names_r57.py",
@@ -93,13 +93,13 @@
     },
     {
       "path": "ModCarrerMode/source/club_environment/preview/competition_names_worker_r57.py",
-      "bytes": 689,
-      "sha256": "4c7b03a5536c597db167504c27267478324ef613788d14ff83bfc3cfd388bfec"
+      "bytes": 737,
+      "sha256": "393894face2c7cf4e91e59d124b6d02e08e74d489c1e3fce8ce89d4a02c0324c"
     },
     {
       "path": "ModCarrerMode/source/club_environment/preview/names_worker.py",
-      "bytes": 738,
-      "sha256": "752a10f10b504c4b5a6c2b9031415dd2a3b796706358e7d8b337cfd5cf4a646f"
+      "bytes": 760,
+      "sha256": "e007857a97b74e8c2eb4adafe22d7cf41248c1492e93240445a81e15706fbb1a"
     },
     {
       "path": "ModCarrerMode/source/club_environment/preview/prepare.py",
@@ -128,8 +128,8 @@
     },
     {
       "path": "ModCarrerMode/source/club_environment/room/build_dressing_card_20261022.py",
-      "bytes": 11019,
-      "sha256": "ba23139b7c2916b89ce69c76d040b4ee0b8514fdf641e945ce382f027d13a226"
+      "bytes": 11037,
+      "sha256": "a29cf821e5c9574b8b772a7431efc20174f239e7a6486a964a154e6ada629f06"
     },
     {
       "path": "ModCarrerMode/source/club_environment/room/prepare_native_room_components_r46_20261022.py",
@@ -248,13 +248,13 @@
     },
     {
       "path": "Server16Python.exe",
-      "bytes": 57141313,
-      "sha256": "4fee3ad1aa5f6935c11da3e188f917acdc94507d6ae9d6eafda5dd408da8330c"
+      "bytes": 57140122,
+      "sha256": "63c2e2552f3914849c8a34056dc7b833586342162ed44af689435cedef7ecba2"
     },
     {
       "path": "data/ui/game/background/backgroundfifa.big",
-      "bytes": 6480,
-      "sha256": "24672e02879c2121f0647b0b70daf6db9cd69bbd50285a83b1ef51e5b10b69da"
+      "bytes": 4848,
+      "sha256": "292adf85cbd75e0daf075ccc5c71bbdddb979cdcf7312f2c84b29e261da14bd8"
     },
     {
       "path": "data/ui/game/components/careercomponents/careerhubwidget.big",
@@ -263,8 +263,13 @@
     },
     {
       "path": "data/ui/game/screens/misc/stadiumpan.big",
-      "bytes": 149606,
-      "sha256": "2535c240e10ea6d96fbb3b9c2927d3472252f1abf0feda2d7f6f9db6c03e8787"
+      "bytes": 149144,
+      "sha256": "ae89532b257917139af219b8b316e7176ec5d60347cde2404702ab512f1e9c9c"
+    },
+    {
+      "path": "data/ui/imgAssets/backgroundstadiums/st_server16_frontend_clear.dds",
+      "bytes": 144,
+      "sha256": "e33dea1f78fab3f467d1cb36c1abe91ba0912391de31b3623c2ad78361ce9ab2"
     },
     {
       "path": "data/ui/layout/careermanagerhubcfg.xml",

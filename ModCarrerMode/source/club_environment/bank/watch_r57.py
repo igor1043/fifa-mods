@@ -15,11 +15,13 @@ def main():
    message=str(error)
    if message!=last_error:r.log('waiting_for_financial_context',error=message);last_error=message
    if not attached:
-    view={'club':0,'budget':0,'date':20260000,'used':0,'can_borrow':False,'schedule':[],'active':None,'ready':False,'nonce':'DISABLED','error':message}
+    view={'club':0,'budget':0,'date':None,'used':0,'can_borrow':False,'schedule':[],'active':None,'ready':False,'nonce':'DISABLED','error':message}
     signature=hashlib.sha256(json.dumps(view,sort_keys=True).encode()).hexdigest()
     if signature!=last_disabled:
-     from bank_ui_r57 import build
-     build(view);source=r.HERE/'package/data/ui/game/screens/career/server16/bankloans.big';target=r.GAME/'data/ui/game/screens/career/server16/bankloansv2.big';temp=target.with_suffix('.new');temp.write_bytes(source.read_bytes());temp.replace(target);r.write_json(r.STATE/'finance_view.json',view);last_disabled=signature
+     try:
+      from bank_ui_r57 import build
+      build(view);source=r.HERE/'package/data/ui/game/screens/career/server16/bankloans.big';target=r.GAME/'data/ui/game/screens/career/server16/bankloansv2.big';temp=target.with_suffix('.new');temp.write_bytes(source.read_bytes());temp.replace(target);r.write_json(r.STATE/'finance_view.json',view);last_disabled=signature
+     except Exception as screen_error:r.log('financial_wait_screen_pending',error=str(screen_error))
    r.write_json(r.STATE/'status.json',{'active':False,'error':message});time.sleep(3)
   finally:
    if bridge:bridge.close()
