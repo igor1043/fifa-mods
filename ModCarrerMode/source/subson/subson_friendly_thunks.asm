@@ -1,6 +1,7 @@
 OPTION CASEMAP:NONE
 PUBLIC SubsonImportBegin, SubsonImportEnd, SubsonImportPolicy, SubsonImportResume
 PUBLIC SubsonCapacityBegin, SubsonCapacityEnd, SubsonCapacityPolicy, SubsonCapacityResume
+PUBLIC SubsonCareerBegin, SubsonCareerEnd, SubsonCareerResume
 
 SAVE_VOLATILE MACRO
     pushfq
@@ -70,4 +71,29 @@ SubsonCapacityPolicy LABEL BYTE
 SubsonCapacityResume LABEL BYTE
     dq 0
 SubsonCapacityEnd LABEL BYTE
+
+; FCE has already counted eligible players in R14D and checked the minimum.
+; Clamp this match's local bench request, never the competition's rule at RDX.
+; Preserve every register other than the original ECX output, and all flags.
+SubsonCareerBegin LABEL BYTE
+    pushfq
+    push rax
+    mov ecx,[rdx+94h]
+    cmp ecx,12
+    ja CareerDone
+    cmp r14d,11
+    jb CareerDone
+    cmp r14d,100
+    ja CareerDone
+    mov eax,r14d
+    sub eax,11
+    cmp ecx,eax
+    cmova ecx,eax
+CareerDone:
+    pop rax
+    popfq
+    db 0FFh,25h,0,0,0,0
+SubsonCareerResume LABEL BYTE
+    dq 0
+SubsonCareerEnd LABEL BYTE
 END

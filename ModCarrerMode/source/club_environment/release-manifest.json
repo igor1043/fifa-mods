@@ -1,5 +1,5 @@
 {
-  "release": "FIFA Friends V12 / Server16 0.2.14 / 2026-10-22",
+  "release": "FIFA Friends V12 / Server16 0.2.14 / 2026-10-23",
   "files": [
     {
       "path": "ModCarrerMode/data/club_environment/room/runtime/medical_room_r57.json",
@@ -38,13 +38,13 @@
     },
     {
       "path": "ModCarrerMode/source/club_environment/bank/bank_ui_r60.py",
-      "bytes": 18758,
-      "sha256": "4f1e0fc4165c0fa7a68048f0db960dae34f84546467114fe5353067029245b5c"
+      "bytes": 21872,
+      "sha256": "25a6198c6f2b0561f89d78552fde4b52a5537ba555c4720f85ad6f9fb72bbdf0"
     },
     {
       "path": "ModCarrerMode/source/club_environment/bank/build_package.py",
-      "bytes": 5520,
-      "sha256": "25845e2adfef49b43a7cc8fc1ff6a336f768c3a04ff0ae609e9a7d99e1f4c724"
+      "bytes": 5650,
+      "sha256": "904ccba25a507ee7382a4a404ee52ffa36165d48b4d82f3c72fc76fd577f50d6"
     },
     {
       "path": "ModCarrerMode/source/club_environment/bank/build_screen.py",
@@ -63,8 +63,8 @@
     },
     {
       "path": "ModCarrerMode/source/club_environment/bank/runtime.py",
-      "bytes": 20274,
-      "sha256": "2db9b390e144d0fc75512554b7b4c3f3b900f4ffdb159f2f553a310a352eda2a"
+      "bytes": 20595,
+      "sha256": "1927ed6770f612b09db546b2eabb1c979ab1f49b1b1f133a7816b06c9e8a02d7"
     },
     {
       "path": "ModCarrerMode/source/club_environment/bank/watch_r57.py",
@@ -248,8 +248,8 @@
     },
     {
       "path": "Server16Python.exe",
-      "bytes": 57140122,
-      "sha256": "63c2e2552f3914849c8a34056dc7b833586342162ed44af689435cedef7ecba2"
+      "bytes": 57142142,
+      "sha256": "2a4bbda43d0107bfadc58e9425f1bde0fbcab8f2d94acf2b0cef7f18d02976c3"
     },
     {
       "path": "data/ui/game/background/backgroundfifa.big",
@@ -283,8 +283,8 @@
     },
     {
       "path": "data/ui/nav/careermode/server16bankloansflow.nav",
-      "bytes": 1710,
-      "sha256": "22180fdd5e0e99bb21345ee87746a4cf940c612fd23d7e22ab4f9f02ee8751af"
+      "bytes": 1984,
+      "sha256": "519e9578b3f112cbc7ff4212547f94cf653cbed796c4efdbfce2e88d58e3070f"
     },
     {
       "path": "data/ui/nav/careermode/server16dressingroomflow.nav",

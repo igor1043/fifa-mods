@@ -97,6 +97,8 @@ bin/server16_first_person_v10.dll
 /data/sceneassets/server16_frontend/
 # Large SubsOn animation payload is distributed in a separate ZIP.
 /data/ant.cbac
+# Extracted by the root proxy from its embedded, versioned chain resource.
+/dinput8_l9_chain.dll
 
 # Local snapshots of disabled interfaces are preserved outside the release.
 ModCarrerMode/disabled/

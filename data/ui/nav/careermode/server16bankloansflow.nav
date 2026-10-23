@@ -41,7 +41,7 @@
           "unloadView",
           [
             "screen",
-            "game/screens/career/server16/BankLoans"
+            "game/screens/career/server16/BankLoansV2"
           ]
         ],
         [
@@ -58,6 +58,13 @@
         ]
       ],
       "transitions": [
+        {
+          "event": "Server16RefreshBank",
+          "actions": [
+            ["unloadView", ["screen", "game/screens/career/server16/BankLoansV2"]],
+            ["loadView", ["screen", "game/screens/career/server16/BankLoansV2"]]
+          ]
+        },
         {
           "event": "Back",
           "targets": [

@@ -90,7 +90,7 @@ class Bridge:
             write_json(initial,{'save_hash':saved['hash'],'date':saved['date'],'budget':saved['budget'],'state':self.state})
         self.last_save=(saved['hash'],self.save['operation'] if 'operation' in self.save else '')
         self.io_tick=int(self.io_record().get('access_tick_ms',0))
-        self.last_sequence=0;self.last_scan=0.;self.write_handle=None;self.scan_regions=[]
+        self.last_sequence=0;self.last_scan=0.;self.write_handle=None;self.scan_regions=[];self.result=None
         self.last_write_tick=None
         self.last_advance=(None,None)
         self.nonce=f'B57_{process.pid}_{self.club}_{secrets.token_hex(6)}';self.view_signature=None;self.ui_signature=None;self.feedback=''
@@ -105,6 +105,7 @@ class Bridge:
     def publish_view(self,live):
         wage=self.memory.read_uint32(self.context_address+0x2a8) if self.live_wage_valid else self.saved_wage_budget
         view=presentation(self.state,live['date'],live['budget'],nonce=self.nonce,pid=self.process.pid,error=self.feedback,ready=self.apply,wage_budget=wage,currency=self.currency,wage_source='save/RAM cross-check' if self.live_wage_valid else 'last native save')
+        view['result']=self.result
         if not self.apply:view.update(can_borrow=False,error='Ponte em modo de leitura; nenhuma movimentação disponível.')
         signature=fingerprint(json.dumps(view,sort_keys=True,ensure_ascii=False).encode())
         if signature!=self.view_signature:
@@ -208,9 +209,9 @@ class Bridge:
         log('screen_request_scan',bytes=read_bytes,seconds=round(time.monotonic()-start,3),requests=sorted(found),regions=regions)
         return sorted(found)
 
-    def publish(self,before,new_state,new_budget,events,reason):
+    def publish(self,before,new_state,new_budget,events,reason,result=None):
         if new_budget==before['budget']:
-            self.state=new_state;self.publish_view(before);return
+            self.state=new_state;self.result=result or self.result;self.publish_view(before);return
         if not self.apply:
             log('dry_run',reason=reason,before=before['budget'],after=new_budget,events=events);return
         # Pause until the native UI and financial fields are stable. No executable
@@ -232,6 +233,7 @@ class Bridge:
         for event in events:log('transaction',reason=reason,budget_before=before['budget'],budget_after=new_budget,transaction=event)
         write_json(STATE/'status.json',{'pid':self.process.pid,'active':True,'last_action':reason,'budget':new_budget,'date':before['date'],'events':events,'awaiting_native_save':True})
         self.feedback='Pagamento aplicado. Salve a carreira no FIFA.' if reason!='loan_confirmed' else 'Crédito aplicado. Salve a carreira no FIFA.'
+        if result:self.result=dict(result,ok=True,budget=new_budget,message=self.feedback)
         self.publish_view(dict(before,budget=new_budget))
 
     def observe_save(self):
@@ -270,9 +272,9 @@ class Bridge:
                         request_id=self.nonce+':'+str(seq)
                         if action==0:state,budget,events=borrow(self.state,request_id=request_id,club=live['club'],today=live['date'],budget=live['budget'],bank=bank,amount=AMOUNTS[ai],months=TERMS[ti])
                         else:state,budget,events=pay(self.state,request_id=request_id,club=live['club'],today=live['date'],budget=live['budget'],settle=action==2)
-                        self.publish(live,state,budget,events,'loan_confirmed' if action==0 else 'loan_settled' if action==2 else 'installment_advanced')
+                        self.publish(live,state,budget,events,'loan_confirmed' if action==0 else 'loan_settled' if action==2 else 'installment_advanced',{'sequence':seq,'action':action})
                     except ValueError as e:
-                        self.feedback=str(e);self.publish_view(live);log('request_refused',sequence=seq,error=str(e))
+                        self.feedback=str(e);self.result={'sequence':seq,'action':action,'ok':False,'budget':live['budget'],'message':str(e)};self.publish_view(live);log('request_refused',sequence=seq,error=str(e))
         if live['page'].casefold() in ('game/screens/fluxhub/fluxhub','game/screens/misc/stadiumpan'):
             key=(live['date'],live['budget'])
             if key!=self.last_advance:

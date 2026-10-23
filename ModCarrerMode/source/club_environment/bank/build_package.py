@@ -68,7 +68,8 @@ def make_flow():
             ['loadView',['screen',PAGE]],
             ['loadView',['background','BOOTFLOW']]],
          'onExit':[['unloadView',['screen',PAGE]],['unloadScreenController',['Calendar']],['unloadView',['background']]],
-         'transitions':[{'event':'Back','targets':['Back'],'actions':[['executeCMAction',['ReturnToHubFromCalendar']]]},
+         'transitions':[{'event':'Server16RefreshBank','actions':[['unloadView',['screen',PAGE]],['loadView',['screen',PAGE]]]},
+                        {'event':'Back','targets':['Back'],'actions':[['executeCMAction',['ReturnToHubFromCalendar']]]},
                         {'event':'back','targets':['Back'],'actions':[['executeCMAction',['ReturnToHubFromCalendar']]]}]}]}
 
 def main():

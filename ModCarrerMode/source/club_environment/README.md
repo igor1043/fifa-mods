@@ -2,16 +2,16 @@
 
 Requer a base FIFA Friends V12 e Server16 0.2.14. Fontes Python/CPP, auxiliares de
 APT e interfaces ficam neste repositório. Modelos, texturas e poses do vestiário
-são fornecidos no ZIP separado. O histórico anual continua como experimento local.
+são fornecidos no ZIP separado. O histórico anual está desativado.
 
 ## Instalação
 
 1. Feche FIFA e Server16. Atualize os arquivos da base V12.
-2. Extraia o ZIP `FIFA-Friends-Ambiente-Clube-20261022.zip` na raiz do FIFA,
-   preservando `data` e `ModCarrerMode`.
-3. Execute `ModCarrerMode/install-club-environment.cmd`.
-   Ele verifica cada asset por SHA-256, prepara as telas iniciais e libera apenas
-   as entradas da interface nos índices BH locais, com backup.
+2. Extraia o ZIP `FIFA-Friends-Ambiente-Clube-20261023.zip` na raiz do FIFA.
+3. Execute `Instalar-Ambiente-Clube.cmd`.
+   Ele verifica cada arquivo por SHA-256, cria backup, prepara o runtime e ativa
+   as entradas da interface nos índices BH locais. Configurações de estádio
+   existentes são preservadas; a lista de DLLs recebe apenas os módulos do pacote.
 4. Abra o Server16 atualizado e inicie o jogo. Não precisa instalar Python,
    NumPy, Pillow, ScoreboardStudio ou ferramentas de RX3 no computador do jogador.
 
@@ -71,3 +71,20 @@ não abrem o jogo nem editam saves. Teste nativo de câmera em
 O comportamento relatado no PC do Robson requer conferência nessa máquina após
 atualizar e reabrir o jogo; as correções acima cobrem os defeitos reproduzidos
 nos testes e a ativação da interface, sem afirmar uma causa exclusiva daquele PC.
+
+## Confirmação de empréstimos e distribuição
+
+Depois de confirmar, a tela aguarda o resultado da solicitação identificada por
+sessão e sequência. O auxiliar só publica sucesso após conferir a escrita do
+orçamento. A própria tela recarrega os dados pelo fluxo nativo, mostra o saldo,
+saldo devedor e próximo vencimento e permite consultar as parcelas atualizadas.
+Atualizar a tela não reenvia o pedido. Uma recusa mostra o motivo; ausência de
+confirmação não é apresentada como sucesso. A persistência continua pelo Salvar
+do FIFA e pelo livro financeiro específico daquele save.
+
+`ModCarrerMode/tools/Build-PortablePackages.py` gera os complementos do ambiente
+e da panorâmica a partir de listas explícitas. O segundo contém os Lua, rotas,
+interface, catálogo, auxiliar e DLLs necessários, e mescla somente o componente
+de fundo na navegação local. O pacote do ambiente inclui também o recurso de
+animação do SubsOn, que permanece fora do Git, junto com os modelos 3D.
+Nenhum pacote inclui saves, histórico anual, caches de estádio ou dados pessoais.

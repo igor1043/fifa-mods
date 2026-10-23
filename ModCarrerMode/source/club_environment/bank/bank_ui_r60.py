@@ -37,12 +37,18 @@ def script(data,dictionaries):
 def init(a):
  for key,value in (('page',0),('focus',0 if VIEW.get('can_borrow') else 1),('bank',0),('amountIndex',0),('termIndex',1),('statementPage',0),('action',0)):a.set(R(1),key,value)
  a.when(b.G('Server16BankSequenceV2'),lambda a:None,lambda a:a.set(b.GLOBAL,'Server16BankSequenceV2',0))
+ a.when(b.G('Server16BankPollAttempts'),lambda a:None,lambda a:a.set(b.GLOBAL,'Server16BankPollAttempts',0))
  plans=[]
  for bank in range(3):
   for amount in AMOUNTS:
    for term in TERMS:
     q=quote(bank,amount,term);plans.append(('array',tuple(('array',(str(p['number']).zfill(2),due_date(VIEW.get('date'),p['number']),b.money(p['amount']),'Prevista')) for p in q['payments'])))
  a.set(R(1),'plans',('array',tuple(plans)))
+ # Sequence zero warms the bounded request scanner while the proposal is read.
+ a.set(b.GLOBAL,'Server16BankHelloV2',ADD('S16BANK_V2|'+b.NONCE+'|','0|0|0|0|0|END_S16BANK'))
+ a.when(EQ(b.G('Server16BankPendingNonce'),b.NONCE),lambda a:a.set(R(1),'page',5))
+ if VIEW.get('result'):
+  a.when(EQ(b.G('Server16BankPendingSequence'),VIEW['result']['sequence']),lambda a:a.set(b.GLOBAL,'Server16BankPendingNonce',None))
  a.set(R(1),'_visible',True);a.set(R(1),'_alpha',100);show(a,'mcGridControl',False);a.do(R(1),'Refresh');a.set(R(1),'onEnterFrame',T('WaitButtons'))
 
 BUTTONS=[('row'+str(i),i,'RowClick','RowOver') for i in range(5)]+[('payNext',0,'PaymentClick','PaymentOver'),('payAll',1,'PaymentClick','PaymentOver'),('ledgerBack',2,'PaymentClick','PaymentOver'),('previousStatement',-1,'PageClick',None),('nextStatement',1,'PageClick',None)]
@@ -54,7 +60,7 @@ def wait(a):
   for i in range(3):
    for side,delta in (('less',-1),('more',1)):
     obj=P(T('row'+str(i)),side);a.set(obj,'owner',R(1));a.set(obj,'index',i);a.set(obj,'delta',delta);a.set(obj,'onRelease',T('AdjustClick'))
-  a.do(R(1),'Refresh');a.set(R(1),'onEnterFrame',None)
+  a.do(R(1),'Refresh');a.set(R(1),'pollFrames',0);a.set(R(1),'onEnterFrame',T('PollResult'))
  a.when(T('row0'),bind)
 def row_over(a):a.set(P(R(1),'owner'),'focus',P(R(1),'index'));a.do(P(R(1),'owner'),'Refresh')
 def row_click(a):a.do(R(1),'onRollOver');a.do(P(R(1),'owner'),'Select')
@@ -149,14 +155,46 @@ def refresh(a):
    label(a,'detail6','Salários permanecem: '+wage_text);label(a,'detail8','Antecipação pelos valores contratados.');label(a,'detail9','A operação exige saldo suficiente.')
  a.when(EQ(T('page'),4),payment)
  def result(a):
-  label(a,'section','Solicitação enviada');draw_row(a,'row0',0,'Voltar ao Escritório','Reabra para conferir o resultado e o extrato atualizado')
-  label(a,'detail0','A operação será validada nesta carreira.');label(a,'detail2','Depois de conferir, salve no próprio FIFA.');label(a,'detail4','Uma dívida ativa bloqueia novo crédito.')
+  def pending(a):
+   label(a,'section','Aplicando operação...');label(a,'detail0','Aguarde a conferência do orçamento nesta carreira.')
+   label(a,'detail2','O resultado aparecerá aqui automaticamente.');label(a,'detail4','Não é necessário enviar o pedido novamente.')
+   draw_row(a,'row0',0,'Voltar ao Escritório','O pedido enviado continua sendo verificado')
+  def finished(a):
+   result=VIEW.get('result') or {};ok=result.get('ok',False)
+   label(a,'section','Operação aplicada' if ok else 'Operação não aplicada')
+   label(a,'detail0',result.get('message','Não foi possível confirmar esta solicitação.'))
+   label(a,'detail2','Transferências agora: '+b.money(VIEW.get('budget',0)))
+   if active:
+    label(a,'detail4','Saldo devedor: '+b.money(sum(p['amount'] for p in active['payments'][active['paid']:])));label(a,'detail6','Próxima cobrança: '+datestr(active['payments'][active['paid']]['date']))
+   else:label(a,'detail4','Nenhum empréstimo em aberto.')
+   label(a,'detail8','Salve a carreira no FIFA para guardar a operação.' if ok else 'Confira o motivo antes de tentar novamente.')
+   draw_row(a,'row0',0,'Ver parcelas e pagamentos' if ok else 'Voltar às finanças','Consultar o extrato atualizado' if ok else 'Retornar sem reenviar o pedido')
+  seq=(VIEW.get('result') or {}).get('sequence',-1)
+  a.when(EQ(b.G('Server16BankPendingSequence'),seq),finished,pending)
  a.when(EQ(T('page'),5),result);a.do(M('HelpManager'),'Update')
 
 def submit(a):
  a.set(b.GLOBAL,'Server16BankSequenceV2',ADD(b.G('Server16BankSequenceV2'),1));value='S16BANK_V2|'+b.NONCE+'|'
  for item in (b.G('Server16BankSequenceV2'),'|',T('action'),'|',T('bank'),'|',T('amountIndex'),'|',T('termIndex'),'|END_S16BANK'):value=ADD(value,item)
+ a.set(b.GLOBAL,'Server16BankPendingNonce',b.NONCE);a.set(b.GLOBAL,'Server16BankPendingSequence',b.G('Server16BankSequenceV2'));a.set(b.GLOBAL,'Server16BankPollAttempts',0)
  a.set(b.GLOBAL,'Server16BankRequestV2',value);go(a,5)
+
+def poll_result(a):
+ a.when(T('exiting'),lambda a:a.ret())
+ def pending(a):
+  a.set(R(1),'pollFrames',ADD(T('pollFrames'),1))
+  def reload(a):
+   a.set(R(1),'pollFrames',0);a.set(b.GLOBAL,'Server16BankPollAttempts',ADD(b.G('Server16BankPollAttempts'),1))
+   def refresh_view(a):
+    # OnExit clears this callback when the native navigation consumes the event.
+    # If a foreign navigation file rejects it, retry up to the visible timeout.
+    a.do(b.ION,'SendSystemEvent',P(T('staticData'),'SCREEN_CONTROLLER_ID'),'Server16RefreshBank','')
+   def timeout(a):
+    label(a,'section','Aguardando confirmação');label(a,'detail2','A confirmação demorou mais que o esperado.');label(a,'detail4','Volte ao Escritório e consulte as finanças antes de reenviar.');a.set(R(1),'onEnterFrame',None)
+   a.when(('bin',72,b.G('Server16BankPollAttempts'),21),refresh_view,timeout)
+  a.when(('bin',103,T('pollFrames'),89),reload)
+ condition=('bin',16,EQ(T('page'),5),EQ(b.G('Server16BankPendingNonce'),b.NONCE))
+ a.when(condition if VIEW.get('ready') else True,pending)
 
 def leave(a):a.do(b.ION,'SendEvent',P(T('staticData'),'SCREEN_CONTROLLER_ID'),P(T('navEvents'),'BACK'),'');a.do(M('InputManager'),'DisableCurrentLocalEventHandler')
 def select(a):
@@ -180,7 +218,10 @@ def select(a):
   a.ret()
  a.when(EQ(T('page'),3),ledger)
  a.when(EQ(T('page'),4),lambda a:(a.when(EQ(T('focus'),0),lambda a:a.do(R(1),'Submit'),lambda a:go(a,3)),a.ret()))
- a.when(EQ(T('page'),5),leave)
+ def result(a):
+  seq=(VIEW.get('result') or {}).get('sequence',-1)
+  a.when(EQ(b.G('Server16BankPendingSequence'),seq),lambda a:go(a,3 if (VIEW.get('result') or {}).get('ok') else 0),leave)
+ a.when(EQ(T('page'),5),result)
  a.when(EQ(T('page'),6),lambda a:go(a,2,2))
 
 def back(a):
@@ -208,7 +249,7 @@ def shutdown(a):
  a.do(M('InputManager'),'DisableCurrentLocalEventHandler');a.do(M('HelpManager'),'Clear');a.do(R(1),'Shutdown')
 REPLACE={'InitComponents':init,'InitBankCards':lambda a:None,'Refresh':refresh,'Submit':submit,'Select':select,'Back':back,'Shift':shift,'LocalEventHandler':key,'AnimateIn':animate,'OnExitScreen':shutdown,
  'getHelpContext':lambda a:a.ret(('array',(CALL(b.path('ion','manager','HelpItem'),'CreateHelpTickerItem','ADVANCE','Selecionar'),CALL(b.path('ion','manager','HelpItem'),'CreateHelpTickerItem','BACK','Voltar'))))}
-EXTRA=[('WaitButtons',0,wait),('RowOver',0,row_over),('RowClick',0,row_click),('PaymentOver',0,row_over),('PaymentClick',0,row_click),('AdjustClick',0,adjust_click),('PageClick',0,page_click),('MoveFocus',1,focus),('StatementPage',1,statement)]
+EXTRA=[('WaitButtons',0,wait),('PollResult',0,poll_result),('RowOver',0,row_over),('RowClick',0,row_click),('PaymentOver',0,row_over),('PaymentClick',0,row_click),('AdjustClick',0,adjust_click),('PageClick',0,page_click),('MoveFocus',1,focus),('StatementPage',1,statement)]
 
 def graphics(data,apt,template,shape,append,new_chars,controls,count):
  def character(raw):cid=count+len(new_chars);new_chars.append(append(raw));return cid

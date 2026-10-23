@@ -139,8 +139,9 @@ __declspec(dllexport) BOOL WINAPI Fifa16ModStart(const char *mods_root)
     /* Keep the LoadLibrary reference for the entire process: WorkLab starts
      * background workers. Its own log reports whether patches were applied.
      */
-    log_event("loaded original WorkLab payload; friendly rule adapter v2; rendering and animations=WorkLab");
+    log_event("loaded original WorkLab payload; friendly rule adapter v2; career optional bench v1; rendering and animations=WorkLab");
     if(!subson_friendly_start(configured,log_path)){log_event("failed to start friendly rule adapter");return FALSE;}
+    if(!subson_career_start(configured,log_path)){log_event("failed to start career bench adapter");return FALSE;}
     return TRUE;
 failed:
     InterlockedExchange(&started, 0);

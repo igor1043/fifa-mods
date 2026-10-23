@@ -8,7 +8,7 @@ def main():
     source=Path(__file__).resolve().parent;runtime=args.game_root/'ModCarrerMode/runtime/club_environment'
     sys.path[:0]=[str(source.parent),str(source),str(source/'vendor'),str(runtime/'room'),str(runtime/'preview'),str(runtime/'bank')]
     tests=unittest.TestSuite()
-    for folder,pattern in (('bank','test_finance_r57.py'),('preview','test_preview_details.py'),('room','test_room_safety_r53.py'),('room','test_room_material_install_r59.py')):
+    for folder,pattern in (('bank','test_finance_r57.py'),('bank','test_finance_live_ui.py'),('preview','test_preview_details.py'),('room','test_room_safety_r53.py'),('room','test_room_material_install_r59.py')):
         tests.addTests(unittest.defaultTestLoader.discover(str(runtime/folder),pattern=pattern,top_level_dir=str(runtime/folder)))
     return 0 if unittest.TextTestRunner(verbosity=2).run(tests).wasSuccessful() else 1
 
