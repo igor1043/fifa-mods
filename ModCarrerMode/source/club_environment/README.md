@@ -6,17 +6,15 @@ são fornecidos no ZIP separado. O histórico anual está desativado.
 
 ## Instalação
 
-1. Feche FIFA e Server16. Atualize os arquivos da base V12.
-2. Extraia o ZIP `FIFA-Friends-Ambiente-Clube-20261023.zip` na raiz do FIFA.
-3. Execute `Instalar-Ambiente-Clube.cmd`.
-   Ele verifica cada arquivo por SHA-256, cria backup, prepara o runtime e ativa
-   as entradas da interface nos índices BH locais. Configurações de estádio
-   existentes são preservadas; a lista de DLLs recebe apenas os módulos do pacote.
-4. Abra o Server16 atualizado e inicie o jogo. Não precisa instalar Python,
+1. Feche FIFA e Server16. Atualize a base pela branch `fifa-friends-v12` do GitHub,
+   incluindo o Server16, DLLs, fontes, interfaces, Lua e configurações publicadas.
+2. Extraia `FIFA-Friends-Assets-Complementares-20261023.zip` diretamente na raiz
+   do FIFA, mesclando as pastas `data` e `ModCarrerMode`. Não há instalador.
+3. Abra o Server16 atualizado e inicie o jogo. Não precisa instalar Python,
    NumPy, Pillow, ScoreboardStudio ou ferramentas de RX3 no computador do jogador.
 
-O instalador geral `ModCarrerMode/install-game.cmd` também inclui as fontes
-necessárias em tempo de execução. Não substitua os índices BH pelos de outro PC.
+O Server16 ativa as interfaces nos BHs locais ao iniciar o FIFA e prepara os
+auxiliares automaticamente. Não substitua os índices BH pelos de outro PC.
 
 ## Organização e dados dinâmicos
 
@@ -82,9 +80,11 @@ Atualizar a tela não reenvia o pedido. Uma recusa mostra o motivo; ausência de
 confirmação não é apresentada como sucesso. A persistência continua pelo Salvar
 do FIFA e pelo livro financeiro específico daquele save.
 
-`ModCarrerMode/tools/Build-PortablePackages.py` gera os complementos do ambiente
-e da panorâmica a partir de listas explícitas. O segundo contém os Lua, rotas,
-interface, catálogo, auxiliar e DLLs necessários, e mescla somente o componente
-de fundo na navegação local. O pacote do ambiente inclui também o recurso de
-animação do SubsOn, que permanece fora do Git, junto com os modelos 3D.
-Nenhum pacote inclui saves, histórico anual, caches de estádio ou dados pessoais.
+`ModCarrerMode/tools/Build-PortablePackages.py` gera um único complemento com os
+33 assets estáticos do ambiente e a animação SubsOn. O gerador recusa qualquer
+arquivo rastreado pelo Git: código, executáveis, DLLs, interfaces, Lua, INIs e
+manifestos permanecem no repositório. O ZIP contém só os caminhos finais dos
+assets, sem pasta intermediária, comandos ou scripts de instalação.
+Não inclui saves, histórico anual, caches de estádio ou dados pessoais.
+A panorâmica recebe seus componentes pela atualização do GitHub e usa os
+estádios StadiumGBD já instalados pelo destinatário.
