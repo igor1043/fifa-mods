@@ -103,3 +103,11 @@ ModCarrerMode/disabled/
 
 # Local startup evidence can contain personal paths and is never published.
 runtime/diagnostics/
+
+# Club geometry/textures are supplied by the separate environment ZIP.
+/data/sceneassets/server16_dressing_room_20261022/
+/ModCarrerMode/data/club_environment/**/*.rx3
+/ModCarrerMode/data/club_environment/**/*.npz
+/ModCarrerMode/mods/_local_*/
+/ModCarrerMode/history/
+*.zip

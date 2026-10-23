@@ -1,0 +1,311 @@
+{
+  "release": "FIFA Friends V12 / Server16 0.2.14 / 2026-10-22",
+  "files": [
+    {
+      "path": "ModCarrerMode/data/club_environment/room/runtime/medical_room_r57.json",
+      "bytes": 6063,
+      "sha256": "df67eecef1667e95e268a9b619e885017fdd033502a1657c6b96f38dc1b3b99d"
+    },
+    {
+      "path": "ModCarrerMode/data/club_environment/room/runtime/room_roles_r57.json",
+      "bytes": 215757,
+      "sha256": "51519973b308fe59ac9987852e2bef3bfdd00d1f1dc58a5efa990c1ac4b6c7ee"
+    },
+    {
+      "path": "ModCarrerMode/mods/club_environment/native_dressing_room.dll",
+      "bytes": 461312,
+      "sha256": "a6aeca740cfaa89cf2e51863446e9409740016084a4ae6f8ab9380111a7f8c43"
+    },
+    {
+      "path": "ModCarrerMode/mods/frontend_stadium/frontend_stadium_native_v11.dll",
+      "bytes": 203264,
+      "sha256": "b68990f93c933f988acbd0067e9d5f7c4bc84618673bda87a058db3e9df47512"
+    },
+    {
+      "path": "ModCarrerMode/mods/mod_host.dll",
+      "bytes": 152064,
+      "sha256": "31020b61373993efef40af2531156c0863a76c29aba7eaaf0325c2c3359d151f"
+    },
+    {
+      "path": "ModCarrerMode/mods/panorama_drone/panorama_drone_v5.dll",
+      "bytes": 189952,
+      "sha256": "7aa2fbe5a7190bfe50c197e7b118dbe4724eeb5fcb337165f7d452f3e1e3d34e"
+    },
+    {
+      "path": "ModCarrerMode/source/club_environment/bank/bank_ui_r57.py",
+      "bytes": 122,
+      "sha256": "9b05e7c27c6bfddb91094fc24e5cdc4e9a75121b1da19f0829e7d56b5b14f13c"
+    },
+    {
+      "path": "ModCarrerMode/source/club_environment/bank/bank_ui_r60.py",
+      "bytes": 18295,
+      "sha256": "7bf26c56d6ac7029eaac196a56f5e16afa76eda2f326105b331e9e2526e9a3b3"
+    },
+    {
+      "path": "ModCarrerMode/source/club_environment/bank/build_package.py",
+      "bytes": 5520,
+      "sha256": "25845e2adfef49b43a7cc8fc1ff6a336f768c3a04ff0ae609e9a7d99e1f4c724"
+    },
+    {
+      "path": "ModCarrerMode/source/club_environment/bank/build_screen.py",
+      "bytes": 23171,
+      "sha256": "a2a1aadaaaad2c4cb9f31e3eecd3669e6d4584d83d337a85db2ed90b2e5e9584"
+    },
+    {
+      "path": "ModCarrerMode/source/club_environment/bank/careertype.big",
+      "bytes": 3527,
+      "sha256": "b04115e3e498757371b67cdbdb01608adf2f713362ae30fd28e56f31c07217de"
+    },
+    {
+      "path": "ModCarrerMode/source/club_environment/bank/loans.py",
+      "bytes": 7465,
+      "sha256": "56ec98b879ef64a54ab17ec6843f1408396036c5e678c8425e1eae1eb6af5833"
+    },
+    {
+      "path": "ModCarrerMode/source/club_environment/bank/runtime.py",
+      "bytes": 20280,
+      "sha256": "29de285264019185960c660cc35b53476276d60653c06dfcf4766b29dcefd861"
+    },
+    {
+      "path": "ModCarrerMode/source/club_environment/bank/watch_r57.py",
+      "bytes": 1516,
+      "sha256": "940c5aba38e7d64aa1fd75a92c02057713f3fab6e16a8416a4086942ac27abde"
+    },
+    {
+      "path": "ModCarrerMode/source/club_environment/bootstrap_ui.py",
+      "bytes": 1572,
+      "sha256": "4b532f2574f687cb5c4ebac5084c6a2de803ebc022097d6da845ebe41532cd69"
+    },
+    {
+      "path": "ModCarrerMode/source/club_environment/portable_paths.py",
+      "bytes": 3279,
+      "sha256": "4b8c81e84bcf7a6aa819761f173ea05f9ca6efdef67b77771d9ab2c63aaad58b"
+    },
+    {
+      "path": "ModCarrerMode/source/club_environment/preview/build_preview.py",
+      "bytes": 28069,
+      "sha256": "807b8b847f07036ab45f2c7bfa5c25faa2bac7dc85b49e0b2fbbeb32603c87b5"
+    },
+    {
+      "path": "ModCarrerMode/source/club_environment/preview/competition_names_r57.py",
+      "bytes": 2581,
+      "sha256": "fd613ff209fbdb48543c115373f458845f81e449943ee75536baf26d4c1f6c80"
+    },
+    {
+      "path": "ModCarrerMode/source/club_environment/preview/competition_names_worker_r57.py",
+      "bytes": 689,
+      "sha256": "4c7b03a5536c597db167504c27267478324ef613788d14ff83bfc3cfd388bfec"
+    },
+    {
+      "path": "ModCarrerMode/source/club_environment/preview/names_worker.py",
+      "bytes": 738,
+      "sha256": "752a10f10b504c4b5a6c2b9031415dd2a3b796706358e7d8b337cfd5cf4a646f"
+    },
+    {
+      "path": "ModCarrerMode/source/club_environment/preview/prepare.py",
+      "bytes": 5109,
+      "sha256": "9c872ce4b24a097eb57959b33a6db3ab00978428e3a2f13e9e1df71197926163"
+    },
+    {
+      "path": "ModCarrerMode/source/club_environment/preview/preview_art.py",
+      "bytes": 1538,
+      "sha256": "f0baf5720f3f42a808faec6b1005fed53ade17b10cc3760b78309ba0810b5346"
+    },
+    {
+      "path": "ModCarrerMode/source/club_environment/preview/preview_carousel.py",
+      "bytes": 9075,
+      "sha256": "769c2759edd7f1a4c6d225b7f277a6edf36a72a37b716b3a12483efbc944c531"
+    },
+    {
+      "path": "ModCarrerMode/source/club_environment/preview/preview_details.py",
+      "bytes": 5110,
+      "sha256": "5f01755d636e5c67d0529c53bf1ea81eb9d500f316b326368efdf7401451614a"
+    },
+    {
+      "path": "ModCarrerMode/source/club_environment/preview/projection.py",
+      "bytes": 9579,
+      "sha256": "d5544207b4ccc8c9f5135940a1c5024618fe8e5c0d05b41907985efb808c9acc"
+    },
+    {
+      "path": "ModCarrerMode/source/club_environment/room/build_dressing_card_20261022.py",
+      "bytes": 11019,
+      "sha256": "ba23139b7c2916b89ce69c76d040b4ee0b8514fdf641e945ce382f027d13a226"
+    },
+    {
+      "path": "ModCarrerMode/source/club_environment/room/prepare_native_room_components_r46_20261022.py",
+      "bytes": 20658,
+      "sha256": "430466f3085ac7af3a17581d959568fc6da362fd899135480f34bd993be2d727"
+    },
+    {
+      "path": "ModCarrerMode/source/club_environment/room/room_control_bridge_r52.py",
+      "bytes": 5172,
+      "sha256": "cba5af6f8680f527b4f067ddbd4137850ece40d40db3e7e4b26550b5eba3592f"
+    },
+    {
+      "path": "ModCarrerMode/source/club_environment/room/room_dynamic_context_20261022.py",
+      "bytes": 9475,
+      "sha256": "5e5e5eb739adecd45d0977899b788d533f27729883cfbf125653ae95078f0409"
+    },
+    {
+      "path": "ModCarrerMode/source/club_environment/room/room_geometry_clip_r54.py",
+      "bytes": 1133,
+      "sha256": "27541cc7534f46f4392650a8b18fe85962788d6c150aee6a02026ac9d31cf144"
+    },
+    {
+      "path": "ModCarrerMode/source/club_environment/room/room_geometry_rules_r56.py",
+      "bytes": 1400,
+      "sha256": "3da126d1425bf45826360a98fa5dfb7417b2e7388e4e18cfa6b5f2a98d38e7dd"
+    },
+    {
+      "path": "ModCarrerMode/source/club_environment/room/room_kit_print_r56.py",
+      "bytes": 5134,
+      "sha256": "df276ff53c9bdfed24e37bd841a5b0ecb73484fad1bfc42863d7cfcfad3303d6"
+    },
+    {
+      "path": "ModCarrerMode/source/club_environment/room/room_live_kit_rules_r56.py",
+      "bytes": 3349,
+      "sha256": "7e8f2714d12a31928dfc05dcdbc64c2ba1933af92df3b4c080b37d0387cefec3"
+    },
+    {
+      "path": "ModCarrerMode/source/club_environment/room/room_medical_r53.py",
+      "bytes": 10344,
+      "sha256": "b92b7e5cc15d93f1ec495a8dc2f3ca69b88de545b5b47e4e4eb5347892923ab6"
+    },
+    {
+      "path": "ModCarrerMode/source/club_environment/room/room_native_hanging_20261022.py",
+      "bytes": 6212,
+      "sha256": "40e0e9860d4a4a9febce08e01c5bc112204e9d5c8dbf8cc762503fccb7509a2d"
+    },
+    {
+      "path": "ModCarrerMode/source/club_environment/room/room_native_kit_rules_r46.py",
+      "bytes": 3354,
+      "sha256": "2a13ad5e79418f88bcc14e0f9b34d21687f1c5e385e5998ad523b8adfe864cea"
+    },
+    {
+      "path": "ModCarrerMode/source/club_environment/room/room_precise_mesh_r49.py",
+      "bytes": 2507,
+      "sha256": "987e9c1412f95c10d71f8073c7deeeec0dbdbaa82a3e12382496ee7f08fcc9a9"
+    },
+    {
+      "path": "ModCarrerMode/source/club_environment/room/room_projection_r52.py",
+      "bytes": 9656,
+      "sha256": "4d28001f82868843729b195c3fe95c895b4c1f30cc1acf986cbaacaf1255da2e"
+    },
+    {
+      "path": "ModCarrerMode/source/club_environment/room/room_roster_r52.py",
+      "bytes": 1381,
+      "sha256": "1fe6474a9f96213be4e4116b278d0b249555bac187c2083cfebb3c6b98b9a004"
+    },
+    {
+      "path": "ModCarrerMode/source/club_environment/room/room_scene_native_assets_20261022.py",
+      "bytes": 7444,
+      "sha256": "3085910e63b8caa96da62ae474b4e21a648507804feb70ed11ee41cc6da379a4"
+    },
+    {
+      "path": "ModCarrerMode/source/club_environment/room/room_scene_ui_r52.py",
+      "bytes": 10398,
+      "sha256": "bae5dc86514f41070adee8ef2f4fe9ec3c4a684fce86e7e7bcfee020a5d50035"
+    },
+    {
+      "path": "ModCarrerMode/source/club_environment/vendor/apt_actions.py",
+      "bytes": 8533,
+      "sha256": "53410817a39a74936eb1650743bb0a32d11497d4fcab92baf671133ab83c9cc5"
+    },
+    {
+      "path": "ModCarrerMode/source/club_environment/vendor/apt_assembler.py",
+      "bytes": 2588,
+      "sha256": "9445dce95a3bc1b4209626f1fae8c7fe6d41edd6b6ceffa9996c1a2d848782a3"
+    },
+    {
+      "path": "ModCarrerMode/source/club_environment/vendor/apt_test_vm.py",
+      "bytes": 1026,
+      "sha256": "6b60665dfb5dae0016abad6ba43e166f7870e7bc30e5a1894f7f85296b5387c9"
+    },
+    {
+      "path": "ModCarrerMode/source/club_environment/vendor/apt_vm.py",
+      "bytes": 13370,
+      "sha256": "4f37644b85c302815af6d0d51cb61f84f3217f70282eb02dd0469d6c8336c372"
+    },
+    {
+      "path": "ModCarrerMode/source/club_environment/vendor/containers.py",
+      "bytes": 3144,
+      "sha256": "872d3b4bd7896fec6d2303359f5b56118de662a69cab1b6019a9e8c814c2f5c2"
+    },
+    {
+      "path": "ModCarrerMode/source/club_environment/vendor/formats.py",
+      "bytes": 16521,
+      "sha256": "749fd24027ba4a03f3316ab438fce91e86787cd1271acd85a02da9ff571cbc6b"
+    },
+    {
+      "path": "ModCarrerMode/source/club_environment/vendor/rx3.py",
+      "bytes": 10834,
+      "sha256": "1c12713c78abc12f2f4b7cd9e9f4dc9133c1b69c8ed80cba4d6cae6ecc1c73ce"
+    },
+    {
+      "path": "ModCarrerMode/tools/frontend_stadium_prepare.exe",
+      "bytes": 8670203,
+      "sha256": "233cc1cb9565c04ed940c5db02690fbf5e05279c60a654a3b5243323082fd483"
+    },
+    {
+      "path": "Server16Python.exe",
+      "bytes": 57141576,
+      "sha256": "1dde7fe6010bf4467b68a986199d49639def1bbf5446a7ec9448c1356283fa77"
+    },
+    {
+      "path": "data/ui/game/background/backgroundfifa.big",
+      "bytes": 6479,
+      "sha256": "0953df33ca5dfd08652fd710cf27528709fac1fb2b3d15e5fecf7f8d49d4a07f"
+    },
+    {
+      "path": "data/ui/game/components/careercomponents/careerhubwidget.big",
+      "bytes": 48640,
+      "sha256": "9fb40d261e9d04033d9e606507a7c1dc88f5ca6c0107e6cd4350e38e77707260"
+    },
+    {
+      "path": "data/ui/game/screens/misc/stadiumpan.big",
+      "bytes": 149626,
+      "sha256": "bdb05dbac136fdcf7198b4359af9b0580784ab90816970c93d2f3c92d2228558"
+    },
+    {
+      "path": "data/ui/layout/careermanagerhubcfg.xml",
+      "bytes": 184496,
+      "sha256": "f8cd9133fd0caf2509b81c6ef499865be0bda0a2a1282f83a05129dcc1af3414"
+    },
+    {
+      "path": "data/ui/nav/careermode/mainmenuhubflow.nav",
+      "bytes": 83099,
+      "sha256": "eb15090f7030c16fd39788ab0582eb0b545bc8c6a2be7e2d9112b510b24a265b"
+    },
+    {
+      "path": "data/ui/nav/careermode/server16bankloansflow.nav",
+      "bytes": 1710,
+      "sha256": "22180fdd5e0e99bb21345ee87746a4cf940c612fd23d7e22ab4f9f02ee8751af"
+    },
+    {
+      "path": "data/ui/nav/careermode/server16dressingroomflow.nav",
+      "bytes": 1379,
+      "sha256": "085027a4f089b4578e0cf4fcfad49ff33e90ae3658fc471e23f7f1d425787edb"
+    },
+    {
+      "path": "data/ui/nav/careermode/server16matchpreviewflow.nav",
+      "bytes": 1809,
+      "sha256": "5d9908bf894a431d3357b35a21733e34a9d42d0a1454675a54051b412fe57e67"
+    },
+    {
+      "path": "dinput8.dll",
+      "bytes": 603136,
+      "sha256": "98ae0e56b3d8fb68d935a7c2a3aeaa729a2a1b739c4e9f44bfeb132568171543"
+    },
+    {
+      "path": "winmm.dll",
+      "bytes": 276392,
+      "sha256": "a142a367d62f5bbe85a0d2349eb801c03e2e6710dab987d0abcbb615a3487c56"
+    }
+  ],
+  "generated_ui": [
+    "bankloansv2.big",
+    "dressingroom.big",
+    "matchpreview.big"
+  ],
+  "user_preferences_excluded": true
+}

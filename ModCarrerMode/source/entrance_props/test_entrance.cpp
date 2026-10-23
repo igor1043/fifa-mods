@@ -72,8 +72,8 @@ int main(){
     assert(!p.visible(true,false,false,10,270000,S::Presentation));
     assert(!p.visible(true,false,true,10,0,S::StadiumPan));
     assert(!p.visible(true,true,false,10,0,S::StadiumPan));
-    assert(!p.visible(true,false,false,10,0,S::StadiumPan)); // a played match never rearms on a clock rollback
-    assert(!p.visible(true,false,false,10,0,S::Presentation));
+    assert(p.visible(true,false,false,10,0,S::StadiumPan)); // restart after an observed playable clock
+    assert(p.visible(true,false,false,10,0,S::Presentation));
     assert(!p.visible(true,false,false,10,0,S::ToKickoff));
     assert(p.visible(true,false,false,20,0,S::Presentation));
     p.leave();assert(!p.visible(true,false,false,30,200,S::Gameplay));
@@ -103,9 +103,9 @@ int main(){
     assert(!p.visible(true,true,false,30,0,S::StadiumPan,A::Inactive));
     assert(!p.visible(true,false,false,30,0,S::Presentation,A::Active));
     assert(!p.visible(true,false,false,30,500,S::Gameplay,A::Inactive));
-    assert(!p.visible(true,false,false,30,0,S::StadiumPan,A::Inactive));
-    assert(p.matchStarted&&p.consumed); // clock-positive gameplay is latched for this fixture
-    assert(p.visible(true,false,false,31,0,S::Presentation,A::Unknown)); // a new fixture can show its intro
+    assert(p.visible(true,false,false,30,0,S::StadiumPan,A::Inactive));
+    assert(!p.sawAnthem && !p.consumed); // reset on manual restart
+    assert(p.visible(true,false,false,30,0,S::Presentation,A::Unknown));
     assert(!entrance_organisation_stage(1,"bc: steadycam fake kickoff 2 2.15"));
     assert(!entrance_organisation_stage(3,"bc: steadycam fake kickoff m 0.13"));
     assert(!entrance_organisation_stage(-1,"bc: steadycam fake kickoff l 0.01"));
@@ -176,14 +176,6 @@ int main(){
     assert(!p.visible(true,false,false,100,0,S::ToKickoff,A::Inactive,1));
     assert(!p.visible(true,false,false,100,0,S::ToKickoff,A::Inactive,1));
     assert(p.consumed&&p.lastIntroPhase==1); // closing UI while intro 1 remains cannot rearm every frame
-    EntrancePolicy live;
-    assert(live.visible(true,false,false,110,0,S::Presentation));
-    assert(!live.visible(true,false,false,110,24,S::Presentation,A::Unknown,-1,true));
-    assert(live.matchStarted&&live.consumed&&!live.armed);
-    assert(!live.visible(true,true,false,110,24,S::Presentation)); // pause stays hidden
-    assert(!live.visible(true,false,true,110,24,S::Presentation)); // replay stays hidden
-    assert(!live.visible(true,false,false,110,0,S::StadiumPan)); // clock rollback cannot rearm
-    assert(live.visible(true,false,false,111,0,S::Presentation)); // only another fixture resets it
     unsigned char originals[3*EntranceRecordBytes];memset(originals,0x55,sizeof(originals));
     originals[0x42]=0;originals[EntranceRecordBytes+0x42]=1;originals[2*EntranceRecordBytes+0x42]=0;
     unsigned char before[sizeof(originals)];memcpy(before,originals,sizeof(before));

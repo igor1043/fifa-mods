@@ -1,0 +1,78 @@
+{
+	"name":"ViewShortlistFlow"
+	,"initial": { "targets":["ViewShortlist"] }
+	,"states":
+	[
+		{
+			"name":"ViewShortlist"
+			,"onEnter": 
+			[ 
+				["loadScreenController", ["ViewShortlist"]] 
+				, ["loadView",["screen", "game/screens/career/squad/SquadReport"]]
+				,["loadView",["background", "BOOTFLOW"]]
+
+			]
+			,"onExit": 
+			[	
+				["unloadView",["screen", "game/screens/career/squad/SquadReport"]]
+				,["unloadScreenController", ["ViewShortlist"]]
+				,["unloadView",["background"]]
+			]	
+			,"states":
+			[
+				{
+					"name":"idleOnScreen"
+					,"onEnter": 
+					[ 					
+						/* When coming back from Action Popup, since screen is already loaded, need to inform screen controller screen is loaded. */
+						/* This call does not have effect when coming into the screen for the first time. */
+						["executeCMAction", ["NotifyScreenLoadedAndRefresh"]]	
+					]
+					,"transitions":
+					[
+						{
+							"event":"EnterPlayerAction"
+							,"targets":["ActionPopup"] 
+						}
+						,{
+							"event":"Back"
+							,"targets":["Back"] 
+						}
+					]
+				}
+				,{
+					"name":"screenWithPopup"
+					,"onEnter": 
+					[ 
+						["executeCMAction", ["SendReadyOnLoadComplete"]]						
+						, ["loadView",["screen", "game/screens/career/squad/SquadReport"]]
+					]
+					,"transitions":
+					[
+						{
+							"event":"Ready"
+							,"targets":["ActionPopup"] 
+						}
+					]
+				}				
+				,{
+					"name":"ActionPopup"
+					,"type":"external"
+					,"file":"/careerMode/actionPopupFlow.nav"
+					,"outputs": 
+					{ 
+						"BackFromPopup":"idleOnScreen"
+						,"BackFromScreen":"screenWithPopup"
+					}	
+				}				
+			]					
+			,"transitions":
+			[
+				{
+					"event":"Back"
+					,"targets":["Back"] 
+				}
+			]
+		}
+	]
+}

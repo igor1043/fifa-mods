@@ -20,3 +20,6 @@ smoke_machine\smoke_machine.dll
 frontend_stadium\frontend_stadium_native_v11.dll
 cloth_motion\cloth_motion.dll
 panorama_drone\panorama_drone_v5.dll
+
+# Ambiente do clube; assets no complemento ZIP separado.
+club_environment\native_dressing_room.dll

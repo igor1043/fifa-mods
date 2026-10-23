@@ -75,25 +75,14 @@ static bool entrance_kickoff_assignment(int phase,int state,int contextPhase) {
 }
 struct EntrancePolicy {
     uintptr_t fixture=0;
-    bool armed=false,consumed=false,matchStarted=false,sawPresentation=false,sawAnthem=false;
+    bool armed=false,consumed=false,sawPresentation=false,sawAnthem=false;
     int lastPlayableClock=0;
     int lastIntroPhase=-1;
     EntranceScene lastScene=EntranceScene::Unknown;
     bool visible(bool validMatch,bool paused,bool replay,uintptr_t key,int clock,EntranceScene scene,
-                 EntranceAnthem anthem=EntranceAnthem::Unknown,int introPhase=-1,
-                 bool confirmedGameStarted=false) {
+                 EntranceAnthem anthem=EntranceAnthem::Unknown,int introPhase=-1) {
         if(!validMatch)return false;
         if(fixture!=key){leave();fixture=key;}
-        // A trusted in-match clock is a one-way cutoff for this fixture.
-        // Keep it latched across NIS/camera changes, pause and replay, even if
-        // those states stop reporting the native gameplay scene temporarily.
-        if(confirmedGameStarted || (scene==EntranceScene::Gameplay && clock>0)){
-            matchStarted=true;
-            consumed=true;
-            armed=false;
-            if(clock>0)lastPlayableClock=clock;
-        }
-        if(matchStarted)return false;
         if(paused || replay){
             // Keep the ceremony's props while paused. Only the verified end
             // stage can consume it; audio/pan changes in menus cannot rearm it.
@@ -147,7 +136,7 @@ struct EntrancePolicy {
         }
         return armed && !consumed;
     }
-    void leave(){fixture=0;armed=false;consumed=false;matchStarted=false;sawPresentation=false;sawAnthem=false;lastPlayableClock=0;lastIntroPhase=-1;lastScene=EntranceScene::Unknown;}
+    void leave(){fixture=0;armed=false;consumed=false;sawPresentation=false;sawAnthem=false;lastPlayableClock=0;lastIntroPhase=-1;lastScene=EntranceScene::Unknown;}
 };
 
 static constexpr size_t EntranceRecordBytes=0x50;

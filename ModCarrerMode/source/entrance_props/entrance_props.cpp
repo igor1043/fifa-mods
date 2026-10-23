@@ -154,7 +154,7 @@ static void formation_shown(uintptr_t key,void* owner,int type,const char* data,
     }
     const unsigned shown=lineups.shown,closed=lineups.closed;
     ReleaseSRWLockExclusive(&lineupLock);
-    char message[192];_snprintf_s(message,sizeof(message),_TRUNCATE,"formation_service_shown v19 id=%d side=%d group=%d shown=%u closed=%u",type,side,group,shown,closed);event(message);
+    char message[192];_snprintf_s(message,sizeof(message),_TRUNCATE,"formation_service_shown v18 id=%d side=%d group=%d shown=%u closed=%u",type,side,group,shown,closed);event(message);
 }
 static int __fastcall service_show_hook(void* owner,int type,const char* data,int duration,int group,int a,int b){
     uintptr_t key=0;const bool scoped=!stopping&&lineup_scope(key);
@@ -178,7 +178,7 @@ static void __fastcall service_remove_hook(void* owner,int type,int group,unsign
         char page[64]={};const bool pausePage=read_page(page)&&strstr(page,"StadiumPan");
         bool closed=false,finished=false;
         if(!pausePage){AcquireSRWLockExclusive(&lineupLock);closed=lineups.removed_overlay((uintptr_t)owner);finished=lineups.finished;ReleaseSRWLockExclusive(&lineupLock);}
-        char message[160];_snprintf_s(message,sizeof(message),_TRUNCATE,"formation_service_remove v19 id=%d closed=%u finished=%u pause=%u",type,(unsigned)closed,(unsigned)finished,(unsigned)pausePage);event(message);
+        char message[160];_snprintf_s(message,sizeof(message),_TRUNCATE,"formation_service_remove v18 id=%d closed=%u finished=%u pause=%u",type,(unsigned)closed,(unsigned)finished,(unsigned)pausePage);event(message);
     }
 }
 static bool live_competition(unsigned& competition,unsigned& round){
@@ -263,7 +263,7 @@ static unsigned char __fastcall lineup_post_hook(void* self,uintptr_t a,uintptr_
     uintptr_t key=0,owner=0;int side=-1;
     if(!stopping&&result&&lineup_scope(key)&&get((uintptr_t)self+0x30,owner)&&get((uintptr_t)data,side)&&side>=0&&side<=1){
         AcquireSRWLockExclusive(&lineupLock);lineups.post(key,owner,side);ReleaseSRWLockExclusive(&lineupLock);
-        char message[128];_snprintf_s(message,sizeof(message),_TRUNCATE,"lineup_post v19 side=%d owner=%p",side,(void*)owner);event(message);
+        char message[128];_snprintf_s(message,sizeof(message),_TRUNCATE,"lineup_post v18 side=%d owner=%p",side,(void*)owner);event(message);
     }
     return result;
 }
@@ -273,7 +273,7 @@ static void overlay_trace(const char* action,void* owner,int type,const char* da
     char prefix[97]={};if(data){
         for(size_t i=0;i<sizeof(prefix)-1;++i){char c=0;if(!get((uintptr_t)data+i,c)||!c)break;prefix[i]=(c>=32&&c<=126)?c:'?';}
     }
-    char message[192];_snprintf_s(message,sizeof(message),_TRUNCATE,"overlay_%s v19 type=%d owner=%p payload=%s",action,type,owner,prefix);event(message);
+    char message[192];_snprintf_s(message,sizeof(message),_TRUNCATE,"overlay_%s v18 type=%d owner=%p payload=%s",action,type,owner,prefix);event(message);
 }
 static int lineup_payload_side(const char* data,uintptr_t key){
     char prefix[32]={};if(!data||!read_bytes((uintptr_t)data,prefix,sizeof(prefix)-1))return -1;
@@ -299,7 +299,7 @@ static void __fastcall overlay_show_hook(void* owner,int type,const char* data,i
         if(overlay_handle((uintptr_t)owner,handle)&&handle!=-1){
             AcquireSRWLockExclusive(&lineupLock);accepted=lineups.shown_overlay((uintptr_t)owner);side=lineups.activeSide;shown=lineups.shown;ReleaseSRWLockExclusive(&lineupLock);
         }
-        if(accepted){char message[128];_snprintf_s(message,sizeof(message),_TRUNCATE,"lineup_shown v19 side=%d shown=%u handle=%d",side,shown,handle);event(message);}
+        if(accepted){char message[128];_snprintf_s(message,sizeof(message),_TRUNCATE,"lineup_shown v18 side=%d shown=%u handle=%d",side,shown,handle);event(message);}
     }
 }
 static void __fastcall overlay_remove_hook(void* owner,int type,int mode){
@@ -310,7 +310,7 @@ static void __fastcall overlay_remove_hook(void* owner,int type,int mode){
     if(!stopping&&existed&&overlay_handle((uintptr_t)owner,after)&&after==-1){
         bool accepted=false,finished=false;unsigned closed=0;
         AcquireSRWLockExclusive(&lineupLock);accepted=lineups.removed_overlay((uintptr_t)owner);closed=lineups.closed;finished=lineups.finished;ReleaseSRWLockExclusive(&lineupLock);
-        if(accepted){char message[128];_snprintf_s(message,sizeof(message),_TRUNCATE,"lineup_removed v19 closed=%u finished=%u old_handle=%d",closed,(unsigned)finished,before);event(message);}
+        if(accepted){char message[128];_snprintf_s(message,sizeof(message),_TRUNCATE,"lineup_removed v18 closed=%u finished=%u old_handle=%d",closed,(unsigned)finished,before);event(message);}
     }
 }
 static bool read_page(char (&page)[64]){
@@ -458,22 +458,18 @@ static bool visible(){
     // flags; the native kickoff camera or confirmed gameplay ends it.
     else if(nativeStateValid&&nativePhase==0&&sportsState==15)scene=EntranceScene::Gameplay;
     const bool previouslyConsumed=policy.consumed;
-    // Clock values are trusted only alongside the live native match state.
-    // This catches third-person gameplay while NIS/choreo flags still claim
-    // presentation, and remains latched by EntrancePolicy across pause/replay.
-    const bool confirmedGameStarted=validFixture&&knownClock&&clockValue>0&&nativeStateValid&&sportsState==15;
-    const bool ceremonyVisible=policy.visible(validFixture&&knownClock&&!outside,paused,replay,fixture,clockValue,scene,anthem,sportsState==2?introPhase:-1,confirmedGameStarted);
+    const bool ceremonyVisible=policy.visible(validFixture&&knownClock&&!outside,paused,replay,fixture,clockValue,scene,anthem,sportsState==2?introPhase:-1);
     const bool show=enabled&&!stopping&&selectionAvailable&&ceremonyVisible;
-    if(previouslyConsumed&&!policy.consumed)event("intro_rearmed v19 native_opening_phase_or_match_restart");
+    if(previouslyConsumed&&!policy.consumed)event("intro_rearmed v18 native_opening_phase_or_match_restart");
     if(!previouslyConsumed&&policy.consumed){
-        event(confirmedGameStarted?"intro_cutoff v19 confirmed_match_clock":finished?"intro_cutoff v19 second_lineup_closed":introEnded?"intro_cutoff v19 intro_assignment_ended":skipEnded?"intro_cutoff v19 native_broadcast_after_skip":"intro_cutoff v19 gameplay");
+        event(finished?"intro_cutoff v18 second_lineup_closed":introEnded?"intro_cutoff v18 intro_assignment_ended":skipEnded?"intro_cutoff v18 native_broadcast_after_skip":"intro_cutoff v18 gameplay");
     }
-    if(show!=lastShowing){event(show?"intro_visible v19 native_presentation rotated_180 all_teams no_physics":"intro_hidden v19 native_cutoff_or_left_match");lastShowing=show;}
+    if(show!=lastShowing){event(show?"intro_visible v18 native_presentation rotated_180 all_teams no_physics":"intro_hidden v18 native_cutoff_or_left_match");lastShowing=show;}
     const uint64_t now=GetTickCount64();
     if(validFixture&&now>=nextDiagnostic){
         nextDiagnostic=now+5000;char message[640];
-        _snprintf_s(message,sizeof(message),_TRUNCATE,"scene v19 clock=%d phase=%d sports=%d intro_phase=%d kickoff_phase=%d kickoff_state=%d context_phase=%d lineups_shown=%u lineups_closed=%u lineup_finished=%u nis=%u choreo_intro=%u intro_known=%u intro_complete=%u intro_ended=%u anthem=%u gameplay_camera=%u pan_page=%u paused=%u replay=%u armed=%u consumed=%u match_started=%u camera=%s",
-            clockValue,nativePhase,sportsState,introPhase,kickoffPhase,kickoffState,contextPhase,shownSides,closedSides,(unsigned)finished,(unsigned)nativeNis,(unsigned)choreoIntro,(unsigned)introSampleKnown,(unsigned)introSampleCompleted,(unsigned)introEnded,(unsigned)anthem,(unsigned)gameplayCamera,(unsigned)stadiumPanPage,(unsigned)paused,(unsigned)replay,(unsigned)policy.armed,(unsigned)policy.consumed,(unsigned)policy.matchStarted,camera);
+        _snprintf_s(message,sizeof(message),_TRUNCATE,"scene v18 clock=%d phase=%d sports=%d intro_phase=%d kickoff_phase=%d kickoff_state=%d context_phase=%d lineups_shown=%u lineups_closed=%u lineup_finished=%u nis=%u choreo_intro=%u intro_known=%u intro_complete=%u intro_ended=%u anthem=%u gameplay_camera=%u pan_page=%u paused=%u replay=%u armed=%u consumed=%u camera=%s",
+            clockValue,nativePhase,sportsState,introPhase,kickoffPhase,kickoffState,contextPhase,shownSides,closedSides,(unsigned)finished,(unsigned)nativeNis,(unsigned)choreoIntro,(unsigned)introSampleKnown,(unsigned)introSampleCompleted,(unsigned)introEnded,(unsigned)anthem,(unsigned)gameplayCamera,(unsigned)stadiumPanPage,(unsigned)paused,(unsigned)replay,(unsigned)policy.armed,(unsigned)policy.consumed,camera);
         event(message);
     }
     return show;
@@ -506,7 +502,7 @@ static void __fastcall bounds_cull_hook(void* out,float* boxes,int count,void* c
     const int index=own_bounds_index((uintptr_t)_AddressOfReturnAddress(),count);
     if(index>=0&&boxes==(float*)(activeBuildOwner+0xd20)){
         full_actor_bounds(boxes,index);
-        if(!boundsLogged){char message[160];_snprintf_s(message,sizeof(message),_TRUNCATE,"full_mesh_bounds v19 index=%d selected_mesh_and_crests",index);event(message);boundsLogged=true;}
+        if(!boundsLogged){char message[160];_snprintf_s(message,sizeof(message),_TRUNCATE,"full_mesh_bounds v18 index=%d selected_mesh_and_crests",index);event(message);boundsLogged=true;}
     }
     originalBoundsCull(out,boxes,count,cameraData);
 }
@@ -529,11 +525,11 @@ static bool fixture_atlas(){
     else if(!selectedAsset.slots){
         _snprintf_s(modelFile,MAX_PATH,_TRUNCATE,"data/sceneassets/entrance_props/competitions/%s/model.rx3",selectedAsset.slug);
         _snprintf_s(textureFile,MAX_PATH,_TRUNCATE,"data/sceneassets/entrance_props/competitions/%s/template.rx3",selectedAsset.slug);
-    }else {event("club_atlas v19 generation_failed actor_not_requested");return false;}
+    }else {event("club_atlas v18 generation_failed actor_not_requested");return false;}
     char script[1024];_snprintf_s(script,sizeof(script),_TRUNCATE,"FIFA16_ENTRANCE_MODEL_FILE='%s'; FIFA16_ENTRANCE_TEXTURE_FILE='%s'",modelFile,textureFile);
     ((void(__fastcall*)(const char*,size_t,const char*))(image+0x4ac35e0))(script,strlen(script),"entrance_competition_club_atlas");
     atlasFixture=key;
-    char message[384];_snprintf_s(message,sizeof(message),_TRUNCATE,"club_atlas v19 home=%u away=%u asset=%s slots=%u prepared=%u path=%s",home,away,selectedAsset.slug,selectedAsset.slots,(unsigned)prepared,textureFile);event(message);
+    char message[384];_snprintf_s(message,sizeof(message),_TRUNCATE,"club_atlas v18 home=%u away=%u asset=%s slots=%u prepared=%u path=%s",home,away,selectedAsset.slug,selectedAsset.slots,(unsigned)prepared,textureFile);event(message);
     return true;
 }
 static bool ready_prototype(uintptr_t prototype,bool& requested,bool& logged,bool shadow){
@@ -577,7 +573,7 @@ static bool ready_prototype(uintptr_t prototype,bool& requested,bool& logged,boo
             ((void(__fastcall*)(void*,int))load)((void*)prototype,1);
         }
         if(!shadow&&validFixture)resourceFixture=fixture^selectedAsset.stamp;
-        requested=cycle.requested=true;event(shadow?"native_shadow_dependency_requested v19":"native_static_resource_requested v19");
+        requested=cycle.requested=true;event(shadow?"native_shadow_dependency_requested v18":"native_static_resource_requested v18");
     }
     if(!shadow&&validFixture&&resourceFixture!=(fixture^selectedAsset.stamp)){
         // The prototype can survive a fixture change with identical appearance
@@ -598,9 +594,9 @@ static bool ready_prototype(uintptr_t prototype,bool& requested,bool& logged,boo
     const bool nowInitialized=((Ready)(image+0x43b4500))((void*)prototype)!=0;
     const bool ready=nowInitialized&&allLodsReady&&((Ready)(image+0x43b4520))((void*)prototype)!=0;
     cycle.complete(nowInitialized,ready);
-    if(ready&&!logged){event(shadow?"native_shadow_dependency_ready v19":"native_static_resource_ready v19");logged=true;}
+    if(ready&&!logged){event(shadow?"native_shadow_dependency_ready v18":"native_static_resource_ready v18");logged=true;}
     return ready;
-    }__except(EXCEPTION_EXECUTE_HANDLER){resourceFault=true;event("native_static_resource_fault v19 actor_disabled_for_scene");return false;}
+    }__except(EXCEPTION_EXECUTE_HANDLER){resourceFault=true;event("native_static_resource_fault v18 actor_disabled_for_scene");return false;}
 }
 static void refresh_mascot_bridge(){
     if(mascotBeforeBuild||GetTickCount64()<nextMascotBridgeProbe)return;
@@ -684,14 +680,14 @@ static void __fastcall build_hook(void* self){
             }
         }
         if(show&&!swapped&&!lastDrawDeferred){
-            char message[160];_snprintf_s(message,sizeof(message),_TRUNCATE,"draw_deferred v19 reason=%s intro_phase=%d organisation=%u",
+            char message[160];_snprintf_s(message,sizeof(message),_TRUNCATE,"draw_deferred v18 reason=%s intro_phase=%d organisation=%u",
                 deferReason,introPhase,(unsigned)kickoffOrganisation);event(message);lastDrawDeferred=true;
-        }else if(swapped&&lastDrawDeferred){event("draw_resumed v19 native_resources_and_placement_ready");lastDrawDeferred=false;}
+        }else if(swapped&&lastDrawDeferred){event("draw_resumed v18 native_resources_and_placement_ready");lastDrawDeferred=false;}
         if(!prototype&&GetTickCount64()>=nextPrototypeDiagnostic){
             nextPrototypeDiagnostic=GetTickCount64()+5000;
             NativeVector models{};size_t modelCount=0;char message[128];
             const bool known=vector((uintptr_t)self+0x30*(6+1),8,models,modelCount);
-            _snprintf_s(message,sizeof(message),_TRUNCATE,"native_prototype_unavailable v19 count=%zu known=%u lua_gate=%u",
+            _snprintf_s(message,sizeof(message),_TRUNCATE,"native_prototype_unavailable v18 count=%zu known=%u lua_gate=%u",
                 modelCount,(unsigned)known,(unsigned)gateReady);event(message);
         }
         activeBuildThread=GetCurrentThreadId();activeBuildOwner=swapped?(uintptr_t)self:0;
@@ -709,7 +705,7 @@ static void __fastcall build_hook(void* self){
             memcpy(extra,scratch+normalBytes,EntranceRecordBytes);
             entrance_static_position(extra,submittedHeight);
             uint16_t binding=0xffff;memcpy(&binding,extra+0x40,sizeof(binding));
-            if(binding!=0xffff&&!placedLogged){event("native_static_actor_placed v19 binding_assigned");placedLogged=true;}
+            if(binding!=0xffff&&!placedLogged){event("native_static_actor_placed v18 binding_assigned");placedLogged=true;}
             if(startupRecovery.confirm(binding!=0xffff&&!retireBeforeReload&&selectionAvailable&&resourceFixture==(fixture^selectedAsset.stamp)))
                 event("startup_reinforcement confirmed native_binding_and_position");
             memcpy((void*)placement,&saved,sizeof(saved));
@@ -718,7 +714,7 @@ static void __fastcall build_hook(void* self){
         if(swapped&&retireBeforeReload){
             retireBeforeReload=false;resourceRequested=false;resourceReadyLogged=false;
             modelCycle=SceneResourceCycle{};
-            event("old_competition_actor_retired v19 before_resource_reload");
+            event("old_competition_actor_retired v18 before_resource_reload");
         }
         InterlockedExchange(&busy,0);
     }
@@ -991,7 +987,7 @@ static DWORD WINAPI worker(void*){
         originalServiceRemove=(ServiceRemoveFn)(image+0x4878830);
         if(patch_call()){
             if(preserveOuterBuilder)event("outer_var_cabin_builder_preserved owned_v16_entry_forwarded");
-            if(previousStop){previousStop();event("previous_revision_retired v19 owned_v16_hooks_replaced");}
+            if(previousStop){previousStop();event("previous_revision_retired v18 owned_v16_hooks_replaced");}
             event("startup_reinforcement enabled window_ms=6000 max_attempts=3 first_checkpoint_ms=500");
             event("installed v21 scene_thread_lua verified_readiness retry_context settings_ids friendly_same_league source=FSW/settings.ini native_hook=43ac173");
             return 0;

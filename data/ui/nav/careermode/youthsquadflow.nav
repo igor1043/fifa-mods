@@ -1,0 +1,76 @@
+{
+	"name":"YouthSquadFlow"
+	,"initial": { "targets":["YouthSquad"] }
+	,"states":
+	[
+		{
+			"name":"YouthSquad"
+			,"initial": { "targets":["YouthSquadChild"] }
+			,"onEnter":
+			[
+				["loadScreenController", ["YouthSquad"]]
+				,["loadView", ["screen", "game/screens/career/YouthScout/YouthSquad"]]
+				,["loadView",["background", "BOOTFLOW"]]
+
+			]
+			,"onExit":
+			[
+				["unloadView", ["screen", "game/screens/career/YouthScout/YouthSquad"]]
+				,["unloadScreenController", ["YouthSquad"]]
+				,["unloadView",["background"]]
+			]
+			,"states":
+			[
+				{
+					"name":"YouthSquadChild"
+					,"transitions":
+					[
+						{
+							"event":"Back"
+							,"targets":["Back"]
+						}
+						,{
+							"event":"EnterPlayerContractNegotiation"
+							,"targets":["PlayerContractNegotiation"]
+							,"actions":[ ["executeCMAction",["PlayerNegotiation"]] ]
+						}
+						,{
+							"event":"EnterSellPlayers"
+							,"targets":["SellPlayers"]
+							,"actions":[ ["executeCMAction",["SellPlayersFromYouthSquad"]] ]
+						}
+					]
+				}
+				,{
+					"name":"PlayerContractNegotiation"
+					,"onEnter":
+					[
+						["loadScreenController", ["PlayerContractNegotiation"]]
+						,["loadView", ["screen", "game/screens/career/squad/ContractNegotiation"]]
+					]
+					,"onExit":
+					[
+						["unloadView", ["screen", "game/screens/career/squad/ContractNegotiation"]]
+						,["unloadScreenController", ["PlayerContractNegotiation"]]
+					]
+					,"transitions":
+					[
+						{
+							"event":"Back"
+							,"targets":["YouthSquad"] 
+						}
+					]
+				}
+				,{
+					"name":"SellPlayers"
+					,"type":"external"
+					,"file":"/careerMode/sellPlayersFlow.nav"
+					,"outputs":
+					{
+						"Back":"YouthSquad"
+					}
+				}
+			]
+		}
+	]
+}

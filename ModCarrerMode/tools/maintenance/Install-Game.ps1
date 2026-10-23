@@ -56,6 +56,18 @@ if ($missingVarAssets.Count) {
     if ($liveMods) { Write-Warning 'Cabine do VAR sem assets locais: os outros mods serao instalados; a lista compartilhada do desenvolvimento sera preservada.' }
     else { Write-Warning 'Cabine do VAR sem assets locais: os outros mods serao instalados. A cabine sera desabilitada nesta instalacao; instale seus assets e reinstale para habilitar.' }
 }
+if ($enabledPlugins -contains 'club_environment\native_dressing_room.dll') {
+    $roomManifest=Get-Content -LiteralPath (Join-Path $modSource 'source\club_environment\assets-manifest.json') -Raw | ConvertFrom-Json
+    foreach($asset in $roomManifest.files) {
+        $installed=Join-Path $game $asset.path
+        $packaged=Join-Path $repoSource $asset.path
+        $valid=$false
+        foreach($candidate in @($installed,$packaged)) {
+            if ((Test-Path -LiteralPath $candidate -PathType Leaf) -and (Get-Item -LiteralPath $candidate).Length -eq $asset.bytes -and (Get-Sha256 $candidate) -eq ([string]$asset.sha256).ToUpperInvariant()) { $valid=$true;break }
+        }
+        if (-not $valid) { throw "Extraia primeiro o complemento FIFA-Friends-Ambiente-Clube-20261022.zip na pasta do jogo. Falta: $($asset.path)" }
+    }
+}
 if ($enabledPlugins -contains 'smoke_machine\smoke_machine.dll') {
     foreach ($relative in @('data\sceneassets\smoke_machine\model.rx3','data\sceneassets\smoke_machine\textures.rx3')) {
         if (-not (Test-Path -LiteralPath (Join-Path $repoSource $relative) -PathType Leaf)) {
@@ -105,6 +117,7 @@ foreach($folder in @('config','data','mods','assets')) {
     $base=Join-Path $modSource $folder
     if (-not (Test-Path -LiteralPath $base)) { continue }
     foreach($file in Get-ChildItem -LiteralPath $base -Recurse -File) {
+        if ($file.FullName -match '[\\/]_local_[^\\/]+[\\/]') { continue }
         # This payload belongs at the game root; do not recreate a legacy
         # ModCarrerMode/assets tree that V12 archives on every installation.
         if ($file.FullName -eq $swissMemorySource) { continue }
@@ -139,6 +152,13 @@ if (($externalPaths -notcontains 'dlc') -and (Test-Path -LiteralPath $compdataSo
         Add-File $file.FullName ($compdataRelative+'\'+$file.Name)
     }
 }
+# External helper sources are runtime dependencies executed by Server16.
+foreach($file in Get-ChildItem -LiteralPath (Join-Path $modSource 'source\club_environment') -Recurse -File) {
+    if ($file.FullName -match '[\\/]__pycache__[\\/]' -or $file.Extension -in @('.obj','.lib','.exp','.pyc')) { continue }
+    Add-File $file.FullName ('ModCarrerMode\source\club_environment\'+$file.FullName.Substring((Join-Path $modSource 'source\club_environment').Length+1))
+}
+Add-File (Join-Path $modSource 'tools\Install-ClubEnvironment.ps1') 'ModCarrerMode\tools\Install-ClubEnvironment.ps1'
+Add-File (Join-Path $modSource 'install-club-environment.cmd') 'ModCarrerMode\install-club-environment.cmd'
 $birthdateSource = Join-Path $modSource 'mods\career_birthdate_2006\payload\vpro_proinfo.big'
 $birthdateRelative = 'data\ui\game\screens\virtualpro\vpro_proinfo.big'
 $birthdateTarget = Join-Path $game $birthdateRelative
@@ -291,9 +311,11 @@ foreach($file in $changes) {
     if ((Get-Sha256 $file.Target) -ne $file.Hash) { throw "Copia divergente: $($file.Relative). Backup: $backup" }
 }
 $birthyearUiResult = & $birthyearUiHelper -GameDirectory $game -BackupDirectory (Join-Path $backup 'ui-indexes')
+$uiProcess = Start-Process -FilePath (Join-Path $game 'Server16Python.exe') -ArgumentList @('--activate-career-ui','--game-root',('"'+$game+'"')) -WindowStyle Hidden -PassThru -Wait
+if ($uiProcess.ExitCode -ne 0) { throw 'Ative a interface da carreira/panoramica com o FIFA fechado.' }
 if ($ArchiveDevelopmentFiles) {
     # tools contains the runtime stadium preparer, required after installation.
-    foreach($folder in @('source','backups')) {
+    foreach($folder in @('backups')) {
         $old=Join-Path $gameMod $folder
         if (-not (Test-Path -LiteralPath $old -PathType Container)) { continue }
         $dest=Join-Path $backup ('development-files\'+$folder)

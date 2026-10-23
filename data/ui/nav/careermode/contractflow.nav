@@ -1,0 +1,64 @@
+{
+	"name":"ContractFlow"
+	,"initial": { "targets":["Contract"] }
+	,"states":
+	[
+		{
+			"name":"Contract"
+			,"onEnter":
+			[
+				["loadScreenController", ["Contract"]]
+				,["loadView", ["screen", "game/screens/career/Contract"]]
+				,["loadView",["background", "BOOTFLOW"]]
+			]
+			,"onExit":
+			[
+				["unloadView", ["screen", "game/screens/career/Contract"]]
+				,["unloadScreenController", ["Contract"]]
+				,["unloadView",["background"]]
+			]
+			,"transitions":
+			[
+				{
+					"event":"BackToStart"
+					,"actions":[ ["invoke", ["GotoStartMenu"]] ]					
+				}
+				,{
+					"event":"Advance"
+					,"targets":["InitCareerMode"] 
+					,"actions":[ ["executeCMAction",["EnteringInitialisation"]] ]
+				}
+				,{
+					"event":"EosAdvance"
+					,"targets":["InitNewSeason"] 
+					,"actions":[ ["executeCMAction",["InitJob"]] ]
+				}
+				,{
+					"event":"SackAdvance"
+					,"targets":["out_JobOffers"] 
+					,"actions":[ ["executeCMAction",["Sacked"]] ]
+				}
+				,{
+					"event":"BackJobListing"
+					,"targets":["out_Back"]
+				}
+			]
+		}	
+		,{
+			"name":"InitCareerMode"
+			,"type":"external"
+			,"file":"/careerMode/initCareerModeFlow.nav"
+			,"outputs": 
+			{ 
+			}	
+		}
+		,{
+			"name":"InitNewSeason"
+			,"type":"external"
+			,"file":"/careerMode/initNewSeasonFlow.nav"
+			,"outputs": 
+			{ 
+			}	
+		}
+	]
+}

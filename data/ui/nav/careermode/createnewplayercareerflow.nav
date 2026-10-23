@@ -1,0 +1,217 @@
+{
+	"name":"CreateNewPlayerCareerFlow"
+	,"initial": { "targets":["SelectTeam"] }
+	,"states":
+	[
+		{
+			"name":"SelectTeam"
+			,"type":"external"
+			,"file":"/careerMode/selectTeamFlow.nav"
+			,"outputs": 
+			{ 
+				"Back":"Back"
+				,"Advance":"Setup"
+			}	
+		}	
+		,{
+			"name":"Setup"
+			,"type":"external"
+			,"file":"/careerMode/setupFlow.nav"
+			,"outputs": 
+			{ 
+				"Back":"SelectTeam"
+				,"Advance":"SelectPlayerType"
+			}	
+		}
+		,{
+			"name":"SelectPlayerType"
+			,"onEnter":
+			[
+				["loadScreenController", ["SelectPlayerType"]]
+				,["loadView", ["screen", "game/screens/career/PlayerType"]]
+				,["loadView",["background", "BOOTFLOW"]]
+			]
+			,"onExit":
+			[
+				["unloadView", ["screen", "game/screens/career/PlayerType"]]
+				,["unloadScreenController", ["SelectPlayerType"]]
+				,["unloadView",["background"]]
+			]
+			,"transitions":
+			[
+				{
+					"event":"Back"
+					,"targets":["Setup"] 
+				}
+				,{
+					"event":"CreateVirtualPro"
+					,"targets":["CreateVirtualProPlayerFlow"] 
+				}
+				,{
+					"event":"PlayReal"
+					,"targets":["SelectPlayer"] 
+					,"actions":[ ["executeCMAction",["EnterSelectPlayer"]] ]
+				}
+			]
+		}
+		,{	
+			"onEnter":
+			[
+				["loadViewModel",["VirtualProViewModel"]]
+			]
+			,"onExit":
+			[
+				["unloadViewModel",["VirtualProViewModel"]]
+			]
+			,"states":
+			[
+				{
+					"name":"VirtualProProfileSignOutWait"
+				}
+				,{
+					"name":"CreateVirtualProPlayerFlow"
+					,"onEnter":
+					[
+						["loadScreenController", ["VirtualProPlayer"]]
+						,["loadView", ["screen", "game/screens/virtualPro/VPro_HUB"]]	
+					]
+					,"onExit":
+					[
+						["unloadView", ["screen", "game/screens/virtualPro/VPro_HUB"]]
+						,["unloadScreenController", ["VirtualProPlayer"]]
+					]
+					,"transitions":
+					[
+						{ "event":"profileSignOut", "targets":["VirtualProProfileSignOutWait"] }
+					]
+					,"states":
+					[
+						{
+							"name":"CreateVProMain"
+							,"transitions":
+							[
+								{
+									"event":"Back"
+									,"targets":["SelectPlayerType"] 
+								}
+								,{
+									"event":"Advance"
+									,"targets":["InitCareerMode"] 
+									,"actions":[ ["executeCMAction",["SetUpVirtualPro"]] ]
+								}
+								,{ /* this event is fired when not logged in */
+									"event":"gamefaceLoginFlow"
+									,"targets":["gameFaceLogin"]
+								}
+								,{ /* this event is fired when logged in */
+									"event":"requestDownload"
+									,"targets":["CheckGameFace"]
+								}
+							]
+						}
+						,{
+							"type":"external"
+							,"file":"/online/onlineLoginFlow.nav"
+							,"inputs":
+							{
+								"gameFaceLogin":"startLoginWithoutMultiplayerCheck"
+							}
+							,"outputs":
+							{
+								"loginSuccess":"CheckGameFace"
+								,"loginFail":"CreateVProMain"
+							}
+						}
+						,{
+							"name":"CheckGameFace"
+							,"onEnter":
+							[
+								["sendAction",["condition", "isGameFaceAvailable"]]
+							]
+							,"transitions":
+							[
+								{
+									"event":"true"
+									,"targets":["GameFaceDownload"]
+								}
+								,{
+									"event":"false"
+									,"targets":["NoGameFacePopup"]
+								}
+							]
+						}
+						,{
+							"name":"NoGameFacePopup"
+							,"onEnter":
+							[
+								["loadView", ["popup", "TXT_GAMEFACE_NOT_AVAILABLE", "TXT_GAMEFACE_NOT_AVAILABLE|Okay|back"]]
+							]
+							,"onExit":
+							[
+								["unloadView", ["popup", "TXT_GAMEFACE_NOT_AVAILABLE"]]
+							]
+							,"transitions":
+							[
+								{
+									"event":"back"
+									,"targets":["CreateVProMain"]
+								}
+							]
+						}
+					]
+				}
+			]
+		}
+		,{
+			"name":"GameFaceDownload"
+			,"onEnter":
+			[
+			
+				["sendScreenEvent", ["SetLiveDbDownloadState", "0"]]
+				,["loadView",["screen", "game/screens/liveDB/livedb_downloadLiveDB"]]
+			]
+			,"onExit":
+			[
+				["unloadView",["screen", "game/screens/liveDB/livedb_downloadLiveDB"]]
+			]
+			,"transitions":
+			[
+				{
+					"event":"back"
+					,"targets":["CreateVirtualProPlayerFlow"]
+				}
+			]
+		}
+		,{
+			"name":"SelectPlayer"
+			,"onEnter":
+			[
+				["loadScreenController", ["SelectPlayer"]]
+				,["loadView", ["screen", "game/screens/career/SelectPlayer"]]	
+			]
+			,"onExit":
+			[
+				["unloadView", ["screen", "game/screens/career/SelectPlayer"]]
+				,["unloadScreenController", ["SelectPlayer"]]
+			]
+			,"transitions":
+			[
+				{
+					"event":"Back"
+					,"targets":["SelectPlayerType"] 
+					,"actions":[ ["executeCMAction",["LeaveSelectPlayer"]] ]
+				}
+				,{
+					"event":"Complete"
+					,"targets":["InitCareerMode"] 
+					,"actions":[ ["executeCMAction",["LeaveSelectPlayerWithInitMode"]] ]
+				}
+			]
+		}
+		,{
+			"name":"InitCareerMode"
+			,"type":"external"
+			,"file":"/careerMode/initCareerModeFlow.nav"
+		}
+	]
+}

@@ -10,3 +10,17 @@ ModCarrerMode/source/mascot_photographer/assets/** -text whitespace=cr-at-eol
 *.dds -text
 *.cbac -text
 *.ico -text
+# Installation manifests validate these runtime inputs byte for byte on Windows.
+ModCarrerMode/source/club_environment/** -text whitespace=cr-at-eol
+# Keep the validated legacy helper bytes used by the diagnostic baseline.
+ModCarrerMode/source/club_environment/room/prepare_native_room_components_r46_20261022.py whitespace=cr-at-eol,-blank-at-eol
+ModCarrerMode/source/club_environment/room/room_projection_r52.py whitespace=cr-at-eol,-blank-at-eol
+ModCarrerMode/data/club_environment/** -text whitespace=cr-at-eol
+ModCarrerMode/tools/Install-ClubEnvironment.ps1 -text
+ModCarrerMode/install-club-environment.cmd -text
+data/ui/layout/careermanagerhubcfg.xml -text
+data/ui/nav/careermode/mainmenuhubflow.nav -text
+data/ui/nav/careermode/server16*.nav -text
+# Preserve the original navigation exports, including their native formatting.
+data/ui/nav/careermode/*.nav whitespace=cr-at-eol,-blank-at-eol,-blank-at-eof
+data/ui/layout/*.xml whitespace=cr-at-eol,-blank-at-eol,-blank-at-eof

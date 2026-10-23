@@ -7,7 +7,6 @@ import argparse,json,struct,sys,hashlib
 import numpy as np
 
 p=argparse.ArgumentParser();p.add_argument('--package',required=True);p.add_argument('--native-model',required=True);p.add_argument('--reference-model',required=True);p.add_argument('--tools',required=True);p.add_argument('--output',required=True)
-p.add_argument('--club-id',type=int,default=1035)
 a=p.parse_args();sys.path.insert(0,str(Path(a.tools)/'vendor/rx3tools'))
 from rx3 import Rx3,read_model,FORMAT,VERTEX,INDEX,TEXTURE
 
@@ -30,13 +29,13 @@ def inspect(path):
 native,nativeInfo=inspect(a.native_model);reference,referenceInfo=inspect(a.reference_model)
 root=Path(a.package);reports=[]
 for weather in (0,1):
-    path=root/f'specificmanager_{a.club_id}_0_{weather}.rx3';rx,info=inspect(path)
+    path=root/f'specificmanager_1035_0_{weather}.rx3';rx,info=inspect(path)
     assert rx.version==native.version==reference.version
     assert rx.get(FORMAT)==native.get(FORMAT)==reference.get(FORMAT)
     assert rx.get(0xdf9aec1e)==native.get(0xdf9aec1e)==reference.get(0xdf9aec1e)
     assert rx.get(0x0f3861a2)==native.get(0x0f3861a2)
     assert info['activeBoneSet']==nativeInfo['activeBoneSet']==referenceInfo['activeBoneSet']
-    texPath=root/f'specificmanager_{a.club_id}_0_{weather}_textures.rx3';tex=Rx3(texPath.read_bytes());textures=tex.get(TEXTURE)
+    texPath=root/f'specificmanager_1035_0_{weather}_textures.rx3';tex=Rx3(texPath.read_bytes());textures=tex.get(TEXTURE)
     names=[name for kind,name in tex.names() if kind==TEXTURE]
     assert len(textures)==len(names)==3
     assert {name.rsplit('_',1)[-1] for name in names}=={'cm','nm','coeff'}

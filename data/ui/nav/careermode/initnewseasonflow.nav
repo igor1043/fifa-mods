@@ -1,0 +1,80 @@
+{
+	"name":"InitNewSeasonFlow"
+	,"initial": { "targets":["InitNewSeason"] }
+	,"states":
+	[
+		{
+			"onEnter": 
+			[ 
+				["loadScreenController", ["InitNewSeason"]] 
+				, ["loadView",["screen", "game/screens/career/Scheduling"]]
+				,["loadView",["background", "BOOTFLOW"]]
+			]
+			,"onExit": 
+			[	
+				["unloadView",["screen", "game/screens/career/Scheduling"]]
+				, ["unloadScreenController", ["InitNewSeason"]]
+				,["unloadView",["background"]]
+			]
+			,"states":
+			[
+				{
+					"name":"InitNewSeasonIdle"
+				}
+				,{
+					"type":"external"
+					,"file":"/reloadfestadiumflow.nav"
+					,"inputs":
+					{
+						"InitNewSeason":"TriggerReloadNoWait"
+					}
+					,"outputs":
+					{
+						"LoadStarted":"InitNewSeasonIdle"
+						,"ReloadReady":"InitNewSeasonIdle"
+					}
+				}
+			]
+			,"transitions":
+			[
+				{
+					"event":"InterruptSeasonCreate"
+					,"actions":[ ["executeCMAction",["InterruptNewSeason"]] ]
+				}
+				,{
+					"event":"StartInit"
+					,"actions":[ ["executeCMAction",["StartNewSeason"]] ]
+				}
+				,{
+					"event":"StartedNewSeason"
+					,"actions":[ ["executeCMAction",["ReceivedStartedNewSeason"]] ]
+				}				
+				,{
+					"event":"Advance"
+					,"targets":["WaitForStadiumComplete"]
+					,"actions":[ ["executeCMAction",["EnterHubFirstTime"]] ]
+				}
+			]
+		}
+		,{
+			"type":"external"
+			,"file":"/reloadfestadiumflow.nav"
+			,"inputs":
+			{
+				"WaitForStadiumComplete":"WaitForLoad"
+			}
+			,"outputs":
+			{
+				"ReloadReady":"StadiumLoaded"
+				,"LoadStarted":"StadiumLoaded"
+			}
+		}
+		,{
+			"name":"StadiumLoaded"
+			,"onEnter":
+			[
+				["invoke", ["GotoPreSeasonTourFlow"]]
+			]
+		}
+	]
+}

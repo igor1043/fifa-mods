@@ -46,7 +46,8 @@ if edition == 'v12':
         settings = other.find('settings')
         ox, oy, ow, oh = (int(settings.get(k)) for k in ('X', 'Y', 'WIDTH', 'HEIGHT'))
         assert not (x < ox + ow and ox < x + width and y < oy + oh and oy < y + height), other.find('tileid').get('NAME')
-    assert next_card.find('main_tile').get('DESTINATION') == ''
+    assert next_card.find('main_tile').get('DESTINATION') == 'Server16EnterMatchPreview'
+    assert 'Server16EnterMatchPreview' in nav
     assert club.find('main_tile').get('DESTINATION') == ''
     assert not any(e.get('DESTINATION', '').startswith('FifaModsOpen') for e in root.iter())
     assert 'FifaModsOpen' not in nav
@@ -87,8 +88,14 @@ if edition=='v12':
                   'frontend_stadium/frontend_stadium_native_v11.dll',
                   'panorama_drone/panorama_drone_v5.dll',
                   'cloth_motion/cloth_motion.dll',
+                  'club_environment/native_dressing_room.dll',
                   'goal_kick_short_pass/goal_kick_short_pass.dll'}
     assert active_plugins==required_plugins|required_v12
+    room=tile('panel_3','SERVER16_DRESSING_ROOM')
+    assert room.find('main_tile').get('DESTINATION')=='Server16EnterDressingRoom'
+    assert not any(t.find('tileid').get('NAME')=='SERVER16_BANK_LOANS' for t in root.find('panel_3').findall('tile'))
+    funds=tile('panel_3','REQUEST_FUNDS')
+    assert any(s.get('DESTINATION')=='Server16EnterBankLoans' for s in funds if s.tag.startswith('subtile'))
     assert not any(entry.startswith('extra_scenes/') for entry in active_plugins)
     assert entries.index('entrance_props\\entrance_props.dll')<entries.index('var_cabin\\var_cabin.dll')
 for entry in entries:
@@ -105,8 +112,9 @@ if edition == 'v12':
         route = (repo / f'data/fifarna/lua/assets/server16_frontend_{slot}.lua').read_text(encoding='ascii')
         assert f'Server16FrontendRoutes[{slot}] = nil' in route
         assert 'model =' not in route
-    assert '["background", "FIFA", "BOOTFLOW"]' in nav
-    assert '["background", "FIFA", "BOOTFLOW"]' in (repo / 'data/ui/nav/mainfeflow.nav').read_text(encoding='utf-8-sig')
+    bootflow=r'\[\s*"background"\s*,\s*"FIFA"\s*,\s*"BOOTFLOW"\s*\]'
+    assert re.search(bootflow,nav)
+    assert re.search(bootflow,(repo / 'data/ui/nav/mainfeflow.nav').read_text(encoding='utf-8-sig'))
     extras_config = configparser.ConfigParser()
     extras_config.read(repo / 'ModCarrerMode/config/extra_scenes.ini', encoding='utf-8')
     assert not extras_config.getboolean('scenes', 'test_mode')

@@ -1,0 +1,573 @@
+{
+	"let":{"GameMode":"career"}
+	,"name":"TournamentFlow"
+	,"onEnter":
+	[
+		["loadViewModel", ["TournamentViewModel"]]
+	]
+	,"onExit":
+	[
+		["sendAction", ["setWomenTournament", "0"]]
+		,["unloadViewModel", ["TournamentViewModel"]]
+		,["sendAction", ["notify", "telemetryExitGameMode", ".GameMode"] ]
+		,["sendScreenEvent", ["UxExitGameFlow"]]
+		,["sendAction",["navigationBackoutContinue"]]
+	]
+	,"transitions":
+	[
+		{
+			"event":"profileSignOutComplete"
+			,"targets":["profileSignOut"]
+		}
+	]
+	,"initial":
+	{
+		"targets":["TournamentFlowChild"]
+	}
+	,"states":
+	[
+		{
+			"name":"TournamentProfileSignOutWait"
+		}
+		,{
+			"name":"TournamentFlowChild"
+			,"onEnter":[]
+			,"onExit":[]
+			,"transitions":
+			[
+				{ "event":"profileSignOut", "targets":["TournamentProfileSignOutWait"] }
+				,{
+					"event":"QuitMode"
+					,"targets":["StateQuit"]
+				}
+				,{
+					"event":"GotoMainMenuHub"
+					,"targets":["MainMenuHub"]
+				}
+				,{
+					"event":"evt_wait_stadium_load"
+					,"targets":["ChangeStadiumTournamentLoad"]
+				}
+				,{
+					"event":"GotoStartMenu"
+					,"targets":["StartMenu"]
+				}				
+				,{
+					"event":"navigationBackoutStart"
+					,"targets":["StateQuit"]
+				}
+				,{
+					"event":"PrepareTournament"
+					,"actions":
+					[ 
+						["executeCMAction",["PrepareTournaments"]]
+						,["sendAction", ["setStadiumPosition", ".StadiumFECameras.STADIUM_FE_CAMERA_STEP_2"] ]
+					]
+				}
+				,{
+					"event":"evt_sl_operation_load"
+					,"targets":["LoadTournamentFilesScreen"]
+				}
+				,{
+					"event":"ExitCareerMode"
+					,"targets":["ExitCareerMode"] 
+				}
+			]
+			,"initial":
+			{
+				"targets":["StartMenu"]
+			}
+			,"states":
+			[
+				{
+					"name":"LoadTournamentModeFlow"
+					,"onEnter": 
+					[ 
+						["sendScreenEvent", ["UxEnterGameFlow", "TournamentModeInProgress"]]
+						,["sendScreenEvent", ["UxSetFlowState",".eState.CREATE_TOURNAMENT"]]						
+						,["sendScreenEvent", ["LoadTournamentMode"]]						
+						,["invoke", ["GotoStartMenu"]]
+					]
+					,"onExit": []
+				}
+				,{
+					"name":"LoadWomenTournamentModeFlow"
+					,"onEnter": 
+					[ 						
+						["sendAction", ["setWomenTournament", "1"]]
+						,["invoke", ["advance"]]
+					]
+					,"onExit": []
+					,"transitions":
+					[
+						{
+							"event":"advance"
+							,"targets":["LoadTournamentModeFlow"]
+						}
+					]
+				}
+				,{
+					"name":"NewTournamentModeFlow"
+					,"onEnter":
+					[
+						["sendScreenEvent", ["UxEnterGameFlow", "TournamentModeInProgress"]]
+						,["sendScreenEvent", ["UxSetFlowState",".eState.CREATE_TOURNAMENT"]]
+						,["sendScreenEvent", ["UxSetFlowSubState",".eSubState.SETUP"]]
+						,["executeCMAction", ["EnterStartMenu"]]
+						,["invoke", ["advance"]]
+					]
+					,"onExit": []
+					,"transitions":
+					[
+						{
+							"event":"advance"
+							,"targets":["SelectNewTournament"]
+						}
+					]
+				}
+				,{
+					"name":"SelectNewTournament"
+					,"onEnter":
+					[
+						["loadView", ["screen", "game/screens/tournamentMode/SelectTournament"]]
+						,["loadView",["background", "BOOTFLOW"]]
+					]
+					,"onExit":
+					[
+						["unloadView", ["screen", "game/screens/tournamentMode/SelectTournament"]]
+						,["unloadView",["background"]]
+					]
+					,"transitions":
+					[
+						{ "event":"advance", "targets":["NewTournamentSelectTeams"] }
+						,{ "event":"back", "targets":["StateQuit"] }
+					]
+				}
+				,{
+					"name":"NewTournamentSelectTeams"
+					,"type":"external"
+					,"file":"/careerMode/tournamentSelectTeamsFlow.nav"
+					,"outputs":
+					{
+						"out_advance":"SetupTournament"
+						,"out_back":"SelectNewTournament"
+					}
+				}
+				,{
+					"name":"CreateTournamentModeFlow"
+					,"onEnter": 
+					[ 
+						["sendScreenEvent", ["UxEnterGameFlow", "TournamentModeInProgress"]]
+						,["sendScreenEvent", ["UxSetFlowState",".eState.CREATE_TOURNAMENT"]]
+						,["sendScreenEvent", ["UxSetFlowSubState",".eSubState.SETUP"]]
+						,["executeCMAction", ["EnterStartMenu"]]
+						,["invoke", ["advance"]]
+					]
+					,"onExit": []
+					,"transitions":
+					[
+						{
+							"event":"advance"
+							,"targets":["TournamentDetails"]
+						}
+					]
+				}
+				,{
+					"name":"TournamentDetails"
+					,"onEnter":
+					[
+						["loadView", ["screen", "game/screens/tournamentMode/SetupTournament"]]
+						,["loadView",["background", "BOOTFLOW"]]
+					]
+					,"onExit":
+					[
+						["unloadView", ["screen", "game/screens/tournamentMode/SetupTournament"]]
+						,["unloadView",["background"]]
+					]
+					,"transitions":
+					[
+						{
+							"event":"advance"
+							,"actions":[ ["sendAction", ["createTournament"]] ]
+							,"targets":["AdvancedTournamentFlowDecision"]
+						}
+						,{ "event":"back", "targets":["StateQuit"] }
+					]
+				}
+				,{
+					"name":"CreateWomenTournamentModeFlow"
+					,"onEnter":
+					[
+						["sendScreenEvent", ["UxEnterGameFlow", "TournamentModeInProgress"]]
+						,["sendScreenEvent", ["UxSetFlowState",".eState.CREATE_TOURNAMENT"]]
+						,["sendScreenEvent", ["UxSetFlowSubState",".eSubState.SETUP"]]
+						,["executeCMAction", ["EnterStartMenu"]]
+						,["loadView", ["screen", "game/screens/tournamentMode/WomenTournamentSplash", "", ".direction"]]
+					]
+					,"onExit":
+					[
+						["unloadView", ["screen", "game/screens/tournamentMode/WomenTournamentSplash"]]
+					]
+					,"transitions":
+					[
+						{
+							"event":"advance"
+							,"actions":[ ["sendAction", ["setStadiumPosition", ".StadiumFECameras.STADIUM_FE_CAMERA_STEP_2"] ], ["sendAction", ["createWomenTournament"]] ]
+							,"targets":["AdvancedTournamentFlowDecision"]
+						}						
+						,{
+							"event":"back"
+							,"targets":["StateQuit"]
+						}
+					]
+				}
+				,{
+					"name":"TournamentDetailsDecision"
+					,"onEnter": 
+					[
+						["sendAction", ["condition", "isWomenTournamentFlow"]]
+					]
+					,"transitions":
+					[
+						{
+							"event":"true"
+							,"targets":["ExitCareerMode"]
+						}
+						,{
+							"event":"false"
+							,"targets":["TournamentDetails"]
+						}
+					]
+				}
+				,{
+					"name":"AdvancedTournamentFlowDecision"
+					,"onEnter": 
+					[
+						["sendAction", ["condition", "isAdvancedTournamentFlow"]]
+					]
+					,"transitions":
+					[
+						{
+							"event":"true"
+							,"targets":["AdvancedTournamentDetails"]
+						}
+						,{
+							"event":"false"
+							,"targets":["TournamentDetailsSelectTeams"]
+						}
+					]
+				}
+				,{
+					"name":"TournamentDetailsSelectTeams"
+					,"type":"external"
+					,"file":"/careerMode/tournamentSelectTeamsFlow.nav"
+					,"outputs":
+					{
+						"out_advance":"TournamentTypeDecision"
+						,"out_back":"TournamentDetailsDecision"
+					}
+				}
+				,{
+					"name":"AdvancedTournamentDetails"
+					,"onEnter":
+					[
+						["loadView", ["screen", "game/screens/tournamentMode/AdvancedSettings"]]
+						,["loadView",["background", "BOOTFLOW"]]
+					]
+					,"onExit":
+					[
+						["unloadView", ["screen", "game/screens/tournamentMode/AdvancedSettings"]]
+						,["unloadView",["background"]]
+					]
+					,"transitions":
+					[
+						{
+							"event":"advance"
+							,"actions":[ ["sendAction", ["createTournament"]] ]
+							,"targets":["AutoFillTeamsDecision"]
+						}						
+						,{
+							"event":"back"
+							,"targets":["TournamentDetails"]
+						}
+					]
+				}
+				,{
+					"name":"AutoFillTeamsDecision"
+					,"onEnter": 
+					[
+						["sendAction", ["condition", "isAutoFillFromCustomLeague"]]
+					]
+					,"transitions":
+					[
+						{
+							"event":"true"
+							,"targets":["SelectLeagues"]
+						}
+						,{
+							"event":"false"
+							,"targets":["AdvancedTournamentDetailsSelectTeams"]
+						}
+					]
+				}
+				,{
+					"name":"AdvancedTournamentDetailsSelectTeams"
+					,"type":"external"
+					,"file":"/careerMode/tournamentSelectTeamsFlow.nav"
+					,"outputs":
+					{
+						"out_advance":"TournamentTypeDecision"
+						,"out_back":"AdvancedTournamentDetails"
+					}
+				}
+				,{
+					"name":"SelectLeagues"
+					,"onEnter":
+					[
+						["loadView", ["screen", "game/screens/tournamentMode/SelectLeagues"]]
+						,["loadView",["background", "BOOTFLOW"]]
+					]
+					,"onExit":
+					[
+						["unloadView", ["screen", "game/screens/tournamentMode/SelectLeagues"]]
+						,["unloadView",["background"]]
+					]
+					,"transitions":
+					[
+						{
+							"event":"advance"
+							,"targets":["SelectTeams"]
+						}
+						,{
+							"event":"back"
+							,"targets":["AdvancedTournamentDetails"]
+						}
+					]
+				}
+				,{
+					"name":"SelectTeams"
+					,"type":"external"
+					,"file":"/careerMode/tournamentSelectTeamsFlow.nav"
+					,"outputs":
+					{
+						"out_advance":"TournamentTypeDecision"
+						,"out_back":"SelectLeagues"
+					}
+				}
+				,{
+					"name":"TournamentTypeDecision"
+					,"onEnter":
+					[
+						["sendAction", ["condition", "isTournamentTypeGroupAndKnockout"]]
+					]
+					,"transitions":
+					[
+						{
+							"event":"true"
+							,"targets":["GroupListings"]
+						}
+						,{
+							"event":"false"
+							,"targets":["SetupTournament"]
+						}
+					]
+				}
+				,{
+					"name":"GroupListings"
+					,"onEnter":
+					[
+						["loadView", ["screen", "game/screens/tournamentMode/GroupListings"]]
+						,["loadView",["background", "BOOTFLOW"]]
+					]
+					,"onExit":
+					[
+						["unloadView", ["screen", "game/screens/tournamentMode/GroupListings"]]
+						,["unloadView",["background"]]
+					]
+					,"transitions":
+					[
+						{
+							"event":"advance"
+							,"targets":["SetupTournament"]
+						}
+						,{
+							"event":"Quit"
+							,"targets":["StateQuit"]
+						}
+						,{
+							"event":"back"
+							,"targets":["TournamentDetailsSelectTeams"]
+						}
+					]
+				}
+				,{
+					"name":"SetupTournament"
+					,"onEnter":
+					[
+						["sendAction", ["setupTournament"]]
+					]
+					,"onExit": 
+					[
+						["executeCMAction", ["ExitCurrentScreenState"]]
+					]
+					,"transitions":
+					[
+						{
+							"event":"TournamentSetup"
+							,"targets":["TournamentAdvanceDecision"]
+							,"actions":[ ["executeCMAction",["DisableNoneTournamentManagers"]] ]
+						}
+					]
+				}				
+				,{
+					"name":"TournamentAdvanceDecision"
+					,"onEnter": 
+					[
+						["sendAction", ["condition", "isWomenTournamentFlow"]]
+					]
+					,"transitions":
+					[
+						{
+							"event":"true"
+							,"targets":["InitWomenTournamentMode"]
+						}
+						,{
+							"event":"false"
+							,"targets":["InitCareerMode"]
+						}
+					]
+				}
+				,{
+					"name":"StartMenu"
+					,"onEnter":
+					[
+						["executeCMAction", ["EnterStartMenu"]]
+					]
+					,"onExit":
+					[
+						["executeCMAction", ["ExitCurrentScreenState"]]
+					]
+					,"transitions":
+					[
+						{
+							"event":"Quit"
+							,"targets":["StateQuit"] 
+						}
+						,{
+							"event":"NewTournament"
+							,"targets":["SelectTournament"]
+							,"actions":[ ["executeCMAction",["PrepareTournaments"]] ]
+						}
+						,{
+							"event":"CreateTournament"
+							,"targets":["CreateTournament"]
+							,"actions":[ ["executeCMAction",["PrepareCreateTournament"]] ]
+						}
+						,{
+							"event":"LoadTournament"
+							,"targets":["ChangeStadiumTournamentLoad"]
+							,"actions":[ ["executeCMAction",["LoadTournamentGame"]] ]
+						}
+					]
+				}
+				,{
+					"type":"external"
+					,"file":"/saveload/load.nav"
+					,"inputs":
+					{
+						"LoadTournamentFilesScreen":"LoadScreen"
+					}
+					,"outputs":
+					{
+						"out_Back":"PostLoad"		/* Unexpected case */
+						,"out_Success":"PostLoad"
+					}
+				}
+				,{
+					"onExit":
+					[
+						["sendAction", ["setStadiumPosition", ".StadiumFECameras.STADIUM_FE_CAMERA_STEP_2"] ]
+					]
+					,"states":
+					[
+						{
+							"type":"external"
+							,"file":"/reloadfestadiumflow.nav"
+							,"inputs":
+							{
+								"ChangeStadiumTournamentLoad" : "TriggerReload"
+							}
+							,"outputs":
+							{
+								"ReloadReady":"MainMenuHub"
+								,"LoadStarted":"MainMenuHub"
+							}
+						}
+					]
+				}
+				,{
+					"name":"PostLoad"				
+					,"onEnter":
+					[					
+						["invoke", ["evt_sign_out_flow_not_ready"]]			/* EuS: Hack Alert: The CM Action will start a SL operation, however this will be controlled by FCE Thread */
+						,["invoke", ["evt_invite_flow_not_ready"]]			/* If between sending the action to FCE and the SL operation starting, an invite or sign-out comes in */
+						,["executeCMAction", ["LoadTournamentGame"]]			/* That will be queued and executed before we have a chance to add the critical section */
+					]
+					,"onExit":
+					[
+						["invoke", ["evt_sign_out_flow_ready"]]
+						,["invoke", ["evt_invite_flow_ready"]]
+					]
+					,"transitions":
+					[
+						{
+							"event":"evt_sl_operation_started"
+							,"targets":["ChangeStadiumTournamentLoad"]
+						}
+					]
+				}
+				,{
+					"name":"MainMenuHub"
+					,"type":"external"
+					,"file":"/careerMode/mainMenuHubFlow.nav"
+					,"outputs":
+					{
+						"profileSignOut":"profileSignOut"
+					}
+				}
+				,{
+					"type":"external"
+					,"file":"/careerMode/initCareerModeFlow.nav"
+					,"inputs":
+					{
+						"InitCareerMode":"InitCareerMode"
+						,"InitWomenTournamentMode":"InitWomenTournamentMode"					
+					}
+				}
+				,{
+					"type":"external"
+					,"file":"/careerMode/newTournamentFlow.nav"	/* Used by FCE_Testbed */
+					,"inputs":
+					{
+						"SelectTournament":"SelectTournament"
+						,"CreateTournament":"CreateTournament"
+					}
+				}
+				,{
+					"name":"StateQuit"
+					,"onEnter": 
+					[
+						["executeCMAction", ["EnterQuitState"]]
+					]
+					,"transitions":
+					[
+						{
+							"event":"ExitCareerMode"
+							,"targets":["ExitCareerMode"] 
+						}
+					]
+				}	
+			]
+		}
+	]
+}

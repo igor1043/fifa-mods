@@ -1,0 +1,52 @@
+{
+	"name":"PlayerContractsFlow"
+	,"initial": { "targets":["PlayerContracts"] }
+	,"states":
+	[
+		{
+			"name":"PlayerContracts"
+			,"onEnter":
+			[
+				["loadScreenController", ["PlayerContracts"]]
+				,["loadView", ["screen", "game/screens/career/squad/Contracts"]]
+			]
+			,"onExit":
+			[
+				["unloadView", ["screen", "game/screens/career/squad/Contracts"]]
+				,["unloadScreenController", ["PlayerContracts"]]
+			]
+			,"transitions":
+			[
+				{
+					"event":"Back"
+					,"targets":["Back"] 
+				}
+				,{
+					"event":"EnterPlayerContractNegotiation"
+					,"targets":["PlayerContractNegotiation"] 
+					,"actions":[ ["executeCMAction",["EnterPlayerContractNegotiation"]] ]
+				}
+			]
+		}	
+		,{
+			"name":"PlayerContractNegotiation"
+			,"onEnter":
+			[
+				["loadScreenController", ["PlayerContractNegotiation"]]
+				,["loadView", ["screen", "game/screens/career/squad/ContractNegotiation"]]
+			]
+			,"onExit":
+			[
+				["unloadView", ["screen", "game/screens/career/squad/ContractNegotiation"]]
+				,["unloadScreenController", ["PlayerContractNegotiation"]]
+			]
+			,"transitions":
+			[
+				{
+					"event":"Back"
+					,"targets":["PlayerContracts"] 
+				}
+			]
+		}	
+	]
+}

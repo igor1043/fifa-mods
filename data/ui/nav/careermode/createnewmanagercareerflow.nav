@@ -1,0 +1,85 @@
+{
+	"name":"CreateNewManagerCareerFlow"
+	,"initial": { "targets":["SelectTeam"] }
+	,"states":
+	[
+		{
+			"name":"SelectTeam"
+			,"type":"external"
+			,"file":"/careerMode/selectTeamFlow.nav"
+			,"outputs": 
+			{ 
+				"Back":"Back"
+				,"Advance":"Setup"
+			}	
+		}	
+		,{
+			"name":"Setup"
+			,"type":"external"
+			,"file":"/careerMode/setupFlow.nav"
+			,"outputs": 
+			{ 
+				"Back":"SelectTeam"
+				,"Advance":"ManagerPrefs"
+			}	
+		}
+		,{
+			"name":"ManagerPrefs"
+			,"onEnter":
+			[
+				["loadScreenController", ["ManagerPrefs"]]
+				,["loadView", ["screen", "game/screens/career/ManagerPreferences"]]
+				,["loadView",["background", "BOOTFLOW"]]
+			]
+			,"onExit":
+			[
+				["unloadView", ["screen", "game/screens/career/ManagerPreferences"]]
+				,["unloadScreenController", ["ManagerPrefs"]]
+				,["unloadView",["background"]]
+			]
+			,"transitions":
+			[
+				{
+					"event":"Back"
+					,"targets":["Setup"] 
+				}
+				,{
+					"event":"Nationality"
+					,"targets":["SelectNationality"] 
+					,"actions":[ ["executeCMAction",["EnterSelectNationalityFromManagerPrefs"]] ]
+				}
+				,{
+					"event":"Advance"
+					,"targets":["InitCareerMode"] 
+					,"actions":[  ["executeCMAction",["LeaveManagerPrefsWithInitMode"]]
+								, ["executeCMAction",["EnteringInitialisation"]] ]
+				}
+			]
+		}
+		,{
+			"name":"SelectNationality"
+			,"onEnter":
+			[
+				["loadScreenController", ["SelectNationality"]]
+				,["loadView", ["screen", "game/screens/career/Nationality"]]
+			]
+			,"onExit":
+			[
+				["unloadView", ["screen", "game/screens/career/Nationality"]]
+				,["unloadScreenController", ["SelectNationality"]]
+			]
+			,"transitions":
+			[
+				{
+					"event":"Back"
+					,"targets":["ManagerPrefs"] 
+				}
+			]
+		}
+		,{
+			"name":"InitCareerMode"
+			,"type":"external"
+			,"file":"/careerMode/initCareerModeFlow.nav"
+		}
+	]
+}

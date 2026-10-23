@@ -35,13 +35,3 @@ Os pacotes antigos com nomes, variantes não selecionadas, imagens e relatórios
 Validação: testes Python de ID exato, fase sem herança, IDs autorizados pelo INI, corrupção, botão e continuidade dos outros recursos; testes de amistoso na mesma liga, ligas diferentes, copa com os mesmos clubes, banco atrasado, invalidação e correspondência única em compobj; testes nativos de seleção, apresentação e transparência, com contexto de outro processo, clubes diferentes e arquivo antigo recusados; compilação MSVC `/W4 /WX`. Reiniciar o FIFA e o Server16 carrega os executáveis e a DLL novos. A confirmação visual da abertura deve ser feita no jogo.
 
 Revisão 21: ativação e recuperação do Lua no callback da cena, prontidão verificada, renovação dos recursos após troca de contexto e conclusão nativa de carregamento tardio após os cinco LODs. Consulte `../common/README.md` para o escopo, os testes e os limites da investigação de concorrência. O `settings.ini` original continua sendo a referência de IDs.
-
-# Corte definitivo após o início da partida — 19/10/2026
-
-O relógio positivo, quando acompanhado pelo estado nativo válido `sports=15`,
-marca o confronto como iniciado mesmo se NIS, coreografia ou câmera ainda
-classificarem a cena como apresentação. Esse bloqueio é mantido em RAM para o
-confronto e oculta os objetos também em pausa e replay; relógio antigo isolado
-durante carregamento não ativa o bloqueio. Uma nova chave de confronto limpa o
-estado. Os testes cobrem início durante apresentação, pausa/replay, relógio
-voltando a zero e novo confronto.

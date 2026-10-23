@@ -1,0 +1,41 @@
+{
+	"name":"TournamentSelectTeamsFlow"
+	,"onEnter":
+	[
+		["loadView", ["screen", "game/screens/tournamentMode/SelectTeams", "", ".direction"]]
+		,["loadView",["background", "BOOTFLOW"]]
+	]
+	,"onExit":
+	[
+		["unloadView", ["screen", "game/screens/tournamentMode/SelectTeams"]]
+		,["unloadView",["background"]]
+	]
+	,"states":
+	[
+		{
+			"name":"idleOnScreen"
+			,"transitions":
+			[
+				 {"event":"advance","targets":["out_advance"]}
+				,{"event":"PrepareTournament","actions":[ ["executeCMAction",["PrepareTournaments"]] ]}
+				,{"event":"back","targets":["out_back"],"let":{ "direction":"back" }}
+				,{"event":"select","targets":["selectFavoriteTeam"]}
+			]
+		}
+		,{
+			"name":"selectFavoriteTeam"
+			,"onEnter":
+			[
+				["loadView", ["frontScreen", "game/screens/misc/SelectFavoriteTeam"]]
+			]
+			,"onExit":
+			[
+				["unloadView", ["frontScreen", "game/screens/misc/SelectFavoriteTeam"]]
+			]
+			,"transitions":
+			[
+				{"event":"back","targets":["idleOnScreen"]}
+			]
+		}
+	]
+}
