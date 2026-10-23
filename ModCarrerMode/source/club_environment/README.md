@@ -88,3 +88,21 @@ assets, sem pasta intermediária, comandos ou scripts de instalação.
 Não inclui saves, histórico anual, caches de estádio ou dados pessoais.
 A panorâmica recebe seus componentes pela atualização do GitHub e usa os
 estádios StadiumGBD já instalados pelo destinatário.
+
+## Pacote de recuperação do Vestiário
+
+`ModCarrerMode/tools/Build-VestiarioPackage.py` gera
+`FIFA-Friends-Vestiario-Completo-20261023.zip` para uma base V12 já instalada.
+Esse pacote de recuperação inclui também os arquivos de código necessários,
+a DLL do ambiente, dependências compartilhadas, Server16 e os 33 assets
+estáticos. Não contém a animação SubsOn nem modelos de outros mods.
+É extraído diretamente na raiz do FIFA com jogo e Server fechados.
+
+O gerador confere o manifesto dos assets e todos os hashes do ZIP. Antes de
+compactar, executa o Server16 incluído em uma pasta nova com nome Unicode,
+sem caches de desenvolvimento, e gera as três telas iniciais genéricas.
+Os dados da carreira são preparados novamente no computador do jogador.
+Não inclui saves, histórico financeiro, caches locais, índices BH, instaladores
+ou `enabled.txt`; a habilitação do módulo na base V12 instalada é preservada.
+Esse teste confirma a preparação do pacote, não a imagem renderizada na GPU
+do destinatário.

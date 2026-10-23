@@ -1,10 +1,16 @@
 # Logo no menu inicial e no cabeçalho da carreira
 
-> Desativado em 21/10/2026 por solicitação do usuário, para isolar o crash
-> recorrente do Robson. As três interfaces anteriores foram restauradas. Os
-> arquivos modificados ficam em `ModCarrerMode/disabled/career_branding/` e os
-> fontes permanecem disponíveis. `Disable-CareerBranding.ps1 -GameRoot PASTA`
-> aplica a mesma restauração com backup; não há uma DLL dessa funcionalidade.
+> Em 23/10/2026, a ocultação do card online da EA foi reativada isoladamente,
+> por solicitação do usuário. Somente `easfcwidget.big` foi alterado; os widgets
+> do menu inicial e da carreira continuam com suas bases anteriores.
+> `hide_online_card.py --output PASTA` gera e verifica essa versão: preserva
+> os recursos e callbacks nativos, deixa a raiz transparente desde o primeiro
+> quadro e reaplica a transparência após atualizações da conexão. Não usa DLL.
+>
+> A personalização completa com logo descrita abaixo permanece desativada
+> desde 21/10/2026. As versões anteriores estão preservadas em
+> `ModCarrerMode/disabled/career_branding/`. O script
+> `Disable-CareerBranding.ps1 -GameRoot PASTA` restaura as três bases com backup.
 
 Substitui a faixa superior direita dos hubs inicial e da carreira pela logo enviada pelo
 usuário. O globo com X, a mensagem de reconexão, o escudo EA, a tecla Q/RS e
