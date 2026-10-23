@@ -205,6 +205,8 @@ static void *g_pending_stats_provider_owner;
 static void *g_pending_stats_provider_vtable;
 static void *g_pending_stats_provider_registry;
 static uintptr_t g_pending_stats_hub_view;
+static ULONGLONG g_pending_stats_hub_deadline;
+static unsigned long g_stats_confirmed_hub_context;
 static CardRefreshSchedule g_stats_refresh_schedule;
 static unsigned long g_pending_stats_context_epoch;
 static DWORD g_pending_stats_thread;
@@ -2264,6 +2266,7 @@ static void clear_pending_stats_refresh(void)
     g_pending_stats_provider_vtable = NULL;
     g_pending_stats_provider_registry = NULL;
     g_pending_stats_hub_view = 0;
+    g_pending_stats_hub_deadline = 0;
     g_pending_stats_context_epoch = 0;
     g_pending_stats_thread = 0;
     memset(&g_stats_refresh_schedule, 0, sizeof(g_stats_refresh_schedule));
@@ -2285,18 +2288,30 @@ static uintptr_t current_card_hub_view(void)
 
 static void remember_pending_stats_refresh(void *owner)
 {
-    uintptr_t view = current_card_hub_view();
-    if (!view || !is_readable_range(owner, 2 * sizeof(void *))) {
+    CardPageScope scope = card_refresh_page_scope((uintptr_t)g_module_base, read_card_scope);
+    ULONGLONG now = GetTickCount64();
+    unsigned long context = fce_runtime_context_epoch();
+    if ((scope.kind != CARD_PAGE_HUB && scope.kind != CARD_PAGE_BUILDING)
+        || (scope.kind == CARD_PAGE_BUILDING && g_stats_confirmed_hub_context == context)
+        || !is_readable_range(owner, 2 * sizeof(void *))) {
         clear_pending_stats_refresh();
         return;
     }
     g_pending_stats_provider_owner = owner;
     g_pending_stats_provider_vtable = *(void **)owner;
     g_pending_stats_provider_registry = ((void **)owner)[1];
-    g_pending_stats_hub_view = view;
-    g_pending_stats_context_epoch = fce_runtime_context_epoch();
+    g_pending_stats_hub_view = scope.kind == CARD_PAGE_HUB ? scope.view : 0;
+    /* This candidate comes only from a genuine native request. It may wait
+     * through initial page construction, never through another named page.
+     * Once bound, it cannot follow a later Hub or survive a page transition. */
+    g_pending_stats_hub_deadline = scope.kind == CARD_PAGE_BUILDING ? now + 30000 : 0;
+    g_pending_stats_context_epoch = context;
     g_pending_stats_thread = GetCurrentThreadId();
-    card_refresh_enter(&g_stats_refresh_schedule, GetTickCount64());
+    if (g_pending_stats_hub_view) {
+        g_stats_confirmed_hub_context = context;
+        card_refresh_enter(&g_stats_refresh_schedule, now);
+    }
+    else memset(&g_stats_refresh_schedule, 0, sizeof(g_stats_refresh_schedule));
 }
 
 
@@ -2312,17 +2327,21 @@ static void log_card_refresh(const char *event, void *owner, void *provider,
 {
     char path[MAX_PATH];
     FILE *log;
+    CardPageScope scope;
     if (!g_mod_dir[0] || !fce_runtime_log_verbose()) return;
     snprintf(path, sizeof(path), "%s\\logs\\career_card_refresh.log", g_mod_dir);
     log = fopen(path, "ab");
     if (!log) return;
+    scope = card_refresh_page_scope((uintptr_t)g_module_base, read_card_scope);
     fprintf(log, "event=%s owner=%p provider=%p view=%lu applied=%lu "
-        "requested=%lu context=%lu thread=%lu owner_thread=%lu reason=%u completed=%d\n",
+        "requested=%lu context=%lu thread=%lu owner_thread=%lu reason=%u completed=%d "
+        "page_scope=%d active_view=%p bound_view=%p waiting_hub=%d\n",
         event, owner, provider, g_stats_refresh_schedule.view_revision,
         g_stats_refresh_schedule.applied_generation,
         g_stats_refresh_schedule.requested_generation,
         fce_runtime_context_epoch(), GetCurrentThreadId(), g_pending_stats_thread, reason,
-        g_stats_publication_completed != FALSE);
+        g_stats_publication_completed != FALSE, (int)scope.kind, (void *)scope.view,
+        (void *)g_pending_stats_hub_view, g_pending_stats_hub_deadline != 0);
     fclose(log);
 }
 
@@ -2333,14 +2352,36 @@ static void drain_pending_stats_refresh(void)
     void *expected_vtable;
     unsigned reason;
     unsigned long ready_generation;
+    CardPageScope scope;
+    ULONGLONG now;
     if (!g_pending_stats_provider_owner || g_current_stats_provider_owner)
         return;
     /* Never replay a former Hub owner while the native results/saving flow
      * rebuilds it. Readable/vtable-equal stale owners caused an exception
      * inside StatisticsData and left FIFA's UI lock held by the FCE thread.
      */
-    if (!g_pending_stats_hub_view
-        || current_card_hub_view() != g_pending_stats_hub_view) {
+    scope = card_refresh_page_scope((uintptr_t)g_module_base, read_card_scope);
+    now = GetTickCount64();
+    if (g_pending_stats_context_epoch != fce_runtime_context_epoch()) {
+        clear_pending_stats_refresh();
+        return;
+    }
+    if (!g_pending_stats_hub_view && g_pending_stats_hub_deadline) {
+        if (now > g_pending_stats_hub_deadline
+            || (scope.kind != CARD_PAGE_BUILDING && scope.kind != CARD_PAGE_HUB)) {
+            clear_pending_stats_refresh();
+            append_loader_log("career_card_initial_refresh_cancelled");
+            return;
+        }
+        if (scope.kind == CARD_PAGE_BUILDING) return;
+        g_pending_stats_hub_view = scope.view;
+        g_pending_stats_hub_deadline = 0;
+        g_stats_confirmed_hub_context = g_pending_stats_context_epoch;
+        card_refresh_enter(&g_stats_refresh_schedule, now);
+        log_card_refresh("initial_hub_ready", g_pending_stats_provider_owner, NULL, 0);
+    }
+    if (!g_pending_stats_hub_view || scope.kind != CARD_PAGE_HUB
+        || scope.view != g_pending_stats_hub_view) {
         clear_pending_stats_refresh();
         append_loader_log("career_card_refresh_cancelled_view_changed");
         return;
@@ -2350,11 +2391,10 @@ static void drain_pending_stats_refresh(void)
             log_card_refresh("owner_thread_mismatch", g_pending_stats_provider_owner, NULL, 0);
         return;
     }
-    if (g_pending_stats_context_epoch != fce_runtime_context_epoch()) {
-        clear_pending_stats_refresh();
-        return;
-    }
     if (!fce_runtime_is_stable()) return;
+    /* Even a ready data generation must let the newly published view finish
+     * its native setup before StatisticsData is invoked again. */
+    if (now < g_stats_refresh_schedule.entered_at + 80) return;
     ready_generation = (unsigned long)InterlockedExchange(&g_stats_ready_generation, 0);
     card_refresh_request(&g_stats_refresh_schedule, ready_generation, GetTickCount64());
     if (InterlockedCompareExchange(&g_pending_stats_refresh_busy, 1, 0)) return;
@@ -2821,6 +2861,9 @@ static void injury_refresh_cards_now(void)
 {
     void *owner = g_pending_stats_provider_owner;
     void *expected_vtable = g_pending_stats_provider_vtable;
+    /* InjuryList can finish during the same initial page construction.
+     * Leave that candidate to the Hub drain; do not cancel or replay it here. */
+    if (!g_pending_stats_hub_view && g_pending_stats_hub_deadline) return;
     if (!g_pending_stats_hub_view
         || current_card_hub_view() != g_pending_stats_hub_view) {
         clear_pending_stats_refresh();

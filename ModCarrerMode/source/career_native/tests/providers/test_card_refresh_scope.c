@@ -46,11 +46,18 @@ int main(void)
     uintptr_t fake_image;
     name("game/screens/fluxHub/FluxHub");
     assert(card_refresh_hub_view(image, read_scope) == view);
+    assert(card_refresh_page_scope(image, read_scope).kind == CARD_PAGE_HUB);
     for (i = 0; i < sizeof(blocked) / sizeof(blocked[0]); ++i) {
         name(blocked[i]); assert(!card_refresh_hub_view(image, read_scope));
+        assert(card_refresh_page_scope(image, read_scope).kind ==
+            (blocked[i][0] ? CARD_PAGE_OTHER : CARD_PAGE_BUILDING));
     }
     name("game/screens/fluxHub/FluxHub"); failures = 1;
     assert(!card_refresh_hub_view(image, read_scope)); failures = 0;
+    page_address = 0;
+    assert(card_refresh_page_scope(image, read_scope).kind == CARD_PAGE_BUILDING);
+    assert(!card_refresh_hub_view(image, read_scope));
+    page_address = 0x55000;
     changing = 1; assert(!card_refresh_hub_view(image, read_scope)); changing = 0;
     memset(page, 'x', sizeof(page)); assert(!card_refresh_hub_view(image, read_scope));
     name("game/screens/fluxHub/FluxHub"); view += 0x1000;

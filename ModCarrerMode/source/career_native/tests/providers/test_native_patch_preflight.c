@@ -1,8 +1,14 @@
 #define _CRT_SECURE_NO_WARNINGS
+/* Keep the real provider/scheduler code, but control FCE readiness without
+ * loading or calling a game's engine in this isolated process. */
+static int test_fce_stable;
+#define fce_runtime_is_stable test_fce_is_stable
 /* Include the real initializer to test its actual patch table/barrier.
  * DllMain is not invoked by this console test; no game process is touched. */
 #include "../../src/host/dinput8_wrapper.c"
+#undef fce_runtime_is_stable
 #include "stadium_thumbnail_fixture.h"
+int test_fce_is_stable(void) { return test_fce_stable; }
 
 static int failures;
 static void *fake_vector_result;
@@ -253,12 +259,23 @@ static void test_updated_competition_identities(void)
     InterlockedExchange(&g_compdata_index_state, 0);
 }
 
+static int pending_native_calls;
+static void fake_pending_native_query(void *owner)
+{
+    if (owner == g_pending_stats_provider_owner) ++pending_native_calls;
+    g_stats_publication_completed = TRUE;
+    g_stats_applied_generation = 7;
+}
+static void test_calendar_descriptor(ServiceDescriptor *descriptor)
+{
+    descriptor->index = -1;
+}
 static void test_pending_provider_scope(void)
 {
     unsigned char *image = VirtualAlloc(NULL, 0x380a000, MEM_RESERVE, PAGE_NOACCESS);
     unsigned char nodes[4][512] = {{0}};
     char page[128] = "game/screens/fluxHub/FluxHub";
-    void *owner[2] = {(void *)(uintptr_t)0x1111,(void *)(uintptr_t)0x2222};
+    uintptr_t owner[80] = {0x1111,0x2222};
     uintptr_t pointer;
     unsigned i;
     const unsigned offsets[] = {232,192,136};
@@ -270,13 +287,96 @@ static void test_pending_provider_scope(void)
     g_module_base = image;
     remember_pending_stats_refresh(owner);
     check(g_stats_refresh_schedule.view_revision == 1 && g_pending_stats_hub_view == (uintptr_t)nodes[3]
-        && g_pending_stats_provider_registry == owner[1], "live Hub arms its exact native view");
+        && g_pending_stats_provider_registry == (void *)owner[1], "live Hub arms its exact native view");
     strcpy_s(page,sizeof(page),"game/screens/career/Results");
     drain_pending_stats_refresh();
     check(!g_pending_stats_provider_owner && !g_stats_refresh_schedule.view_revision,
         "results cancels the stale owner before calling native StatisticsData");
     remember_pending_stats_refresh(owner);
     check(!g_pending_stats_provider_owner, "results cannot arm another deferred native query");
+
+    /* The first native request runs before the page name is published.
+     * Data becomes ready once; there is no user navigation or second request. */
+    g_stats_confirmed_hub_context = 0;
+    page[0] = 0;
+    remember_pending_stats_refresh(owner);
+    check(g_pending_stats_provider_owner == owner && g_pending_stats_hub_deadline
+        && !g_pending_stats_hub_view && !g_stats_refresh_schedule.view_revision,
+        "initial native request waits for the unpublished Hub");
+    refresh_initial_competition_provider(7);
+    test_fce_stable = 1;
+    g_stats_provider = fake_pending_native_query;
+    native_calendar_descriptor = test_calendar_descriptor;
+    drain_pending_stats_refresh();
+    check(!pending_native_calls && g_stats_ready_generation == 7,
+        "ready data cannot invoke StatisticsData while the view is under construction");
+    injury_refresh_cards_now();
+    check(g_pending_stats_provider_owner == owner && !pending_native_calls,
+        "initial injury rows cannot cancel the pending Hub publication");
+    strcpy_s(page,sizeof(page),"game/screens/fluxHub/FluxHub");
+    drain_pending_stats_refresh();
+    check(g_pending_stats_hub_view == (uintptr_t)nodes[3]
+        && !g_pending_stats_hub_deadline && !pending_native_calls,
+        "first Hub binds the genuine request and lets native view setup settle");
+    g_stats_refresh_schedule.entered_at -= 100;
+    test_fce_stable = 0;
+    drain_pending_stats_refresh();
+    check(!pending_native_calls, "first Hub still waits for FCE to finish reconstruction");
+    test_fce_stable = 1;
+    drain_pending_stats_refresh();
+    check(pending_native_calls == 1 && g_stats_refresh_schedule.applied_generation == 7,
+        "first career view receives ready values without opening another screen");
+
+    /* A bound Hub may never follow even a blank transition to another view. */
+    page[0] = 0;
+    drain_pending_stats_refresh();
+    check(!g_pending_stats_provider_owner, "a bound Hub is cancelled at transition start");
+    remember_pending_stats_refresh(owner);
+    check(!g_pending_stats_provider_owner,
+        "a later blank transition cannot create another initial request in the same career");
+    g_stats_confirmed_hub_context = 0;
+    remember_pending_stats_refresh(owner);
+    strcpy_s(page,sizeof(page),"game/screens/career/Results");
+    drain_pending_stats_refresh();
+    check(!g_pending_stats_provider_owner && pending_native_calls == 1,
+        "a construction candidate cannot cross Results or issue a native query there");
+    strcpy_s(page,sizeof(page),"game/screens/fluxHub/FluxHub");
+    drain_pending_stats_refresh();
+    check(pending_native_calls == 1, "returning to Hub cannot resurrect the cancelled owner");
+    page[0] = 0;
+    remember_pending_stats_refresh(owner);
+    strcpy_s(page,sizeof(page),"game/screens/saveload_pc/save");
+    drain_pending_stats_refresh();
+    check(!g_pending_stats_provider_owner, "saving cancels an initial construction candidate");
+    page[0] = 0;
+    remember_pending_stats_refresh(owner);
+    g_pending_stats_hub_deadline = GetTickCount64() - 1;
+    strcpy_s(page,sizeof(page),"game/screens/fluxHub/FluxHub");
+    drain_pending_stats_refresh();
+    check(!g_pending_stats_provider_owner, "an expired initial request cannot enter a later Hub");
+    page[0] = 0;
+    remember_pending_stats_refresh(owner);
+    ++g_pending_stats_context_epoch;
+    strcpy_s(page,sizeof(page),"game/screens/fluxHub/FluxHub");
+    drain_pending_stats_refresh();
+    check(!g_pending_stats_provider_owner, "a different career invalidates the initial request");
+    page[0] = 0;
+    remember_pending_stats_refresh(owner);
+    pointer = 0; memcpy(image + 0x3809030, &pointer, sizeof(pointer));
+    drain_pending_stats_refresh();
+    check(g_pending_stats_provider_owner == owner && !g_pending_stats_hub_view,
+        "a not-yet-created page chain waits without invoking FIFA");
+    pointer = (uintptr_t)nodes[0]; memcpy(image + 0x3809030, &pointer, sizeof(pointer));
+    strcpy_s(page,sizeof(page),"game/screens/fluxHub/FluxHub");
+    drain_pending_stats_refresh();
+    owner[1] = 0x3333;
+    g_stats_refresh_schedule.entered_at -= 100;
+    drain_pending_stats_refresh();
+    check(!g_pending_stats_provider_owner && pending_native_calls == 1,
+        "a replaced native registry cannot receive the initial publication");
+    native_calendar_descriptor = NULL;
+    test_fce_stable = 0;
+    g_stats_provider = NULL;
     g_module_base = NULL;
     VirtualFree(image,0,MEM_RELEASE);
 }
