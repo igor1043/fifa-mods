@@ -50,6 +50,7 @@ ModCarrerMode/source/flamengo_pyro/historico_carregado/
 # Historical files are archived outside the repository, in the studies folder.
 ModCarrerMode/mods/*_v[0-9]*/
 ModCarrerMode/mods/**/*_v[0-9]*.dll
+!ModCarrerMode/mods/subson/subson_match_gate_v5.dll
 !ModCarrerMode/mods/frontend_stadium/frontend_stadium_native_v11.dll
 !ModCarrerMode/mods/panorama_drone/panorama_drone_v5.dll
 ModCarrerMode/source/kickoff_modern_v*/

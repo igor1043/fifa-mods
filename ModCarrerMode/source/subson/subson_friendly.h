@@ -11,6 +11,7 @@ BOOL subson_write_bytes(uintptr_t site, const unsigned char *before,
                         const unsigned char *after, SIZE_T size);
 BOOL subson_friendly_start(unsigned bench, const char *log_path);
 BOOL subson_career_start(unsigned bench, const char *log_path);
+BOOL subson_career_ensure_now(uintptr_t image, SIZE_T image_size,const char *log_path);
 size_t subson_emit_career(unsigned char *page, uintptr_t resume);
 size_t subson_emit_import(unsigned char *page, uintptr_t callback, uintptr_t resume);
 size_t subson_emit_capacity(unsigned char *page, uintptr_t callback, uintptr_t resume);

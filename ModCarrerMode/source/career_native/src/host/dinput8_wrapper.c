@@ -20,6 +20,8 @@
 #include "../features/retirement/retirement_engine.h"
 #include "swiss_delta.h"
 #include "card_refresh_schedule.h"
+#include "card_refresh_scope.h"
+#include "career_relay_page.h"
 #include "../../../common/competition_identity.h"
 #include "calendar_icon_identity.h"
 static void native_prepare(void *owner);
@@ -202,6 +204,7 @@ static void *g_current_stats_provider_owner;
 static void *g_pending_stats_provider_owner;
 static void *g_pending_stats_provider_vtable;
 static void *g_pending_stats_provider_registry;
+static uintptr_t g_pending_stats_hub_view;
 static CardRefreshSchedule g_stats_refresh_schedule;
 static unsigned long g_pending_stats_context_epoch;
 static DWORD g_pending_stats_thread;
@@ -2260,6 +2263,7 @@ static void clear_pending_stats_refresh(void)
     g_pending_stats_provider_owner = NULL;
     g_pending_stats_provider_vtable = NULL;
     g_pending_stats_provider_registry = NULL;
+    g_pending_stats_hub_view = 0;
     g_pending_stats_context_epoch = 0;
     g_pending_stats_thread = 0;
     memset(&g_stats_refresh_schedule, 0, sizeof(g_stats_refresh_schedule));
@@ -2267,13 +2271,29 @@ static void clear_pending_stats_refresh(void)
 }
 
 
+static int read_card_scope(uintptr_t address, void *out, size_t size)
+{
+    SIZE_T received = 0;
+    return address && ReadProcessMemory(GetCurrentProcess(),
+        (const void *)address, out, size, &received) && received == size;
+}
+
+static uintptr_t current_card_hub_view(void)
+{
+    return card_refresh_hub_view((uintptr_t)g_module_base, read_card_scope);
+}
+
 static void remember_pending_stats_refresh(void *owner)
 {
-    if (!is_readable_range(owner, 2 * sizeof(void *)))
+    uintptr_t view = current_card_hub_view();
+    if (!view || !is_readable_range(owner, 2 * sizeof(void *))) {
+        clear_pending_stats_refresh();
         return;
+    }
     g_pending_stats_provider_owner = owner;
     g_pending_stats_provider_vtable = *(void **)owner;
     g_pending_stats_provider_registry = ((void **)owner)[1];
+    g_pending_stats_hub_view = view;
     g_pending_stats_context_epoch = fce_runtime_context_epoch();
     g_pending_stats_thread = GetCurrentThreadId();
     card_refresh_enter(&g_stats_refresh_schedule, GetTickCount64());
@@ -2315,6 +2335,16 @@ static void drain_pending_stats_refresh(void)
     unsigned long ready_generation;
     if (!g_pending_stats_provider_owner || g_current_stats_provider_owner)
         return;
+    /* Never replay a former Hub owner while the native results/saving flow
+     * rebuilds it. Readable/vtable-equal stale owners caused an exception
+     * inside StatisticsData and left FIFA's UI lock held by the FCE thread.
+     */
+    if (!g_pending_stats_hub_view
+        || current_card_hub_view() != g_pending_stats_hub_view) {
+        clear_pending_stats_refresh();
+        append_loader_log("career_card_refresh_cancelled_view_changed");
+        return;
+    }
     if (GetCurrentThreadId() != g_pending_stats_thread) {
         if (!InterlockedExchange(&g_stats_tick_thread_mismatch, 1))
             log_card_refresh("owner_thread_mismatch", g_pending_stats_provider_owner, NULL, 0);
@@ -2791,6 +2821,11 @@ static void injury_refresh_cards_now(void)
 {
     void *owner = g_pending_stats_provider_owner;
     void *expected_vtable = g_pending_stats_provider_vtable;
+    if (!g_pending_stats_hub_view
+        || current_card_hub_view() != g_pending_stats_hub_view) {
+        clear_pending_stats_refresh();
+        return;
+    }
     if (!owner || !expected_vtable || g_current_stats_provider_owner
         || GetCurrentThreadId() != g_pending_stats_thread
         || g_pending_stats_context_epoch != fce_runtime_context_epoch()
@@ -4111,11 +4146,7 @@ static unsigned int apply_call_patches(
     FILE *log)
 {
     if (!career_patch_sites_ready(module_base, log)) return 0;
-    unsigned char *relay_page = (unsigned char *)VirtualAlloc(
-        module_base + 0x09600000,
-        0x1000,
-        MEM_COMMIT | MEM_RESERVE,
-        PAGE_EXECUTE_READWRITE);
+    unsigned char *relay_page = career_allocate_relay_page((uintptr_t)module_base);
     if (!relay_page)
     {
         fprintf(

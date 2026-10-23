@@ -18,5 +18,11 @@ cl /nologo /std:c11 /W4 /WX /O2 /MT /D_CRT_SECURE_NO_WARNINGS test_career.c subs
 if errorlevel 1 exit /b 1
 build\test_career.exe
 if errorlevel 1 exit /b 1
+cl /nologo /std:c11 /W4 /WX /O2 /MT /LD /D_CRT_SECURE_NO_WARNINGS subson_match_gate.c subson_career.c patch_memory.c build\subson_friendly_thunks.obj /Fobuild\ /Febuild\subson_match_gate.dll /link /NOLOGO /Brepro /IMPLIB:build\subson_match_gate.lib
+if errorlevel 1 exit /b 1
+cl /nologo /std:c11 /W4 /WX /O2 /MT /D_CRT_SECURE_NO_WARNINGS /DSUBSON_MATCH_GATE_TEST test_match_gate.c subson_match_gate.c subson_career.c patch_memory.c build\subson_friendly_thunks.obj /Fobuild\ /Febuild\test_match_gate.exe /link /NOLOGO
+if errorlevel 1 exit /b 1
+build\test_match_gate.exe
+if errorlevel 1 exit /b 1
 popd
 endlocal

@@ -5,6 +5,7 @@ crowd\crowd_plugin.dll
 career_birthdate_2006\birthyear_range_2006_2012.dll
 substitution_all7_rulescan_native\substitution_all7_rulescan_native.dll
 subson\subson_bridge.dll
+subson\subson_match_gate_v5.dll
 mascot_single\mascot_goal_line.dll
 tournament_compat_native\tournament_compat_native.dll
 career_ui_assets\career_ui_assets.dll
