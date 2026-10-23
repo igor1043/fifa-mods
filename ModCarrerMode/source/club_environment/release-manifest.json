@@ -248,13 +248,13 @@
     },
     {
       "path": "Server16Python.exe",
-      "bytes": 57141374,
-      "sha256": "04a1763d2d4e747495fa7635ab70ffd2a2daa85a5b5485f04057c01879b5234b"
+      "bytes": 57141313,
+      "sha256": "4fee3ad1aa5f6935c11da3e188f917acdc94507d6ae9d6eafda5dd408da8330c"
     },
     {
       "path": "data/ui/game/background/backgroundfifa.big",
-      "bytes": 6479,
-      "sha256": "0953df33ca5dfd08652fd710cf27528709fac1fb2b3d15e5fecf7f8d49d4a07f"
+      "bytes": 6480,
+      "sha256": "24672e02879c2121f0647b0b70daf6db9cd69bbd50285a83b1ef51e5b10b69da"
     },
     {
       "path": "data/ui/game/components/careercomponents/careerhubwidget.big",
@@ -263,8 +263,8 @@
     },
     {
       "path": "data/ui/game/screens/misc/stadiumpan.big",
-      "bytes": 149605,
-      "sha256": "3a3b5dc24259dd24f988466ec9243058283a16f3cae86d58dd4470408702f012"
+      "bytes": 149606,
+      "sha256": "2535c240e10ea6d96fbb3b9c2927d3472252f1abf0feda2d7f6f9db6c03e8787"
     },
     {
       "path": "data/ui/layout/careermanagerhubcfg.xml",
