@@ -4,18 +4,15 @@
 #include <limits.h>
 
 #define CAREER_BENCH_RVA 0x5AF8E00U
-#define CAREER_SQUAD_CHECK_RVA 0x5910569U
 static const unsigned char before[6]={0x8B,0x8A,0x94,0,0,0};
 static const unsigned char minimum11[11]={0xBB,0,0,0,0,0x90,0x30,0xC9,0x83,0xC3,0x0B};
-static const unsigned char squad_check_before[3]={0x8B,0x58,0x94};
-static const unsigned char squad_check_minimum11[3]={0x31,0xDB,0x90};
 static char diagnostics[MAX_PATH];
 static RUNTIME_FUNCTION record;
 static void event(const char *message)
 {
     FILE *file=NULL;
     if(diagnostics[0] && !fopen_s(&file,diagnostics,"ab") && file){
-        fprintf(file,"career_short_roster_v2 pid=%lu %s\r\n",GetCurrentProcessId(),message);fclose(file);
+        fprintf(file,"career_optional_bench_v1 pid=%lu %s\r\n",GetCurrentProcessId(),message);fclose(file);
     }
 }
 static int read_at(uintptr_t at,void *out,SIZE_T size)
@@ -31,21 +28,13 @@ size_t subson_emit_career(unsigned char *page,uintptr_t resume)
 }
 static int install(uintptr_t image,SIZE_T image_size)
 {
-    DWORD64 parent_base=0,squad_parent_base=0;PRUNTIME_FUNCTION parent,squad_parent;
-    unsigned char header[4],squad_header[4],current[6],squad_current[3],
-        applied[6]={0xE9,0,0,0,0,0x90};
+    DWORD64 parent_base=0;PRUNTIME_FUNCTION parent;
+    unsigned char header[4],current[6],applied[6]={0xE9,0,0,0,0,0x90};
     unsigned char *page;size_t size;int64_t distance;int32_t relative;DWORD old;
     if(!read_at(image+CAREER_BENCH_RVA,current,6) || memcmp(current,before,6))return 0;
     parent=RtlLookupFunctionEntry(image+CAREER_BENCH_RVA,&parent_base,NULL);
     if(!parent || parent_base!=image || parent->BeginAddress!=0x5AF8BF0U || parent->EndAddress!=0x5AF91F6U ||
        !read_at(image+parent->UnwindData,header,4) || memcmp(header,"\x21\x19\x06\0",4))return 0;
-    if(!read_at(image+CAREER_SQUAD_CHECK_RVA,squad_current,sizeof(squad_current)) ||
-       memcmp(squad_current,squad_check_before,sizeof(squad_current)))return 0;
-    squad_parent=RtlLookupFunctionEntry(image+CAREER_SQUAD_CHECK_RVA,&squad_parent_base,NULL);
-    if(!squad_parent || squad_parent_base!=image || squad_parent->BeginAddress!=0x5910500U ||
-       squad_parent->EndAddress!=0x5910673U ||
-       !read_at(image+squad_parent->UnwindData,squad_header,4) ||
-       memcmp(squad_header,"\x01\x14\x0a\0",4))return 0;
     page=subson_near_page(image,image_size,image+CAREER_BENCH_RVA);
     if(!page)return 0;
     size=subson_emit_career(page,image+CAREER_BENCH_RVA+6U);
@@ -60,14 +49,8 @@ static int install(uintptr_t image,SIZE_T image_size)
     if(distance<INT32_MIN || distance>INT32_MAX || !VirtualProtect(page,4096,PAGE_EXECUTE_READ,&old) ||
        !FlushInstructionCache(GetCurrentProcess(),page,0x314U) || !RtlAddFunctionTable(&record,1,image))return 0;
     relative=(int32_t)distance;memcpy(applied+1,&relative,4);
-    if(!subson_write_bytes(image+CAREER_SQUAD_CHECK_RVA,squad_check_before,
-                           squad_check_minimum11,sizeof(squad_check_before)))return 0;
-    if(!subson_write_bytes(image+CAREER_BENCH_RVA,before,applied,6)){
-        (void)subson_write_bytes(image+CAREER_SQUAD_CHECK_RVA,squad_check_minimum11,
-                                 squad_check_before,sizeof(squad_check_before));
-        return 0;
-    }
-    event("career_match_min11 installed squad_check_substitutes=0 starters=11; bench=min(rule,eligible-11) max=12");return 1;
+    if(!subson_write_bytes(image+CAREER_BENCH_RVA,before,applied,6))return 0;
+    event("installed eligible_min=11 bench=min(rule,eligible-11) max=12 global_rule_unchanged=1");return 1;
 }
 static DWORD WINAPI worker(void *unused)
 {
@@ -88,10 +71,9 @@ static DWORD WINAPI worker(void *unused)
     }
     event("not_installed requires_WorkLab_MIN_PLAYERS_11");return 0;
 }
-BOOL subson_career_start(unsigned bench,unsigned minimum,const char *log_path)
+BOOL subson_career_start(unsigned bench,const char *log_path)
 {
     HANDLE thread;if(bench<7U || bench>12U || !log_path)return FALSE;
-    if(minimum!=11U)return TRUE;
     strcpy_s(diagnostics,sizeof(diagnostics),log_path);
     thread=CreateThread(NULL,0,worker,NULL,0,NULL);if(!thread)return FALSE;
     CloseHandle(thread);return TRUE;
