@@ -4188,6 +4188,10 @@ static DWORD WINAPI patch_standings_provider(LPVOID unused)
     g_set_int = (SetIntFn)(module_base + 0x05A51150);
     g_set_string = (SetStringFn)(module_base + 0x05A511E0);
     g_transfer_cards_publish=(CareerTransferPublishFn)(module_base+0x059170A0);
+    g_transfer_cards_row_count=(CareerTransferRowCountFn)(module_base+0x05AC1E80);
+    g_transfer_cards_add_row=(CareerTransferAddRowFn)(module_base+0x05A2A4F0);
+    g_transfer_cards_select_row=(CareerTransferSelectRowFn)(module_base+0x05B0EB50);
+    g_transfer_cards_set_string=(CareerTransferSetStringFn)(module_base+0x05A511E0);
     g_stats_vector = (StatsVectorFn)(module_base + 0x05AC2C60);
     g_stats_provider = (StatsProviderFn)(module_base + 0x059CE0E0);
     g_stats_mark_dirty = (StatsMarkDirtyFn)(module_base + 0x05B14990);

@@ -80,6 +80,35 @@ feche o FIFA e copie os dois arquivos para o slot registrado em `receipt.json`.
 
 ## Validação e build
 
+Na aba Central, as páginas de transferências mais caras e últimas transferências
+mostram até dez negócios cada, em duas colunas de cinco. Os componentes originais
+TransferInfo continuam mostrando os nomes, escudos, clubes de origem/destino e
+valores calculados pelo FIFA. A ponte reserva vinte registros no provider
+nativo, usando a própria API de inclusão de linhas do jogo no thread da publicação.
+Cada card possui uma faixa independente: `TOPDEAL0..9` e `LASTDEAL10..19`.
+Ampliar somente o loop mantinha a capacidade original de seis registros e fazia
+as faixas se sobrescreverem. Os filtros e a ordenação do FIFA são preservados.
+Quando houver menos negócios elegíveis, as posições restantes ficam ocultas;
+uma atualização com menos registros também esconde jogadores da lista anterior.
+
+As linhas são preenchidas da esquerda para a direita, em cinco pares. O APT
+TransferInfo mantém suas ações, imports, imagens e vínculos nativos; somente
+geometria, cores e tipografia foram ajustadas para as faixas claras do FIFA.
+O gerador usa `tools/career_branding/originals/transferinfo.big`; o componente
+pronto para o jogo está em
+`data/ui/game/components/fluxcomponents/career/transferinfo.big` na raiz do mod.
+
+A validação de transferências inclui os testes C do hook e da barreira de patches,
+os testes Python de layout/APT e `tools/validate_transfer_cards_native.py`
+(requer `pefile` e `unicorn`). O emulador executa o hook compilado, o publisher
+nativo e as rotinas reais de contagem/seleção de registros. Serviços de alocação,
+propriedades, nomes e moeda são simulados. Cobre listas com 0, 1, 3, 10 e 25
+negócios, filtros, publicações compartilhadas e redução posterior para lista vazia.
+Nenhum desses testes abre o FIFA ou altera saves. A conferência visual da revisão
+com vinte registros ainda não foi realizada dentro do jogo.
+A troca de `dinput8.dll` passa a valer na próxima abertura do FIFA.
+
+
 ```powershell
 python -m unittest discover -s tests -p test_career_overlay.py
 cmd /c scripts\build_career_overlay.cmd

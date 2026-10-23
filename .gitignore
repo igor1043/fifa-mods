@@ -36,6 +36,8 @@ ModCarrerMode/source/mascot_photographer/tests/*.jpg
 ModCarrerMode/source/mascot_photographer/tests/validation_*.json
 **/__pycache__/
 ModCarrerMode/source/**/build/
+# Generated UI builds, captures and verification reports stay local.
+ModCarrerMode/source/artifacts/
 !ModCarrerMode/source/career_native/scripts/build/
 !ModCarrerMode/source/career_native/scripts/build/*.cmd
 ModCarrerMode/source/**/backups/
