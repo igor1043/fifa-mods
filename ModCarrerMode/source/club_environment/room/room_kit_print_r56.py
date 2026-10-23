@@ -57,14 +57,51 @@ def native_name_surface(shirt,indices,rect):
     for i,(p,uv,n) in enumerate(vertices):out['p'][i]=p;out['uv'][i]=uv;out['n'][i]=n
     return out,np.array(faces,dtype='<u4')
 
-def name_model(club,typ,kit_rx):
+def print_model(club,typ,rect,part):
     from room_native_hanging_20261022 import source_shirt
-    rect=kit_hotspots(kit_rx).get('jersey',{}).get('name')
     if rect is None:return None,None
-    tag=hashlib.sha256(struct.pack('<4f',*rect)).hexdigest()[:12];name=f'native_name_surface_{club}_{typ}_{tag}_r56.rx3';path=LIVE/name
+    if abs(rect[2]-rect[0])<1e-6 or abs(rect[3]-rect[1])<1e-6:return None,None
+    tag=hashlib.sha256(struct.pack('<4f',*rect)).hexdigest()[:12];name=f'native_{part}_surface_{club}_{typ}_{tag}_r61.rx3';path=LIVE/name
     shirt,ids,_=source_shirt(typ)
     if not path.exists():precise_prop_file([native_name_surface(shirt,ids,rect)],ROOT/'assets'/name)
     return 'data/sceneassets/server16_dressing_room_20261022/'+name,list(rect)
+
+def name_model(club,typ,kit_rx):
+    return print_model(club,typ,kit_hotspots(kit_rx).get('jersey',{}).get('name'),'name')
+
+def number_models(club,typ,kit_rx):
+    """The native back-number rectangle contains two digit cells, not one.
+
+    A single digit occupies the centre cell. All bounds remain in the kit's
+    original UV space; the hanging mesh must never supply an XYZ print offset.
+    """
+    rect=kit_hotspots(kit_rx).get('jersey',{}).get('numberback')
+    if rect is None:return {}
+    l,t,r,b=rect;mid=(l+r)/2;quarter=(r-l)/4
+    return {slot:print_model(club,typ,box,'number_'+str(slot))
+            for slot,box in ((4,(mid-quarter,t,mid+quarter,b)),
+                             (5,(l,t,mid,b)),(6,(mid,t,r,b)))}
+
+def name_stamp(name,font_bytes,color,rect):
+    """Fill the kit hotspot with the selected native font, without UI margins.
+
+    Keep glyph height constant for long names: only their horizontal extent
+    is condensed to fit, rather than moving or shrinking the name on the kit.
+    """
+    import io
+    name=' '.join(name.upper().split())
+    font=ImageFont.truetype(io.BytesIO(font_bytes),256)
+    box=font.getbbox(name)
+    if not name or box[2]<=box[0] or box[3]<=box[1]:return None
+    glyph=Image.new('RGBA',(box[2]-box[0],box[3]-box[1]),(0,0,0,0))
+    ImageDraw.Draw(glyph).text((-box[0],-box[1]),name,font=font,fill=tuple(color)+(255,))
+    ratio=abs((rect[2]-rect[0])/(rect[3]-rect[1]));height=128
+    width=max(4,min(4096,2**math.ceil(math.log2(ratio*height))))
+    target=Image.new('RGBA',(width,height),(0,0,0,0))
+    scaled_width=min(width,max(1,round(glyph.width/glyph.height/ratio*width)))
+    glyph=glyph.resize((scaled_width,height),Image.Resampling.LANCZOS)
+    target.alpha_composite(glyph,((width-scaled_width)//2,0))
+    return target
 
 def plate_lines(name,draw,width,font):
     name=' '.join(name.split())

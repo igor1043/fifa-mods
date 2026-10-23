@@ -13,6 +13,7 @@
 #include <memory>
 #include <iomanip>
 #include <sstream>
+#include "room_helper_process_r61.h"
 #include "motions.h"
 #include "room_cinema_r52.h"
 namespace fs=std::filesystem;
@@ -222,7 +223,7 @@ DWORD WINAPI worker(void*){
   flushMedicalCapture();
   if(fs::exists(folder/L"runtime/STOP_NATIVE"))stopping=true;status();Sleep(500);
  }
- active=false;roomLoading=false;hideComponents();componentVisibility(loadingSlate,false);componentVisibility(errorSlate,false);camera.restore();if(object){visibility(false);InterlockedCompareExchangePointer((void*volatile*)object,(void*)originalVtable,ownVtable);}if(installed)exchange(oursCall,beforeCall);if(roomPhotoInstalled)roomPhotoExchange(roomPhotoAfter,roomPhotoBefore);stopMedicalCapture();installed=false;log("STOPPED: prior render callback restored");status();return 0;
+ closeNativeAssetHelperMonitor();active=false;roomLoading=false;hideComponents();componentVisibility(loadingSlate,false);componentVisibility(errorSlate,false);camera.restore();if(object){visibility(false);InterlockedCompareExchangePointer((void*volatile*)object,(void*)originalVtable,ownVtable);}if(installed)exchange(oursCall,beforeCall);if(roomPhotoInstalled)roomPhotoExchange(roomPhotoAfter,roomPhotoBefore);stopMedicalCapture();installed=false;log("STOPPED: prior render callback restored");status();return 0;
 }
 }
 extern "C" __declspec(dllexport) unsigned WINAPI Fifa16ModGetApiVersion(){return 1;}

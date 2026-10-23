@@ -5,6 +5,7 @@ import hashlib
 import json
 import os
 import subprocess
+import sys
 import tempfile
 import zipfile
 
@@ -56,25 +57,44 @@ def build(root,output,stamp):
     for relative,source in files.items():
         target=stage/relative;target.parent.mkdir(parents=True,exist_ok=True)
         target.write_bytes(source.read_bytes())
-    result=subprocess.run([str(stage/'Server16Python.exe'),'--club-environment-install',
-        '--game-root',str(stage)],cwd=stage,capture_output=True,timeout=120)
+    environment=dict(os.environ,PYINSTALLER_RESET_ENVIRONMENT='1')
+    result=subprocess.run([str(stage/'Server16Python.exe'),'--club-environment-check',
+        '--game-root',str(stage)],cwd=stage,env=environment,capture_output=True,timeout=120,
+        creationflags=subprocess.CREATE_NO_WINDOW)
     log=(result.stdout+result.stderr).decode('utf8',errors='replace')
     (output/'vestiario-package-check.log').write_text(log,encoding='utf8')
     if result.returncode:raise RuntimeError('Isolated bundled-runtime check failed: '+log[-5000:])
     checked=json.loads((stage/'ModCarrerMode/runtime/club_environment/check.json').read_text(encoding='utf8'))
     assert checked['ready'] and set(checked['workers'])=={'room','bank','preview'}
+    # Build neutral screens with development Python, using only the staged
+    # room/bank/preview code and seeds. Never run the install/BH activation mode
+    # against a live game, nor copy its career-specific generated screens.
+    generate="""import os,sys
+from pathlib import Path
+stage=Path(sys.argv[1]);source=stage/'ModCarrerMode/source/club_environment'
+os.environ['SERVER16_GAME_ROOT']=str(stage)
+sys.path[:0]=[str(source),str(source/'vendor'),*(str(stage/'ModCarrerMode/runtime/club_environment'/group) for group in ('room','preview','bank')),sys.argv[2]]
+from bootstrap_ui import generate
+generate()
+"""
+    result=subprocess.run([sys.executable,'-B','-c',generate,str(stage),
+        str(root/'ModCarrerMode/source')],cwd=stage,env=environment,capture_output=True,timeout=120,
+        creationflags=subprocess.CREATE_NO_WINDOW)
+    log+=(result.stdout+result.stderr).decode('utf8',errors='replace')
+    (output/'vestiario-package-check.log').write_text(log,encoding='utf8')
+    if result.returncode:raise RuntimeError('Isolated neutral-screen generation failed: '+log[-5000:])
     for name in ('dressingroom','bankloansv2','matchpreview'):
         relative=f'data/ui/game/screens/career/server16/{name}.big'
         add(relative,stage/relative)
     records=[{'path':name,'bytes':source.stat().st_size,'sha256':sha(source)}
              for name,source in sorted(files.items())]
-    manifest={'format':1,'purpose':'Vestiario repair for an installed FIFA Friends V12 base',
+    manifest={'format':2,'revision':'r61','purpose':'Vestiario repair for an installed FIFA Friends V12 base',
         'base_commit':subprocess.check_output(['git','rev-parse','HEAD'],cwd=root,text=True).strip(),
         'static_model_texture_pose_files':len(assets),'bundled_runtime_check':checked,
         'files':records}
     # The check's game path is disposable, not part of the installed package.
     manifest['bundled_runtime_check'].pop('game',None)
-    readme='''VESTIÁRIO COMPLETO — FIFA FRIENDS V12
+    readme='''VESTIÁRIO CORRIGIDO R61 — FIFA FRIENDS V12
 
 Pacote de reposição para a base V12 já instalada, onde o botão Vestiário existe.
 
@@ -88,13 +108,19 @@ Vestiário, os auxiliares, o runtime do Server16 e telas iniciais genéricas.
 Os recursos específicos do elenco e do clube serão gerados no computador.
 Este pacote inclui código e arquivos que também estão no GitHub.
 
+Revisão R61: nome e número seguem os limites UV do kit original, inclusive
+nos goleiros. O auxiliar tem inicialização monitorada e nova tentativa se
+encerrar. Falhas de inicialização ficam registradas em
+ModCarrerMode/runtime/club_environment/room/runtime/native_helper_startup.log.
+Não inclui a implementação de ocultar o card online da EA.
+
 Não há instalador. Não contém saves, empréstimos contratados, caches de outra
 carreira, índices BH ou lista enabled.txt. A base V12 e seus arquivos originais
 continuam necessários. O mod já estava habilitado no diagnóstico do Robson.
 O manifesto em ModCarrerMode/docs/vestiario-package-manifest.json relaciona
 todos os arquivos de execução com seus tamanhos e hashes SHA256.
 '''
-    target=output/f'FIFA-Friends-Vestiario-Completo-{stamp}.zip';temp=target.with_suffix('.zip.new')
+    target=output/f'FIFA-Friends-Vestiario-Corrigido-R61-{stamp}.zip';temp=target.with_suffix('.zip.new')
     with zipfile.ZipFile(temp,'w',zipfile.ZIP_DEFLATED,compresslevel=9) as archive:
         for relative,source in sorted(files.items()):archive.write(source,relative)
         archive.writestr('LEIA-ME-VESTIARIO.txt',readme.encode('utf8'))

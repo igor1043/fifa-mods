@@ -92,7 +92,7 @@ estádios StadiumGBD já instalados pelo destinatário.
 ## Pacote de recuperação do Vestiário
 
 `ModCarrerMode/tools/Build-VestiarioPackage.py` gera
-`FIFA-Friends-Vestiario-Completo-20261023.zip` para uma base V12 já instalada.
+`FIFA-Friends-Vestiario-Corrigido-R61-20261023.zip` para uma base V12 já instalada.
 Esse pacote de recuperação inclui também os arquivos de código necessários,
 a DLL do ambiente, dependências compartilhadas, Server16 e os 33 assets
 estáticos. Não contém a animação SubsOn nem modelos de outros mods.
@@ -106,3 +106,19 @@ Não inclui saves, histórico financeiro, caches locais, índices BH, instalador
 ou `enabled.txt`; a habilitação do módulo na base V12 instalada é preservada.
 Esse teste confirma a preparação do pacote, não a imagem renderizada na GPU
 do destinatário.
+
+Na revisão R61, nome e número usam os hotspots UV do RX3 original de cada kit,
+incluindo posições diferentes no uniforme de goleiro. A numeração não usa mais
+uma altura fixa da malha suspensa, que podia atravessar a região do nome.
+O nome utiliza a fonte selecionada pelos arquivos nativos do FIFA, sem margens
+de interface ou deslocamento XYZ; nomes longos mantêm altura e são condensados
+na largura do hotspot. Sem hotspot válido, a impressão correspondente é omitida
+em vez de cair numa posição genérica. Os RX3 nativos permanecem intactos.
+
+A DLL monitora o processo auxiliar e tenta novamente se ele encerrar. A criação
+usa um ambiente independente do executável congelado, sem modificar o ambiente
+do FIFA. `native_helper_startup.log` registra stdout/stderr e `native_room.log`
+registra o erro de criação ou código de saída. Não há novos hooks globais.
+O pacote testa o runtime congelado com `--club-environment-check` e gera telas
+neutras separadamente em staging; não ativa BHs nem altera a sessão aberta.
+O mod de ocultar o card online da EA permanece desativado e fora deste ZIP.

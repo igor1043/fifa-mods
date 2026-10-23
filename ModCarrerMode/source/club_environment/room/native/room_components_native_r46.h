@@ -19,22 +19,28 @@ void __fastcall componentDraw(void*self,int pass){
 }
 unsigned componentGeneration=0,componentClub=0;uint64_t componentNextCheck=0;
 std::atomic<unsigned> validCareerClub{0};
-bool nativeHelperStarted=false;
+HANDLE nativeHelperProcess=nullptr;room_helper::Retry nativeHelperRetry;
+void closeNativeAssetHelperMonitor(){if(nativeHelperProcess){CloseHandle(nativeHelperProcess);nativeHelperProcess=nullptr;}}
 void launchNativeAssetHelper(){
- if(nativeHelperStarted||!validCareerClub)return;
- nativeHelperStarted=true;
- unsigned gamePid=0,helperPid=0;
- {std::ifstream marker(folder/L"runtime/native_asset_helper_r46.pid");marker>>gamePid>>helperPid;}
- if(gamePid==GetCurrentProcessId()&&helperPid){
-  HANDLE process=OpenProcess(PROCESS_QUERY_LIMITED_INFORMATION,FALSE,helperPid);
-  if(process){DWORD code=0;const bool alive=GetExitCodeProcess(process,&code)&&code==STILL_ACTIVE;CloseHandle(process);if(alive)return;}
+ const auto now=GetTickCount64();if(!validCareerClub||!nativeHelperRetry.due(now))return;
+ nativeHelperRetry.started(now);
+ if(nativeHelperProcess){
+  if(WaitForSingleObject(nativeHelperProcess,0)==WAIT_TIMEOUT)return;
+  DWORD code=0;GetExitCodeProcess(nativeHelperProcess,&code);closeNativeAssetHelperMonitor();
+  log(("NATIVE_ASSET_HELPER_EXIT code="+std::to_string(code)+"; checking worker handshake").c_str());
  }
  const fs::path python=game/L"Server16Python.exe";
+ unsigned gamePid=0,helperPid=0;
+ {std::ifstream marker(folder/L"runtime/native_asset_helper_r46.pid");marker>>gamePid>>helperPid;}
+ nativeHelperProcess=room_helper::existingWorker(GetCurrentProcessId(),gamePid,helperPid,python.c_str());
+ if(nativeHelperProcess){nativeHelperRetry.failures=0;log("NATIVE_ASSET_HELPER_ATTACHED: verified worker for this game session");return;}
  const auto helper=game/L"ModCarrerMode/source/club_environment/room/prepare_native_room_components_r46_20261022.py";
- if(!fs::exists(python)||!fs::exists(helper)){log("NATIVE_ASSET_HELPER_MISSING");return;}
+ if(!fs::exists(python)||!fs::exists(helper)){nativeHelperRetry.failed(now);log("NATIVE_ASSET_HELPER_MISSING: retry scheduled");return;}
  std::wstring command=L"\""+python.wstring()+L"\" --club-environment --game-root \""+game.wstring()+L"\" --pid "+std::to_wstring(GetCurrentProcessId());
- STARTUPINFOW startup{};startup.cb=sizeof(startup);startup.dwFlags=STARTF_USESHOWWINDOW;startup.wShowWindow=SW_HIDE;PROCESS_INFORMATION process{};
- if(CreateProcessW(python.c_str(),command.data(),nullptr,nullptr,FALSE,CREATE_NO_WINDOW,nullptr,folder.c_str(),&startup,&process)){CloseHandle(process.hThread);CloseHandle(process.hProcess);log("NATIVE_ASSET_HELPER_STARTED: active save, session lifetime only");}else log("NATIVE_ASSET_HELPER_START_FAILED");
+ DWORD error=0;nativeHelperRetry.failed(now);
+ if(room_helper::spawn(python.c_str(),command,game.c_str(),(folder/L"runtime/native_helper_startup.log").c_str(),nativeHelperProcess,error)){
+  log("NATIVE_ASSET_HELPER_STARTED_R61: isolated frozen runtime; monitored process; startup log enabled");
+ }else log(("NATIVE_ASSET_HELPER_START_FAILED error="+std::to_string(error)+"; retry scheduled").c_str());
 }
 std::string luaString(const std::string&text){std::string s="'";for(char c:text){if(c=='\\'||c=='\'')s+='\\';s+=c;}return s+"'";}
 void componentVisibility(NativeRoomComponent&c,bool visible){

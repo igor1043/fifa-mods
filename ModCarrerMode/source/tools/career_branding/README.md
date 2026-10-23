@@ -1,11 +1,11 @@
 # Logo no menu inicial e no cabeçalho da carreira
 
-> Em 23/10/2026, a ocultação do card online da EA foi reativada isoladamente,
-> por solicitação do usuário. Somente `easfcwidget.big` foi alterado; os widgets
-> do menu inicial e da carreira continuam com suas bases anteriores.
-> `hide_online_card.py --output PASTA` gera e verifica essa versão: preserva
-> os recursos e callbacks nativos, deixa a raiz transparente desde o primeiro
-> quadro e reaplica a transparência após atualizações da conexão. Não usa DLL.
+> Em 23/10/2026, a ocultação do card online da EA foi desativada novamente
+> após relato de crash. `easfcwidget.big` foi restaurado byte a byte à base
+> anterior (SHA256 `192ef034f327914c055779e0163c5ddecfc1247b28d47a261a752e9b150dbf28`).
+> Os widgets do menu inicial e da carreira mantêm suas bases anteriores.
+> `hide_online_card.py` é apenas uma ferramenta arquivada: não executar para
+> compor a versão em uso nem incluir o resultado no pacote do Vestiário.
 >
 > A personalização completa com logo descrita abaixo permanece desativada
 > desde 21/10/2026. As versões anteriores estão preservadas em

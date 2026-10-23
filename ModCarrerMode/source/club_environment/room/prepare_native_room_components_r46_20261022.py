@@ -111,11 +111,14 @@ def career():
  return snap,roster,info,context
 def prepare():
  began=time.perf_counter();snap,roster,kits,context=career();read_ms=round((time.perf_counter()-began)*1000);club=snap['club'];print_sources=[];components={};native_refs=set();hanging={k:prepare_geometry(k,read_asset) for k in {2 if p['goalkeeper'] else 0 for p in roster}};hardware=hardware_texture()
- from room_kit_print_r56 import name_model,locker_plate
- native_names={}
+ from room_kit_print_r56 import name_model,number_models,name_stamp,locker_plate
+ native_names={};native_numbers={};print_warnings=[]
  for typ in hanging:
-  try:native_names[typ]=name_model(club,typ,Rx3(read_asset(f'data/sceneassets/kit/kit_{club}_{typ}_0.rx3')))
-  except ValueError:native_names[typ]=(None,None)
+  kit_rx=Rx3(read_asset(f'data/sceneassets/kit/kit_{club}_{typ}_0.rx3'))
+  try:native_names[typ]=name_model(club,typ,kit_rx)
+  except ValueError as error:native_names[typ]=(None,None);print_warnings.append(f'kit {typ} name: {error}')
+  try:native_numbers[typ]=number_models(club,typ,kit_rx)
+  except ValueError as error:native_numbers[typ]={};print_warnings.append(f'kit {typ} number: {error}')
  def add(key,model,texture,texname,matrix,alpha=False,submesh=None,overlay=(0,0,0,0),page=-1,pages=0,bank=0):
   if key not in components:
    if submesh is None:submesh=bounds(model)[2]
@@ -138,28 +141,25 @@ def prepare():
   for path in candidates:
    try:rx=Rx3(read_asset(path));digits={int(m.group(1)):n for t,n in rx.names() if t==TEXTURE and (m:=re.search(r'_([0-9])(?:\..*)?$',n))};assert len(digits)==10;number_path=path;break
    except (FileNotFoundError,AssertionError):continue
-  number=str(p['number']) if number_path and 0<=p['number']<=99 else '';w=13 if len(number)>1 else 16
+  number=str(p['number']) if number_path and 0<=p['number']<=99 else ''
   for d,digit in enumerate(number):
-   x=(d-(len(number)-1)*.5)*(w+1)
    slot=4 if len(number)==1 else 5+d
-   add(f'number_{typ}_{slot}_{digit}',model,number_path,digits[int(digit)],pose,True,'room_part_'+str(slot))
+   surface=native_numbers[typ].get(slot,(None,None))[0]
+   if surface:add(f'number_{typ}_{slot}_{digit}',surface,number_path,digits[int(digit)],pose,True,'room_part_1')
   font_bytes=None
   for path in name_candidates(club,typ,context['league'],context['kit_rules']['default_league'],info['name_font']):
-   try:font_bytes=read_asset(path);font_obj=ImageFont.truetype(__import__('io').BytesIO(font_bytes),70);break
+   try:
+    candidate=read_asset(path);ImageFont.truetype(__import__('io').BytesIO(candidate),70);font_bytes=candidate;break
    except (FileNotFoundError,OSError):continue
-  print_sources.append({'player':p['id'],'number':p['number'],'name':p['name'],'kit_type':typ,'number_asset':number_path,'name_font_asset':path if font_bytes else None,'name_color':info['name_color'],'native_name_hotspot':native_names[typ][1],'name_layout':info['layout'],'name_placement':info['name_placement'],'assignment_sources':info.get('assignment_sources',{})})
-  if font_bytes:
-   im=Image.new('RGBA',(512,128),(0,0,0,0));draw=ImageDraw.Draw(im);name=p['name'].upper()
-   while draw.textlength(name,font=font_obj)>488 and font_obj.size>18:font_obj=font_obj.font_variant(size=font_obj.size-1)
-   box=draw.textbbox((0,0),name,font=font_obj);color_name=tuple(info['name_color'])
-   # A black native name colour is valid on a light kit; do not override it.
-   draw.text(((512-(box[2]-box[0]))/2,20-box[1]),name,font=font_obj,fill=color_name+(255,))
-   tag=hashlib.sha256((name+str(info)+'native_print_r46').encode()+font_bytes).hexdigest()[:10]
+  print_sources.append({'player':p['id'],'number':p['number'],'name':p['name'],'kit_type':typ,'number_asset':number_path,'name_font_asset':path if font_bytes else None,'name_color':info['name_color'],'native_name_hotspot':native_names[typ][1],'native_number_hotspots':{str(k):v[1] for k,v in native_numbers[typ].items()},'name_layout':info['layout'],'name_placement':info['name_placement'],'assignment_sources':info.get('assignment_sources',{}),'placement_source':'native kit UV hotspots r61'})
+  name_surface,name_rect=native_names[typ]
+  im=name_stamp(p['name'],font_bytes,info['name_color'],name_rect) if font_bytes and name_surface else None
+  if im is not None:
+   tag=hashlib.sha256(im.tobytes()+str((im.size,info,name_rect,'native_print_r61')).encode()).hexdigest()[:10]
    dest=GAME/f'data/sceneassets/server16_dressing_room_20261022/live_name_{club}_{p["id"]}_{tag}.rx3'
    if not dest.exists():texture_package(im,dest,'name_cm')
    relative='data/sceneassets/server16_dressing_room_20261022/'+dest.name
-   name_surface=native_names[typ][0]
-   add('name_'+str(i),name_surface or model,relative,'name_cm',pose,True,'room_part_1' if name_surface else 'room_part_3')
+   add('name_'+str(i),name_surface,relative,'name_cm',pose,True,'room_part_1')
   plate=locker_plate(p['name'],context['colors'],club_badge);tag=hashlib.sha256(plate.tobytes()).hexdigest()[:12];dest=GAME/f'data/sceneassets/server16_dressing_room_20261022/locker_plate_{club}_{p["id"]}_{tag}_r56.rx3'
   if not dest.exists():texture_package(plate,dest,'plate_cm')
   add('plate_'+str(i),'data/sceneassets/server16_dressing_room_20261022/print_surface.rx3','data/sceneassets/server16_dressing_room_20261022/'+dest.name,'plate_cm',quad(i,[0,272,72],78,20),False,'room_part_1')
@@ -200,7 +200,7 @@ def prepare():
   config+=' '.join(json.dumps(str(c[k]),ensure_ascii=True) for k in ('key','model','submesh','texture','texname'))+f' {int(c["alpha"])} {len(c["matrices"])} {c["page"]} {c["pages"]} {c["bank"]} '+ ' '.join(format(v,'.7g') for v in c['overlay'])+'\n'
   config+='\n'.join(' '.join(format(float(x),'.9g') for x in m) for m in c['matrices'])+'\n'
  target=ROOT/'runtime/native_components_v2.txt';tmp=target.with_suffix('.tmp');tmp.write_text(config);os.replace(tmp,target)
- report={'preparation_ms':round((time.perf_counter()-began)*1000),'career_read_ms':read_ms,'pid':snap['pid'],'club':club,'save':snap['savePath'],'roster':roster,'kit_prints':kits,'print_sources':print_sources,'context':context,'component_groups':len(components),'instances':sum(len(c['matrices']) for c in components.values()),'native_references':sorted(native_refs),'native_assets_packaged':False}
+ report={'preparation_ms':round((time.perf_counter()-began)*1000),'career_read_ms':read_ms,'pid':snap['pid'],'club':club,'save':snap['savePath'],'roster':roster,'kit_prints':kits,'print_sources':print_sources,'print_warnings':print_warnings,'context':context,'component_groups':len(components),'instances':sum(len(c['matrices']) for c in components.values()),'native_references':sorted(native_refs),'native_assets_packaged':False}
  (ROOT/'runtime/native_components_manifest_r46.json').write_text(json.dumps(report,ensure_ascii=False,indent=2),encoding='utf8');print(json.dumps({k:report[k] for k in ('pid','club','component_groups','instances','native_assets_packaged')}))
 def prepare_header(context):
  import build_dressing_card_20261022 as ui
@@ -216,7 +216,9 @@ def calendar_stamp(pid):
  import psutil
  m=Memory();m.process_id=pid;m.process_handle=m.kernel32.OpenProcess(0x410,False,pid);m.base_module=m._get_base_address(psutil.Process(pid).exe())
  try:
-  profile=competition_session(m,True);code=m.read_process_memory(m.base_module+0x44563f0,24)
+  profile=competition_session(m,True)
+  if not isinstance(profile,dict) or not profile.get('registry_address'):raise ValueError('Aguardando contexto da carreira')
+  code=m.read_process_memory(m.base_module+0x44563f0,24)
   if code[7:9]!=b'\xc7\x01':raise ValueError('Calendar descriptor changed')
   index=struct.unpack_from('<I',code,9)[0]
   if index>=256:raise ValueError('Calendar index')
