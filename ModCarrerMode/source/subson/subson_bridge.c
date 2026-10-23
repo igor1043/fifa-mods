@@ -57,7 +57,7 @@ done:
     return ok;
 }
 
-static int valid_options(const wchar_t *path, unsigned *configured)
+static int valid_options(const wchar_t *path, unsigned *configured, unsigned *minimum_configured)
 {
     FILE *file = NULL;
     char line[512];
@@ -93,6 +93,7 @@ static int valid_options(const wchar_t *path, unsigned *configured)
     fclose(file);
     if (ok && bench >= 7 && minimum >= 0 && bench_seen == 1 && minimum_seen == 1) {
         *configured=(unsigned)bench;
+        *minimum_configured=(unsigned)minimum;
         return 1;
     }
     return 0;
@@ -105,7 +106,7 @@ __declspec(dllexport) BOOL WINAPI Fifa16ModStart(const char *mods_root)
 {
     wchar_t root[MAX_PATH], path[MAX_PATH], options[MAX_PATH], *slash;
     DWORD length;
-    unsigned configured=0;
+    unsigned configured=0, minimum=0;
     if (!mods_root || !mods_root[0]) return FALSE;
     if (InterlockedCompareExchange(&started, 1, 0) != 0) return payload != NULL;
     _snprintf_s(log_path, sizeof(log_path), _TRUNCATE,
@@ -122,7 +123,7 @@ __declspec(dllexport) BOOL WINAPI Fifa16ModStart(const char *mods_root)
     if (_snwprintf_s(path, MAX_PATH, _TRUNCATE, L"%s\\SubsOn.dll", root) < 0 ||
         _snwprintf_s(options, MAX_PATH, _TRUNCATE, L"%s\\SubsOn.ini", root) < 0)
         goto failed;
-    if (!valid_options(options,&configured)) {
+    if (!valid_options(options,&configured,&minimum)) {
         log_event("blocked: SubsOn.ini requires BENCH_SIZE=7..12 and MIN_PLAYERS=0 or 11..30");
         goto failed;
     }
@@ -139,9 +140,9 @@ __declspec(dllexport) BOOL WINAPI Fifa16ModStart(const char *mods_root)
     /* Keep the LoadLibrary reference for the entire process: WorkLab starts
      * background workers. Its own log reports whether patches were applied.
      */
-    log_event("loaded original WorkLab payload; friendly rule adapter v2; career optional bench v1; rendering and animations=WorkLab");
+    log_event("loaded original WorkLab payload; friendly rule adapter v2; career short-roster adapter v2; rendering and animations=WorkLab");
     if(!subson_friendly_start(configured,log_path)){log_event("failed to start friendly rule adapter");return FALSE;}
-    if(!subson_career_start(configured,log_path)){log_event("failed to start career bench adapter");return FALSE;}
+    if(!subson_career_start(configured,minimum,log_path)){log_event("failed to start career bench adapter");return FALSE;}
     return TRUE;
 failed:
     InterlockedExchange(&started, 0);
