@@ -10,6 +10,8 @@ def build(root,out,stamp):
     tracked={p.decode('utf8').casefold() for p in subprocess.check_output(['git','ls-files','-z'],cwd=root).split(b'\0') if p}
     assets=json.loads((root/'ModCarrerMode/source/club_environment/assets-manifest.json').read_text(encoding='utf8'))
     rows=[dict(row) for row in assets['files']]
+    globe=json.loads((root/'ModCarrerMode/data/club_browser/assets-manifest.json').read_text(encoding='utf8'))
+    rows.extend(dict(row) for row in globe['files'])
     animation='data/ant.cbac'
     rows.append({'path':animation,'bytes':(root/animation).stat().st_size,'sha256':sha(root/animation)})
     paths=set()
@@ -19,7 +21,7 @@ def build(root,out,stamp):
         if relative.casefold() in tracked:raise ValueError('Already published in Git: '+relative)
         if relative.casefold() in paths:raise ValueError('Duplicate asset: '+relative)
         paths.add(relative.casefold())
-        if path.suffix.casefold() not in ('.rx3','.npz','.cbac'):raise ValueError('Not a static asset: '+relative)
+        if path.suffix.casefold() not in ('.rx3','.npz','.cbac','.dds','.png'):raise ValueError('Not a static asset: '+relative)
         source=root/path
         if source.stat().st_size!=row['bytes'] or sha(source)!=row['sha256']:raise ValueError('Asset differs from manifest: '+relative)
     target=out/f'FIFA-Friends-Assets-Complementares-{stamp}.zip';temporary=target.with_suffix('.zip.new')
@@ -37,6 +39,6 @@ def build(root,out,stamp):
     return {k:v for k,v in report.items() if k!='files'}
 
 def main():
-    parser=argparse.ArgumentParser();parser.add_argument('--root',type=Path,default=Path(__file__).resolve().parents[2]);parser.add_argument('--output',type=Path);parser.add_argument('--date',default='20261023');args=parser.parse_args()
+    parser=argparse.ArgumentParser();parser.add_argument('--root',type=Path,default=Path(__file__).resolve().parents[2]);parser.add_argument('--output',type=Path);parser.add_argument('--date',default='20261024');args=parser.parse_args()
     print(json.dumps(build(args.root,args.output or args.root/'code-release',args.date),indent=2))
 if __name__=='__main__':main()

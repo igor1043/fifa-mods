@@ -115,4 +115,16 @@ runtime/diagnostics/
 /ModCarrerMode/data/club_environment/**/*.npz
 /ModCarrerMode/mods/_local_*/
 /ModCarrerMode/history/
+# Generated UI test artifacts and local financial state are not source inputs.
+/ModCarrerMode/source/club_environment/*/package/
+/ModCarrerMode/source/club_environment/*/runtime/
+/ModCarrerMode/source/club_environment/*/screen_metadata.json
 *.zip
+# Runtime caches and generated XI meshes are specific to the local installation.
+/ModCarrerMode/cache/
+/data/sceneassets/server16_club_xi/
+# Globe textures ship in the asset complement; provenance and manifest stay in Git.
+/ModCarrerMode/data/club_browser/assets/globe/*.dds
+/ModCarrerMode/data/club_browser/assets/globe/*.png
+# Server build binaries are maintained in the canonical Server16 repository.
+/ModCarrerMode/source/bin/

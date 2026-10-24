@@ -1,14 +1,20 @@
 # Ambiente do clube e telas da carreira
 
-Requer a base FIFA Friends V12 e Server16 0.2.14. Fontes Python/CPP, auxiliares de
+Requer a base FIFA Friends V12 e Server16 0.2.15. Fontes Python/CPP, auxiliares de
 APT e interfaces ficam neste repositório. Modelos, texturas e poses do vestiário
 são fornecidos no ZIP separado. O histórico anual está desativado.
+
+## Revisão de 24/10/2026
+
+R62 mantém as poses e texturas estáticas no complemento, incluindo `jersey_pose_0.npz` e `jersey_pose_2.npz`, para funcionar em instalação limpa. Kits seguem os hotspots originais; a troca de cenas e a liberação do fundo preservam o ambiente 3D. A próxima partida invalida o contexto anterior quando clube, data ou confronto mudam. Empréstimos e e-mails têm serviço de fundo e persistência por clube/save. Mercado e Ver clubes mantêm seus próprios auxiliares, sem interferir no ciclo do vestiário.
+
+As telas distribuídas são neutras, aguardando dados da carreira. A preparação delas foi executada em uma pasta nova com nome Unicode usando o executável Server16 incluído. Não são copiadas telas, elencos ou extratos gerados na sessão do desenvolvedor.
 
 ## Instalação
 
 1. Feche FIFA e Server16. Atualize a base pela branch `fifa-friends-v12` do GitHub,
    incluindo o Server16, DLLs, fontes, interfaces, Lua e configurações publicadas.
-2. Extraia `FIFA-Friends-Assets-Complementares-20261023.zip` diretamente na raiz
+2. Extraia `FIFA-Friends-Assets-Complementares-20261024.zip` diretamente na raiz
    do FIFA, mesclando as pastas `data` e `ModCarrerMode`. Não há instalador.
 3. Abra o Server16 atualizado e inicie o jogo. Não precisa instalar Python,
    NumPy, Pillow, ScoreboardStudio ou ferramentas de RX3 no computador do jogador.
@@ -32,7 +38,7 @@ incluindo os empacotados em BIG. O ZIP não fixa elenco, clube ou jogadores.
 As três telas iniciais contêm estado de espera; a carreira válida fornece os dados
 reais. Iluminação aprovada preservada byte a byte.
 
-Empréstimos: um contrato ativo, até duas contratações por ano da carreira,
+Empréstimos: até dois contratos ativos, até duas contratações por ano da carreira,
 parcelas mensais, antecipação de parcela ou quitação, orçamento validado e
 pedidos deduplicados. O banco é o único auxiliar que pode publicar orçamento,
 depois das validações da ação da interface; testes não fazem transações reais.
@@ -81,7 +87,7 @@ confirmação não é apresentada como sucesso. A persistência continua pelo Sa
 do FIFA e pelo livro financeiro específico daquele save.
 
 `ModCarrerMode/tools/Build-PortablePackages.py` gera um único complemento com os
-33 assets estáticos do ambiente e a animação SubsOn. O gerador recusa qualquer
+33 assets estáticos do ambiente, duas texturas do globo e a animação SubsOn. O gerador recusa qualquer
 arquivo rastreado pelo Git: código, executáveis, DLLs, interfaces, Lua, INIs e
 manifestos permanecem no repositório. O ZIP contém só os caminhos finais dos
 assets, sem pasta intermediária, comandos ou scripts de instalação.

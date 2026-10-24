@@ -4,9 +4,21 @@ Mais vida na carreira, nos uniformes e na apresentação das partidas do FIFA 16
 
 O FIFA Friends V12 reúne melhorias para acompanhar seu clube, personalizar a experiência e dar mais identidade a cada competição. O [Server16](https://github.com/igor1043/CG-File-Server-16---Python-Port/tree/fifa-friends) é o painel que acompanha o projeto e permite escolher os recursos antes e durante a partida.
 
-**Edição:** FIFA Friends V12 · **Atualizado em:** 21/10/2026
+**Edição:** FIFA Friends V12 · **Atualizado em:** 24/10/2026
 
-**Server16 incluído:** 0.2.13. As DLLs compiladas ficam nesta branch, organizadas em uma pasta por mod. O [índice dos 18 módulos ativos](ModCarrerMode/mods/README.md) informa arquivos, funções e configurações.
+**Server16 incluído:** 0.2.15. As DLLs compiladas ficam nesta branch, organizadas em uma pasta por mod. O [índice dos módulos ativos](ModCarrerMode/mods/README.md) informa arquivos, funções e configurações.
+
+## Atualização — 24/10/2026
+
+- **Empréstimos:** tela nativa com bancos e logotipos, contratos individuais, tabela de parcelas e até dois contratos ativos. Datas da solicitação/resposta ficam fixas no SQLite por carreira e clube; parcelas vencidas são processadas mesmo ao pular dias. Pedido, decisão e lembretes usam e-mails da carreira. [Funcionamento e persistência](ModCarrerMode/source/club_environment/bank/README.md).
+- **Próxima partida:** contexto e calendário atualizam os campinhos, escalações e adversário após avançar pela Central ou pelo calendário, sem reutilizar a partida anterior.
+- **Vestiário:** revisão R62 com modelos e poses completos, ajuste de impressão dos kits, transição das cenas e preservação da visão 3D ao retornar. [Ambiente do clube](ModCarrerMode/source/club_environment/README.md).
+- **Estádio e panorâmica:** respeitam o estádio definido para o clube e a preferência de fundo, com preparação fora da thread de desenho. [Revisão do cenário](ModCarrerMode/source/native_mods/frontend_stadium/README.md).
+- **Mercado de Transferências:** novo item no carrossel Rede Mundial; dados ao vivo e carregamento automático, cinco abas e controles/legendas nativos. [Detalhes](ModCarrerMode/source/club_environment/market/README.md).
+- **Ver clubes e onze titulares:** carrossel em Outras ligas, globo 8K com pontos fixos, imagens dos clubes lidas do FIFA e onze titulares em pose estática desenhados pela engine no estádio. Carregamento somente ao abrir Ver titulares; recursos isolados por seleção evitam misturar clubes. [Arquitetura e testes](ModCarrerMode/source/club_browser/README.md).
+- **Server16 0.2.15:** compatibilidade ReShade API 17, controles genéricos opcionais e sincronização dos auxiliares. Executável atualizado incluído neste repositório; fontes canônicos na branch `fifa-friends` do [Server16](https://github.com/igor1043/CG-File-Server-16---Python-Port/tree/fifa-friends).
+
+**Para atualizar:** com FIFA/Server fechados, copie esta branch e extraia **FIFA-Friends-Assets-Complementares-20261024.zip** diretamente na pasta do FIFA. O ZIP contém só assets fora do GitHub: os 33 arquivos estáticos do vestiário, duas texturas do globo e `data/ant.cbac`. Server16, DLLs, código e interfaces vêm desta branch. Não há instalador no ZIP. [Conteúdo e conferência](ModCarrerMode/docs/RELEASE_20261024.md).
 
 ## Atualização — 21/10/2026
 
