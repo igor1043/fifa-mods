@@ -6,34 +6,46 @@ from PIL import Image
 import build_screen as b
 R=b.reg;T=b.this;P=b.prop;CALL=b.call;PATH=b.path;M=b.MANAGER;EQ=b.equal
 
-def graphics(apt,data,append,addchar,place,bitmap):
-    def image(color):
-        f=io.BytesIO();Image.new('RGBA',(64,64),color).save(f,format='DDS',pixel_format='DXT5');raw=bytearray(f.getvalue());struct.pack_into('<I',raw,20,len(raw)-128);struct.pack_into('<I',raw,88,0);return bitmap(raw)[0]
-    from formats import BigFile
-    dark=bitmap(bytes(BigFile(portable.GAME/'data/ui/game/components/careercomponents/careerhubwidget.big').entries['4'].data))[0];neutral=image((218,224,226,255));selected=image((172,185,192,255))
+def graphics(apt,data,append,addchar,place,bitmap,scope,read_asset):
+    from PIL import ImageDraw
+    from room_medical_r53 import player_portrait
+    def raster(im):
+        f=io.BytesIO();im.save(f,format='DDS',pixel_format='DXT5');raw=bytearray(f.getvalue());struct.pack_into('<I',raw,20,len(raw)-128);struct.pack_into('<I',raw,88,0);return bitmap(raw)[0]
+    def image(color):return raster(Image.new('RGBA',(64,64),color))
+    neutral=image((231,237,241,226));selected=image((5,91,156,248));panel=image((236,240,242,198))
     def text(value,w,h,size,color=0xff334b56):
         raw=bytearray(data[apt.characters[3].offset:apt.characters[3].offset+96]);struct.pack_into('<4f',raw,32,0,0,w,h);struct.pack_into('<If',raw,56,color,size);struct.pack_into('<QQ',raw,80,append(value.encode('utf8')+b'\0'),0);return addchar(raw)
     def clip(controls):
         raw=bytearray(data[apt.characters[9].offset:apt.characters[9].offset+56]);frame=append(struct.pack('<I4xQ',len(controls),append(struct.pack('<'+'Q'*len(controls),*controls))));struct.pack_into('<I4xQ',raw,32,1,frame);struct.pack_into('<Q',raw,48,0);return addchar(raw)
-    # Selected state is a real MovieClip; alpha cannot toggle a named Shape.
-    highlight=clip([place(selected,1,0,0,7.35,.59)])
-    row=clip([place(neutral,1,0,0,7.35,.59),place(highlight,2,0,0,label='highlight'),place(text('',454,38,20),3,10,4,label='label')])
-    panel=image((236,240,242,240))
-    controls=[place(panel,1,0,0,8.125,7.11),place(text('CENAS',472,38,28),2,24,18),place(text('Escolha um grupo',472,30,18),3,24,57,label='groupTitle')]
-    for i in range(5):controls.append(place(row,10+i,24,100+42*i,label='row'+str(i)))
-    controls.extend([place(text('',472,28,17),30,24,324,label='counter'),place(text('Setas: escolher',472,28,17),31,24,407)])
+    portraits={}
+    for player in dict.fromkeys(s.get('player',0) for s in scope['scenes']):
+        if not player:continue
+        im,path=player_portrait(read_asset,player)
+        canvas=Image.new('RGBA',(128,128),(0,0,0,0))
+        if im is not None:
+            im.thumbnail((128,128),Image.Resampling.LANCZOS);canvas.alpha_composite(im,((128-im.width)//2,128-im.height))
+        else:
+            d=ImageDraw.Draw(canvas);d.ellipse((42,12,86,56),fill=(129,147,159));d.rounded_rectangle((24,60,104,125),radius=22,fill=(129,147,159))
+        portraits[player]=clip([place(raster(canvas),1,0,0,.43,.43)])
+    highlight=clip([place(selected,1,0,0,7.35,.97)])
+    children=[place(neutral,1,0,0,7.35,.97),place(highlight,2,0,0,label='highlight')]
+    children.extend(place(cid,10+i,8,3,label='head'+str(pid)) for i,(pid,cid) in enumerate(portraits.items()))
+    children.append(place(text('',398,56,20),100,12,15,label='label'))
+    row=clip(children)
+    controls=[place(panel,1,0,0,8.125,9.3),place(text('CENAS',472,38,28),2,24,18),place(text('Escolha um grupo',472,30,18),3,24,62,label='groupTitle')]
+    for i in range(5):controls.append(place(row,10+i,24,106+68*i,label='row'+str(i)))
+    controls.append(place(text('',472,28,17),30,24,462,label='counter'))
     page_button=clip([place(neutral,1,0,0,3.3,.5),place(text('',196,30,18),2,10,1,label='label')])
-    controls.extend([place(page_button,40,24,359,label='previousPage'),place(page_button,41,284,359,label='nextPage')])
-    controls.append(place(page_button,42,284,18,label='backGroup'))
+    controls.extend([place(page_button,40,24,510,label='previousPage'),place(page_button,41,284,510,label='nextPage'),place(page_button,42,284,18,label='backGroup')])
     modal=clip(controls)
     button=clip([place(neutral,1,0,0,3.4,.75),place(text('Cenas',195,42,25),2,18,4,label='label')])
-    return [place(modal,100,1290,230,label='sceneModal',color=0x00ffffff),place(button,101,1580,930,label='sceneButton')]
+    return [place(modal,100,1260,212,label='sceneModal',color=0x00ffffff),place(button,101,1580,930,label='sceneButton')]
 
 def methods(a,scope):
     categories=[('Vestiário',[]),('Jogadores',[]),('Quadros',[]),('Departamento médico',[])]
     for scene in scope['scenes']:
         label=scene['label'];group=3 if label.startswith('Departamento médico') else 1 if ('Camisa ' in label or 'camisa ' in label) else 2 if 'Quadro' in label else 0
-        categories[group][1].append({'label':label,'code':scene['id']})
+        categories[group][1].append({'label':label,'code':scene['id'],'player':scene.get('player',0)})
     categories=[(name,items) for name,items in categories if items]
     root=[{'label':'Automático · ordem aleatória','code':-1}]+[{'label':name,'code':-101-i} for i,(name,_) in enumerate(categories)]
     objects=lambda items:('array',tuple(('map',v) for v in items))
@@ -49,7 +61,7 @@ def methods(a,scope):
         a.when(T('sceneModal'),lambda a:(a.do(R(1),'RefreshSceneModal'),a.set(T('sceneButton'),'owner',R(1)),a.set(T('sceneButton'),'onRelease',T('SceneButtonClick')),a.set(R(1),'onEnterFrame',None)))
     a.function('WaitForSceneClips',0,wait)
     def publish(a):
-        a.set(b.GLOBAL,'Server16RoomSequence',b.plus(b.G('Server16RoomSequence'),1));value=f'S16ROOM1|{scope["pid"]}|{scope["nonce"]}|'
+        a.set(b.GLOBAL,'Server16RoomSequence',b.plus(b.G('Server16RoomSequence'),1));value=f'S16ROOM2|{scope["club"]}|{scope["nonce"]}|'
         for part in (b.G('Server16RoomSequence'),'|',R(2),'|ENDROOM'):value=b.plus(value,part)
         a.set(b.GLOBAL,'Server16RoomRequest',value)
     a.function('PublishScene',1,publish)
@@ -63,7 +75,12 @@ def methods(a,scope):
             row=P(T('sceneModal'),'row'+str(i));index=b.plus(('bin',12,T('scenePage'),5),i);entry=('index',T('sceneItems'),index)
             a.set(row,'_visible',('bin',72,index,P(T('sceneItems'),'length')));a.set(row,'owner',R(1));a.set(row,'slot',i);a.set(row,'onRelease',T('RowClick'));a.set(row,'onRollOver',T('RowOver'))
             a.set(P(row,'label'),'text',P(entry,'label'));a.set(P(row,'label'),'textColor',0x334b56);a.set(P(row,'highlight'),'_alpha',0)
-            a.when(EQ(index,T('sceneFocus')),lambda a,row=row:(a.set(P(row,'highlight'),'_alpha',100),a.set(P(row,'label'),'textColor',0x172b34)))
+            a.set(P(row,'label'),'_x',12)
+            for player in dict.fromkeys(s.get('player',0) for s in scope['scenes']):
+                if not player:continue
+                a.set(P(row,'head'+str(player)),'_visible',EQ(P(entry,'player'),player))
+                a.when(EQ(P(entry,'player'),player),lambda a:a.set(P(row,'label'),'_x',76))
+            a.when(EQ(index,T('sceneFocus')),lambda a,row=row:(a.set(P(row,'highlight'),'_alpha',100),a.set(P(row,'label'),'textColor',0xffffff)))
         for name,title_text,method in (('previousPage','< Anterior','PreviousScenePage'),('nextPage','Próxima >','NextScenePage'),('backGroup','< Voltar','SceneBackButton')):
             button=P(T('sceneModal'),name);a.set(button,'owner',R(1));a.set(button,'onRelease',T(method));a.set(P(button,'label'),'text',title_text)
             if name!='backGroup':a.set(button,'_visible',('bin',103,P(T('sceneItems'),'length'),5))

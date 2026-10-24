@@ -18,7 +18,7 @@ def screen(payload=None,asset_reader=None):
  club=int(payload['club']);club_name=payload['club_name'];assert club>=0 and club_name
  import room_scene_ui_r52 as scene_ui
  previous=json.loads((ROOT/'runtime/room_control_scope.json').read_text(encoding='utf8')) if (ROOT/'runtime/room_control_scope.json').exists() else {}
- nonce=previous.get('nonce') if previous.get('pid')==payload['pid'] and previous.get('club')==club else secrets.token_hex(8)
+ nonce=previous.get('nonce') if previous.get('club')==club else secrets.token_hex(8)
  scope={'pid':payload['pid'],'club':club,'nonce':nonce,'scenes':payload['scene_catalog']}
  (ROOT/'runtime/room_control_scope.json').write_text(json.dumps(scope,ensure_ascii=False,indent=2),encoding='utf8')
  (ROOT/'runtime/room_control_scope.txt').write_text(f'S16ROOMSCOPE 1 {payload["pid"]} {club} {nonce}\n')
@@ -45,7 +45,7 @@ def screen(payload=None,asset_reader=None):
  symbol,width,height=bitmap(crest);scale=92/max(width,height);controls.append(place(symbol,1,109+(92-width*scale)/2,65+(110-height*scale)/2,scale,scale,'clubCrest'))
  for i,(name,value,x,y,w,h,size) in enumerate((('title','VESTIÁRIO',223,70,1260,58,46),('subtitle',club_name,223,132,1260,40,28))):
   raw=bytearray(data[apt.characters[3].offset:apt.characters[3].offset+96]);struct.pack_into('<4f',raw,32,0,0,w,h);struct.pack_into('<If',raw,56,0xffffffff,size);struct.pack_into('<QQ',raw,80,append(value.encode('utf8')+b'\0'),0);cid=addchar(raw);controls.append(place(cid,i+2,x,y,label=name))
- controls.extend(scene_ui.graphics(apt,data,append,addchar,place,bitmap))
+ controls.extend(scene_ui.graphics(apt,data,append,addchar,place,bitmap,scope,asset_reader))
  newtable=append(bytes(data[table:table+count*8])+struct.pack('<'+'Q'*len(chars),*chars));struct.pack_into('<I4xQ',data,root+56,count+len(chars),newtable)
  frame=append(struct.pack('<I4xQ',len(controls),append(struct.pack('<'+'Q'*len(controls),*controls))));struct.pack_into('<I4xQ',data,apt.characters[9].offset+32,1,frame)
  er=Reader(data,root+96,8);n=er.i();ex=er.ptr()
@@ -79,7 +79,7 @@ def screen(payload=None,asset_reader=None):
   matches=[i for i in range(0,len(apt.entry.original)-7,8) if apt.entry.original[i:i+8]==struct.pack('<Q',tag[-1])];assert len(matches)==1;struct.pack_into('<Q',data,matches[0],target)
  out=ROOT/'package'/BIG;out.parent.mkdir(parents=True,exist_ok=True);b.write_big(big,out,additions)
  parsed=AptFile(BigFile(out));actions=Actions(parsed).read_all();assert not actions.errors and FULL in parsed.exports
- (ROOT/'runtime/room_header.json').write_text(json.dumps({'revision':58,'pid':payload['pid'],'catalog_hash':hashlib.sha256(json.dumps(scope['scenes'],sort_keys=True).encode()).hexdigest(),'club':club,'name':club_name,'crest':crest_path,'help':{'BACK':'Voltar'},'bytes':out.stat().st_size},ensure_ascii=False,indent=2),encoding='utf8')
+ (ROOT/'runtime/room_header.json').write_text(json.dumps({'revision':62,'pid':payload['pid'],'catalog_hash':hashlib.sha256(json.dumps(scope['scenes'],sort_keys=True).encode()).hexdigest(),'club':club,'name':club_name,'crest':crest_path,'help':{'BACK':'Voltar'},'bytes':out.stat().st_size},ensure_ascii=False,indent=2),encoding='utf8')
  return out
 def stage():
  screen();xml=ET.fromstring((GAME/XML).read_text(encoding='utf8'));panel=xml.find('panel_3')

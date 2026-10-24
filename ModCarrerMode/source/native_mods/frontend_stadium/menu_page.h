@@ -18,9 +18,13 @@ template<class Read> PageKind pageKind(uintptr_t image,Read read){
     const auto leaf=std::strrchr(name,'/');
     if(!leaf)return PageKind::Other;
     return !std::strcmp(leaf,"/fluxhub")||!std::strcmp(leaf,"/profile")||
-           !std::strcmp(leaf,"/selectfavoriteteam")||!std::strcmp(leaf,"/stadiumpan")?PageKind::Menu:PageKind::Other;
+           !std::strcmp(leaf,"/selectfavoriteteam")||!std::strcmp(leaf,"/stadiumpan")||
+           !std::strcmp(leaf,"/clubbrowser")?PageKind::Menu:PageKind::Other;
 }
 template<class Read> bool reloadPage(uintptr_t image,Read read){
     return pageKind(image,read)==PageKind::Menu;
+}
+inline bool refreshOnMenuReturn(PageKind previous,PageKind current,bool ready,bool enabled){
+    return current==PageKind::Menu&&previous!=PageKind::Menu&&ready&&enabled;
 }
 }

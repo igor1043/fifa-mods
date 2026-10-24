@@ -45,7 +45,7 @@ def make_context(snap,projected,roster,rows,base,read_asset):
  for team in (user,opponent):
   team['name']=clean(team.get('name',''))
   for p in team['players']:p['name']=clean(p['name']);p['number']=numbers.get((team['team_id'],p['id']),0)
- context['board_revision']=4
+ context['board_revision']=62
  payload={k:v for k,v in context.items() if k not in ('pid','date')};signature=hashlib.sha256(json.dumps(payload,sort_keys=True,ensure_ascii=False).encode()).hexdigest()[:14];path=LIVE/f'next_match_{club}_{signature}_r52.rx3'
  if not path.exists():texture_package(draw_board(context,read_asset),path,'board_cm')
  context['board_texture']='data/sceneassets/server16_dressing_room_20261022/'+path.name
@@ -57,20 +57,37 @@ def make_context(snap,projected,roster,rows,base,read_asset):
  (ROOT/'runtime/room_context_r46.json').write_text(json.dumps(context,ensure_ascii=False,indent=2),encoding='utf8')
  return context
 
+class ScaledDraw:
+ """Keep board geometry in design units while painting glyphs at native scale."""
+ def __init__(self,image,scale):self.draw=ImageDraw.Draw(image);self.scale=scale
+ def coords(self,box):return tuple(v*self.scale for v in box)
+ def text(self,xy,*args,**kw):
+  if 'stroke_width' in kw:kw['stroke_width']*=self.scale
+  return self.draw.text(self.coords(xy),*args,**kw)
+ def textbbox(self,xy,*args,**kw):return tuple(v/self.scale for v in self.draw.textbbox(self.coords(xy),*args,**kw))
+ def textlength(self,*args,**kw):return self.draw.textlength(*args,**kw)/self.scale
+ def __getattr__(self,name):
+  def paint(box,*args,**kw):
+   for key in ('width','radius'):
+    if key in kw:kw[key]*=self.scale
+   return getattr(self.draw,name)(self.coords(box),*args,**kw)
+  return paint
+
 def draw_board(c,read_asset):
- im=Image.new('RGBA',(1600,1008),(239,238,228,255));d=ImageDraw.Draw(im)
- def font(size,bold=False):return ImageFont.truetype(str(portable.FONTS/('arialbd.ttf' if bold else 'arial.ttf')),size)
+ # Paint at twice the original resolution; text is rasterized at this size.
+ im=Image.new('RGBA',(3200,2016),(239,238,228,255));d=ScaledDraw(im,2)
+ def font(size,bold=False):return ImageFont.truetype(str(portable.FONTS/('arialbd.ttf' if bold else 'arial.ttf')),size*2)
  def text(x,y,s,size=30,color=(30,45,51),bold=False):d.text((x,y),str(s),font=font(size,bold),fill=color+(255,))
  def icon(paths,box):
   for path in paths:
    try:
-    img=Image.open(io.BytesIO(read_asset(path))).convert('RGBA');img.thumbnail((box[2],box[3]),Image.Resampling.LANCZOS);im.alpha_composite(img,(box[0]+(box[2]-img.width)//2,box[1]+(box[3]-img.height)//2));return path
+    img=Image.open(io.BytesIO(read_asset(path))).convert('RGBA');box=tuple(v*2 for v in box);img.thumbnail((box[2],box[3]),Image.Resampling.LANCZOS);im.alpha_composite(img,(box[0]+(box[2]-img.width)//2,box[1]+(box[3]-img.height)//2));return path
    except (FileNotFoundError,OSError,ValueError):pass
   return ''
  primary=tuple(round(v*255) for v in c['colors'][0]);d.rectangle((0,0,1600,13),fill=primary+(255,));text(42,32,'PRÓXIMA PARTIDA',48,bold=True)
  league=c['league'];icon([f'data/ui/imgassets/careerCompetitionIcons/{league}.png',f'data/ui/imgassets/league/light/l{league}.dds',f'data/ui/imgassets/league/dark/l{league}.dds',f'data/ui/imgassets/league/{league}.dds',f'data/ui/imgassets/cmCalendarCompetitions/cmCalendarCompetitions{league}.dds'],(1330,28,210,100))
  text(42,95,c['league_name'] or ('Competição '+str(league) if league else 'Calendário da carreira'),28)
- if not c['available']:text(220,400,'Sem próxima partida agendada',48,bold=True);return im.resize((2048,2048),Image.Resampling.LANCZOS)
+ if not c['available']:text(220,400,'Sem próxima partida agendada',48,bold=True);return im.resize((4096,4096),Image.Resampling.LANCZOS)
  fixture=c['fixture'];date=str(fixture[3]);hour=fixture[4];text(670,42,f'{date[6:8]}/{date[4:6]}/{date[:4]}  •  {hour//100:02d}:{hour%100:02d}',30)
  for team,x in ((c['user'],42),(c['opponent'],825)):
   ident=team['team_id'];icon([f'data/ui/imgassets/crest/light/l{ident}.dds',f'data/ui/imgassets/crest/dark/l{ident}.dds'],(x,152,100,100));text(x+122,168,team['name'],36,bold=True)
@@ -87,10 +104,10 @@ def draw_board(c,read_asset):
   text(x,y,'TÁTICAS GRAVADAS',24,bold=True)
   for j,(key,value) in enumerate(saved.items()):text(x+(j%3)*218,y+37+(j//3)*43,f'{key}: {value}',20)
  text(42,958,'Onze adversário provável. Formações e parâmetros vêm do save; nenhuma tática é inventada.',24,(71,78,78))
- return im.resize((2048,2048),Image.Resampling.LANCZOS)
+ return im.resize((4096,4096),Image.Resampling.LANCZOS)
 
 def write_tour(context,roster,frame,rotation,generation):
- data=json.loads((ROOT/'runtime/room_roles_r57.json').read_text(encoding='utf8'));focus=[]
+ data=json.loads((ROOT/'runtime/room_roles_r62.json').read_text(encoding='utf8'));focus=[]
  for p in context['focus']:
   origin,yaw=frame(p['locker']);r=rotation(yaw);eye=origin+r@np.array([0,187,285]);target=origin+r@np.array([0,165,54]);eye[0]=max(-575,min(575,eye[0]));focus.append([p['number'],*eye.tolist(),*target.tolist()])
  # The renderer consumes look-at targets from scene/locker anchors, not club names.

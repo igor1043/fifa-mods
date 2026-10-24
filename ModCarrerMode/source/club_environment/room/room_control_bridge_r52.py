@@ -6,18 +6,33 @@ game memory. Complete, nonce-scoped commands are forwarded to a tiny mailbox.
 """
 from pathlib import Path
 import ctypes as C,json,re,time,threading
+from functools import lru_cache
 from ctypes import wintypes as W
 ROOT=portable.ROOM
 PAGE='game/screens/career/server16/DressingRoom'
 class Region(C.Structure):
     _fields_=[('base',C.c_void_p),('allocation',C.c_void_p),('allocation_protect',W.DWORD),('partition',W.WORD),('size',C.c_size_t),('state',W.DWORD),('protect',W.DWORD),('type',W.DWORD)]
 
-def decode_requests(data,pid,nonce):
-    pattern=re.compile(rb'S16ROOM1\|'+str(pid).encode()+rb'\|'+nonce.encode()+rb'\|([0-9]{1,9})\|(-?[0-9]{1,3})\|ENDROOM')
-    result=[]
-    for raw in (data,data[0::2] if data.count(b'\x00')>len(data)//4 else b'',data[1::2] if data.count(b'\x00')>len(data)//4 else b''):
-        result.extend((int(m[1]),int(m[2])) for m in pattern.finditer(raw))
+@lru_cache(maxsize=8)
+def request_patterns(pid,nonce,club):
+    prefixes=[f'S16ROOM1|{pid}|{nonce}|'.encode()]
+    if club is not None:prefixes.append(f'S16ROOM2|{club}|{nonce}|'.encode())
+    return [(prefix,re.compile(re.escape(prefix)+rb'([0-9]{1,9})\|(-?[0-9]{1,3})\|ENDROOM')) for prefix in prefixes]
+
+def decode_requests(data,pid,nonce,club=None):
+    result=[];samples=[data]
+    # Do not deinterleave every 512KiB of the game's private heap. Most pages
+    # contain no APT text; test for a UTF-16 marker before decoding either lane.
+    if b'S\x001\x006\x00R\x00O\x00O\x00M' in data:samples.extend((data[0::2],data[1::2]))
+    for raw in samples:
+        for prefix,pattern in request_patterns(pid,nonce,club):
+            if prefix in raw:result.extend((int(m[1]),int(m[2])) for m in pattern.finditer(raw))
     return [(seq,code) for seq,code in result if seq>0 and -3<=code<128]
+
+def arena_chunks(base,size,hit):
+    """Warm the adjacent APT allocations while keeping every read <=512KiB."""
+    start=max(base,hit-2*1024*1024);stop=min(base+size,hit+2*1024*1024)
+    return [(at,min(512*1024+256,stop-at)) for at in range(start,stop,512*1024)]
 
 def run(pid):
     import psutil
@@ -40,38 +55,42 @@ def run(pid):
                 if not was_room:last_inventory=0;was_room=True
                 now=time.monotonic()
                 if now-last_inventory>15 or not regions:
+                    previous_base=regions[cursor][0] if regions and cursor<len(regions) else None
+                    previous_offset=offset
                     regions=[];address=0;region=Region()
                     while k.VirtualQueryEx(m.process_handle,C.c_void_p(address),C.byref(region),C.sizeof(region)):
                         base=region.base or 0;size=region.size
-                        if region.state==0x1000 and region.type==0x20000 and region.protect&0xff in (4,8,0x40,0x80) and not region.protect&0x100 and size<=256*1024*1024:regions.append((base,size))
+                        if region.state==0x1000 and region.type==0x20000 and region.protect&0xff in (4,8,0x40,0x80) and not region.protect&0x100:regions.append((base,size))
                         if base+size<=address:break
                         address=base+size
-                    last_inventory=now;cursor=0;offset=0
+                    regions.sort(key=lambda row:row[1]);last_inventory=now;cursor=0;offset=0
+                    for index,(base,size) in enumerate(regions):
+                        if base==previous_base and previous_offset<size:cursor=index;offset=previous_offset;break
                 found=[];touched=[];start=time.monotonic();budget=48*1024*1024
                 # Once the APT arena is found, command changes normally stay in
                 # that arena. Keep a bounded round-robin pass for arena growth.
                 for base,size in list(priority):
                     if time.monotonic()-start>.045:break
-                    for pos in range(0,size,4*1024*1024):
-                        raw=m.read_process_memory(base+pos,min(4*1024*1024+256,size-pos));items=decode_requests(raw,pid,cfg['nonce']);found+=items
-                while regions and budget>0 and time.monotonic()-start<.065:
-                    base,size=regions[cursor];count=min(4*1024*1024,size-offset)
-                    try:raw=m.read_process_memory(base+offset,min(count+256,size-offset));items=decode_requests(raw,pid,cfg['nonce'])
+                    try:raw=m.read_process_memory(base,size);found+=decode_requests(raw,pid,cfg['nonce'],cfg['club'])
+                    except RuntimeError:continue
+                while not any(seq>sequence for seq,code in found) and regions and budget>0 and time.monotonic()-start<.065:
+                    base,size=regions[cursor];count=min(512*1024,size-offset)
+                    try:raw=m.read_process_memory(base+offset,min(count+256,size-offset));items=decode_requests(raw,pid,cfg['nonce'],cfg['club'])
                     except RuntimeError:items=[]
-                    if items:found+=items;touched.append((base,size))
+                    if items:found+=items;touched.extend(arena_chunks(base,size,base+offset))
                     offset+=count;budget-=count
                     if offset>=size:offset=0;cursor=(cursor+1)%len(regions)
                 for region in touched:
                     if region not in priority:priority.append(region)
-                priority=priority[-8:]
+                priority=priority[-24:]
                 if found:
                     seq,code=max(found)
                     if seq>sequence and (code<0 or code<len(cfg['scenes'])):
                         sequence=seq
                         out=ROOT/'runtime/room_camera_command.txt';tmp=out.with_suffix('.new');tmp.write_text(f'S16ROOM 1 {pid} {cfg["club"]} {cfg["nonce"]} {seq} {code}\n');tmp.replace(out)
                         with logfile.open('a',encoding='utf8') as f:f.write(json.dumps({'pid':pid,'club':cfg['club'],'sequence':seq,'command':code})+'\n')
-            except (OSError,ValueError,KeyError,RuntimeError):pass
-            time.sleep(.12)
+            except (OSError,ValueError,KeyError,RuntimeError,TypeError):pass
+            time.sleep(.06)
     finally:m.close()
 
 def start(pid):

@@ -26,5 +26,12 @@ int main(int argc,char**argv){
  for(int i=0;i<1500;++i){auto p=director.tick(.04,tour);if(!room_cinema::poseSafe(p,tour))return 11;}
  const auto offset=director.current.eye-tour.sequence.back().pose.eye;
  if(panorama::dot(offset,offset)>.01f||director.moving||!director.pending.empty())return 12;
+ // A second selection interrupts an in-flight manual trip, never resumes it.
+ if(!director.command(0,tour))return 14;
+ for(int i=0;i<12;++i)director.tick(.04,tour);
+ if(!director.command(10,tour))return 15;
+ for(int i=0;i<160;++i){auto p=director.tick(.04,tour);if(!room_cinema::poseSafe(p,tour))return 16;}
+ const auto selected=director.current.eye-tour.sequence[10].pose.eye;
+ if(director.automatic||director.selected!=10||panorama::dot(selected,selected)>.01f||director.moving||!director.pending.empty())return 17;
  return collisions||maximumSpeed>65.1f||maximumTurn>14.3f?6:0;
 }

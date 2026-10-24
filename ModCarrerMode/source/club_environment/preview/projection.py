@@ -1,12 +1,23 @@
 import portable_paths as portable
 """Read-only projection of the active save for the match preview prototype."""
 from pathlib import Path
-import json,struct,sys,subprocess,xml.etree.ElementTree as ET
+import json,struct,sys,subprocess,hashlib,xml.etree.ElementTree as ET
 from server16_py.career_save_worker import blocks
 from server16_py.career_read import Record
 
 GAME=portable.GAME
 TABLES={'teams','players','playernames','dcplayernames','editedplayernames','teamsheets','default_teamsheets','formations','teamplayerlinks','career_calendar','teamstadiumlinks','stadiums','leagues'}
+
+
+def snapshot_revision(snapshot):
+    club=snapshot['club'];today=snapshot['date']
+    own=[r for r in snapshot['fixtures'] if len(r)>=10 and club in r[5:7]]
+    upcoming=[r for r in own if r[3]>=today and r[9]==0]
+    fixture=min(upcoming,key=lambda r:(r[3],r[4],r[0])) if upcoming else None
+    opponent=(fixture[6] if fixture[5]==club else fixture[5]) if fixture else 0
+    rows=[r[:11] for r in snapshot['fixtures'] if len(r)>=10 and (club in r[5:7] or opponent in r[5:7])]
+    values=[snapshot['pid'],snapshot['processCreated100ns'],club,today,snapshot['savePath'].casefold(),snapshot['saveSize'],snapshot['saveWriteTime100ns'],rows]
+    return hashlib.sha256(json.dumps(values,separators=(',',':')).encode()).hexdigest()
 
 class Row(Record):
     def value(self,name):
@@ -56,6 +67,7 @@ def project(snapshot_path=GAME/'ModCarrerMode/runtime/career_fce_snapshot.json')
     m=Memory();m.process_id=process.pid;m.process_handle=m.kernel32.OpenProcess(0x410,False,process.pid);m.base_module=m._get_base_address(process.exe())
     try:
         active=read_active_save(GAME,m);profile=competition_session(m,True)
+        if not isinstance(profile,dict):raise ValueError('Aguardando a leitura da carreira em execução')
         if active['path'].casefold()!=str(path).casefold() or active['process_created_100ns']!=snapshot['processCreated100ns'] or profile['club_id']!=snapshot['club']:raise ValueError('Stale career snapshot')
         if active['mtime_ns']//100+116444736000000000!=snapshot['saveWriteTime100ns']:raise ValueError('Snapshot belongs to another save revision')
         code=m.read_process_memory(m.base_module+0x44563f0,24)
@@ -66,6 +78,7 @@ def project(snapshot_path=GAME/'ModCarrerMode/runtime/career_fce_snapshot.json')
         day,month,year=struct.unpack('<3i',m.read_process_memory(calendar+0x34,12));live_date=year*10000+month*100+day
         from datetime import datetime
         datetime.strptime(str(live_date),'%Y%m%d')
+        if snapshot.get('date')!=live_date:raise ValueError('Aguardando calendário e resultados da mesma data da carreira')
     finally:m.close()
     meta=ET.parse(GAME/'data/db/fifa_ng_db-meta.xml').getroot()
     metadata={t.get('shortname').encode():(t.get('name'),{f.get('shortname').encode():f.attrib for f in t.findall('fields/field')}) for t in meta.findall('table')}
@@ -76,7 +89,7 @@ def project(snapshot_path=GAME/'ModCarrerMode/runtime/career_fce_snapshot.json')
     if not fixtures:
         empty=lambda ident:{'team_id':ident,'name':'','probable':ident!=club,'formation':'','players':[]}
         from preview_details import enrich
-        return enrich({'available':False,'pid':process.pid,'save':str(path),'date':today,'fixture':[0,0,0,today,0,club,0,0,0,0,0],'user':empty(club),'opponent':empty(0)},snapshot,rows,base)
+        return enrich({'available':False,'pid':process.pid,'context':profile['context_address'],'source_revision':snapshot_revision(snapshot),'save':str(path),'date':today,'fixture':[0,0,0,today,0,club,0,0,0,0,0],'user':empty(club),'opponent':empty(0)},snapshot,rows,base)
     fixture=min(fixtures,key=lambda r:(r[3],r[4],r[0]));opponent=fixture[6] if fixture[5]==club else fixture[5]
     players={r.value('playerid'):r for r in rows('players')}
     selected={r.value('playerid'+str(i)) for r in rows('teamsheets')+rows('default_teamsheets') if r.value('teamid') in (club,opponent) for i in range(11)}
@@ -121,7 +134,7 @@ def project(snapshot_path=GAME/'ModCarrerMode/runtime/career_fce_snapshot.json')
         return {'team_id':teamid,'name':teams[teamid],'probable':probable,'source':source,'formation':formation,'players':line,
                 'portrait_ids':sorted(pid for pid in links.get(teamid,set()) if pid in players)}
     from preview_details import enrich
-    return enrich({'pid':process.pid,'save':str(path),'date':today,'fixture':fixture,'user':team(club,False),'opponent':team(opponent,True)},snapshot,rows,base)
+    return enrich({'pid':process.pid,'context':profile['context_address'],'source_revision':snapshot_revision(snapshot),'save':str(path),'date':today,'fixture':fixture,'user':team(club,False),'opponent':team(opponent,True)},snapshot,rows,base)
 
 if __name__=='__main__':
     p=Path(__file__).with_name('lineups.json');data=project();p.write_text(json.dumps(data,ensure_ascii=False,indent=2),encoding='utf8');print(json.dumps(data,ensure_ascii=False,indent=2))

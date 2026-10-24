@@ -1,4 +1,6 @@
-# Estádio de fundo do perfil e da carreira — Server16 0.2.14
+# Estádio de fundo do perfil e da carreira — Server16 0.2.15
+
+Atualização 24/10/2026: seleção do perfil/clube preservada ao entrar na panorâmica, retorno das telas customizadas restaurando o estádio e respeito à opção do usuário de exibir o fundo. O carregamento de recursos permanece fora da thread de desenho; chamadas da engine seguem seu callback de cena validado. A visualização dos onze titulares não recarrega o estádio.
 
 Atualização 22/10/2026: preparação/extração fora da thread de desenho e fora
 da trava compartilhada com ela. Resultados de uma seleção vencida não são

@@ -9,7 +9,7 @@ from room_native_kit_rules_r46 import name_candidates
 
 class KitPrint(unittest.TestCase):
     def test_native_hotspots_for_home_and_goalkeeper_kits(self):
-        for club in (1629,598):
+        for club in (1043,1629,598):
             for typ in (0,2):
                 with self.subTest(club=club,kit=typ):
                     rx=Rx3(portable.read_asset(f'data/sceneassets/kit/kit_{club}_{typ}_0.rx3'))

@@ -41,6 +41,8 @@ inline bool clearPoseSegment(const Pose&a,const Pose&b,const Tour&t){
 // travelling in a straight line through the table or a row of lockers.
 inline std::vector<Pose> route(const Pose&from,const Pose&to,const Tour&t){
  if(!poseSafe(from,t)||!poseSafe(to,t))return {};
+ // Use the direct, collision-tested aisle immediately when it is clear.
+ if(clearPoseSegment(from,to,t))return {to};
  std::vector<Pose> nodes{from,to};nodes.insert(nodes.end(),t.path.begin(),t.path.end());nodes.insert(nodes.end(),t.nav.begin(),t.nav.end());
  const size_t n=nodes.size();std::vector<double> cost(n,std::numeric_limits<double>::infinity());std::vector<int> previous(n,-1);std::vector<bool> done(n,false);cost[0]=0;
  for(size_t k=0;k<n;++k){size_t a=n;for(size_t i=0;i<n;++i)if(!done[i]&&(a==n||cost[i]<cost[a]))a=i;
@@ -57,7 +59,7 @@ inline std::vector<Pose> route(const Pose&from,const Pose&to,const Tour&t){
 struct Director {
  Pose current{{0,187,750},{0,170,-275},74},from{},to{};
  std::vector<Pose> pending;std::vector<size_t> queue;
- std::mt19937 random{1};double elapsed=0,duration=0,hold=0;
+ std::mt19937 random{1};double elapsed=0,duration=0,hold=0,manualScale=1.;
  bool automatic=true,paused=false,moving=false,initialized=false,manualTravel=false;
  unsigned generation=0;int selected=-1,last=-1;
  void reset(const Tour&t,unsigned stamp,unsigned seed){
@@ -82,12 +84,15 @@ struct Director {
   if(code==-2){paused=true;return true;}if(code==-3){paused=false;return true;}
   if(code==-1){automatic=true;paused=false;manualTravel=false;pending.clear();moving=false;queue.clear();hold=0;return true;}
   if(code<0||static_cast<size_t>(code)>=t.sequence.size())return false;
-  if(!choose(code,t))return false;queue.clear();automatic=false;paused=false;manualTravel=true;return true;
+  if(!choose(code,t)){pending.clear();queue.clear();moving=false;automatic=false;paused=false;return false;}
+  queue.clear();automatic=false;paused=false;manualTravel=true;
+  double total=0;auto previous=current;for(const auto&pose:pending){total+=travelTime(previous,pose);previous=pose;}
+  manualScale=total>0?std::min(1.,3.6/total):1.;return true;
  }
  Pose tick(double dt,const Tour&t){
   if(!initialized||paused)return current;dt=std::clamp(dt,0.,.1);
   if(moving){elapsed+=dt;current=blend(from,to,elapsed/duration);if(elapsed>=duration){current=to;moving=false;}return current;}
-  if(!pending.empty()){from=current;to=pending.front();pending.erase(pending.begin());elapsed=0;duration=manualTravel?std::clamp(travelTime(from,to)*.12,.45,2.4):travelTime(from,to)*.85;moving=true;return current;}
+  if(!pending.empty()){from=current;to=pending.front();pending.erase(pending.begin());elapsed=0;duration=manualTravel?std::max(.12,travelTime(from,to)*manualScale):travelTime(from,to)*.85;moving=true;return current;}
   if(hold>0){hold-=dt;return current;}if(!automatic)return current;
   if(queue.empty())refill(t);
   // An inaccessible anchor is skipped once, rather than retried forever.

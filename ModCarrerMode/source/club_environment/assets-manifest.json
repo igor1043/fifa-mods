@@ -2,6 +2,26 @@
   "version": 1,
   "files": [
     {
+      "path": "ModCarrerMode/data/club_environment/room/assets/jersey_pose_0.npz",
+      "bytes": 109746,
+      "sha256": "0168dac59af2473b556d95139ed4a1fd0cd9aa84413b264ae10fd0b2b53c0395"
+    },
+    {
+      "path": "ModCarrerMode/data/club_environment/room/assets/jersey_pose_2.npz",
+      "bytes": 104742,
+      "sha256": "d97f37c0ad351bf880b8299eb15e4d1b99bddc9c5c3cc3187594002ff24d421a"
+    },
+    {
+      "path": "ModCarrerMode/data/club_environment/room/assets/texture_template.rx3",
+      "bytes": 448,
+      "sha256": "4435f70808925092d885a38ab979f5fcfc13d0e7b57c06958668e37151419b21"
+    },
+    {
+      "path": "ModCarrerMode/data/club_environment/room/runtime/prop_102.rx3",
+      "bytes": 76912,
+      "sha256": "9a9a8fe6908c2a2f7459568544d2461b509d340e3f249cbd2b291ac8bb71b688"
+    },
+    {
       "path": "data/sceneassets/server16_dressing_room_20261022/ceiling_r49.rx3",
       "bytes": 349872,
       "sha256": "e2429e32afd1bf06f341617892beeeed68318c2c347b7c04be8d3e01c0459391"
@@ -12,7 +32,7 @@
       "sha256": "9266871347e1205f96ec224d8af6e6e21e90b34d013e945b5829aed89bce5417"
     },
     {
-      "path": "data/sceneassets/server16_dressing_room_20261022/crest_surfaces_r57.rx3",
+      "path": "data/sceneassets/server16_dressing_room_20261022/crest_surfaces_r62.rx3",
       "bytes": 8464,
       "sha256": "5df3f688d72f949a7d8648a8ee1d7720c6685900794e957b96ac5a367b7259ce"
     },
@@ -122,9 +142,9 @@
       "sha256": "a3e2643f2cbf28ae9045124bd82187d90c1ad32e50d68d285fb3ae9d281a1a79"
     },
     {
-      "path": "data/sceneassets/server16_dressing_room_20261022/room_roles_r57.rx3",
-      "bytes": 3083120,
-      "sha256": "c3e8f6ecde9779518443f8e78939e18ff01bbebe7ed0661be3e51b28d571fac9"
+      "path": "data/sceneassets/server16_dressing_room_20261022/room_roles_r62.rx3",
+      "bytes": 6740752,
+      "sha256": "bcbde7a10a6d4d6fd4d36b2a86245936c7f4109f4e4377a17ad94b5cd3022dee"
     },
     {
       "path": "data/sceneassets/server16_dressing_room_20261022/room_white_r49.rx3",
@@ -132,39 +152,20 @@
       "sha256": "1cd4cb549db89787c8445224c3d7603face740270c693f1af530ea8610530e78"
     },
     {
-      "path": "data/sceneassets/server16_dressing_room_20261022/scenery_r59.rx3",
-      "bytes": 5528432,
-      "sha256": "8f7d1f10b8060c11699def9bf0af4f18e29a2fa94b4061d4fac2d6ea44c91bc0"
+      "path": "data/sceneassets/server16_dressing_room_20261022/scenery_r62.rx3",
+      "bytes": 110736,
+      "sha256": "5a2e16e124b339d405a21885ef21ef9eec5ba4fdf2bb753df48e76c5621b81f9"
     },
     {
-      "path": "data/sceneassets/server16_dressing_room_20261022/scenery_textures_0_r59.rx3",
+      "path": "data/sceneassets/server16_dressing_room_20261022/scenery_textures_0_r62.rx3",
       "bytes": 5592768,
-      "sha256": "6abd502f800f4bbfe0a4a36bb3124a0788394ef39fb2887413c5cd39b816e797"
+      "sha256": "1d7017b30ed1ff23b96e7945f3f29bc48653ea9c67afdc4e77af3b10740c8de5"
     },
     {
-      "path": "data/sceneassets/server16_dressing_room_20261022/scenery_textures_1_r59.rx3",
+      "path": "data/sceneassets/server16_dressing_room_20261022/scenery_textures_1_r62.rx3",
       "bytes": 5592768,
-      "sha256": "fcf3ebe21276c7ac391df688d7ed126fa2faa2232c780f0bf93d2f946bb1c0cb"
-    },
-    {
-      "path": "ModCarrerMode/data/club_environment/room/assets/jersey_pose_0.npz",
-      "bytes": 109746,
-      "sha256": "0168dac59af2473b556d95139ed4a1fd0cd9aa84413b264ae10fd0b2b53c0395"
-    },
-    {
-      "path": "ModCarrerMode/data/club_environment/room/assets/jersey_pose_2.npz",
-      "bytes": 104742,
-      "sha256": "d97f37c0ad351bf880b8299eb15e4d1b99bddc9c5c3cc3187594002ff24d421a"
-    },
-    {
-      "path": "ModCarrerMode/data/club_environment/room/assets/texture_template.rx3",
-      "bytes": 448,
-      "sha256": "4435f70808925092d885a38ab979f5fcfc13d0e7b57c06958668e37151419b21"
-    },
-    {
-      "path": "ModCarrerMode/data/club_environment/room/runtime/prop_102.rx3",
-      "bytes": 76912,
-      "sha256": "9a9a8fe6908c2a2f7459568544d2461b509d340e3f249cbd2b291ac8bb71b688"
+      "sha256": "de1c970063e492635ac88afb5709894b1eda9c6694938f8e72a1cbe0e0f0a012"
     }
-  ]
+  ],
+  "room_revision": 62
 }

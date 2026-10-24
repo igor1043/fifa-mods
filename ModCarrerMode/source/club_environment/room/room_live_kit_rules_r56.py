@@ -40,7 +40,8 @@ def read_assignments(memory,club,kit,league,defaults):
     out=dict(defaults);sources={}
     for dest,name in (('name_font','kitNameFont'),('font','kitNumberSet'),('color','kitNumberColourShirt'),('name_color_argb','kitNameColour'),('layout','kitNameCurve')):
         selected=None;source=''
-        for table,keys in ((name+'Backup',(club,kit)),(name,(club,kit)),(name+'Tournament',(club,kit,league))):
+        backup='kitNumberSetShirtBackup' if dest=='font' else name+'Backup'
+        for table,keys in ((backup,(club,kit)),(name,(club,kit)),(name+'Tournament',(club,kit,league))):
             current=at(global_table,table,*keys)
             if current is not None and current>=0:selected=current;source=table
         # An explicit -1 in the final assignment means retain database fallback.

@@ -118,12 +118,12 @@ if S16NativeDressingRoom and not S16NativeDressingRoom.bound then
   gr:AddAsset(o,lod,'charcmn','data/sceneassets/charactercmn/charactercmn_'..env..'.rx3')
   s.stadiumID=gSportsRNA:GetInt(state,'wvAttribStadID');s.lightID=gSportsRNA:GetInt(state,'wvAttribStadLightID')
   s.stadiumType=gSportsRNA:GetString(state,'wvAttribStadType')=='festadium' and 0 or 1
-  for i=0,1 do gr:AddAsset(o,lod,'atlas_'..i,root..'scenery_textures_'..i..'_r59.rx3') end
+  for i=0,1 do gr:AddAsset(o,lod,'atlas_'..i,root..'scenery_textures_'..i..'_r62.rx3') end
   gr:AddAsset(o,lod,'coverage',root..'room_white_r49.rx3')
-  local meshes={{'room_part_1',0},{'room_part_2',0},{'room_part_3',0},{'room_part_4',0},{'room_part_5',0,true},{'room_part_6',1}}
+  local meshes={{'room_part_1',0},{'room_part_2',0,true},{'room_part_3',1}}
   for i,m in ipairs(meshes) do
    local part='room_part_'..i
-   gr:AddAsset(o,lod,part,root..'scenery_r59.rx3')
+   gr:AddAsset(o,lod,part,root..'scenery_r62.rx3')
    gr:CreateMaterialFromAttribulator(o,lod,part,'prop_material',m[3] and 'prop_alpha' or 'prop_plastic')
    gr:SetSubMesh(o,lod,part,m[1])
    if m[2]==2 then gr:SetTexture(o,lod,part,'textures','diffuseTexture','floor','floor_cm') else gr:SetTexture(o,lod,part,'textures','diffuseTexture','atlas_'..m[2],'room_cm') end
@@ -232,7 +232,7 @@ extern "C" __declspec(dllexport) BOOL WINAPI Fifa16ModStart(const char*){
  HMODULE self=nullptr;GetModuleHandleExW(GET_MODULE_HANDLE_EX_FLAG_FROM_ADDRESS|GET_MODULE_HANDLE_EX_FLAG_PIN,(LPCWSTR)&Fifa16ModStart,&self);wchar_t path[1024]{};GetModuleFileNameW(nullptr,path,1024);game=fs::path(path).parent_path();folder=game/L"ModCarrerMode/runtime/club_environment/room";logfile=folder/L"runtime/native_room.log";
  try{fs::create_directories(folder/L"runtime");}catch(...){started=false;return FALSE;}
  {std::ofstream f(logfile);f<<"Native dressing room session pid="<<GetCurrentProcessId()<<"\n";}
- for(const auto*name:{L"scenery_r59.rx3",L"scenery_textures_0_r59.rx3",L"scenery_textures_1_r59.rx3",L"room_white_r49.rx3",L"floor_textures_r44.rx3"}){
+ for(const auto*name:{L"scenery_r62.rx3",L"scenery_textures_0_r62.rx3",L"scenery_textures_1_r62.rx3",L"room_white_r49.rx3",L"floor_textures_r44.rx3"}){
   const auto target=game/L"data/sceneassets/server16_dressing_room_20261022"/name;
   if(!fs::is_regular_file(target)||fs::file_size(target)<128){log("MISSING_INSTALLED_ROOM_ASSET: native scene disabled before asset request");started=false;return FALSE;}
  }

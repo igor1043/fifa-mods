@@ -11,7 +11,7 @@ def scene_catalog(context,roster):
         if i<len(roster):
             p=roster[i];result.append({'label':f"Camisa {p['number']} · {p['name'] or 'Jogador'}",'locker':i,'player':p['id']})
     result.append({'label':'Quadro da próxima partida'})
-    for p in context['focus']:result.append({'label':f"Destaque camisa {p['number']} · {p['name'] or 'Jogador'}"})
+    for p in context['focus']:result.append({'label':f"Destaque camisa {p['number']} · {p['name'] or 'Jogador'}",'player':p['player'],'locker':p['locker']})
     result.extend({'label':name} for name in ('Entrada e lateral direita','Armários à direita','Fundo à direita','Panorama dos armários','Fundo à esquerda','Armários à esquerda','Entrada e lateral esquerda'))
     import json
     from pathlib import Path

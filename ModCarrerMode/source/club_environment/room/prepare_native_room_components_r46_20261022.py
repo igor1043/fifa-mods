@@ -164,7 +164,7 @@ def prepare():
   if not dest.exists():texture_package(plate,dest,'plate_cm')
   add('plate_'+str(i),'data/sceneassets/server16_dressing_room_20261022/print_surface.rx3','data/sceneassets/server16_dressing_room_20261022/'+dest.name,'plate_cm',quad(i,[0,272,72],78,20),False,'room_part_1')
  crest=np.eye(4);crest[0,3]=100000
- add('club_crest','data/sceneassets/server16_dressing_room_20261022/crest_surfaces_r57.rx3',f'data/ui/imgassets/crest/light/l{club}.dds','',crest.T.reshape(-1).tolist(),True,'room_part_1')
+ add('club_crest','data/sceneassets/server16_dressing_room_20261022/crest_surfaces_r62.rx3',f'data/ui/imgassets/crest/light/l{club}.dds','',crest.T.reshape(-1).tolist(),True,'room_part_1')
  ball='data/sceneassets/ball/ball_23.rx3';lo,hi,sub=bounds(ball);scale=22/max(hi-lo);mid=(lo+hi)/2
  for layer in range(2):
   for x in range(3):
@@ -173,7 +173,7 @@ def prepare():
     add('balls',ball,'data/sceneassets/ball/ball_23_textures.rx3','ball_cm',m.T.reshape(-1).tolist(),False,sub)
  for center,yaw in (([-244,1011,263],1.8),([-317,1011,263],-.6)):
   r=rotation(yaw);m=np.eye(4);m[:3,:3]=r*scale;m[:3,3]=np.array(center)+[100000,0,0]-r@(mid*scale);add('balls',ball,'data/sceneassets/ball/ball_23_textures.rx3','ball_cm',m.T.reshape(-1).tolist(),False,sub)
- roles=json.loads((ROOT/'runtime/room_roles_r57.json').read_text(encoding='utf8'))
+ roles=json.loads((ROOT/'runtime/room_roles_r62.json').read_text(encoding='utf8'))
  matrix=np.eye(4);matrix[0,3]=100000;identity=matrix.T.reshape(-1).tolist();prefix='data/sceneassets/server16_dressing_room_20261022/'
  for i,role in enumerate(roles['roles']):
   name=role['role'];overlay=(0,0,0,0)
@@ -181,11 +181,15 @@ def prepare():
    color=context['colors'][0 if name=='primary' else 1];rgb=tuple(round(255*min(1.,v*role['shade'])) for v in color);tag=hashlib.sha256(bytes(rgb)).hexdigest()[:12];filename=f'theme_{club}_{tag}_r48.rx3';dest=GAME/(prefix+filename)
    if not dest.exists():texture_package(Image.new('RGBA',(8,8),rgb+(255,)),dest,'theme_cm')
    texture=prefix+filename;texname='theme_cm' 
+  elif name=='neutral':
+   rgb=tuple(role['rgb']);tag=hashlib.sha256(bytes(rgb)).hexdigest()[:12];filename=f'neutral_{tag}_r62.rx3';dest=GAME/(prefix+filename)
+   if not dest.exists():texture_package(Image.new('RGBA',(8,8),rgb+(255,)),dest,'neutral_cm')
+   texture=prefix+filename;texname='neutral_cm'
   elif name=='floor':texture=prefix+'floor_textures_r44.rx3';texname='floor_cm'
   elif name=='ceiling':texture=prefix+'ceiling_r49.rx3';texname='ceiling_cm'
   elif name=='board':texture=context['board_texture'];texname='board_cm'
   else:raise ValueError('Unknown role '+name)
-  add('role_'+name+'_'+str(i),prefix+'room_roles_r57.rx3',texture,texname,identity,submesh=role['submesh'],overlay=overlay)
+  add('role_'+name+'_'+str(i),prefix+'room_roles_r62.rx3',texture,texname,identity,submesh=role['submesh'],overlay=overlay)
  add('floor_shadows',prefix+'floor_shadows_r56.rx3',prefix+'floor_shadows_texture_r56.rx3','shadow_cm',identity,True,'room_part_1')
  add('table_shadows',prefix+'floor_shadows_r56.rx3',prefix+'contact_shadow_r51.rx3','shadow_cm',identity,True,'room_part_2')
  assert 0<len(components)<=256,'Native room component group limit exceeded'
@@ -207,7 +211,7 @@ def prepare_header(context):
  target=GAME/ui.BIG;state=ROOT/'runtime/room_header.json'
  previous=json.loads(state.read_text(encoding='utf8')) if state.exists() else {}
  catalog_hash=hashlib.sha256(json.dumps(context['scene_catalog'],sort_keys=True).encode()).hexdigest()
- if previous.get('revision')==58 and previous.get('pid')==context['pid'] and previous.get('club')==context['club'] and previous.get('name')==context['club_name'] and previous.get('catalog_hash')==catalog_hash and target.exists():return
+ if previous.get('revision')==62 and previous.get('pid')==context['pid'] and previous.get('club')==context['club'] and previous.get('name')==context['club_name'] and previous.get('catalog_hash')==catalog_hash and target.exists():return
  path=ui.screen(context,read_asset);temp=target.with_name(target.name+'.s16-new');temp.write_bytes(path.read_bytes());temp.replace(target)
 
 def calendar_stamp(pid):

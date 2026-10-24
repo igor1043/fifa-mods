@@ -4,6 +4,7 @@
 uintptr_t roomPhotoPrevious=0,roomPhotoView=0;void*roomPhotoRelay=nullptr;
 LONG64 roomPhotoBefore=0,roomPhotoAfter=0;bool roomPhotoInstalled=false,roomWasVisible=false,roomReturnPending=false;
 unsigned roomReturnFrames=0,roomReturnRefreshes=0;
+bool roomEntryPending=false;unsigned roomEntryFrames=0;
 bool roomHubPage(){
  auto p=get<uintptr_t>(image+0x3809030);for(unsigned o:{232u,192u,136u,472u})p=get<uintptr_t>(p+o);
  char name[128]{};if(!read(p,name,127))return false;for(auto&c:name)if(c>='A'&&c<='Z')c+=('a'-'A');
@@ -13,6 +14,9 @@ void* __fastcall roomPhotoHook(void*self){
  auto result=((void*(__fastcall*)(void*))roomPhotoPrevious)(self);
  const auto p=reinterpret_cast<uintptr_t>(self),vt=get<uintptr_t>(p);
  if(get<uintptr_t>(vt+0x38)==image+0x408d1d0&&get<uintptr_t>(p+8))roomPhotoView=p;
+ // The room owns its transparent cover independently of the stadium setting.
+ // This factory is already running on the native UI owner thread.
+ if(result&&page())((void(__fastcall*)(void*,const char*,const char*))(image+0x4c174d0))(result,"Param","server16_frontend_clear");
  return result;
 }
 bool roomPhotoExchange(LONG64 from,LONG64 to){
@@ -35,12 +39,25 @@ bool installRoomPhoto(){
  roomPhotoInstalled=roomPhotoExchange(roomPhotoBefore,roomPhotoAfter);return roomPhotoInstalled;
 }
 void roomReturnTick(bool visible){
- if(visible){roomWasVisible=true;roomReturnPending=false;roomReturnFrames=0;return;}
+ if(visible){
+  if(!roomWasVisible){roomEntryPending=true;roomEntryFrames=0;}
+  roomWasVisible=true;roomReturnPending=false;roomReturnFrames=0;
+  if(!roomEntryPending||++roomEntryFrames<3)return;
+  auto self=roomPhotoView,vt=get<uintptr_t>(self);
+  if(!self||get<uintptr_t>(vt+0x38)!=image+0x408d1d0||!get<uintptr_t>(self+8))return;
+  using Queue=BOOL(WINAPI*)(void*,void*);const auto host=GetModuleHandleW(L"dinput8.dll");
+  const auto queue=reinterpret_cast<Queue>(host?GetProcAddress(host,"Fifa16CareerQueueBackgroundRefresh"):nullptr);
+  if(queue&&queue(reinterpret_cast<void*>(self),reinterpret_cast<void*>(vt))){roomEntryPending=false;log("ROOM_ENTRY_BACKGROUND_REFRESH_QUEUED");}
+  return;
+ }
  if(roomWasVisible){roomWasVisible=false;roomReturnPending=true;roomReturnFrames=0;log("ROOM_EXIT: camera restored, indoor draw stopped, native background refresh queued");}
  if(!roomReturnPending||!roomHubPage())return;if(++roomReturnFrames<3)return;
  auto self=roomPhotoView,vt=get<uintptr_t>(self);
  if(!self||get<uintptr_t>(vt+0x38)!=image+0x408d1d0||!get<uintptr_t>(self+8))return;
+ using Queue=BOOL(WINAPI*)(void*,void*);
+ const auto host=GetModuleHandleW(L"dinput8.dll");
+ const auto queue=reinterpret_cast<Queue>(host?GetProcAddress(host,"Fifa16CareerQueueBackgroundRefresh"):nullptr);
+ if(!queue||!queue(reinterpret_cast<void*>(self),reinterpret_cast<void*>(vt)))return;
  roomReturnPending=false;
- ((void(__fastcall*)(void*,int,void*))(image+0x4c15b20))((void*)self,0x9c40,nullptr);
  ++roomReturnRefreshes;log("ROOM_RETURN_NATIVE_BACKGROUND_REFRESH: existing stadium/fallback policy reapplied");
 }

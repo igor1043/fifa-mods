@@ -47,6 +47,7 @@ static uintptr_t backgroundViewModel=0,backgroundVtable=0;
 static uint32_t drawnRequest=0;
 static frontend_stadium::ProfileReloadProgress reloadProgress;
 static bool bootComplete=false;
+static frontend_stadium::PageKind previousPage=frontend_stadium::PageKind::Transition;
 static uint32_t requestsAtPost=0;
 static thread_local bool frontendCrowdLoad=false;
 struct ExtraCall {uintptr_t source,target,offset;LONG before=0,after=0;};
@@ -96,8 +97,12 @@ static void publishState(int phase,int team,int career,int slot,int error){
 }
 static int club(bool* career){
     *career=false;
-    const int careerTeam=activeCareerClub(image,read);
+    bool resolved=false;
+    const int careerTeam=activeCareerClub(image,read,&resolved);
     if(careerTeam){*career=true;return careerTeam;}
+    // A transient failed read is not a request to load the favourite club.
+    // A verified career exit still resolves to the normal profile selection.
+    if(!resolved&&careerWasActive&&careerSessionTeam>0){*career=true;return careerSessionTeam;}
     const unsigned char signature[]={0x48,0x89,0x5c,0x24,0x08,0x57,0x48,0x83,0xec,0x20};
     unsigned char actual[sizeof signature]{};
     if(!read(image+0x400b470,actual,sizeof actual)||std::memcmp(signature,actual,sizeof actual))return 0;
@@ -181,9 +186,16 @@ static void refreshPhotograph(){
     // Publish through the current native view model, without retaining a DP.
     // Its factory and owning service must still match the live registration.
     if(!self||get<uintptr_t>(self)!=backgroundVtable||get<uintptr_t>(backgroundVtable+0x38)!=image+0x408d1d0||!get<uintptr_t>(self+8))return;
+    // GameFlow::Render is not the UI provider owner thread. A synchronous
+    // 4c15b20 call here raced StatisticsData in the native string pool
+    // (captured 3a69c96 -> 4c15c40 -> refreshPhotograph crash). Only enqueue;
+    // native background requests still apply backgroundHook during boot.
+    using Queue=BOOL(WINAPI*)(void*,void*);
+    const auto host=GetModuleHandleW(L"dinput8.dll");
+    const auto queue=reinterpret_cast<Queue>(host?GetProcAddress(host,"Fifa16CareerQueueBackgroundRefresh"):nullptr);
+    if(!queue||!queue(reinterpret_cast<void*>(self),reinterpret_cast<void*>(backgroundVtable)))return;
     photoDirty=false;
-    reinterpret_cast<void(__fastcall*)(void*,int,void*)>(image+0x4c15b20)(reinterpret_cast<void*>(self),0x9c40,nullptr);
-    log(sceneReady?"PHOTO_REFRESH_STADIUM":"PHOTO_REFRESH_FALLBACK",static_cast<int>(FrontendStadiumStatus.team));
+    log("PHOTO_REFRESH_QUEUED",static_cast<int>(FrontendStadiumStatus.team),static_cast<int>(GetCurrentThreadId()));
 }
 static DWORD prepare(int team,int slot,int career,int session){
     wchar_t command[2048]{};
@@ -299,7 +311,10 @@ static void pollReload(){
     if(!installed||stopping||now-lastProbe<250||!menuScene())return;
     lastProbe=now;
     if(!TryAcquireSRWLockExclusive(&gate))return;
-    const bool allowedPage=frontend_stadium::reloadPage(image,read);
+    const auto page=frontend_stadium::pageKind(image,read);
+    const bool allowedPage=page==frontend_stadium::PageKind::Menu;
+    if(frontend_stadium::refreshOnMenuReturn(previousPage,page,sceneReady,setting(L"enabled",0)!=0))photoDirty=true;
+    previousPage=page;
     if(allowedPage)bootComplete=true;
     if(!allowedPage&&!awaitingReload){ReleaseSRWLockExclusive(&gate);return;}
     bool career=stageCareer!=0;
@@ -402,20 +417,26 @@ static void __fastcall hook(void* self,const void* context){
     wchar_t chosen[512]{};selection(team,chosen,_countof(chosen));
     const int revision=setting(L"reload_revision",0);
     const bool staged=stageRequest&&stageComplete==stageRequest&&stageTeam==team&&stageCareer==static_cast<int>(career)&&stageRevision==revision&&!std::wcscmp(chosen,stageSelection);
+    // Opening the panorama can request the FE scene again. Reuse the route
+    // that is already loaded for this club/choice; do not briefly replace it
+    // with the native favourite/profile ground while restaging identical data.
+    const int previousMode=activeMode;
+    const bool retained=sceneReady&&previousMode&&observedTeam==team&&observedCareer==static_cast<int>(career)
+        &&observedRevision==revision&&!std::wcscmp(chosen,observedSelection);
     // Never run an extractor or wait on its process on FIFA's render thread.
     // Keep the original scene until pollReload has prepared an async route.
-    if(!staged){
+    if(!staged&&!retained){
         activeMode=0;sceneReady=false;photoDirty=true;observedTeam=0;
         ReleaseSRWLockExclusive(&gate);
         log("PREPARE_DEFERRED_NATIVE_SCENE",team,slot);original(self,context);return;
     }
-    const DWORD result=stageError;
+    const DWORD result=retained?0:stageError;
     observedTeam=team;observedCareer=career?1:0;wcsncpy_s(observedSelection,chosen,_TRUNCATE);
     observedRevision=revision;
     observedEnabled=1;
     FrontendStadiumStatus.error=result;
     activeMode=0;
-    const int mode=staged?stageMode:(!result?static_cast<int>(GetPrivateProfileIntW(L"frontend_stadium",L"mode",0,routeIni)):0);
+    const int mode=retained?previousMode:stageMode;
     activeCrowd[0]=0;activeName[0]=0;activeCapacity=0;activeAttendance=-1;
     if(!result&&mode){
         // Only the FE stadium fields change in this private context copy.
