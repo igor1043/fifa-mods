@@ -24,3 +24,6 @@ panorama_drone\panorama_drone_v5.dll
 
 # Ambiente do clube; assets no complemento ZIP separado.
 club_environment\native_dressing_room.dll
+
+# Seletor de clubes e globo 3D; imagens lidas do proprio FIFA.
+club_browser\club_browser.dll
