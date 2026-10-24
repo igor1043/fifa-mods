@@ -1,0 +1,111 @@
+{
+  "name": "Server16TransferMarketFlow",
+  "initial": {
+    "targets": [
+      "Market"
+    ]
+  },
+  "states": [
+    {
+      "name": "Market",
+      "onEnter": [
+        [
+          "executeCMAction",
+          [
+            "EnterCalendar"
+          ]
+        ],
+        [
+          "loadScreenController",
+          [
+            "Calendar"
+          ]
+        ],
+        [
+          "loadView",
+          [
+            "screen",
+            "game/screens/career/server16/TransferMarket"
+          ]
+        ],
+        [
+          "loadView",
+          [
+            "background",
+            "BOOTFLOW"
+          ]
+        ]
+      ],
+      "onExit": [
+        [
+          "unloadView",
+          [
+            "screen",
+            "game/screens/career/server16/TransferMarket"
+          ]
+        ],
+        [
+          "unloadScreenController",
+          [
+            "Calendar"
+          ]
+        ],
+        [
+          "unloadView",
+          [
+            "background"
+          ]
+        ]
+      ],
+      "transitions": [
+        {
+          "event": "Server16RefreshTransferMarket",
+          "actions": [
+            [
+              "unloadView",
+              [
+                "screen",
+                "game/screens/career/server16/TransferMarket"
+              ]
+            ],
+            [
+              "loadView",
+              [
+                "screen",
+                "game/screens/career/server16/TransferMarket"
+              ]
+            ]
+          ]
+        },
+        {
+          "event": "Back",
+          "targets": [
+            "Back"
+          ],
+          "actions": [
+            [
+              "executeCMAction",
+              [
+                "ReturnToHubFromCalendar"
+              ]
+            ]
+          ]
+        },
+        {
+          "event": "back",
+          "targets": [
+            "Back"
+          ],
+          "actions": [
+            [
+              "executeCMAction",
+              [
+                "ReturnToHubFromCalendar"
+              ]
+            ]
+          ]
+        }
+      ]
+    }
+  ]
+}

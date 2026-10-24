@@ -1422,6 +1422,18 @@
               "targets": [
                 "Server16DressingRoom"
               ]
+            },
+            {
+              "event": "Server16EnterTransferMarket",
+              "targets": [
+                "Server16TransferMarket"
+              ]
+            },
+            {
+              "event": "Server16EnterClubBrowser",
+              "targets": [
+                "Server16ClubBrowser"
+              ]
             }
           ]
         },
@@ -3328,6 +3340,24 @@
           "outputs": {
             "Back": "MainMenuHub",
             "back": "MainMenuHub"
+          }
+        },
+        {
+          "name": "Server16TransferMarket",
+          "type": "external",
+          "file": "/careerMode/server16TransferMarketFlow.nav",
+          "outputs": {
+            "back": "MainMenuHub",
+            "Back": "MainMenuHub"
+          }
+        },
+        {
+          "name": "Server16ClubBrowser",
+          "type": "external",
+          "file": "/careerMode/server16ClubBrowserFlow.nav",
+          "outputs": {
+            "back": "MainMenuHub",
+            "Back": "MainMenuHub"
           }
         }
       ]
