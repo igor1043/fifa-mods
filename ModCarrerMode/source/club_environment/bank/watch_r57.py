@@ -10,7 +10,10 @@ def main():
   bridge=None;attached=False
   try:
    bridge=r.Bridge.__new__(r.Bridge);r.Bridge.__init__(bridge,apply=True);attached=True
-   while bridge.process.is_running():bridge.tick();time.sleep(.5)
+   while bridge.process.is_running():
+    bridge.tick()
+    # Financial/calendar events keep the same cadence outside the Loans screen.
+    time.sleep(.12)
   except Exception as error:
    message=str(error)
    if message!=last_error:r.log('waiting_for_financial_context',error=message);last_error=message

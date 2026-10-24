@@ -1,0 +1,13 @@
+{
+  "url": "https://cdn.jsdelivr.net/npm/logos-bancos-br@0/logos/png/60746948.png",
+  "catalog": "https://rzmt.github.io/logos-bancos-br/",
+  "official": {
+    "type": "openfinance",
+    "org": "BANCO BRADESCO SA",
+    "cnpj": "60746948000112",
+    "uri": "https://banco.bradesco/open-finance/logo/icones_vetorial-pf.svg",
+    "sha256": "eab31731175c5229512016c2cdf98f38affecb891c217bbe6ea6b83e4c5bdb38",
+    "updatedAt": "2026-07-17"
+  },
+  "sha256_download": "69dfad3f3e245bf08f869fed6f9118b4eaf49b1d74d7fe5f2a8716a5880d30bb"
+}

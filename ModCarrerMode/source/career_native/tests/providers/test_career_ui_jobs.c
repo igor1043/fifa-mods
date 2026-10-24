@@ -5,6 +5,10 @@
 static int stable,drains,calls,disabled;
 static DWORD callback_thread;
 static void drain_pending_stats_refresh(void) {++drains;}
+static void drain_background_refresh(void) {}
+static void drain_preview_refresh(void) {}
+static void drain_bank_mail(void) {}
+static void drain_market_read(void) {}
 static int fce_runtime_is_stable(void) {return stable;}
 static void append_loader_log(const char *message) {(void)message;++disabled;}
 #include "../../src/host/career_ui_jobs.inc"

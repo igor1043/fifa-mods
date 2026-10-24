@@ -5,7 +5,7 @@ import bank_ui_r60 as ui
 from formats import BigFile,AptFile,Placement
 from apt_actions import Actions
 from apt_vm import Object,Native
-from apt_test_vm import NativeVM
+from test_finance_live_ui import BankInputVM as NativeVM
 
 class FinanceTests(unittest.TestCase):
  def test_unavailable_career_date_builds_disabled_view(self):
@@ -14,11 +14,12 @@ class FinanceTests(unittest.TestCase):
    self.assertFalse(ui.VIEW['ready']);self.assertFalse(ui.VIEW['can_borrow']);self.assertEqual(ui.VIEW['nonce'],'DISABLED')
    self.assertEqual(ui.due_date(value,1),'Não disponível')
  def loan(self,state,today,ident):return borrow(state,request_id=ident,club=1043,today=today,budget=20_000_000,bank=0,amount=AMOUNTS[0],months=6)
- def test_two_contracts_per_year_and_only_one_active(self):
+ def test_two_contracts_per_year_and_two_active(self):
   state,budget,_=self.loan(empty(1043,20260101),20260101,'a')
-  with self.assertRaises(ValueError):self.loan(state,20260101,'b')
-  state,budget,_=pay(state,request_id='pay-a',club=1043,today=20260101,budget=budget,settle=True)
-  state,budget,_=self.loan(state,20260201,'b');state,budget,_=pay(state,request_id='pay-b',club=1043,today=20260201,budget=budget,settle=True)
+  state,budget,_=self.loan(state,20260101,'b')
+  with self.assertRaises(ValueError):self.loan(state,20260101,'c')
+  state,budget,_=pay(state,request_id='pay-a',club=1043,today=20260101,budget=budget,settle=True,contract_id='a')
+  state,budget,_=pay(state,request_id='pay-b',club=1043,today=20260201,budget=budget,settle=True,contract_id='b')
   with self.assertRaises(ValueError):self.loan(state,20260301,'c')
   fresh,_,_=self.loan(state,20270101,'c');self.assertEqual(len(fresh['contracts']),3)
  def test_manual_payment_does_not_double_debit_on_due_date(self):
@@ -30,7 +31,7 @@ class FinanceTests(unittest.TestCase):
   self.assertEqual(presentation(due,20260228,b2)['schedule'][0]['status'],'Paga')
   with self.assertRaises(ValueError):pay(state,request_id='poor',club=1043,today=20260201,budget=0,settle=True)
  def test_native_ui_scoped_requests_and_payment_confirmation(self):
-  state,budget,_=self.loan(empty(1043,20260101),20260101,'a');view=presentation(state,20260101,budget,nonce='TEST57')
+  state,budget,_=self.loan(empty(1043,20260101),20260101,'a');view=presentation(state,20260101,budget,nonce='TEST57',ready=True)
   ui.build(view);apt=AptFile(BigFile(ui.b.HERE/'package/data/ui/game/screens/career/server16/bankloans.big'));actions=Actions(apt).read_all();self.assertFalse(actions.errors)
   calls=[]
   def native(name,obj,args):
@@ -49,10 +50,11 @@ class FinanceTests(unittest.TestCase):
   screen=Object({p.name:Object() for p in apt.characters[9].frames[0] if isinstance(p,Placement) and p.name},klass.get('prototype'))
   grid=screen.get('mcGridControl')
   for n in ('GetVisibleWidth','GetVisibleHeight','Init','EnableMouseButton','Shutdown','LocalEventHandler'):grid.set(n,Native(n))
-  for name in [f'row{i}' for i in range(5)]+['payNext','payAll','ledgerBack','previousStatement','nextStatement']:
+  for name,*_ in ui.BUTTONS:
    obj=screen.get(name)
-   for child in ('label','hint','selected','less','more'):obj.set(child,Object())
-  vm.invoke(klass,screen);self.assertEqual(screen.get('page'),0);self.assertEqual(screen.get('focus'),1)
+   for child in ('label','hint','selected','selection','less','more'):obj.set(child,Object())
+   for side in ('less','more'):obj.get(side).set('glyph',Object())
+  vm.invoke(klass,screen);self.assertEqual(screen.get('page'),0);self.assertEqual(screen.get('focus'),0)
   ready_count=sum(name=='SetLocalEventHandler' for name,args in calls)
   vm.invoke(screen.get('OnAnimateInComplete'),screen)
   self.assertEqual(sum(name=='SetLocalEventHandler' for name,args in calls),ready_count)
@@ -65,30 +67,32 @@ class FinanceTests(unittest.TestCase):
   export('home')
   vm.invoke(screen.get('WaitButtons'),screen)
   # Mouse hover/click and the pad use the same focus/selection methods.
-  vm.invoke(screen.get('row1').get('onRollOver'),screen.get('row1'));self.assertEqual(screen.get('focus'),1)
+  vm.invoke(screen.get('homeContracts').get('onRollOver'),screen.get('homeContracts'));self.assertEqual(screen.get('focus'),1)
+  vm.invoke(screen.get('LocalEventHandler'),screen,(2,0));self.assertEqual(screen.get('page'),7)
   vm.invoke(screen.get('LocalEventHandler'),screen,(2,0));self.assertEqual(screen.get('page'),3)
   export('ledger')
   # Every action in the statement is reached with the same D-pad focus.
   vm.invoke(screen.get('LocalEventHandler'),screen,(4,0));self.assertEqual(screen.get('focus'),1)
   vm.invoke(screen.get('LocalEventHandler'),screen,(3,0));self.assertEqual(screen.get('focus'),0)
+  screen.set('focus',len(view['schedule'])) # Reach the explicit payment action after the scrollable rows.
   vm.invoke(screen.get('LocalEventHandler'),screen,(2,0));self.assertEqual(screen.get('page'),4)
-  vm.invoke(screen.get('LocalEventHandler'),screen,(2,0));self.assertEqual(screen.get('page'),5);self.assertIn('|1|0|0|1|END_S16BANK',vm.global_.get('Server16BankRequestV2'))
+  vm.invoke(screen.get('LocalEventHandler'),screen,(2,0));self.assertEqual(screen.get('page'),5);self.assertIn('|1|7|0|1|20260101|a|END_S16BANK',vm.global_.get('Server16BankRequestV2'))
   # On a new-credit view, all three fields can be changed without losing
   # focus; only the explicit review confirmation publishes a request.
   ui.VIEW['active']=None;ui.VIEW['can_borrow']=True
   screen.set('page',1);screen.set('focus',0);vm.global_.set('Server16BankRequestV2',None)
-  vm.invoke(screen.get('LocalEventHandler'),screen,(6,0));self.assertEqual(screen.get('bank'),1)
-  vm.invoke(screen.get('LocalEventHandler'),screen,(4,0));self.assertEqual(screen.get('focus'),1)
+  vm.invoke(screen.get('LocalEventHandler'),screen,(4,0));self.assertEqual(screen.get('bank'),9)
+  vm.invoke(screen.get('LocalEventHandler'),screen,(2,0));self.assertEqual(screen.get('focus'),10)
   vm.invoke(screen.get('LocalEventHandler'),screen,(6,0));self.assertEqual(screen.get('amountIndex'),1)
   vm.invoke(screen.get('LocalEventHandler'),screen,(4,0));vm.invoke(screen.get('LocalEventHandler'),screen,(6,0));self.assertEqual(screen.get('termIndex'),2)
   export('form')
   vm.invoke(screen.get('LocalEventHandler'),screen,(4,0));vm.invoke(screen.get('LocalEventHandler'),screen,(2,0));self.assertEqual(screen.get('page'),2);self.assertIsNone(vm.global_.get('Server16BankRequestV2'))
   vm.invoke(screen.get('LocalEventHandler'),screen,(4,0));vm.invoke(screen.get('LocalEventHandler'),screen,(4,0));vm.invoke(screen.get('LocalEventHandler'),screen,(2,0));self.assertEqual(screen.get('page'),6)
   vm.invoke(screen.get('LocalEventHandler'),screen,(6,0));self.assertEqual(screen.get('statementPage'),1);self.assertIsNone(vm.global_.get('Server16BankRequestV2'))
-  self.assertEqual(screen.get('cell1_0').get('text'),'09');self.assertIn('2026',screen.get('cell1_1').get('text'));self.assertEqual(screen.get('cell1_3').get('text'),'Prevista')
+  self.assertEqual(screen.get('cell1_0').get('text'),'07');self.assertIn('2026',screen.get('cell1_1').get('text'));self.assertEqual(screen.get('cell1_3').get('text'),'Prevista')
   vm.invoke(screen.get('LocalEventHandler'),screen,(1,0));self.assertEqual(screen.get('page'),2)
   vm.invoke(screen.get('LocalEventHandler'),screen,(4,0));self.assertEqual(screen.get('focus'),0)
-  vm.invoke(screen.get('LocalEventHandler'),screen,(2,0));self.assertIn('|0|1|1|2|END_S16BANK',vm.global_.get('Server16BankRequestV2'))
+  vm.invoke(screen.get('LocalEventHandler'),screen,(2,0));self.assertIn('|0|9|1|2|20260101|END_S16BANK',vm.global_.get('Server16BankRequestV2'))
   self.assertFalse(any(name in ('StartCalendarSim','Save') for name,args in calls))
   vm.invoke(screen.get('OnExitScreen'),screen)
   count=len(calls);vm.invoke(screen.get('OnExitScreen'),screen);vm.invoke(screen.get('OnAnimateInComplete'),screen)

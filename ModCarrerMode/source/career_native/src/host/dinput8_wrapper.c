@@ -2477,6 +2477,8 @@ static void *owner_service(
 }
 
 
+#include "career_context_read.inc"
+
 static int resolve_user_club_id(void *provider_owner, FILE *log)
 {
     void *service = owner_service(provider_owner,g_get_career_service_descriptor,NULL);
@@ -2510,6 +2512,7 @@ static int resolve_user_club_id(void *provider_owner, FILE *log)
      * save transition instead of accepting the previous snapshot. */
     if(context) g_career_context_identity = context;
     if(club > 0) g_career_context_club = club;
+    if(context && club > 0) publish_career_context_read(service, provider_owner);
     InterlockedExchange(&g_user_club_id,club);
     return club;
 }
@@ -4013,6 +4016,9 @@ static BOOL write_relative_call(
 }
 
 
+#include "career_bank_mail.inc"
+#include "career_bank_input.inc"
+
 static const CallPatchSpec g_call_patches[] = {
         {"career_top_transfers",0x059BE962,0x059170A0,(void *)career_transfer_cards_publish},
         {"career_latest_transfers",0x059BE99B,0x059170A0,(void *)career_transfer_cards_publish},
@@ -4150,6 +4156,9 @@ static const CallPatchSpec g_call_patches[] = {
             0x05B14990,
             (void *)stats_mark_dirty_capture,
         },
+        {"bank_mail_read",0x59c1756,0x5c12860,(void *)bank_mail_convert},
+        {"bank_mail_inbox",0x5b5710b,0x5c12860,(void *)bank_mail_convert},
+        {"bank_mail_body",0x5beccbd,0x5c12860,(void *)bank_mail_convert},
 };
 
 /* The protected loader materializes different code regions separately. One
@@ -4362,6 +4371,8 @@ static DWORD WINAPI patch_standings_provider(LPVOID unused)
         if (apply_patch(module_base, &g_patches[index], log))
             patched++;
     }
+    if(!install_bank_input_hook(log))
+        append_loader_log("career_bank_direct_input_unavailable_legacy_reader_retained");
     fprintf(log, "Patches de bytes=%u/%u\n", patched, (unsigned int)(
         sizeof(g_patches) / sizeof(g_patches[0])));
     fprintf(log, "Patches de chamadas=%u/%u\n", call_patched, expected_calls);
@@ -4755,6 +4766,8 @@ void WINAPI Fifa16CareerReleaseSnapshot(void *snapshot)
 }
 
 
+#include "career_background_refresh.inc"
+#include "career_market_read.inc"
 #include "career_ui_jobs.inc"
 
 BOOL WINAPI DllMain(HINSTANCE instance, DWORD reason, LPVOID reserved)

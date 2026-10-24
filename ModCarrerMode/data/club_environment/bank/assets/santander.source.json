@@ -1,0 +1,13 @@
+{
+  "url": "https://cdn.jsdelivr.net/npm/logos-bancos-br@0/logos/png/90400888.png",
+  "catalog": "https://rzmt.github.io/logos-bancos-br/",
+  "official": {
+    "type": "openfinance",
+    "org": "BCO SANTANDER (BRASIL) S.A.",
+    "cnpj": "90400888000142",
+    "uri": "https://cms.santander.com.br/sites/WPS/imagem/santander_chama/23-10-31_194829_P_santander_chama.svg",
+    "sha256": "3db65acca8651f09096f81c004513586b3b22075041afe7e29df16f658b7d766",
+    "updatedAt": "2026-07-17"
+  },
+  "sha256_download": "5250965a8ed0decbb3f01231229276dea38d689c4195bd416122a4592875ce2f"
+}

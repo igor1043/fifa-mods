@@ -316,7 +316,7 @@ def build():
     header=bytearray(panel_source.big.entries['7'].data[:128]);struct.pack_into('<III',header,12,4,4,16);struct.pack_into('<I',header,28,1)
     texture=bytes(header)+bytes((255,255,0,0,0,0,0,0))+struct.pack('<HHI',65535,65535,0)
     additions={str(tex_id+1):texture,str(shape_id+1):bytes(geo)}
-    for depth,(x,y,w,h,color) in enumerate(((89,130,1742,800 if globals().get('USE_R60') else 855,0xfff4f6f7),),1):
+    for depth,(x,y,w,h,color) in enumerate((((48,100,1824,785,0xfff4f6f7) if globals().get('USE_R60') else (89,130,1742,855,0xfff4f6f7)),),1):
         place=bytearray(data[template.offset:template.offset+80])
         # 0x20 means HasName. Anonymous panel shapes must clear that flag;
         # FIFA's native PlaceObject reader dereferences name without a null check.
@@ -335,6 +335,7 @@ def build():
         blob=bytearray(data[apt.characters[3].offset:apt.characters[3].offset+96])
         struct.pack_into('<4f',blob,32,0,0,width,height)
         struct.pack_into('<I',blob,48,2);struct.pack_into('<If',blob,56,0xff334b56,size)
+        if name.startswith('summaryValue') or name in ('responseHint','overviewBudget','overviewWage') or name.startswith('cell') and name.endswith('_2'):struct.pack_into('<I',blob,52,1)
         struct.pack_into('<QQ',blob,80,append(b'\0'),0)
         char=append(blob);new_chars.append(char)
         place=bytearray(data[template.offset:template.offset+80])
@@ -343,7 +344,11 @@ def build():
         controls.append(append(place))
     if globals().get('USE_R57'):
         from bank_ui_r57 import graphics
-        graphics(data,apt,template,shape_id,append,new_chars,controls,count)
+        graphics(data,apt,template,shape_id,append,new_chars,controls,count,additions)
+    if globals().get('USE_R60'):
+        from bank_display import normalize_root
+        from bank_ui_r60 import BUTTONS
+        normalize_root(data,controls,FIELDS,BUTTONS)
     new_table=append(bytes(data[table:table+count*8])+struct.pack('<'+'Q'*len(new_chars),*new_chars))
     struct.pack_into('<I4xQ',data,root+56,count+len(new_chars),new_table)
     control_table=append(struct.pack('<'+'Q'*len(controls),*controls))

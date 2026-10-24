@@ -16,6 +16,9 @@ static void career_ui_jobs_tick(void)
     CareerJobUiCallback callback;
     drain_pending_stats_refresh();
     if(!fce_runtime_is_stable())return;
+    drain_background_refresh();
+    drain_bank_mail();
+    drain_market_read();
     callback=(CareerJobUiCallback)InterlockedCompareExchangePointer(&g_career_job_ui_callback,NULL,NULL);
     if(!callback)return;
     __try {callback();}
