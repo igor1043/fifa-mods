@@ -308,8 +308,8 @@
     },
     {
       "path": "ModCarrerMode/source/club_environment/README.md",
-      "bytes": 8591,
-      "sha256": "dda343a25be0f976618abfb11bd32fcef1ed9d505a871fe6ba73559ae175b837"
+      "bytes": 9681,
+      "sha256": "aa0d70593742aadeb0811f64f3d9bfc85a1de2666964dff043e14e3d007c73f0"
     },
     {
       "path": "ModCarrerMode/source/club_environment/assets-manifest.json",
@@ -728,8 +728,8 @@
     },
     {
       "path": "Server16Python.exe",
-      "bytes": 74035668,
-      "sha256": "f1768ac55952aa86375f39d4e9a706635714908e2dc4e6072df39cc04bca0ea0"
+      "bytes": 74035662,
+      "sha256": "eca2ac622bd2869d91325feb92fd5a4c041501755df8b71b3968789e81db7c17"
     },
     {
       "path": "bin/cgfs16_overlay.dll",

@@ -8,6 +8,14 @@ O FIFA Friends V12 reúne melhorias para acompanhar seu clube, personalizar a ex
 
 **Server16 incluído:** 0.2.15. As DLLs compiladas ficam nesta branch, organizadas em uma pasta por mod. O [índice dos módulos ativos](ModCarrerMode/mods/README.md) informa arquivos, funções e configurações.
 
+### Correção de primeira inicialização — 24/10/2026
+
+Auxiliares iniciados diretamente por plugins agora preparam o runtime antes de executar sua entrada. Isso corrige `FileNotFoundError` em `ModCarrerMode/runtime/club_environment/preview/prepare.py` quando o supervisor ainda não iniciou ou a cópia gerada foi removida. A sincronização preserva contratos e dados da carreira.
+
+Atualize o Server16Python.exe e a pasta ModCarrerMode/source pela branch FIFA Friends V12, com jogo e Server fechados. O ZIP complementar de assets continua o mesmo. Se também faltar `ModCarrerMode/source/club_environment/preview/prepare.py`, a atualização do código está incompleta: o ZIP de modelos não substitui os fontes do GitHub.
+
+Teste da revisão: o executável congelado criou os runtimes ausentes e executou as entradas de vestiário, banco e próxima partida em três pastas novas com nomes Unicode, sem iniciar FIFA nem instalar drivers. Testes de recuperação verificam também a preservação do livro financeiro. Os demais módulos e recursos embutidos foram preservados.
+
 ## Atualização — 24/10/2026
 
 - **Empréstimos:** tela nativa com bancos e logotipos, contratos individuais, tabela de parcelas e até dois contratos ativos. Datas da solicitação/resposta ficam fixas no SQLite por carreira e clube; parcelas vencidas são processadas mesmo ao pular dias. Pedido, decisão e lembretes usam e-mails da carreira. [Funcionamento e persistência](ModCarrerMode/source/club_environment/bank/README.md).

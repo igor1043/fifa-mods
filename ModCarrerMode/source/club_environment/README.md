@@ -10,6 +10,14 @@ R62 mantém as poses e texturas estáticas no complemento, incluindo `jersey_pos
 
 As telas distribuídas são neutras, aguardando dados da carreira. A preparação delas foi executada em uma pasta nova com nome Unicode usando o executável Server16 incluído. Não são copiadas telas, elencos ou extratos gerados na sessão do desenvolvedor.
 
+### Correção de primeira inicialização — 24/10/2026
+
+Auxiliares iniciados diretamente por plugins agora preparam o runtime antes de executar sua entrada. Isso corrige `FileNotFoundError` em `ModCarrerMode/runtime/club_environment/preview/prepare.py` quando o supervisor ainda não iniciou ou a cópia gerada foi removida. A sincronização preserva contratos e dados da carreira.
+
+Atualize o Server16Python.exe e a pasta ModCarrerMode/source pela branch FIFA Friends V12, com jogo e Server fechados. O ZIP complementar de assets continua o mesmo. Se também faltar `ModCarrerMode/source/club_environment/preview/prepare.py`, a atualização do código está incompleta: o ZIP de modelos não substitui os fontes do GitHub.
+
+Teste da revisão: o executável congelado criou os runtimes ausentes e executou as entradas de vestiário, banco e próxima partida em três pastas novas com nomes Unicode, sem iniciar FIFA nem instalar drivers. Testes de recuperação verificam também a preservação do livro financeiro. Os demais módulos e recursos embutidos foram preservados.
+
 ## Instalação
 
 1. Feche FIFA e Server16. Atualize a base pela branch `fifa-friends-v12` do GitHub,
