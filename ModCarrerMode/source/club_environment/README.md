@@ -136,3 +136,12 @@ registra o erro de criação ou código de saída. Não há novos hooks globais.
 O pacote testa o runtime congelado com `--club-environment-check` e gera telas
 neutras separadamente em staging; não ativa BHs nem altera a sessão aberta.
 O mod de ocultar o card online da EA permanece desativado e fora deste ZIP.
+
+
+### Conferência sem o runtime do desenvolvedor
+
+O gerador do complemento agora só publica o ZIP depois de exportar os arquivos do commit Git para uma pasta nova, extrair o próprio complemento e executar os testes nessa combinação. Confere todos os módulos habilitados, 191 arquivos do manifesto, poses, geometria, texturas, mipmaps e iluminação do vestiário, importações do Server16 e a recuperação dos auxiliares antes de existir runtime.
+
+Também compara o módulo de inicialização realmente embutido no executável com seu fonte publicado, evitando distribuir um EXE antigo junto de fontes corrigidos. O relatório do complemento registra o commit de código e o SHA-256 do Server16 compatível. Nenhum runtime, cache ou contrato do PC do desenvolvedor entra nesse teste. O teste anterior de importação preparava o runtime antecipadamente e não cobria essa ordem do primeiro início; a regressão foi adicionada após o erro relatado pelo Robson.
+
+Ferramenta de desenvolvimento: `ModCarrerMode/tools/Verify-PortablePackage.py`. Não é um instalador e não precisa ser executada pelo jogador. O ZIP continua com 36 assets e sem arquivos de código repetidos. O código e o executável corrigido precisam ser atualizados pela mesma entrega do GitHub.

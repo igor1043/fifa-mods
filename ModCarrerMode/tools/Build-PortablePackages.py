@@ -1,6 +1,6 @@
 """Build one flat asset complement, excluding every file published in Git."""
 from pathlib import Path
-import argparse,hashlib,json,os,subprocess,zipfile
+import argparse,hashlib,json,os,subprocess,zipfile,importlib.util
 
 def sha(path):
     with path.open('rb') as stream:return hashlib.file_digest(stream,'sha256').hexdigest()
@@ -33,8 +33,12 @@ def build(root,out,stamp):
         for row in rows:
             with archive.open(row['path']) as stream:
                 if hashlib.file_digest(stream,'sha256').hexdigest()!=row['sha256']:raise ValueError('ZIP asset hash mismatch')
+    verifier_path=Path(__file__).with_name('Verify-PortablePackage.py')
+    spec=importlib.util.spec_from_file_location('verify_portable_package',verifier_path)
+    verifier=importlib.util.module_from_spec(spec);spec.loader.exec_module(verifier)
+    checked=verifier.verify(root,temporary,out/('verificacao-'+stamp))
     os.replace(temporary,target)
-    report={'zip':str(target),'zip_bytes':target.stat().st_size,'zip_MB':round(target.stat().st_size/1e6,3),'uncompressed_bytes':sum(r['bytes'] for r in rows),'asset_files':len(rows),'tracked_files_in_zip':0,'installers_in_zip':0,'layout':'game-relative paths; extract directly into FIFA root','code_source':'GitHub fifa-friends-v12 branch','sha256':sha(target),'files':rows}
+    report={'zip':str(target),'zip_bytes':target.stat().st_size,'zip_MB':round(target.stat().st_size/1e6,3),'uncompressed_bytes':sum(r['bytes'] for r in rows),'asset_files':len(rows),'tracked_files_in_zip':0,'installers_in_zip':0,'layout':'game-relative paths; extract directly into FIFA root','code_source':'GitHub fifa-friends-v12 branch','code_commit':checked['commit'],'server16_sha256':checked['server16_sha256'],'clean_github_plus_zip_verified':True,'sha256':sha(target),'files':rows}
     target.with_suffix('.json').write_text(json.dumps(report,ensure_ascii=False,indent=2)+'\n',encoding='utf8')
     return {k:v for k,v in report.items() if k!='files'}
 
