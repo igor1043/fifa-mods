@@ -4,8 +4,12 @@ import sys,json,struct
 import build_screen as b
 sys.path.insert(0,str(b.HERE.parent/'career_match_preview_20261022'))
 from build_preview import Code
+from career_currency import MoneyText,native_money
 from loans import BANKS,OFFERED_BANKS,AMOUNTS,TERMS,quote,next_month,next_day,parse_date,offered,response_date as bank_response_date,response_days
-b.Code=Code
+class CurrencyCode(Code):
+ def expr(self,value):
+  return super().expr(value.expression if isinstance(value,MoneyText) else value)
+b.Code=CurrencyCode
 R=b.reg;T=b.this;P=b.prop;M=b.MANAGER;EQ=b.equal;ADD=b.plus;CALL=b.call
 ORIGINAL=b.make_script;VIEW={}
 FIELDS=(('title',130,155,1640,58,42),('subtitle',132,218,1630,42,25),('section',130,280,1640,48,32),('status',130,890,1640,40,24),('pageInfo',1040,748,690,40,24),('emptyState',150,445,1520,65,29))
@@ -13,6 +17,10 @@ FIELDS+=tuple((f'detail{i}',960,350+i*45,780,43,25) for i in range(11))
 FIELDS+=tuple((f'cell{i}_{j}',x,348+i*47,w,43,24) for i in range(7) for j,(x,w) in enumerate(((150,220),(400,310),(750,350),(1160,530))))
 
 def label(a,name,value):a.set(T(name),'text',value)
+
+def format_career_money(a):
+ # Verified native binding: compact flag, integer amount, save currency slot.
+ a.ret(CALL(b.path('ION_Localization'),'LocalizeCurrencyWithType',False,R(2),VIEW.get('currency',0)))
 def show(a,name,value):a.set(T(name),'_visible',value)
 def go(a,page,focus=0):a.set(R(1),'page',page);a.set(R(1),'focus',focus);a.do(R(1),'Refresh')
 def datestr(value):
@@ -351,7 +359,7 @@ def shutdown(a):
  a.do(M('InputManager'),'DisableCurrentLocalEventHandler');a.do(M('HelpManager'),'Clear');a.do(R(1),'Shutdown')
 REPLACE={'InitComponents':init,'InitBankCards':lambda a:None,'Refresh':refresh,'Submit':submit,'Select':select,'Back':back,'Shift':shift,'LocalEventHandler':key,'AnimateIn':animate,'OnExitScreen':shutdown,
  'getHelpContext':lambda a:a.ret(('array',(CALL(b.path('ion','manager','HelpItem'),'CreateHelpTickerItem','ADVANCE','Selecionar'),CALL(b.path('ion','manager','HelpItem'),'CreateHelpTickerItem','BACK','Voltar'))))}
-EXTRA=[('LoadPlan',0,load_plan),('WaitButtons',0,wait),('PollResult',0,poll_result),('RowOver',0,row_over),('RowClick',0,row_click),('PaymentOver',0,row_over),('PaymentClick',0,row_click),('AdjustClick',0,adjust_click),('PageClick',0,page_click),('MoveFocus',1,focus),('StatementPage',1,statement)]
+EXTRA=[('FormatCareerMoney',1,format_career_money),('LoadPlan',0,load_plan),('WaitButtons',0,wait),('PollResult',0,poll_result),('RowOver',0,row_over),('RowClick',0,row_click),('PaymentOver',0,row_over),('PaymentClick',0,row_click),('AdjustClick',0,adjust_click),('PageClick',0,page_click),('MoveFocus',1,focus),('StatementPage',1,statement)]
 
 def graphics(data,apt,template,shape,append,new_chars,controls,count,additions):
  def character(raw):cid=count+len(new_chars);new_chars.append(append(raw));return cid
@@ -388,7 +396,11 @@ def build(view=None):
  VIEW=dict(view if view is not None else json.loads((b.HERE/'runtime/finance_view.json').read_text(encoding='utf8')))
  try:parse_date(VIEW.get('date'))
  except (ValueError,TypeError):VIEW.update(date=None,ready=False,can_borrow=False,nonce='DISABLED',active=None,schedule=[])
- b.NONCE=VIEW.get('nonce','DISABLED');b.FIELDS=FIELDS;b.make_script=script;b.USE_R57=True;b.USE_R60=True;b.build()
+ previous=b.money
+ b.money=lambda amount:native_money(amount,VIEW.get('currency'),b.call,b.path)
+ try:
+  b.Code=CurrencyCode;b.NONCE=VIEW.get('nonce','DISABLED');b.FIELDS=FIELDS;b.make_script=script;b.USE_R57=True;b.USE_R60=True;b.build()
+ finally:b.money=previous
 
 # Keep the economic protocol independent from the native visual layout.
 import bank_design as _bank_design

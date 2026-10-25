@@ -9,7 +9,7 @@
 namespace clublineup {
 namespace fs=std::filesystem;
 struct View{
- fs::path folder,gameRoot;uint64_t sequence=0,lastPoll=0;int club=0,career=0;std::string status="loading",message;HANDLE job=nullptr,child=nullptr;
+ fs::path folder,gameRoot;uint64_t sequence=0,lastPoll=0,retryAt=0;unsigned bootRetries=0;int club=0,career=0;std::string status="loading",message;HANDLE job=nullptr,child=nullptr;
  void configure(const fs::path& game){gameRoot=game;folder=game/L"ModCarrerMode/runtime/club_browser"/std::to_wstring(GetCurrentProcessId());std::error_code error;fs::create_directories(folder,error);}
  bool running()const{return child&&WaitForSingleObject(child,0)==WAIT_TIMEOUT;}
  void launchLog(const char* event,DWORD error=0){std::ofstream out(folder/L"launcher.log",std::ios::app);out<<GetTickCount64()<<" "<<event<<" win32="<<error<<"\n";}
@@ -41,7 +41,10 @@ struct View{
  void stop(){if(job){CloseHandle(job);job=nullptr;}if(child){CloseHandle(child);child=nullptr;}}
  bool request(int id){
   if(!running()&&!startWorker(gameRoot)){status="error";message="Não foi possível iniciar o auxiliar dos titulares. Consulte launcher.log.";return false;}
-  club=id;sequence=(std::max)(sequence+1,GetTickCount64());status="loading";message.clear();lastPoll=0;
+  club=id;sequence=(std::max)(sequence+1,GetTickCount64());status="loading";message.clear();lastPoll=retryAt=0;bootRetries=0;
+  return writeRequest();
+ }
+ bool writeRequest(){
   std::error_code error;fs::create_directories(folder,error);if(error){status="error";message="Não foi possível preparar a visualização.";return false;}
   auto target=folder/L"request.tsv",temp=folder/L"request.new";{
    std::ofstream out(temp,std::ios::binary);out<<"schema=1\npid="<<GetCurrentProcessId()<<"\nseq="<<sequence<<"\nclub="<<club<<"\n";if(!out){status="error";return false;}
@@ -49,7 +52,21 @@ struct View{
   if(!MoveFileExW(temp.c_str(),target.c_str(),MOVEFILE_REPLACE_EXISTING|MOVEFILE_WRITE_THROUGH)){status="error";message="Não foi possível enviar o pedido de visualização.";return false;}return true;
  }
  void poll(ID3D11Device* device){
-  if(status!="loading"||GetTickCount64()-lastPoll<50)return;lastPoll=GetTickCount64();if(child&&!running()){DWORD exit=0;GetExitCodeProcess(child,&exit);launchLog("WORKER_EXITED",exit);status="error";message="O auxiliar dos titulares encerrou. Selecione Atualizar para tentar novamente; consulte worker.log.";return;}if(lastPoll-sequence>140000){status="error";message="A renderização demorou mais que o esperado. Selecione novamente para tentar de novo.";return;}std::error_code error;auto file=folder/L"status.tsv";auto size=fs::file_size(file,error);if(error||size>4096)return;
+  if(status!="loading"||GetTickCount64()-lastPoll<50)return;lastPoll=GetTickCount64();
+  if(retryAt){
+   if(lastPoll<retryAt)return;retryAt=0;
+   if(!startWorker(gameRoot)||!writeRequest()){status="error";message="Não foi possível reiniciar o auxiliar dos titulares. Consulte launcher.log.";}
+   return;
+  }
+  if(child&&!running()){
+   DWORD exit=0;GetExitCodeProcess(child,&exit);launchLog("WORKER_EXITED",exit);
+   // PyInstaller returns -1 when extraction fails before Python starts. Retry
+   // only that startup failure, twice, preserving the club and request token.
+   // Export errors and ordinary exits must not create an automatic loop.
+   if(exit==DWORD(-1)&&bootRetries<2){++bootRetries;launchLog("BOOTLOADER_RETRY",bootRetries);stop();retryAt=lastPoll+500*bootRetries;return;}
+   status="error";message="O auxiliar dos titulares encerrou. Selecione Atualizar para tentar novamente; consulte worker.log.";return;
+  }
+  if(lastPoll-sequence>140000){status="error";message="A renderização demorou mais que o esperado. Selecione novamente para tentar de novo.";return;}std::error_code error;auto file=folder/L"status.tsv";auto size=fs::file_size(file,error);if(error||size>4096)return;
   std::ifstream input(file,std::ios::binary);std::map<std::string,std::string> values;std::string line;while(std::getline(input,line)){auto equal=line.find('=');if(equal!=std::string::npos)values.emplace(line.substr(0,equal),line.substr(equal+1));}
   try{if(values["schema"]!="1"||std::stoul(values["pid"])!=GetCurrentProcessId()||std::stoull(values["seq"])!=sequence||std::stoi(values["club"])!=club)return;}catch(...){return;}
   if(values["status"]=="error"){status="error";message=values["message"].substr(0,250);return;}

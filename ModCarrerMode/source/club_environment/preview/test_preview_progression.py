@@ -50,6 +50,17 @@ class PreviewProgressionTests(unittest.TestCase):
     def test_old_snapshot_cannot_mix_with_a_new_calendar_day(self):
         self.today=20260129
         with self.assertRaisesRegex(ValueError,'mesma data'):self.run_projection()
+    def test_departed_opponent_starter_does_not_block_venue_or_history(self):
+        self.tables['teamsheets'][1].fields['playerid0']=208670
+        after=self.run_projection()
+        self.assertEqual(after['opponent']['source'],'probable-roster')
+        self.assertEqual(len({p['id'] for p in after['opponent']['players']}),11)
+        self.assertNotIn(208670,{p['id'] for p in after['opponent']['players']})
+        self.assertEqual(after['details']['stadium'],'São Januário')
+    def test_missing_opponent_players_do_not_remove_other_cards(self):
+        self.tables['teamplayerlinks']=[r for r in self.tables['teamplayerlinks'] if r.fields['teamid']!=569]
+        after=self.run_projection()
+        self.assertEqual(after['opponent']['players'],[]);self.assertEqual(after['details']['stadium'],'São Januário')
     def test_calendar_advancing_during_asset_build_never_publishes_obsolete_package(self):
         import prepare
         payload=self.run_projection();candidate=self.root/'candidate.big';candidate.write_bytes(b'new package')

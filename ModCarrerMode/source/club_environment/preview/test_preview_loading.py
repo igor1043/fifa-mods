@@ -30,6 +30,7 @@ class PreviewLoadingTests(unittest.TestCase):
   vm.invoke(klass,screen)
   self.assertTrue(any(name=='BeginAnimateIn' for name,args in calls))
   self.assertIn('Atualizando',screen.get('message').get('text'))
+  self.assertEqual(screen.get('status').get('text'),'')
   self.assertIsNone(screen.get('userPitch'));self.assertIsNone(screen.get('opponentPitch'))
   vm.invoke(screen.get('LocalEventHandler'),screen,[1,None])
   self.assertIn(('SendEvent',['Calendar','Back','']),calls)

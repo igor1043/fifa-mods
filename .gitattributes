@@ -20,6 +20,9 @@ ModCarrerMode/data/club_environment/** -text whitespace=cr-at-eol
 ModCarrerMode/source/club_browser/** -text whitespace=cr-at-eol
 ModCarrerMode/data/club_browser/** -text whitespace=cr-at-eol
 ModCarrerMode/mods/enabled.txt -text whitespace=cr-at-eol
+ModCarrerMode/config/goal_news.ini -text
+# Preserve the upstream license verbatim, including its intentional blank lines.
+ModCarrerMode/source/tools/pyinstaller-COPYING.txt -text whitespace=-blank-at-eol
 ModCarrerMode/tools/Install-ClubEnvironment.ps1 -text
 ModCarrerMode/install-club-environment.cmd -text
 data/ui/layout/careermanagerhubcfg.xml -text

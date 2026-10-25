@@ -24,12 +24,14 @@ class EnvironmentNavigationTests(unittest.TestCase):
   self.assertNotIn(['unloadView',['background']],state['onExit'])
   self.check_back(state)
 
- def test_next_match_enters_populated_custom_card_without_waiting_for_an_external_event(self):
+ def test_next_match_waits_for_scoped_package_then_reloads_only_the_view(self):
   state,layers,controllers,models=self.enter(self.flow('server16matchpreviewflow.nav'))
-  self.assertEqual(layers['screen'],['game/screens/career/server16/MatchPreview'])
+  self.assertEqual(layers['screen'],['game/screens/career/server16/MatchPreviewLoading'])
   self.assertEqual(controllers,{'Calendar'});self.assertEqual(models,{'StartingXIViewModel'})
-  self.assertEqual({t['event'] for t in state['transitions']},{'Back','back'})
-  self.assertIn(['unloadView',['screen','game/screens/career/server16/MatchPreview']],state['onExit'])
+  self.assertEqual({t['event'] for t in state['transitions']},{'Back','back','Server16RefreshMatchPreview'})
+  self.assertIn(['unloadView',['screen']],state['onExit'])
+  ready=next(t for t in state['transitions'] if t['event']=='Server16RefreshMatchPreview')
+  self.assertEqual(ready['actions'],[['unloadView',['screen']],['loadView',['screen','game/screens/career/server16/MatchPreview']]])
   self.check_back(state)
 
  def check_back(self,state):

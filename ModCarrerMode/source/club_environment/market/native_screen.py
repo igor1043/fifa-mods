@@ -78,7 +78,9 @@ def script(data,dictionaries,scenes):
                     a.set(T('loadingCover'),'_visible',True);a.set(R(1),'waiting',True)
                     a.set(R(1),'onEnterFrame',T('PollAutomatic'))
                 if available:
-                    a.when(('bin',16,b.G('Server16MarketEntryAwaiting'),('not',EQ(b.G('Server16MarketEntryToken'),token))),show_data,wait_data)
+                    # The native owner gate has already verified this package's
+                    # session, club, date and fresh readiness publication.
+                    show_data(a)
                 else:wait_data(a)
             a.do(M('InputManager'),'SetLocalEventHandler',CALL(PATH('cafe','utility','Delegate'),'Create',R(1),T('LocalEventHandler')))
             a.do(R(1),'Refresh');a.do(M('ScreenManager'),'BeginAnimateIn',CALL(PATH('cafe','utility','Delegate'),'Create',R(1),T('OnAnimateInComplete')))

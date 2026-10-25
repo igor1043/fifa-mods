@@ -1,5 +1,7 @@
 # Ver clubes — cena nativa
 
+Revisão local de 25/10: o auxiliar só inicia ao entrar nos titulares. Se o carregador do Server16 encerrar com código -1 antes de iniciar Python, a tela tenta novamente até duas vezes, com espera progressiva, mantendo o mesmo clube e sequência. Erros de exportação continuam visíveis e não geram um ciclo de reinicializações. `test_worker_process.cpp` simula falha transitória, falha permanente e encerramento comum, além de validar ambiente, captura da saída e restrição dos handles herdados. O Server16 atualizado também trata a falha de reabertura do seu arquivo durante a extração.
+
 O APT transparente mantém a navegação e as legendas originais do FIFA. O
 plugin desenha o globo e os seletores; bandeiras, escudos e competições são
 lidos do catálogo do jogo. Apenas as imagens do globo são assets próprios.

@@ -22,7 +22,7 @@ foreach ($entry in $entries) {
     $seen[$target] = $true
     if (-not (Test-Path -LiteralPath $target -PathType Leaf)) { throw "DLL habilitada ausente: $entry" }
     $module = ($entry -split '[\\/]')[0]
-    if ($enabledModules.ContainsKey($module)) { throw "Mais de uma DLL habilitada no mod: $module" }
+    if ($enabledModules.ContainsKey($module) -and -not ($module -eq 'subson' -and $entry -in @('subson\subson_bridge.dll','subson\subson_match_gate_v5.dll'))) { throw "Mais de uma DLL habilitada no mod: $module" }
     $enabledModules[$module] = $true
 }
 # Original WorkLab SubsOn replaces the retired local bench implementation.
@@ -42,7 +42,9 @@ foreach ($file in Get-ChildItem -LiteralPath $mods -Recurse -File) {
 foreach ($directory in Get-ChildItem -LiteralPath $mods -Directory) {
     if ($directory.Name.StartsWith('_local_')) { continue }
     if ($directory.Name -match '_v\d+$') { throw "Pasta de mod versionada: $($directory.Name)" }
-    if (@(Get-ChildItem -LiteralPath $directory.FullName -Recurse -File -Filter '*.dll').Count -gt 1) { throw "Mais de uma DLL no pacote do mod: $($directory.Name)" }
+    $moduleDlls=@(Get-ChildItem -LiteralPath $directory.FullName -Recurse -File -Filter '*.dll')
+    $subsonPair=$directory.Name -eq 'subson' -and $moduleDlls.Count -eq 2 -and @($moduleDlls | Where-Object { $_.Name -notin @('subson_bridge.dll','subson_match_gate_v5.dll') }).Count -eq 0
+    if ($moduleDlls.Count -gt 1 -and -not $subsonPair) { throw "Mais de uma DLL no pacote do mod: $($directory.Name)" }
 }
 if (@($entries | Where-Object { $_ -match '^mascot_single[\\/]' }).Count) {
     Require-File 'ModCarrerMode\config\match_presentation.ini'

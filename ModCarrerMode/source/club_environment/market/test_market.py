@@ -7,6 +7,7 @@ from native_review_vm import open_native
 from native_screen import build,neighbors
 from layout import TABS,make_scenes
 from read_market import read_snapshot
+from market_test_fixture import career_fixture
 import worker_market as worker
 from apt_vm import Object,Native
 import hub_bootstrap
@@ -15,12 +16,10 @@ class MarketIntegrationTests(unittest.TestCase):
     game=worker.GAME
     def setUp(self):
         self.temp=tempfile.TemporaryDirectory(prefix='FIFA mercado teste ');self.folder=Path(self.temp.name)
+        fixture=career_fixture();self.fixture_game,self.fixture_save=fixture.__enter__();self.addCleanup(fixture.__exit__,None,None,None)
     def tearDown(self):self.temp.cleanup()
     def saved(self):
-        # Repository fixture is a read-only projection, not a copy of DATA.
-        root=Path(__file__).resolve().parents[4]
-        data=json.loads((root/'code-release/transfer_market_preview_20261024/market_97b12cb3.json').read_text(encoding='utf8'))
-        return data
+        return read_snapshot(self.fixture_game,self.fixture_save,club_override=1043,date_override=20260111)
     def screen(self):
         data=self.saved();scenes=[s for s in make_scenes(data) if s['key']!='entry'];output=self.folder/'market.big';build(self.game,output,scenes,{})
         vm,screen,apt,calls=open_native(output)
@@ -55,7 +54,7 @@ class MarketIntegrationTests(unittest.TestCase):
     def test_static_carousel_preserves_scout_reports_components_and_other_cards(self):
         # Use the pre-integration layout so this stays a regression check after
         # installation, rather than comparing an installed layout to itself.
-        original=self.game/'ModCarrerMode/backups/transfer_market_20261024/data/ui/layout/careermanagerhubcfg.xml'
+        original=Path(__file__).with_name('fixtures')/'career_hub_before_market.xml'
         before=original.read_bytes();root=ET.fromstring(before);changed=ET.fromstring(carousel(before))
         self.assertEqual(carousel(carousel(before)),carousel(before))
         for old,new in zip(root,changed):
@@ -86,13 +85,13 @@ class MarketIntegrationTests(unittest.TestCase):
         self.assertEqual(state['file'],'/careerMode/server16TransferMarketFlow.nav')
         self.assertEqual(state['outputs'],dict(back='MainMenuHub',Back='MainMenuHub'))
         view=flow()['states'][0]
-        self.assertIn(['loadView',['screen',PAGE]],view['onEnter'])
+        self.assertIn(['loadView',['screen',PAGE+'Loading']],view['onEnter'])
         for transition in view['transitions']:
             if transition['event'] in ('Back','back'):
                 self.assertEqual(transition['targets'],['Back'])
                 self.assertIn(['executeCMAction',['ReturnToHubFromCalendar']],transition['actions'])
     def test_retired_bootstrap_is_removed_without_adding_hub_dependencies(self):
-        path=self.game/'ModCarrerMode/backups/transfer_market_20261024/data/ui/layout/careermanagerhubcfg.xml'
+        path=Path(__file__).with_name('fixtures')/'career_hub_before_market.xml'
         root=ET.fromstring(path.read_bytes());before=len(root.find('components'))
         ET.SubElement(root.find('components'),'component',PATH='game/screens/career/server16/MarketHubBootstrap.swf',X='0',Y='0')
         changed=ET.fromstring(carousel(ET.tostring(root)))
@@ -108,15 +107,15 @@ class MarketIntegrationTests(unittest.TestCase):
                 if 'states' in node:node['states']=[s for s in node['states'] if s.get('name')!='Server16TransferMarket']
         self.assertEqual(original,modified)
         state=flow()['states'][0]
-        self.assertIn(['loadView',['screen',PAGE]],state['onEnter']);self.assertIn(['unloadView',['screen',PAGE]],state['onExit'])
+        self.assertIn(['loadView',['screen',PAGE+'Loading']],state['onEnter']);self.assertIn(['unloadView',['screen']],state['onExit'])
         self.assertFalse(any(a=='loadViewModel' for a,args in state['onEnter']))
         self.assertEqual({t['event'] for t in state['transitions']},{'Back','back','Server16RefreshTransferMarket'})
     def test_readonly_projection_uses_current_club_and_calendar_when_requested(self):
         sample=self.saved();path=Path(sample['saveFile']);before=hashlib.sha256(path.read_bytes()).hexdigest()
-        result=read_snapshot(self.game,path,club_override=1043,date_override=20260210)
+        result=read_snapshot(self.fixture_game,path,club_override=1043,date_override=20260210)
         self.assertEqual(result['clubId'],1043);self.assertEqual(result['careerDate'],'2026-02-10');self.assertEqual(result['myLeague']['clubId'],1043)
         self.assertEqual(result['summary']['completedDeals'],20);self.assertEqual(hashlib.sha256(path.read_bytes()).hexdigest(),before)
-        with self.assertRaises(ValueError):read_snapshot(self.game,path,date_override=20250101)
+        with self.assertRaises(ValueError):read_snapshot(self.fixture_game,path,date_override=20250101)
     def test_never_publish_package_if_career_changes_during_build(self):
         snapshot=dict(save=dict(path='unused',pid=123),profile=dict(club_id=1043,userid=0,context_epoch=2),date=20260101,signature=('old',))
         payload=self.saved();payload['savedDate']=20260206
@@ -165,18 +164,19 @@ class MarketIntegrationTests(unittest.TestCase):
         self.assertTrue(worker.publication_due(signature,200,signature,100,4))
         self.assertFalse(worker.publication_due(signature,100,signature,100,20))
         self.assertTrue(worker.publication_due(('other',),100,signature,100,0))
-    def test_ready_snapshot_with_same_entry_gets_new_token_without_decoding_again(self):
+    def test_fresh_capture_updates_readiness_without_rebuilding_or_hiding_ready_data(self):
         snapshot=dict(save=dict(path='unused',pid=123),profile=dict(club_id=1043,userid=0,context_epoch=2),date=20260111,signature=('fresh-capture',))
         payload=self.saved();payload['savedDate']=20260101
         with patch.object(worker,'_prepared',None),patch.object(worker,'read_snapshot',return_value=payload) as reader,patch.object(worker,'export_assets',return_value=({},[])) as artwork,patch.object(worker,'ROOT',self.folder),patch.object(worker,'DEST',self.folder/'deployed.big'):
             first=worker.publish(snapshot,live=dict(entry=7,revision='same-deals',capturedMs=1000))
             second=worker.publish(snapshot,live=dict(entry=7,revision='same-deals',capturedMs=5000))
-            self.assertNotEqual(first['entry_token'],second['entry_token']);self.assertEqual(reader.call_count,1);self.assertEqual(artwork.call_count,1)
+            self.assertEqual(first['entry_token'],second['entry_token']);self.assertEqual(first['sha256'],second['sha256']);self.assertEqual(reader.call_count,1);self.assertEqual(artwork.call_count,1)
+            self.assertIn('captured_ms=5000',(self.folder/'view_ready.tsv').read_text())
             def setup(vm,calls):
                 vm.global_.set('Server16MarketEntryAwaiting',True);vm.global_.set('Server16MarketEntryToken',first['entry_token'])
             vm,screen,apt,calls=open_native(self.folder/'deployed.big',setup=setup)
             self.assertFalse(screen.get('waiting'));self.assertFalse(screen.get('loadingCover').get('_visible'))
-    def test_auto_reload_requires_a_new_entry_snapshot_and_stops_once_ready(self):
+    def test_native_verified_ready_package_never_reenters_loading_due_to_same_token(self):
         data=self.saved();scenes=[s for s in make_scenes(data) if s['key']!='entry']
         for s in scenes:s.update(automatic=True,ready=True,entryToken='same-session:12')
         output=self.folder/'market.big';build(self.game,output,scenes,{})
@@ -185,7 +185,7 @@ class MarketIntegrationTests(unittest.TestCase):
                 vm.global_.set('Server16MarketEntryAwaiting',True);vm.global_.set('Server16MarketEntryToken',old)
             return setup
         vm,screen,apt,calls=open_native(output,setup=state('same-session:12'))
-        self.assertTrue(screen.get('waiting'))
+        self.assertFalse(screen.get('waiting'));self.assertIsNone(screen.get('onEnterFrame'))
         vm,screen,apt,calls=open_native(output,setup=state('same-session:11'))
         self.assertFalse(screen.get('waiting'));self.assertFalse(screen.get('loadingCover').get('_visible'))
         self.assertFalse(vm.global_.get('Server16MarketEntryAwaiting'));self.assertIsNone(screen.get('onEnterFrame'))

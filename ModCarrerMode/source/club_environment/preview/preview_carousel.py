@@ -122,7 +122,7 @@ def methods(a,payload,b):
     a.function('PageDotClick',0,lambda a:a.do(P(R(1),'owner'),'ShowPage',P(R(1),'pageIndex')))
     def key(a):
         a.when(EQ(R(2),P(M('InputCodes'),'BACK')),lambda a:(a.do(b.ION,'SendEvent',P(T('staticData'),'SCREEN_CONTROLLER_ID'),P(T('navEvents'),'BACK'),''),a.do(M('InputManager'),'DisableCurrentLocalEventHandler'),a.ret(True)))
-        for name,delta in (('LEFT',-1),('RIGHT',1),('UI_LEFT',-1),('UI_RIGHT',1),('UILEFT',-1),('UIRIGHT',1),('PREVIOUS',-1),('NEXT',1),('L1',-1),('R1',1)):
+        for name,delta in (('LAS_LEFT',-1),('LAS_RIGHT',1),('UI_LEFT',-1),('UI_RIGHT',1),('UILEFT',-1),('UIRIGHT',1),('PREVIOUS',-1),('NEXT',1)):
             a.when(('bin',16,P(M('InputCodes'),name),EQ(R(2),P(M('InputCodes'),name))),lambda a,delta=delta:(a.do(R(1),'ShowPage',('bin',71,T('carouselPage'),delta)),a.ret(True)))
         a.ret(True)
     a.function('LocalEventHandler',2,key)

@@ -19,7 +19,6 @@ var_cabin\var_cabin.dll
 smoke_machine\smoke_machine.dll
 
 frontend_stadium\frontend_stadium_native_v11.dll
-cloth_motion\cloth_motion.dll
 panorama_drone\panorama_drone_v5.dll
 
 # Ambiente do clube; assets no complemento ZIP separado.
@@ -27,3 +26,7 @@ club_environment\native_dressing_room.dll
 
 # Seletor de clubes e globo 3D; imagens lidas do proprio FIFA.
 club_browser\club_browser.dll
+
+# Noticias de gols: painel nativo, sem mudar a narracao.
+goal_news\goal_news.dll
+cloth_motion\cloth_motion.dll

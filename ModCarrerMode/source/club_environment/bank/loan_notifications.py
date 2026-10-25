@@ -5,21 +5,26 @@ from pathlib import Path
 from loans import BANKS,parse_date,write_json
 
 
-def money(value):return f'{value:,}'.replace(',','.')
+def money(value,currency=None):
+    if type(currency) is int and currency in (0,1,2):return '{{S16M:'+str(currency)+':'+str(value)+'}}'
+    return f'{value:,}'.replace(',','.')
 
 
 def make_notice(request_id,live,*,approved,bank,amount,budget_after,message,contract=None,application=None,deliver_date=None):
+    currency=live.get('currency')
+    if type(currency) is not int or currency not in (0,1,2):currency=(contract or application or {}).get('currency')
+    cash=lambda value:money(value,currency)
     due=deliver_date if deliver_date is not None else int((parse_date(live['date'])+timedelta(days=1)).strftime('%Y%m%d'))
     body=[(contract or {}).get('bank_name',BANKS[bank]['name']),message,'',
-          'Valor solicitado: '+money(amount),
-          'Orçamento antes: '+money(live['budget']),
-          'Orçamento após a operação: '+money(budget_after)]
+          'Valor solicitado: '+cash(amount),
+          'Orçamento antes: '+cash(live['budget']),
+          'Orçamento após a operação: '+cash(budget_after)]
     if contract:
         body += ['','Solicitação enviada: '+parse_date(contract.get('application_date',contract['date'])).strftime('%d/%m/%Y'),
                  'Resposta prevista: '+parse_date(contract.get('decision_date',contract['date'])).strftime('%d/%m/%Y'),
                  'Análise concluída: '+parse_date(contract['date']).strftime('%d/%m/%Y'),
                  'Primeira parcela: '+parse_date(contract['payments'][0]['date']).strftime('%d/%m/%Y'),
-                 'Parcela mensal: '+money(contract['payment']),
+                 'Parcela mensal: '+cash(contract['payment']),
                  'Prazo: '+str(contract['months'])+' meses']
     elif application:
         body += ['', 'Solicitação enviada: '+parse_date(application['date']).strftime('%d/%m/%Y'),
@@ -98,7 +103,7 @@ def schedule_reminders(folder,state):
                 subject='Empréstimo: parcela vence amanhã',
                 body='\n'.join((contract.get('bank_name',BANKS[contract['bank']]['name']),'',
                     'A parcela '+str(payment['number'])+'/'+str(contract['months'])+' vence em '+parse_date(payment['date']).strftime('%d/%m/%Y')+'.',
-                    'Valor: '+money(payment['amount']),
+                    'Valor: '+money(payment['amount'],contract.get('currency')),
                     'A cobrança será descontada do orçamento de transferências.',
                     'Mantenha saldo disponível ou antecipe o pagamento em Empréstimos.'))))
             ids.add(ident);changed=True
@@ -122,10 +127,10 @@ def payment_notice(folder,state,before,after,events):
                 'Pagamento aplicado em: '+parse_date(before['date']).strftime('%d/%m/%Y'),
                 'Vencimentos cobrados: '+dates,
                 'Parcelas pagas: '+', '.join(str(e['number']) for e in entries),
-                'Valor descontado: '+money(sum(e['amount'] for e in entries)),
-                'Orçamento antes: '+money(before['budget']),
-                'Orçamento após a operação: '+money(after),
-                'Falta pagar: '+money(sum(p['amount'] for p in contract['payments'][contract['paid']:]))))))
+                'Valor descontado: '+money(sum(e['amount'] for e in entries),contract.get('currency')),
+                'Orçamento antes: '+money(before['budget'],contract.get('currency')),
+                'Orçamento após a operação: '+money(after,contract.get('currency')),
+                'Falta pagar: '+money(sum(p['amount'] for p in contract['payments'][contract['paid']:]),contract.get('currency'))))))
 
 
 def request_notice(application):
@@ -137,7 +142,7 @@ def request_notice(application):
         body='\n'.join((bank,'Recebemos a solicitação de empréstimo do clube.','',
             'Pedido enviado em: '+parse_date(a['date']).strftime('%d/%m/%Y'),
             'Resposta prevista: '+parse_date(a['decision_date']).strftime('%d/%m/%Y'),
-            'Valor solicitado: '+money(a['principal']),
+            'Valor solicitado: '+money(a['principal'],a.get('currency')),
             'Prazo: '+str(a['months'])+' meses',
             'A aprovação ou recusa será enviada nesta caixa de mensagens.',
             'O envio do pedido não altera o orçamento do clube.')))

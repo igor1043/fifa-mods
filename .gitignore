@@ -119,6 +119,7 @@ runtime/diagnostics/
 /ModCarrerMode/source/club_environment/*/package/
 /ModCarrerMode/source/club_environment/*/runtime/
 /ModCarrerMode/source/club_environment/*/screen_metadata.json
+/ModCarrerMode/source/club_environment/*/image_resources.json
 *.zip
 # Runtime caches and generated XI meshes are specific to the local installation.
 /ModCarrerMode/cache/
@@ -128,3 +129,5 @@ runtime/diagnostics/
 /ModCarrerMode/data/club_browser/assets/globe/*.png
 # Server build binaries are maintained in the canonical Server16 repository.
 /ModCarrerMode/source/bin/
+# Executable fixtures produced by native test commands.
+/ModCarrerMode/build/

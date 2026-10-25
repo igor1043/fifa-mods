@@ -2,6 +2,7 @@ from pathlib import Path
 import copy,json,tempfile,unittest
 from live_market import read_live
 from read_market import read_snapshot
+from market_test_fixture import career_fixture
 import worker_market as worker
 
 class LiveMarketTests(unittest.TestCase):
@@ -28,14 +29,14 @@ class LiveMarketTests(unittest.TestCase):
         b=read_live(self.path,self.snapshot,101500);self.assertEqual(a['revision'],b['revision'])
     def test_unsaved_confirmed_offer_is_counted_without_editing_the_save(self):
         import hashlib
-        save=Path('C:/Users/igorv/Documents/FIFA 16/0/FIFA16/9e767964/DATA')
+        fixture=career_fixture();game,save=fixture.__enter__();self.addCleanup(fixture.__exit__,None,None,None)
         before=hashlib.sha256(save.read_bytes()).hexdigest();live=read_live(self.path,self.snapshot,100500)
-        data=read_snapshot(worker.GAME,save,club_override=1043,date_override=20260111,live=live)
+        data=read_snapshot(game,save,club_override=1043,date_override=20260111,live=live)
         self.assertEqual(data['summary']['completedDeals'],1);self.assertEqual(data['summary']['investment'],2000000)
         self.assertEqual(data['transfers'][0]['to']['id'],1043);self.assertEqual(data['source'],'live-career')
         self.assertEqual(hashlib.sha256(save.read_bytes()).hexdigest(),before)
         for changes in ({'links':[]},{'offers':[dict(live['offers'][0],result=16)]},{'offers':[dict(live['offers'][0],date=20260201)]}):
-            alternative=dict(live,**changes);data=read_snapshot(worker.GAME,save,club_override=1043,date_override=20260111,live=alternative)
+            alternative=dict(live,**changes);data=read_snapshot(game,save,club_override=1043,date_override=20260111,live=alternative)
             self.assertEqual(data['summary']['completedDeals'],0)
 
 if __name__=='__main__':unittest.main(verbosity=2)

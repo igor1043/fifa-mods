@@ -36,6 +36,9 @@ REFERENCE_RATES={'bb':205,'bmg':245,'crefisa':290,'sicredi':175,'banrisul':150,
     'master':265,'bradesco':226,'itau':205,'caixa':184,'santander':193}
 RESPONSE_DAYS={'bb':3,'bmg':2,'crefisa':1,'sicredi':2,'banrisul':2,
     'master':4,'bradesco':1,'itau':2,'caixa':3,'santander':2}
+# Fictional underwriting for gameplay only; not real bank approval statistics.
+DECLINE_BPS={'bb':1200,'bmg':1000,'crefisa':800,'sicredi':1400,'banrisul':1000,
+    'master':1800,'bradesco':1500,'itau':1600,'caixa':1400,'santander':1300}
 for bank in BANKS:
     if bank['id'] in REFERENCE_RATES:bank['rate_bps']=REFERENCE_RATES[bank['id']]
 BANK_DEFAULTS=tuple(dict(bank) for bank in BANKS)
@@ -165,7 +168,24 @@ def borrow(state, *, request_id, club, today, budget, bank, amount, months, offe
                                     "date": today, "bank": BANKS[bank]["name"]}]
 
 
-def request_loan(state, *, request_id, club, today, budget, bank, amount, months,submitted_on=None):
+def underwriting(state,request_id,budget,bank,amount,months,roll=None):
+    """Freeze one draw per submitted proposal; reopening never rerolls it.
+
+    Live request IDs contain the worker's random session nonce. Hashing that
+    ID supplies a reproducible draw, including after SQLite/save restoration.
+    """
+    base=DECLINE_BPS.get(BANKS[bank]['id'],0)
+    if not base:return None # Preserve legacy prototype applications.
+    outstanding=sum(p['amount'] for c in state['contracts'] for p in c['payments'][c['paid']:])
+    exposure=amount+outstanding
+    ratio=exposure/max(1,budget)
+    penalty=0 if ratio<=.25 else 400 if ratio<=.5 else 1000 if ratio<=1 else 2000 if ratio<=2 else 3500
+    probability=min(6500,base+penalty+(300 if months>24 else 0))
+    draw=int.from_bytes(hashlib.sha256(('loan-underwriting-v1|'+request_id).encode()).digest()[:8],'big')%10000 if roll is None else roll
+    if type(draw) is not int or not 0<=draw<10000:raise ValueError('Sorteio de análise inválido')
+    return dict(version=1,decline_bps=probability,roll=draw,budget_at_request=budget,outstanding_at_request=outstanding)
+
+def request_loan(state, *, request_id, club, today, budget, bank, amount, months,submitted_on=None,currency=None,underwriting_roll=None):
     """Register an application; it changes neither budget nor contracted debt."""
     if 'request:'+request_id in state['processed']:
         return deepcopy(state),budget,[]
@@ -176,6 +196,9 @@ def request_loan(state, *, request_id, club, today, budget, bank, amount, months
     result=deepcopy(state)
     result['application']=dict(id=request_id,club=club,bank=bank,principal=amount,months=months,
                                date=submitted,decision_date=response_date(submitted,bank),response_days=response_days(bank),registered_date=today,budget_at_request=budget,status='pending',quote=quote(bank,amount,months))
+    analysis=underwriting(state,request_id,budget,bank,amount,months,underwriting_roll)
+    if analysis is not None:result['application']['underwriting']=analysis
+    if currency in (0,1,2) and type(currency) is int:result['application']['currency']=currency
     result.setdefault('applications',[]).append(deepcopy(result['application']))
     result['processed'].append('request:'+request_id);result['last_date']=today
     return result,budget,[dict(event='application',id=request_id,date=submitted,decision_date=result['application']['decision_date'],registered_date=today)]
@@ -194,6 +217,9 @@ def decide_loan(state, *, club, today, budget):
     row=next((row for row in history if row['id']==application['id']),None)
     if row is None:row=deepcopy(application);history.append(row)
     try:
+        analysis=application.get('underwriting')
+        if analysis and analysis['roll']<analysis['decline_bps']:
+            raise ValueError('O banco não aprovou esta proposta após a análise de risco. Nenhum valor foi creditado. Você pode solicitar a outro banco.')
         result,after,events=borrow(result,request_id=application['id'],club=club,today=today,budget=budget,
             bank=application['bank'],amount=application['principal'],months=application['months'],offer=application.get('quote'))
     except ValueError as error:
@@ -205,6 +231,7 @@ def decide_loan(state, *, club, today, budget):
     response.update(approved=True,budget_after=after,message='Solicitação aprovada. O crédito foi aplicado ao orçamento.',contract=result['contracts'][-1])
     contract=result['contracts'][-1]
     contract.update(application_date=application['date'],decision_date=application['decision_date'])
+    if 'currency' in application:contract['currency']=application['currency']
     row=next(row for row in result['applications'] if row['id']==application['id'])
     row.update(status='approved',decided_date=today,budget_before=budget,budget_after=after,message=response['message'])
     result['last_decision']=deepcopy(row)

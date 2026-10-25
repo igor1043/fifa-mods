@@ -14,7 +14,7 @@ static int market_read_page(void)
     if(!read_card_scope((uintptr_t)g_module_base+0x3809030,&node,8))return 0;
     for(i=0;i<4;++i)if(!node || !read_card_scope(node+offsets[i],&node,8))return 0;
     return node && read_card_scope(node,page,sizeof(page)) && memchr(page,0,sizeof(page))
-        && !strcmp(page,"game/screens/career/server16/TransferMarket");
+        && (!strcmp(page,"game/screens/career/server16/TransferMarket") || !strcmp(page,"game/screens/career/server16/TransferMarketLoading"));
 }
 
 static int market_read_table(void *backend,const char *table,const char **fields,int columns,

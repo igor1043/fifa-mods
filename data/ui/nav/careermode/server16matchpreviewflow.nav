@@ -31,7 +31,7 @@
           "loadView",
           [
             "screen",
-            "game/screens/career/server16/MatchPreview"
+            "game/screens/career/server16/MatchPreviewLoading"
           ]
         ],
         [
@@ -46,8 +46,7 @@
         [
           "unloadView",
           [
-            "screen",
-            "game/screens/career/server16/MatchPreview"
+            "screen"
           ]
         ],
         [
@@ -94,6 +93,24 @@
               "executeCMAction",
               [
                 "ReturnToHubFromCalendar"
+              ]
+            ]
+          ]
+        },
+        {
+          "event": "Server16RefreshMatchPreview",
+          "actions": [
+            [
+              "unloadView",
+              [
+                "screen"
+              ]
+            ],
+            [
+              "loadView",
+              [
+                "screen",
+                "game/screens/career/server16/MatchPreview"
               ]
             ]
           ]

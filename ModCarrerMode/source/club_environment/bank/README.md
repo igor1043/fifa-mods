@@ -11,3 +11,11 @@ E-mails distintos registram pedido recebido, aprovação/recusa e lembrete de ve
 O save permanece gravado pelo próprio FIFA. [SAVE_SQLITE.md](SAVE_SQLITE.md) descreve o livro auxiliar, checkpoints vinculados ao save e restauração. [BANK_TERMS.md](BANK_TERMS.md) documenta as taxas simuladas e os prazos. Contratos, recibos, snapshots e caminhos pessoais nunca fazem parte do pacote.
 
 Diagnósticos: `ModCarrerMode/runtime/club_environment/bank/runtime/`. Os testes usam memória simulada; o pacote limpo verifica importações, SQLite, poses e os dez ícones com o Server16 congelado, sem realizar transações na carreira do usuário.
+
+## Moeda e análise de novas propostas — 25/10/2026
+
+A moeda vem de `career_managerpref.currency`. O ID identifica uma opção do save, sem associação fixa a dólar, euro ou libra: mods de idioma podem renomear essas opções para real e euro. A tela usa `ION_Localization.LocalizeCurrencyWithType`; os corpos dos e-mails usam o mesmo formatador nativo na thread proprietária. Isso muda a apresentação, sem conversão ou alteração dos valores contábeis.
+
+Cada nova proposta registra uma análise de crédito fictícia. A chance base de recusa varia de 8% a 18% conforme o banco e cresce com o valor em relação ao orçamento, dívidas em aberto e prazos acima de 24 meses. Esses percentuais são regras do jogo, sem relação com taxas reais de aprovação. O sorteio e as circunstâncias ficam congelados na proposta e no checkpoint SQLite. Recusar não credita dinheiro, envia a decisão pela fila existente e permite pedir a outro banco. Pedidos anteriores sem essa análise mantêm o comportamento anterior.
+
+Os testes verificam as três opções monetárias com símbolos fornecidos pelo jogo, prefixos e valores compostos, limite de ações do APT, moeda nos e-mails, recusa sem crédito, nova tentativa, decisão persistida após salto de calendário e restauração SQLite, além da preservação dos bytes do save.

@@ -3,6 +3,7 @@
  * the real provider thread. Only our tagged messages use literal strings;
  * the three stock conversion calls otherwise retain their original path. */
 #define BANK_MAIL_TAG "S16BANKMAIL:"
+#include "career_mail_currency.inc"
 typedef struct BankMailRequest {
     unsigned pid, club, due, epoch;
     uintptr_t context;
@@ -22,6 +23,7 @@ static int bank_mail_string(const char *value, size_t capacity)
 static void bank_mail_convert(void *manager, unsigned char *destination, unsigned char *raw)
 {
     const char *subject = NULL, *body = NULL, *title;
+    char localized_body[8192];
     typedef void (*Convert)(void *,void *,void *);
     typedef void (*SetText)(void *,void *,const char *);
     if (is_readable_range(raw,0x60)) {
@@ -35,6 +37,7 @@ static void bank_mail_convert(void *manager, unsigned char *destination, unsigne
         && strspn(title,"0123456789abcdef")==64 && title[64]=='|') {
         SetText set = (SetText)(g_module_base+0x5c15210);
         set(destination,destination+0x18,title+65);
+        if(strstr(body,"{{S16M:")){career_mail_currency(body,localized_body,sizeof(localized_body));body=localized_body;}
         set(destination,destination+0x20,body);
         return;
     }

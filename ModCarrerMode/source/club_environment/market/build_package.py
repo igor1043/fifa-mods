@@ -75,9 +75,9 @@ def flow():
     # Use the existing Calendar controller only for the native screen lifecycle,
     # exactly as loans. No calendar view/model is opened or date advanced.
     return dict(name='Server16TransferMarketFlow',initial=dict(targets=['Market']),states=[dict(name='Market',
-        onEnter=[['executeCMAction',['EnterCalendar']],['loadScreenController',['Calendar']],['loadView',['screen',PAGE]],['loadView',['background','BOOTFLOW']]],
-        onExit=[['unloadView',['screen',PAGE]],['unloadScreenController',['Calendar']],['unloadView',['background']]],
-        transitions=[dict(event='Server16RefreshTransferMarket',actions=[['unloadView',['screen',PAGE]],['loadView',['screen',PAGE]]])]+
+        onEnter=[['executeCMAction',['EnterCalendar']],['loadScreenController',['Calendar']],['loadView',['screen',PAGE+'Loading']],['loadView',['background','BOOTFLOW']]],
+        onExit=[['unloadView',['screen']],['unloadScreenController',['Calendar']],['unloadView',['background']]],
+        transitions=[dict(event='Server16RefreshTransferMarket',actions=[['unloadView',['screen']],['loadView',['screen',PAGE]]])]+
         [dict(event=e,targets=['Back'],actions=[['executeCMAction',['ReturnToHubFromCalendar']]]) for e in ('Back','back')])])
 
 def stage(game,folder):

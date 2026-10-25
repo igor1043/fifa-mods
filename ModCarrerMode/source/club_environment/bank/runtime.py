@@ -329,7 +329,7 @@ class Bridge:
         today=year*10000+month*100+day;parse_date(today)
         budget=m.read_uint32(ctx+0x2ac)
         if not 0<=budget<=MAX_BUDGET:raise RuntimeError('Orcamento fora da faixa')
-        return {'club':p['club_id'],'date':today,'budget':budget,'address':ctx+0x2ac,'page':self.page(),'context_epoch':p.get('context_epoch',0)}
+        return {'club':p['club_id'],'date':today,'budget':budget,'address':ctx+0x2ac,'page':self.page(),'context_epoch':p.get('context_epoch',0),'currency':getattr(self,'currency',None)}
 
     def saved(self):
         path=Path(self.save['path']);data=path.read_bytes()
@@ -557,7 +557,7 @@ class Bridge:
                         transport=getattr(self,'request_transport','legacy_heap'),capture_delay_ms=round(max(0,time.time_ns()-captured)/1e6,1) if captured else None)
                     try:
                         request_id=self.nonce+':'+str(seq)
-                        if action==0:state,budget,events=request_loan(self.state,request_id=request_id,club=live['club'],today=live['date'],budget=live['budget'],bank=bank,amount=AMOUNTS[ai],months=TERMS[ti],submitted_on=submitted)
+                        if action==0:state,budget,events=request_loan(self.state,request_id=request_id,club=live['club'],today=live['date'],budget=live['budget'],bank=bank,amount=AMOUNTS[ai],months=TERMS[ti],submitted_on=submitted,currency=getattr(self,'currency',None))
                         else:state,budget,events=pay(self.state,request_id=request_id,club=live['club'],today=live['date'],budget=live['budget'],settle=action==2,contract_id=found[6] if len(found)>6 else None)
                         result={'sequence':seq,'action':action}
                         if action and len(found)>6:result['contract_id']=found[6]

@@ -9,14 +9,16 @@ PAGE='/'.join(CLASS)
 FIELDS=(('title',130,170,1620,65,42),('message',130,350,1620,70,34),
         ('detail',130,450,1620,65,26),('status',130,850,1620,40,24))
 
-def build(output):
+def build(output,kind='preview'):
+    if kind not in ('preview','market'):raise ValueError('Unknown career view')
+    screen_class=CLASS if kind=='preview' else CLASS[:-1]+('TransferMarketLoading',)
     # Keep builder globals isolated: the bank worker uses the same template.
     names=('HERE','CLASS','FULL','PAGE','Code','FIELDS','make_script','USE_R57','USE_R60')
     saved={name:getattr(b,name,None) for name in names}
     def script(data,dictionaries):
         a=Code(data);a.align();start=len(data);data.extend(dictionaries[0])
-        for i,name in enumerate(CLASS[:-1]):
-            parent=b.GLOBAL if not i else b.path(*CLASS[:i])
+        for i,name in enumerate(screen_class[:-1]):
+            parent=b.GLOBAL if not i else b.path(*screen_class[:i])
             a.when(b.prop(parent,name),lambda a:None,lambda a,parent=parent,name=name:a.set(parent,name,('object',)))
         def constructor(a):
             a.op(89);a.reg(2);a.op(118);a.op(93)
@@ -33,14 +35,16 @@ def build(output):
             a.do(b.ION,'SendSystemEvent',b.prop(b.this('staticData'),'SCREEN_CONTROLLER_ID'),'DONE_LOADING','')
             a.do(b.MANAGER('InputManager'),'SetLocalEventHandler',b.call(b.path('cafe','utility','Delegate'),'Create',b.reg(1),b.this('LocalEventHandler')))
             a.do(b.MANAGER('HelpManager'),'Update')
-        a.function(CLASS[-1],0,constructor,True);a.expr(b.path(*CLASS));a.expr(b.path('ion','screen','BaseScreen'));a.op(105)
+        a.function(screen_class[-1],0,constructor,True);a.expr(b.path(*screen_class));a.expr(b.path('ion','screen','BaseScreen'));a.op(105)
         a.function('getHelpContext',0,lambda a:a.ret(('array',(b.call(b.path('ion','manager','HelpItem'),'CreateHelpTickerItem','BACK','Voltar'),))))
         def init(a):
             a.when(('not',('bin',16,b.this('title'),b.this('status'))),lambda a:(a.set(b.reg(1),'onEnterFrame',b.this('InitComponents')),a.ret()))
             a.set(b.reg(1),'onEnterFrame',None)
             a.set(b.this('mcGridControl'),'_visible',False)
             for field,value in (('title','PRÓXIMA PARTIDA'),('message','Atualizando as informações da partida...'),
-                                ('detail','Preparando escalações, estádio e últimos resultados.'),('status','Esc / B: voltar')):
+                                ('detail','Preparando escalações, estádio e últimos resultados.'),('status','')):
+                if kind=='market':value={'title':'MERCADO DE TRANSFERÊNCIAS','message':'Carregando o mercado desta carreira...',
+                                        'detail':'Consultando negociações e clubes em tempo real.','status':''}[field]
                 a.set(b.this(field),'text',value)
             a.set(b.reg(1),'_visible',True);a.set(b.reg(1),'_alpha',100)
         def back(a):
@@ -60,7 +64,7 @@ def build(output):
     try:
         with tempfile.TemporaryDirectory(prefix='server16_preview_loading_') as directory:
             folder=Path(directory);shutil.copy2(saved['HERE']/'careertype.big',folder/'careertype.big')
-            b.HERE=folder;b.CLASS=CLASS;b.FULL='.'.join(CLASS);b.PAGE=PAGE;b.Code=Code;b.FIELDS=FIELDS
+            b.HERE=folder;b.CLASS=screen_class;b.FULL='.'.join(screen_class);b.PAGE='/'.join(screen_class);b.Code=Code;b.FIELDS=FIELDS
             b.make_script=script;b.USE_R57=False;b.USE_R60=True;b.build()
             shutil.copy2(folder/'package/data/ui/game/screens/career/server16/bankloans.big',output)
     finally:

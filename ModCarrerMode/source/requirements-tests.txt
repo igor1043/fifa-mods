@@ -1,0 +1,9 @@
+# Development tests only; none of these need installing on the player's PC.
+Pillow
+numpy
+pygame
+psutil
+pefile
+pyinstaller
+lupa
+rarfile

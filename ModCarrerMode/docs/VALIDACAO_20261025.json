@@ -1,0 +1,42 @@
+{
+  "date": "2026-10-25",
+  "public_profile": true,
+  "passed": true,
+  "python_test_executions": 681,
+  "python_suite_processes": 67,
+  "bootstrap_stale_runtime_regression_passed": true,
+  "native_test_commands": 40,
+  "browser_native_commands": 2,
+  "browser_worker_modes": [
+    "fixture",
+    "retry",
+    "retry-permanent"
+  ],
+  "inactive_features_not_validated": {
+    "test_extra_scenes": "EXTRA_SCENES_AVAILABLE is disabled in the public build",
+    "test_narration_panel": "NARRATION_PICKER_AVAILABLE is disabled in the public build",
+    "test_narration_autosave": "External narration authoring tools are not part of this repository",
+    "test_narration_club_names": "External narration authoring tools are not part of this repository",
+    "test_narration_editor": "External narration authoring tools are not part of this repository",
+    "test_narration_generic_policy": "External narration authoring tools are not part of this repository",
+    "test_narration_library": "External narration authoring tools are not part of this repository",
+    "test_narration_portability": "External narration authoring tools are not part of this repository",
+    "test_narration_projects": "External narration authoring tools are not part of this repository",
+    "test_narration_startup": "External narration authoring tools are not part of this repository"
+  },
+  "original_kit_font_tests_passed": true,
+  "release_files_equal_game_and_development": 208,
+  "server16_sha256": "42112c6ac4db6e03589c55bc75a72fe7886173563f54ab329c93b4f206c2e5eb",
+  "dinput8_sha256": "92a01a1d4b034b9b5e03b0355b29f3b2969cded9f2603a4d67ee5e53ad324091",
+  "goal_news_sha256": "f30ba08eb294afe9640a3bf1b5efe881e5c76e1f63728d4116100d7c2f20a5a3",
+  "server16_source_commit": "42c19d1fa16c00716b48ca30b65b4a380e26988f",
+  "local_user_confirmed": [
+    "native_goal_news_visible",
+    "match_preview_data_and_left_stick_pages",
+    "dressing_room_camera"
+  ],
+  "pending_manual": [
+    "Full updated delivery on Robson PC, especially starting XI"
+  ],
+  "personal_saves_or_sql_in_distribution": false
+}

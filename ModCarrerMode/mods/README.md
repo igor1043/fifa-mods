@@ -1,6 +1,6 @@
 # Módulos do FIFA Friends V12
 
-O pacote usa 21 DLLs ativas, com uma DLL atual em cada pasta. `enabled.txt`
+O pacote usa 22 DLLs ativas, com uma DLL atual em cada pasta. `enabled.txt`
 define os caminhos e a ordem de carregamento. `mod_host.dll` é o carregador
 compartilhado e fica na raiz desta pasta.
 
@@ -24,6 +24,7 @@ compartilhado e fica na raiz desta pasta.
 | [cloth_motion/cloth_motion.dll](cloth_motion/cloth_motion.dll) | Física das roupas | [cloth_motion.ini](cloth_motion/cloth_motion.ini) |
 | [frontend_stadium/frontend_stadium_native_v11.dll](frontend_stadium/frontend_stadium_native_v11.dll) | Estádio de fundo do menu e da carreira | [frontend_stadium.ini](../config/frontend_stadium.ini) |
 | [panorama_drone/panorama_drone_v5.dll](panorama_drone/panorama_drone_v5.dll) | 39 tomadas da panorâmica | [panorama_drone.ini](../config/panorama_drone.ini) |
+| [goal_news/goal_news.dll](goal_news/goal_news.dll) | Placares simultâneos no painel nativo; exibição confirmada localmente, sem trocar a narração | [goal_news.ini](../config/goal_news.ini) |
 
 ## Ambiente do clube — 24/10/2026
 

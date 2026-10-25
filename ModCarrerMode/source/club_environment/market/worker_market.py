@@ -7,6 +7,7 @@ from pathlib import Path
 import hashlib,json,os,struct,sys,time
 import psutil
 import portable_paths as portable
+import prepared_views
 from server16_py.memory_access import Memory
 from server16_py.career_context import competition_session
 from server16_py.career_active_save import read_active_save
@@ -67,28 +68,33 @@ def publish(snapshot,memory=None,live=None):
     # Date, save revision, club or deal changes invalidate this cache.
     key=(snapshot['signature'],live['revision'])
     if _prepared is not None and _prepared[0]==key:
-        _,original,scenes,assets,art=_prepared;data=dict(original)
+        _,original,scenes,assets,art=_prepared;data=dict(original);rebuild=False
     else:
         data=read_snapshot(GAME,snapshot['save']['path'],club_override=snapshot['profile']['club_id'],date_override=snapshot['date'],live=live)
         scenes=[s for s in make_scenes(data) if s['key']!='entry']
         assets,art=export_assets(data,ROOT/'assets')
-        _prepared=(key,dict(data),scenes,assets,art)
+        rebuild=True
     data['pid']=snapshot['save']['pid'];data['userid']=snapshot['profile']['userid'];data['dataAsOf']='live-career'
     data['capturedMs']=live['capturedMs']
-    token=f"{data['pid']}:{snapshot['profile']['context_epoch']}:{live['capturedMs']}"
+    token=hashlib.sha256(repr(key).encode('utf8')).hexdigest()
     for scene in scenes:
         scene.update(ready=True,automatic=True,entryToken=token)
-    package=ROOT/'package/transfermarket.big';build(GAME,package,scenes,assets)
+    package=ROOT/'package'/('transfermarket_'+token+'.big')
+    if rebuild or not package.is_file():build(GAME,package,scenes,assets)
     if memory is not None and observe(memory)['signature']!=snapshot['signature']:raise RuntimeError('A carreira mudou durante a preparação do mercado.')
     if memory is not None:
         import ctypes
         timer=memory.kernel32.GetTickCount64;timer.restype=ctypes.c_ulonglong
         current=read_live(ROOT/'live_market.tsv',snapshot,timer())
-        if (current['entry'],current['revision'])!=(live['entry'],live['revision']):raise RuntimeError('O mercado mudou durante a preparação da tela.')
-    atomic(DEST,package.read_bytes())
+        if current['revision']!=live['revision']:raise RuntimeError('O mercado mudou durante a preparação da tela.')
+        live=current
+    data['capturedMs']=live['capturedMs']
+    if rebuild or not DEST.is_file():atomic(DEST,package.read_bytes())
     save_json(ROOT/'market.json',data)
     state=dict(schema=3,ready=True,pid=data['pid'],club=data['clubId'],date=snapshot['date'],saved_date=data['savedDate'],save_hash=data['sourceHash'],signature=snapshot['signature'],deals=len(data['transfers']),bytes=package.stat().st_size,read_only=True,source='live-career',entry=live['entry'],entry_token=token,live_revision=live['revision'],captured_ms=live['capturedMs'],assets=len(art),fallbacks=sum(a['fallback'] for a in art),sha256=hashlib.sha256(package.read_bytes()).hexdigest())
     save_json(ROOT/'status.json',state);log('prepared',**state)
+    prepared_views.publish(ROOT/'view_ready.tsv',snapshot['save'],snapshot['profile'],snapshot['date'],state['sha256'],captured_ms=live['capturedMs'])
+    _prepared=(key,dict(data),scenes,assets,art)
     return state
 
 def publication_due(signature,captured_ms,last,last_capture,elapsed):
@@ -121,7 +127,7 @@ def main():
             try:
                 snapshot=observe(memory)
                 live=read_live(ROOT/'live_market.tsv',snapshot,kernel.GetTickCount64())
-                signature=(snapshot['signature'],live['revision'],live['entry'])
+                signature=(snapshot['signature'],live['revision'])
                 if publication_due(signature,live['capturedMs'],last,last_capture,time.monotonic()-last_publish):
                     publish(snapshot,memory,live=live);last=signature;last_capture=live['capturedMs'];last_publish=time.monotonic()
                 error=None

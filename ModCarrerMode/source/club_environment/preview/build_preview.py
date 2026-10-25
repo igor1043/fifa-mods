@@ -58,7 +58,7 @@ def script(data,dictionaries,payload,head_ids):
         a.set(R(1),'staticData',CALL(ION,'GetScreenStaticData'));a.set(R(1),'navEvents',CALL(ION,'GetEvents','Navigation'))
         a.do(R(1),'InitComponents');a.do(R(1),'AnimateIn')
     a.function(CLASS[-1],0,ctor,True);a.expr(PATH(*CLASS));a.expr(PATH('ion','screen','BaseScreen'));a.op(105)
-    a.function('getHelpContext',0,lambda a:a.ret(arr((CALL(PATH('ion','manager','HelpItem'),'CreateHelpTickerItem','BACK','Voltar'),))))
+    a.function('getHelpContext',0,lambda a:a.ret(arr((CALL(PATH('ion','manager','HelpItem'),'CreateHelpTickerItem','BACK','Voltar'),CALL(PATH('ion','manager','HelpItem'),'CreateHelpTickerItem','LAS_LR','Páginas')))))
     def init(a):
         a.set(R(1),'userID',payload['user']['team_id'])
         a.set(R(1),'carouselPage',0)
@@ -100,6 +100,11 @@ def script(data,dictionaries,payload,head_ids):
         a.set(P(clip,'caption'),'text','SEU TIME TITULAR')
         a.when(P(team,'probable'),lambda a:a.set(P(clip,'caption'),'text','PROVÁVEL ESCALAÇÃO'))
         a.do(R(1),'LoadCrest',P(clip,'crest'),P(team,'team_id'))
+        def unavailable(a):
+            for i in range(11):a.set(P(clip,'p'+str(i)),'_visible',False)
+            a.set(P(clip,'caption'),'text','ESCALAÇÃO INDISPONÍVEL');a.ret()
+        a.when(('not',EQ(P(P(team,'players'),'length'),11)),unavailable)
+        for i in range(11):a.set(P(clip,'p'+str(i)),'_visible',True)
         # Portraits need more height than FIFA's shirt markers. Preserve the
         # formation's rows while spreading them to avoid heads covering names.
         a.set(R(1),'rowLevels',arr((0.0,)))
@@ -291,7 +296,7 @@ def build(payload=None):
     pc=[];depth=0
     def rect(x,y,w,h,color):
         nonlocal depth;depth+=1;pc.append(place(shape_id,depth,x,y,w,h,color=color))
-    rect(0,0,PANEL_W,PANEL_H,0xffd4d7cf);rect(0,0,PANEL_W,80,payload['user'].get('header_color',0xff163e62))
+    rect(0,0,PANEL_W,PANEL_H,0xffd4d7cf);rect(FIELD_X,0,FIELD_W,FIELD_Y,payload['user'].get('header_color',0xff163e62))
     for i in range(10):rect(FIELD_X,FIELD_Y+i*76,FIELD_W,76,0xff2a6127 if i%2 else 0xff2d672a)
     # This field has the reference's portrait aspect, 640 / 760 = 0.8421.
     line=0xff6d8f61
@@ -316,15 +321,16 @@ def build(payload=None):
             name=name[:11]
         return name
     def native_pitch(team):
-        controls=pc.copy();controls[0]=place(shape_id,1,0,0,0,0,color=0x00ffffff);controls[1]=place(shape_id,2,0,0,PANEL_W,80,color=team.get('header_color',0xff163e62))
+        controls=pc.copy();controls[0]=place(shape_id,1,0,0,0,0,color=0x00ffffff);controls[1]=place(shape_id,2,FIELD_X,0,FIELD_W,FIELD_Y,label='teamHeader',color=team.get('header_color',0xff163e62))
         ink=0xff000000|team.get('header_ink',0xffffff)
         crest_symbol=native_art('S16Crest_'+str(team['team_id']),56,'crest')
-        controls.extend([place(crest_symbol,200,14,10,label='crest'),text(201,84,8,560,42,31,'teamName',ink,value=team['name']),text(202,84,50,560,26,20,'caption',ink,value='PROVÁVEL ESCALAÇÃO' if team['probable'] else 'SEU TIME TITULAR'),text(203,20,803,210,49,41,'formation',0xffffffff,font=4,value=team['formation'])])
+        controls.extend([place(crest_symbol,200,FIELD_X+14,19,label='crest'),text(201,FIELD_X+84,15,FIELD_W-96,42,31,'teamName',ink,value=team['name']),text(202,FIELD_X+84,57,FIELD_W-96,26,20,'caption',ink,value='PROVÁVEL ESCALAÇÃO' if team['probable'] else 'SEU TIME TITULAR'),text(203,20,803,210,49,41,'formation',0xffffffff,font=4,value=team['formation'])])
         bands=[0.0]
         for p in team['players'][1:]:
             if all(abs(p['y']-b)>=.09 for b in bands[1:]):bands.append(p['y'])
         step=590/max(1,len(bands)-1);head=max(48,min(HEAD_MAX,step-56))
-        for i,p in enumerate(team['players']):
+        for i in range(11):
+            p=team['players'][i] if i<len(team['players']) else dict(id=0,name='',position=0,overall=0,x=.5,y=0)
             rank=0 if p['position']==0 else 1+sum(b<p['y']-.09 for b in bands[1:])
             face=native_art('S16Head_'+str(p['id']),head,'portrait')
             pos=p['position'];color=0xffe4c62b if pos==0 else 0xff24b8e4 if pos<9 else 0xff7bdc41 if pos<20 else 0xffe4427c

@@ -1,7 +1,7 @@
 import portable_paths as portable
 """Read-only projection of the active save for the match preview prototype."""
 from pathlib import Path
-import json,struct,sys,subprocess,hashlib,xml.etree.ElementTree as ET
+import json,struct,sys,hashlib,xml.etree.ElementTree as ET
 from server16_py.career_save_worker import blocks
 from server16_py.career_read import Record
 
@@ -89,52 +89,53 @@ def project(snapshot_path=GAME/'ModCarrerMode/runtime/career_fce_snapshot.json')
     if not fixtures:
         empty=lambda ident:{'team_id':ident,'name':'','probable':ident!=club,'formation':'','players':[]}
         from preview_details import enrich
-        return enrich({'available':False,'pid':process.pid,'context':profile['context_address'],'source_revision':snapshot_revision(snapshot),'save':str(path),'date':today,'fixture':[0,0,0,today,0,club,0,0,0,0,0],'user':empty(club),'opponent':empty(0)},snapshot,rows,base)
+        return enrich({'available':False,'pid':process.pid,'process_created_100ns':snapshot['processCreated100ns'],'context':profile['context_address'],'source_revision':snapshot_revision(snapshot),'save':str(path),'date':today,'fixture':[0,0,0,today,0,club,0,0,0,0,0],'user':empty(club),'opponent':empty(0)},snapshot,rows,base)
     fixture=min(fixtures,key=lambda r:(r[3],r[4],r[0]));opponent=fixture[6] if fixture[5]==club else fixture[5]
     players={r.value('playerid'):r for r in rows('players')}
-    selected={r.value('playerid'+str(i)) for r in rows('teamsheets')+rows('default_teamsheets') if r.value('teamid') in (club,opponent) for i in range(11)}
+    from lineup_selection import select
+    links={}
+    for r in rows('teamplayerlinks'):links.setdefault(r.value('teamid'),set()).add(r.value('playerid'))
+    plans={ident:select(ident,rows('teamsheets'),rows('default_teamsheets'),players,links.get(ident,set())) for ident in (club,opponent)}
+    selected={slot['id'] for plan in plans.values() for slot in plan['slots']}
     wanted={players[pid].value(key) for pid in selected if pid in players for key in ('commonnameid','playerjerseynameid','lastnameid')}
-    here=Path(__file__).resolve().parent;request=here/'name_ids.json';cache_path=here/'base_name_cache.json';dbstat=(GAME/'data/db/fifa_ng_db.db').stat();stamp=[dbstat.st_size,dbstat.st_mtime_ns]
-    cache=json.loads(cache_path.read_text(encoding='utf8')) if cache_path.exists() else {}
+    here=Path(__file__).resolve().parent;cache_path=here/'base_name_cache.json';dbstat=(GAME/'data/db/fifa_ng_db.db').stat();stamp=[dbstat.st_size,dbstat.st_mtime_ns]
+    try:cache=json.loads(cache_path.read_text(encoding='utf8')) if cache_path.exists() else {}
+    except (OSError,ValueError):cache={}
     if cache.get('stamp')!=stamp:cache={'stamp':stamp,'queried':[],'names':{}}
     missing=wanted-set(cache['queried'])
     if missing:
-        request.write_text(json.dumps(sorted(missing)),encoding='utf8')
-        from server16_py.fifa_db import _find_python32,_find_dll
-        output=subprocess.run([str(_find_python32()),'-B',str(here/'names_worker.py'),str(_find_dll()),str(GAME/'data/db/fifa_ng_db.db'),str(GAME/'data/db/fifa_ng_db-meta.xml'),str(request)],check=True,capture_output=True,timeout=45,creationflags=subprocess.CREATE_NO_WINDOW)
-        cache['names'].update(json.loads(output.stdout));cache['queried']=sorted(set(cache['queried'])|missing);cache_path.write_text(json.dumps(cache,ensure_ascii=False),encoding='utf8')
+        # The shipped market decoder already reads FIFA's compressed names.
+        # Query only missing IDs; a slow x86/.NET process must not block all
+        # three cards for up to 45 seconds or leave the reader in a retry loop.
+        sys.path.insert(0,str(portable.SOURCES/'market'))
+        from fifa_db import FifaDatabase
+        catalog=FifaDatabase(GAME,include_all_tables=True)
+        found=catalog.rows_matching('playernames',('nameid','name'),'nameid',missing)
+        cache['names'].update({str(row['nameid']):row['name'] for row in found});cache['queried']=sorted(set(cache['queried'])|missing)
+        temporary=cache_path.with_suffix('.new');temporary.write_text(json.dumps(cache,ensure_ascii=False),encoding='utf8');temporary.replace(cache_path)
     names={int(k):v for k,v in cache['names'].items()}
     names.update({r.value('nameid'):r.value('name') for r in saved.get('dcplayernames',[])})
     teams={r.value('teamid'):r.value('teamname') for r in rows('teams')}
     edited={r.value('playerid'):r for r in rows('editedplayernames')}
-    links={}
-    for r in rows('teamplayerlinks'):links.setdefault(r.value('teamid'),set()).add(r.value('playerid'))
     def team(teamid,probable):
-        options=[r for r in rows('teamsheets') if r.value('teamid')==teamid and r.value('isfavourite')==1]
-        if len(options)>1:raise ValueError('Ambiguous favourite team sheet')
-        source='teamsheets' if options else 'default_teamsheets'
-        if not options:options=[r for r in rows(source) if r.value('teamid')==teamid]
-        if len(options)!=1:raise ValueError('No unambiguous sheet for '+str(teamid))
-        sheet=options[0];line=[]
-        for i in range(11):
-            pid=sheet.value('playerid'+str(i))
-            if pid not in players or pid not in links.get(teamid,set()):raise ValueError('Invalid starting player')
+        plan=plans[teamid];line=[]
+        for slot in plan['slots']:
+            pid=slot['id']
             player=players[pid]
             if pid in edited:
                 e=edited[pid];name=e.value('commonname') or e.value('playerjerseyname') or e.value('surname')
             else:name=next((names.get(player.value(key),'') for key in ('commonnameid','playerjerseynameid','lastnameid') if names.get(player.value(key),'')),'')
-            if not name:raise ValueError('Missing name for '+str(pid))
-            line.append({'id':pid,'name':name,'overall':player.value('overallrating'),'position':sheet.value('position'+str(i)),'x':sheet.value('offset'+str(i)+'x'),'y':sheet.value('offset'+str(i)+'y')})
-        if len({p['id'] for p in line})!=11:raise ValueError('Duplicate starting player')
+            if not name:name='Nome não informado'
+            line.append({'id':pid,'name':name,'overall':player.value('overallrating'),'position':slot['position'],'x':slot['x'],'y':slot['y']})
         bands=[]
         for p in sorted((p for p in line if p['position']!=0),key=lambda p:p['y']):
             if not bands or p['y']-bands[-1][0]>.09:bands.append([p['y'],1])
             else:bands[-1][1]+=1
         formation='-'.join(str(n) for _,n in bands)
-        return {'team_id':teamid,'name':teams[teamid],'probable':probable,'source':source,'formation':formation,'players':line,
+        return {'team_id':teamid,'name':teams[teamid],'probable':probable or plan['probable'],'source':plan['source'],'formation':formation,'players':line,
                 'portrait_ids':sorted(pid for pid in links.get(teamid,set()) if pid in players)}
     from preview_details import enrich
-    return enrich({'pid':process.pid,'context':profile['context_address'],'source_revision':snapshot_revision(snapshot),'save':str(path),'date':today,'fixture':fixture,'user':team(club,False),'opponent':team(opponent,True)},snapshot,rows,base)
+    return enrich({'pid':process.pid,'process_created_100ns':snapshot['processCreated100ns'],'context':profile['context_address'],'source_revision':snapshot_revision(snapshot),'save':str(path),'date':today,'fixture':fixture,'user':team(club,False),'opponent':team(opponent,True)},snapshot,rows,base)
 
 if __name__=='__main__':
     p=Path(__file__).with_name('lineups.json');data=project();p.write_text(json.dumps(data,ensure_ascii=False,indent=2),encoding='utf8');print(json.dumps(data,ensure_ascii=False,indent=2))

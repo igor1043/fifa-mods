@@ -5,8 +5,8 @@ if not "%~1"=="" (
     call "%~dp0scripts\tests\%~1.cmd" %2 %3 %4 %5 %6 %7 %8 %9
     exit /b
 )
-for %%T in (test_mod_paths test_career_leaders test_card_refresh_schedule test_stadium_thumbnail test_native_patch_preflight test_calendar_icon_identity test_team_name_identity build_retirement_engine_test) do (
-    call "%~dp0scripts\tests\%%T.cmd"
+for %%T in ("%~dp0scripts\tests\test_*.cmd") do (
+    call "%%~fT"
     if errorlevel 1 exit /b 1
 )
 echo Testes compartilhados da V12 concluidos.

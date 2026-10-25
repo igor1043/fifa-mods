@@ -10,6 +10,18 @@ O FIFA Friends V12 reúne melhorias para acompanhar seu clube, personalizar a ex
 
 A combinação Git + ZIP é agora verificada em uma pasta vazia, sem caches do desenvolvedor, incluindo igualdade entre o módulo embutido no EXE e o fonte publicado.
 
+### Revisão de estabilidade, empréstimos e placares — 25/10/2026
+
+Também foi revisado o [carregamento de Próxima partida e Mercado](ModCarrerMode/source/docs/CAREER_VIEWS_20261025.md): espera por publicação da carreira atual, carrossel no analógico esquerdo, recuperação de escalações prováveis desatualizadas e eliminação do retorno indevido à cobertura de carregamento do Mercado. Próxima partida agora abre pela fila nativa de navegação, corrigindo o evento que o controlador do calendário ignorava; escalações, estádio, resultados e troca de páginas foram confirmados no FIFA aberto. Os cabeçalhos das escalações têm a largura do campo e ficam encostados nele. Testes da interface gerada e do consumidor nativo estão incluídos nos fontes.
+
+O erro `failed to open archive file` ocorria antes do Python: o carregador não conseguia reabrir o próprio Server16 durante a extração. O carregador passa a repetir essa leitura por até cinco segundos. O pacote dispensa pip e caches de desenvolvimento da ponte x86, mantendo seus módulos de execução; os demais módulos embutidos foram preservados byte a byte. Aberturas isoladas e simultâneas, leitura da base pela ponte x86 e preparação dos titulares foram verificadas.
+
+O auxiliar dos titulares inicia ao abrir a visualização e recupera até duas falhas de inicialização do carregador, preservando clube e pedido. Não prepara modelos no mapa. Saves, contratos, texturas e demais mods mantêm seus fluxos existentes.
+
+As [notícias nativas de gols](ModCarrerMode/source/native_mods/goal_news/README.md) mostram placares dos jogos simulados em paralelo, sem filtro adicional por liga ou idioma da narração. A leitura respeita o relógio, aguarda o painel anterior e descarta repetições. A exibição em partida foi confirmada pelo usuário nesta revisão.
+
+Empréstimos passam a usar a moeda escolhida no save e a formatação monetária do próprio FIFA, inclusive nos e-mails. Novas propostas têm uma chance simulada de recusa que varia por banco, exposição financeira e prazo. A decisão é fixada no pedido e guardada no SQLite; reabrir telas ou carregar o mesmo estado não sorteia novamente. Contratos e pedidos anteriores mantêm suas condições. [Testes, limites da cobertura e entrega](ModCarrerMode/docs/RELEASE_20261025.md).
+
 ### Correções de vestiário e auxiliares — 25/10/2026
 
 O vestiário tinha os modelos prontos, mas sua câmera ignorava o estado 13 de um estádio carregado. Agora aceita os estados 1 e 13, mantendo a validação da projeção e a restauração da câmera. A recuperação foi confirmada pelo usuário na sessão aberta; modelos, texturas e os demais mods foram preservados.
@@ -36,7 +48,7 @@ Teste da revisão: o executável congelado criou os runtimes ausentes e executou
 - **Ver clubes e onze titulares:** carrossel em Outras ligas, globo 8K com pontos fixos, imagens dos clubes lidas do FIFA e onze titulares em pose estática desenhados pela engine no estádio. Carregamento somente ao abrir Ver titulares; recursos isolados por seleção evitam misturar clubes. [Arquitetura e testes](ModCarrerMode/source/club_browser/README.md).
 - **Server16 0.2.15:** compatibilidade ReShade API 17, controles genéricos opcionais e sincronização dos auxiliares. Executável atualizado incluído neste repositório; fontes canônicos na branch `fifa-friends` do [Server16](https://github.com/igor1043/CG-File-Server-16---Python-Port/tree/fifa-friends).
 
-**Para atualizar:** com FIFA/Server fechados, copie esta branch e extraia **FIFA-Friends-Assets-Complementares-20261024.zip** diretamente na pasta do FIFA. O ZIP contém só assets fora do GitHub: os 33 arquivos estáticos do vestiário, duas texturas do globo e `data/ant.cbac`. Server16, DLLs, código e interfaces vêm desta branch. Não há instalador no ZIP. [Conteúdo e conferência](ModCarrerMode/docs/RELEASE_20261024.md).
+**Para atualizar:** com FIFA/Server fechados, copie esta branch e extraia **FIFA-Friends-Assets-Complementares-20261025.zip** diretamente na pasta do FIFA. O ZIP contém só assets fora do GitHub: os 33 arquivos estáticos do vestiário, duas texturas do globo e `data/ant.cbac`. Server16, DLLs, código e interfaces vêm desta branch. Não há instalador no ZIP. [Conteúdo e conferência](ModCarrerMode/docs/RELEASE_20261025.md).
 
 ## Atualização — 21/10/2026
 

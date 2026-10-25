@@ -19,7 +19,7 @@ class BankInputVM(NativeVM):
   if self.depth==0:self.steps=0
   return super().invoke(function,owner,args)
 
-def open_screen(view,globals_=None):
+def open_screen(view,globals_=None,currency_formatter=None):
  ui.build(view);apt=AptFile(BigFile(ui.b.HERE/'package/data/ui/game/screens/career/server16/bankloans.big'));actions=Actions(apt).read_all()
  assert not actions.errors
  calls=[]
@@ -28,12 +28,14 @@ def open_screen(view,globals_=None):
   if name in ('Create','CreateHelpTickerItem'):return tuple(args)
   if name=='GetScreenStaticData':return Object({'SCREEN_CONTROLLER_ID':'Calendar'})
   if name=='GetEvents':return Object({'BACK':'Back'})
+  if name=='LocalizeCurrencyWithType':return currency_formatter(*args) if currency_formatter else f'{args[1]:,}'.replace(',','.')
  vm=BankInputVM(native)
  if globals_ is not None:vm.global_=globals_
  manager={k:Object({n:Native(n) for n in ns}) for k,ns in {'InputManager':['SetLocalEventHandler','DisableCurrentLocalEventHandler'],'ScreenManager':['SetOnExitScreenCallback','BeginAnimateIn'],'HelpManager':['Update','Clear']}.items()}
  manager['InputCodes']=Object({'ADVANCE':2,'BACK':1,'UP':3,'DOWN':4,'LEFT':5,'RIGHT':6})
  vm.global_.set('game',Object({'globalClasses':Object(manager)}))
  vm.global_.set('ION_CareerMode',Object({n:Native(n) for n in ('GetScreenStaticData','GetEvents','SendEvent','SendSystemEvent')}))
+ vm.global_.set('ION_Localization',Object({'LocalizeCurrencyWithType':Native('LocalizeCurrencyWithType')}))
  vm.global_.set('cafe',Object({'utility':Object({'Delegate':Object({'Create':Native('Create')})})}))
  vm.global_.set('ion',Object({'screen':Object({'BaseScreen':Object({'prototype':Object({'Initialize':Native('Initialize'),'Shutdown':Native('Shutdown')})})}),'manager':Object({'HelpItem':Object({'CreateHelpTickerItem':Native('CreateHelpTickerItem')})})}))
  blocks=list(actions.cache.values());vm.pending_packages={ui.b.FULL:blocks[0]};vm.run(blocks[1],vm.global_,vm.global_);klass=vm.path(ui.b.FULL)

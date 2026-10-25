@@ -11,9 +11,17 @@ int wmain(int argc,wchar_t**argv){
   GetEnvironmentVariableW(L"SERVER16_CLUB_BROWSER_WORKER",value,64);assert(!wcscmp(value,L"1"));
   assert(!GetEnvironmentVariableW(L"SERVER16_TRANSFER_MARKET_WORKER",value,64));
   wchar_t handleText[64]{};GetEnvironmentVariableW(L"XI_TEST_HANDLE",handleText,64);auto forbidden=(HANDLE)_wcstoui64(handleText,nullptr,10);DWORD flags=0;
+  // Capture any pre-existing object before OpenEvent can recycle the numeric
+  // value of an intentionally non-inherited handle. Compare objects, not IDs.
+  HANDLE captured=nullptr;const bool wasValid=DuplicateHandle(GetCurrentProcess(),forbidden,GetCurrentProcess(),&captured,0,FALSE,DUPLICATE_SAME_ACCESS)!=FALSE;
   wchar_t eventName[128]{};GetEnvironmentVariableW(L"XI_TEST_EVENT",eventName,128);HANDLE known=OpenEventW(SYNCHRONIZE,FALSE,eventName);assert(known);
-  using Compare=BOOL(WINAPI*)(HANDLE,HANDLE);auto compare=reinterpret_cast<Compare>(GetProcAddress(GetModuleHandleW(L"kernelbase.dll"),"CompareObjectHandles"));assert(compare&&!compare(forbidden,known));CloseHandle(known);
-  std::cout<<"child stdout captured\n";std::cerr<<"child stderr captured\n";return 37;
+  using Compare=BOOL(WINAPI*)(HANDLE,HANDLE);auto compare=reinterpret_cast<Compare>(GetProcAddress(GetModuleHandleW(L"kernelbase.dll"),"CompareObjectHandles"));assert(compare&&(!wasValid||!compare(captured,known)));if(captured)CloseHandle(captured);CloseHandle(known);
+  std::cout<<"child stdout captured\n";std::cerr<<"child stderr captured\n";
+  if(GetEnvironmentVariableW(L"XI_TEST_RETRY",value,64)){
+   assert(argc>4);auto path=fs::path(argv[4])/L"attempt.txt";unsigned attempt=0;{std::ifstream in(path);in>>attempt;}std::ofstream(path)<<attempt+1;
+   return !wcscmp(value,L"always")||attempt<2?-1:37;
+  }
+  return 37;
  }
  if(argc!=3)return 2;
  const fs::path folder=argv[2];fs::create_directories(folder);
@@ -35,6 +43,17 @@ int wmain(int argc,wchar_t**argv){
   // Selecting again restarts the dead helper, without an automatic retry loop.
   assert(view.request(1043));assert(WaitForSingleObject(view.child,10000)==WAIT_OBJECT_0);
   std::ifstream stream(view.folder/L"worker.log");std::string text((std::istreambuf_iterator<char>(stream)),{});assert(text.find("stdout")!=std::string::npos&&text.find("stderr")!=std::string::npos);
+ }else if(std::wstring(argv[1])==L"--retry"||std::wstring(argv[1])==L"--retry-permanent"){
+  wchar_t self[32768]{};GetModuleFileNameW(nullptr,self,32768);fs::copy_file(self,folder/L"Server16Python.exe",fs::copy_options::overwrite_existing);
+  fs::remove(folder/L"attempt.txt");SetEnvironmentVariableW(L"XI_TEST_RETRY",std::wstring(argv[1])==L"--retry-permanent"?L"always":L"1");view.configure(folder);assert(view.request(1043));const auto sequence=view.sequence;
+  for(unsigned retry=1;retry<=2;++retry){
+   assert(WaitForSingleObject(view.child,10000)==WAIT_OBJECT_0);view.lastPoll=0;view.poll(nullptr);
+   assert(view.status=="loading"&&view.bootRetries==retry&&view.retryAt&&!view.child);
+   view.retryAt=GetTickCount64();view.lastPoll=0;view.poll(nullptr);
+   assert(view.child&&view.sequence==sequence&&view.club==1043&&fs::is_regular_file(view.folder/L"request.tsv"));
+  }
+  assert(WaitForSingleObject(view.child,10000)==WAIT_OBJECT_0);view.lastPoll=0;view.poll(nullptr);assert(view.status=="error"&&!view.retryAt);
+  unsigned attempts=0;{std::ifstream in(folder/L"attempt.txt");in>>attempts;}assert(attempts==3);SetEnvironmentVariableW(L"XI_TEST_RETRY",nullptr);
  }else if(std::wstring(argv[1])==L"--frozen"){
   // The caller supplies an isolated Git+ZIP stage with a safe export test entry.
   assert(fs::is_regular_file(folder/L"fixture.bin"));fs::remove(folder/L"cold-export.json");
