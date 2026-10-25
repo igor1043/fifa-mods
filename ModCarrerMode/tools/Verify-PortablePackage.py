@@ -68,13 +68,15 @@ def verify(root,complement,output):
         checked=json.loads((stage/'ModCarrerMode/runtime/club_environment/check.json').read_text(encoding='utf8'))
         assert checked['ready'] and checked['bank_icons']==10
         source=stage/'ModCarrerMode/source';common=source/'club_environment';runtime=stage/'ModCarrerMode/runtime/club_environment'
-        pyenv=dict(env,SERVER16_GAME_ROOT=str(stage),PYTHONPATH=os.pathsep.join(map(str,(source,common,common/'vendor',runtime/'room',runtime/'bank',runtime/'preview',source/'tests'))))
+        pyenv=dict(env,SERVER16_GAME_ROOT=str(stage),PYTHONPATH=os.pathsep.join(map(str,(source,common,common/'vendor',runtime/'room',runtime/'bank',runtime/'preview',source/'tests',source/'club_browser'))))
         # These entries run the published worker function from a completely
         # absent runtime and execute safe fixture scripts, not FIFA APIs.
         methods=('test_direct_worker_prepares_missing_runtime_before_entry',
                  'test_direct_worker_recovers_deleted_entry_and_preserves_ledger',
-                 'test_paths_with_spaces_and_loan_upgrade_preserves_private_ledger')
+                 'test_paths_with_spaces_and_loan_upgrade_preserves_private_ledger',
+                 'test_invalid_inherited_stdout_cannot_abort_the_worker')
         run([sys.executable,'-B','-m','unittest',*('test_club_environment.PortableRuntimeTest.'+name for name in methods)],'direct-worker-tests',pyenv)
+        run([sys.executable,'-B','-m','unittest','test_exporter'],'exporter-failure-tests',pyenv)
         run([sys.executable,'-B','-m','unittest','test_room_material_install_r59'],'room-assets-tests',pyenv)
         runtime_entries={kind:(runtime/kind/entry).is_file() for kind,entry in {'room':'prepare_native_room_components_r46_20261022.py','bank':'watch_r57.py','preview':'prepare.py'}.items()}
         assert all(runtime_entries.values())
@@ -82,7 +84,7 @@ def verify(root,complement,output):
                       runtime_initially_absent=True,runtime_entries=runtime_entries,server16_sha256=digest(exe),
                       frozen=json.loads((stage/'selftest.json').read_text()),pose_and_bank_check=True,
                       frozen_worker_matches_published_source=True,
-                      direct_worker_tests=True,room_geometry_textures_mips_and_lighting_tests=True,
+                      direct_worker_tests=True,invalid_stdout_cannot_abort_worker=True,exporter_failure_tests=True,room_geometry_textures_mips_and_lighting_tests=True,
                       runtime_or_save_copied=False,drivers_installed=False,fifa_started=False)
     (output/'clean-package.json').write_text(json.dumps(report,ensure_ascii=False,indent=2)+'\n',encoding='utf8')
     return report

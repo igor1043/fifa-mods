@@ -1,5 +1,5 @@
 {
-  "release": "FIFA Friends V12 / Server16 0.2.15 / 2026-10-24",
+  "release": "FIFA Friends V12 / Server16 0.2.15 / 2026-10-25",
   "files": [
     {
       "path": "ModCarrerMode/data/club_browser/assets-manifest.json",
@@ -163,13 +163,13 @@
     },
     {
       "path": "ModCarrerMode/mods/club_browser/club_browser.dll",
-      "bytes": 493056,
-      "sha256": "b9bb39c8bdde958da8c8373ee19d7764b25e95ff13d2b00a1c1e34c0218fb147"
+      "bytes": 500224,
+      "sha256": "f70027401a630588677ce350fe002465994853165451c89e5758179c85f05d02"
     },
     {
       "path": "ModCarrerMode/mods/club_environment/native_dressing_room.dll",
       "bytes": 474624,
-      "sha256": "7b5e4a1da6ed21ea22bd8695870620d7c67bd0ebe9cfc9d8f39995567611b63c"
+      "sha256": "cb98fadb04c66fbab74a673f9229b513a779d6fb012cb9478afda13d567b8ac3"
     },
     {
       "path": "ModCarrerMode/mods/enabled.txt",
@@ -193,8 +193,8 @@
     },
     {
       "path": "ModCarrerMode/source/club_browser/README.md",
-      "bytes": 7332,
-      "sha256": "47539f946a7d3ace6a1457f3b543e78e4ee94985563e905178dab745efced97f"
+      "bytes": 8429,
+      "sha256": "fc2433d3c1a3e9c92e6a6eebea648c09750fbbb556aa0f9814ae43f7eb352c1c"
     },
     {
       "path": "ModCarrerMode/source/club_browser/build_apt.py",
@@ -223,13 +223,13 @@
     },
     {
       "path": "ModCarrerMode/source/club_browser/lineup_worker.py",
-      "bytes": 7562,
-      "sha256": "a2cd1e3bdf86ec50deea7eeb8573c6242f416f216058aa3a5b0c3e1c3221555c"
+      "bytes": 8075,
+      "sha256": "1bc48c608e91b5f3addbc386fee5f02d6098436b2dcf7c1651ae91f19f55972f"
     },
     {
       "path": "ModCarrerMode/source/club_browser/model_exporter.py",
-      "bytes": 2724,
-      "sha256": "34852f563f637a235dfa2a4c3794419228c2363c724307405bad0643efab576f"
+      "bytes": 3152,
+      "sha256": "f09435d57ca36eb8a988e5262e47557c9d6c365cfd13abceea734fe86721e357"
     },
     {
       "path": "ModCarrerMode/source/club_browser/native/game_assets.h",
@@ -248,8 +248,8 @@
     },
     {
       "path": "ModCarrerMode/source/club_browser/native/lineup_view.h",
-      "bytes": 5415,
-      "sha256": "38debd9fbebae118ac51e8d461091af3b61e671267892940b899d1a583fca182"
+      "bytes": 7359,
+      "sha256": "3ee15050f035995c1147b5bb60e460a7e49c49d63d586ec974f0b2f5a8b8a231"
     },
     {
       "path": "ModCarrerMode/source/club_browser/native/model.h",
@@ -308,8 +308,8 @@
     },
     {
       "path": "ModCarrerMode/source/club_environment/README.md",
-      "bytes": 10963,
-      "sha256": "645acf69f17995b65ecf534a8b587468dc898a937afb232c3d95b02555afb716"
+      "bytes": 12068,
+      "sha256": "4085eaca8b9d7d1f2b95d8b40ba403a6520a45168b7a0cc292b900a443bf6409"
     },
     {
       "path": "ModCarrerMode/source/club_environment/assets-manifest.json",
@@ -568,8 +568,8 @@
     },
     {
       "path": "ModCarrerMode/source/club_environment/room/native/native_dressing_room_20261022.cpp",
-      "bytes": 21463,
-      "sha256": "923ede8faafa30ab42a1546c4e7032aa842001950fa4fbfba5a4a4ba62e0e631"
+      "bytes": 21596,
+      "sha256": "5e8b85878c0c7bc88337e8d4be7d03ce32acdb46a2d98c14e38916789042b830"
     },
     {
       "path": "ModCarrerMode/source/club_environment/room/native/room_background_r52.h",
@@ -728,8 +728,8 @@
     },
     {
       "path": "Server16Python.exe",
-      "bytes": 74035662,
-      "sha256": "eca2ac622bd2869d91325feb92fd5a4c041501755df8b71b3968789e81db7c17"
+      "bytes": 74036451,
+      "sha256": "6a40af3139a6cff968c40e6a0c056a0cd5a1003f9b89ddcd23efb2b2c919cb82"
     },
     {
       "path": "bin/cgfs16_overlay.dll",

@@ -4,7 +4,7 @@ The FIFA process is opened with query/read rights only. No native FIFA API is
 called. The exporter runs in its own process; complete native assets are published.
 """
 from pathlib import Path
-import argparse,hashlib,json,os,struct,subprocess,sys,tempfile,time,shutil
+import argparse,hashlib,json,os,struct,subprocess,sys,tempfile,time,shutil,traceback
 import psutil
 from lineup_data import project,ProjectionCache
 from native_assets import convert,VERSION
@@ -54,6 +54,9 @@ def generate(game,folder,req,memory,asset_root=None,exporter=None,projection_cac
             temp=Path(temp);fixture=temp/'lineup.bin';fixture.write_bytes(result['fixture']);model=temp/'model.ff3d'
             preparer=exporter or Exporter();start=time.perf_counter()
             try:transcript=preparer.run(tool,game,fixture,model)
+            except Exception as error:
+                atomic(folder/'export.log',getattr(error,'transcript',repr(error)).encode('utf8'))
+                raise
             finally:
                 if exporter is None:preparer.close()
             timings['native_models_ms']=round((time.perf_counter()-start)*1000,1)
@@ -91,6 +94,7 @@ def main():
     game=Path(os.environ['SERVER16_GAME_ROOT']).resolve();process=psutil.Process(args.pid)
     if process.name().casefold()!='fifa16.exe' or Path(process.exe()).resolve()!=game/'fifa16.exe':raise ValueError('FIFA de outra instalação.')
     created=process.create_time();folder=game/'ModCarrerMode/runtime/club_browser'/str(args.pid);folder.mkdir(parents=True,exist_ok=True)
+    print('WORKER_START',json.dumps(dict(game=str(game),pid=args.pid,helper_pid=os.getpid(),source=__file__,frozen=bool(getattr(sys,'frozen',False))),ensure_ascii=True),flush=True)
     m=Memory();m.process_id=args.pid;m.process_handle=m.kernel32.OpenProcess(0x410,False,args.pid)
     if not m.process_handle:raise OSError('Não foi possível ler a carreira.')
     m.base_module=m._get_base_address(process.exe());last=None;exporter=Exporter();projection_cache=ProjectionCache()
@@ -105,9 +109,11 @@ def main():
                     print('REQUEST',json.dumps(req),flush=True);completed=generate(game,folder,req,m,exporter=exporter,projection_cache=projection_cache)
                     print('COMPLETE' if completed else 'SUPERSEDED',req['seq'],flush=True)
             except FileNotFoundError as error:
+                if req:print('MISSING_RESOURCE',repr(error),flush=True);traceback.print_exc(file=sys.stdout)
                 if req:publish(folder,req,'error',message='Um recurso necessário para os titulares não foi encontrado.')
             except Exception as error:
                 print('ERROR',repr(error),flush=True)
+                traceback.print_exc(file=sys.stdout)
                 if req:publish(folder,req,'error',message=str(error)[:220])
             if args.once:return
             time.sleep(.03)
