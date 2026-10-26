@@ -1,0 +1,5 @@
+miniz inflater, statically linked for FIFA RX3 chunkzip DEFLATE.
+Source: https://github.com/richgel999/miniz
+Revision: 77d0dce8627735138c51770d1799a1ef48f2117d
+Only miniz_tinfl.c is compiled. See LICENSE and source notices.
+miniz_export.h is a local header for static linking.

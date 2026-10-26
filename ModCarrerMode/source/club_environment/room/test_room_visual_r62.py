@@ -39,6 +39,20 @@ def open_room():
     return vm,screen,calls,saved_scope,apt
 
 class VisualRoomTests(unittest.TestCase):
+    def test_opening_and_closing_scenes_keeps_the_camera_running_with_original_select_help(self):
+        vm,screen,calls,scope,_=open_room()
+        self.assertEqual(vm.invoke(screen.get('getHelpContext'),screen),[('ADVANCE','Cenas'),('BACK','Voltar')])
+        for _ in range(4):
+            vm.invoke(screen.get('OpenScenes'),screen)
+            command=vm.global_.get('Server16RoomRequest')
+            decoded=decode_requests(command.encode(),42,scope['nonce'],1043)
+            self.assertTrue(decoded)
+            self.assertTrue(all(code==-3 for seq,code in decoded))
+            self.assertTrue(screen.get('modalOpen'))
+            vm.invoke(screen.get('CloseScenes'),screen)
+            self.assertFalse(screen.get('modalOpen'))
+            self.assertTrue(all(code==-3 for seq,code in decode_requests(vm.global_.get('Server16RoomRequest').encode(),42,scope['nonce'],1043)))
+
     def test_locker_plate_renders_text_at_double_resolution_and_keeps_the_native_crest(self):
         from room_kit_print_r56 import locker_plate
         crest=Image.new('RGBA',(256,256),(255,255,255,255))

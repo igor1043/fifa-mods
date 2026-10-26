@@ -10,6 +10,7 @@ from lineup_data import project,ProjectionCache
 from native_assets import convert,VERSION
 from model_exporter import Exporter
 from character_lighting import ensure as ensure_character_lighting
+from pose_profile import signature as pose_signature
 import portable_paths
 from server16_py.memory_access import Memory
 from server16_py.career_context import competition_session
@@ -46,7 +47,8 @@ def generate(game,folder,req,memory,asset_root=None,exporter=None,projection_cac
     timings['read_save_ms']=round((time.perf_counter()-began)*1000,1)
     if not tool.is_file():raise ValueError('Renderizador dos titulares não está instalado.')
     asset_files=[game/'data/db/fifa_ng_db.db',game/'data/db/fifa_ng_db-meta.xml',tool]
-    revision=hashlib.sha256(result['fixture']+str(VERSION).encode()+str([(f.stat().st_size,f.stat().st_mtime_ns) for f in asset_files]).encode()).hexdigest()
+    pose_hash=pose_signature(game)
+    revision=hashlib.sha256(result['fixture']+str(VERSION).encode()+str([(f.stat().st_size,f.stat().st_mtime_ns) for f in asset_files]).encode()+pose_hash).hexdigest()
     target=(asset_root or game/'data/sceneassets/server16_club_xi')/str(req['pid'])/revision
     cache=(asset_root or game/'ModCarrerMode/cache/club_browser/xi')/'prepared'/revision
     if not (cache/'assets.json').is_file():
@@ -80,6 +82,7 @@ def generate(game,folder,req,memory,asset_root=None,exporter=None,projection_cac
             os.replace(publish_to,target)
     assets=json.loads((target/'assets.json').read_text(encoding='utf8'))
     after,latest=observe(memory,game)
+    if pose_signature(game)!=pose_hash:raise ValueError('A pose mudou durante a preparação. Atualize os titulares novamente.')
     if (after['path'].casefold()!=saved['path'].casefold() or (after['size'],after['mtime_ns'])!=version or latest!=context):raise ValueError('A carreira mudou durante a renderização. Abra o clube novamente.')
     if request(folder/'request.tsv',req['pid'])!=req:return False
     atomic(folder/'roster.json',json.dumps(dict(club=req['club'],players=result['roster'],save_hash=result['save_hash'],source='active-career-save'),ensure_ascii=False,indent=2).encode('utf8'))

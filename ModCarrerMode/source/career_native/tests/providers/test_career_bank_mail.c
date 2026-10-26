@@ -175,6 +175,10 @@ static void bank_input_test(void) {
     vtable[5]=(void *)original_event;
     assert(bank_input_event(&bridge,"OriginalController","StockEvent","original argument")==0x123456789abcdef0ull);
     assert(original_events==1);
+    /* A room event is isolated from stock/bank dispatch; a missing room
+     * plugin is harmless and never invokes the Calendar stock handler. */
+    assert(bank_input_event(&bridge,"Calendar","Server16RoomScene","S16ROOM2|1629|0123456789abcdef|1|-2|ENDROOM")==0);
+    assert(original_events==1);
     /* Execute a tiny ABI-equivalent caller through the installed six-byte
      * call-site patch. All 17 existing DLL exports remain untouched. */
     assert(VirtualAlloc(g_module_base+0x4502000,4096,MEM_COMMIT,PAGE_EXECUTE_READWRITE));

@@ -4,11 +4,23 @@ Mais vida na carreira, nos uniformes e na apresentação das partidas do FIFA 16
 
 O FIFA Friends V12 reúne melhorias para acompanhar seu clube, personalizar a experiência e dar mais identidade a cada competição. O [Server16](https://github.com/igor1043/CG-File-Server-16---Python-Port/tree/fifa-friends) é o painel que acompanha o projeto e permite escolher os recursos antes e durante a partida.
 
-**Edição:** FIFA Friends V12 · **Atualizado em:** 25/10/2026
+**Edição:** FIFA Friends V12 · **Atualizado em:** 26/10/2026
 
-**Server16 incluído:** 0.2.16. As DLLs compiladas ficam nesta branch, organizadas em uma pasta por mod. O [índice dos módulos ativos](ModCarrerMode/mods/README.md) informa arquivos, funções e configurações.
+**Server16 incluído:** 0.2.19. As DLLs compiladas ficam nesta branch, organizadas em uma pasta por mod. O [índice dos módulos ativos](ModCarrerMode/mods/README.md) informa arquivos, funções e configurações.
 
 A combinação Git + ZIP é agora verificada em uma pasta vazia, sem caches do desenvolvedor, incluindo igualdade entre o módulo embutido no EXE e o fonte publicado.
+
+## Entrega — 26/10/2026
+
+- **Server16 0.2.19:** overlay, câmeras e propostas carregados pelo host nativo do jogo; o executável auxiliar `cgfs16_inject.exe` foi retirado da distribuição. Não há alteração de exclusões do antivírus.
+- **Vestiário:** comandos de Cenas pela fila nativa validada por sessão/clube, sem varredura demorada da RAM. Abrir o menu mantém a câmera em movimento; quadro mais próximo e nítido, com iluminação ambiente ajustada.
+- **Próxima partida:** estádio respeita o nome personalizado/FSW. Escalações em três colunas com competição, logo, data, hora e histórico disponível do save. Sem estimar clima ou vento.
+- **Onze titulares:** pose autoral da revisão `(15)`, aplicada ao elenco atual do clube, cache identificado pelo conteúdo e alerta para complemento ausente/desatualizado. Exportador e definição editável versionados.
+- **Bancada de cenas:** editor externo com jogadores, 400 ossos, FK/IK em punhos e pés, desfazer/refazer e exportação JSON/RX3. IA local de múltiplas pessoas por imagem, mapa de 133 pontos, correções e prévia 3D. [Fontes e instruções](ModCarrerMode/source/scene_studio/LEIA-ME-PORTATIL.md).
+
+**Instalação:** atualize esta branch e extraia **FIFA-Friends-Assets-Complementares-20261026.zip** na raiz do FIFA, com FIFA/Server fechados. São **651 assets**, incluindo a nova pose. Quem já aplicou o complemento completo de 25/10 pode usar somente **FIFA-Friends-Assets-Delta-20261026.zip**, além da branch atualizada. O Server16 pronto e as DLLs estão nesta branch. A bancada é opcional: extraia seu ZIP em uma pasta separada, fora do jogo.
+
+[Changelog, testes e limites desta entrega](ModCarrerMode/docs/RELEASE_20261026.md). Os mods de placares, cenas de técnico/mascote e cabine de campo continuam presentes; a sala experimental do VAR continua excluída.
 
 ### Revisão local de áudio e texturas — 25/10/2026
 
@@ -54,7 +66,7 @@ Teste da revisão: o executável congelado criou os runtimes ausentes e executou
 - **Ver clubes e onze titulares:** carrossel em Outras ligas, globo 8K com pontos fixos, imagens dos clubes lidas do FIFA e onze titulares em pose estática desenhados pela engine no estádio. Carregamento somente ao abrir Ver titulares; recursos isolados por seleção evitam misturar clubes. [Arquitetura e testes](ModCarrerMode/source/club_browser/README.md).
 - **Server16 0.2.15:** compatibilidade ReShade API 17, controles genéricos opcionais e sincronização dos auxiliares. Executável atualizado incluído neste repositório; fontes canônicos na branch `fifa-friends` do [Server16](https://github.com/igor1043/CG-File-Server-16---Python-Port/tree/fifa-friends).
 
-**Para atualizar:** com FIFA/Server fechados, copie esta branch e extraia **FIFA-Friends-Assets-Complementares-20261025.zip** diretamente na pasta do FIFA. O ZIP contém só assets fora do GitHub: os 33 arquivos estáticos do vestiário, duas texturas do globo e `data/ant.cbac`. Server16, DLLs, código e interfaces vêm desta branch. Não há instalador no ZIP. [Conteúdo e conferência](ModCarrerMode/docs/RELEASE_20261025.md).
+**Para atualizar:** com FIFA/Server fechados, copie esta branch e extraia **FIFA-Friends-Assets-Complementares-20261025.zip** diretamente na pasta do FIFA. O complemento de 25/10 tem 650 assets, incluindo apresentações, mascotes, cabine de campo e iluminação dos titulares. Server16, DLLs, código e interfaces vêm desta branch. Não há instalador no ZIP. [Conteúdo e conferência](ModCarrerMode/docs/RELEASE_20261025.md).
 
 ## Atualização — 21/10/2026
 

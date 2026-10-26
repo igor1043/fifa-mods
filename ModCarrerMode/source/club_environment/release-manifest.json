@@ -1,5 +1,5 @@
 {
-  "release": "FIFA Friends V12 / Server16 0.2.18 / 2026-10-25",
+  "release": "FIFA Friends V12 / Server16 0.2.19 / 2026-10-26",
   "files": [
     {
       "path": "ModCarrerMode/config/extra_scenes.ini",
@@ -55,6 +55,21 @@
       "path": "ModCarrerMode/data/club_browser/catalog.tsv",
       "bytes": 191246,
       "sha256": "049f7ede40b377ea9756ee3d65ebe4ee72f9d3d39073acfbc099d9fe4c0dd48e"
+    },
+    {
+      "path": "ModCarrerMode/data/club_browser/poses/starting_eleven.json",
+      "bytes": 548,
+      "sha256": "2e4596016c8558adf34e84a287aeb05fff3b6e711d588a06246d2150ee9a4fa8"
+    },
+    {
+      "path": "ModCarrerMode/data/club_browser/poses/starting_eleven.pose",
+      "bytes": 292440,
+      "sha256": "e00d85c374301432e2239330de19105687c4530c225c811f8e05a5221816aa33"
+    },
+    {
+      "path": "ModCarrerMode/data/club_browser/poses/starting_eleven.scene.json",
+      "bytes": 1999239,
+      "sha256": "ced82867cbc6d95940b53a38e304f02ecafa2e19d4accdabcd1eaf859ed424db"
     },
     {
       "path": "ModCarrerMode/data/club_environment/bank/assets/banrisul.png",
@@ -172,6 +187,11 @@
       "sha256": "4435f70808925092d885a38ab979f5fcfc13d0e7b57c06958668e37151419b21"
     },
     {
+      "path": "ModCarrerMode/data/club_environment/room/runtime/indoor_ambient.txt",
+      "bytes": 5,
+      "sha256": "8bfff71593ac080bc549dd1ea35b773f3f0cdb57de78d5de26df86edd7b968fd"
+    },
+    {
       "path": "ModCarrerMode/data/club_environment/room/runtime/medical_room_r57.json",
       "bytes": 6063,
       "sha256": "df67eecef1667e95e268a9b619e885017fdd033502a1657c6b96f38dc1b3b99d"
@@ -192,24 +212,34 @@
       "sha256": "105578917a1bc947b609bb8eef70c730ee2dd1b470bde6bfa401a078830690e5"
     },
     {
+      "path": "ModCarrerMode/mods/career_jobs/career_jobs_runtime.dll",
+      "bytes": 193024,
+      "sha256": "6b03319dad74d96d732d8638b949a527c75841a8bc8db16400c4fb016dc9539a"
+    },
+    {
       "path": "ModCarrerMode/mods/club_browser/club_browser.dll",
       "bytes": 500736,
       "sha256": "e7707e5f36b393d54ab6671fb0870f078eb7b5d4d70970435784a30b18caee6f"
     },
     {
       "path": "ModCarrerMode/mods/club_environment/native_dressing_room.dll",
-      "bytes": 474624,
-      "sha256": "cb98fadb04c66fbab74a673f9229b513a779d6fb012cb9478afda13d567b8ac3"
+      "bytes": 477696,
+      "sha256": "a6f8aa65d3d4c7fb9459bb32bdbd618cee8a3b367391991593718f498f99915a"
     },
     {
       "path": "ModCarrerMode/mods/enabled.txt",
-      "bytes": 1230,
-      "sha256": "236a6f32a15c3e39244c9b75eacc00d19c6c11f383bcd23eb3fb261fa2a51e74"
+      "bytes": 1388,
+      "sha256": "2e0dd60b6b38b43eec5739fc4901283427a8576605e2c74b917ca20b223e113b"
     },
     {
       "path": "ModCarrerMode/mods/extra_scenes/extra_scenes.dll",
       "bytes": 200192,
       "sha256": "9bbfc1dc8aa4a593599847596682fdf72254515ad8f523a9cb970265d38f1b33"
+    },
+    {
+      "path": "ModCarrerMode/mods/first_person/server16_first_person_v14.dll",
+      "bytes": 141824,
+      "sha256": "af72a9dc2253a9423bec759062fa25d7cf799d827bd810fe4611c8340a1afc30"
     },
     {
       "path": "ModCarrerMode/mods/frontend_stadium/frontend_stadium_native_v11.dll",
@@ -232,9 +262,29 @@
       "sha256": "7aa2fbe5a7190bfe50c197e7b118dbe4724eeb5fcb337165f7d452f3e1e3d34e"
     },
     {
+      "path": "ModCarrerMode/mods/server16_overlay/cgfs16_overlay.dll",
+      "bytes": 254976,
+      "sha256": "40a12b31add6b2abfdfc56665e75046dc7e5e7c4f5525273447a4621cc39079c"
+    },
+    {
+      "path": "ModCarrerMode/source/Server16Python.spec",
+      "bytes": 3225,
+      "sha256": "442f7ee74b25813e476faa59b1207ea6bc8406db73a270746b7bd28bc9e17a37"
+    },
+    {
+      "path": "ModCarrerMode/source/career_native/src/host/career_bank_input.inc",
+      "bytes": 6693,
+      "sha256": "e50346689cd6e955302883d9c46960c55626df44787239663e1ecf16e586b613"
+    },
+    {
+      "path": "ModCarrerMode/source/career_native/src/host/career_prepared_views.inc",
+      "bytes": 8698,
+      "sha256": "d4bfb32aba52ad93dec3970073210eebc5eed071ad1313900d9f164bc8774bda"
+    },
+    {
       "path": "ModCarrerMode/source/club_browser/README.md",
-      "bytes": 9035,
-      "sha256": "63336f7531a6a9968ad187980eb600ec7e8f3b7722ab8809356210d2bf9e38be"
+      "bytes": 11339,
+      "sha256": "791c8d0eae413e87f2b4c486a855f9cf6af053dff94c3cdb46e66661cbd2f7b5"
     },
     {
       "path": "ModCarrerMode/source/club_browser/build_apt.py",
@@ -252,6 +302,501 @@
       "sha256": "be81e8d2d20cba5b3f7adb371a29f8f4f8202253bea755242f602feb13dbdb20"
     },
     {
+      "path": "ModCarrerMode/source/club_browser/exporter/authored_pose.h",
+      "bytes": 6919,
+      "sha256": "12cfaf339879a962670093fb7f68b3daf286204b4d5fa16ecf7bcc3b9c75ce9b"
+    },
+    {
+      "path": "ModCarrerMode/source/club_browser/exporter/build.cmd",
+      "bytes": 840,
+      "sha256": "a959f08929a0ef8445c12747c7f4d8a59a199378752b64b5a79adf57e2869ac3"
+    },
+    {
+      "path": "ModCarrerMode/source/club_browser/exporter/engine/src/core/fce_contracts.h",
+      "bytes": 4117,
+      "sha256": "eff129f9ccb1dc4e74dc07eb44b863e75705d7ba61e6b967d83594603f7e2374"
+    },
+    {
+      "path": "ModCarrerMode/source/club_browser/exporter/engine/src/core/fce_model.h",
+      "bytes": 1829,
+      "sha256": "92eceac52038678e389286f9d1d1ad7798e0ff50e18d7591563d4725b7706fa9"
+    },
+    {
+      "path": "ModCarrerMode/source/club_browser/exporter/engine/src/core/fce_runtime.h",
+      "bytes": 2407,
+      "sha256": "446f0fc6e473435c34001c6e0a575aaa250f0288ffcfa4a7279b18d109a3051c"
+    },
+    {
+      "path": "ModCarrerMode/source/club_browser/exporter/engine/src/experimental/stadium_3d/stadium_scene_assets.cpp",
+      "bytes": 7048,
+      "sha256": "2106ccf04ac8673e19c95689221a5b518469df892c75e61125b8ce73396823f9"
+    },
+    {
+      "path": "ModCarrerMode/source/club_browser/exporter/engine/src/experimental/stadium_3d/stadium_scene_assets.h",
+      "bytes": 448,
+      "sha256": "7293aeefc8dbf3eae4b18465ff2cefb0c9eea4da7bfe040a1a78752dcf9a0615"
+    },
+    {
+      "path": "ModCarrerMode/source/club_browser/exporter/engine/src/experimental/stadium_3d/stadium_scene_screen.cpp",
+      "bytes": 10460,
+      "sha256": "332047dcbb8c41a69b77d17813c2d294f4ebcc5691b259f8631237a9af8a35bc"
+    },
+    {
+      "path": "ModCarrerMode/source/club_browser/exporter/engine/src/experimental/stadium_3d/stadium_scene_screen.h",
+      "bytes": 616,
+      "sha256": "9d47e1b81a09908a000cf20f81bdab91fca0a27b53ee885363e050089a5f25a6"
+    },
+    {
+      "path": "ModCarrerMode/source/club_browser/exporter/engine/src/features/crowd/competition_attendance.h",
+      "bytes": 3836,
+      "sha256": "5c83d35a0909098eeda08f33460ed56fe1c86620a6bbdff337fced4e00d621d0"
+    },
+    {
+      "path": "ModCarrerMode/source/club_browser/exporter/engine/src/features/crowd/crowd_runtime.h",
+      "bytes": 1573,
+      "sha256": "e54b32bc84542324716935362515ec36aee379beab6d6f747a7de9b513237ce3"
+    },
+    {
+      "path": "ModCarrerMode/source/club_browser/exporter/engine/src/features/crowd/international_competition.h",
+      "bytes": 2088,
+      "sha256": "3e43a71595bd50d864bbcb1022749975cea7ad46c79d6068a64cb320d3c23f69"
+    },
+    {
+      "path": "ModCarrerMode/source/club_browser/exporter/engine/src/features/finance/career_loan_engine.h",
+      "bytes": 1675,
+      "sha256": "999e647b8b13c4e86fef13363e58d615b470398d6120150b62c988964f89964e"
+    },
+    {
+      "path": "ModCarrerMode/source/club_browser/exporter/engine/src/features/operations/career_operations_io.cpp",
+      "bytes": 17236,
+      "sha256": "c608454583b269726e845c070709bec0dcd224d22634c8afb60e8d2410a62463"
+    },
+    {
+      "path": "ModCarrerMode/source/club_browser/exporter/engine/src/features/operations/career_operations_io.h",
+      "bytes": 1406,
+      "sha256": "d221e2d0dd22fd95ebc21b03dc1a95aca189b2fb06c810307ccdb29c666e439e"
+    },
+    {
+      "path": "ModCarrerMode/source/club_browser/exporter/engine/src/features/ranking/global_ranking.h",
+      "bytes": 1197,
+      "sha256": "1c4eba40bf5973d5bd566894a306bfe7affe4b526eeae56137f420fb2454c69e"
+    },
+    {
+      "path": "ModCarrerMode/source/club_browser/exporter/engine/src/features/retirement/retirement_engine.h",
+      "bytes": 2758,
+      "sha256": "1580d281abe305eff88dbb70b0dbf602b87a1be3e2bba81d23500f8a9440f2f0"
+    },
+    {
+      "path": "ModCarrerMode/source/club_browser/exporter/engine/src/host/calendar_icon_identity.h",
+      "bytes": 1039,
+      "sha256": "d7e1caae501b3f6a0a24416f72c959775fe97bd103116f57e4f62243e2403dc7"
+    },
+    {
+      "path": "ModCarrerMode/source/club_browser/exporter/engine/src/host/card_refresh_schedule.h",
+      "bytes": 2458,
+      "sha256": "82e1afede55765dc8fcdf3c12ae44fc258e79d2956257e2b850aaae1863aafea"
+    },
+    {
+      "path": "ModCarrerMode/source/club_browser/exporter/engine/src/host/career_job_offer.h",
+      "bytes": 795,
+      "sha256": "007e040e306f666d50680ee98ef471db18b1cca982854c2c05baf8945e11062d"
+    },
+    {
+      "path": "ModCarrerMode/source/club_browser/exporter/engine/src/host/career_transfer_cards.h",
+      "bytes": 991,
+      "sha256": "aeb498f7fc009cff5ed18a39b2380851a8b5fdc4b33e333aa54666e2019e8791"
+    },
+    {
+      "path": "ModCarrerMode/source/club_browser/exporter/engine/src/host/league_query_batches.h",
+      "bytes": 254,
+      "sha256": "53ce8c1fcdcb849963add2b3ce23f29d8ddb74d842a6fd43c51ab6ec2864d8c5"
+    },
+    {
+      "path": "ModCarrerMode/source/club_browser/exporter/engine/src/host/swiss_byte_patches.h",
+      "bytes": 3934,
+      "sha256": "0cf9ddb311cc1783b94706c1656b3baaab741836a9b7d1a702ae2eb505b85c4a"
+    },
+    {
+      "path": "ModCarrerMode/source/club_browser/exporter/engine/src/host/swiss_delta.h",
+      "bytes": 384,
+      "sha256": "b86d6e8a20a885e775a9acd222a649fedc36447918bb157c575c4aee4989f834"
+    },
+    {
+      "path": "ModCarrerMode/source/club_browser/exporter/engine/src/host/tournament_list_compat.h",
+      "bytes": 187,
+      "sha256": "69a67149d0a6b414cbbd3f0ab0f0ed75aa90d4355fd5b1b547445c0252d8e3de"
+    },
+    {
+      "path": "ModCarrerMode/source/club_browser/exporter/engine/src/platform/input/mod_xinput_gate.cpp",
+      "bytes": 10599,
+      "sha256": "fb3c92e787807c9fb7e91d8ad068a23ac1f44cc2a6a99128c5076a94de00404b"
+    },
+    {
+      "path": "ModCarrerMode/source/club_browser/exporter/engine/src/platform/input/mod_xinput_gate.h",
+      "bytes": 359,
+      "sha256": "37c9679822a95aaa8a1adf29595df4a6d0ab30c2048bda2c2c9cd95895dc5bfa"
+    },
+    {
+      "path": "ModCarrerMode/source/club_browser/exporter/engine/src/platform/input/ranking_card_action.cpp",
+      "bytes": 6619,
+      "sha256": "b18869471280aeac15266597cc703d2f21debd8e752e9eb4ad0dc135f9881aea"
+    },
+    {
+      "path": "ModCarrerMode/source/club_browser/exporter/engine/src/platform/input/ranking_card_action.h",
+      "bytes": 827,
+      "sha256": "cd22d9a83291332e6ceea5762041b3b743763ce9699603d88979be667b31b212"
+    },
+    {
+      "path": "ModCarrerMode/source/club_browser/exporter/engine/src/platform/input/ranking_input_gate.cpp",
+      "bytes": 16154,
+      "sha256": "3386ce53a0b3b415b9d241db0e88ddf6cac0db3bd44c25bb4363c638d6c07922"
+    },
+    {
+      "path": "ModCarrerMode/source/club_browser/exporter/engine/src/platform/input/ranking_input_gate.h",
+      "bytes": 431,
+      "sha256": "83adbee5eaa9833fc2d49cb2b1608827a6ba164f20d7e1e409a7dbb80683649b"
+    },
+    {
+      "path": "ModCarrerMode/source/club_browser/exporter/engine/src/platform/mod_paths.h",
+      "bytes": 1207,
+      "sha256": "e54ac75930b332a599f5196b4c7c05255f0fb83608717aedcbee2c644a08ea90"
+    },
+    {
+      "path": "ModCarrerMode/source/club_browser/exporter/engine/src/platform/overlay/mod_overlay_screens.cpp",
+      "bytes": 6467,
+      "sha256": "367d47ab8a57eedd8d650a3024b7e842d22ac784ac9abdbc3c54935bcbf1c362"
+    },
+    {
+      "path": "ModCarrerMode/source/club_browser/exporter/engine/src/platform/overlay/mod_overlay_screens.h",
+      "bytes": 1806,
+      "sha256": "08cd61afa5ee203d71d20597bb7913561b0b075c959148bb237761a78f73b439"
+    },
+    {
+      "path": "ModCarrerMode/source/club_browser/exporter/engine/src/platform/overlay/webview2_overlay_host.cpp",
+      "bytes": 27066,
+      "sha256": "bbd1a990394a27e4dde4b693a03306ff050d9e4e34592ad7b85a06badd84a7c3"
+    },
+    {
+      "path": "ModCarrerMode/source/club_browser/exporter/engine/src/platform/overlay/webview2_overlay_host.h",
+      "bytes": 789,
+      "sha256": "af5fa86882794f2c221b352db943aac5882c186fd1f338407d45b1b48b39a4b8"
+    },
+    {
+      "path": "ModCarrerMode/source/club_browser/exporter/engine/src/platform/overlay/webview_cursor_visibility.h",
+      "bytes": 641,
+      "sha256": "b552673cb322ec5918c982238319e30b4466e111ddfd919b1366bdc8d3008248"
+    },
+    {
+      "path": "ModCarrerMode/source/club_browser/exporter/engine/src/platform/stadium_art_template.h",
+      "bytes": 5360,
+      "sha256": "561839241d2b9328620a5f16bdbb2018ef55eabd7933dce29df71bdc8ff6427c"
+    },
+    {
+      "path": "ModCarrerMode/source/club_browser/exporter/engine/src/platform/stadium_thumbnail.h",
+      "bytes": 996,
+      "sha256": "b75783cb63bc93d2804fc053c7666caee5739e97e57c1bbb0d678d3c1de7c670"
+    },
+    {
+      "path": "ModCarrerMode/source/club_browser/exporter/engine/src/render/assets/fifa_player_assets.cpp",
+      "bytes": 80394,
+      "sha256": "529744249907322dcd546f6678284a37ca4cc13a955ba21893bd7da824608ee7"
+    },
+    {
+      "path": "ModCarrerMode/source/club_browser/exporter/engine/src/render/assets/fifa_player_assets.h",
+      "bytes": 9065,
+      "sha256": "df7cc4b4cc4e5bf1ab5d9b2586fe3e0862c83b4048be7354683946bc3b26738a"
+    },
+    {
+      "path": "ModCarrerMode/source/club_browser/exporter/engine/src/render/poses/fifa_player_pose.cpp",
+      "bytes": 56732,
+      "sha256": "0e25cdac0b36d2e5cf973ee9838da641e0feb1a00e6e9c64f5a6defd8c088f91"
+    },
+    {
+      "path": "ModCarrerMode/source/club_browser/exporter/engine/src/render/renderer/fifa_player_card.h",
+      "bytes": 7005,
+      "sha256": "0709af73abd966bde27a15bb46719d58cecc352af4b5ee846ae214ea2b46ab70"
+    },
+    {
+      "path": "ModCarrerMode/source/club_browser/exporter/engine/src/render/renderer/fifa_player_renderer.cpp",
+      "bytes": 33736,
+      "sha256": "6a93b9ff847a12105a2432302ca4cbe2c49a7588197bd9c520d38e4c3bae73a1"
+    },
+    {
+      "path": "ModCarrerMode/source/club_browser/exporter/engine/src/render/renderer/fifa_player_renderer.h",
+      "bytes": 3164,
+      "sha256": "1c0fe9455ee67ebdb287efffd3f5131b1d82527d2f6a291b1a2c80e06dd9f727"
+    },
+    {
+      "path": "ModCarrerMode/source/club_browser/exporter/engine/src/render/scenes/fifa_club_room.cpp",
+      "bytes": 25461,
+      "sha256": "f109dbadcdcf998298f5e980e3732aabb020b69a841699b86e6140c57b072502"
+    },
+    {
+      "path": "ModCarrerMode/source/club_browser/exporter/engine/src/render/scenes/new_experience_rooms.cpp",
+      "bytes": 1967,
+      "sha256": "4a81d2faf117f271ef1820a16c0589edbabbbe85d98205cc4835bdbd5a8426b3"
+    },
+    {
+      "path": "ModCarrerMode/source/club_browser/exporter/engine/src/render/scenes/new_experience_rooms.h",
+      "bytes": 261,
+      "sha256": "4b0454c5b68784146b856df4620e422a7d07510c69b5868206ffb819b8a2c1e4"
+    },
+    {
+      "path": "ModCarrerMode/source/club_browser/exporter/engine/src/render/stadium_thumbnails/stadium_preview.cpp",
+      "bytes": 3721,
+      "sha256": "aba0a07d5820defbd9c5cdc39ca63c92837dff27eb3f4f03f698e2ebd9a06377"
+    },
+    {
+      "path": "ModCarrerMode/source/club_browser/exporter/engine/src/render/stadium_thumbnails/stadium_preview.h",
+      "bytes": 328,
+      "sha256": "0ae67b95b8f053e27352151755be0e46e3a43b865417ebf047e72dc5f78090e3"
+    },
+    {
+      "path": "ModCarrerMode/source/club_browser/exporter/engine/src/screens/club/club_player_screen.cpp",
+      "bytes": 108825,
+      "sha256": "0e1f15bd54de84394b7151b3aa484d4b4c1f4dbbaeea200a59f982d34bdb91bc"
+    },
+    {
+      "path": "ModCarrerMode/source/club_browser/exporter/engine/src/screens/club/club_player_screen.h",
+      "bytes": 5399,
+      "sha256": "3c16d4ef838f0eaa18829542da4eda57e9f8725830df833128487908436f98f0"
+    },
+    {
+      "path": "ModCarrerMode/source/club_browser/exporter/engine/src/screens/clubs/clubs_browser.cpp",
+      "bytes": 19280,
+      "sha256": "ca06b1f899389eef58984d9b9087d35e4e839a25a96b5ee1b825f524405e123d"
+    },
+    {
+      "path": "ModCarrerMode/source/club_browser/exporter/engine/src/screens/clubs/clubs_browser.h",
+      "bytes": 1557,
+      "sha256": "ff29654943101defb6e0825a2b8470fcf83784965c3fb421598b5e7949c7331d"
+    },
+    {
+      "path": "ModCarrerMode/source/club_browser/exporter/engine/src/screens/coach/coach_profile_data.h",
+      "bytes": 8135,
+      "sha256": "6d5b5a8ff0dce2323c9b9c1251b604b398128b39b27bc141652136808aa4e09a"
+    },
+    {
+      "path": "ModCarrerMode/source/club_browser/exporter/engine/src/screens/coach/coach_profile_screen.cpp",
+      "bytes": 33377,
+      "sha256": "44078eb1e51b0cd099765769a20b6a3eac7a65fbdd166c37276250f39ee93acc"
+    },
+    {
+      "path": "ModCarrerMode/source/club_browser/exporter/engine/src/screens/coach/coach_profile_screen.h",
+      "bytes": 3453,
+      "sha256": "c1b93c53ee5a4288584cd4f4837f018a27dbd31be56496fe54f902fa33f0c8d0"
+    },
+    {
+      "path": "ModCarrerMode/source/club_browser/exporter/engine/src/screens/competitions/club_competitions_screen.cpp",
+      "bytes": 53671,
+      "sha256": "382f43607385cd9b9d882f709ef578cab44605dfdbfe578387438cbb29db6538"
+    },
+    {
+      "path": "ModCarrerMode/source/club_browser/exporter/engine/src/screens/competitions/club_competitions_screen.h",
+      "bytes": 3815,
+      "sha256": "dd1e616ad3c04ee9de286bf86c811d2b5d989766363a3c27b9ad1084a1745698"
+    },
+    {
+      "path": "ModCarrerMode/source/club_browser/exporter/engine/src/screens/leagues/leagues_browser.cpp",
+      "bytes": 19909,
+      "sha256": "f18d01fd306fbd3888fcfc3a303731a86abeb3eda6b585ebe5f565f21ad71188"
+    },
+    {
+      "path": "ModCarrerMode/source/club_browser/exporter/engine/src/screens/leagues/leagues_browser.h",
+      "bytes": 1759,
+      "sha256": "7a6019e23efec74bd97aefda6ebc156ca01a6e6503a5913058866c27913cd19e"
+    },
+    {
+      "path": "ModCarrerMode/source/club_browser/exporter/engine/src/screens/next_match/next_match_screen.cpp",
+      "bytes": 28015,
+      "sha256": "0a21f46f45c93349921c825f78416e0e7e7c11bd756528413eda9d1ff9f4f8b7"
+    },
+    {
+      "path": "ModCarrerMode/source/club_browser/exporter/engine/src/screens/next_match/next_match_screen.h",
+      "bytes": 1329,
+      "sha256": "c5fb59bafd1056803d3af50004a9772d1b41ac6af7fbcf856381446ac2ed1cbe"
+    },
+    {
+      "path": "ModCarrerMode/source/club_browser/exporter/engine/src/screens/office/career_news_feed.h",
+      "bytes": 3696,
+      "sha256": "64fd4dec7f46cd994ebf25e0807e796a73a228a2827370e84af59d531fce4cf2"
+    },
+    {
+      "path": "ModCarrerMode/source/club_browser/exporter/engine/src/screens/office/career_web_dashboard.h",
+      "bytes": 2043,
+      "sha256": "5889db38338f5d2be8d1b3457b7011a308493e9e9e4050aa473b17b33790ce18"
+    },
+    {
+      "path": "ModCarrerMode/source/club_browser/exporter/engine/src/screens/office/office_social_feed.h",
+      "bytes": 46506,
+      "sha256": "2712f987ed3cb09b9003a1b4580355431fa7a8a6c4e83d4a34b0a098887a0f2d"
+    },
+    {
+      "path": "ModCarrerMode/source/club_browser/exporter/engine/src/screens/operations/career_operations.cpp",
+      "bytes": 45942,
+      "sha256": "c5470c17fe64c5bd0e9e77283038ae84b347de449193361d8505382e53ee64b5"
+    },
+    {
+      "path": "ModCarrerMode/source/club_browser/exporter/engine/src/screens/operations/career_operations.h",
+      "bytes": 2589,
+      "sha256": "46031b863101365a277ac9edd657b07c68bae476583c1e8d4a2c24316b746c47"
+    },
+    {
+      "path": "ModCarrerMode/source/club_browser/exporter/engine/src/screens/player/club_player_profile.h",
+      "bytes": 5307,
+      "sha256": "f3a13d32a995dacca74af6d2bcfe56b3579e94480cbe58c9a1ce2dbfd903bf29"
+    },
+    {
+      "path": "ModCarrerMode/source/club_browser/exporter/engine/src/screens/player/player_competition_data.h",
+      "bytes": 3649,
+      "sha256": "de7e75ee3192c93d11b1b801fd8f0ee7b3af7683632f7b44e6baf0d6c27b652e"
+    },
+    {
+      "path": "ModCarrerMode/source/club_browser/exporter/engine/src/screens/player/player_profile_view.h",
+      "bytes": 30191,
+      "sha256": "9d8b172d3e7a8fc86178fe4e657ae9d7ea771ed1a595d6f91fe52bcc5d4706ae"
+    },
+    {
+      "path": "ModCarrerMode/source/club_browser/exporter/engine/src/screens/player/player_search_screen.cpp",
+      "bytes": 19420,
+      "sha256": "3cd29d815a6b6ecec5a48764f6e7e1a7ade30a5c8cba947b47697eacb908fae0"
+    },
+    {
+      "path": "ModCarrerMode/source/club_browser/exporter/engine/src/screens/player/player_search_screen.h",
+      "bytes": 1246,
+      "sha256": "e6d5d826249c0dd307c49d01a169f58139a51037c01f885e00bfcbe2d0562fa5"
+    },
+    {
+      "path": "ModCarrerMode/source/club_browser/exporter/engine/src/screens/ranking/ranking_overlay.cpp",
+      "bytes": 57356,
+      "sha256": "7762a98e6fd7b94f49408f6482562ed30a64463efd286dcb3862ccc760f6befb"
+    },
+    {
+      "path": "ModCarrerMode/source/club_browser/exporter/engine/src/screens/ranking/ranking_overlay.h",
+      "bytes": 548,
+      "sha256": "e6b7065c3ee51528fdcfdeb30bb2a36fb09dd76a38305d41c2a90022255cb5ca"
+    },
+    {
+      "path": "ModCarrerMode/source/club_browser/exporter/engine/src/screens/sponsors/sponsor_screen.cpp",
+      "bytes": 14952,
+      "sha256": "216d973e4ca03eac84cc120e0bb2a41072eba8fbf4ca2355896d9202cdff68a0"
+    },
+    {
+      "path": "ModCarrerMode/source/club_browser/exporter/engine/src/screens/sponsors/sponsor_screen.h",
+      "bytes": 918,
+      "sha256": "ce6a31cbfdc909a4da2a3c17d712a239b66e7415bf0bf2755256a7d69bad07ce"
+    },
+    {
+      "path": "ModCarrerMode/source/club_browser/exporter/engine/src/screens/transfers/transfer_center_screen.cpp",
+      "bytes": 31341,
+      "sha256": "54a638b0fbdc667e71f7fb237f29c35a90c3daff461bc1c8b0ba48059aa75343"
+    },
+    {
+      "path": "ModCarrerMode/source/club_browser/exporter/engine/src/screens/transfers/transfer_center_screen.h",
+      "bytes": 489,
+      "sha256": "e18379c5ee010920b30e116b8e1aa0ea52a5b32fd2a250b492ad52be86a5f837"
+    },
+    {
+      "path": "ModCarrerMode/source/club_browser/exporter/engine/src/screens/trophies/trophy_room_screen.cpp",
+      "bytes": 13547,
+      "sha256": "7527ef102286031a3ce021fa33c7fbdb4ddf4f482c6c11414862ef1c695a1186"
+    },
+    {
+      "path": "ModCarrerMode/source/club_browser/exporter/engine/src/screens/trophies/trophy_room_screen.h",
+      "bytes": 942,
+      "sha256": "8388b8cd6242fdf947d1a1402cb895ff164ad88d187d5cc1e6de0e940235bd3d"
+    },
+    {
+      "path": "ModCarrerMode/source/club_browser/exporter/engine/src/ui/common/lineup_pitch.h",
+      "bytes": 1834,
+      "sha256": "5648abc90d60c35093930eb972c5f43d5666d5667d6b49363203f5405823163e"
+    },
+    {
+      "path": "ModCarrerMode/source/club_browser/exporter/engine/src/ui/common/native_loc_names.h",
+      "bytes": 6193,
+      "sha256": "b7af078b7f50dde725574648fa9dcf4754750a8c323677813d7333e034e2f299"
+    },
+    {
+      "path": "ModCarrerMode/source/club_browser/exporter/engine/src/ui/common/profile_reputation.h",
+      "bytes": 733,
+      "sha256": "2fa81fa34c1d39952f5ab76866734bfc8da2110a9c6c21594b33c4312a12cfe3"
+    },
+    {
+      "path": "ModCarrerMode/source/club_browser/exporter/engine/src/ui/common/screen_visuals.h",
+      "bytes": 4978,
+      "sha256": "cbc30134fc59b79c80ad549db8839df5c393f04f0a101ae4ba11f3b8e3d83dbd"
+    },
+    {
+      "path": "ModCarrerMode/source/club_browser/exporter/engine/third_party/miniz/LICENSE",
+      "bytes": 1184,
+      "sha256": "0115478d567121238cf6cc1c0c361926cf07a49d9e4c9e66da97fac6a01646b3"
+    },
+    {
+      "path": "ModCarrerMode/source/club_browser/exporter/engine/third_party/miniz/NOTICE.txt",
+      "bytes": 282,
+      "sha256": "ded057fbdb1de45c1d176cb062127accfaabf22d7aed9066ce0796750df8a4fe"
+    },
+    {
+      "path": "ModCarrerMode/source/club_browser/exporter/engine/third_party/miniz/miniz.h",
+      "bytes": 28901,
+      "sha256": "35acd2baf713657a1cb1af279e2bcffcd48b7aeb4774d38ec5936103ec91f0ad"
+    },
+    {
+      "path": "ModCarrerMode/source/club_browser/exporter/engine/third_party/miniz/miniz_common.h",
+      "bytes": 2618,
+      "sha256": "fa5bf07d72efa51640f9d8ee11431fd2538e6218aea9e9328905edeb54187997"
+    },
+    {
+      "path": "ModCarrerMode/source/club_browser/exporter/engine/third_party/miniz/miniz_export.h",
+      "bytes": 36,
+      "sha256": "36bc4b8f74820c36f6705d082206a4b934aaf62217db0621545afb238179f680"
+    },
+    {
+      "path": "ModCarrerMode/source/club_browser/exporter/engine/third_party/miniz/miniz_tdef.h",
+      "bytes": 10932,
+      "sha256": "13574142e909c529c3c08bbd76be8ac23939370e08fdc9837e635b2e00b4883d"
+    },
+    {
+      "path": "ModCarrerMode/source/club_browser/exporter/engine/third_party/miniz/miniz_tinfl.c",
+      "bytes": 41415,
+      "sha256": "457e745d8fef9657b07e4c641548b49f029d54dd70d3fc83568253f51194cda4"
+    },
+    {
+      "path": "ModCarrerMode/source/club_browser/exporter/engine/third_party/miniz/miniz_tinfl.h",
+      "bytes": 8845,
+      "sha256": "ef18f995b0151095a0e9ed718114bd03437c607b302ee979a9d371f157bacf8a"
+    },
+    {
+      "path": "ModCarrerMode/source/club_browser/exporter/engine/third_party/miniz/miniz_zip.h",
+      "bytes": 27196,
+      "sha256": "eff19da6bcd7e127bb4447bf67a6093a6e589ee496fd251a444ec3b58c1d86f4"
+    },
+    {
+      "path": "ModCarrerMode/source/club_browser/exporter/fixture.h",
+      "bytes": 2680,
+      "sha256": "5313c5b4271ea47da88d0b35e99196ab8989907b41f69336790bec52e1f1a567"
+    },
+    {
+      "path": "ModCarrerMode/source/club_browser/exporter/generate_lineup.cpp",
+      "bytes": 2516,
+      "sha256": "4305c2d6a7224df9b4d40beab09e8b377bbe4bb083822f9847978fa65cac48d6"
+    },
+    {
+      "path": "ModCarrerMode/source/club_browser/exporter/pose_reference.json",
+      "bytes": 15290,
+      "sha256": "5b53710cb92819acedcb53dac8b7c78ff7f1525d7233cd9c473f48463b55a4c4"
+    },
+    {
+      "path": "ModCarrerMode/source/club_browser/exporter/prepare_pose.py",
+      "bytes": 4894,
+      "sha256": "911ce51893f0a6b4da4cb5a2032f74fcb54041df4cc0f240ce79e6e6e833c58c"
+    },
+    {
+      "path": "ModCarrerMode/source/club_browser/exporter/web_model_export.h",
+      "bytes": 6321,
+      "sha256": "3761aae40934814349d74b3a4cc17af98abc9fb2ddaac5c72de6352d7e2678bd"
+    },
+    {
       "path": "ModCarrerMode/source/club_browser/globe_world_ids.json",
       "bytes": 2552,
       "sha256": "bd05d36eaed9a0d8e51ce6d7dca55e787dd5e452a6545bf445e5b3c4554ffbc1"
@@ -263,8 +808,8 @@
     },
     {
       "path": "ModCarrerMode/source/club_browser/lineup_worker.py",
-      "bytes": 8075,
-      "sha256": "1bc48c608e91b5f3addbc386fee5f02d6098436b2dcf7c1651ae91f19f55972f"
+      "bytes": 8302,
+      "sha256": "a3b3f56dcec3a48c0c2920b82ad15f12c27bc89d3b31831adf73bd187e07488f"
     },
     {
       "path": "ModCarrerMode/source/club_browser/model_exporter.py",
@@ -340,6 +885,16 @@
       "path": "ModCarrerMode/source/club_browser/package.py",
       "bytes": 4073,
       "sha256": "341dcbf66a57edb785986535bdd97c565c0e56312b49d30de5e2c4abbf48fd59"
+    },
+    {
+      "path": "ModCarrerMode/source/club_browser/pose_profile.py",
+      "bytes": 1129,
+      "sha256": "9ac9cabb6828d39d1570cdd7c918accfcc4b5cc1d741c2597ffdbd0c9f00e8e8"
+    },
+    {
+      "path": "ModCarrerMode/source/club_browser/test_authored_pose.py",
+      "bytes": 2943,
+      "sha256": "cbc0b2db9b2aa27cb35c4b0e9e61fbfe4220fbdafec1f4eed1528b45782ccd44"
     },
     {
       "path": "ModCarrerMode/source/club_environment/CAREER_DATA.md",
@@ -583,8 +1138,8 @@
     },
     {
       "path": "ModCarrerMode/source/club_environment/preview/build_preview.py",
-      "bytes": 28473,
-      "sha256": "b36fdcc9d07a59de72abc0276e33f48b593ab2d3ee9ec0d8651e35f67f8d1217"
+      "bytes": 28865,
+      "sha256": "3eabd9ad060314bb1068424a537c3486c89f5cf00c08adaa27cca10ac82e8b61"
     },
     {
       "path": "ModCarrerMode/source/club_environment/preview/competition_names_r57.py",
@@ -618,18 +1173,18 @@
     },
     {
       "path": "ModCarrerMode/source/club_environment/preview/preview_carousel.py",
-      "bytes": 9064,
-      "sha256": "1ae8a0fb946e0acfd7baa4b02111d44a734428de909f4789d929e3854939aea2"
+      "bytes": 13795,
+      "sha256": "f011908b398f48fd097d67c0d2ca4e6a3e688a323aec1a1ba0962f1410e38995"
     },
     {
       "path": "ModCarrerMode/source/club_environment/preview/preview_details.py",
-      "bytes": 5110,
-      "sha256": "5f01755d636e5c67d0529c53bf1ea81eb9d500f316b326368efdf7401451614a"
+      "bytes": 10034,
+      "sha256": "af7ac6c7f3f2cf943e3e9942a37f5368aa70f00190026ac2872f2a3b883a972d"
     },
     {
       "path": "ModCarrerMode/source/club_environment/preview/projection.py",
-      "bytes": 10422,
-      "sha256": "34a8522f7f621f5b434b69c52a75de3588fa1532a7bcb51615c86f0342dd280f"
+      "bytes": 10463,
+      "sha256": "19f65804b4d220281c6c98c69432e4282037958c1020f8389eaa674b51ec61d0"
     },
     {
       "path": "ModCarrerMode/source/club_environment/preview/test_environment_navigation.py",
@@ -653,13 +1208,23 @@
     },
     {
       "path": "ModCarrerMode/source/club_environment/preview/test_preview_progression.py",
-      "bytes": 6468,
-      "sha256": "a73e4512b2cda1bdd7146ff4e6439ca26d98996312aad49bb91563b8ac5e50b3"
+      "bytes": 7118,
+      "sha256": "df409d62de8ae6c153f988922e8e4a9db06bbeccb723253f6c935656fbeffa20"
+    },
+    {
+      "path": "ModCarrerMode/source/club_environment/preview/test_preview_stadium.py",
+      "bytes": 5111,
+      "sha256": "61f6974741aa9386b4397ef92249977fb01d8c27b35fb4c8b2d77152a3041f6f"
+    },
+    {
+      "path": "ModCarrerMode/source/club_environment/preview/test_preview_summary.py",
+      "bytes": 5709,
+      "sha256": "59d8f120b9e4726ca752e083f02543a30a175d073009692d7f8df458c77bd17c"
     },
     {
       "path": "ModCarrerMode/source/club_environment/room/build_dressing_card_20261022.py",
-      "bytes": 11016,
-      "sha256": "cca3e80f106a750d7df2633c5073f411d173197b33ac3524f6675f6f72916bbe"
+      "bytes": 11105,
+      "sha256": "35047e3fed5a1c1069af0ee9fa3eb6dbf6d57ef7714f017ad15d9ded2cf83f0e"
     },
     {
       "path": "ModCarrerMode/source/club_environment/room/build_room_scenery_r62.py",
@@ -678,8 +1243,8 @@
     },
     {
       "path": "ModCarrerMode/source/club_environment/room/native/native_dressing_room_20261022.cpp",
-      "bytes": 21596,
-      "sha256": "5e8b85878c0c7bc88337e8d4be7d03ce32acdb46a2d98c14e38916789042b830"
+      "bytes": 23293,
+      "sha256": "e88892541baae98146b5c95502dcbf645f32bc1808f86398736cd6546d8b051c"
     },
     {
       "path": "ModCarrerMode/source/club_environment/room/native/room_background_r52.h",
@@ -717,9 +1282,24 @@
       "sha256": "060711861cf24296a84d8756fe5107c83bce762c89befad643d57ea62e277fd0"
     },
     {
+      "path": "ModCarrerMode/source/club_environment/room/native/room_scene_command.h",
+      "bytes": 1564,
+      "sha256": "625fee7201042dc13ac2abff63f01c2bc0805d813c5fa4739bac0817c2475167"
+    },
+    {
+      "path": "ModCarrerMode/source/club_environment/room/native/test_room_direct_input.cpp",
+      "bytes": 2438,
+      "sha256": "56108914bb1852425bc6075be30f55fa50bd0e60bcfdeddffc3570b2317fc862"
+    },
+    {
+      "path": "ModCarrerMode/source/club_environment/room/native/test_room_scene_command.cpp",
+      "bytes": 1543,
+      "sha256": "f9f2e038e057556a582b53c37a02bc415c3bbfac8a7fb201011163e9c4cfd156"
+    },
+    {
       "path": "ModCarrerMode/source/club_environment/room/prepare_native_room_components_r46_20261022.py",
-      "bytes": 21181,
-      "sha256": "833aac58ddd0ee8ef1bfd7b984522f7aa3cb682c71d7f51c6ef337adf9879f51"
+      "bytes": 21824,
+      "sha256": "83e87988b2c6c486da07e1a895616ea3a92f52eeb66a6b77ee70d50ef6455be6"
     },
     {
       "path": "ModCarrerMode/source/club_environment/room/room_control_bridge_r52.py",
@@ -728,8 +1308,8 @@
     },
     {
       "path": "ModCarrerMode/source/club_environment/room/room_dynamic_context_20261022.py",
-      "bytes": 10389,
-      "sha256": "f411e19ac9cf5f26e3d7999ade55162b31f186b6042d655bb1704f0343655bcc"
+      "bytes": 10570,
+      "sha256": "4731bde275ac141b5b96be00752f3bf7a6d53f4d9b493abf2635e9e8ec00a3a2"
     },
     {
       "path": "ModCarrerMode/source/club_environment/room/room_geometry_clip_r54.py",
@@ -788,8 +1368,13 @@
     },
     {
       "path": "ModCarrerMode/source/club_environment/room/room_scene_ui_r52.py",
-      "bytes": 11375,
-      "sha256": "6b1d1a3a34fabaa4d422984d668dd4fcbb180d2566a4cd3479bdfd7e84e8267b"
+      "bytes": 11429,
+      "sha256": "dc06d115f4c0530b0257307d44f4af8a0b0faecfc761b02600d1926cfac758fe"
+    },
+    {
+      "path": "ModCarrerMode/source/club_environment/room/test_room_ready.py",
+      "bytes": 2547,
+      "sha256": "f44e79ddb210db3b6f21a84b67dbe24db4e93fce84e0d7d93848b9f401aa79f4"
     },
     {
       "path": "ModCarrerMode/source/club_environment/vendor/apt_actions.py",
@@ -888,23 +1473,23 @@
     },
     {
       "path": "ModCarrerMode/source/scripts/run_regressions.py",
-      "bytes": 8570,
-      "sha256": "f0810141ac6ad2fa9058d37a0899ab4f6b6695fe22227949e5c6e844c14d8d40"
+      "bytes": 9681,
+      "sha256": "dd2d9aaa5458ea794c12e945921fccab493ee7882cf6bafb7d3c2f7c173c41df"
     },
     {
       "path": "ModCarrerMode/source/server16_py/__init__.py",
       "bytes": 205,
-      "sha256": "9b9df4f8d0ff1e6c00e5f37532fc65cc0fb67a1f1dd3d51aab82166a5475a7e0"
+      "sha256": "d58f5b9ded0c282b8340911b6b9ffcb1f2e568d8b75823c91f8d34b4ff5fc5ae"
     },
     {
       "path": "ModCarrerMode/source/server16_py/app.py",
-      "bytes": 202126,
-      "sha256": "46a8f8fa44e10f3512ca5e2567867bb039ca03b066dd95769ed81508437f0154"
+      "bytes": 202181,
+      "sha256": "835ba6f0a3eb3809786c13ab7398d84907e6ad014b0f81365e0982e84141b487"
     },
     {
       "path": "ModCarrerMode/source/server16_py/build_check.py",
-      "bytes": 1834,
-      "sha256": "530ac93efc3ae260b877c07a379a0e8b4e08d9812f515a71c7a4346f517f4874"
+      "bytes": 1982,
+      "sha256": "1750d132a539df5600b38039c61664d61d7e847fb244848b2e7e54551c54f8ac"
     },
     {
       "path": "ModCarrerMode/source/server16_py/chants_runtime.py",
@@ -1003,8 +1588,8 @@
     },
     {
       "path": "ModCarrerMode/tools/club_browser/generate_lineup.exe",
-      "bytes": 1228288,
-      "sha256": "08d3c531c118e1bc05d7c630bbba01ae47628b907d6fce6999e0392060c0d0e8"
+      "bytes": 619008,
+      "sha256": "a079114a59ec9ca68c7de90909066509ecae38d005719c85d4917b43f47653da"
     },
     {
       "path": "ModCarrerMode/tools/frontend_stadium_prepare.exe",
@@ -1013,13 +1598,23 @@
     },
     {
       "path": "Server16Python.exe",
-      "bytes": 67947643,
-      "sha256": "56fc7ffdceb49a9b577c764aaf6f518f4af98fcf37aa57837f84dd1411d2d106"
+      "bytes": 67871334,
+      "sha256": "94bf92eb9d53987779b013c16020f10dc91559d7d1790cbc5dcbf158d997afcb"
+    },
+    {
+      "path": "bin/career_jobs_runtime.dll",
+      "bytes": 193024,
+      "sha256": "6b03319dad74d96d732d8638b949a527c75841a8bc8db16400c4fb016dc9539a"
     },
     {
       "path": "bin/cgfs16_overlay.dll",
-      "bytes": 254464,
-      "sha256": "bb4a9cfcb6beafcb4d08c48e2e3e7b5639bb98efe293b23a650278defb70dab2"
+      "bytes": 254976,
+      "sha256": "40a12b31add6b2abfdfc56665e75046dc7e5e7c4f5525273447a4621cc39079c"
+    },
+    {
+      "path": "bin/server16_first_person_v14.dll",
+      "bytes": 141824,
+      "sha256": "af72a9dc2253a9423bec759062fa25d7cf799d827bd810fe4611c8340a1afc30"
     },
     {
       "path": "data/fifarna/lua/assets/server16_frontend_stadium.lua",
@@ -1183,8 +1778,8 @@
     },
     {
       "path": "data/ui/game/screens/career/server16/dressingroom.big",
-      "bytes": 206595,
-      "sha256": "33a4da03cb6aca206ac682fda242449cf3658fcbd34958d74bcb85ba58996deb"
+      "bytes": 206596,
+      "sha256": "5d129343237b5fba952dfa58fcb84d1753f0b3e97fb94803c9359629bfa6ceb6"
     },
     {
       "path": "data/ui/game/screens/career/server16/markethubbootstrap.big",
@@ -1193,8 +1788,8 @@
     },
     {
       "path": "data/ui/game/screens/career/server16/matchpreview.big",
-      "bytes": 430741,
-      "sha256": "5017ebfa377dfb0b60e653ad28bbc3954be50c1da88a8374ecee78a9e883f1c1"
+      "bytes": 431980,
+      "sha256": "56e3c2a3818d1b36f04d20f6f02212adcfcfbe7ecab2f0278360061b5b2b4b0d"
     },
     {
       "path": "data/ui/game/screens/career/server16/matchpreviewloading.big",
@@ -1233,8 +1828,8 @@
     },
     {
       "path": "data/ui/nav/careermode/server16dressingroomflow.nav",
-      "bytes": 1379,
-      "sha256": "085027a4f089b4578e0cf4fcfad49ff33e90ae3658fc471e23f7f1d425787edb"
+      "bytes": 1868,
+      "sha256": "34d5f00bb94ffea249ea6dd9fb39b3ed22386bcf8643c1b21c97e83881ce7709"
     },
     {
       "path": "data/ui/nav/careermode/server16matchpreviewflow.nav",
@@ -1248,8 +1843,8 @@
     },
     {
       "path": "dinput8.dll",
-      "bytes": 629760,
-      "sha256": "92a01a1d4b034b9b5e03b0355b29f3b2969cded9f2603a4d67ee5e53ad324091"
+      "bytes": 630272,
+      "sha256": "bf7742a4dbb69657ac38dbf0570b852b750ccd48e7beed39d2521b912f7fe33b"
     }
   ]
 }

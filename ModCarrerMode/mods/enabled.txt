@@ -33,3 +33,8 @@ cloth_motion\cloth_motion.dll
 
 # Cenas cinematograficas ocasionais: tecnico e mascote.
 extra_scenes\extra_scenes.dll
+
+# Interfaces do Server carregadas pelo host do jogo; sem executavel injetor.
+server16_overlay\cgfs16_overlay.dll
+first_person\server16_first_person_v14.dll
+career_jobs\career_jobs_runtime.dll

@@ -72,6 +72,24 @@
               ]
             ]
           ]
+        },
+        {
+          "event": "Server16RefreshDressingRoom",
+          "actions": [
+            [
+              "unloadView",
+              [
+                "screen"
+              ]
+            ],
+            [
+              "loadView",
+              [
+                "screen",
+                "game/screens/career/server16/DressingRoom"
+              ]
+            ]
+          ]
         }
       ]
     }

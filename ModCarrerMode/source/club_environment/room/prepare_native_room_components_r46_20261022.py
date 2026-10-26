@@ -211,10 +211,10 @@ def prepare_header(context):
  target=GAME/ui.BIG;state=ROOT/'runtime/room_header.json'
  previous=json.loads(state.read_text(encoding='utf8')) if state.exists() else {}
  catalog_hash=hashlib.sha256(json.dumps(context['scene_catalog'],sort_keys=True).encode()).hexdigest()
- if previous.get('revision')==62 and previous.get('pid')==context['pid'] and previous.get('club')==context['club'] and previous.get('name')==context['club_name'] and previous.get('catalog_hash')==catalog_hash and target.exists():return
+ if previous.get('revision')==ui.HEADER_REVISION and previous.get('pid')==context['pid'] and previous.get('club')==context['club'] and previous.get('name')==context['club_name'] and previous.get('catalog_hash')==catalog_hash and target.exists():return
  path=ui.screen(context,read_asset);temp=target.with_name(target.name+'.s16-new');temp.write_bytes(path.read_bytes());temp.replace(target)
 
-def calendar_stamp(pid):
+def calendar_stamp(pid,details=False):
  from server16_py.memory_access import Memory
  from server16_py.career_context import competition_session
  import psutil
@@ -227,8 +227,21 @@ def calendar_stamp(pid):
   index=struct.unpack_from('<I',code,9)[0]
   if index>=256:raise ValueError('Calendar index')
   calendar=m.read_int64(m.read_int64(profile['registry_address']+index*32+24))
-  return tuple(struct.unpack('<3i',m.read_process_memory(calendar+0x34,12)))
+  date=tuple(struct.unpack('<3i',m.read_process_memory(calendar+0x34,12)))
+  return (date,profile) if details else date
  finally:m.close()
+
+def publish_room_ready(pid):
+ import prepared_views
+ import build_dressing_card_20261022 as ui
+ header=json.loads((ROOT/'runtime/room_header.json').read_text(encoding='utf8'))
+ snap=json.loads((GAME/'ModCarrerMode/runtime/career_fce_snapshot.json').read_text())
+ if header.get('revision')!=ui.HEADER_REVISION or header.get('pid')!=pid or snap.get('pid')!=pid or header['club']!=snap.get('club'):return
+ parts,profile=calendar_stamp(pid,True)
+ if profile.get('club_id')!=header['club']:return
+ import build_dressing_card_20261022 as ui
+ revision=hashlib.sha256((GAME/ui.BIG).read_bytes()).hexdigest()
+ prepared_views.publish(ROOT/'runtime/view_ready.tsv',dict(pid=pid,process_created_100ns=snap.get('processCreated100ns',0)),profile,parts[2]*10000+parts[1]*100+parts[0],revision)
 
 def watch():
  import psutil
@@ -240,8 +253,7 @@ def watch():
  if not mutex:raise C.WinError(C.get_last_error())
  if C.get_last_error()==183:
   kernel.CloseHandle(mutex);print('Native room helper already running for this FIFA session');return
- from room_control_bridge_r52 import start
- start(pid)
+ # Commands use the native ION event bridge; no private-heap polling thread.
  marker=ROOT/'runtime/native_asset_helper_r46.pid';marker.write_text(f'{pid} {os.getpid()}\n')
  logfile=ROOT/'runtime/native_asset_helper_r46.log';logfile.write_text(f'Native room asset helper session game_pid={pid}\n');last=None
  while psutil.pid_exists(pid):
@@ -250,6 +262,7 @@ def watch():
    if snap.get('pid')==pid and stamp!=last:
     prepare();last=stamp
     with logfile.open('a') as f:f.write(f'PREPARED club={snap["club"]} native game assets, no save writes\n')
+   publish_room_ready(pid)
   except Exception as e:
    with logfile.open('a') as f:f.write(type(e).__name__+': '+str(e)+'\n')
   time.sleep(2)

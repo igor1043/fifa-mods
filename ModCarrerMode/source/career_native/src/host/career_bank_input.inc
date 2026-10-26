@@ -62,6 +62,16 @@ static int bank_input_capture(const char *wire)
 static uintptr_t bank_input_event(void *bridge,const char *controller,const char *event,const char *argument)
 {
     typedef uintptr_t (*Dispatch)(void *,const char *,const char *,const char *);
+    if(bank_mail_string(event,128) && !strcmp(event,"Server16RoomScene")) {
+        if(bank_mail_string(controller,64) && !strcmp(controller,"Calendar")
+            && bank_mail_string(argument,192)) {
+            typedef BOOL (WINAPI *RoomCommand)(const char *);
+            HMODULE module=GetModuleHandleW(L"native_dressing_room.dll");
+            RoomCommand capture=module?(RoomCommand)GetProcAddress(module,"Fifa16RoomSceneCommand"):NULL;
+            if(capture)(void)capture(argument);
+        }
+        return 0;
+    }
     if(bank_mail_string(event,128) && !strcmp(event,"Server16SubmitBank")) {
         if(bank_mail_string(controller,64) && !strcmp(controller,"Calendar"))
             (void)bank_input_capture(argument);

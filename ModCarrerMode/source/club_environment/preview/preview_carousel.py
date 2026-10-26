@@ -1,15 +1,21 @@
 import portable_paths as portable
 """Native FIFA card geometry for the venue and recent-results carousel pages."""
+import textwrap
 PAGE_NAMES=('ESCALAÇÕES','DADOS DA PARTIDA','ÚLTIMAS PARTIDAS')
 CARD_X,CARD_Y,CARD_W,CARD_H=204,148,1512,742
 CARD_RIGHT=CARD_X+CARD_W
 CARD_BOTTOM=CARD_Y+CARD_H
-PITCH_SCALE=.75
+PITCH_SCALE=.9
 PITCH_Y=166
-PITCH_X=(308,1112)
+PITCH_X=(216,1106)
+SUMMARY_X,SUMMARY_Y,SUMMARY_W,SUMMARY_H=826,166,264,641
 CONTENT_BOTTOM=808
 BAR_X,BAR_Y= CARD_RIGHT-270,CARD_BOTTOM-40
 TEXT_BINDINGS=[]
+
+
+def colors_by_result(result):
+    return {'V':0xff277048,'E':0xff7b858c,'D':0xffc82d3d}[result]
 
 
 def graphics(payload,place,text,sprite,shape_id,solid_shape,dot_shape,arrows,native_art):
@@ -64,6 +70,67 @@ def graphics(payload,place,text,sprite,shape_id,solid_shape,dot_shape,arrows,nat
         controls.append(label(80,26,610,650,30,17,'legend','V: vitória   E: empate   D: derrota'))
         histories.append(sprite(controls))
 
+    # Three columns share a baseline. Every label is inside a real MovieClip,
+    # so the native runtime and the offline renderer use identical bindings.
+    label_owner='lineupSummary'
+    navy=0xff163652;muted=0xff6b7d86
+    center=[place(shape_id,1,0,0,SUMMARY_W,SUMMARY_H,color=0xfff1f3f0)]
+    def center_label(depth,x,y,w,h,size,name,value,color=navy,align=0):
+        return label(depth,x,y,w,h,size,name,value,color,align)
+    competition=native_art('S16Competition_'+str(details.get('competition_id',0)),64,'competitionIcon')
+    if competition is not None:center.append(place(competition,2,9,16,label='competitionLogo'))
+    title=details.get('competition','Calendário da carreira')
+    title_lines=textwrap.wrap(title,width=15 if competition is not None else 24,break_long_words=False) or ['']
+    for i,line in enumerate(title_lines[:3]):
+        center.append(center_label(3+i,82 if competition is not None else 10,18+i*26,
+            172 if competition is not None else 244,28,22 if len(line)<17 else 18,
+            'competitionName' if i==0 else 'competitionLine'+str(i),line))
+    for i,y in enumerate((108,326,506)):
+        center.append(place(shape_id,10+i,10,y,244,2,color=0xffd5dddd))
+    # Native vector cues keep the date and venue legible without relying on
+    # fonts containing emoji or external icon files.
+    center.extend([place(shape_id,14,15,135,19,18,color=navy),
+                   place(shape_id,15,17,141,15,10,color=0xfff1f3f0),
+                   place(shape_id,16,19,132,3,7,color=navy),
+                   place(shape_id,17,27,132,3,7,color=navy)])
+    center.extend([center_label(20,46,122,210,23,15,'dateLabel','DATA / HORÁRIO',muted),
+                   center_label(21,46,149,210,32,20,'dateTime',details.get('date','Não informada')+' · '+details.get('time','')),
+                   center_label(22,14,195,236,22,15,'stadiumLabel','ESTÁDIO',muted)])
+    stadium=details.get('stadium','Não informado')
+    for i,line in enumerate(textwrap.wrap(stadium,width=24,break_long_words=False)[:2]):
+        center.append(center_label(23+i,14,221+i*28,236,30,22 if len(stadium)<24 else 19,
+            'stadiumName' if i==0 else 'stadiumLine'+str(i),line))
+    location=details.get('location','')
+    if location:center.append(center_label(25,14,283,236,38,17,'location',location,muted))
+    h2h=payload.get('head_to_head',{});total=h2h.get('games',0)
+    center.append(center_label(30,10,343,244,30,22,'h2hTitle','CONFRONTO DIRETO',align=2))
+    # Use a dark neutral on this light panel even for white club lettering.
+    tally=(h2h.get('user_wins',0),h2h.get('draws',0),h2h.get('opponent_wins',0))
+    for i,(value,caption,color) in enumerate(zip(tally,('VITÓRIAS','EMPATES','VITÓRIAS'),(0xffb9303b,0xff6e7d88,navy))):
+        x=10+i*82
+        center.extend([center_label(31+i*2,x,384,80,42,35,'h2hCount'+str(i),str(value) if total else '—',color,2),
+                       center_label(32+i*2,x,426,80,22,14,'h2hLabel'+str(i),caption,muted,2)])
+    center.append(place(shape_id,40,16,459,232,10,color=0xffd5dddd))
+    if total:
+        x=16
+        for i,(count,color) in enumerate(zip(tally,(0xffb9303b,0xff9ba5ab,navy))):
+            width=232*count/total
+            if width:center.append(place(shape_id,41+i,x,459,width,10,color=color))
+            x+=width
+    center.append(center_label(44,10,480,244,22,14,'h2hScope',
+        str(total)+' jogo'+('s' if total!=1 else '')+' registrado'+('s' if total!=1 else '')+' na carreira' if total else 'Sem confrontos registrados',muted,2))
+    center.append(center_label(50,10,522,244,25,19,'formTitle','ÚLTIMOS 5 JOGOS',align=2))
+    for row,side in enumerate(('user','opponent')):
+        team=payload[side];y=558+row*43
+        crest=native_art('S16Crest_'+str(team['team_id']),30,'formCrestArt'+str(row))
+        if crest is not None:center.append(place(crest,51+row*20,10,y,label='formCrest'+str(row)))
+        games=team.get('recent',[])[:5]
+        if not games:center.append(center_label(52+row*20,52,y+3,200,28,15,'formEmpty'+str(row),'Sem jogos concluídos',muted))
+        for i,game in enumerate(games):
+            x=52+i*39;depth=53+row*20+i*2
+            center.extend([place(shape_id,depth,x,y,34,32,color=colors_by_result(game['result'])),
+                           center_label(depth+1,x,y+1,34,31,22,'form'+str(row)+'_'+str(i),game['result'],0xffffffff,2)])
+
     # Same sloped dark footer and lime/grey pagination cues as career cards.
     bar=solid_shape(((0,1),(44/270,0),(1,0),(1,0),(1,1),(0,1)))
     left,right=arrows
@@ -75,7 +142,8 @@ def graphics(payload,place,text,sprite,shape_id,solid_shape,dot_shape,arrows,nat
     strips=[sprite([place(circle,1+i,146+i*34,12,16,16,color=0xffd7f51b if i==page else 0xff839196) for i in range(3)]) for page in range(3)]
     dot=sprite([place(shape_id,1,0,0,18,18,color=0x01ffffff)])
     label_owner=None
-    return [place(venue,10,226,166,label='venuePage',color=0x00ffffff),
+    return [place(sprite(center),9,SUMMARY_X,SUMMARY_Y,label='lineupSummary'),
+            place(venue,10,226,166,label='venuePage',color=0x00ffffff),
             place(histories[0],11,226,166,label='userHistory',color=0x00ffffff),
             place(histories[1],12,990,166,label='opponentHistory',color=0x00ffffff),
             place(bar,19,BAR_X,BAR_Y,270,40,label='paginationBar',color=0xff26343c),
@@ -103,7 +171,7 @@ def methods(a,payload,b):
         a.set(R(1),'carouselPage',R(2))
         a.when(('bin',72,T('carouselPage'),0),lambda a:a.set(R(1),'carouselPage',2))
         a.when(('bin',103,T('carouselPage'),2),lambda a:a.set(R(1),'carouselPage',0))
-        for child,index in (('userPitch',0),('opponentPitch',0),('venuePage',1),('userHistory',2),('opponentHistory',2)):
+        for child,index in (('userPitch',0),('opponentPitch',0),('lineupSummary',0),('venuePage',1),('userHistory',2),('opponentHistory',2)):
             a.set(T(child),'_visible',EQ(T('carouselPage'),index));a.set(T(child),'_alpha',100)
         a.set(T('pageLabel'),'text',('index',('array',PAGE_NAMES),T('carouselPage')))
         for i in range(3):
@@ -114,7 +182,7 @@ def methods(a,payload,b):
                   'Resultados desta carreira, do mais recente ao mais antigo.')
         a.set(T('status'),'text',('index',('array',statuses),T('carouselPage')))
         if not payload.get('available',True):
-            for child in ('userPitch','opponentPitch','venuePage'):a.set(T(child),'_visible',False)
+            for child in ('userPitch','opponentPitch','lineupSummary','venuePage'):a.set(T(child),'_visible',False)
             a.set(T('status'),'text','Não há próxima partida agendada nesta carreira.')
     a.function('ShowPage',1,show)
     a.function('PreviousPageClick',0,lambda a:a.do(P(R(1),'owner'),'ShowPage',('bin',11,P(P(R(1),'owner'),'carouselPage'),1)))

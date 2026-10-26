@@ -6,7 +6,7 @@ from server16_py.career_save_worker import blocks
 from server16_py.career_read import Record
 
 GAME=portable.GAME
-TABLES={'teams','players','playernames','dcplayernames','editedplayernames','teamsheets','default_teamsheets','formations','teamplayerlinks','career_calendar','teamstadiumlinks','stadiums','leagues'}
+TABLES={'teams','players','playernames','dcplayernames','editedplayernames','teamsheets','default_teamsheets','formations','teamplayerlinks','career_calendar','teamstadiumlinks','stadiumassignments','stadiums','leagues'}
 
 
 def snapshot_revision(snapshot):
@@ -89,7 +89,7 @@ def project(snapshot_path=GAME/'ModCarrerMode/runtime/career_fce_snapshot.json')
     if not fixtures:
         empty=lambda ident:{'team_id':ident,'name':'','probable':ident!=club,'formation':'','players':[]}
         from preview_details import enrich
-        return enrich({'available':False,'pid':process.pid,'process_created_100ns':snapshot['processCreated100ns'],'context':profile['context_address'],'source_revision':snapshot_revision(snapshot),'save':str(path),'date':today,'fixture':[0,0,0,today,0,club,0,0,0,0,0],'user':empty(club),'opponent':empty(0)},snapshot,rows,base)
+        return enrich({'available':False,'pid':process.pid,'process_created_100ns':snapshot['processCreated100ns'],'context':profile['context_address'],'source_revision':snapshot_revision(snapshot),'save':str(path),'date':today,'fixture':[0,0,0,today,0,club,0,0,0,0,0],'user':empty(club),'opponent':empty(0)},snapshot,rows,base,game=GAME)
     fixture=min(fixtures,key=lambda r:(r[3],r[4],r[0]));opponent=fixture[6] if fixture[5]==club else fixture[5]
     players={r.value('playerid'):r for r in rows('players')}
     from lineup_selection import select
@@ -135,7 +135,7 @@ def project(snapshot_path=GAME/'ModCarrerMode/runtime/career_fce_snapshot.json')
         return {'team_id':teamid,'name':teams[teamid],'probable':probable or plan['probable'],'source':plan['source'],'formation':formation,'players':line,
                 'portrait_ids':sorted(pid for pid in links.get(teamid,set()) if pid in players)}
     from preview_details import enrich
-    return enrich({'pid':process.pid,'process_created_100ns':snapshot['processCreated100ns'],'context':profile['context_address'],'source_revision':snapshot_revision(snapshot),'save':str(path),'date':today,'fixture':fixture,'user':team(club,False),'opponent':team(opponent,True)},snapshot,rows,base)
+    return enrich({'pid':process.pid,'process_created_100ns':snapshot['processCreated100ns'],'context':profile['context_address'],'source_revision':snapshot_revision(snapshot),'save':str(path),'date':today,'fixture':fixture,'user':team(club,False),'opponent':team(opponent,True)},snapshot,rows,base,game=GAME)
 
 if __name__=='__main__':
     p=Path(__file__).with_name('lineups.json');data=project();p.write_text(json.dumps(data,ensure_ascii=False,indent=2),encoding='utf8');print(json.dumps(data,ensure_ascii=False,indent=2))

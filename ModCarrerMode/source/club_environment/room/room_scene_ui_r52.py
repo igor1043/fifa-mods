@@ -64,6 +64,7 @@ def methods(a,scope):
         a.set(b.GLOBAL,'Server16RoomSequence',b.plus(b.G('Server16RoomSequence'),1));value=f'S16ROOM2|{scope["club"]}|{scope["nonce"]}|'
         for part in (b.G('Server16RoomSequence'),'|',R(2),'|ENDROOM'):value=b.plus(value,part)
         a.set(b.GLOBAL,'Server16RoomRequest',value)
+        a.do(b.ION,'SendSystemEvent',P(T('staticData'),'SCREEN_CONTROLLER_ID'),'Server16RoomScene',value)
     a.function('PublishScene',1,publish)
     def refresh(a):
         a.set(T('sceneModal'),'_visible',T('modalOpen'));a.set(T('sceneModal'),'_alpha',0);a.when(T('modalOpen'),lambda a:a.set(T('sceneModal'),'_alpha',100))
@@ -86,7 +87,8 @@ def methods(a,scope):
             if name!='backGroup':a.set(button,'_visible',('bin',103,P(T('sceneItems'),'length'),5))
         a.do(M('HelpManager'),'Update')
     a.function('RefreshSceneModal',0,refresh)
-    a.function('OpenScenes',0,lambda a:(a.set(R(1),'modalOpen',True),a.do(R(1),'PublishScene',-2),a.do(R(1),'RefreshSceneModal')))
+    # Keep the cinematic moving while browsing; clear an older view's pause.
+    a.function('OpenScenes',0,lambda a:(a.set(R(1),'modalOpen',True),a.do(R(1),'PublishScene',-3),a.do(R(1),'RefreshSceneModal')))
     def close(a):
         def root_level(a):a.set(R(1),'sceneGroup',-1);a.set(R(1),'sceneFocus',0);a.set(R(1),'sceneItems',root_items)
         a.when(('bin',103,T('sceneGroup'),-1),root_level,lambda a:(a.set(R(1),'modalOpen',False),a.do(R(1),'PublishScene',-3)));a.do(R(1),'RefreshSceneModal')
@@ -110,7 +112,7 @@ def methods(a,scope):
     a.function('RowClick',0,lambda a:(a.do(R(1),'onRollOver'),a.do(P(R(1),'owner'),'ApplyScene')))
     def help(a):
         a.when(T('modalOpen'),lambda a:a.ret(('array',(CALL(PATH('ion','manager','HelpItem'),'CreateHelpTickerItem','ADVANCE','Selecionar'),CALL(PATH('ion','manager','HelpItem'),'CreateHelpTickerItem','BACK','Voltar')))))
-        a.ret(('array',(CALL(PATH('ion','manager','HelpItem'),'CreateHelpTickerItem','SQUARE','Cenas'),CALL(PATH('ion','manager','HelpItem'),'CreateHelpTickerItem','BACK','Voltar'))))
+        a.ret(('array',(CALL(PATH('ion','manager','HelpItem'),'CreateHelpTickerItem','ADVANCE','Cenas'),CALL(PATH('ion','manager','HelpItem'),'CreateHelpTickerItem','BACK','Voltar'))))
     a.function('getHelpContext',0,help)
     def key(a):
         def back(a):

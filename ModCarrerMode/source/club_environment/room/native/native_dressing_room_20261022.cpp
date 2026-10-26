@@ -16,6 +16,7 @@
 #include "room_helper_process_r61.h"
 #include "motions.h"
 #include "room_cinema_r52.h"
+#include "room_scene_command.h"
 namespace fs=std::filesystem;
 namespace {
 constexpr float roomOriginX=100000.f;
@@ -87,6 +88,27 @@ struct BorrowedCamera {
   float Y=std::tan(pose.fov*.00872664626f),X=Y*(x/y),zero=0;unsigned char off=0;write(s+0x40,m,sizeof m);write(s+0x88,&X,4);write(s+0x8c,&Y,4);write(s+0xb0,&off,1);write(s+0xbc,&zero,4);write(s+0xc0,&zero,4);read(s+0x40,written,sizeof written);
  }
 }camera;
+SRWLOCK roomCommandLock=SRWLOCK_INIT;
+room_command::Receipt roomCommandReceipt;
+bool captureRoomSceneCommand(const char*argument){
+ char wire[192]{};if(!read(reinterpret_cast<uintptr_t>(argument),wire,sizeof(wire)-1)||!std::memchr(wire,0,sizeof(wire)-1))return false;
+ room_command::Request request;if(!room_command::parse(wire,request)||!page())return false;
+ // This callback performs no FIFA calls or camera writes. The existing
+ // owner-frame consumer applies the validated mailbox within its 100ms poll.
+ AcquireSRWLockExclusive(&roomCommandLock);bool accepted=false;
+ std::ifstream scope(folder/L"runtime/room_control_scope.txt");std::string magic,nonce;unsigned version=0,pid=0,club=0;
+ if(scope>>magic>>version>>pid>>club>>nonce && magic=="S16ROOMSCOPE"&&version==1&&pid==GetCurrentProcessId()
+    &&club==request.club&&club==validCareerClub&&nonce==request.nonce&&roomCommandReceipt.accepts(request)){
+  const auto target=folder/L"runtime/room_camera_command.txt",temporary=folder/L"runtime/room_camera_command.txt.direct-new";
+  std::ofstream output(temporary,std::ios::binary|std::ios::trunc);
+  if(output){output<<"S16ROOM 1 "<<pid<<" "<<club<<" "<<nonce<<" "<<request.sequence<<" "<<request.code<<"\n";output.close();
+   if(output&&MoveFileExW(temporary.c_str(),target.c_str(),MOVEFILE_REPLACE_EXISTING)){
+    roomCommandReceipt.commit(request);accepted=true;log("ROOM_SCENE_COMMAND_CAPTURED_DIRECT: no heap polling");
+   }
+  }
+ }
+ ReleaseSRWLockExclusive(&roomCommandLock);return accepted;
+}
 void __fastcall draw(void*self,int pass){
  ++draws;if(stopping||!active||!ready||!page()||self!=(void*)object)return;
  if(!submissions.load())log("FIRST_NATIVE_DRAW_BEGIN: forwarding GameplayProp native context");
@@ -228,6 +250,7 @@ DWORD WINAPI worker(void*){
 }
 }
 extern "C" __declspec(dllexport) unsigned WINAPI Fifa16ModGetApiVersion(){return 1;}
+extern "C" __declspec(dllexport) BOOL WINAPI Fifa16RoomSceneCommand(const char*wire){return captureRoomSceneCommand(wire)?TRUE:FALSE;}
 extern "C" __declspec(dllexport) BOOL WINAPI Fifa16ModStart(const char*){
  if(started.exchange(true))return TRUE;image=(uintptr_t)GetModuleHandleW(nullptr);if(get<unsigned>(image+get<int>(image+0x3c)+8)!=0x577de45c){started=false;return FALSE;}
  HMODULE self=nullptr;GetModuleHandleExW(GET_MODULE_HANDLE_EX_FLAG_FROM_ADDRESS|GET_MODULE_HANDLE_EX_FLAG_PIN,(LPCWSTR)&Fifa16ModStart,&self);wchar_t path[1024]{};GetModuleFileNameW(nullptr,path,1024);game=fs::path(path).parent_path();folder=game/L"ModCarrerMode/runtime/club_environment/room";logfile=folder/L"runtime/native_room.log";

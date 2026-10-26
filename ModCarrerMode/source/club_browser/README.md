@@ -114,4 +114,38 @@ O vestiário tinha os modelos prontos, mas sua câmera ignorava o estado 13 de u
 
 O auxiliar dos titulares inicia com ambiente congelado independente e herda somente seus canais de entrada/saída. O Server grava a saída de cada auxiliar em `service.log`, evitando que um stdout inválido encerre a preparação. A tela detecta quando o auxiliar termina e permite tentar novamente. Erros do exportador preservam saída e código de encerramento.
 
-O complemento de 36 assets continua o mesmo; esta revisão altera código, DLLs e Server16. A visualização dos titulares no PC do Robson ainda precisa de validação. Para comparar os computadores, use `ModCarrerMode/tools/Coletar-Diagnostico-Carreira.ps1`: ele gera um ZIP de logs e hashes, sem copiar saves, contratos SQL, modelos ou executáveis.
+O complemento de assets dessa revisão permanece compatível; esta revisão altera código, DLLs e Server16. A visualização dos titulares no PC do Robson ainda precisa de validação. Para comparar os computadores, use `ModCarrerMode/tools/Coletar-Diagnostico-Carreira.ps1`: ele gera um ZIP de logs e hashes, sem copiar saves, contratos SQL, modelos ou executáveis.
+
+### Pose autoral dos onze — entrega de 26/10/2026
+
+A foto usa a pose salva pelo usuário em `cena-fifa-friends (15).json`. A cena
+editável fica em `ModCarrerMode/data/club_browser/poses/starting_eleven.scene.json`;
+`starting_eleven.pose` é a receita compacta FFPOSE02 consumida pelo exportador.
+Os onze slots recebem os jogadores da escalação do clube atual, na ordenação
+nativa de altura, com o goleiro no início da fileira de trás. Nomes e IDs do
+Flamengo no arquivo de autoria servem à referência e não selecionam jogadores
+de outros clubes durante a execução.
+
+As transformações dos 400 ossos são aplicadas aos modelos originais, com oito
+pesos por vértice. O tamanho acompanha o modelo de cada jogador, e o apoio dos
+calçados é alinhado ao chão antes da posição de cada slot. Aparências, uniformes,
+UVs e pixels das texturas continuam vindo da instalação e da carreira ativa.
+A chave do cache inclui o conteúdo da receita, além do elenco e do exportador.
+Uma receita modificada durante a preparação não é publicada como pronta.
+
+`exporter/` contém o código-fonte isolado do exportador e a referência numérica
+do esqueleto, permitindo reconstruir o executável sem o outro projeto local.
+Para atualizar uma pose: salve o JSON, execute `exporter/prepare_pose.py <cena>
+<starting_eleven.pose>` e copie a receita completa. `exporter/build.cmd` reconstrói
+`generate_lineup.exe`. O protocolo persistente `--web-worker` continua aceitando
+fixture, destino e pose 1 por linha. A interface e o renderizador nativo do FIFA
+mantêm seu fluxo; somente o preparador da foto recebe a receita nova.
+
+Testes locais: receita reproduzível, rejeição de cena incompleta ou inválida,
+invalidação do cache, exportador persistente, comparação de todas as 108 partes
+com a cena autoral e geração dos elencos reais de Flamengo, Grêmio e Internacional.
+Vértices, normais, UVs e texturas foram comparados. Evidências de instalação e
+verificação: `code-release/xi_pose_20261026/`. A conferência visual fica para a
+próxima abertura de Ver titulares/Atualizar. O JSON de autoria e o exportador são
+versionados; a receita compilada acompanha o complemento de 26/10. Metadados
+validam o hash e mostram um erro claro se faltar a receita ou ela for antiga.

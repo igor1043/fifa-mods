@@ -108,6 +108,18 @@ def main():
             run('native-competition', ['cmd', '/d', '/c', str(SOURCE/'common/test_competition_identity.cmd')])
             run('native-jobs', ['cmd', '/d', '/c', str(SOURCE/'career_jobs_runtime/test.cmd')])
             run('native-camera', ['cmd', '/d', '/c', str(SOURCE/'scripts/test_first_person.cmd')])
+            # Native room commands must remain direct across first entry and
+            # re-entry; the Python heap-reader tests alone do not cover this.
+            room_tests=SOURCE/'club_environment/room/native'
+            compiler = Path(os.environ.get('VS_VCVARS64',
+                r'C:\Program Files (x86)\Microsoft Visual Studio\18\BuildTools\VC\Auxiliary\Build\vcvars64.bat'))
+            for name in ('test_room_scene_command','test_room_direct_input','test_room_scene_state','test_room_background'):
+                stage=output/name;stage.mkdir(exist_ok=True);script=stage/'run.cmd'
+                script.write_text('@echo off\nsetlocal\ncall "'+str(compiler)+'" >nul\n'
+                    'if errorlevel 1 exit /b 1\ncl /nologo /O2 /W3 /EHsc /std:c++17 /MT "'+str(room_tests/(name+'.cpp'))+'" '
+                    '/Fe:test.exe /link user32.lib gdi32.lib ole32.lib d3d11.lib d3dcompiler.lib windowscodecs.lib\n'
+                    'if errorlevel 1 exit /b 1\ntest.exe\nif errorlevel 1 exit /b 1\nexit /b 0\n',encoding='utf8')
+                run(name,['cmd','/d','/c',str(script)],cwd=stage)
             # Compile test executables in the report directory, not production folders.
             compiler = Path(os.environ.get('VS_VCVARS64',
                 r'C:\Program Files (x86)\Microsoft Visual Studio\18\BuildTools\VC\Auxiliary\Build\vcvars64.bat'))

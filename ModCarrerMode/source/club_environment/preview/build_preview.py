@@ -12,9 +12,10 @@ import preview_carousel as carousel
 CLASS=('game','screens','career','server16','MatchPreview')
 FULL='.'.join(CLASS);PAGE='game/screens/career/server16/MatchPreview'
 POSITIONS=('GO','LIB','ALA','LD','ZAG','ZAG','ZAG','LE','ALA','VOL','VOL','VOL','MD','MC','MC','MC','ME','MEI','MEI','MEI','SA','SA','SA','PD','ATA','ATA','ATA','PE')
-FIELD_X,FIELD_Y,FIELD_W,FIELD_H=12,94,640,760
-PANEL_W,PANEL_H=664,854
-HEAD_MAX=88
+FIELD_X,FIELD_Y,FIELD_W,FIELD_H=12,80,640,632
+PANEL_W,PANEL_H=664,712
+HEAD_MAX=78
+PLAYER_BOTTOM,PLAYER_SPAN=566,460
 
 class Code(b.Code):
     def finish(self):
@@ -73,7 +74,7 @@ def script(data,dictionaries,payload,head_ids):
             for child in ('teamName','formation','crest','p0','p10'):
                 available=('bin',16,available,P(T(side),child))
             available=('bin',16,available,P(P(T(side),'p10'),'face'))
-        for child in ('venuePage','userHistory','opponentHistory','pageDot2'):
+        for child in ('lineupSummary','venuePage','userHistory','opponentHistory','pageDot2'):
             available=('bin',16,available,T(child))
         a.when(('not',available),lambda a:a.ret())
         a.set(R(1),'pitchClipsReady',True);a.set(R(1),'onEnterFrame',None)
@@ -82,7 +83,11 @@ def script(data,dictionaries,payload,head_ids):
         else:
             a.set(T('userPitch'),'_visible',False);a.set(T('opponentPitch'),'_visible',False)
         a.set(T('screenTitle'),'text','PRÓXIMA PARTIDA — ESCALAÇÕES')
-        a.set(T('matchInfo'),'text',f"{payload['fixture'][3]%100:02d}/{payload['fixture'][3]//100%100:02d}/{payload['fixture'][3]//10000}   •   {payload['fixture'][4]//100:02d}:{payload['fixture'][4]%100:02d}")
+        details=payload.get('details',{})
+        date=details.get('date') or f"{payload['fixture'][3]%100:02d}/{payload['fixture'][3]//100%100:02d}/{payload['fixture'][3]//10000}"
+        time=details.get('time') or f"{payload['fixture'][4]//100:02d}:{payload['fixture'][4]%100:02d}"
+        line='   •   '.join(str(value) for value in (date,time,details.get('stadium'),details.get('location')) if value)
+        a.set(T('matchInfo'),'text',line)
         a.set(T('status'),'text','Provável escalação adversária. As escolhas finais podem mudar até a partida.')
         if not payload.get('available',True):
             a.set(T('status'),'text','Não há próxima partida agendada nesta carreira.');a.set(T('matchInfo'),'text','')
@@ -115,7 +120,7 @@ def script(data,dictionaries,payload,head_ids):
                 cond=('bin',16,('bin',72,k,P(T('rowLevels'),'length')),('bin',72,CALL(PATH('Math'),'abs',('bin',11,py,previous)),.09))
                 a.when(cond,lambda a:a.set(R(1),'newBand',False))
             a.when(T('newBand'),lambda a,py=py:a.do(T('rowLevels'),'push',py))
-        a.set(R(1),'rowStep',('bin',13,590,CALL(PATH('Math'),'max',1,('bin',11,P(T('rowLevels'),'length'),1))))
+        a.set(R(1),'rowStep',('bin',13,PLAYER_SPAN,CALL(PATH('Math'),'max',1,('bin',11,P(T('rowLevels'),'length'),1))))
         a.set(R(1),'headSize',CALL(PATH('Math'),'max',48,CALL(PATH('Math'),'min',HEAD_MAX,('bin',11,T('rowStep'),56))))
         for i in range(11):
             player=('index',P(team,'players'),i);slot=P(clip,'p'+str(i))
@@ -125,7 +130,7 @@ def script(data,dictionaries,payload,head_ids):
                 a.when(cond,lambda a:a.set(R(1),'rowRank',('bin',71,T('rowRank'),1)))
             a.when(EQ(P(player,'position'),0),lambda a:a.set(R(1),'rowRank',0))
             a.set(slot,'_x',('bin',71,82,('bin',12,CALL(PATH('Math'),'max',0,CALL(PATH('Math'),'min',1,P(player,'x'))),500)))
-            a.set(slot,'_y',('bin',11,700,('bin',12,T('rowRank'),T('rowStep'))))
+            a.set(slot,'_y',('bin',11,PLAYER_BOTTOM,('bin',12,T('rowRank'),T('rowStep'))))
             a.set(P(slot,'face'),'desiredSize',T('headSize'))
             a.set(P(slot,'face'),'_x',('bin',13,('bin',11,0,T('headSize')),2))
             for label in ('ratingBG','positionBG','position','rating'):a.set(P(slot,label),'_y',T('headSize'))
@@ -188,7 +193,7 @@ def script(data,dictionaries,payload,head_ids):
     def animate(a):
         # BaseScreen.Initialize hands visibility to ScreenManager. Completing
         # Calendar's controller alone does not enter the native screen layer.
-        for child in ('userPitch','opponentPitch','screenTitle','matchInfo','status','venuePage','userHistory','opponentHistory','previousPage','nextPage','pageLabel','pageDot0','pageDot1','pageDot2'):
+        for child in ('userPitch','opponentPitch','lineupSummary','screenTitle','matchInfo','status','venuePage','userHistory','opponentHistory','previousPage','nextPage','pageLabel','pageDot0','pageDot1','pageDot2'):
             a.do(M('ScreenManager'),'AddItemToAnimateIn',T(child))
         a.do(M('ScreenManager'),'BeginAnimateIn',CALL(PATH('cafe','utility','Delegate'),'Create',R(1),T('OnAnimateInComplete')))
         a.do(R(1),'OnAnimateInComplete')
@@ -271,6 +276,7 @@ def build(payload=None):
         embedded('S16Crest_'+str(team),path)
     from preview_art import competition_art
     competition_ids={game.get('competition_id',0) for s in ('user','opponent') for game in payload[s].get('recent',[])}
+    competition_ids.add(payload.get('details',{}).get('competition_id',0))
     for ident in sorted(competition_ids):
         path=competition_art(ui,ident,HERE/'runtime/art_cache')
         if path is not None:embedded('S16Competition_'+str(ident),path)
@@ -297,16 +303,15 @@ def build(payload=None):
     def rect(x,y,w,h,color):
         nonlocal depth;depth+=1;pc.append(place(shape_id,depth,x,y,w,h,color=color))
     rect(0,0,PANEL_W,PANEL_H,0xffd4d7cf);rect(FIELD_X,0,FIELD_W,FIELD_Y,payload['user'].get('header_color',0xff163e62))
-    for i in range(10):rect(FIELD_X,FIELD_Y+i*76,FIELD_W,76,0xff2a6127 if i%2 else 0xff2d672a)
-    # This field has the reference's portrait aspect, 640 / 760 = 0.8421.
+    for i in range(10):rect(FIELD_X,FIELD_Y+i*FIELD_H/10,FIELD_W,FIELD_H/10,0xff2a6127 if i%2 else 0xff2d672a)
     line=0xff6d8f61
-    for r in ((12,94,640,3),(12,851,640,3),(12,94,3,760),(649,94,3,760),(12,473,640,3),
-              (172,94,3,134),(489,94,3,134),(172,225,320,3),(172,720,3,134),(489,720,3,134),(172,720,320,3),
-              (260,94,3,45),(401,94,3,45),(260,136,144,3),(260,809,3,45),(401,809,3,45),(260,809,144,3)):
+    for r in ((12,80,640,3),(12,709,640,3),(12,80,3,632),(649,80,3,632),(12,395,640,3),
+              (172,80,3,112),(489,80,3,112),(172,189,320,3),(172,600,3,112),(489,600,3,112),(172,600,320,3),
+              (260,80,3,38),(401,80,3,38),(260,115,144,3),(260,674,3,38),(401,674,3,38),(260,674,144,3)):
         rect(*r,line)
-    for cid,x,y,w,h in ((circle,246,409,172,130),(top_arc,276,182,112,90),(bottom_arc,276,676,112,90)):
+    for cid,x,y,w,h in ((circle,246,331,172,130),(top_arc,276,147,112,90),(bottom_arc,276,555,112,90)):
         depth+=1;pc.append(place(cid,depth,x,y,w,h,color=line))
-    rect(330,472,4,4,line);rect(330,191,4,4,line);rect(330,754,4,4,line)
+    rect(330,394,4,4,line);rect(330,161,4,4,line);rect(330,629,4,4,line)
     empty=sprite([])
     def native_art(symbol,desired,label):
         if symbol not in image_resources:return None
@@ -324,21 +329,21 @@ def build(payload=None):
         controls=pc.copy();controls[0]=place(shape_id,1,0,0,0,0,color=0x00ffffff);controls[1]=place(shape_id,2,FIELD_X,0,FIELD_W,FIELD_Y,label='teamHeader',color=team.get('header_color',0xff163e62))
         ink=0xff000000|team.get('header_ink',0xffffff)
         crest_symbol=native_art('S16Crest_'+str(team['team_id']),56,'crest')
-        controls.extend([place(crest_symbol,200,FIELD_X+14,19,label='crest'),text(201,FIELD_X+84,15,FIELD_W-96,42,31,'teamName',ink,value=team['name']),text(202,FIELD_X+84,57,FIELD_W-96,26,20,'caption',ink,value='PROVÁVEL ESCALAÇÃO' if team['probable'] else 'SEU TIME TITULAR'),text(203,20,803,210,49,41,'formation',0xffffffff,font=4,value=team['formation'])])
+        controls.extend([place(crest_symbol,200,FIELD_X+14,12,label='crest'),text(201,FIELD_X+84,9,FIELD_W-96,40,31 if len(team['name'])<27 else 26,'teamName',ink,value=team['name']),text(202,FIELD_X+84,48,FIELD_W-96,26,20,'caption',ink,value='PROVÁVEL ESCALAÇÃO' if team['probable'] else 'SEU TIME TITULAR'),text(203,20,662,210,49,41,'formation',0xffffffff,font=4,value=team['formation'])])
         bands=[0.0]
         for p in team['players'][1:]:
             if all(abs(p['y']-b)>=.09 for b in bands[1:]):bands.append(p['y'])
-        step=590/max(1,len(bands)-1);head=max(48,min(HEAD_MAX,step-56))
+        step=PLAYER_SPAN/max(1,len(bands)-1);head=max(48,min(HEAD_MAX,step-56))
         for i in range(11):
             p=team['players'][i] if i<len(team['players']) else dict(id=0,name='',position=0,overall=0,x=.5,y=0)
             rank=0 if p['position']==0 else 1+sum(b<p['y']-.09 for b in bands[1:])
             face=native_art('S16Head_'+str(p['id']),head,'portrait')
             pos=p['position'];color=0xffe4c62b if pos==0 else 0xff24b8e4 if pos<9 else 0xff7bdc41 if pos<20 else 0xffe4427c
-            parts=[place(face,1,-head/2,0,label='face'),place(shape_id,2,-56,head,112,26,label='ratingBG',color=0xf220272c),text(3,-60,head+28,120,27,20,'name',0xffffffff,align=2,value=short_name(p['name'])),place(shape_id,4,-56,head,0,26,label='positionBG',color=0xff20272c),text(5,-53,head,58,28,23,'position',color,value=POSITIONS[pos]),text(6,18,head,37,29,26,'rating',0xffffffff,align=1,value=str(p['overall']))]
-            controls.append(place(sprite(parts),220+i,82+max(0,min(1,p['x']))*500,700-rank*step,label='p'+str(i)))
+            parts=[place(face,1,-head/2,0,label='face'),place(shape_id,2,-50,head,100,26,label='ratingBG',color=0xf220272c),text(3,-55,head+28,110,27,19,'name',0xffffffff,align=2,value=short_name(p['name'])),place(shape_id,4,-50,head,0,26,label='positionBG',color=0xff20272c),text(5,-47,head,53,28,21,'position',color,value=POSITIONS[pos]),text(6,14,head,33,29,24,'rating',0xffffffff,align=1,value=str(p['overall']))]
+            controls.append(place(sprite(parts),220+i,82+max(0,min(1,p['x']))*500,PLAYER_BOTTOM-rank*step,label='p'+str(i)))
         return sprite(controls)
     pitch_symbol=native_pitch(payload['user']);opponent_symbol=native_pitch(payload['opponent'])
-    controls=[place(shape_id,0,carousel.CARD_X,carousel.CARD_Y,carousel.CARD_W,carousel.CARD_H,label='outerCard',color=0xffedf0ed),place(pitch_symbol,1,carousel.PITCH_X[0],carousel.PITCH_Y,carousel.PITCH_SCALE,carousel.PITCH_SCALE,label='userPitch'),place(opponent_symbol,2,carousel.PITCH_X[1],carousel.PITCH_Y,carousel.PITCH_SCALE,carousel.PITCH_SCALE,label='opponentPitch'),text(3,226,48,1468,55,38,'screenTitle',0xffffffff),text(4,226,106,1468,30,23,'matchInfo',0xffffffff),text(5,226,860,1195,25,17,'status',0xff334b56)]
+    controls=[place(shape_id,0,carousel.CARD_X,carousel.CARD_Y,carousel.CARD_W,carousel.CARD_H,label='outerCard',color=0xffedf0ed),place(pitch_symbol,1,carousel.PITCH_X[0],carousel.PITCH_Y,carousel.PITCH_SCALE,carousel.PITCH_SCALE,label='userPitch'),place(opponent_symbol,2,carousel.PITCH_X[1],carousel.PITCH_Y,carousel.PITCH_SCALE,carousel.PITCH_SCALE,label='opponentPitch'),text(3,226,48,1468,55,38,'screenTitle',0xffffffff),text(4,226,106,1468,30,21,'matchInfo',0xffffffff),text(5,226,860,1195,25,17,'status',0xff334b56)]
     controls.extend(carousel.graphics(payload,place,text,sprite,shape_id,lambda vertices:shape(tex_id,1,1,vertices),dot_shape,(round_art('left'),round_art('right')),native_art))
     ctl=append(struct.pack('<'+'Q'*len(controls),*controls));frames=append(struct.pack('<I4xQ',len(controls),ctl));struct.pack_into('<I4xQ',data,apt.characters[9].offset+32,1,frames)
     newtable=append(bytes(data[table:table+count*8])+struct.pack('<'+'Q'*len(characters),*characters));struct.pack_into('<I4xQ',data,root+56,count+len(characters),newtable)

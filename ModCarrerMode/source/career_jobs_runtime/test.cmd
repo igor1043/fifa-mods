@@ -1,7 +1,7 @@
 @echo off
 setlocal
 set "JOBS_SOURCE=%~dp0"
-pushd "%~dp0..\.."
+pushd "%~dp0.."
 call "C:\Program Files (x86)\Microsoft Visual Studio\18\BuildTools\VC\Auxiliary\Build\vcvars64.bat" >nul
 if errorlevel 1 exit /b 1
 if not exist build\career_jobs_runtime mkdir build\career_jobs_runtime

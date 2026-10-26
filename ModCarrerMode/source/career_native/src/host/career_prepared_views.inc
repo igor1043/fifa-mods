@@ -6,7 +6,7 @@ typedef struct PreparedViewRecord {
     int date,fixture;char revision[65];
 } PreparedViewRecord;
 typedef struct PreparedViewState {ULONGLONG next,entered;int inside;char applied[65];} PreparedViewState;
-static PreparedViewState g_prepared_views[2];
+static PreparedViewState g_prepared_views[3];
 
 /* SendSystemEvent is handled by Calendar::HandleSystemScreenEvent, which
  * accepts DONE_LOADING but ignores custom navigation events. Queue the same
@@ -40,7 +40,7 @@ static int prepared_view_queue(uintptr_t registry,const char *event)
     return 1;
 }
 
-/* 1/2 = preview ready/waiting; 3/4 = market ready/waiting. */
+/* 1/2 = preview ready/waiting; 3/4 = market ready/waiting; 5 = room. */
 static int prepared_view_page(void)
 {
     static const unsigned offsets[]={232,192,136,472};
@@ -51,6 +51,7 @@ static int prepared_view_page(void)
     if(!strcmp(page,"game/screens/career/server16/MatchPreview"))return 1;
     if(!strcmp(page,"game/screens/career/server16/MatchPreviewLoading"))return 2;
     if(!strcmp(page,"game/screens/career/server16/TransferMarket"))return 3;
+    if(!strcmp(page,"game/screens/career/server16/DressingRoom"))return 5;
     return !strcmp(page,"game/screens/career/server16/TransferMarketLoading")?4:0;
 }
 
@@ -58,7 +59,7 @@ static int prepared_view_read(int kind,PreparedViewRecord *record)
 {
     char path[MAX_PATH],line[256];FILE *file;unsigned lines=0;
     memset(record,0,sizeof(*record));
-    snprintf(path,sizeof(path),"%s\\runtime\\club_environment\\%s\\view_ready.tsv",g_mod_dir,kind?"market":"preview\\runtime");
+    snprintf(path,sizeof(path),"%s\\runtime\\club_environment\\%s\\view_ready.tsv",g_mod_dir,kind==2?"room\\runtime":kind?"market":"preview\\runtime");
     file=fopen(path,"rb");if(!file)return 0;
     while(fgets(line,sizeof(line),file) && ++lines<=16){
         if(sscanf(line,"schema=%u",&record->schema)==1)continue;
@@ -114,11 +115,11 @@ static int prepared_view_fixture(const PreparedViewRecord *record)
 
 static void drain_prepared_views(void)
 {
-    int page=prepared_view_page(),kind,waiting;ULONGLONG now=GetTickCount64();
+    int page=prepared_view_page(),kind,waiting,i;ULONGLONG now=GetTickCount64();
     PreparedViewState *state;PreparedViewRecord record;CareerContextRead captured;
-    if(!page){g_prepared_views[0].inside=g_prepared_views[1].inside=0;return;}
-    kind=page>2;waiting=page==2 || page==4;state=&g_prepared_views[kind];
-    g_prepared_views[!kind].inside=0;
+    if(!page){for(i=0;i<3;++i)g_prepared_views[i].inside=0;return;}
+    kind=page==5?2:page>2;waiting=page==2 || page==4;state=&g_prepared_views[kind];
+    for(i=0;i<3;++i)if(i!=kind)g_prepared_views[i].inside=0;
     if(!state->inside){state->inside=1;state->entered=now;state->next=0;}
     if(now<state->next || !fce_runtime_is_stable() || g_current_stats_provider_owner)return;
     state->next=now+500;
@@ -130,9 +131,9 @@ static void drain_prepared_views(void)
             || (!kind && !prepared_view_fixture(&record)))return;
         if(prepared_view_page()!=page || Fifa16CareerContextRead.sequence!=captured.sequence
             || !prepared_view_queue(captured.registry,
-                kind?"Server16RefreshTransferMarket":"Server16RefreshMatchPreview"))return;
+                kind==2?"Server16RefreshDressingRoom":kind?"Server16RefreshTransferMarket":"Server16RefreshMatchPreview"))return;
         memcpy(state->applied,record.revision,sizeof(state->applied));
         state->next=now+2000; /* Await the queued flow transition before retrying. */
-        append_loader_log(kind?"career_market_view_queued_on_ui_owner":"career_preview_view_queued_on_ui_owner");
+        append_loader_log(kind==2?"career_room_view_queued_on_ui_owner":kind?"career_market_view_queued_on_ui_owner":"career_preview_view_queued_on_ui_owner");
     } __except(EXCEPTION_EXECUTE_HANDLER) {append_loader_log("career_prepared_view_waiting_after_scope_change");}
 }

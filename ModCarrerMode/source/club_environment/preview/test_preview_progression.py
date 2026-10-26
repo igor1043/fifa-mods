@@ -50,6 +50,14 @@ class PreviewProgressionTests(unittest.TestCase):
     def test_old_snapshot_cannot_mix_with_a_new_calendar_day(self):
         self.today=20260129
         with self.assertRaisesRegex(ValueError,'mesma data'):self.run_projection()
+    def test_saved_custom_venue_follows_host_on_calendar_advance(self):
+        self.tables['stadiumassignments']=[Row(teamid=569,stadiumcustomname='Estádio do mandante A'),
+                                         Row(teamid=1629,stadiumcustomname='Estádio do mandante B')]
+        self.assertEqual(self.run_projection()['details']['stadium'],'Estádio do mandante A')
+        self.today=20260129;self.snapshot['date']=self.today;self.snapshot['fixtures'][0][7:10]=[0,2,1]
+        after=self.run_projection()
+        self.assertEqual(after['details']['stadium'],'Estádio do mandante B')
+        self.assertEqual(after['details']['home_id'],1629)
     def test_departed_opponent_starter_does_not_block_venue_or_history(self):
         self.tables['teamsheets'][1].fields['playerid0']=208670
         after=self.run_projection()

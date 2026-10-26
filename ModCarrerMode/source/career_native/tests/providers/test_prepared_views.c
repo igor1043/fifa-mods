@@ -43,7 +43,7 @@ static void submit(void *bus,void *message){
 }
 static void process_queued(void){
     if(ack && queued_event[0]){
-        strcpy(mock_page,strstr(queued_event,"Transfer")?"game/screens/career/server16/TransferMarket":"game/screens/career/server16/MatchPreview");queued_event[0]=0;
+        strcpy(mock_page,strstr(queued_event,"Dressing")?"game/screens/career/server16/DressingRoom":strstr(queued_event,"Transfer")?"game/screens/career/server16/TransferMarket":"game/screens/career/server16/MatchPreview");queued_event[0]=0;
     }
 }
 static void trampoline(unsigned offset,uintptr_t callback,int prefix){
@@ -55,7 +55,7 @@ static void write_ready(const char *file,const PreparedViewRecord *r){
     FILE *f=fopen(file,"wb");assert(f);
     fprintf(f,"schema=%u\npid=%u\nclub=%u\nepoch=%u\nprocess_created_100ns=%llu\ncontext=%llx\nregistry=%llx\ncaptured_ms=%llu\ndate=%d\nfixture=%d\nrevision=%s\n",r->schema,r->pid,r->club,r->epoch,r->created,r->context,r->registry,r->captured,r->date,r->fixture,r->revision);assert(!fclose(f));
 }
-static void tick(void){g_prepared_views[0].next=g_prepared_views[1].next=0;drain_prepared_views();process_queued();}
+static void tick(void){g_prepared_views[0].next=g_prepared_views[1].next=g_prepared_views[2].next=0;drain_prepared_views();process_queued();}
 int main(void){
     unsigned char service[32]={0},contexts[0x318]={0},cal[80]={0};uintptr_t nodes[4][64]={{0}},vtable[2]={0};
     char temp[MAX_PATH],folder[MAX_PATH],preview[MAX_PATH],market[MAX_PATH];FILETIME created,exit,kernel,user;ULARGE_INTEGER identity;
@@ -94,6 +94,14 @@ int main(void){
     stable=0;tick();assert(calls==before);stable=1;g_current_stats_provider_owner=(void *)1;tick();assert(calls==before);g_current_stats_provider_owner=NULL;
     g_prepared_views[0].entered=good.captured+1;tick();assert(calls==before);g_prepared_views[0].entered=0;tick();assert(calls==before+1);
     strcpy(mock_page,"game/screens/career/server16/TransferMarketLoading");tick();assert(calls==before+1);good.captured=GetTickCount64();good.fixture=0;write_ready(market,&good);tick();assert(calls==before+2);tick();assert(calls==before+2);
+    {char room[MAX_PATH];
+     snprintf(room,sizeof(room),"%s\\room",folder);assert(CreateDirectoryA(room,NULL));strcat(room,"\\runtime");assert(CreateDirectoryA(room,NULL));strcat(room,"\\view_ready.tsv");
+     strcpy(mock_page,"game/screens/career/server16/DressingRoom");good.captured=GetTickCount64();memset(good.revision,'c',64);write_ready(room,&good);
+     before=calls;tick();assert(calls==before+1 && !strcmp(queued_event,""));tick();assert(calls==before+1);
+     /* The same prepared screen does not reload after every re-entry. */
+     strcpy(mock_page,"game/screens/fluxHub/FluxHub");tick();strcpy(mock_page,"game/screens/career/server16/DressingRoom");tick();assert(calls==before+1);
+     DeleteFileA(room);*strrchr(room,'\\')=0;assert(RemoveDirectoryA(room));*strrchr(room,'\\')=0;assert(RemoveDirectoryA(room));
+    }
     assert(constructed==released && released==calls);
     DeleteFileA(preview);DeleteFileA(market);*strrchr(preview,'\\')=0;assert(RemoveDirectoryA(preview));*strrchr(preview,'\\')=0;assert(RemoveDirectoryA(preview));*strrchr(market,'\\')=0;assert(RemoveDirectoryA(market));assert(RemoveDirectoryA(folder));*strrchr(folder,'\\')=0;assert(RemoveDirectoryA(folder));assert(RemoveDirectoryA(g_mod_dir));VirtualFree(g_module_base,0,MEM_RELEASE);
     puts("PASS prepared views: fresh current career only, skipped days/club/session rejected, owner thread, provider guard, waiting retries, no ready reload loop, both screens");return 0;

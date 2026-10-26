@@ -14,6 +14,10 @@ def build(root,out,stamp,reuse_archive=None):
     rows.extend(dict(row) for row in globe['files'])
     presentation=json.loads((root/'ModCarrerMode/data/catalogs/presentation_assets.json').read_text(encoding='utf8'))
     rows.extend(dict(row) for row in presentation['files'])
+    pose=root/'ModCarrerMode/data/club_browser/poses/starting_eleven.pose'
+    if pose.with_suffix('.json').is_file():
+        metadata=json.loads(pose.with_suffix('.json').read_text(encoding='utf8'))
+        rows.append({'path':pose.relative_to(root).as_posix(),'bytes':pose.stat().st_size,'sha256':metadata['recipe_sha256']})
     animation='data/ant.cbac'
     rows.append({'path':animation,'bytes':(root/animation).stat().st_size,'sha256':sha(root/animation)})
     paths=set()
@@ -23,7 +27,7 @@ def build(root,out,stamp,reuse_archive=None):
         if relative.casefold() in tracked:raise ValueError('Already published in Git: '+relative)
         if relative.casefold() in paths:raise ValueError('Duplicate asset: '+relative)
         paths.add(relative.casefold())
-        if path.suffix.casefold() not in ('.rx3','.npz','.cbac','.dds','.png','.bin','.ini'):raise ValueError('Not a static asset: '+relative)
+        if path.suffix.casefold() not in ('.rx3','.npz','.cbac','.dds','.png','.bin','.ini','.pose'):raise ValueError('Not a static asset: '+relative)
         source=root/path
         if source.stat().st_size!=row['bytes'] or sha(source)!=row['sha256']:raise ValueError('Asset differs from manifest: '+relative)
     target=out/f'FIFA-Friends-Assets-Complementares-{stamp}.zip';temporary=target.with_suffix('.zip.new')

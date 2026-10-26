@@ -6,6 +6,10 @@ import numpy as np
 from PIL import Image,ImageDraw,ImageFont
 from room_native_hanging_20261022 import texture_package
 ROOT=portable.ROOM;GAME=portable.GAME;LIVE=GAME/'data/sceneassets/server16_dressing_room_20261022'
+BOARD_REVISION=63
+BOARD_SCALE=3
+BOARD_FOCUS_DISTANCE=300
+BOARD_FOCUS_FOV=53
 
 def clean(text):
  for _ in range(3):
@@ -45,8 +49,8 @@ def make_context(snap,projected,roster,rows,base,read_asset):
  for team in (user,opponent):
   team['name']=clean(team.get('name',''))
   for p in team['players']:p['name']=clean(p['name']);p['number']=numbers.get((team['team_id'],p['id']),0)
- context['board_revision']=62
- payload={k:v for k,v in context.items() if k not in ('pid','date')};signature=hashlib.sha256(json.dumps(payload,sort_keys=True,ensure_ascii=False).encode()).hexdigest()[:14];path=LIVE/f'next_match_{club}_{signature}_r52.rx3'
+ context['board_revision']=BOARD_REVISION
+ payload={k:v for k,v in context.items() if k not in ('pid','date')};signature=hashlib.sha256(json.dumps(payload,sort_keys=True,ensure_ascii=False).encode()).hexdigest()[:14];path=LIVE/f'next_match_{club}_{signature}_r{BOARD_REVISION}.rx3'
  if not path.exists():texture_package(draw_board(context,read_asset),path,'board_cm')
  context['board_texture']='data/sceneassets/server16_dressing_room_20261022/'+path.name
  context['focus']=[]
@@ -74,19 +78,20 @@ class ScaledDraw:
   return paint
 
 def draw_board(c,read_asset):
- # Paint at twice the original resolution; text is rasterized at this size.
- im=Image.new('RGBA',(3200,2016),(239,238,228,255));d=ScaledDraw(im,2)
- def font(size,bold=False):return ImageFont.truetype(str(portable.FONTS/('arialbd.ttf' if bold else 'arial.ttf')),size*2)
+ # Supersample text, retaining the same 4096-square resource and GPU budget.
+ scale=BOARD_SCALE
+ im=Image.new('RGBA',(1600*scale,1008*scale),(239,238,228,255));d=ScaledDraw(im,scale)
+ def font(size,bold=False):return ImageFont.truetype(str(portable.FONTS/('arialbd.ttf' if bold else 'arial.ttf')),size*scale)
  def text(x,y,s,size=30,color=(30,45,51),bold=False):d.text((x,y),str(s),font=font(size,bold),fill=color+(255,))
  def icon(paths,box):
   for path in paths:
    try:
-    img=Image.open(io.BytesIO(read_asset(path))).convert('RGBA');box=tuple(v*2 for v in box);img.thumbnail((box[2],box[3]),Image.Resampling.LANCZOS);im.alpha_composite(img,(box[0]+(box[2]-img.width)//2,box[1]+(box[3]-img.height)//2));return path
+    img=Image.open(io.BytesIO(read_asset(path))).convert('RGBA');box=tuple(v*scale for v in box);img.thumbnail((box[2],box[3]),Image.Resampling.LANCZOS);im.alpha_composite(img,(box[0]+(box[2]-img.width)//2,box[1]+(box[3]-img.height)//2));return path
    except (FileNotFoundError,OSError,ValueError):pass
   return ''
  primary=tuple(round(v*255) for v in c['colors'][0]);d.rectangle((0,0,1600,13),fill=primary+(255,));text(42,32,'PRÓXIMA PARTIDA',48,bold=True)
  league=c['league'];icon([f'data/ui/imgassets/careerCompetitionIcons/{league}.png',f'data/ui/imgassets/league/light/l{league}.dds',f'data/ui/imgassets/league/dark/l{league}.dds',f'data/ui/imgassets/league/{league}.dds',f'data/ui/imgassets/cmCalendarCompetitions/cmCalendarCompetitions{league}.dds'],(1330,28,210,100))
- text(42,95,c['league_name'] or ('Competição '+str(league) if league else 'Calendário da carreira'),28)
+ text(42,95,c['league_name'] or ('Competição '+str(league) if league else 'Calendário da carreira'),32)
  if not c['available']:text(220,400,'Sem próxima partida agendada',48,bold=True);return im.resize((4096,4096),Image.Resampling.LANCZOS)
  fixture=c['fixture'];date=str(fixture[3]);hour=fixture[4];text(670,42,f'{date[6:8]}/{date[4:6]}/{date[:4]}  •  {hour//100:02d}:{hour%100:02d}',30)
  for team,x in ((c['user'],42),(c['opponent'],825)):
@@ -102,7 +107,7 @@ def draw_board(c,read_asset):
 
   saved=c['tactics'] if ident==c['club'] else c['opponent_tactics'];y=813
   text(x,y,'TÁTICAS GRAVADAS',24,bold=True)
-  for j,(key,value) in enumerate(saved.items()):text(x+(j%3)*218,y+37+(j//3)*43,f'{key}: {value}',20)
+  for j,(key,value) in enumerate(saved.items()):text(x+(j%3)*218,y+37+(j//3)*43,f'{key}: {value}',24)
  text(42,958,'Onze adversário provável. Formações e parâmetros vêm do save; nenhuma tática é inventada.',24,(71,78,78))
  return im.resize((4096,4096),Image.Resampling.LANCZOS)
 
@@ -119,8 +124,8 @@ def write_tour(context,roster,frame,rotation,generation):
   else:
    origin,yaw=frame(slot);target=(origin+rotation(yaw)@np.array([0,170,54])).tolist()
   path.append([*eye,*target,fov])
- anchor=data['board_anchor'];target=np.array(anchor['target']);normal=np.array(anchor['normal']);eye=target+normal*348;eye[1]=188
- details=[[ *eye.tolist(),*target.tolist(),57]]
+ anchor=data['board_anchor'];target=np.array(anchor['target']);normal=np.array(anchor['normal']);eye=target+normal*BOARD_FOCUS_DISTANCE;eye[1]=188
+ details=[[ *eye.tolist(),*target.tolist(),BOARD_FOCUS_FOV]]
  shirts=[]
  order=list(range(34,11,-2))+list(range(12))+list(range(13,35,2))
  for i in order:

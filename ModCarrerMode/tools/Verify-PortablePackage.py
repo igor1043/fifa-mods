@@ -30,6 +30,11 @@ def verify(root,complement,output):
         for rel in ('ModCarrerMode/source/club_environment/assets-manifest.json','ModCarrerMode/data/club_browser/assets-manifest.json','ModCarrerMode/data/catalogs/presentation_assets.json'):
             for row in json.loads((stage/rel).read_text(encoding='utf8'))['files']:
                 safe(row['path']);assert row['path'] not in expected;expected[row['path']]=row
+        pose='ModCarrerMode/data/club_browser/poses/starting_eleven.pose'
+        profile=stage/pose.replace('.pose','.json')
+        if profile.is_file():
+            metadata=json.loads(profile.read_text(encoding='utf8'))
+            expected[pose]={'path':pose,'bytes':metadata['recipe_bytes'],'sha256':metadata['recipe_sha256']}
         with zipfile.ZipFile(complement) as z:
             names=z.namelist();assert len(names)==len(set(names))
             assert set(names)==set(expected)|{'data/ant.cbac'},'Complement has missing or unexpected assets'

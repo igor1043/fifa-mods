@@ -328,6 +328,13 @@ static DWORD WINAPI worker(void *unused)
     }
 }
 #ifndef CAREER_JOBS_TEST
+__declspec(dllexport) unsigned WINAPI Fifa16ModGetApiVersion(void){return 1;}
+__declspec(dllexport) BOOL WINAPI Fifa16ModStart(const char *root){
+    HMODULE pin=NULL;(void)root;
+    return GetModuleHandleExA(GET_MODULE_HANDLE_EX_FLAG_FROM_ADDRESS|GET_MODULE_HANDLE_EX_FLAG_PIN,
+        (LPCSTR)&Fifa16ModStart,&pin);
+}
+__declspec(dllexport) BOOL WINAPI Fifa16ModStop(void){if(shared)shared->ready=0;return TRUE;}
 BOOL WINAPI DllMain(HINSTANCE instance,DWORD reason,void *reserved)
 {
     HANDLE thread;(void)reserved;
