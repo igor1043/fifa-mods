@@ -11,4 +11,3 @@ build\career_jobs_runtime\test_runtime.exe
 if errorlevel 1 exit /b 1
 popd
 endlocal
-

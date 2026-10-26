@@ -76,3 +76,5 @@ ModCarrerMode/config/frontend_stadium.ini -text whitespace=cr-at-eol,-blank-at-e
 ModCarrerMode/config/match_presentation.ini -text whitespace=cr-at-eol,-blank-at-eof
 ModCarrerMode/crowd.ini -text whitespace=cr-at-eol,-blank-at-eol,-blank-at-eof
 ModCarrerMode/source/server16_py/prematch_panel.py -text whitespace=cr-at-eol
+# Keep bundled upstream JavaScript verbatim, including its original indentation.
+ModCarrerMode/source/scene_studio/vendor/** -text whitespace=-space-before-tab

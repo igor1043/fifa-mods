@@ -11,4 +11,3 @@ copy /y build\career_jobs_runtime\career_jobs_runtime.dll bin\career_jobs_runtim
 if errorlevel 1 exit /b 1
 popd
 endlocal
-

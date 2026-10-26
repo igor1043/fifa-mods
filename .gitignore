@@ -134,3 +134,5 @@ runtime/diagnostics/
 # Compiled poses are delivered in the asset complement; authoring JSON is versioned.
 /ModCarrerMode/data/club_browser/poses/*.pose
 !ModCarrerMode/mods/first_person/server16_first_person_v14.dll
+!ModCarrerMode/source/scene_studio/vendor/three/build/
+!ModCarrerMode/source/scene_studio/vendor/three/build/*.js

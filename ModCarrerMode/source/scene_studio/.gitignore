@@ -2,7 +2,7 @@ settings.json
 server.port
 *.log
 __pycache__/
-build/
+/build/
 imports/
 exports/
 versions/
