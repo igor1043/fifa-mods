@@ -1,10 +1,20 @@
 {
-  "release": "FIFA Friends V12 / Server16 0.2.15 / 2026-10-25",
+  "release": "FIFA Friends V12 / Server16 0.2.18 / 2026-10-25",
   "files": [
+    {
+      "path": "ModCarrerMode/config/extra_scenes.ini",
+      "bytes": 568,
+      "sha256": "4b3cca9fdb1d51e80da11d80dbb517fd69b956ca94416cd83a972ef37a8cb375"
+    },
     {
       "path": "ModCarrerMode/config/goal_news.ini",
       "bytes": 113,
       "sha256": "2c98d74f4eafb7eb147d68e9c354f65326c94c1d6871181c0295ae5a26ecdf0c"
+    },
+    {
+      "path": "ModCarrerMode/data/catalogs/presentation_assets.json",
+      "bytes": 139279,
+      "sha256": "2302a8e60522f5b37d05328e6be493dccbcbb0de0f9ffffab4467219599f501b"
     },
     {
       "path": "ModCarrerMode/data/club_browser/assets-manifest.json",
@@ -178,8 +188,13 @@
     },
     {
       "path": "ModCarrerMode/mods/enabled.txt",
-      "bytes": 1140,
-      "sha256": "b87635e743aca1c2a56389cd205d4fc4872d870be0f57d326cd7c1958612800a"
+      "bytes": 1230,
+      "sha256": "236a6f32a15c3e39244c9b75eacc00d19c6c11f383bcd23eb3fb261fa2a51e74"
+    },
+    {
+      "path": "ModCarrerMode/mods/extra_scenes/extra_scenes.dll",
+      "bytes": 200192,
+      "sha256": "9bbfc1dc8aa4a593599847596682fdf72254515ad8f523a9cb970265d38f1b33"
     },
     {
       "path": "ModCarrerMode/mods/frontend_stadium/frontend_stadium_native_v11.dll",
@@ -797,6 +812,176 @@
       "sha256": "1c12713c78abc12f2f4b7cd9e9f4dc9133c1b69c8ed80cba4d6cae6ecc1c73ce"
     },
     {
+      "path": "ModCarrerMode/source/common/scene_camera_lease.h",
+      "bytes": 2150,
+      "sha256": "fc4863abc6728bfa3bf2879d2ea9d04a651c0b03caadcd6335fbc2b64454d8e9"
+    },
+    {
+      "path": "ModCarrerMode/source/docs/SERVER_AUDIO_STADIUM_20261025.md",
+      "bytes": 878,
+      "sha256": "35ff3e1dc26d4698dd7ede8bac022a9f5b24f5cc323eacf404c54984c1eafc5a"
+    },
+    {
+      "path": "ModCarrerMode/source/docs/VAR_ROOM_DEFERRED_20261025.md",
+      "bytes": 1367,
+      "sha256": "a91ef4b16dad3bb2577e47c7ae954908e4dab6a8b7752db11efb94779b43fb03"
+    },
+    {
+      "path": "ModCarrerMode/source/native_mods/extra_scenes/README.md",
+      "bytes": 2990,
+      "sha256": "ba917f720c7f7034fe07526df43d77da98b5de87716dbce1e98c50bd0b77f5fd"
+    },
+    {
+      "path": "ModCarrerMode/source/native_mods/extra_scenes/extra_scenes.cpp",
+      "bytes": 17833,
+      "sha256": "b1507ad48783b525a3186b3375eaa1c035e5037b07c3d1a03aae5fab1f442b38"
+    },
+    {
+      "path": "ModCarrerMode/source/native_mods/extra_scenes/extra_scenes.ini",
+      "bytes": 568,
+      "sha256": "4b3cca9fdb1d51e80da11d80dbb517fd69b956ca94416cd83a972ef37a8cb375"
+    },
+    {
+      "path": "ModCarrerMode/source/native_mods/extra_scenes/frame_camera.h",
+      "bytes": 1362,
+      "sha256": "735a20fd45bfeae3eaaaa22a42b6d59122ded48f9fc1c8da1150d57972e236d5"
+    },
+    {
+      "path": "ModCarrerMode/source/native_mods/extra_scenes/native_muse.h",
+      "bytes": 1671,
+      "sha256": "03e26c08e34e068b5bac0e57f2b5bf725526ad2a22650bd7163e565cd5e0169f"
+    },
+    {
+      "path": "ModCarrerMode/source/native_mods/extra_scenes/reaction_policy.h",
+      "bytes": 4224,
+      "sha256": "752d98231e25ec8a4f2327246ca9d8485128a780265bb211eb182db264744dba"
+    },
+    {
+      "path": "ModCarrerMode/source/native_mods/extra_scenes/scene_math.h",
+      "bytes": 3491,
+      "sha256": "0f9d01ca07d08a3f5788482a75ea2cd03931e7fa1fb8e380b1ab77b0cf6d85f9"
+    },
+    {
+      "path": "ModCarrerMode/source/native_mods/extra_scenes/shot_variants.h",
+      "bytes": 1184,
+      "sha256": "43b593c86b1a1f049f6743bbebd97b7b1906c63a47a86e57c3a0e103a5643a4a"
+    },
+    {
+      "path": "ModCarrerMode/source/native_mods/frontend_stadium/frontend_stadium.lua",
+      "bytes": 3305,
+      "sha256": "451726570f4c6864316189630f1cef70676358e449248f628d96452117c6045f"
+    },
+    {
+      "path": "ModCarrerMode/source/scripts/run_regressions.py",
+      "bytes": 8570,
+      "sha256": "f0810141ac6ad2fa9058d37a0899ab4f6b6695fe22227949e5c6e844c14d8d40"
+    },
+    {
+      "path": "ModCarrerMode/source/server16_py/__init__.py",
+      "bytes": 205,
+      "sha256": "9b9df4f8d0ff1e6c00e5f37532fc65cc0fb67a1f1dd3d51aab82166a5475a7e0"
+    },
+    {
+      "path": "ModCarrerMode/source/server16_py/app.py",
+      "bytes": 202126,
+      "sha256": "46a8f8fa44e10f3512ca5e2567867bb039ca03b066dd95769ed81508437f0154"
+    },
+    {
+      "path": "ModCarrerMode/source/server16_py/build_check.py",
+      "bytes": 1834,
+      "sha256": "530ac93efc3ae260b877c07a379a0e8b4e08d9812f515a71c7a4346f517f4874"
+    },
+    {
+      "path": "ModCarrerMode/source/server16_py/chants_runtime.py",
+      "bytes": 48904,
+      "sha256": "06003814cfca31e0c9a84044df3e13476a60b9f7200d7b653bd9ce48a9293e3d"
+    },
+    {
+      "path": "ModCarrerMode/source/server16_py/extra_scenes_panel.py",
+      "bytes": 9799,
+      "sha256": "da5d7a24b591ed537f56454fa46aa070a4611bef84897b23702a7f568439f595"
+    },
+    {
+      "path": "ModCarrerMode/source/server16_py/file_tools.py",
+      "bytes": 23028,
+      "sha256": "93b532d411e1cf703744753012bdebb0d120e27fdd77c4574e7aa9121366239d"
+    },
+    {
+      "path": "ModCarrerMode/source/server16_py/ini_file.py",
+      "bytes": 10452,
+      "sha256": "d7edc57c6d8bbdf54166d7e13b33471f023c2465fadf60870e92037fbb94f032"
+    },
+    {
+      "path": "ModCarrerMode/source/server16_py/match_hub_panel.py",
+      "bytes": 9601,
+      "sha256": "7eea5c581ef441938bcaccf22ead51228cc10763f96f330cb241ce1379f6198f"
+    },
+    {
+      "path": "ModCarrerMode/source/server16_py/match_state.py",
+      "bytes": 3777,
+      "sha256": "d865d57050f1672b50d26247c84bd121c1151f88d8c9d8bc290779f63831b15c"
+    },
+    {
+      "path": "ModCarrerMode/source/server16_py/stadium_match_assets.py",
+      "bytes": 2929,
+      "sha256": "c58dc03c29cb1fafdb1a6f0bd65edf495d516345921f0351abdb940453ef3903"
+    },
+    {
+      "path": "ModCarrerMode/source/server16_py/stadium_runtime.py",
+      "bytes": 37585,
+      "sha256": "1c8f4f0a449b6e5bac784f4103d9170c5a01882226593c8edec31dad0e8491e0"
+    },
+    {
+      "path": "ModCarrerMode/source/tests/native_extra_scenes_test.cpp",
+      "bytes": 15941,
+      "sha256": "e86314a0123c97e1750ceb9eff18f496d7fd47b286ed904e9ab26aa0fa3e419d"
+    },
+    {
+      "path": "ModCarrerMode/source/tests/test_audio_module_defaults.py",
+      "bytes": 1941,
+      "sha256": "91c901a6f2393bc8042cd248ceac1360d21a0a88b38660deac8a8976e226bdaf"
+    },
+    {
+      "path": "ModCarrerMode/source/tests/test_chants_match_lifecycle.py",
+      "bytes": 21811,
+      "sha256": "70bb81e597e59ee6735a60392835d039481f7d49797529e678c7a43a59abe5aa"
+    },
+    {
+      "path": "ModCarrerMode/source/tests/test_extra_scenes.py",
+      "bytes": 6605,
+      "sha256": "169ac295b01238d0c1a96692a8a846e917a4d84f39381450ae796280273f3ad9"
+    },
+    {
+      "path": "ModCarrerMode/source/tests/test_first_person_and_hub.py",
+      "bytes": 15849,
+      "sha256": "d227e21cefdbcce24af11a7a971d69351cd9182a55d3a54a4a25edefccbd1516"
+    },
+    {
+      "path": "ModCarrerMode/source/tests/test_match_scene_audio.py",
+      "bytes": 2156,
+      "sha256": "2fe7b38c5482d262246f9aeafcadc95c0efc7f5ff0b0a6a2d8fffd962d9fdc0e"
+    },
+    {
+      "path": "ModCarrerMode/source/tests/test_overlay_layout.py",
+      "bytes": 9316,
+      "sha256": "cdb67cb660564f0f515c290bcc4441ae8f45b6a114753a63ebd1fe5eb5f309ba"
+    },
+    {
+      "path": "ModCarrerMode/source/tests/test_rar_extraction.py",
+      "bytes": 20177,
+      "sha256": "f7599906cde50b4e00af583310b6d842914d850c581d939a839135764f09e5cf"
+    },
+    {
+      "path": "ModCarrerMode/source/tests/test_release_features.py",
+      "bytes": 5046,
+      "sha256": "43da1d995f7ed2c8e5b0219f012e6089dd3c4d684ccfd9c517f944edd248f0ee"
+    },
+    {
+      "path": "ModCarrerMode/source/tests/test_stadium_replacement.py",
+      "bytes": 22218,
+      "sha256": "a4cc77d0e2e4c13f0f8f0811064f4ec04bb67856d111b48ccf7dacd6bbc2de2d"
+    },
+    {
       "path": "ModCarrerMode/tools/club_browser/generate_lineup.exe",
       "bytes": 1228288,
       "sha256": "08d3c531c118e1bc05d7c630bbba01ae47628b907d6fce6999e0392060c0d0e8"
@@ -808,13 +993,18 @@
     },
     {
       "path": "Server16Python.exe",
-      "bytes": 67942313,
-      "sha256": "42112c6ac4db6e03589c55bc75a72fe7886173563f54ab329c93b4f206c2e5eb"
+      "bytes": 67947643,
+      "sha256": "56fc7ffdceb49a9b577c764aaf6f518f4af98fcf37aa57837f84dd1411d2d106"
     },
     {
       "path": "bin/cgfs16_overlay.dll",
       "bytes": 254464,
       "sha256": "bb4a9cfcb6beafcb4d08c48e2e3e7b5639bb98efe293b23a650278defb70dab2"
+    },
+    {
+      "path": "data/fifarna/lua/assets/server16_frontend_stadium.lua",
+      "bytes": 3305,
+      "sha256": "451726570f4c6864316189630f1cef70676358e449248f628d96452117c6045f"
     },
     {
       "path": "data/sceneassets/server16_dressing_room_20261022/ceiling_r49.rx3",

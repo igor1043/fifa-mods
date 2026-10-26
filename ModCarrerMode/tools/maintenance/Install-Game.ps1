@@ -201,6 +201,8 @@ $obsoletePaths = @('dinput8_career_chain.dll','ModCarrerMode\mods\bench12_global
 if ($enabledPlugins -contains 'subson\subson_bridge.dll') { $obsoletePaths += 'ModCarrerMode\mods\bench_native12' }
 if (-not $liveMods) {
     $obsoletePaths += 'ModCarrerMode\mods\skip_server_shutdown_notice'
+    # Retired test metadata must not survive when extra_scenes becomes active.
+    $obsoletePaths += 'ModCarrerMode\mods\extra_scenes\release.json'
     if (-not @($enabledPlugins | Where-Object { $_ -match '^extra_scenes[\\/]' }).Count) {
         $obsoletePaths += 'ModCarrerMode\mods\extra_scenes'
     }

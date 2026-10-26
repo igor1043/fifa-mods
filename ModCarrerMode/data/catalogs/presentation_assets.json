@@ -1,0 +1,3697 @@
+{
+  "schema": 1,
+  "purpose": "Static runtime assets complementing Git; no saves, caches or backups",
+  "groups": {
+    "mascots": 252,
+    "competition_presentations": 348,
+    "replacement_ball_stands": 10,
+    "pitchside_var_cabin": 2,
+    "xi_neutral_lighting": 2
+  },
+  "files": [
+    {
+      "path": "data/sceneassets/mascot/1035/locomotion_feet.bin",
+      "bytes": 1012,
+      "sha256": "387be79ee4fae1c3ee4718f4d27e5b1d78135bbc8c8bde00e86fe9d31a982055",
+      "group": "mascots"
+    },
+    {
+      "path": "data/sceneassets/mascot/1035/model.rx3",
+      "bytes": 240960,
+      "sha256": "4739e7aba1a6741d7ddf932c293fdb41de0887e8c216fd5e9583c6ee05a291c8",
+      "group": "mascots"
+    },
+    {
+      "path": "data/sceneassets/mascot/1035/model_animated.rx3",
+      "bytes": 240960,
+      "sha256": "4739e7aba1a6741d7ddf932c293fdb41de0887e8c216fd5e9583c6ee05a291c8",
+      "group": "mascots"
+    },
+    {
+      "path": "data/sceneassets/mascot/1035/textures.rx3",
+      "bytes": 8367504,
+      "sha256": "43967bcaab62e365d54b18e9364e259ca0da38aa69f484e194099629c37b5709",
+      "group": "mascots"
+    },
+    {
+      "path": "data/sceneassets/mascot/1039/locomotion_feet.bin",
+      "bytes": 1012,
+      "sha256": "fe055473715197ba830a9797158b9dbfc4f3e858254ed6141113d7b27d45e502",
+      "group": "mascots"
+    },
+    {
+      "path": "data/sceneassets/mascot/1039/model.rx3",
+      "bytes": 223344,
+      "sha256": "ced082f9d272cebf2b60456309479556f511685b74ccb9e6b3b05719dee8ee29",
+      "group": "mascots"
+    },
+    {
+      "path": "data/sceneassets/mascot/1039/model_animated.rx3",
+      "bytes": 223344,
+      "sha256": "ced082f9d272cebf2b60456309479556f511685b74ccb9e6b3b05719dee8ee29",
+      "group": "mascots"
+    },
+    {
+      "path": "data/sceneassets/mascot/1039/textures.rx3",
+      "bytes": 8367504,
+      "sha256": "1dcfe5f161adaec45390e1d505df92ed4e90114504cc181820c0992c04b659c0",
+      "group": "mascots"
+    },
+    {
+      "path": "data/sceneassets/mascot/1041/locomotion_feet.bin",
+      "bytes": 1012,
+      "sha256": "82a64876e111fce0ee8e8e18e047e3c9f4d904dd4c490518c5ea50e754fb560b",
+      "group": "mascots"
+    },
+    {
+      "path": "data/sceneassets/mascot/1041/model.rx3",
+      "bytes": 208048,
+      "sha256": "00e8ce45cdea08adab318e5063c445215bea505808979a962564e8216f066485",
+      "group": "mascots"
+    },
+    {
+      "path": "data/sceneassets/mascot/1041/model_animated.rx3",
+      "bytes": 208048,
+      "sha256": "00e8ce45cdea08adab318e5063c445215bea505808979a962564e8216f066485",
+      "group": "mascots"
+    },
+    {
+      "path": "data/sceneassets/mascot/1041/textures.rx3",
+      "bytes": 8367504,
+      "sha256": "b1b1be18591ec53472449b44d57c738de91cfc1c7eca3e75a8e432b93c506f23",
+      "group": "mascots"
+    },
+    {
+      "path": "data/sceneassets/mascot/1043/locomotion_feet.bin",
+      "bytes": 1012,
+      "sha256": "343d07c56ff3f8a8a4e8bd019ee7edde25914ddd028c213da348213f831730ca",
+      "group": "mascots"
+    },
+    {
+      "path": "data/sceneassets/mascot/1043/model.rx3",
+      "bytes": 210048,
+      "sha256": "2f36a7fdabd82958e2ae78256826783d84c04e7691ea9b76d1d5a67696b02119",
+      "group": "mascots"
+    },
+    {
+      "path": "data/sceneassets/mascot/1043/model_animated.rx3",
+      "bytes": 210048,
+      "sha256": "2f36a7fdabd82958e2ae78256826783d84c04e7691ea9b76d1d5a67696b02119",
+      "group": "mascots"
+    },
+    {
+      "path": "data/sceneassets/mascot/1043/textures.rx3",
+      "bytes": 8367504,
+      "sha256": "01b8f4331531096e8dce59736537932a00ea5266097455dce78c684d02c0959c",
+      "group": "mascots"
+    },
+    {
+      "path": "data/sceneassets/mascot/1048/locomotion_feet.bin",
+      "bytes": 1012,
+      "sha256": "79c543103d28b06c8406bf7f07a65c86170caafde178b3515596286e606f1583",
+      "group": "mascots"
+    },
+    {
+      "path": "data/sceneassets/mascot/1048/model.rx3",
+      "bytes": 416560,
+      "sha256": "4e6551a8aa2ad3bfa4289e647478ed4b2dd9a6a57aef9df7fce3676efd96cfb0",
+      "group": "mascots"
+    },
+    {
+      "path": "data/sceneassets/mascot/1048/model_animated.rx3",
+      "bytes": 416560,
+      "sha256": "4e6551a8aa2ad3bfa4289e647478ed4b2dd9a6a57aef9df7fce3676efd96cfb0",
+      "group": "mascots"
+    },
+    {
+      "path": "data/sceneassets/mascot/1048/textures.rx3",
+      "bytes": 8367504,
+      "sha256": "3dc7181df537674489673f04c7d7b47467749ba5b3c485d80ff42a2f1547b524",
+      "group": "mascots"
+    },
+    {
+      "path": "data/sceneassets/mascot/1053/locomotion_feet.bin",
+      "bytes": 1012,
+      "sha256": "e9542548d2acb05ccd2d9a4e71651866f3f5edb09e790a18df14bd68d650b257",
+      "group": "mascots"
+    },
+    {
+      "path": "data/sceneassets/mascot/1053/model.rx3",
+      "bytes": 220528,
+      "sha256": "f07968262ffb7024463fbc7189288d688e3890f1e2ee369c0dcb1bd4df0f3bc9",
+      "group": "mascots"
+    },
+    {
+      "path": "data/sceneassets/mascot/1053/model_animated.rx3",
+      "bytes": 220528,
+      "sha256": "f07968262ffb7024463fbc7189288d688e3890f1e2ee369c0dcb1bd4df0f3bc9",
+      "group": "mascots"
+    },
+    {
+      "path": "data/sceneassets/mascot/1053/textures.rx3",
+      "bytes": 8367504,
+      "sha256": "0966bd4c4c16662770bc51499dc847eb1d611c95aeb551c63848148257d282c1",
+      "group": "mascots"
+    },
+    {
+      "path": "data/sceneassets/mascot/111041/locomotion_feet.bin",
+      "bytes": 1012,
+      "sha256": "4d8c355ab1cf564e6647d3664c025dc6492fd8787b1eb1c4ed7a06a52e3ffed4",
+      "group": "mascots"
+    },
+    {
+      "path": "data/sceneassets/mascot/111041/model.rx3",
+      "bytes": 413904,
+      "sha256": "d1bec5c50cb7b11e128518f0feb359142a041a7a381e82e32d4dee83b8b8eaac",
+      "group": "mascots"
+    },
+    {
+      "path": "data/sceneassets/mascot/111041/model_animated.rx3",
+      "bytes": 413904,
+      "sha256": "d1bec5c50cb7b11e128518f0feb359142a041a7a381e82e32d4dee83b8b8eaac",
+      "group": "mascots"
+    },
+    {
+      "path": "data/sceneassets/mascot/111041/textures.rx3",
+      "bytes": 4173184,
+      "sha256": "e0729987e9fda52218c91a7c87fc5729f47329571333898c8fb459b91cf43f7d",
+      "group": "mascots"
+    },
+    {
+      "path": "data/sceneassets/mascot/111042/locomotion_feet.bin",
+      "bytes": 1012,
+      "sha256": "a9782f36224f41d140d39d2c102d7f006c5a058d3209778488f0dedd3f6e71a8",
+      "group": "mascots"
+    },
+    {
+      "path": "data/sceneassets/mascot/111042/model.rx3",
+      "bytes": 421568,
+      "sha256": "a831ab6fe3e876f9f0a7ed33c2ccea76c31d8e756fe466547b6bbe70b481bf00",
+      "group": "mascots"
+    },
+    {
+      "path": "data/sceneassets/mascot/111042/model_animated.rx3",
+      "bytes": 421568,
+      "sha256": "a831ab6fe3e876f9f0a7ed33c2ccea76c31d8e756fe466547b6bbe70b481bf00",
+      "group": "mascots"
+    },
+    {
+      "path": "data/sceneassets/mascot/111042/textures.rx3",
+      "bytes": 4173184,
+      "sha256": "f2a2d9ea809fc334f60755f65ef322381c7139ddc554adbb5699260f25c02484",
+      "group": "mascots"
+    },
+    {
+      "path": "data/sceneassets/mascot/111043/locomotion_feet.bin",
+      "bytes": 1012,
+      "sha256": "e32f3c4c0e075cf82ced4d39044a8c482f2f80b2ca53d654caea37abd9170544",
+      "group": "mascots"
+    },
+    {
+      "path": "data/sceneassets/mascot/111043/model.rx3",
+      "bytes": 380064,
+      "sha256": "7cdbab55cdc796512a9f427c0bb9639ee7436d09da66e9d64da320b4d3094b03",
+      "group": "mascots"
+    },
+    {
+      "path": "data/sceneassets/mascot/111043/model_animated.rx3",
+      "bytes": 380064,
+      "sha256": "7cdbab55cdc796512a9f427c0bb9639ee7436d09da66e9d64da320b4d3094b03",
+      "group": "mascots"
+    },
+    {
+      "path": "data/sceneassets/mascot/111043/textures.rx3",
+      "bytes": 4173184,
+      "sha256": "07d42e348db4b3a20fd6ad9ddb86816df23748b48cea14319422583c62830360",
+      "group": "mascots"
+    },
+    {
+      "path": "data/sceneassets/mascot/111044/locomotion_feet.bin",
+      "bytes": 1012,
+      "sha256": "49c0c040bc0943d489d24d0f920cbf235abff9d5e56ee4f41ac48b8f3d1f9264",
+      "group": "mascots"
+    },
+    {
+      "path": "data/sceneassets/mascot/111044/model.rx3",
+      "bytes": 386704,
+      "sha256": "44277133bb4df2eacc4713664c2666612cbf9dd79f5ce1db5ea0fb573b5dfaeb",
+      "group": "mascots"
+    },
+    {
+      "path": "data/sceneassets/mascot/111044/model_animated.rx3",
+      "bytes": 386704,
+      "sha256": "44277133bb4df2eacc4713664c2666612cbf9dd79f5ce1db5ea0fb573b5dfaeb",
+      "group": "mascots"
+    },
+    {
+      "path": "data/sceneassets/mascot/111044/textures.rx3",
+      "bytes": 8367504,
+      "sha256": "e39feb1a938d6f7c0762e15c68cee81b00d25219ce42bf132c91e41f00e2442c",
+      "group": "mascots"
+    },
+    {
+      "path": "data/sceneassets/mascot/111045/locomotion_feet.bin",
+      "bytes": 1012,
+      "sha256": "2c9a26e6088797666d78d6cba1303f40435fa72954211060a346015800bd974a",
+      "group": "mascots"
+    },
+    {
+      "path": "data/sceneassets/mascot/111045/model.rx3",
+      "bytes": 397936,
+      "sha256": "ec7201f2e0258ba8610bd8fec0fc70ea94f9296504f8ccc3ef637dc96993488d",
+      "group": "mascots"
+    },
+    {
+      "path": "data/sceneassets/mascot/111045/model_animated.rx3",
+      "bytes": 397936,
+      "sha256": "ec7201f2e0258ba8610bd8fec0fc70ea94f9296504f8ccc3ef637dc96993488d",
+      "group": "mascots"
+    },
+    {
+      "path": "data/sceneassets/mascot/111045/textures.rx3",
+      "bytes": 4173184,
+      "sha256": "d25c9dfb86895c6298539f2b987738ccc5637d6848e7a16d28c6861756bb52e2",
+      "group": "mascots"
+    },
+    {
+      "path": "data/sceneassets/mascot/111046/locomotion_feet.bin",
+      "bytes": 1012,
+      "sha256": "64af0007388536ff00ca08e6fb3846726ea5a12e1d42b1443bc597c8d0819777",
+      "group": "mascots"
+    },
+    {
+      "path": "data/sceneassets/mascot/111046/model.rx3",
+      "bytes": 407936,
+      "sha256": "57878209374b33d9f197304e2c15643b0792e4b782d6cb703c8e19c17c627ce0",
+      "group": "mascots"
+    },
+    {
+      "path": "data/sceneassets/mascot/111046/model_animated.rx3",
+      "bytes": 407936,
+      "sha256": "57878209374b33d9f197304e2c15643b0792e4b782d6cb703c8e19c17c627ce0",
+      "group": "mascots"
+    },
+    {
+      "path": "data/sceneassets/mascot/111046/textures.rx3",
+      "bytes": 4173184,
+      "sha256": "c388263e9c942edb0e030eb17e5c673186ec77a59b74e852673122d5361b3612",
+      "group": "mascots"
+    },
+    {
+      "path": "data/sceneassets/mascot/111049/locomotion_feet.bin",
+      "bytes": 1012,
+      "sha256": "3d4c64bf86d81774837359cb34d0d5416c68b07b0494a198cd0d349c0b29331c",
+      "group": "mascots"
+    },
+    {
+      "path": "data/sceneassets/mascot/111049/model.rx3",
+      "bytes": 403280,
+      "sha256": "933cfdf9ee4253b7272ccf137588f9c36d69aa79ab33548a900fd8ad38609939",
+      "group": "mascots"
+    },
+    {
+      "path": "data/sceneassets/mascot/111049/model_animated.rx3",
+      "bytes": 403280,
+      "sha256": "933cfdf9ee4253b7272ccf137588f9c36d69aa79ab33548a900fd8ad38609939",
+      "group": "mascots"
+    },
+    {
+      "path": "data/sceneassets/mascot/111049/textures.rx3",
+      "bytes": 4173184,
+      "sha256": "1e54d63bd9fd175f7ad7d65db7e1692387cd085ce7f07044697b19f2577623d2",
+      "group": "mascots"
+    },
+    {
+      "path": "data/sceneassets/mascot/111050/locomotion_feet.bin",
+      "bytes": 1012,
+      "sha256": "b37de5b8e03f229f6f68a3b909ec633165da42bdaf2a30839b460c8aafabc855",
+      "group": "mascots"
+    },
+    {
+      "path": "data/sceneassets/mascot/111050/model.rx3",
+      "bytes": 417312,
+      "sha256": "51636b060b1bd72b44bd3431ac0ca909fcece1ed0dab814ec5b2db2a75f119c6",
+      "group": "mascots"
+    },
+    {
+      "path": "data/sceneassets/mascot/111050/model_animated.rx3",
+      "bytes": 417312,
+      "sha256": "51636b060b1bd72b44bd3431ac0ca909fcece1ed0dab814ec5b2db2a75f119c6",
+      "group": "mascots"
+    },
+    {
+      "path": "data/sceneassets/mascot/111050/textures.rx3",
+      "bytes": 4173184,
+      "sha256": "e0f5efda748914ff8d10eec2f8d0773b58b7d36f9e17e16b865e70e6c8a40373",
+      "group": "mascots"
+    },
+    {
+      "path": "data/sceneassets/mascot/111052/locomotion_feet.bin",
+      "bytes": 1012,
+      "sha256": "ca692cb1c0e17330aeb637cd29be9e5851ee0317dbf8a82cdc03644ebc7e31f7",
+      "group": "mascots"
+    },
+    {
+      "path": "data/sceneassets/mascot/111052/model.rx3",
+      "bytes": 438880,
+      "sha256": "94951b97171e8a00b1b61ded6518c26aa37009e9ad0007b77a80853b2030e079",
+      "group": "mascots"
+    },
+    {
+      "path": "data/sceneassets/mascot/111052/model_animated.rx3",
+      "bytes": 438880,
+      "sha256": "94951b97171e8a00b1b61ded6518c26aa37009e9ad0007b77a80853b2030e079",
+      "group": "mascots"
+    },
+    {
+      "path": "data/sceneassets/mascot/111052/textures.rx3",
+      "bytes": 8367504,
+      "sha256": "b67889edc9137eafed5013d7a4b150106768ca6ab4bea99c54cf60d69f39ad44",
+      "group": "mascots"
+    },
+    {
+      "path": "data/sceneassets/mascot/111057/locomotion_feet.bin",
+      "bytes": 1012,
+      "sha256": "7a009fb7217af05c279782df4ee27e3260e4ef88fe069dcbd8ad5b3cbe5f3709",
+      "group": "mascots"
+    },
+    {
+      "path": "data/sceneassets/mascot/111057/model.rx3",
+      "bytes": 389872,
+      "sha256": "2e3ac610bc69242845d808b4a198fa15d315f97317939b53d4011e396f812562",
+      "group": "mascots"
+    },
+    {
+      "path": "data/sceneassets/mascot/111057/model_animated.rx3",
+      "bytes": 389872,
+      "sha256": "2e3ac610bc69242845d808b4a198fa15d315f97317939b53d4011e396f812562",
+      "group": "mascots"
+    },
+    {
+      "path": "data/sceneassets/mascot/111057/textures.rx3",
+      "bytes": 4173184,
+      "sha256": "1e0913a92295b67eff9302153e56b53c08979f7a7dfa45afb53a92e7972896a3",
+      "group": "mascots"
+    },
+    {
+      "path": "data/sceneassets/mascot/111058/locomotion_feet.bin",
+      "bytes": 1012,
+      "sha256": "771a121faf16a8e3d0eb18f172e2a6dbfa19e4cc0fcd6b58a3e04be290f31bd6",
+      "group": "mascots"
+    },
+    {
+      "path": "data/sceneassets/mascot/111058/model.rx3",
+      "bytes": 227216,
+      "sha256": "728a8a6848d9236ddf9562e9d05fb93e1b5c276835c14b933921aa6df730108a",
+      "group": "mascots"
+    },
+    {
+      "path": "data/sceneassets/mascot/111058/model_animated.rx3",
+      "bytes": 227216,
+      "sha256": "728a8a6848d9236ddf9562e9d05fb93e1b5c276835c14b933921aa6df730108a",
+      "group": "mascots"
+    },
+    {
+      "path": "data/sceneassets/mascot/111058/textures.rx3",
+      "bytes": 8367504,
+      "sha256": "4072f268e42d9ffe9dc80d91a01167995e3881b868a3e7aa97b5bf4d54ebf21a",
+      "group": "mascots"
+    },
+    {
+      "path": "data/sceneassets/mascot/111059/locomotion_feet.bin",
+      "bytes": 1012,
+      "sha256": "b17a63bc24eee1ee35f2c5747a2d569f8717f9201ffaa04fa332f69325fce5fa",
+      "group": "mascots"
+    },
+    {
+      "path": "data/sceneassets/mascot/111059/model.rx3",
+      "bytes": 382032,
+      "sha256": "c1180e39aeca3652e8ed14e89d01d6b8d5d623a483178e1427f3dfb962d122a6",
+      "group": "mascots"
+    },
+    {
+      "path": "data/sceneassets/mascot/111059/model_animated.rx3",
+      "bytes": 382032,
+      "sha256": "c1180e39aeca3652e8ed14e89d01d6b8d5d623a483178e1427f3dfb962d122a6",
+      "group": "mascots"
+    },
+    {
+      "path": "data/sceneassets/mascot/111059/textures.rx3",
+      "bytes": 4173184,
+      "sha256": "b0b698f242a0be8d4a9fe9b7421166da4d27b311749d536d221adcd4e55a1ce1",
+      "group": "mascots"
+    },
+    {
+      "path": "data/sceneassets/mascot/111976/locomotion_feet.bin",
+      "bytes": 1012,
+      "sha256": "4bb90c957b2e5daff529a757cf86c09aceb5b799b77c3b28003d1e927c71b653",
+      "group": "mascots"
+    },
+    {
+      "path": "data/sceneassets/mascot/111976/model.rx3",
+      "bytes": 405664,
+      "sha256": "fcb0fd1ec7abeaa1ff8fb87f77abc0334c0991b6137a6845bf311fa8aec96dfd",
+      "group": "mascots"
+    },
+    {
+      "path": "data/sceneassets/mascot/111976/model_animated.rx3",
+      "bytes": 405664,
+      "sha256": "fcb0fd1ec7abeaa1ff8fb87f77abc0334c0991b6137a6845bf311fa8aec96dfd",
+      "group": "mascots"
+    },
+    {
+      "path": "data/sceneassets/mascot/111976/textures.rx3",
+      "bytes": 4173184,
+      "sha256": "347e9bd39633d108c70f107d614011bc6e8d2d7ff1c55c2adc0a4f6e31588508",
+      "group": "mascots"
+    },
+    {
+      "path": "data/sceneassets/mascot/112001/locomotion_feet.bin",
+      "bytes": 1012,
+      "sha256": "5050ae9a04feee6a4381edc53d273d124806f6187576329c67fa5e41b8af078f",
+      "group": "mascots"
+    },
+    {
+      "path": "data/sceneassets/mascot/112001/model.rx3",
+      "bytes": 402096,
+      "sha256": "65b50455aa3b92de663787e7498b3bc78a3645d677a560868e610b1157c0e405",
+      "group": "mascots"
+    },
+    {
+      "path": "data/sceneassets/mascot/112001/model_animated.rx3",
+      "bytes": 402096,
+      "sha256": "65b50455aa3b92de663787e7498b3bc78a3645d677a560868e610b1157c0e405",
+      "group": "mascots"
+    },
+    {
+      "path": "data/sceneassets/mascot/112001/textures.rx3",
+      "bytes": 4173184,
+      "sha256": "aa8238143e48752f69eaecfe0052664757db0c4c29cf952fefe7f5996960aa29",
+      "group": "mascots"
+    },
+    {
+      "path": "data/sceneassets/mascot/112119/locomotion_feet.bin",
+      "bytes": 1012,
+      "sha256": "dee2e8dbc6df31506edc47517c39109bacecaf0c3a14b170a70517d8efb34b16",
+      "group": "mascots"
+    },
+    {
+      "path": "data/sceneassets/mascot/112119/model.rx3",
+      "bytes": 425632,
+      "sha256": "b884ca401191c1afc622aaeb821d9d877851eef68a0c7ced3e0a92b5ca307004",
+      "group": "mascots"
+    },
+    {
+      "path": "data/sceneassets/mascot/112119/model_animated.rx3",
+      "bytes": 425632,
+      "sha256": "b884ca401191c1afc622aaeb821d9d877851eef68a0c7ced3e0a92b5ca307004",
+      "group": "mascots"
+    },
+    {
+      "path": "data/sceneassets/mascot/112119/textures.rx3",
+      "bytes": 4173184,
+      "sha256": "e97d960642ad1aac5725711a8c6c842d627962de787e3364bd7535b4625eca3c",
+      "group": "mascots"
+    },
+    {
+      "path": "data/sceneassets/mascot/112476/locomotion_feet.bin",
+      "bytes": 1012,
+      "sha256": "6071c339941e4c7ff1fa0590f343a82d7b907c84eb29f05efe1a99543327e5ca",
+      "group": "mascots"
+    },
+    {
+      "path": "data/sceneassets/mascot/112476/model.rx3",
+      "bytes": 421504,
+      "sha256": "23fffebe1403f90ff59bddc61d2a60c4b0e53fc97254faa2e6d48b8a3ddd54b5",
+      "group": "mascots"
+    },
+    {
+      "path": "data/sceneassets/mascot/112476/model_animated.rx3",
+      "bytes": 421504,
+      "sha256": "23fffebe1403f90ff59bddc61d2a60c4b0e53fc97254faa2e6d48b8a3ddd54b5",
+      "group": "mascots"
+    },
+    {
+      "path": "data/sceneassets/mascot/112476/textures.rx3",
+      "bytes": 8367504,
+      "sha256": "bbd4f19bcef26d172bfcea8a0941f00975a0a592a0292bd2075324be227bbd41",
+      "group": "mascots"
+    },
+    {
+      "path": "data/sceneassets/mascot/113101/locomotion_feet.bin",
+      "bytes": 1012,
+      "sha256": "c2bd401c54c5178bad08d93d2d203b75d1b716394b315611186a0e551e826fd2",
+      "group": "mascots"
+    },
+    {
+      "path": "data/sceneassets/mascot/113101/model.rx3",
+      "bytes": 393488,
+      "sha256": "7f0582b0a45e0831e4f7f90d2efc291f1182cdec7121f1b07eea6d2d53392588",
+      "group": "mascots"
+    },
+    {
+      "path": "data/sceneassets/mascot/113101/model_animated.rx3",
+      "bytes": 393488,
+      "sha256": "7f0582b0a45e0831e4f7f90d2efc291f1182cdec7121f1b07eea6d2d53392588",
+      "group": "mascots"
+    },
+    {
+      "path": "data/sceneassets/mascot/113101/textures.rx3",
+      "bytes": 4173184,
+      "sha256": "65903f1a6c6c9ffa041cc8a392e51c4ebd78fa14a8efa6f043d2e96d265f2bdc",
+      "group": "mascots"
+    },
+    {
+      "path": "data/sceneassets/mascot/113104/locomotion_feet.bin",
+      "bytes": 1012,
+      "sha256": "0575610c9abbefb31942a947dfc870d58db7168b851a27a7ac56783fd0d2321e",
+      "group": "mascots"
+    },
+    {
+      "path": "data/sceneassets/mascot/113104/model.rx3",
+      "bytes": 427824,
+      "sha256": "94616efa0efb839bb4497238c0e6aa46dc7aa53e07e2d46d17a60fbe3850c722",
+      "group": "mascots"
+    },
+    {
+      "path": "data/sceneassets/mascot/113104/model_animated.rx3",
+      "bytes": 427824,
+      "sha256": "94616efa0efb839bb4497238c0e6aa46dc7aa53e07e2d46d17a60fbe3850c722",
+      "group": "mascots"
+    },
+    {
+      "path": "data/sceneassets/mascot/113104/textures.rx3",
+      "bytes": 4173184,
+      "sha256": "a544fd4df6f72315ad4c767462f09a162c96e3a5e31891211c5418bde98837a1",
+      "group": "mascots"
+    },
+    {
+      "path": "data/sceneassets/mascot/113105/locomotion_feet.bin",
+      "bytes": 1012,
+      "sha256": "7740d0d6fd260720fc10dd74fa58daf9354cdfeff8f8a680cbc795cb229ed543",
+      "group": "mascots"
+    },
+    {
+      "path": "data/sceneassets/mascot/113105/model.rx3",
+      "bytes": 412368,
+      "sha256": "d8cf87624c70449f54468f71f80a837abe3c2c6982b3e39da7391c7e95aadb98",
+      "group": "mascots"
+    },
+    {
+      "path": "data/sceneassets/mascot/113105/model_animated.rx3",
+      "bytes": 412368,
+      "sha256": "d8cf87624c70449f54468f71f80a837abe3c2c6982b3e39da7391c7e95aadb98",
+      "group": "mascots"
+    },
+    {
+      "path": "data/sceneassets/mascot/113105/textures.rx3",
+      "bytes": 4173184,
+      "sha256": "41ff5e83e5c42431313d37775855f7f95a0babdb44fcc0392926b5a6b59fb0e2",
+      "group": "mascots"
+    },
+    {
+      "path": "data/sceneassets/mascot/113116/locomotion_feet.bin",
+      "bytes": 1012,
+      "sha256": "f2681a034c99f1513b0ec379b5e76d360b90d2caeaf4c427dd64546729d06f91",
+      "group": "mascots"
+    },
+    {
+      "path": "data/sceneassets/mascot/113116/model.rx3",
+      "bytes": 419360,
+      "sha256": "9d7154355deedd82ea43850ae92522c77e804c9d07a8c262d235a0a74ad3f39a",
+      "group": "mascots"
+    },
+    {
+      "path": "data/sceneassets/mascot/113116/model_animated.rx3",
+      "bytes": 419360,
+      "sha256": "9d7154355deedd82ea43850ae92522c77e804c9d07a8c262d235a0a74ad3f39a",
+      "group": "mascots"
+    },
+    {
+      "path": "data/sceneassets/mascot/113116/textures.rx3",
+      "bytes": 4173184,
+      "sha256": "85af83e843df5d037fa71aaa153446e6448c7502dbb64d11bb97cfbedb92cfac",
+      "group": "mascots"
+    },
+    {
+      "path": "data/sceneassets/mascot/113121/locomotion_feet.bin",
+      "bytes": 1012,
+      "sha256": "aa0b32b521211acd9165097bb10e440d23f636734ad3e54029af3888f0952960",
+      "group": "mascots"
+    },
+    {
+      "path": "data/sceneassets/mascot/113121/model.rx3",
+      "bytes": 429488,
+      "sha256": "f2be5c6fa4be61ac8b8130b9babcccd4fe097d6f3c7bf3cff5ca6bcd7c25667a",
+      "group": "mascots"
+    },
+    {
+      "path": "data/sceneassets/mascot/113121/model_animated.rx3",
+      "bytes": 429488,
+      "sha256": "f2be5c6fa4be61ac8b8130b9babcccd4fe097d6f3c7bf3cff5ca6bcd7c25667a",
+      "group": "mascots"
+    },
+    {
+      "path": "data/sceneassets/mascot/113121/textures.rx3",
+      "bytes": 4173184,
+      "sha256": "31daa706c15731978f3bfd6c0de56b532059c4c98c2d7940de61b00cb653bb6a",
+      "group": "mascots"
+    },
+    {
+      "path": "data/sceneassets/mascot/113163/locomotion_feet.bin",
+      "bytes": 1012,
+      "sha256": "b2ea07cbd4f7493299b93284fccab68652ba54858a19629f5335178f5c3f6b5d",
+      "group": "mascots"
+    },
+    {
+      "path": "data/sceneassets/mascot/113163/model.rx3",
+      "bytes": 419920,
+      "sha256": "b75b4eeae2260a7607be4651d0300d2653c55900c4353b73c11efda051010e48",
+      "group": "mascots"
+    },
+    {
+      "path": "data/sceneassets/mascot/113163/model_animated.rx3",
+      "bytes": 419920,
+      "sha256": "b75b4eeae2260a7607be4651d0300d2653c55900c4353b73c11efda051010e48",
+      "group": "mascots"
+    },
+    {
+      "path": "data/sceneassets/mascot/113163/textures.rx3",
+      "bytes": 8367504,
+      "sha256": "8198b21ac8c4b1435a9e364809b1bd5dd67a5d7973193d46b73a16a1f50cd009",
+      "group": "mascots"
+    },
+    {
+      "path": "data/sceneassets/mascot/120002/locomotion_feet.bin",
+      "bytes": 1012,
+      "sha256": "6d1587964b07086d01e610e5f42cc7c2c0d253f61c1dc4239b3376f3548b4dec",
+      "group": "mascots"
+    },
+    {
+      "path": "data/sceneassets/mascot/120002/model.rx3",
+      "bytes": 409856,
+      "sha256": "e4975fb299b5b0a0372e4d714fe3b690a36000765e35452d5645bc8746ee1f46",
+      "group": "mascots"
+    },
+    {
+      "path": "data/sceneassets/mascot/120002/model_animated.rx3",
+      "bytes": 409856,
+      "sha256": "e4975fb299b5b0a0372e4d714fe3b690a36000765e35452d5645bc8746ee1f46",
+      "group": "mascots"
+    },
+    {
+      "path": "data/sceneassets/mascot/120002/textures.rx3",
+      "bytes": 4173184,
+      "sha256": "466c5e917ff12150e6e6308afabe0a3d170b086c24070c76f047012b3d410d9e",
+      "group": "mascots"
+    },
+    {
+      "path": "data/sceneassets/mascot/120003/locomotion_feet.bin",
+      "bytes": 1012,
+      "sha256": "1cea3f1544e9a6a3b71ce9ebbb84e2fdbdab50ceebe350bf9eca0681fdc82c59",
+      "group": "mascots"
+    },
+    {
+      "path": "data/sceneassets/mascot/120003/model.rx3",
+      "bytes": 405520,
+      "sha256": "9bef2f1e33fe63233efa24ba40368894641f1406fe1b6a30c1d99c844f172fd8",
+      "group": "mascots"
+    },
+    {
+      "path": "data/sceneassets/mascot/120003/model_animated.rx3",
+      "bytes": 405520,
+      "sha256": "9bef2f1e33fe63233efa24ba40368894641f1406fe1b6a30c1d99c844f172fd8",
+      "group": "mascots"
+    },
+    {
+      "path": "data/sceneassets/mascot/120003/textures.rx3",
+      "bytes": 4173184,
+      "sha256": "e088e5faff511f58ba7e2256be87dfdacd5fc09f20ac0694719696ac13d2017c",
+      "group": "mascots"
+    },
+    {
+      "path": "data/sceneassets/mascot/120004/locomotion_feet.bin",
+      "bytes": 1012,
+      "sha256": "b9399d78dd7c8d625e44fe3dd3946437c3f4a9ae6d261027282fbbc4e4e829db",
+      "group": "mascots"
+    },
+    {
+      "path": "data/sceneassets/mascot/120004/model.rx3",
+      "bytes": 400432,
+      "sha256": "9bd2b5c15ddba871073e376514e4ab4c9f5ef116540b9019035bfc7183a8640c",
+      "group": "mascots"
+    },
+    {
+      "path": "data/sceneassets/mascot/120004/model_animated.rx3",
+      "bytes": 400432,
+      "sha256": "9bd2b5c15ddba871073e376514e4ab4c9f5ef116540b9019035bfc7183a8640c",
+      "group": "mascots"
+    },
+    {
+      "path": "data/sceneassets/mascot/120004/textures.rx3",
+      "bytes": 4173184,
+      "sha256": "023bde46e7d2d878676ff6a66a876494652573e60362c4ea23e7c3b4eb1445c0",
+      "group": "mascots"
+    },
+    {
+      "path": "data/sceneassets/mascot/120005/locomotion_feet.bin",
+      "bytes": 1012,
+      "sha256": "b8e41557bc86944f71f6608627c8607e44cc3ff02ea61fffe95f2d91711e7d78",
+      "group": "mascots"
+    },
+    {
+      "path": "data/sceneassets/mascot/120005/model.rx3",
+      "bytes": 401472,
+      "sha256": "d2ec0f7b4a55cebc447550519b0ed1ea16dac8a150f0c73d2d9eba079220583a",
+      "group": "mascots"
+    },
+    {
+      "path": "data/sceneassets/mascot/120005/model_animated.rx3",
+      "bytes": 401472,
+      "sha256": "d2ec0f7b4a55cebc447550519b0ed1ea16dac8a150f0c73d2d9eba079220583a",
+      "group": "mascots"
+    },
+    {
+      "path": "data/sceneassets/mascot/120005/textures.rx3",
+      "bytes": 4173184,
+      "sha256": "15ac0c8f68f853a9d2915c7a7ac9997e96a5917525badf2db24d6b043e2dfbd6",
+      "group": "mascots"
+    },
+    {
+      "path": "data/sceneassets/mascot/120006/locomotion_feet.bin",
+      "bytes": 1012,
+      "sha256": "4469a5d39bb3266b5bb71a8e86e65230ef1c1542dbdcda4d68378151032e3b09",
+      "group": "mascots"
+    },
+    {
+      "path": "data/sceneassets/mascot/120006/model.rx3",
+      "bytes": 425440,
+      "sha256": "0c99435793a99cfb2938a41b06d382a16e2200218a5944754beeafb4953127ff",
+      "group": "mascots"
+    },
+    {
+      "path": "data/sceneassets/mascot/120006/model_animated.rx3",
+      "bytes": 425440,
+      "sha256": "0c99435793a99cfb2938a41b06d382a16e2200218a5944754beeafb4953127ff",
+      "group": "mascots"
+    },
+    {
+      "path": "data/sceneassets/mascot/120006/textures.rx3",
+      "bytes": 4173184,
+      "sha256": "81acdfcb72dd1bf44462c57b5b0d653df861e57ec1c47a72a054fdd5b4218a8f",
+      "group": "mascots"
+    },
+    {
+      "path": "data/sceneassets/mascot/120016/locomotion_feet.bin",
+      "bytes": 1012,
+      "sha256": "d613554cdc0830f09e075eb8e2985e1ab976236933bb930c2b6253050077586f",
+      "group": "mascots"
+    },
+    {
+      "path": "data/sceneassets/mascot/120016/model.rx3",
+      "bytes": 389856,
+      "sha256": "06ee370f430b4fd8d38ac5b2184b1c046117c21c8e5cc7ac94c16c07775835ce",
+      "group": "mascots"
+    },
+    {
+      "path": "data/sceneassets/mascot/120016/model_animated.rx3",
+      "bytes": 389856,
+      "sha256": "06ee370f430b4fd8d38ac5b2184b1c046117c21c8e5cc7ac94c16c07775835ce",
+      "group": "mascots"
+    },
+    {
+      "path": "data/sceneassets/mascot/120016/textures.rx3",
+      "bytes": 4173184,
+      "sha256": "617159b1d64c4757c0ff9f4f683746101889b85b430aaaf85019d0cdc7a37098",
+      "group": "mascots"
+    },
+    {
+      "path": "data/sceneassets/mascot/123921/locomotion_feet.bin",
+      "bytes": 1012,
+      "sha256": "99b54d189571c04efef171f638f5a5a1df45f20b678f5a2f0ccb2f0af683e155",
+      "group": "mascots"
+    },
+    {
+      "path": "data/sceneassets/mascot/123921/model.rx3",
+      "bytes": 406832,
+      "sha256": "aaf29db0d1773ea21c5a77f18308282759875bf9602683f357992a195d2083b1",
+      "group": "mascots"
+    },
+    {
+      "path": "data/sceneassets/mascot/123921/model_animated.rx3",
+      "bytes": 406832,
+      "sha256": "aaf29db0d1773ea21c5a77f18308282759875bf9602683f357992a195d2083b1",
+      "group": "mascots"
+    },
+    {
+      "path": "data/sceneassets/mascot/123921/textures.rx3",
+      "bytes": 8367504,
+      "sha256": "1454d894a5ece84a2c53b2fdbafc8eaf1c3bde73eb4443cd6e115b2d04a64f58",
+      "group": "mascots"
+    },
+    {
+      "path": "data/sceneassets/mascot/130021/locomotion_feet.bin",
+      "bytes": 1012,
+      "sha256": "0c968f81622b2ef2626622a84420df708c648d303d1554916ea14fe8ffffd5b9",
+      "group": "mascots"
+    },
+    {
+      "path": "data/sceneassets/mascot/130021/model.rx3",
+      "bytes": 379040,
+      "sha256": "3dfdf3521071e14dc8ac3dc407c728b3e7a401064fb9dbb0140300e7a13e5c5a",
+      "group": "mascots"
+    },
+    {
+      "path": "data/sceneassets/mascot/130021/model_animated.rx3",
+      "bytes": 379040,
+      "sha256": "3dfdf3521071e14dc8ac3dc407c728b3e7a401064fb9dbb0140300e7a13e5c5a",
+      "group": "mascots"
+    },
+    {
+      "path": "data/sceneassets/mascot/130021/textures.rx3",
+      "bytes": 4173184,
+      "sha256": "4aefeeff28a789e012956b613452adb849deca454b75b713af268843b512865e",
+      "group": "mascots"
+    },
+    {
+      "path": "data/sceneassets/mascot/130024/locomotion_feet.bin",
+      "bytes": 1012,
+      "sha256": "8721ae4e6e20161bede4ab331aa9fb1c2468c9d5571bbd343effa308c717c64c",
+      "group": "mascots"
+    },
+    {
+      "path": "data/sceneassets/mascot/130024/model.rx3",
+      "bytes": 428656,
+      "sha256": "6e8418ef9fc20c0cec9c1af85ffd8a291d30344e5901181cd87f3ccbc0fdbf61",
+      "group": "mascots"
+    },
+    {
+      "path": "data/sceneassets/mascot/130024/model_animated.rx3",
+      "bytes": 428656,
+      "sha256": "6e8418ef9fc20c0cec9c1af85ffd8a291d30344e5901181cd87f3ccbc0fdbf61",
+      "group": "mascots"
+    },
+    {
+      "path": "data/sceneassets/mascot/130024/textures.rx3",
+      "bytes": 4173184,
+      "sha256": "1d544b61174f8e6626d92b3f5941a1a1fb2b3807a6ef4c1437ba82526b0275c8",
+      "group": "mascots"
+    },
+    {
+      "path": "data/sceneassets/mascot/130025/locomotion_feet.bin",
+      "bytes": 1012,
+      "sha256": "cf3516446849fb24e3ed3f43408d5c5de2a3158aae678120c3117d4413145982",
+      "group": "mascots"
+    },
+    {
+      "path": "data/sceneassets/mascot/130025/model.rx3",
+      "bytes": 431568,
+      "sha256": "588091cc6e6f03a8e1b8e248f6ed18031ee4ada4cfba91a6f97561b1d82aae59",
+      "group": "mascots"
+    },
+    {
+      "path": "data/sceneassets/mascot/130025/model_animated.rx3",
+      "bytes": 431568,
+      "sha256": "588091cc6e6f03a8e1b8e248f6ed18031ee4ada4cfba91a6f97561b1d82aae59",
+      "group": "mascots"
+    },
+    {
+      "path": "data/sceneassets/mascot/130025/textures.rx3",
+      "bytes": 4173184,
+      "sha256": "2d3099c644ac99068dd6d9f7d24a1c0c3a7de3b389c1281391f7e95601fdd224",
+      "group": "mascots"
+    },
+    {
+      "path": "data/sceneassets/mascot/130026/locomotion_feet.bin",
+      "bytes": 1012,
+      "sha256": "951e6c7f8d17ae308f3a626806b4e9e6223528a063c2a8f6a6ca6145b7b5e06a",
+      "group": "mascots"
+    },
+    {
+      "path": "data/sceneassets/mascot/130026/model.rx3",
+      "bytes": 212704,
+      "sha256": "efff6b017022cc56d7f917e530834b5161031ba8806feb993405910f59c02c59",
+      "group": "mascots"
+    },
+    {
+      "path": "data/sceneassets/mascot/130026/model_animated.rx3",
+      "bytes": 212704,
+      "sha256": "efff6b017022cc56d7f917e530834b5161031ba8806feb993405910f59c02c59",
+      "group": "mascots"
+    },
+    {
+      "path": "data/sceneassets/mascot/130026/textures.rx3",
+      "bytes": 8367504,
+      "sha256": "f5456904b534e50796a18ff1daae9c42888c1f5eb181357355599471d2f1057a",
+      "group": "mascots"
+    },
+    {
+      "path": "data/sceneassets/mascot/130028/locomotion_feet.bin",
+      "bytes": 1012,
+      "sha256": "0f816989e92569ff6a5d33079a978d254eb36ede39c9a4d8dbc0548f41377898",
+      "group": "mascots"
+    },
+    {
+      "path": "data/sceneassets/mascot/130028/model.rx3",
+      "bytes": 398256,
+      "sha256": "08c79161f17c798743c59225404af40733f75a95371e07743b7d75ddc9a9526d",
+      "group": "mascots"
+    },
+    {
+      "path": "data/sceneassets/mascot/130028/model_animated.rx3",
+      "bytes": 398256,
+      "sha256": "08c79161f17c798743c59225404af40733f75a95371e07743b7d75ddc9a9526d",
+      "group": "mascots"
+    },
+    {
+      "path": "data/sceneassets/mascot/130028/textures.rx3",
+      "bytes": 4173184,
+      "sha256": "5d5f771951198a53500e11252beda04ac068688da1f216c7c8c8ce3162252bbf",
+      "group": "mascots"
+    },
+    {
+      "path": "data/sceneassets/mascot/130045/locomotion_feet.bin",
+      "bytes": 1012,
+      "sha256": "add671f804395a18b088bc45aa1ca63138e98fe46b5cf49fd6c3303e3bb47d9d",
+      "group": "mascots"
+    },
+    {
+      "path": "data/sceneassets/mascot/130045/model.rx3",
+      "bytes": 407200,
+      "sha256": "585f985088527812c2e8c67470b71573bd0cff81fe122f729da6b20d16d63032",
+      "group": "mascots"
+    },
+    {
+      "path": "data/sceneassets/mascot/130045/model_animated.rx3",
+      "bytes": 407200,
+      "sha256": "585f985088527812c2e8c67470b71573bd0cff81fe122f729da6b20d16d63032",
+      "group": "mascots"
+    },
+    {
+      "path": "data/sceneassets/mascot/130045/textures.rx3",
+      "bytes": 4173184,
+      "sha256": "08327f7165f713888ca83fbad3b521beb9b740f400102442906191faa0d8070f",
+      "group": "mascots"
+    },
+    {
+      "path": "data/sceneassets/mascot/130046/locomotion_feet.bin",
+      "bytes": 1012,
+      "sha256": "1b86670f46e1f8db7811cd7bf8c2845be9332e6304f11a8ba33c2c45c864fe41",
+      "group": "mascots"
+    },
+    {
+      "path": "data/sceneassets/mascot/130046/model.rx3",
+      "bytes": 401216,
+      "sha256": "ac9613a7da1c356f5cf7369d997e4ab8af7e8c75e911f39eb295281dd3b40f5b",
+      "group": "mascots"
+    },
+    {
+      "path": "data/sceneassets/mascot/130046/model_animated.rx3",
+      "bytes": 401216,
+      "sha256": "ac9613a7da1c356f5cf7369d997e4ab8af7e8c75e911f39eb295281dd3b40f5b",
+      "group": "mascots"
+    },
+    {
+      "path": "data/sceneassets/mascot/130046/textures.rx3",
+      "bytes": 4173184,
+      "sha256": "3673cb3c41d41b9690f02a5691601519d30709bd1f4c0535a736c0c653cb56be",
+      "group": "mascots"
+    },
+    {
+      "path": "data/sceneassets/mascot/130066/locomotion_feet.bin",
+      "bytes": 1012,
+      "sha256": "e19fac62705d1dce8760de357da1220ab6d70a4f6ce6f0db5fdcec6cdc8e4572",
+      "group": "mascots"
+    },
+    {
+      "path": "data/sceneassets/mascot/130066/model.rx3",
+      "bytes": 226080,
+      "sha256": "a0e8f88de7f110e404432e0543e319922eb9755ca5c5947778c312440b9e4679",
+      "group": "mascots"
+    },
+    {
+      "path": "data/sceneassets/mascot/130066/model_animated.rx3",
+      "bytes": 226080,
+      "sha256": "a0e8f88de7f110e404432e0543e319922eb9755ca5c5947778c312440b9e4679",
+      "group": "mascots"
+    },
+    {
+      "path": "data/sceneassets/mascot/130066/textures.rx3",
+      "bytes": 8367504,
+      "sha256": "f5b0f31749327cb356a76bebb92725134911eb1777dddfa83b451583dafcfea7",
+      "group": "mascots"
+    },
+    {
+      "path": "data/sceneassets/mascot/130072/locomotion_feet.bin",
+      "bytes": 1012,
+      "sha256": "f419b4ddb8280a421f3a311656c47898c8305e5118ba74ea602810434532ab17",
+      "group": "mascots"
+    },
+    {
+      "path": "data/sceneassets/mascot/130072/model.rx3",
+      "bytes": 404272,
+      "sha256": "2b4b90b4e46811d7f02fa9e9e6b4d3b75b9b61dac3353edc7172835b28d626e5",
+      "group": "mascots"
+    },
+    {
+      "path": "data/sceneassets/mascot/130072/model_animated.rx3",
+      "bytes": 404272,
+      "sha256": "2b4b90b4e46811d7f02fa9e9e6b4d3b75b9b61dac3353edc7172835b28d626e5",
+      "group": "mascots"
+    },
+    {
+      "path": "data/sceneassets/mascot/130072/textures.rx3",
+      "bytes": 4173184,
+      "sha256": "bdccf38d6049e90ab603895743e1fcf911530ab8116eb0e80d4b4027bdb97d20",
+      "group": "mascots"
+    },
+    {
+      "path": "data/sceneassets/mascot/130091/locomotion_feet.bin",
+      "bytes": 1012,
+      "sha256": "7295aea1c03a818cf3c72b17da1d335ec936b7373b915c829af5af31e2b08dce",
+      "group": "mascots"
+    },
+    {
+      "path": "data/sceneassets/mascot/130091/model.rx3",
+      "bytes": 428912,
+      "sha256": "92bcd85213c6c6be3aac035bf893926af13cc7f2430267f52845d8e10f5e8801",
+      "group": "mascots"
+    },
+    {
+      "path": "data/sceneassets/mascot/130091/model_animated.rx3",
+      "bytes": 428912,
+      "sha256": "92bcd85213c6c6be3aac035bf893926af13cc7f2430267f52845d8e10f5e8801",
+      "group": "mascots"
+    },
+    {
+      "path": "data/sceneassets/mascot/130091/textures.rx3",
+      "bytes": 4173184,
+      "sha256": "b4a404fc26a8ba2e404ab3c6cec1ffdc310f6a45e8b169fc88fce84e4d3fee2b",
+      "group": "mascots"
+    },
+    {
+      "path": "data/sceneassets/mascot/130100/locomotion_feet.bin",
+      "bytes": 1012,
+      "sha256": "a4b72ff0d6370a19b48a07f924dcd51446a1ed312458e71b4d4174db8c804414",
+      "group": "mascots"
+    },
+    {
+      "path": "data/sceneassets/mascot/130100/model.rx3",
+      "bytes": 405200,
+      "sha256": "0bf2d0c11a66107f27465157bd9665f40900f787943cfb7aac16e5ca66f56698",
+      "group": "mascots"
+    },
+    {
+      "path": "data/sceneassets/mascot/130100/model_animated.rx3",
+      "bytes": 405200,
+      "sha256": "0bf2d0c11a66107f27465157bd9665f40900f787943cfb7aac16e5ca66f56698",
+      "group": "mascots"
+    },
+    {
+      "path": "data/sceneassets/mascot/130100/textures.rx3",
+      "bytes": 4173184,
+      "sha256": "dd150bbd141938136ec595c8ca9a0e8272c8f5a9da963266740bade931a5e3e0",
+      "group": "mascots"
+    },
+    {
+      "path": "data/sceneassets/mascot/130108/locomotion_feet.bin",
+      "bytes": 1012,
+      "sha256": "6307ddf098ac03a7d6b9e6b21942c9d980c777f143750025a390778ba7223941",
+      "group": "mascots"
+    },
+    {
+      "path": "data/sceneassets/mascot/130108/model.rx3",
+      "bytes": 406208,
+      "sha256": "26d870e43917415c45ed914abade98f374f458e9578f746926bf80febaf9ae15",
+      "group": "mascots"
+    },
+    {
+      "path": "data/sceneassets/mascot/130108/model_animated.rx3",
+      "bytes": 406208,
+      "sha256": "26d870e43917415c45ed914abade98f374f458e9578f746926bf80febaf9ae15",
+      "group": "mascots"
+    },
+    {
+      "path": "data/sceneassets/mascot/130108/textures.rx3",
+      "bytes": 4173184,
+      "sha256": "785ee686968b9689878c568c218c08fc41006b977f1369fb38c0f4118ca60f8b",
+      "group": "mascots"
+    },
+    {
+      "path": "data/sceneassets/mascot/130127/locomotion_feet.bin",
+      "bytes": 1012,
+      "sha256": "281420d792950de87c82ed22b299209c63270d33e60f51308187ddd99a08bc00",
+      "group": "mascots"
+    },
+    {
+      "path": "data/sceneassets/mascot/130127/model.rx3",
+      "bytes": 421136,
+      "sha256": "52c2b52d27636d4faf6d50960d567b2e2fb6ce02e9701b2e5aa723a63424ed36",
+      "group": "mascots"
+    },
+    {
+      "path": "data/sceneassets/mascot/130127/model_animated.rx3",
+      "bytes": 421136,
+      "sha256": "52c2b52d27636d4faf6d50960d567b2e2fb6ce02e9701b2e5aa723a63424ed36",
+      "group": "mascots"
+    },
+    {
+      "path": "data/sceneassets/mascot/130127/textures.rx3",
+      "bytes": 4173184,
+      "sha256": "41db109277bc5eaf7f3859ec7c7ae8b0acce2b910b3d72f4af32e4bd9e555cd1",
+      "group": "mascots"
+    },
+    {
+      "path": "data/sceneassets/mascot/130190/locomotion_feet.bin",
+      "bytes": 1012,
+      "sha256": "c01181cf9581973051650966a73e5a7cd7801bfcc045c791f9f5d5d94b160832",
+      "group": "mascots"
+    },
+    {
+      "path": "data/sceneassets/mascot/130190/model.rx3",
+      "bytes": 398448,
+      "sha256": "f0518527ebffd8428564c79e2573726cc1be9f63af4f0e63bbb40a9df75e4e97",
+      "group": "mascots"
+    },
+    {
+      "path": "data/sceneassets/mascot/130190/model_animated.rx3",
+      "bytes": 398448,
+      "sha256": "f0518527ebffd8428564c79e2573726cc1be9f63af4f0e63bbb40a9df75e4e97",
+      "group": "mascots"
+    },
+    {
+      "path": "data/sceneassets/mascot/130190/textures.rx3",
+      "bytes": 4173184,
+      "sha256": "3681c2eac7c913d1248f6ecb00ae8fc83fd92d42fc1ae2b4be7c62c5f97ffcd2",
+      "group": "mascots"
+    },
+    {
+      "path": "data/sceneassets/mascot/130248/locomotion_feet.bin",
+      "bytes": 1012,
+      "sha256": "8617962e9e9f1b202ab18c6aa691a9e30be9bf4bf0225d26b34f16fc7e3430af",
+      "group": "mascots"
+    },
+    {
+      "path": "data/sceneassets/mascot/130248/model.rx3",
+      "bytes": 386048,
+      "sha256": "e57b23b7446381e1f268ca53df72edf823dfd57769c5f543f6c14e3ef7483740",
+      "group": "mascots"
+    },
+    {
+      "path": "data/sceneassets/mascot/130248/model_animated.rx3",
+      "bytes": 386048,
+      "sha256": "e57b23b7446381e1f268ca53df72edf823dfd57769c5f543f6c14e3ef7483740",
+      "group": "mascots"
+    },
+    {
+      "path": "data/sceneassets/mascot/130248/textures.rx3",
+      "bytes": 4173184,
+      "sha256": "b01839fc8b88497ded7de230c5af134970f3a5bfb46670dd5848291b2ba76a4b",
+      "group": "mascots"
+    },
+    {
+      "path": "data/sceneassets/mascot/130285/locomotion_feet.bin",
+      "bytes": 1012,
+      "sha256": "37fb6fb2f23c08de238902e2fbf3ec5059be0619d3f64d5be3a7896a3b607fdc",
+      "group": "mascots"
+    },
+    {
+      "path": "data/sceneassets/mascot/130285/model.rx3",
+      "bytes": 387760,
+      "sha256": "45006faec69cdb217e3e6f76d101fcba2a70896202b04b14d3814e01a112ae6e",
+      "group": "mascots"
+    },
+    {
+      "path": "data/sceneassets/mascot/130285/model_animated.rx3",
+      "bytes": 387760,
+      "sha256": "45006faec69cdb217e3e6f76d101fcba2a70896202b04b14d3814e01a112ae6e",
+      "group": "mascots"
+    },
+    {
+      "path": "data/sceneassets/mascot/130285/textures.rx3",
+      "bytes": 4173184,
+      "sha256": "7903579e8074dfd0659c32b081f15f7d1cb95755a370c7ba949fb86b64391aa0",
+      "group": "mascots"
+    },
+    {
+      "path": "data/sceneassets/mascot/130326/locomotion_feet.bin",
+      "bytes": 1012,
+      "sha256": "46606d34e7fa03a76cf1d704657ce6883f0457a8463172ede0ff5a9985f07367",
+      "group": "mascots"
+    },
+    {
+      "path": "data/sceneassets/mascot/130326/model.rx3",
+      "bytes": 381456,
+      "sha256": "1acf843ee511e0677d32ad84d40482cd1730535f24b949f03ea186f6b92ebc2f",
+      "group": "mascots"
+    },
+    {
+      "path": "data/sceneassets/mascot/130326/model_animated.rx3",
+      "bytes": 381456,
+      "sha256": "1acf843ee511e0677d32ad84d40482cd1730535f24b949f03ea186f6b92ebc2f",
+      "group": "mascots"
+    },
+    {
+      "path": "data/sceneassets/mascot/130326/textures.rx3",
+      "bytes": 4173184,
+      "sha256": "4456c9644f4770289772e75bb185ea885a860c28a037f25b84bf359bc84b4347",
+      "group": "mascots"
+    },
+    {
+      "path": "data/sceneassets/mascot/130388/locomotion_feet.bin",
+      "bytes": 1012,
+      "sha256": "0615f7456df10475c47838a88837ced26708b4c10dfb1af66a150f131bf067d8",
+      "group": "mascots"
+    },
+    {
+      "path": "data/sceneassets/mascot/130388/model.rx3",
+      "bytes": 403968,
+      "sha256": "cb638fcdfa99d6f6c2122a71588b9a74d78b6de8b89653568980eb23f9067aaf",
+      "group": "mascots"
+    },
+    {
+      "path": "data/sceneassets/mascot/130388/model_animated.rx3",
+      "bytes": 403968,
+      "sha256": "cb638fcdfa99d6f6c2122a71588b9a74d78b6de8b89653568980eb23f9067aaf",
+      "group": "mascots"
+    },
+    {
+      "path": "data/sceneassets/mascot/130388/textures.rx3",
+      "bytes": 4173184,
+      "sha256": "dce9197691b303aa5356ff16b02057de4f431da45b739072a23569fc9275096d",
+      "group": "mascots"
+    },
+    {
+      "path": "data/sceneassets/mascot/1370/locomotion_feet.bin",
+      "bytes": 1012,
+      "sha256": "e1f3f75d7133734332e8262fc307bb26596c4d90641506e71397b5274c37cc78",
+      "group": "mascots"
+    },
+    {
+      "path": "data/sceneassets/mascot/1370/model.rx3",
+      "bytes": 407328,
+      "sha256": "995138398409c0f3212db43ad989bd812349899dbac011242cc3db0f788ab750",
+      "group": "mascots"
+    },
+    {
+      "path": "data/sceneassets/mascot/1370/model_animated.rx3",
+      "bytes": 407328,
+      "sha256": "995138398409c0f3212db43ad989bd812349899dbac011242cc3db0f788ab750",
+      "group": "mascots"
+    },
+    {
+      "path": "data/sceneassets/mascot/1370/textures.rx3",
+      "bytes": 8367504,
+      "sha256": "c8fabb8f244a2a9ce386c032c6af84c34365224941f38f7528926d08e8cf8d91",
+      "group": "mascots"
+    },
+    {
+      "path": "data/sceneassets/mascot/1598/locomotion_feet.bin",
+      "bytes": 1012,
+      "sha256": "5fcc73a8aba41eece67e938173a8eea3988913e7f2e72c695ccec14808d2ab52",
+      "group": "mascots"
+    },
+    {
+      "path": "data/sceneassets/mascot/1598/model.rx3",
+      "bytes": 233984,
+      "sha256": "041cc54c0affb25478acd24ba1240540c77369e4997dbd21f07424c7d6072b89",
+      "group": "mascots"
+    },
+    {
+      "path": "data/sceneassets/mascot/1598/model_animated.rx3",
+      "bytes": 233984,
+      "sha256": "041cc54c0affb25478acd24ba1240540c77369e4997dbd21f07424c7d6072b89",
+      "group": "mascots"
+    },
+    {
+      "path": "data/sceneassets/mascot/1598/textures.rx3",
+      "bytes": 8367504,
+      "sha256": "12005b6f417ead56f6873b55762d60cef315a36c6c73da51e62036bfeed19cc4",
+      "group": "mascots"
+    },
+    {
+      "path": "data/sceneassets/mascot/1629/locomotion_feet.bin",
+      "bytes": 1012,
+      "sha256": "50814d59173a64e1a7df6a1708b2993349474dd31ec730d759b7bcd784e8e13e",
+      "group": "mascots"
+    },
+    {
+      "path": "data/sceneassets/mascot/1629/model.rx3",
+      "bytes": 226528,
+      "sha256": "a851eaaa0b7c2f4d16640ac27efbd8c21e2ce7f851e0e58f9571cb2db5e31d97",
+      "group": "mascots"
+    },
+    {
+      "path": "data/sceneassets/mascot/1629/model_animated.rx3",
+      "bytes": 226528,
+      "sha256": "a851eaaa0b7c2f4d16640ac27efbd8c21e2ce7f851e0e58f9571cb2db5e31d97",
+      "group": "mascots"
+    },
+    {
+      "path": "data/sceneassets/mascot/1629/textures.rx3",
+      "bytes": 8367504,
+      "sha256": "b268872f1f3ef554757f919cf2ed64c7dd343c1e2557cf72bf2a4e7a20a2dd6a",
+      "group": "mascots"
+    },
+    {
+      "path": "data/sceneassets/mascot/1719/locomotion_feet.bin",
+      "bytes": 1012,
+      "sha256": "553c859df558a667e00561f5dd84102e3c364bbe0e7178387d26cab512677a87",
+      "group": "mascots"
+    },
+    {
+      "path": "data/sceneassets/mascot/1719/model.rx3",
+      "bytes": 238336,
+      "sha256": "f07acd849557488bb41cc4498cd8d8c68fd7af3298fdb82da3114ccb2ad0f8b6",
+      "group": "mascots"
+    },
+    {
+      "path": "data/sceneassets/mascot/1719/model_animated.rx3",
+      "bytes": 238336,
+      "sha256": "f07acd849557488bb41cc4498cd8d8c68fd7af3298fdb82da3114ccb2ad0f8b6",
+      "group": "mascots"
+    },
+    {
+      "path": "data/sceneassets/mascot/1719/textures.rx3",
+      "bytes": 8367504,
+      "sha256": "17df0c71fec20aa188cda311bb05e6212643d2c8b42cc9914ee0156bdb9b32ab",
+      "group": "mascots"
+    },
+    {
+      "path": "data/sceneassets/mascot/383/locomotion_feet.bin",
+      "bytes": 1012,
+      "sha256": "67e90621a74902845d72560dffbf5467058c1472ab2f6b0fa5a55aeeaa009670",
+      "group": "mascots"
+    },
+    {
+      "path": "data/sceneassets/mascot/383/model.rx3",
+      "bytes": 407456,
+      "sha256": "dec67a28b1afc40345eacd24809d2f0235c633d6665467aa5f99b555db2deb4d",
+      "group": "mascots"
+    },
+    {
+      "path": "data/sceneassets/mascot/383/model_animated.rx3",
+      "bytes": 407456,
+      "sha256": "dec67a28b1afc40345eacd24809d2f0235c633d6665467aa5f99b555db2deb4d",
+      "group": "mascots"
+    },
+    {
+      "path": "data/sceneassets/mascot/383/textures.rx3",
+      "bytes": 8367504,
+      "sha256": "2c835386b69e79bf3ac5bde78857a31736c887aa65f35df13e401cb1ccf90dab",
+      "group": "mascots"
+    },
+    {
+      "path": "data/sceneassets/mascot/517/locomotion_feet.bin",
+      "bytes": 1012,
+      "sha256": "35e480f673b6be956781bc4f7fbb4e3d2038218050e8fb119dc2d79391f4fbc3",
+      "group": "mascots"
+    },
+    {
+      "path": "data/sceneassets/mascot/517/model.rx3",
+      "bytes": 400400,
+      "sha256": "493cefdb31d671f74e766b8de848d154a8ef5dab444c9efb772a3f01bdb945c5",
+      "group": "mascots"
+    },
+    {
+      "path": "data/sceneassets/mascot/517/model_animated.rx3",
+      "bytes": 400400,
+      "sha256": "493cefdb31d671f74e766b8de848d154a8ef5dab444c9efb772a3f01bdb945c5",
+      "group": "mascots"
+    },
+    {
+      "path": "data/sceneassets/mascot/517/textures.rx3",
+      "bytes": 8367504,
+      "sha256": "0e7758736256b42c4a2857a0bf6d7c62a87d4bc5f8c7aa6e16c6a56032eaaa15",
+      "group": "mascots"
+    },
+    {
+      "path": "data/sceneassets/mascot/567/locomotion_feet.bin",
+      "bytes": 1012,
+      "sha256": "5bd3c2f8fdbf656630d0e3c9e77e28e5fb62377f608960e495d8706bc5a7eca0",
+      "group": "mascots"
+    },
+    {
+      "path": "data/sceneassets/mascot/567/model.rx3",
+      "bytes": 200672,
+      "sha256": "224551e22d6c403ba4035aa6f9e154c522f661daf6ccf5a6a61ee3a44c666705",
+      "group": "mascots"
+    },
+    {
+      "path": "data/sceneassets/mascot/567/model_animated.rx3",
+      "bytes": 200672,
+      "sha256": "224551e22d6c403ba4035aa6f9e154c522f661daf6ccf5a6a61ee3a44c666705",
+      "group": "mascots"
+    },
+    {
+      "path": "data/sceneassets/mascot/567/textures.rx3",
+      "bytes": 8367504,
+      "sha256": "f7411dc460c80b5142edbd1d2f43ac08a37f0d1c944d633e4d92b1b9e01d86e9",
+      "group": "mascots"
+    },
+    {
+      "path": "data/sceneassets/mascot/568/locomotion_feet.bin",
+      "bytes": 1012,
+      "sha256": "fa81dadda3ad8b151a8867dd0dfa9b664103cff20ff80650c22e4465a3afaea2",
+      "group": "mascots"
+    },
+    {
+      "path": "data/sceneassets/mascot/568/model.rx3",
+      "bytes": 214096,
+      "sha256": "7ceb1f75f853a6ca605a4d246066bed7b14f9f82caef40e4d1c49743146e4c90",
+      "group": "mascots"
+    },
+    {
+      "path": "data/sceneassets/mascot/568/model_animated.rx3",
+      "bytes": 214096,
+      "sha256": "7ceb1f75f853a6ca605a4d246066bed7b14f9f82caef40e4d1c49743146e4c90",
+      "group": "mascots"
+    },
+    {
+      "path": "data/sceneassets/mascot/568/textures.rx3",
+      "bytes": 8367504,
+      "sha256": "20ea3d5674ec20f2f57cb6cbabebb1427d0f3aca282540d36d68dfe10a469466",
+      "group": "mascots"
+    },
+    {
+      "path": "data/sceneassets/mascot/569/locomotion_feet.bin",
+      "bytes": 1012,
+      "sha256": "fcbfa56cf8e2683a3865e2b90bc8f3b4f3477449168a51ddf4aca70299af0453",
+      "group": "mascots"
+    },
+    {
+      "path": "data/sceneassets/mascot/569/model.rx3",
+      "bytes": 222832,
+      "sha256": "b74c6500b8a3c19bc74c49d905c42ae5126d58108e8679814fea662684303149",
+      "group": "mascots"
+    },
+    {
+      "path": "data/sceneassets/mascot/569/model_animated.rx3",
+      "bytes": 222832,
+      "sha256": "b74c6500b8a3c19bc74c49d905c42ae5126d58108e8679814fea662684303149",
+      "group": "mascots"
+    },
+    {
+      "path": "data/sceneassets/mascot/569/textures.rx3",
+      "bytes": 8367504,
+      "sha256": "f79fa1186de73e91bde43b1126b28630940f563aeb2f66ff45cd2a76eb4d90b1",
+      "group": "mascots"
+    },
+    {
+      "path": "data/sceneassets/mascot/598/locomotion_feet.bin",
+      "bytes": 1012,
+      "sha256": "25689c04e3c09c1c98ec7e2bcef5767fa0628bc32e6429a1ace2c6926819f47c",
+      "group": "mascots"
+    },
+    {
+      "path": "data/sceneassets/mascot/598/model.rx3",
+      "bytes": 217888,
+      "sha256": "b75ff7f005e2dc5383aa41497633478c3958f18001056b3018f7b04516844d30",
+      "group": "mascots"
+    },
+    {
+      "path": "data/sceneassets/mascot/598/model_animated.rx3",
+      "bytes": 217888,
+      "sha256": "b75ff7f005e2dc5383aa41497633478c3958f18001056b3018f7b04516844d30",
+      "group": "mascots"
+    },
+    {
+      "path": "data/sceneassets/mascot/598/textures.rx3",
+      "bytes": 8367504,
+      "sha256": "13200745760d826ced120c77c2799381d7642c61ee2fc3deb815a615ebeaaf76",
+      "group": "mascots"
+    },
+    {
+      "path": "data/sceneassets/entrance_props/competitions/1/asset.ini",
+      "bytes": 301,
+      "sha256": "983a4fd58c259e9c11091d2840e3cc09d16016f55debd9cac57bb10574ef62bc",
+      "group": "competition_presentations"
+    },
+    {
+      "path": "data/sceneassets/entrance_props/competitions/1/model.rx3",
+      "bytes": 932880,
+      "sha256": "2e0b5d62723712799b21463cdaeb5f68b21364f8bfc3ca743eb6dfac21445499",
+      "group": "competition_presentations"
+    },
+    {
+      "path": "data/sceneassets/entrance_props/competitions/1/template.rx3",
+      "bytes": 22381344,
+      "sha256": "8609e60ff1446d4c7116ea86cafe520e4f315672e1b3e142fe4ac7df41114cd9",
+      "group": "competition_presentations"
+    },
+    {
+      "path": "data/sceneassets/entrance_props/competitions/1020/asset.ini",
+      "bytes": 518,
+      "sha256": "0f886e4e9c73779e6711f5025c1afb5e8468afa1dfac703754f35e456d7b7105",
+      "group": "competition_presentations"
+    },
+    {
+      "path": "data/sceneassets/entrance_props/competitions/1020/model.rx3",
+      "bytes": 2578432,
+      "sha256": "eff2cfa01c15b9840200082f1172f3735360b2004f438d28e2a726a7de2b45c5",
+      "group": "competition_presentations"
+    },
+    {
+      "path": "data/sceneassets/entrance_props/competitions/1020/template.rx3",
+      "bytes": 22381344,
+      "sha256": "7325633f8b7ccb61e6c1582c28c4d8adb62b9dc941f747f2ca527c7f0db91100",
+      "group": "competition_presentations"
+    },
+    {
+      "path": "data/sceneassets/entrance_props/competitions/1023/asset.ini",
+      "bytes": 404,
+      "sha256": "0336a2f16fe71e6bd075f72aeb6f11c5bbed5fb4b0dfa626d3edc08849197fd8",
+      "group": "competition_presentations"
+    },
+    {
+      "path": "data/sceneassets/entrance_props/competitions/1023/model.rx3",
+      "bytes": 21872,
+      "sha256": "e17bd1bb77163bc24ad8a32f21429949ea8ae4786e6500df4f18b73ddcad3e59",
+      "group": "competition_presentations"
+    },
+    {
+      "path": "data/sceneassets/entrance_props/competitions/1023/template.rx3",
+      "bytes": 22381344,
+      "sha256": "ce5b932696521ba9f58b64be9ca2afa34c77de99bd6041cc705c570c8a844e03",
+      "group": "competition_presentations"
+    },
+    {
+      "path": "data/sceneassets/entrance_props/competitions/1047/asset.ini",
+      "bytes": 404,
+      "sha256": "26b4737bbd0b013a11f107fb89495a2cf5a641bf6fd19e133df36623b7ee1483",
+      "group": "competition_presentations"
+    },
+    {
+      "path": "data/sceneassets/entrance_props/competitions/1047/model.rx3",
+      "bytes": 21872,
+      "sha256": "e17bd1bb77163bc24ad8a32f21429949ea8ae4786e6500df4f18b73ddcad3e59",
+      "group": "competition_presentations"
+    },
+    {
+      "path": "data/sceneassets/entrance_props/competitions/1047/template.rx3",
+      "bytes": 22381344,
+      "sha256": "bd474a02c0cb1fbc8c605171b16e4bc73ebf4a0ae194716151c7fc3d45b4678d",
+      "group": "competition_presentations"
+    },
+    {
+      "path": "data/sceneassets/entrance_props/competitions/1054/asset.ini",
+      "bytes": 404,
+      "sha256": "26b4737bbd0b013a11f107fb89495a2cf5a641bf6fd19e133df36623b7ee1483",
+      "group": "competition_presentations"
+    },
+    {
+      "path": "data/sceneassets/entrance_props/competitions/1054/model.rx3",
+      "bytes": 21872,
+      "sha256": "e17bd1bb77163bc24ad8a32f21429949ea8ae4786e6500df4f18b73ddcad3e59",
+      "group": "competition_presentations"
+    },
+    {
+      "path": "data/sceneassets/entrance_props/competitions/1054/template.rx3",
+      "bytes": 22381344,
+      "sha256": "bd474a02c0cb1fbc8c605171b16e4bc73ebf4a0ae194716151c7fc3d45b4678d",
+      "group": "competition_presentations"
+    },
+    {
+      "path": "data/sceneassets/entrance_props/competitions/117/asset.ini",
+      "bytes": 407,
+      "sha256": "50ddb2522977ffd7e45b63d0a8936298315154ea62d009cc1112fed022b354fc",
+      "group": "competition_presentations"
+    },
+    {
+      "path": "data/sceneassets/entrance_props/competitions/117/model.rx3",
+      "bytes": 101360,
+      "sha256": "62be71f4b67367a634fae89813b6fe7aeb44e9f066c2381d1b1628a251a3a09e",
+      "group": "competition_presentations"
+    },
+    {
+      "path": "data/sceneassets/entrance_props/competitions/117/template.rx3",
+      "bytes": 22381344,
+      "sha256": "d35ce70ec6e632dbe75d7ef21516f48ca6f3addbaca971169bfb0b741aba7409",
+      "group": "competition_presentations"
+    },
+    {
+      "path": "data/sceneassets/entrance_props/competitions/1175/asset.ini",
+      "bytes": 407,
+      "sha256": "b1614a9868bcc890b4d226e863320923987163246c5da21e50bf946f2200b762",
+      "group": "competition_presentations"
+    },
+    {
+      "path": "data/sceneassets/entrance_props/competitions/1175/model.rx3",
+      "bytes": 140576,
+      "sha256": "d572ced169c205e1932a4ba892d60b26fdb730d1f81d05eb6fc2be30041999e0",
+      "group": "competition_presentations"
+    },
+    {
+      "path": "data/sceneassets/entrance_props/competitions/1175/template.rx3",
+      "bytes": 22381344,
+      "sha256": "bf902cf87831e524295b74e9679064fffbb4beafb12ca1c8e6aa2b57e22c6bb7",
+      "group": "competition_presentations"
+    },
+    {
+      "path": "data/sceneassets/entrance_props/competitions/1178/asset.ini",
+      "bytes": 407,
+      "sha256": "b1614a9868bcc890b4d226e863320923987163246c5da21e50bf946f2200b762",
+      "group": "competition_presentations"
+    },
+    {
+      "path": "data/sceneassets/entrance_props/competitions/1178/model.rx3",
+      "bytes": 140576,
+      "sha256": "d572ced169c205e1932a4ba892d60b26fdb730d1f81d05eb6fc2be30041999e0",
+      "group": "competition_presentations"
+    },
+    {
+      "path": "data/sceneassets/entrance_props/competitions/1178/template.rx3",
+      "bytes": 22381344,
+      "sha256": "bf902cf87831e524295b74e9679064fffbb4beafb12ca1c8e6aa2b57e22c6bb7",
+      "group": "competition_presentations"
+    },
+    {
+      "path": "data/sceneassets/entrance_props/competitions/1181/asset.ini",
+      "bytes": 407,
+      "sha256": "b1614a9868bcc890b4d226e863320923987163246c5da21e50bf946f2200b762",
+      "group": "competition_presentations"
+    },
+    {
+      "path": "data/sceneassets/entrance_props/competitions/1181/model.rx3",
+      "bytes": 140576,
+      "sha256": "d572ced169c205e1932a4ba892d60b26fdb730d1f81d05eb6fc2be30041999e0",
+      "group": "competition_presentations"
+    },
+    {
+      "path": "data/sceneassets/entrance_props/competitions/1181/template.rx3",
+      "bytes": 22381344,
+      "sha256": "bf902cf87831e524295b74e9679064fffbb4beafb12ca1c8e6aa2b57e22c6bb7",
+      "group": "competition_presentations"
+    },
+    {
+      "path": "data/sceneassets/entrance_props/competitions/1183/asset.ini",
+      "bytes": 407,
+      "sha256": "b1614a9868bcc890b4d226e863320923987163246c5da21e50bf946f2200b762",
+      "group": "competition_presentations"
+    },
+    {
+      "path": "data/sceneassets/entrance_props/competitions/1183/model.rx3",
+      "bytes": 140576,
+      "sha256": "d572ced169c205e1932a4ba892d60b26fdb730d1f81d05eb6fc2be30041999e0",
+      "group": "competition_presentations"
+    },
+    {
+      "path": "data/sceneassets/entrance_props/competitions/1183/template.rx3",
+      "bytes": 22381344,
+      "sha256": "bf902cf87831e524295b74e9679064fffbb4beafb12ca1c8e6aa2b57e22c6bb7",
+      "group": "competition_presentations"
+    },
+    {
+      "path": "data/sceneassets/entrance_props/competitions/1190/asset.ini",
+      "bytes": 407,
+      "sha256": "b1614a9868bcc890b4d226e863320923987163246c5da21e50bf946f2200b762",
+      "group": "competition_presentations"
+    },
+    {
+      "path": "data/sceneassets/entrance_props/competitions/1190/model.rx3",
+      "bytes": 140576,
+      "sha256": "d572ced169c205e1932a4ba892d60b26fdb730d1f81d05eb6fc2be30041999e0",
+      "group": "competition_presentations"
+    },
+    {
+      "path": "data/sceneassets/entrance_props/competitions/1190/template.rx3",
+      "bytes": 22381344,
+      "sha256": "bf902cf87831e524295b74e9679064fffbb4beafb12ca1c8e6aa2b57e22c6bb7",
+      "group": "competition_presentations"
+    },
+    {
+      "path": "data/sceneassets/entrance_props/competitions/1195/asset.ini",
+      "bytes": 407,
+      "sha256": "b1614a9868bcc890b4d226e863320923987163246c5da21e50bf946f2200b762",
+      "group": "competition_presentations"
+    },
+    {
+      "path": "data/sceneassets/entrance_props/competitions/1195/model.rx3",
+      "bytes": 140576,
+      "sha256": "d572ced169c205e1932a4ba892d60b26fdb730d1f81d05eb6fc2be30041999e0",
+      "group": "competition_presentations"
+    },
+    {
+      "path": "data/sceneassets/entrance_props/competitions/1195/template.rx3",
+      "bytes": 22381344,
+      "sha256": "bf902cf87831e524295b74e9679064fffbb4beafb12ca1c8e6aa2b57e22c6bb7",
+      "group": "competition_presentations"
+    },
+    {
+      "path": "data/sceneassets/entrance_props/competitions/1197/asset.ini",
+      "bytes": 407,
+      "sha256": "b1614a9868bcc890b4d226e863320923987163246c5da21e50bf946f2200b762",
+      "group": "competition_presentations"
+    },
+    {
+      "path": "data/sceneassets/entrance_props/competitions/1197/model.rx3",
+      "bytes": 140576,
+      "sha256": "d572ced169c205e1932a4ba892d60b26fdb730d1f81d05eb6fc2be30041999e0",
+      "group": "competition_presentations"
+    },
+    {
+      "path": "data/sceneassets/entrance_props/competitions/1197/template.rx3",
+      "bytes": 22381344,
+      "sha256": "bf902cf87831e524295b74e9679064fffbb4beafb12ca1c8e6aa2b57e22c6bb7",
+      "group": "competition_presentations"
+    },
+    {
+      "path": "data/sceneassets/entrance_props/competitions/1200/asset.ini",
+      "bytes": 407,
+      "sha256": "b1614a9868bcc890b4d226e863320923987163246c5da21e50bf946f2200b762",
+      "group": "competition_presentations"
+    },
+    {
+      "path": "data/sceneassets/entrance_props/competitions/1200/model.rx3",
+      "bytes": 140576,
+      "sha256": "d572ced169c205e1932a4ba892d60b26fdb730d1f81d05eb6fc2be30041999e0",
+      "group": "competition_presentations"
+    },
+    {
+      "path": "data/sceneassets/entrance_props/competitions/1200/template.rx3",
+      "bytes": 22381344,
+      "sha256": "bf902cf87831e524295b74e9679064fffbb4beafb12ca1c8e6aa2b57e22c6bb7",
+      "group": "competition_presentations"
+    },
+    {
+      "path": "data/sceneassets/entrance_props/competitions/1203/asset.ini",
+      "bytes": 407,
+      "sha256": "b1614a9868bcc890b4d226e863320923987163246c5da21e50bf946f2200b762",
+      "group": "competition_presentations"
+    },
+    {
+      "path": "data/sceneassets/entrance_props/competitions/1203/model.rx3",
+      "bytes": 140576,
+      "sha256": "d572ced169c205e1932a4ba892d60b26fdb730d1f81d05eb6fc2be30041999e0",
+      "group": "competition_presentations"
+    },
+    {
+      "path": "data/sceneassets/entrance_props/competitions/1203/template.rx3",
+      "bytes": 22381344,
+      "sha256": "bf902cf87831e524295b74e9679064fffbb4beafb12ca1c8e6aa2b57e22c6bb7",
+      "group": "competition_presentations"
+    },
+    {
+      "path": "data/sceneassets/entrance_props/competitions/1205/asset.ini",
+      "bytes": 407,
+      "sha256": "b1614a9868bcc890b4d226e863320923987163246c5da21e50bf946f2200b762",
+      "group": "competition_presentations"
+    },
+    {
+      "path": "data/sceneassets/entrance_props/competitions/1205/model.rx3",
+      "bytes": 140576,
+      "sha256": "d572ced169c205e1932a4ba892d60b26fdb730d1f81d05eb6fc2be30041999e0",
+      "group": "competition_presentations"
+    },
+    {
+      "path": "data/sceneassets/entrance_props/competitions/1205/template.rx3",
+      "bytes": 22381344,
+      "sha256": "bf902cf87831e524295b74e9679064fffbb4beafb12ca1c8e6aa2b57e22c6bb7",
+      "group": "competition_presentations"
+    },
+    {
+      "path": "data/sceneassets/entrance_props/competitions/1212/asset.ini",
+      "bytes": 407,
+      "sha256": "b1614a9868bcc890b4d226e863320923987163246c5da21e50bf946f2200b762",
+      "group": "competition_presentations"
+    },
+    {
+      "path": "data/sceneassets/entrance_props/competitions/1212/model.rx3",
+      "bytes": 140576,
+      "sha256": "d572ced169c205e1932a4ba892d60b26fdb730d1f81d05eb6fc2be30041999e0",
+      "group": "competition_presentations"
+    },
+    {
+      "path": "data/sceneassets/entrance_props/competitions/1212/template.rx3",
+      "bytes": 22381344,
+      "sha256": "bf902cf87831e524295b74e9679064fffbb4beafb12ca1c8e6aa2b57e22c6bb7",
+      "group": "competition_presentations"
+    },
+    {
+      "path": "data/sceneassets/entrance_props/competitions/1217/asset.ini",
+      "bytes": 407,
+      "sha256": "b1614a9868bcc890b4d226e863320923987163246c5da21e50bf946f2200b762",
+      "group": "competition_presentations"
+    },
+    {
+      "path": "data/sceneassets/entrance_props/competitions/1217/model.rx3",
+      "bytes": 140576,
+      "sha256": "d572ced169c205e1932a4ba892d60b26fdb730d1f81d05eb6fc2be30041999e0",
+      "group": "competition_presentations"
+    },
+    {
+      "path": "data/sceneassets/entrance_props/competitions/1217/template.rx3",
+      "bytes": 22381344,
+      "sha256": "bf902cf87831e524295b74e9679064fffbb4beafb12ca1c8e6aa2b57e22c6bb7",
+      "group": "competition_presentations"
+    },
+    {
+      "path": "data/sceneassets/entrance_props/competitions/130/asset.ini",
+      "bytes": 619,
+      "sha256": "45eca182e2b85a7bb104f20ab17a46db4a06a8a88a1805fe76debee0771219bf",
+      "group": "competition_presentations"
+    },
+    {
+      "path": "data/sceneassets/entrance_props/competitions/130/model.rx3",
+      "bytes": 915616,
+      "sha256": "681d21f504a8eea8873bc496951ff5e43e9b216c21e5132ec6667aaf31565e9d",
+      "group": "competition_presentations"
+    },
+    {
+      "path": "data/sceneassets/entrance_props/competitions/130/template.rx3",
+      "bytes": 22381344,
+      "sha256": "5ec143e2c531d97b48add035497944fd5be54abea701a6f0756f9a36139553bb",
+      "group": "competition_presentations"
+    },
+    {
+      "path": "data/sceneassets/entrance_props/competitions/1318/asset.ini",
+      "bytes": 406,
+      "sha256": "00add2925fdc89d61d4c829fd92bb53b453438ec5f40e961b63cd9aae2795c47",
+      "group": "competition_presentations"
+    },
+    {
+      "path": "data/sceneassets/entrance_props/competitions/1318/model.rx3",
+      "bytes": 78736,
+      "sha256": "4fa3e36838b78b7262b7342b0c737cf926aa9ad612cec23d860abac11010260c",
+      "group": "competition_presentations"
+    },
+    {
+      "path": "data/sceneassets/entrance_props/competitions/1318/template.rx3",
+      "bytes": 22381344,
+      "sha256": "b63c1e47e4de532924a324303ed18c69f81c85d74c10373a00966219480eb4a4",
+      "group": "competition_presentations"
+    },
+    {
+      "path": "data/sceneassets/entrance_props/competitions/1322/asset.ini",
+      "bytes": 404,
+      "sha256": "ad28557389a0ad0b1912f7b0575c1bbe968dc36a30bd9c08e88bbbf7c353c7b9",
+      "group": "competition_presentations"
+    },
+    {
+      "path": "data/sceneassets/entrance_props/competitions/1322/model.rx3",
+      "bytes": 23472,
+      "sha256": "0582b80b099dab853c183b738e6b60dd5f46cf99a191d28d2896976803a87022",
+      "group": "competition_presentations"
+    },
+    {
+      "path": "data/sceneassets/entrance_props/competitions/1322/template.rx3",
+      "bytes": 22381344,
+      "sha256": "0509a1414fedcbe612e09d0faf69ddfae8409eda372848aa61a912920703a710",
+      "group": "competition_presentations"
+    },
+    {
+      "path": "data/sceneassets/entrance_props/competitions/1330/asset.ini",
+      "bytes": 304,
+      "sha256": "e4f331de594e433ed14da8b44777c45127cc75e8afde04e367ada441ab779a3d",
+      "group": "competition_presentations"
+    },
+    {
+      "path": "data/sceneassets/entrance_props/competitions/1330/model.rx3",
+      "bytes": 8061408,
+      "sha256": "614f3af3bfe81d4e6cf597548d127110a003646fdb806f7239f8f70e4d41c28d",
+      "group": "competition_presentations"
+    },
+    {
+      "path": "data/sceneassets/entrance_props/competitions/1330/template.rx3",
+      "bytes": 22381344,
+      "sha256": "cdfb87e9f43b4406db2ad862d9baa5ade4f48285bd4484dc26cc24514bd550b2",
+      "group": "competition_presentations"
+    },
+    {
+      "path": "data/sceneassets/entrance_props/competitions/136/asset.ini",
+      "bytes": 619,
+      "sha256": "45eca182e2b85a7bb104f20ab17a46db4a06a8a88a1805fe76debee0771219bf",
+      "group": "competition_presentations"
+    },
+    {
+      "path": "data/sceneassets/entrance_props/competitions/136/model.rx3",
+      "bytes": 915616,
+      "sha256": "681d21f504a8eea8873bc496951ff5e43e9b216c21e5132ec6667aaf31565e9d",
+      "group": "competition_presentations"
+    },
+    {
+      "path": "data/sceneassets/entrance_props/competitions/136/template.rx3",
+      "bytes": 22381344,
+      "sha256": "5ec143e2c531d97b48add035497944fd5be54abea701a6f0756f9a36139553bb",
+      "group": "competition_presentations"
+    },
+    {
+      "path": "data/sceneassets/entrance_props/competitions/1388/asset.ini",
+      "bytes": 408,
+      "sha256": "31994dad896202edd6b83b3b06085db35114e892df2e1cfe764a7b0a42099e16",
+      "group": "competition_presentations"
+    },
+    {
+      "path": "data/sceneassets/entrance_props/competitions/1388/model.rx3",
+      "bytes": 241616,
+      "sha256": "6f11b7c77324dbfd0b8d767b8a527c8462eae18302339cdefdf764d47fae77bd",
+      "group": "competition_presentations"
+    },
+    {
+      "path": "data/sceneassets/entrance_props/competitions/1388/template.rx3",
+      "bytes": 22381344,
+      "sha256": "70ff2935c4a15f8a5dc8198d7083baca178795b9a52db67090936960855a6020",
+      "group": "competition_presentations"
+    },
+    {
+      "path": "data/sceneassets/entrance_props/competitions/1392/asset.ini",
+      "bytes": 408,
+      "sha256": "31994dad896202edd6b83b3b06085db35114e892df2e1cfe764a7b0a42099e16",
+      "group": "competition_presentations"
+    },
+    {
+      "path": "data/sceneassets/entrance_props/competitions/1392/model.rx3",
+      "bytes": 241616,
+      "sha256": "6f11b7c77324dbfd0b8d767b8a527c8462eae18302339cdefdf764d47fae77bd",
+      "group": "competition_presentations"
+    },
+    {
+      "path": "data/sceneassets/entrance_props/competitions/1392/template.rx3",
+      "bytes": 22381344,
+      "sha256": "70ff2935c4a15f8a5dc8198d7083baca178795b9a52db67090936960855a6020",
+      "group": "competition_presentations"
+    },
+    {
+      "path": "data/sceneassets/entrance_props/competitions/1397/asset.ini",
+      "bytes": 408,
+      "sha256": "31994dad896202edd6b83b3b06085db35114e892df2e1cfe764a7b0a42099e16",
+      "group": "competition_presentations"
+    },
+    {
+      "path": "data/sceneassets/entrance_props/competitions/1397/model.rx3",
+      "bytes": 241616,
+      "sha256": "6f11b7c77324dbfd0b8d767b8a527c8462eae18302339cdefdf764d47fae77bd",
+      "group": "competition_presentations"
+    },
+    {
+      "path": "data/sceneassets/entrance_props/competitions/1397/template.rx3",
+      "bytes": 22381344,
+      "sha256": "70ff2935c4a15f8a5dc8198d7083baca178795b9a52db67090936960855a6020",
+      "group": "competition_presentations"
+    },
+    {
+      "path": "data/sceneassets/entrance_props/competitions/1402/asset.ini",
+      "bytes": 408,
+      "sha256": "31994dad896202edd6b83b3b06085db35114e892df2e1cfe764a7b0a42099e16",
+      "group": "competition_presentations"
+    },
+    {
+      "path": "data/sceneassets/entrance_props/competitions/1402/model.rx3",
+      "bytes": 241616,
+      "sha256": "6f11b7c77324dbfd0b8d767b8a527c8462eae18302339cdefdf764d47fae77bd",
+      "group": "competition_presentations"
+    },
+    {
+      "path": "data/sceneassets/entrance_props/competitions/1402/template.rx3",
+      "bytes": 22381344,
+      "sha256": "70ff2935c4a15f8a5dc8198d7083baca178795b9a52db67090936960855a6020",
+      "group": "competition_presentations"
+    },
+    {
+      "path": "data/sceneassets/entrance_props/competitions/1405/asset.ini",
+      "bytes": 302,
+      "sha256": "b41de69855fd0778bac3b1639d14c9d5a20e12451c2884033e3e898ba822302c",
+      "group": "competition_presentations"
+    },
+    {
+      "path": "data/sceneassets/entrance_props/competitions/1405/model.rx3",
+      "bytes": 1085776,
+      "sha256": "00f1aba860fd79f190020588152ef67b3ac7e0573c943e0b1d6799f6b41931cb",
+      "group": "competition_presentations"
+    },
+    {
+      "path": "data/sceneassets/entrance_props/competitions/1405/template.rx3",
+      "bytes": 22381344,
+      "sha256": "68c24e70a9cb543795db2d4e6d4bbe48f4e1fec080f969914102a85c70223b51",
+      "group": "competition_presentations"
+    },
+    {
+      "path": "data/sceneassets/entrance_props/competitions/1410/asset.ini",
+      "bytes": 299,
+      "sha256": "6794a48f7547995241cdde674c7095baf2f5b36e742f5ce4206a2e34229c386c",
+      "group": "competition_presentations"
+    },
+    {
+      "path": "data/sceneassets/entrance_props/competitions/1410/model.rx3",
+      "bytes": 113488,
+      "sha256": "2438d56d2746f1a11f784c80809088559bfe09defcf182a88bbcd0d132a28b27",
+      "group": "competition_presentations"
+    },
+    {
+      "path": "data/sceneassets/entrance_props/competitions/1410/template.rx3",
+      "bytes": 22381344,
+      "sha256": "5066e7e9ea7779a41350b00c4c3f227119047ebd9f7a53ced0a732a144c137b0",
+      "group": "competition_presentations"
+    },
+    {
+      "path": "data/sceneassets/entrance_props/competitions/145/asset.ini",
+      "bytes": 619,
+      "sha256": "45eca182e2b85a7bb104f20ab17a46db4a06a8a88a1805fe76debee0771219bf",
+      "group": "competition_presentations"
+    },
+    {
+      "path": "data/sceneassets/entrance_props/competitions/145/model.rx3",
+      "bytes": 915616,
+      "sha256": "681d21f504a8eea8873bc496951ff5e43e9b216c21e5132ec6667aaf31565e9d",
+      "group": "competition_presentations"
+    },
+    {
+      "path": "data/sceneassets/entrance_props/competitions/145/template.rx3",
+      "bytes": 22381344,
+      "sha256": "5ec143e2c531d97b48add035497944fd5be54abea701a6f0756f9a36139553bb",
+      "group": "competition_presentations"
+    },
+    {
+      "path": "data/sceneassets/entrance_props/competitions/1458/asset.ini",
+      "bytes": 407,
+      "sha256": "87d189dd513ff19d50e19f0a604b29f203233d236be1d77b89667f50e25fef7f",
+      "group": "competition_presentations"
+    },
+    {
+      "path": "data/sceneassets/entrance_props/competitions/1458/model.rx3",
+      "bytes": 131248,
+      "sha256": "94d2915b97aa1337fa0cc9a65aaa690e75cc9e7f8979f0f36b0c5b4916f68e5f",
+      "group": "competition_presentations"
+    },
+    {
+      "path": "data/sceneassets/entrance_props/competitions/1458/template.rx3",
+      "bytes": 22381344,
+      "sha256": "5066e7e9ea7779a41350b00c4c3f227119047ebd9f7a53ced0a732a144c137b0",
+      "group": "competition_presentations"
+    },
+    {
+      "path": "data/sceneassets/entrance_props/competitions/1460/asset.ini",
+      "bytes": 409,
+      "sha256": "cec2ed79d3ee4d9b44dacf31d1f9ea00eb8776d526f30ae1e0108a998796501d",
+      "group": "competition_presentations"
+    },
+    {
+      "path": "data/sceneassets/entrance_props/competitions/1460/model.rx3",
+      "bytes": 514288,
+      "sha256": "95edfb5163a69ac6b991e63638a646a329f5915e7a00d6f4ed51023511aef670",
+      "group": "competition_presentations"
+    },
+    {
+      "path": "data/sceneassets/entrance_props/competitions/1460/template.rx3",
+      "bytes": 22381344,
+      "sha256": "ef5b0296aaf5f9a0f66a856ddabea4e0e18ffb16ccdd485f9bfe668f9e591f56",
+      "group": "competition_presentations"
+    },
+    {
+      "path": "data/sceneassets/entrance_props/competitions/1510/asset.ini",
+      "bytes": 409,
+      "sha256": "05bb83147d8f3158045b381641fbc622f98bb2564dc926056283d9c881943061",
+      "group": "competition_presentations"
+    },
+    {
+      "path": "data/sceneassets/entrance_props/competitions/1510/model.rx3",
+      "bytes": 457632,
+      "sha256": "c528996019fe524b8da51425433ca6e5b09071c9aa3df07e41126c3aba1f158d",
+      "group": "competition_presentations"
+    },
+    {
+      "path": "data/sceneassets/entrance_props/competitions/1510/template.rx3",
+      "bytes": 22381344,
+      "sha256": "c2a830eb878a76359d93b78d8e06cf4bf0e6848d2d4de75bb15d2d84aa09acaf",
+      "group": "competition_presentations"
+    },
+    {
+      "path": "data/sceneassets/entrance_props/competitions/1513/asset.ini",
+      "bytes": 298,
+      "sha256": "0144c9fe6693ec3d44e4a020bce5224ff0a24ebbf9203fb845a7350b5094edd8",
+      "group": "competition_presentations"
+    },
+    {
+      "path": "data/sceneassets/entrance_props/competitions/1513/model.rx3",
+      "bytes": 58432,
+      "sha256": "6bc6f99b861b16b35f47e9fd6daefb665cfa9a419dc63088ac3aaafffc66a34f",
+      "group": "competition_presentations"
+    },
+    {
+      "path": "data/sceneassets/entrance_props/competitions/1513/template.rx3",
+      "bytes": 22381344,
+      "sha256": "4c9a39b36ec670caff5933a445406251c765cfbf7e253b54feb66711839f09b0",
+      "group": "competition_presentations"
+    },
+    {
+      "path": "data/sceneassets/entrance_props/competitions/1531/asset.ini",
+      "bytes": 301,
+      "sha256": "43132518b197bf3f02f1bb2eb6db8c1edaf3e8638771fd0a4193909eb0be2282",
+      "group": "competition_presentations"
+    },
+    {
+      "path": "data/sceneassets/entrance_props/competitions/1531/model.rx3",
+      "bytes": 781424,
+      "sha256": "b54ab08890ef2b14bbd004a2052e54069767136a8ca3c9f3da4a5c475ca6fa5c",
+      "group": "competition_presentations"
+    },
+    {
+      "path": "data/sceneassets/entrance_props/competitions/1531/template.rx3",
+      "bytes": 22381344,
+      "sha256": "633f7d5ed3adea07a6f6a6be7210f9b00b6af581f6ccaab7acd61b6e171c18b8",
+      "group": "competition_presentations"
+    },
+    {
+      "path": "data/sceneassets/entrance_props/competitions/1539/asset.ini",
+      "bytes": 299,
+      "sha256": "d324cbe532db1d355a62a6b183b1db96717f91a69c7eef03d571ba00c7a8ae36",
+      "group": "competition_presentations"
+    },
+    {
+      "path": "data/sceneassets/entrance_props/competitions/1539/model.rx3",
+      "bytes": 168992,
+      "sha256": "ad89b9cd176a91befb0e2b7b03320114b7392c361c641ce90e24507891a04ae7",
+      "group": "competition_presentations"
+    },
+    {
+      "path": "data/sceneassets/entrance_props/competitions/1539/template.rx3",
+      "bytes": 22381344,
+      "sha256": "cfd05f9f8040cbbdac60d1b6b5d584d61770db70dc8c8868ae353b7c1f485bc9",
+      "group": "competition_presentations"
+    },
+    {
+      "path": "data/sceneassets/entrance_props/competitions/154/asset.ini",
+      "bytes": 619,
+      "sha256": "45eca182e2b85a7bb104f20ab17a46db4a06a8a88a1805fe76debee0771219bf",
+      "group": "competition_presentations"
+    },
+    {
+      "path": "data/sceneassets/entrance_props/competitions/154/model.rx3",
+      "bytes": 915616,
+      "sha256": "681d21f504a8eea8873bc496951ff5e43e9b216c21e5132ec6667aaf31565e9d",
+      "group": "competition_presentations"
+    },
+    {
+      "path": "data/sceneassets/entrance_props/competitions/154/template.rx3",
+      "bytes": 22381344,
+      "sha256": "5ec143e2c531d97b48add035497944fd5be54abea701a6f0756f9a36139553bb",
+      "group": "competition_presentations"
+    },
+    {
+      "path": "data/sceneassets/entrance_props/competitions/1612/asset.ini",
+      "bytes": 406,
+      "sha256": "9b511120df9cccc9ee93fb4a0711c4ceb4070ad0b3e472bdaddbe992e0744c7a",
+      "group": "competition_presentations"
+    },
+    {
+      "path": "data/sceneassets/entrance_props/competitions/1612/model.rx3",
+      "bytes": 59616,
+      "sha256": "42adf61b44c36ccdd82bdb73ab3962f167520877b2e427c65ed9fc02161b2251",
+      "group": "competition_presentations"
+    },
+    {
+      "path": "data/sceneassets/entrance_props/competitions/1612/template.rx3",
+      "bytes": 22381344,
+      "sha256": "9c5d13dd8163179427524d5a06611cc6e027cbc3df2639ff417236db7583401a",
+      "group": "competition_presentations"
+    },
+    {
+      "path": "data/sceneassets/entrance_props/competitions/1616/asset.ini",
+      "bytes": 298,
+      "sha256": "cd8990b4278d7fdde8c8090743007cb7792256d1d42ebe3d2debdd9bfada2cdf",
+      "group": "competition_presentations"
+    },
+    {
+      "path": "data/sceneassets/entrance_props/competitions/1616/model.rx3",
+      "bytes": 78064,
+      "sha256": "a0e8e82a3420f8992008ed95958c1145c3b76b40d02064253c2ad574a71e25e6",
+      "group": "competition_presentations"
+    },
+    {
+      "path": "data/sceneassets/entrance_props/competitions/1616/template.rx3",
+      "bytes": 22381344,
+      "sha256": "757959ecd75a902024b78d830c7cf4232fd540558c658a16f9eb32d3c9be966e",
+      "group": "competition_presentations"
+    },
+    {
+      "path": "data/sceneassets/entrance_props/competitions/1620/asset.ini",
+      "bytes": 301,
+      "sha256": "33f54dca640887f135baaf70c640ae82ed1652571bef699c57d9082d4bef6294",
+      "group": "competition_presentations"
+    },
+    {
+      "path": "data/sceneassets/entrance_props/competitions/1620/model.rx3",
+      "bytes": 301536,
+      "sha256": "9b395a830e1b127fbfaa64fcb5315be826eced44c791927e6a98b22a66b0ff45",
+      "group": "competition_presentations"
+    },
+    {
+      "path": "data/sceneassets/entrance_props/competitions/1620/template.rx3",
+      "bytes": 22381344,
+      "sha256": "24c3c818c4a57692996c1e94abc8a1a891260974e89fac20b489baeecd1cbd08",
+      "group": "competition_presentations"
+    },
+    {
+      "path": "data/sceneassets/entrance_props/competitions/163/asset.ini",
+      "bytes": 619,
+      "sha256": "45eca182e2b85a7bb104f20ab17a46db4a06a8a88a1805fe76debee0771219bf",
+      "group": "competition_presentations"
+    },
+    {
+      "path": "data/sceneassets/entrance_props/competitions/163/model.rx3",
+      "bytes": 915616,
+      "sha256": "681d21f504a8eea8873bc496951ff5e43e9b216c21e5132ec6667aaf31565e9d",
+      "group": "competition_presentations"
+    },
+    {
+      "path": "data/sceneassets/entrance_props/competitions/163/template.rx3",
+      "bytes": 22381344,
+      "sha256": "5ec143e2c531d97b48add035497944fd5be54abea701a6f0756f9a36139553bb",
+      "group": "competition_presentations"
+    },
+    {
+      "path": "data/sceneassets/entrance_props/competitions/1642/asset.ini",
+      "bytes": 301,
+      "sha256": "33f54dca640887f135baaf70c640ae82ed1652571bef699c57d9082d4bef6294",
+      "group": "competition_presentations"
+    },
+    {
+      "path": "data/sceneassets/entrance_props/competitions/1642/model.rx3",
+      "bytes": 301536,
+      "sha256": "9b395a830e1b127fbfaa64fcb5315be826eced44c791927e6a98b22a66b0ff45",
+      "group": "competition_presentations"
+    },
+    {
+      "path": "data/sceneassets/entrance_props/competitions/1642/template.rx3",
+      "bytes": 22381344,
+      "sha256": "24c3c818c4a57692996c1e94abc8a1a891260974e89fac20b489baeecd1cbd08",
+      "group": "competition_presentations"
+    },
+    {
+      "path": "data/sceneassets/entrance_props/competitions/168/asset.ini",
+      "bytes": 619,
+      "sha256": "45eca182e2b85a7bb104f20ab17a46db4a06a8a88a1805fe76debee0771219bf",
+      "group": "competition_presentations"
+    },
+    {
+      "path": "data/sceneassets/entrance_props/competitions/168/model.rx3",
+      "bytes": 915616,
+      "sha256": "681d21f504a8eea8873bc496951ff5e43e9b216c21e5132ec6667aaf31565e9d",
+      "group": "competition_presentations"
+    },
+    {
+      "path": "data/sceneassets/entrance_props/competitions/168/template.rx3",
+      "bytes": 22381344,
+      "sha256": "5ec143e2c531d97b48add035497944fd5be54abea701a6f0756f9a36139553bb",
+      "group": "competition_presentations"
+    },
+    {
+      "path": "data/sceneassets/entrance_props/competitions/1687/asset.ini",
+      "bytes": 301,
+      "sha256": "33f54dca640887f135baaf70c640ae82ed1652571bef699c57d9082d4bef6294",
+      "group": "competition_presentations"
+    },
+    {
+      "path": "data/sceneassets/entrance_props/competitions/1687/model.rx3",
+      "bytes": 301536,
+      "sha256": "9b395a830e1b127fbfaa64fcb5315be826eced44c791927e6a98b22a66b0ff45",
+      "group": "competition_presentations"
+    },
+    {
+      "path": "data/sceneassets/entrance_props/competitions/1687/template.rx3",
+      "bytes": 22381344,
+      "sha256": "24c3c818c4a57692996c1e94abc8a1a891260974e89fac20b489baeecd1cbd08",
+      "group": "competition_presentations"
+    },
+    {
+      "path": "data/sceneassets/entrance_props/competitions/171/asset.ini",
+      "bytes": 619,
+      "sha256": "45eca182e2b85a7bb104f20ab17a46db4a06a8a88a1805fe76debee0771219bf",
+      "group": "competition_presentations"
+    },
+    {
+      "path": "data/sceneassets/entrance_props/competitions/171/model.rx3",
+      "bytes": 915616,
+      "sha256": "681d21f504a8eea8873bc496951ff5e43e9b216c21e5132ec6667aaf31565e9d",
+      "group": "competition_presentations"
+    },
+    {
+      "path": "data/sceneassets/entrance_props/competitions/171/template.rx3",
+      "bytes": 22381344,
+      "sha256": "5ec143e2c531d97b48add035497944fd5be54abea701a6f0756f9a36139553bb",
+      "group": "competition_presentations"
+    },
+    {
+      "path": "data/sceneassets/entrance_props/competitions/1712/asset.ini",
+      "bytes": 301,
+      "sha256": "33f54dca640887f135baaf70c640ae82ed1652571bef699c57d9082d4bef6294",
+      "group": "competition_presentations"
+    },
+    {
+      "path": "data/sceneassets/entrance_props/competitions/1712/model.rx3",
+      "bytes": 301536,
+      "sha256": "9b395a830e1b127fbfaa64fcb5315be826eced44c791927e6a98b22a66b0ff45",
+      "group": "competition_presentations"
+    },
+    {
+      "path": "data/sceneassets/entrance_props/competitions/1712/template.rx3",
+      "bytes": 22381344,
+      "sha256": "24c3c818c4a57692996c1e94abc8a1a891260974e89fac20b489baeecd1cbd08",
+      "group": "competition_presentations"
+    },
+    {
+      "path": "data/sceneassets/entrance_props/competitions/1725/asset.ini",
+      "bytes": 301,
+      "sha256": "33f54dca640887f135baaf70c640ae82ed1652571bef699c57d9082d4bef6294",
+      "group": "competition_presentations"
+    },
+    {
+      "path": "data/sceneassets/entrance_props/competitions/1725/model.rx3",
+      "bytes": 301536,
+      "sha256": "9b395a830e1b127fbfaa64fcb5315be826eced44c791927e6a98b22a66b0ff45",
+      "group": "competition_presentations"
+    },
+    {
+      "path": "data/sceneassets/entrance_props/competitions/1725/template.rx3",
+      "bytes": 22381344,
+      "sha256": "24c3c818c4a57692996c1e94abc8a1a891260974e89fac20b489baeecd1cbd08",
+      "group": "competition_presentations"
+    },
+    {
+      "path": "data/sceneassets/entrance_props/competitions/173/asset.ini",
+      "bytes": 619,
+      "sha256": "45eca182e2b85a7bb104f20ab17a46db4a06a8a88a1805fe76debee0771219bf",
+      "group": "competition_presentations"
+    },
+    {
+      "path": "data/sceneassets/entrance_props/competitions/173/model.rx3",
+      "bytes": 915616,
+      "sha256": "681d21f504a8eea8873bc496951ff5e43e9b216c21e5132ec6667aaf31565e9d",
+      "group": "competition_presentations"
+    },
+    {
+      "path": "data/sceneassets/entrance_props/competitions/173/template.rx3",
+      "bytes": 22381344,
+      "sha256": "5ec143e2c531d97b48add035497944fd5be54abea701a6f0756f9a36139553bb",
+      "group": "competition_presentations"
+    },
+    {
+      "path": "data/sceneassets/entrance_props/competitions/1742/asset.ini",
+      "bytes": 301,
+      "sha256": "33f54dca640887f135baaf70c640ae82ed1652571bef699c57d9082d4bef6294",
+      "group": "competition_presentations"
+    },
+    {
+      "path": "data/sceneassets/entrance_props/competitions/1742/model.rx3",
+      "bytes": 301536,
+      "sha256": "9b395a830e1b127fbfaa64fcb5315be826eced44c791927e6a98b22a66b0ff45",
+      "group": "competition_presentations"
+    },
+    {
+      "path": "data/sceneassets/entrance_props/competitions/1742/template.rx3",
+      "bytes": 22381344,
+      "sha256": "24c3c818c4a57692996c1e94abc8a1a891260974e89fac20b489baeecd1cbd08",
+      "group": "competition_presentations"
+    },
+    {
+      "path": "data/sceneassets/entrance_props/competitions/175/asset.ini",
+      "bytes": 406,
+      "sha256": "1c82f563a4c29e6d225f9f5afcb0e772cefb0a9abe325e2fb2332faf64fec5d3",
+      "group": "competition_presentations"
+    },
+    {
+      "path": "data/sceneassets/entrance_props/competitions/175/model.rx3",
+      "bytes": 51984,
+      "sha256": "d1b5dcd08b4d7a51c7a21ea208a993299e68b868f912cf8ea890eadb87053736",
+      "group": "competition_presentations"
+    },
+    {
+      "path": "data/sceneassets/entrance_props/competitions/175/template.rx3",
+      "bytes": 22381344,
+      "sha256": "35393bb0d2524ae6ecfa8c9c9e0009599f6d49454f72e1584b930df8dda17fdf",
+      "group": "competition_presentations"
+    },
+    {
+      "path": "data/sceneassets/entrance_props/competitions/1751/asset.ini",
+      "bytes": 301,
+      "sha256": "33f54dca640887f135baaf70c640ae82ed1652571bef699c57d9082d4bef6294",
+      "group": "competition_presentations"
+    },
+    {
+      "path": "data/sceneassets/entrance_props/competitions/1751/model.rx3",
+      "bytes": 301536,
+      "sha256": "9b395a830e1b127fbfaa64fcb5315be826eced44c791927e6a98b22a66b0ff45",
+      "group": "competition_presentations"
+    },
+    {
+      "path": "data/sceneassets/entrance_props/competitions/1751/template.rx3",
+      "bytes": 22381344,
+      "sha256": "24c3c818c4a57692996c1e94abc8a1a891260974e89fac20b489baeecd1cbd08",
+      "group": "competition_presentations"
+    },
+    {
+      "path": "data/sceneassets/entrance_props/competitions/1756/asset.ini",
+      "bytes": 301,
+      "sha256": "33f54dca640887f135baaf70c640ae82ed1652571bef699c57d9082d4bef6294",
+      "group": "competition_presentations"
+    },
+    {
+      "path": "data/sceneassets/entrance_props/competitions/1756/model.rx3",
+      "bytes": 301536,
+      "sha256": "9b395a830e1b127fbfaa64fcb5315be826eced44c791927e6a98b22a66b0ff45",
+      "group": "competition_presentations"
+    },
+    {
+      "path": "data/sceneassets/entrance_props/competitions/1756/template.rx3",
+      "bytes": 22381344,
+      "sha256": "24c3c818c4a57692996c1e94abc8a1a891260974e89fac20b489baeecd1cbd08",
+      "group": "competition_presentations"
+    },
+    {
+      "path": "data/sceneassets/entrance_props/competitions/1759/asset.ini",
+      "bytes": 301,
+      "sha256": "33f54dca640887f135baaf70c640ae82ed1652571bef699c57d9082d4bef6294",
+      "group": "competition_presentations"
+    },
+    {
+      "path": "data/sceneassets/entrance_props/competitions/1759/model.rx3",
+      "bytes": 301536,
+      "sha256": "9b395a830e1b127fbfaa64fcb5315be826eced44c791927e6a98b22a66b0ff45",
+      "group": "competition_presentations"
+    },
+    {
+      "path": "data/sceneassets/entrance_props/competitions/1759/template.rx3",
+      "bytes": 22381344,
+      "sha256": "24c3c818c4a57692996c1e94abc8a1a891260974e89fac20b489baeecd1cbd08",
+      "group": "competition_presentations"
+    },
+    {
+      "path": "data/sceneassets/entrance_props/competitions/1761/asset.ini",
+      "bytes": 517,
+      "sha256": "e7f7ccd2fae5ee593c676e19221a5fde3fbb88893b215016ffafb02a924b09e6",
+      "group": "competition_presentations"
+    },
+    {
+      "path": "data/sceneassets/entrance_props/competitions/1761/model.rx3",
+      "bytes": 404688,
+      "sha256": "3dd9e5050e88e9233e00379803338a50e70701a858041c26cb7569ccf7ceef2b",
+      "group": "competition_presentations"
+    },
+    {
+      "path": "data/sceneassets/entrance_props/competitions/1761/template.rx3",
+      "bytes": 22381344,
+      "sha256": "07a2eebd3c019b8a46917af70fe4b37199ee9788f5288173acbcd36ca2b6a132",
+      "group": "competition_presentations"
+    },
+    {
+      "path": "data/sceneassets/entrance_props/competitions/1764/asset.ini",
+      "bytes": 299,
+      "sha256": "f2e469ff313a8b64e9546cd0c16eae9944a85c3beb9d15d163be536a3b49f2f5",
+      "group": "competition_presentations"
+    },
+    {
+      "path": "data/sceneassets/entrance_props/competitions/1764/model.rx3",
+      "bytes": 117472,
+      "sha256": "465ad916f2d6d83191e34a4dbfeb4831594628f21959c14b60360780e1c4c6d5",
+      "group": "competition_presentations"
+    },
+    {
+      "path": "data/sceneassets/entrance_props/competitions/1764/template.rx3",
+      "bytes": 22381344,
+      "sha256": "1b3935012ebdeb64364ec1e8ee7c616751de5b78adabc28b4459a2f6528ef2e6",
+      "group": "competition_presentations"
+    },
+    {
+      "path": "data/sceneassets/entrance_props/competitions/1770/asset.ini",
+      "bytes": 299,
+      "sha256": "8ca3c4733e1fabf09eae7e5d346de17a9a52000ec869d802f9a4f910e44673aa",
+      "group": "competition_presentations"
+    },
+    {
+      "path": "data/sceneassets/entrance_props/competitions/1770/model.rx3",
+      "bytes": 161328,
+      "sha256": "6c541bbd036601c2eaedc7ea62c9f237a810556a2f0a4c56ed4b0243f233af6e",
+      "group": "competition_presentations"
+    },
+    {
+      "path": "data/sceneassets/entrance_props/competitions/1770/template.rx3",
+      "bytes": 22381344,
+      "sha256": "4473b6e3c0a8dad4bb63352113ad427cd674d83081f4663cbe38d9d53c51c882",
+      "group": "competition_presentations"
+    },
+    {
+      "path": "data/sceneassets/entrance_props/competitions/1780/asset.ini",
+      "bytes": 295,
+      "sha256": "8e0911eefdc37b6c7c4634e34fbe36925ab41cf695727e0e979d2a2b6cce9684",
+      "group": "competition_presentations"
+    },
+    {
+      "path": "data/sceneassets/entrance_props/competitions/1780/model.rx3",
+      "bytes": 9952,
+      "sha256": "184adbf17da25be6a7a33705d1da3613e3b32b50c83d8bd015ba0d4fff5d44d5",
+      "group": "competition_presentations"
+    },
+    {
+      "path": "data/sceneassets/entrance_props/competitions/1780/template.rx3",
+      "bytes": 22381344,
+      "sha256": "905d22545bfd04aad3d5fbd44a7a0a82736fc7be740ffcbdd86d6238cc3f881a",
+      "group": "competition_presentations"
+    },
+    {
+      "path": "data/sceneassets/entrance_props/competitions/1839/asset.ini",
+      "bytes": 409,
+      "sha256": "7792cdbe05c315921e2f5f658a3279e0230715316a828aec41801dbe439be7e0",
+      "group": "competition_presentations"
+    },
+    {
+      "path": "data/sceneassets/entrance_props/competitions/1839/model.rx3",
+      "bytes": 341232,
+      "sha256": "e14db929754d455f430b92087467ff68723373a789e922b014b826e39514a0c8",
+      "group": "competition_presentations"
+    },
+    {
+      "path": "data/sceneassets/entrance_props/competitions/1839/template.rx3",
+      "bytes": 22381344,
+      "sha256": "a2374de1b87450671f84308c7a859da08ea187f2654998525c4473be4ea2759e",
+      "group": "competition_presentations"
+    },
+    {
+      "path": "data/sceneassets/entrance_props/competitions/1840/asset.ini",
+      "bytes": 295,
+      "sha256": "8e0911eefdc37b6c7c4634e34fbe36925ab41cf695727e0e979d2a2b6cce9684",
+      "group": "competition_presentations"
+    },
+    {
+      "path": "data/sceneassets/entrance_props/competitions/1840/model.rx3",
+      "bytes": 9952,
+      "sha256": "184adbf17da25be6a7a33705d1da3613e3b32b50c83d8bd015ba0d4fff5d44d5",
+      "group": "competition_presentations"
+    },
+    {
+      "path": "data/sceneassets/entrance_props/competitions/1840/template.rx3",
+      "bytes": 22381344,
+      "sha256": "905d22545bfd04aad3d5fbd44a7a0a82736fc7be740ffcbdd86d6238cc3f881a",
+      "group": "competition_presentations"
+    },
+    {
+      "path": "data/sceneassets/entrance_props/competitions/185/asset.ini",
+      "bytes": 406,
+      "sha256": "1c82f563a4c29e6d225f9f5afcb0e772cefb0a9abe325e2fb2332faf64fec5d3",
+      "group": "competition_presentations"
+    },
+    {
+      "path": "data/sceneassets/entrance_props/competitions/185/model.rx3",
+      "bytes": 51984,
+      "sha256": "d1b5dcd08b4d7a51c7a21ea208a993299e68b868f912cf8ea890eadb87053736",
+      "group": "competition_presentations"
+    },
+    {
+      "path": "data/sceneassets/entrance_props/competitions/185/template.rx3",
+      "bytes": 22381344,
+      "sha256": "35393bb0d2524ae6ecfa8c9c9e0009599f6d49454f72e1584b930df8dda17fdf",
+      "group": "competition_presentations"
+    },
+    {
+      "path": "data/sceneassets/entrance_props/competitions/1861/asset.ini",
+      "bytes": 512,
+      "sha256": "31e69d32f558bbfbc1a6a813ae1429a5f5ff4801baebc47fd6d2994ce562018f",
+      "group": "competition_presentations"
+    },
+    {
+      "path": "data/sceneassets/entrance_props/competitions/1861/model.rx3",
+      "bytes": 10320,
+      "sha256": "c17c715f5d0f46422dfcc8b205af85a724a61134bcff245b9325ccff903c1559",
+      "group": "competition_presentations"
+    },
+    {
+      "path": "data/sceneassets/entrance_props/competitions/1861/template.rx3",
+      "bytes": 22381344,
+      "sha256": "66c6b51ace164406fe38ef556dbd9ea3dbe1bd2c5336392cece62fcfecf37ac2",
+      "group": "competition_presentations"
+    },
+    {
+      "path": "data/sceneassets/entrance_props/competitions/188/asset.ini",
+      "bytes": 406,
+      "sha256": "1c82f563a4c29e6d225f9f5afcb0e772cefb0a9abe325e2fb2332faf64fec5d3",
+      "group": "competition_presentations"
+    },
+    {
+      "path": "data/sceneassets/entrance_props/competitions/188/model.rx3",
+      "bytes": 51984,
+      "sha256": "d1b5dcd08b4d7a51c7a21ea208a993299e68b868f912cf8ea890eadb87053736",
+      "group": "competition_presentations"
+    },
+    {
+      "path": "data/sceneassets/entrance_props/competitions/188/template.rx3",
+      "bytes": 22381344,
+      "sha256": "35393bb0d2524ae6ecfa8c9c9e0009599f6d49454f72e1584b930df8dda17fdf",
+      "group": "competition_presentations"
+    },
+    {
+      "path": "data/sceneassets/entrance_props/competitions/1880/asset.ini",
+      "bytes": 407,
+      "sha256": "ea602e9e10ee88dec873009534ab6fd6996cfe9f65c704bd6eb2b4837c8899e2",
+      "group": "competition_presentations"
+    },
+    {
+      "path": "data/sceneassets/entrance_props/competitions/1880/model.rx3",
+      "bytes": 121984,
+      "sha256": "bab8b32d1a69d91a6cd74bf8848affa68df9569b4a6618493711465f51ea13af",
+      "group": "competition_presentations"
+    },
+    {
+      "path": "data/sceneassets/entrance_props/competitions/1880/template.rx3",
+      "bytes": 22381344,
+      "sha256": "7c49f8f8773937069d89f3e6b4e9299bfe58371db3bdaeb1d429bc91b31c0d4c",
+      "group": "competition_presentations"
+    },
+    {
+      "path": "data/sceneassets/entrance_props/competitions/1884/asset.ini",
+      "bytes": 298,
+      "sha256": "340c165e15a0eaf011863c17ccaa92792871a63d335865142a14172a0f56b08b",
+      "group": "competition_presentations"
+    },
+    {
+      "path": "data/sceneassets/entrance_props/competitions/1884/model.rx3",
+      "bytes": 32288,
+      "sha256": "669a1bdc48aa26e1db0a47ec7f18b43eb2696bca18058ed2b314eab5af5273b2",
+      "group": "competition_presentations"
+    },
+    {
+      "path": "data/sceneassets/entrance_props/competitions/1884/template.rx3",
+      "bytes": 22381344,
+      "sha256": "4e61924dd5037a52b78ac51dd05194edbaee7b6ac5f257f9814c1489d75d992a",
+      "group": "competition_presentations"
+    },
+    {
+      "path": "data/sceneassets/entrance_props/competitions/1892/asset.ini",
+      "bytes": 407,
+      "sha256": "3591cab1f17b35d322592241a41a4f8ba8ab6ec87b37fa92353008f4596ba165",
+      "group": "competition_presentations"
+    },
+    {
+      "path": "data/sceneassets/entrance_props/competitions/1892/model.rx3",
+      "bytes": 111280,
+      "sha256": "57af8189b05afb1fe4f98443adc1fcf07e55daccbedc1c80f0a30f377c729dd0",
+      "group": "competition_presentations"
+    },
+    {
+      "path": "data/sceneassets/entrance_props/competitions/1892/template.rx3",
+      "bytes": 22381344,
+      "sha256": "96c5f794110ca60d4c4993db613148dce9d5f541301c28fbe12125f47f84f550",
+      "group": "competition_presentations"
+    },
+    {
+      "path": "data/sceneassets/entrance_props/competitions/190/asset.ini",
+      "bytes": 406,
+      "sha256": "1c82f563a4c29e6d225f9f5afcb0e772cefb0a9abe325e2fb2332faf64fec5d3",
+      "group": "competition_presentations"
+    },
+    {
+      "path": "data/sceneassets/entrance_props/competitions/190/model.rx3",
+      "bytes": 51984,
+      "sha256": "d1b5dcd08b4d7a51c7a21ea208a993299e68b868f912cf8ea890eadb87053736",
+      "group": "competition_presentations"
+    },
+    {
+      "path": "data/sceneassets/entrance_props/competitions/190/template.rx3",
+      "bytes": 22381344,
+      "sha256": "35393bb0d2524ae6ecfa8c9c9e0009599f6d49454f72e1584b930df8dda17fdf",
+      "group": "competition_presentations"
+    },
+    {
+      "path": "data/sceneassets/entrance_props/competitions/1904/asset.ini",
+      "bytes": 406,
+      "sha256": "36d7c950f5e3807231edda7bf3a7ed2827524f0034a9f6498e11d04fe6283201",
+      "group": "competition_presentations"
+    },
+    {
+      "path": "data/sceneassets/entrance_props/competitions/1904/model.rx3",
+      "bytes": 91040,
+      "sha256": "402ea8881fdf184c8a4cba2ff6ea1fa3833f23e74b68f0bea3a5acbd85301014",
+      "group": "competition_presentations"
+    },
+    {
+      "path": "data/sceneassets/entrance_props/competitions/1904/template.rx3",
+      "bytes": 22381344,
+      "sha256": "3085ca18b5b7094bc92ff9731b439879ff0b3373c1268708fd6154c4322abd65",
+      "group": "competition_presentations"
+    },
+    {
+      "path": "data/sceneassets/entrance_props/competitions/192/asset.ini",
+      "bytes": 406,
+      "sha256": "0dc16a60c69c9cf6cceaddcf94df9173cad69eca09f503edfc334d2f84b564ca",
+      "group": "competition_presentations"
+    },
+    {
+      "path": "data/sceneassets/entrance_props/competitions/192/model.rx3",
+      "bytes": 40112,
+      "sha256": "dc66e85bb9434f4ebd8bdb1106b5a0a4147b6459a4915b2e497017aa59e86d12",
+      "group": "competition_presentations"
+    },
+    {
+      "path": "data/sceneassets/entrance_props/competitions/192/template.rx3",
+      "bytes": 22381344,
+      "sha256": "aa5b573ddee31f66d1d8e692b58d8fc9ae3ddfcfa3d26d4c7666d9628141fef1",
+      "group": "competition_presentations"
+    },
+    {
+      "path": "data/sceneassets/entrance_props/competitions/195/asset.ini",
+      "bytes": 407,
+      "sha256": "16cdaebb7f39227d01f32d79e46a1763abf8966ff2894f886efb6b6147fe96fd",
+      "group": "competition_presentations"
+    },
+    {
+      "path": "data/sceneassets/entrance_props/competitions/195/model.rx3",
+      "bytes": 129296,
+      "sha256": "e96d503f570c42e82976ff7e95a7e097ed481a2a745312ed4af76974fdd47bd9",
+      "group": "competition_presentations"
+    },
+    {
+      "path": "data/sceneassets/entrance_props/competitions/195/template.rx3",
+      "bytes": 22381344,
+      "sha256": "8dd74203ce4b0424da1e69decfc5384463a6236b221172d698ff965e75a85ae1",
+      "group": "competition_presentations"
+    },
+    {
+      "path": "data/sceneassets/entrance_props/competitions/2348/asset.ini",
+      "bytes": 409,
+      "sha256": "884264e0aa1f6284a86b744037cd998872a36a7e433a6c5a6ccd6cca171252ec",
+      "group": "competition_presentations"
+    },
+    {
+      "path": "data/sceneassets/entrance_props/competitions/2348/model.rx3",
+      "bytes": 838160,
+      "sha256": "67237931ed936a303820dfd6070524f9cf20b1e05c80bbe7df6f80aebfe598b1",
+      "group": "competition_presentations"
+    },
+    {
+      "path": "data/sceneassets/entrance_props/competitions/2348/template.rx3",
+      "bytes": 22381344,
+      "sha256": "68ec03200a3c268d00c9682588a8b64be7dbceee2343f1dda58289950f058721",
+      "group": "competition_presentations"
+    },
+    {
+      "path": "data/sceneassets/entrance_props/competitions/2353/asset.ini",
+      "bytes": 409,
+      "sha256": "884264e0aa1f6284a86b744037cd998872a36a7e433a6c5a6ccd6cca171252ec",
+      "group": "competition_presentations"
+    },
+    {
+      "path": "data/sceneassets/entrance_props/competitions/2353/model.rx3",
+      "bytes": 838160,
+      "sha256": "67237931ed936a303820dfd6070524f9cf20b1e05c80bbe7df6f80aebfe598b1",
+      "group": "competition_presentations"
+    },
+    {
+      "path": "data/sceneassets/entrance_props/competitions/2353/template.rx3",
+      "bytes": 22381344,
+      "sha256": "68ec03200a3c268d00c9682588a8b64be7dbceee2343f1dda58289950f058721",
+      "group": "competition_presentations"
+    },
+    {
+      "path": "data/sceneassets/entrance_props/competitions/2358/asset.ini",
+      "bytes": 409,
+      "sha256": "884264e0aa1f6284a86b744037cd998872a36a7e433a6c5a6ccd6cca171252ec",
+      "group": "competition_presentations"
+    },
+    {
+      "path": "data/sceneassets/entrance_props/competitions/2358/model.rx3",
+      "bytes": 838160,
+      "sha256": "67237931ed936a303820dfd6070524f9cf20b1e05c80bbe7df6f80aebfe598b1",
+      "group": "competition_presentations"
+    },
+    {
+      "path": "data/sceneassets/entrance_props/competitions/2358/template.rx3",
+      "bytes": 22381344,
+      "sha256": "68ec03200a3c268d00c9682588a8b64be7dbceee2343f1dda58289950f058721",
+      "group": "competition_presentations"
+    },
+    {
+      "path": "data/sceneassets/entrance_props/competitions/2361/asset.ini",
+      "bytes": 409,
+      "sha256": "884264e0aa1f6284a86b744037cd998872a36a7e433a6c5a6ccd6cca171252ec",
+      "group": "competition_presentations"
+    },
+    {
+      "path": "data/sceneassets/entrance_props/competitions/2361/model.rx3",
+      "bytes": 838160,
+      "sha256": "67237931ed936a303820dfd6070524f9cf20b1e05c80bbe7df6f80aebfe598b1",
+      "group": "competition_presentations"
+    },
+    {
+      "path": "data/sceneassets/entrance_props/competitions/2361/template.rx3",
+      "bytes": 22381344,
+      "sha256": "68ec03200a3c268d00c9682588a8b64be7dbceee2343f1dda58289950f058721",
+      "group": "competition_presentations"
+    },
+    {
+      "path": "data/sceneassets/entrance_props/competitions/245/asset.ini",
+      "bytes": 515,
+      "sha256": "38dab9549e447aede98f4164242cf83120d7e1277d04fb22c72edfb928f03ec2",
+      "group": "competition_presentations"
+    },
+    {
+      "path": "data/sceneassets/entrance_props/competitions/245/model.rx3",
+      "bytes": 204064,
+      "sha256": "311a21f9b27c2d1b03b306121e3b47b4e7f0de765ee4ea99206c4f17fe2dd966",
+      "group": "competition_presentations"
+    },
+    {
+      "path": "data/sceneassets/entrance_props/competitions/245/template.rx3",
+      "bytes": 22381344,
+      "sha256": "66fa768a46636a002f47d0700572c708445d5881bf703365bb72952e82d642d6",
+      "group": "competition_presentations"
+    },
+    {
+      "path": "data/sceneassets/entrance_props/competitions/247/asset.ini",
+      "bytes": 515,
+      "sha256": "ad2bed745f588cc7f3cb8d5e12e2e2bb34dfff88dbb4bab260a67586e79e235c",
+      "group": "competition_presentations"
+    },
+    {
+      "path": "data/sceneassets/entrance_props/competitions/247/model.rx3",
+      "bytes": 156656,
+      "sha256": "3ceca2efb54f495c8267689ed5d207bb8504196912a9d88f950743aad9cbc9c1",
+      "group": "competition_presentations"
+    },
+    {
+      "path": "data/sceneassets/entrance_props/competitions/247/template.rx3",
+      "bytes": 22381344,
+      "sha256": "4ae32cb4c4d30b525eeb5c3f3f63e82772c4aff1249e1469a075126d901a8bed",
+      "group": "competition_presentations"
+    },
+    {
+      "path": "data/sceneassets/entrance_props/competitions/25/asset.ini",
+      "bytes": 301,
+      "sha256": "983a4fd58c259e9c11091d2840e3cc09d16016f55debd9cac57bb10574ef62bc",
+      "group": "competition_presentations"
+    },
+    {
+      "path": "data/sceneassets/entrance_props/competitions/25/model.rx3",
+      "bytes": 932880,
+      "sha256": "2e0b5d62723712799b21463cdaeb5f68b21364f8bfc3ca743eb6dfac21445499",
+      "group": "competition_presentations"
+    },
+    {
+      "path": "data/sceneassets/entrance_props/competitions/25/template.rx3",
+      "bytes": 22381344,
+      "sha256": "8609e60ff1446d4c7116ea86cafe520e4f315672e1b3e142fe4ac7df41114cd9",
+      "group": "competition_presentations"
+    },
+    {
+      "path": "data/sceneassets/entrance_props/competitions/278/asset.ini",
+      "bytes": 515,
+      "sha256": "06eabeffd51f3116eba29c4cac7f6edcf38356320cf159f6646bd6236e92b220",
+      "group": "competition_presentations"
+    },
+    {
+      "path": "data/sceneassets/entrance_props/competitions/278/model.rx3",
+      "bytes": 157104,
+      "sha256": "ebdbe634d7e72f62110a1bca00661c811b777aeaab448793eff940bde76dde61",
+      "group": "competition_presentations"
+    },
+    {
+      "path": "data/sceneassets/entrance_props/competitions/278/template.rx3",
+      "bytes": 22381344,
+      "sha256": "5c11a0dc8041aad5490eb19808c6c52a019c380b1d87d6c59915b0ed98836e4a",
+      "group": "competition_presentations"
+    },
+    {
+      "path": "data/sceneassets/entrance_props/competitions/320/asset.ini",
+      "bytes": 404,
+      "sha256": "bbeb318d7ed1c4207e3275fe33f3cea6b54318de650ef8414d4ff150173d86a6",
+      "group": "competition_presentations"
+    },
+    {
+      "path": "data/sceneassets/entrance_props/competitions/320/model.rx3",
+      "bytes": 23472,
+      "sha256": "0582b80b099dab853c183b738e6b60dd5f46cf99a191d28d2896976803a87022",
+      "group": "competition_presentations"
+    },
+    {
+      "path": "data/sceneassets/entrance_props/competitions/320/template.rx3",
+      "bytes": 22381344,
+      "sha256": "1403d7fdf5d7436f0046a1435b24ec59f037801d785f47eb5da2cc07ecbd692d",
+      "group": "competition_presentations"
+    },
+    {
+      "path": "data/sceneassets/entrance_props/competitions/323/asset.ini",
+      "bytes": 520,
+      "sha256": "b478eef2a87886aa6994cddb8311d6940b20f1b012f01b99c5faae1ce5ef4d88",
+      "group": "competition_presentations"
+    },
+    {
+      "path": "data/sceneassets/entrance_props/competitions/323/model.rx3",
+      "bytes": 5995200,
+      "sha256": "1ab5436e5a7f9997b432a6f3bfba931730d04d519b943a6c08f1348da2f107e9",
+      "group": "competition_presentations"
+    },
+    {
+      "path": "data/sceneassets/entrance_props/competitions/323/template.rx3",
+      "bytes": 22381344,
+      "sha256": "2317afd7b8a3ad2d5b4f0aee78e29d55adfe7b58d0882d7ca5ebc4043e254c9c",
+      "group": "competition_presentations"
+    },
+    {
+      "path": "data/sceneassets/entrance_props/competitions/326/asset.ini",
+      "bytes": 406,
+      "sha256": "72a536fd62898f8ecd89fac3a7eb0d723dd5fe86dd0d8bb0ab3a52dc68b4e91d",
+      "group": "competition_presentations"
+    },
+    {
+      "path": "data/sceneassets/entrance_props/competitions/326/model.rx3",
+      "bytes": 39600,
+      "sha256": "ea457f90fc327e465ae289ba243d2c03f78faac91aeadd6a9f9ab4d944bd97ac",
+      "group": "competition_presentations"
+    },
+    {
+      "path": "data/sceneassets/entrance_props/competitions/326/template.rx3",
+      "bytes": 22381344,
+      "sha256": "fccc4d93224fa1c6a3cd1b04fb286f729ff4fe338b11d47786f85bf2fa297746",
+      "group": "competition_presentations"
+    },
+    {
+      "path": "data/sceneassets/entrance_props/competitions/338/asset.ini",
+      "bytes": 298,
+      "sha256": "340c165e15a0eaf011863c17ccaa92792871a63d335865142a14172a0f56b08b",
+      "group": "competition_presentations"
+    },
+    {
+      "path": "data/sceneassets/entrance_props/competitions/338/model.rx3",
+      "bytes": 32288,
+      "sha256": "669a1bdc48aa26e1db0a47ec7f18b43eb2696bca18058ed2b314eab5af5273b2",
+      "group": "competition_presentations"
+    },
+    {
+      "path": "data/sceneassets/entrance_props/competitions/338/template.rx3",
+      "bytes": 22381344,
+      "sha256": "4e61924dd5037a52b78ac51dd05194edbaee7b6ac5f257f9814c1489d75d992a",
+      "group": "competition_presentations"
+    },
+    {
+      "path": "data/sceneassets/entrance_props/competitions/42/asset.ini",
+      "bytes": 301,
+      "sha256": "983a4fd58c259e9c11091d2840e3cc09d16016f55debd9cac57bb10574ef62bc",
+      "group": "competition_presentations"
+    },
+    {
+      "path": "data/sceneassets/entrance_props/competitions/42/model.rx3",
+      "bytes": 932880,
+      "sha256": "2e0b5d62723712799b21463cdaeb5f68b21364f8bfc3ca743eb6dfac21445499",
+      "group": "competition_presentations"
+    },
+    {
+      "path": "data/sceneassets/entrance_props/competitions/42/template.rx3",
+      "bytes": 22381344,
+      "sha256": "8609e60ff1446d4c7116ea86cafe520e4f315672e1b3e142fe4ac7df41114cd9",
+      "group": "competition_presentations"
+    },
+    {
+      "path": "data/sceneassets/entrance_props/competitions/51/asset.ini",
+      "bytes": 301,
+      "sha256": "983a4fd58c259e9c11091d2840e3cc09d16016f55debd9cac57bb10574ef62bc",
+      "group": "competition_presentations"
+    },
+    {
+      "path": "data/sceneassets/entrance_props/competitions/51/model.rx3",
+      "bytes": 932880,
+      "sha256": "2e0b5d62723712799b21463cdaeb5f68b21364f8bfc3ca743eb6dfac21445499",
+      "group": "competition_presentations"
+    },
+    {
+      "path": "data/sceneassets/entrance_props/competitions/51/template.rx3",
+      "bytes": 22381344,
+      "sha256": "8609e60ff1446d4c7116ea86cafe520e4f315672e1b3e142fe4ac7df41114cd9",
+      "group": "competition_presentations"
+    },
+    {
+      "path": "data/sceneassets/entrance_props/competitions/56/asset.ini",
+      "bytes": 301,
+      "sha256": "983a4fd58c259e9c11091d2840e3cc09d16016f55debd9cac57bb10574ef62bc",
+      "group": "competition_presentations"
+    },
+    {
+      "path": "data/sceneassets/entrance_props/competitions/56/model.rx3",
+      "bytes": 932880,
+      "sha256": "2e0b5d62723712799b21463cdaeb5f68b21364f8bfc3ca743eb6dfac21445499",
+      "group": "competition_presentations"
+    },
+    {
+      "path": "data/sceneassets/entrance_props/competitions/56/template.rx3",
+      "bytes": 22381344,
+      "sha256": "8609e60ff1446d4c7116ea86cafe520e4f315672e1b3e142fe4ac7df41114cd9",
+      "group": "competition_presentations"
+    },
+    {
+      "path": "data/sceneassets/entrance_props/competitions/59/asset.ini",
+      "bytes": 301,
+      "sha256": "983a4fd58c259e9c11091d2840e3cc09d16016f55debd9cac57bb10574ef62bc",
+      "group": "competition_presentations"
+    },
+    {
+      "path": "data/sceneassets/entrance_props/competitions/59/model.rx3",
+      "bytes": 932880,
+      "sha256": "2e0b5d62723712799b21463cdaeb5f68b21364f8bfc3ca743eb6dfac21445499",
+      "group": "competition_presentations"
+    },
+    {
+      "path": "data/sceneassets/entrance_props/competitions/59/template.rx3",
+      "bytes": 22381344,
+      "sha256": "8609e60ff1446d4c7116ea86cafe520e4f315672e1b3e142fe4ac7df41114cd9",
+      "group": "competition_presentations"
+    },
+    {
+      "path": "data/sceneassets/entrance_props/competitions/594/asset.ini",
+      "bytes": 407,
+      "sha256": "db71d3e491c3a1651d3932abf8ba815e9c086df3aca88ff8b23ca1e4d9081cf7",
+      "group": "competition_presentations"
+    },
+    {
+      "path": "data/sceneassets/entrance_props/competitions/594/model.rx3",
+      "bytes": 111776,
+      "sha256": "98545118dc343ed5cd317f061789f8682bfd91b4e532884e8fb547eab90d1851",
+      "group": "competition_presentations"
+    },
+    {
+      "path": "data/sceneassets/entrance_props/competitions/594/template.rx3",
+      "bytes": 22381344,
+      "sha256": "c97801b8f9905b7d841b7bf472c026bcb85cd8b83ac302b9d41d2d19d91831e7",
+      "group": "competition_presentations"
+    },
+    {
+      "path": "data/sceneassets/entrance_props/competitions/597/asset.ini",
+      "bytes": 887,
+      "sha256": "28e8503be9194a9966209e1e0bde17ab564ff6dc3c23cbd1e331866124c3bdb5",
+      "group": "competition_presentations"
+    },
+    {
+      "path": "data/sceneassets/entrance_props/competitions/597/model.rx3",
+      "bytes": 2149312,
+      "sha256": "a96cedfa3f4b2397341ef79c7b18dabf87dc2319b8793beec0661725cbf79d76",
+      "group": "competition_presentations"
+    },
+    {
+      "path": "data/sceneassets/entrance_props/competitions/597/template.rx3",
+      "bytes": 22381344,
+      "sha256": "cbda815074045a09a0fce9fbf7bea3a4df53c03f08867440aa1cd880202da931",
+      "group": "competition_presentations"
+    },
+    {
+      "path": "data/sceneassets/entrance_props/competitions/600/asset.ini",
+      "bytes": 404,
+      "sha256": "1a37318a8c01f35279a1a26023a786b02f1f6c54cb9fc92aed6516c8e6d0d3b8",
+      "group": "competition_presentations"
+    },
+    {
+      "path": "data/sceneassets/entrance_props/competitions/600/model.rx3",
+      "bytes": 17712,
+      "sha256": "854488456c1fcc1f1bb81d9fb40dbba1ca7adad672c0198caf15b3ec5f654ccb",
+      "group": "competition_presentations"
+    },
+    {
+      "path": "data/sceneassets/entrance_props/competitions/600/template.rx3",
+      "bytes": 22381344,
+      "sha256": "a5f84dd985d75d6874938f74e2d0682075da8c1663cf0fd855236a9fdce2be22",
+      "group": "competition_presentations"
+    },
+    {
+      "path": "data/sceneassets/entrance_props/competitions/61/asset.ini",
+      "bytes": 301,
+      "sha256": "983a4fd58c259e9c11091d2840e3cc09d16016f55debd9cac57bb10574ef62bc",
+      "group": "competition_presentations"
+    },
+    {
+      "path": "data/sceneassets/entrance_props/competitions/61/model.rx3",
+      "bytes": 932880,
+      "sha256": "2e0b5d62723712799b21463cdaeb5f68b21364f8bfc3ca743eb6dfac21445499",
+      "group": "competition_presentations"
+    },
+    {
+      "path": "data/sceneassets/entrance_props/competitions/61/template.rx3",
+      "bytes": 22381344,
+      "sha256": "8609e60ff1446d4c7116ea86cafe520e4f315672e1b3e142fe4ac7df41114cd9",
+      "group": "competition_presentations"
+    },
+    {
+      "path": "data/sceneassets/entrance_props/competitions/63/asset.ini",
+      "bytes": 518,
+      "sha256": "09396753b3d417986486bdc3c7092a17adefd06b191d5037b5960bde0531e19e",
+      "group": "competition_presentations"
+    },
+    {
+      "path": "data/sceneassets/entrance_props/competitions/63/model.rx3",
+      "bytes": 1505056,
+      "sha256": "dd0146c52fabf1a4b5707d6fea56dd71df1724dc916c47ab9f0b59681772b299",
+      "group": "competition_presentations"
+    },
+    {
+      "path": "data/sceneassets/entrance_props/competitions/63/template.rx3",
+      "bytes": 22381344,
+      "sha256": "c9acfa9d26a18373a16c494fc60ed59880f95aead4cfe3eb07ef8a49037ce434",
+      "group": "competition_presentations"
+    },
+    {
+      "path": "data/sceneassets/entrance_props/competitions/679/asset.ini",
+      "bytes": 409,
+      "sha256": "8563fe1d7b3dd358c3b0da4501128f128a73046e72b2a0462460b5504b88c11c",
+      "group": "competition_presentations"
+    },
+    {
+      "path": "data/sceneassets/entrance_props/competitions/679/model.rx3",
+      "bytes": 457984,
+      "sha256": "89603a034ff9be6a2ef73a71185ca2329f44f49ed2824cfcb07241c60a6477b1",
+      "group": "competition_presentations"
+    },
+    {
+      "path": "data/sceneassets/entrance_props/competitions/679/template.rx3",
+      "bytes": 22381344,
+      "sha256": "d599e45755e8322cd5053917d47334d8cd195c5a698bd064cd8e538908184359",
+      "group": "competition_presentations"
+    },
+    {
+      "path": "data/sceneassets/entrance_props/competitions/685/asset.ini",
+      "bytes": 404,
+      "sha256": "b564b60d7217a36dbc06efbec31b29a526334c45c04b86686128ff9936b27345",
+      "group": "competition_presentations"
+    },
+    {
+      "path": "data/sceneassets/entrance_props/competitions/685/model.rx3",
+      "bytes": 14960,
+      "sha256": "169623da18caf19d66284135e4a5b69a04e1f2eb80d34faf26da6d7bbc974590",
+      "group": "competition_presentations"
+    },
+    {
+      "path": "data/sceneassets/entrance_props/competitions/685/template.rx3",
+      "bytes": 22381344,
+      "sha256": "b9185136fc74f8e3108ff8191f0166d0a5bbaf82a61774a45c7c7b97d0b322c0",
+      "group": "competition_presentations"
+    },
+    {
+      "path": "data/sceneassets/entrance_props/competitions/69/asset.ini",
+      "bytes": 518,
+      "sha256": "09396753b3d417986486bdc3c7092a17adefd06b191d5037b5960bde0531e19e",
+      "group": "competition_presentations"
+    },
+    {
+      "path": "data/sceneassets/entrance_props/competitions/69/model.rx3",
+      "bytes": 1505056,
+      "sha256": "dd0146c52fabf1a4b5707d6fea56dd71df1724dc916c47ab9f0b59681772b299",
+      "group": "competition_presentations"
+    },
+    {
+      "path": "data/sceneassets/entrance_props/competitions/69/template.rx3",
+      "bytes": 22381344,
+      "sha256": "c9acfa9d26a18373a16c494fc60ed59880f95aead4cfe3eb07ef8a49037ce434",
+      "group": "competition_presentations"
+    },
+    {
+      "path": "data/sceneassets/entrance_props/competitions/691/asset.ini",
+      "bytes": 404,
+      "sha256": "d499309318374245d1a0ab7f00a42a5b7c42f6acb489d60f400b86d1fc9923b3",
+      "group": "competition_presentations"
+    },
+    {
+      "path": "data/sceneassets/entrance_props/competitions/691/model.rx3",
+      "bytes": 14960,
+      "sha256": "169623da18caf19d66284135e4a5b69a04e1f2eb80d34faf26da6d7bbc974590",
+      "group": "competition_presentations"
+    },
+    {
+      "path": "data/sceneassets/entrance_props/competitions/691/template.rx3",
+      "bytes": 22381344,
+      "sha256": "0b2ed745952f30d6c1805c2944f19cea9e16aead791f53631bf7fef8e72790f5",
+      "group": "competition_presentations"
+    },
+    {
+      "path": "data/sceneassets/entrance_props/competitions/761/asset.ini",
+      "bytes": 298,
+      "sha256": "d5c4ddb4550c289d019f0add064b16be25efda79910f29f810bfeedee0b300de",
+      "group": "competition_presentations"
+    },
+    {
+      "path": "data/sceneassets/entrance_props/competitions/761/model.rx3",
+      "bytes": 69312,
+      "sha256": "7f8eda35ed9e245320e091ffe2e5c1420f739e33f56cb208859a15d09c7d747e",
+      "group": "competition_presentations"
+    },
+    {
+      "path": "data/sceneassets/entrance_props/competitions/761/template.rx3",
+      "bytes": 22381344,
+      "sha256": "b8fc15259f7459893262757c25b526e53c3a94f69e5e6e03000846c94c6f5ee0",
+      "group": "competition_presentations"
+    },
+    {
+      "path": "data/sceneassets/entrance_props/competitions/764/asset.ini",
+      "bytes": 404,
+      "sha256": "ca0d0b3f0eb16f87e0afdffa97695d54267c6c233d7acc26e1eb46c97ad86425",
+      "group": "competition_presentations"
+    },
+    {
+      "path": "data/sceneassets/entrance_props/competitions/764/model.rx3",
+      "bytes": 21872,
+      "sha256": "e17bd1bb77163bc24ad8a32f21429949ea8ae4786e6500df4f18b73ddcad3e59",
+      "group": "competition_presentations"
+    },
+    {
+      "path": "data/sceneassets/entrance_props/competitions/764/template.rx3",
+      "bytes": 22381344,
+      "sha256": "9852c8d88318114156c58face52b4b047966d5f08e2043566064432f7be4432a",
+      "group": "competition_presentations"
+    },
+    {
+      "path": "data/sceneassets/entrance_props/competitions/767/asset.ini",
+      "bytes": 409,
+      "sha256": "2a87c8dfd65aa0b4243a83ed9d1b045b31ac654b54bc40fa9bf5ee7bfb33b8a7",
+      "group": "competition_presentations"
+    },
+    {
+      "path": "data/sceneassets/entrance_props/competitions/767/model.rx3",
+      "bytes": 663760,
+      "sha256": "8c3097e05b90671ed0e8b4b8603e43a2101918d5822f0fdc2ca601d7424c3e5e",
+      "group": "competition_presentations"
+    },
+    {
+      "path": "data/sceneassets/entrance_props/competitions/767/template.rx3",
+      "bytes": 22381344,
+      "sha256": "5d3f331119799053b9ea1b0e71f2baa6cae0ae773332c037da57c181a04aa228",
+      "group": "competition_presentations"
+    },
+    {
+      "path": "data/sceneassets/entrance_props/competitions/778/asset.ini",
+      "bytes": 301,
+      "sha256": "8e134c69634007a51786ee8259e2993dfa0b085acc56a6a87ab7b16a10327e3d",
+      "group": "competition_presentations"
+    },
+    {
+      "path": "data/sceneassets/entrance_props/competitions/778/model.rx3",
+      "bytes": 412848,
+      "sha256": "d674b15e9c1ada3f62c32c037816fe46a999d5d33950396e8b97b39dc22ec3dd",
+      "group": "competition_presentations"
+    },
+    {
+      "path": "data/sceneassets/entrance_props/competitions/778/template.rx3",
+      "bytes": 22381344,
+      "sha256": "ae190d8247e612e4031953aae515148a636b6c9112c91917c2ede3f8710f5e71",
+      "group": "competition_presentations"
+    },
+    {
+      "path": "data/sceneassets/entrance_props/competitions/78/asset.ini",
+      "bytes": 518,
+      "sha256": "09396753b3d417986486bdc3c7092a17adefd06b191d5037b5960bde0531e19e",
+      "group": "competition_presentations"
+    },
+    {
+      "path": "data/sceneassets/entrance_props/competitions/78/model.rx3",
+      "bytes": 1505056,
+      "sha256": "dd0146c52fabf1a4b5707d6fea56dd71df1724dc916c47ab9f0b59681772b299",
+      "group": "competition_presentations"
+    },
+    {
+      "path": "data/sceneassets/entrance_props/competitions/78/template.rx3",
+      "bytes": 22381344,
+      "sha256": "c9acfa9d26a18373a16c494fc60ed59880f95aead4cfe3eb07ef8a49037ce434",
+      "group": "competition_presentations"
+    },
+    {
+      "path": "data/sceneassets/entrance_props/competitions/8/asset.ini",
+      "bytes": 301,
+      "sha256": "983a4fd58c259e9c11091d2840e3cc09d16016f55debd9cac57bb10574ef62bc",
+      "group": "competition_presentations"
+    },
+    {
+      "path": "data/sceneassets/entrance_props/competitions/8/model.rx3",
+      "bytes": 932880,
+      "sha256": "2e0b5d62723712799b21463cdaeb5f68b21364f8bfc3ca743eb6dfac21445499",
+      "group": "competition_presentations"
+    },
+    {
+      "path": "data/sceneassets/entrance_props/competitions/8/template.rx3",
+      "bytes": 22381344,
+      "sha256": "8609e60ff1446d4c7116ea86cafe520e4f315672e1b3e142fe4ac7df41114cd9",
+      "group": "competition_presentations"
+    },
+    {
+      "path": "data/sceneassets/entrance_props/competitions/840/asset.ini",
+      "bytes": 296,
+      "sha256": "8ddd0cbd030f641bb24d23b77bdbb43a564fd6562548b31510a4328433878abc",
+      "group": "competition_presentations"
+    },
+    {
+      "path": "data/sceneassets/entrance_props/competitions/840/model.rx3",
+      "bytes": 10128,
+      "sha256": "8fe4f39d2b5e8953e88fc0bdd2cde6f09886e721c199a9279f37cda367dc4090",
+      "group": "competition_presentations"
+    },
+    {
+      "path": "data/sceneassets/entrance_props/competitions/840/template.rx3",
+      "bytes": 22381344,
+      "sha256": "2cce7fadafbb23c89265a6e1e3be1d9b78b9b76beff74c6e8136f9d6259ba801",
+      "group": "competition_presentations"
+    },
+    {
+      "path": "data/sceneassets/entrance_props/competitions/850/asset.ini",
+      "bytes": 405,
+      "sha256": "be85cc01da16c59b44890c7a03773c023c86b42374f51bc603a5db0adced95d3",
+      "group": "competition_presentations"
+    },
+    {
+      "path": "data/sceneassets/entrance_props/competitions/850/model.rx3",
+      "bytes": 25968,
+      "sha256": "4071f39a425fd4a9ca8b37714bd28cbcc89cf511cbfa9f69c1b830cb954e111d",
+      "group": "competition_presentations"
+    },
+    {
+      "path": "data/sceneassets/entrance_props/competitions/850/template.rx3",
+      "bytes": 22381344,
+      "sha256": "bfe3c24b21c3a7eab4d3d8d4ee7ca831a8874140300f4bb4d41e4dee684083f7",
+      "group": "competition_presentations"
+    },
+    {
+      "path": "data/sceneassets/entrance_props/competitions/851/asset.ini",
+      "bytes": 405,
+      "sha256": "be85cc01da16c59b44890c7a03773c023c86b42374f51bc603a5db0adced95d3",
+      "group": "competition_presentations"
+    },
+    {
+      "path": "data/sceneassets/entrance_props/competitions/851/model.rx3",
+      "bytes": 25968,
+      "sha256": "4071f39a425fd4a9ca8b37714bd28cbcc89cf511cbfa9f69c1b830cb954e111d",
+      "group": "competition_presentations"
+    },
+    {
+      "path": "data/sceneassets/entrance_props/competitions/851/template.rx3",
+      "bytes": 22381344,
+      "sha256": "bfe3c24b21c3a7eab4d3d8d4ee7ca831a8874140300f4bb4d41e4dee684083f7",
+      "group": "competition_presentations"
+    },
+    {
+      "path": "data/sceneassets/entrance_props/competitions/859/asset.ini",
+      "bytes": 298,
+      "sha256": "1f66ce6ebb7d180bb0a993d292715083c4224ea1ce053190e27383fe6c49a5a2",
+      "group": "competition_presentations"
+    },
+    {
+      "path": "data/sceneassets/entrance_props/competitions/859/model.rx3",
+      "bytes": 33728,
+      "sha256": "62861851b1798443c49471c696cb3d2771d3481f212738fdb6fc15fc0935e964",
+      "group": "competition_presentations"
+    },
+    {
+      "path": "data/sceneassets/entrance_props/competitions/859/template.rx3",
+      "bytes": 22381344,
+      "sha256": "d808b998d4807b5735cd9f3cae6862fc51f6a231cb1bb9f293e70dbd3b5904cb",
+      "group": "competition_presentations"
+    },
+    {
+      "path": "data/sceneassets/entrance_props/competitions/87/asset.ini",
+      "bytes": 518,
+      "sha256": "09396753b3d417986486bdc3c7092a17adefd06b191d5037b5960bde0531e19e",
+      "group": "competition_presentations"
+    },
+    {
+      "path": "data/sceneassets/entrance_props/competitions/87/model.rx3",
+      "bytes": 1505056,
+      "sha256": "dd0146c52fabf1a4b5707d6fea56dd71df1724dc916c47ab9f0b59681772b299",
+      "group": "competition_presentations"
+    },
+    {
+      "path": "data/sceneassets/entrance_props/competitions/87/template.rx3",
+      "bytes": 22381344,
+      "sha256": "c9acfa9d26a18373a16c494fc60ed59880f95aead4cfe3eb07ef8a49037ce434",
+      "group": "competition_presentations"
+    },
+    {
+      "path": "data/sceneassets/entrance_props/competitions/92/asset.ini",
+      "bytes": 518,
+      "sha256": "09396753b3d417986486bdc3c7092a17adefd06b191d5037b5960bde0531e19e",
+      "group": "competition_presentations"
+    },
+    {
+      "path": "data/sceneassets/entrance_props/competitions/92/model.rx3",
+      "bytes": 1505056,
+      "sha256": "dd0146c52fabf1a4b5707d6fea56dd71df1724dc916c47ab9f0b59681772b299",
+      "group": "competition_presentations"
+    },
+    {
+      "path": "data/sceneassets/entrance_props/competitions/92/template.rx3",
+      "bytes": 22381344,
+      "sha256": "c9acfa9d26a18373a16c494fc60ed59880f95aead4cfe3eb07ef8a49037ce434",
+      "group": "competition_presentations"
+    },
+    {
+      "path": "data/sceneassets/entrance_props/competitions/923/asset.ini",
+      "bytes": 298,
+      "sha256": "1f66ce6ebb7d180bb0a993d292715083c4224ea1ce053190e27383fe6c49a5a2",
+      "group": "competition_presentations"
+    },
+    {
+      "path": "data/sceneassets/entrance_props/competitions/923/model.rx3",
+      "bytes": 33728,
+      "sha256": "62861851b1798443c49471c696cb3d2771d3481f212738fdb6fc15fc0935e964",
+      "group": "competition_presentations"
+    },
+    {
+      "path": "data/sceneassets/entrance_props/competitions/923/template.rx3",
+      "bytes": 22381344,
+      "sha256": "d808b998d4807b5735cd9f3cae6862fc51f6a231cb1bb9f293e70dbd3b5904cb",
+      "group": "competition_presentations"
+    },
+    {
+      "path": "data/sceneassets/entrance_props/competitions/926/asset.ini",
+      "bytes": 296,
+      "sha256": "8ddd0cbd030f641bb24d23b77bdbb43a564fd6562548b31510a4328433878abc",
+      "group": "competition_presentations"
+    },
+    {
+      "path": "data/sceneassets/entrance_props/competitions/926/model.rx3",
+      "bytes": 10128,
+      "sha256": "8fe4f39d2b5e8953e88fc0bdd2cde6f09886e721c199a9279f37cda367dc4090",
+      "group": "competition_presentations"
+    },
+    {
+      "path": "data/sceneassets/entrance_props/competitions/926/template.rx3",
+      "bytes": 22381344,
+      "sha256": "2cce7fadafbb23c89265a6e1e3be1d9b78b9b76beff74c6e8136f9d6259ba801",
+      "group": "competition_presentations"
+    },
+    {
+      "path": "data/sceneassets/entrance_props/competitions/932/asset.ini",
+      "bytes": 407,
+      "sha256": "62f9479b694aeb81150a1bac8058ec327c566d36682826eb931934908f32ac79",
+      "group": "competition_presentations"
+    },
+    {
+      "path": "data/sceneassets/entrance_props/competitions/932/model.rx3",
+      "bytes": 114000,
+      "sha256": "e3831d5768c8d2ad1be248480ca37b0bbbca8a4d6d0027bdd603ca44736298dc",
+      "group": "competition_presentations"
+    },
+    {
+      "path": "data/sceneassets/entrance_props/competitions/932/template.rx3",
+      "bytes": 22381344,
+      "sha256": "ab0ed407597a0fbc63d4b22b0a0560f5779d7458f404386738eb6c2fc6edb55a",
+      "group": "competition_presentations"
+    },
+    {
+      "path": "data/sceneassets/entrance_props/competitions/935/asset.ini",
+      "bytes": 404,
+      "sha256": "353e201ba92d6e5b6979d1462f720f27c90aa484d53e3efcb4a225005a65440e",
+      "group": "competition_presentations"
+    },
+    {
+      "path": "data/sceneassets/entrance_props/competitions/935/model.rx3",
+      "bytes": 14608,
+      "sha256": "86aa4438b4c574926d2a5a9ffb14f4335297ce77f5c1a834ecfc6a2a0f020557",
+      "group": "competition_presentations"
+    },
+    {
+      "path": "data/sceneassets/entrance_props/competitions/935/template.rx3",
+      "bytes": 22381344,
+      "sha256": "6a55089f400fb6e68ddf9c8f97a8a4822aff500c85a4412d7133fb83d5a0728c",
+      "group": "competition_presentations"
+    },
+    {
+      "path": "data/sceneassets/entrance_props/competitions/938/asset.ini",
+      "bytes": 404,
+      "sha256": "3b301ac2af54f331d63d27879aaad212723a506446da23d01031c384c08b0261",
+      "group": "competition_presentations"
+    },
+    {
+      "path": "data/sceneassets/entrance_props/competitions/938/model.rx3",
+      "bytes": 14960,
+      "sha256": "6a3f2c532a39ad9ce654201c5574947c0f183e10db4d207ee3650ec2c668e416",
+      "group": "competition_presentations"
+    },
+    {
+      "path": "data/sceneassets/entrance_props/competitions/938/template.rx3",
+      "bytes": 22381344,
+      "sha256": "a2b8ed8b9346ed262de4edbd7ea1c415612c2309f34ab3e16742ba653c4ec356",
+      "group": "competition_presentations"
+    },
+    {
+      "path": "data/sceneassets/entrance_props/competitions/941/asset.ini",
+      "bytes": 404,
+      "sha256": "3b301ac2af54f331d63d27879aaad212723a506446da23d01031c384c08b0261",
+      "group": "competition_presentations"
+    },
+    {
+      "path": "data/sceneassets/entrance_props/competitions/941/model.rx3",
+      "bytes": 14960,
+      "sha256": "6a3f2c532a39ad9ce654201c5574947c0f183e10db4d207ee3650ec2c668e416",
+      "group": "competition_presentations"
+    },
+    {
+      "path": "data/sceneassets/entrance_props/competitions/941/template.rx3",
+      "bytes": 22381344,
+      "sha256": "a2b8ed8b9346ed262de4edbd7ea1c415612c2309f34ab3e16742ba653c4ec356",
+      "group": "competition_presentations"
+    },
+    {
+      "path": "data/sceneassets/entrance_props/competitions/944/asset.ini",
+      "bytes": 404,
+      "sha256": "3b301ac2af54f331d63d27879aaad212723a506446da23d01031c384c08b0261",
+      "group": "competition_presentations"
+    },
+    {
+      "path": "data/sceneassets/entrance_props/competitions/944/model.rx3",
+      "bytes": 14960,
+      "sha256": "6a3f2c532a39ad9ce654201c5574947c0f183e10db4d207ee3650ec2c668e416",
+      "group": "competition_presentations"
+    },
+    {
+      "path": "data/sceneassets/entrance_props/competitions/944/template.rx3",
+      "bytes": 22381344,
+      "sha256": "a2b8ed8b9346ed262de4edbd7ea1c415612c2309f34ab3e16742ba653c4ec356",
+      "group": "competition_presentations"
+    },
+    {
+      "path": "data/sceneassets/entrance_props/competitions/949/asset.ini",
+      "bytes": 299,
+      "sha256": "06325c08caed0c9e1f190e34bcedcf9467132e5a59b3a97dd9bc653e0c2e2773",
+      "group": "competition_presentations"
+    },
+    {
+      "path": "data/sceneassets/entrance_props/competitions/949/model.rx3",
+      "bytes": 133984,
+      "sha256": "dc04d044a23a5ba1d588bc12c52bc1c40518a048dbb24caed02d070fc6bb875f",
+      "group": "competition_presentations"
+    },
+    {
+      "path": "data/sceneassets/entrance_props/competitions/949/template.rx3",
+      "bytes": 22381344,
+      "sha256": "043d72cef68ae3f4f928242ab0ee2fd59cb8dd743e960852048fd7e7e1747d7a",
+      "group": "competition_presentations"
+    },
+    {
+      "path": "data/sceneassets/entrance_props/competitions/95/asset.ini",
+      "bytes": 518,
+      "sha256": "09396753b3d417986486bdc3c7092a17adefd06b191d5037b5960bde0531e19e",
+      "group": "competition_presentations"
+    },
+    {
+      "path": "data/sceneassets/entrance_props/competitions/95/model.rx3",
+      "bytes": 1505056,
+      "sha256": "dd0146c52fabf1a4b5707d6fea56dd71df1724dc916c47ab9f0b59681772b299",
+      "group": "competition_presentations"
+    },
+    {
+      "path": "data/sceneassets/entrance_props/competitions/95/template.rx3",
+      "bytes": 22381344,
+      "sha256": "c9acfa9d26a18373a16c494fc60ed59880f95aead4cfe3eb07ef8a49037ce434",
+      "group": "competition_presentations"
+    },
+    {
+      "path": "data/sceneassets/entrance_props/competitions/97/asset.ini",
+      "bytes": 518,
+      "sha256": "09396753b3d417986486bdc3c7092a17adefd06b191d5037b5960bde0531e19e",
+      "group": "competition_presentations"
+    },
+    {
+      "path": "data/sceneassets/entrance_props/competitions/97/model.rx3",
+      "bytes": 1505056,
+      "sha256": "dd0146c52fabf1a4b5707d6fea56dd71df1724dc916c47ab9f0b59681772b299",
+      "group": "competition_presentations"
+    },
+    {
+      "path": "data/sceneassets/entrance_props/competitions/97/template.rx3",
+      "bytes": 22381344,
+      "sha256": "c9acfa9d26a18373a16c494fc60ed59880f95aead4cfe3eb07ef8a49037ce434",
+      "group": "competition_presentations"
+    },
+    {
+      "path": "data/sceneassets/standball/brasileirao/model.rx3",
+      "bytes": 46320,
+      "sha256": "ab7194ee25be007fff324ce545ba0b9660399e5a035568e895fed9b40519da52",
+      "group": "replacement_ball_stands"
+    },
+    {
+      "path": "data/sceneassets/standball/brasileirao/textures.rx3",
+      "bytes": 2802544,
+      "sha256": "7c04f4b3e3cc08e4cc1f004a5823b2062ad09047794f2a3d289c27ceef9eb30d",
+      "group": "replacement_ball_stands"
+    },
+    {
+      "path": "data/sceneassets/standball/cbf/model.rx3",
+      "bytes": 42432,
+      "sha256": "0db08e69fe18f0b25af0e563956850af6268a8a2c3d5e19c391ef15c8072a21c",
+      "group": "replacement_ball_stands"
+    },
+    {
+      "path": "data/sceneassets/standball/cbf/textures.rx3",
+      "bytes": 2802512,
+      "sha256": "7e68d1cb147d073808c0a31bc394a7a0d91545e9f29d6b04ca369d1775599866",
+      "group": "replacement_ball_stands"
+    },
+    {
+      "path": "data/sceneassets/standball/generic1/model.rx3",
+      "bytes": 43856,
+      "sha256": "a6214e72914d31765c66a7b146c60b338c6a63a10d875dfa269a62f8bd4c4721",
+      "group": "replacement_ball_stands"
+    },
+    {
+      "path": "data/sceneassets/standball/generic1/textures.rx3",
+      "bytes": 2802528,
+      "sha256": "58429b0be3f543fc77a45d12741bb55977071d1469b43bed4f625c35c7062ebf",
+      "group": "replacement_ball_stands"
+    },
+    {
+      "path": "data/sceneassets/standball/generic2/model.rx3",
+      "bytes": 43264,
+      "sha256": "98150b46f84264d66b0a21a7101bd1757c816e416154f6af188feb9aab5980d9",
+      "group": "replacement_ball_stands"
+    },
+    {
+      "path": "data/sceneassets/standball/generic2/textures.rx3",
+      "bytes": 2802528,
+      "sha256": "7cddd1bb26542bb6d095b1aa5449ca3b69a2c10bd219dea93e20c308f10db9e8",
+      "group": "replacement_ball_stands"
+    },
+    {
+      "path": "data/sceneassets/standball/paulistao/model.rx3",
+      "bytes": 52112,
+      "sha256": "8dd46cc5793260e70aa93256e7943dfe6b7b1a4a9424cfed9fc8c86d8372ed62",
+      "group": "replacement_ball_stands"
+    },
+    {
+      "path": "data/sceneassets/standball/paulistao/textures.rx3",
+      "bytes": 2802528,
+      "sha256": "e3369eb24f864b65f1e3ec8656c5d7d30b80e656e46c9194bf624c6a964d8116",
+      "group": "replacement_ball_stands"
+    },
+    {
+      "path": "data/sceneassets/var_cabin/model.rx3",
+      "bytes": 363520,
+      "sha256": "90f5e1bcc820c600cf8eb5682cf1f21852c256f81681c466c1ea18ce63aaa667",
+      "group": "pitchside_var_cabin"
+    },
+    {
+      "path": "data/sceneassets/var_cabin/textures.rx3",
+      "bytes": 3670960,
+      "sha256": "404f57d1cdd17c7f00503473cf25e8f271be30c8c5060dad1d63993a80c8073d",
+      "group": "pitchside_var_cabin"
+    },
+    {
+      "path": "data/sceneassets/server16_club_xi/lighting/charcmn_0_neutral_v2.rx3",
+      "bytes": 461136,
+      "sha256": "e5c029d465c1ec1667677aaa0a7f44a1324c86893cbdbc4c05f93b2841132a3f",
+      "group": "xi_neutral_lighting"
+    },
+    {
+      "path": "data/sceneassets/server16_club_xi/lighting/charcmn_1_neutral_v2.rx3",
+      "bytes": 461136,
+      "sha256": "a8025033bbd93ca59a43c75fc301b0818709292fc76bb085fa7a0ddb2f148b3d",
+      "group": "xi_neutral_lighting"
+    }
+  ]
+}

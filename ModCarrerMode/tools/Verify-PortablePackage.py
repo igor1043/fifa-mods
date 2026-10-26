@@ -27,7 +27,7 @@ def verify(root,complement,output):
             for name in z.namelist():safe(name)
             z.extractall(stage)
         expected={}
-        for rel in ('ModCarrerMode/source/club_environment/assets-manifest.json','ModCarrerMode/data/club_browser/assets-manifest.json'):
+        for rel in ('ModCarrerMode/source/club_environment/assets-manifest.json','ModCarrerMode/data/club_browser/assets-manifest.json','ModCarrerMode/data/catalogs/presentation_assets.json'):
             for row in json.loads((stage/rel).read_text(encoding='utf8'))['files']:
                 safe(row['path']);assert row['path'] not in expected;expected[row['path']]=row
         with zipfile.ZipFile(complement) as z:
@@ -50,6 +50,9 @@ def verify(root,complement,output):
             if not line or line.startswith('#'):continue
             p=stage/'ModCarrerMode/mods'/line;assert p.is_file(),line;enabled.append(line)
         assert not (stage/'ModCarrerMode/runtime').exists(),'Git/ZIP leaked a developer runtime'
+        assert not (stage/'data/sceneassets/var_room').exists(),'Rejected internal VAR room leaked into assets'
+        assert not (stage/'ModCarrerMode/mods/var_room').exists(),'Rejected internal VAR room DLL leaked into release'
+        assert 'var_cabin\\var_cabin.dll' in enabled,'Existing pitchside VAR cabin must remain enabled'
         env={k:v for k,v in os.environ.items() if not k.startswith(('SERVER16_','PYINSTALLER_')) and k!='PYTHONPATH'}
         env['PYINSTALLER_RESET_ENVIRONMENT']='1'
         def run(args,label,environment=env):
@@ -60,7 +63,9 @@ def verify(root,complement,output):
         # Inspect our own bundled module: checking a loose source file alone
         # would miss an older executable shipped beside corrected sources.
         from PyInstaller.archive.readers import CArchiveReader
-        frozen=CArchiveReader(str(exe)).open_embedded_archive('PYZ.pyz').extract('server16_py.club_environment')
+        frozen_archive=CArchiveReader(str(exe)).open_embedded_archive('PYZ.pyz')
+        assert 'server16_py.var_room_panel' not in frozen_archive.toc,'Rejected internal VAR panel remains embedded'
+        frozen=frozen_archive.extract('server16_py.club_environment')
         expected_module=compile((stage/'ModCarrerMode/source/server16_py/club_environment.py').read_bytes(),frozen.co_filename,'exec',optimize=0)
         assert frozen==expected_module,'Server16 executable does not contain the published worker source'
         run([str(exe),'--server16-selftest',str(stage/'selftest.json')],'frozen-selftest')

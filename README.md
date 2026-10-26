@@ -6,9 +6,15 @@ O FIFA Friends V12 reúne melhorias para acompanhar seu clube, personalizar a ex
 
 **Edição:** FIFA Friends V12 · **Atualizado em:** 25/10/2026
 
-**Server16 incluído:** 0.2.15. As DLLs compiladas ficam nesta branch, organizadas em uma pasta por mod. O [índice dos módulos ativos](ModCarrerMode/mods/README.md) informa arquivos, funções e configurações.
+**Server16 incluído:** 0.2.16. As DLLs compiladas ficam nesta branch, organizadas em uma pasta por mod. O [índice dos módulos ativos](ModCarrerMode/mods/README.md) informa arquivos, funções e configurações.
 
 A combinação Git + ZIP é agora verificada em uma pasta vazia, sem caches do desenvolvedor, incluindo igualdade entre o módulo embutido no EXE e o fonte publicado.
+
+### Revisão local de áudio e texturas — 25/10/2026
+
+O hino de gol usa a fase nativa da partida para distinguir comemoração/replay da volta ao jogo. O relógio lento da comemoração não encerra mais o áudio. Pausar preserva a posição; voltar ao jogo encerra o hino com fade. Torcida visitante vem ativa no INI de distribuição e nas configurações sem essa opção; um desligamento manual salvo continua sendo respeitado.
+
+Os estádios recebem um conjunto de modelo e texturas identificado pelo conteúdo, com caminhos próprios para a engine. O conjunto e sua rota são publicados antes da troca do ID; a rota confere mandante e visitante e é limpa ao encerrar a partida. Pacotes sem texturas são recusados; um pacote que traz apenas dia ou noite usa essa textura nos dois horários. Os testes cobrem trocas consecutivas, iluminação, falha de publicação e restauração. A validação visual desta revisão entre duas partidas ainda está pendente. Os placares nativos permanecem iguais à versão confirmada.
 
 ### Revisão de estabilidade, empréstimos e placares — 25/10/2026
 
@@ -203,3 +209,18 @@ A cabine do VAR é visual: não altera decisões de arbitragem. As bolas de repo
 - [Server16: configuração, áudio e personalização](https://github.com/igor1043/CG-File-Server-16---Python-Port/tree/fifa-friends).
 
 A edição **New Experience** tem sua [própria branch](https://github.com/igor1043/fifa-mods/tree/fifa-friends-new-experience).
+
+## Atualização de 25/10/2026
+
+Server16 0.2.18: cenas nativas de técnico e mascote, cinco ângulos frontais,
+40% de chance por parada elegível e intervalo mínimo de 10 segundos. A tomada
+mantém o personagem nos fragmentos compatíveis da sequência e libera a câmera
+na retomada nativa. Cada personagem pode ser desligado nas Cenas extras.
+
+Também inclui revisão do hino/replay, torcida visitante ativa por padrão e
+isolamento das texturas de estádios entre partidas. O complemento de assets
+agora reúne vestiário, globo, SubsOn, mascotes e objetos de apresentação.
+
+- [Changelog completo e instalação para o Robson](ModCarrerMode/docs/RELEASE_20261025.md).
+- [Cenas extras: funcionamento e testes](ModCarrerMode/source/native_mods/extra_scenes/README.md).
+- [Sala interna do VAR adiada: anotações para retomada](ModCarrerMode/source/docs/VAR_ROOM_DEFERRED_20261025.md).

@@ -12,6 +12,8 @@ def build(root,out,stamp):
     rows=[dict(row) for row in assets['files']]
     globe=json.loads((root/'ModCarrerMode/data/club_browser/assets-manifest.json').read_text(encoding='utf8'))
     rows.extend(dict(row) for row in globe['files'])
+    presentation=json.loads((root/'ModCarrerMode/data/catalogs/presentation_assets.json').read_text(encoding='utf8'))
+    rows.extend(dict(row) for row in presentation['files'])
     animation='data/ant.cbac'
     rows.append({'path':animation,'bytes':(root/animation).stat().st_size,'sha256':sha(root/animation)})
     paths=set()
@@ -21,7 +23,7 @@ def build(root,out,stamp):
         if relative.casefold() in tracked:raise ValueError('Already published in Git: '+relative)
         if relative.casefold() in paths:raise ValueError('Duplicate asset: '+relative)
         paths.add(relative.casefold())
-        if path.suffix.casefold() not in ('.rx3','.npz','.cbac','.dds','.png'):raise ValueError('Not a static asset: '+relative)
+        if path.suffix.casefold() not in ('.rx3','.npz','.cbac','.dds','.png','.bin','.ini'):raise ValueError('Not a static asset: '+relative)
         source=root/path
         if source.stat().st_size!=row['bytes'] or sha(source)!=row['sha256']:raise ValueError('Asset differs from manifest: '+relative)
     target=out/f'FIFA-Friends-Assets-Complementares-{stamp}.zip';temporary=target.with_suffix('.zip.new')

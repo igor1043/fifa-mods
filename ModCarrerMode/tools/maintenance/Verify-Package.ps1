@@ -94,4 +94,5 @@ if ($enabledModules.ContainsKey('club_environment')) {
         'data\ui\nav\careermode\server16matchpreviewflow.nav')) { Require-File $relative }
 }
 if ($enabledModules.ContainsKey('extra_scenes')) { Require-File 'ModCarrerMode\config\extra_scenes.ini' }
+
 [pscustomobject]@{Package=$root;Verified=$true;EnabledPlugins=$entries.Count;MascotModels='Local packages required; excluded from Git'}

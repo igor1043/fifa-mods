@@ -142,7 +142,15 @@ if ((Get-FileHash -LiteralPath $newSnapshot).Hash -ne $hashes.Snapshot) { throw 
 if ((Get-FileHash -LiteralPath $private).Hash -ne $hashes.Private) { throw 'Estado privado alterado.' }
 if ((Get-FileHash -LiteralPath $db).Hash -ne $hashes.DB) { throw 'DB sobrescrito sem solicitar restauracao.' }
 if ((Get-FileHash -LiteralPath (Join-Path $fixture 'data\ant.cbac')).Hash -ne $supplementalHash) { throw 'Complemento SubsOn alterado pela atualizacao.' }
-if (Test-Path -LiteralPath (Join-Path $fixture 'ModCarrerMode\source')) { throw 'Fontes instaladas indevidamente.' }
+$runtimeSource=Join-Path $fixture 'ModCarrerMode\source'
+if (Test-Path -LiteralPath $runtimeSource) {
+    foreach ($entry in Get-ChildItem -LiteralPath $runtimeSource -Force) {
+        if ($entry.Name -ne 'club_environment' -or -not $entry.PSIsContainer) { throw 'Fontes de desenvolvimento instaladas indevidamente.' }
+    }
+    foreach ($relative in @('portable_paths.py','room\prepare_native_room_components_r46_20261022.py','bank\watch_r57.py')) {
+        if (-not (Test-Path -LiteralPath (Join-Path $runtimeSource ('club_environment\'+$relative)) -PathType Leaf)) { throw "Auxiliar de execucao ausente: $relative" }
+    }
+}
 if ((Get-FileHash -LiteralPath (Join-Path $fixture 'dinput8.dll')).Hash -ne (Get-FileHash -LiteralPath (Join-Path $repo 'dinput8.dll')).Hash) { throw 'DLL incorreta.' }
 if (-not (Test-Path -LiteralPath (Join-Path $fixture 'ModCarrerMode\crowd.ini'))) { throw 'Configuracao do plugin legado ausente.' }
 & (Join-Path $PSScriptRoot 'Install-Game.ps1') -GameDirectory $fixture -BackupDirectory (Join-Path $fixture 'installer-backups') -RestoreLocalization -ArchiveDevelopmentFiles

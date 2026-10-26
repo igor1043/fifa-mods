@@ -21,7 +21,6 @@ GROUPS = {
 # Retained development screens/tools, unavailable in the public build. The
 # audit option still runs them and reports their failures; never count them as passed.
 INACTIVE = {
- 'test_extra_scenes': 'EXTRA_SCENES_AVAILABLE is disabled in the public build',
  'test_narration_panel': 'NARRATION_PICKER_AVAILABLE is disabled in the public build',
  'test_narration_autosave': 'External narration authoring tools are not part of this repository',
  'test_narration_club_names': 'External narration authoring tools are not part of this repository',
@@ -50,12 +49,12 @@ def python_environment(game_root=ROOT, folder=SOURCE):
 
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument('--group', action='append', choices=(*GROUPS, 'native', 'browser-native'))
+    parser.add_argument('--group', action='append', choices=(*GROUPS, 'native', 'browser-native','cinematics'))
     parser.add_argument('--output', type=Path, default=ROOT/'code-release/regressions')
     parser.add_argument('--game-root', type=Path, default=ROOT, help='Optional installed game for kit/font integration tests')
     parser.add_argument('--audit-inactive', action='store_true', help='Also run retained, disabled developer features')
     args = parser.parse_args()
-    selected = args.group or [*GROUPS, 'native']
+    selected = args.group or [*GROUPS, 'native','cinematics']
     output = args.output.resolve(); output.mkdir(parents=True, exist_ok=True)
     rows = []; env = python_environment()
     def run(name, command, cwd=ROOT, timeout=900):
@@ -90,6 +89,10 @@ def main():
             if group=='server':
                 for module in modules:run(group+'-'+module,[sys.executable,'-B','-m','unittest',module,'-v'])
             else:run(group, [sys.executable, '-B', '-m', 'unittest', *modules, '-v'])
+        elif group=='cinematics':
+            env=python_environment(args.game_root,SOURCE)
+            env['EXTRA_SCENES_OUTPUT']=str(output/'extra-scenes-native')
+            run('extra-scenes-native',['cmd','/d','/c',str(SOURCE/'scripts/build_extra_scenes.cmd')])
         elif group=='browser-native':
             if args.game_root.resolve()==ROOT.resolve():
                 parser.error('browser-native requires --game-root with the original FIFA assets')

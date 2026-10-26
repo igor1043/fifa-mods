@@ -47,9 +47,14 @@ O [ZIP complementar](../docs/COMPLEMENTO_SUBSON.md) entrega o arquivo grande
 `entrance_props` precede `var_cabin` em `enabled.txt`; `frontend_stadium`
 precede `panorama_drone`. Preserve a ordem da lista ao instalar.
 
-As cenas extras de técnicos e mascotes estão desativadas e seus fontes ficam
-em `source/native_mods/extra_scenes/`. O Server16 0.2.8 oculta também o seletor
-de narrador, a seleção automática e os avisos de narração.
+As cenas extras de técnico e mascote usam `extra_scenes/extra_scenes.dll`:
+cinco variações frontais, 40% por parada elegível, intervalo mínimo de 10 s e
+continuidade nos fragmentos da sequência nativa. O Server16 0.2.18 oferece
+controles separados dos dois personagens. A sala interna experimental do VAR
+foi retirada; as anotações estão em `source/docs/VAR_ROOM_DEFERRED_20261025.md`.
+A cabine do VAR na beira do campo continua disponível.
+
+O seletor de narrador e seus avisos continuam ocultos.
 
 Backups pertencem a `ModCarrerMode/backups/`, fora do Git. Arquivos de estado
 gerados pelos módulos são locais; o instalador não os distribui. Atualizações

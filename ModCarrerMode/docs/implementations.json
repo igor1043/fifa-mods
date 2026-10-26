@@ -211,12 +211,12 @@
     },
     {
       "id": "extra_scenes",
-      "name": "Cenas extras de tecnicos e mascotes",
-      "behavior": "Implementacao experimental preservada para desenvolvimento.",
+      "name": "Cenas de técnico e mascote",
+      "behavior": "Câmeras nativas frontais de técnico e mascote, cinco variações por perfil, preservando o personagem durante os fragmentos compatíveis da sequência.",
       "source": "ModCarrerMode/source/native_mods/extra_scenes",
       "configuration": "ModCarrerMode/config/extra_scenes.ini",
-      "limits": "Modulo desativado e acesso oculto no Server16 0.2.8.",
-      "status": "disabled"
+      "limits": "40% por parada elegível, 10 s de intervalo mínimo e pesos 1:1. Fim controlado pela sequência nativa, sem limite artificial de 5 s. Revisão 12 testada offline; tempo de permanência requer conferência visual.",
+      "status": "implemented"
     },
     {
       "id": "narration_selection",
@@ -265,7 +265,7 @@
       "status": "visual_cabin_only"
     }
   ],
-  "reviewed_on": "2026-10-21",
+  "reviewed_on": "2026-10-25",
   "native_entrance_revision": 19,
   "native_var_revision": 3,
   "native_cloth_revision": 9,
