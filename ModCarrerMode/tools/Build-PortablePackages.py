@@ -5,7 +5,7 @@ import argparse,hashlib,json,os,subprocess,zipfile,importlib.util
 def sha(path):
     with path.open('rb') as stream:return hashlib.file_digest(stream,'sha256').hexdigest()
 
-def build(root,out,stamp):
+def build(root,out,stamp,reuse_archive=None):
     root=Path(root).resolve();out=Path(out);out.mkdir(parents=True,exist_ok=True)
     tracked={p.decode('utf8').casefold() for p in subprocess.check_output(['git','ls-files','-z'],cwd=root).split(b'\0') if p}
     assets=json.loads((root/'ModCarrerMode/source/club_environment/assets-manifest.json').read_text(encoding='utf8'))
@@ -27,8 +27,12 @@ def build(root,out,stamp):
         source=root/path
         if source.stat().st_size!=row['bytes'] or sha(source)!=row['sha256']:raise ValueError('Asset differs from manifest: '+relative)
     target=out/f'FIFA-Friends-Assets-Complementares-{stamp}.zip';temporary=target.with_suffix('.zip.new')
-    with zipfile.ZipFile(temporary,'w',zipfile.ZIP_DEFLATED,compresslevel=9) as archive:
-        for row in sorted(rows,key=lambda r:r['path']):archive.write(root/row['path'],row['path'])
+    if reuse_archive is None:
+        with zipfile.ZipFile(temporary,'w',zipfile.ZIP_DEFLATED,compresslevel=9) as archive:
+            for row in sorted(rows,key=lambda r:r['path']):archive.write(root/row['path'],row['path'])
+    elif Path(reuse_archive).resolve()!=temporary.resolve():
+        import shutil
+        shutil.copy2(reuse_archive,temporary)
     with zipfile.ZipFile(temporary) as archive:
         if archive.testzip() is not None:raise ValueError('ZIP failed CRC verification')
         if set(archive.namelist())!={r['path'] for r in rows}:raise ValueError('Unexpected ZIP entries')
@@ -45,6 +49,6 @@ def build(root,out,stamp):
     return {k:v for k,v in report.items() if k!='files'}
 
 def main():
-    parser=argparse.ArgumentParser();parser.add_argument('--root',type=Path,default=Path(__file__).resolve().parents[2]);parser.add_argument('--output',type=Path);parser.add_argument('--date',default='20261024');args=parser.parse_args()
-    print(json.dumps(build(args.root,args.output or args.root/'code-release',args.date),indent=2))
+    parser=argparse.ArgumentParser();parser.add_argument('--root',type=Path,default=Path(__file__).resolve().parents[2]);parser.add_argument('--output',type=Path);parser.add_argument('--date',default='20261024');parser.add_argument('--reuse-archive',type=Path,help='Recheck every entry and the clean installation using an already compressed complement');args=parser.parse_args()
+    print(json.dumps(build(args.root,args.output or args.root/'code-release',args.date,args.reuse_archive),indent=2))
 if __name__=='__main__':main()

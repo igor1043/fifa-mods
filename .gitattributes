@@ -31,3 +31,42 @@ data/ui/nav/careermode/server16*.nav -text
 # Preserve the original navigation exports, including their native formatting.
 data/ui/nav/careermode/*.nav whitespace=cr-at-eol,-blank-at-eol,-blank-at-eof
 data/ui/layout/*.xml whitespace=cr-at-eol,-blank-at-eol,-blank-at-eof
+
+# Release manifest inputs retain identical bytes in Windows clones and Git archives.
+ModCarrerMode/config/extra_scenes.ini -text whitespace=cr-at-eol
+ModCarrerMode/data/catalogs/presentation_assets.json -text whitespace=cr-at-eol
+ModCarrerMode/source/common/scene_camera_lease.h -text whitespace=cr-at-eol
+ModCarrerMode/source/docs/SERVER_AUDIO_STADIUM_20261025.md -text whitespace=cr-at-eol
+ModCarrerMode/source/docs/VAR_ROOM_DEFERRED_20261025.md -text whitespace=cr-at-eol
+ModCarrerMode/source/native_mods/extra_scenes/README.md -text whitespace=cr-at-eol
+ModCarrerMode/source/native_mods/extra_scenes/extra_scenes.cpp -text whitespace=cr-at-eol
+ModCarrerMode/source/native_mods/extra_scenes/extra_scenes.ini -text whitespace=cr-at-eol
+ModCarrerMode/source/native_mods/extra_scenes/frame_camera.h -text whitespace=cr-at-eol
+ModCarrerMode/source/native_mods/extra_scenes/native_muse.h -text whitespace=cr-at-eol
+ModCarrerMode/source/native_mods/extra_scenes/reaction_policy.h -text whitespace=cr-at-eol
+ModCarrerMode/source/native_mods/extra_scenes/scene_math.h -text whitespace=cr-at-eol
+ModCarrerMode/source/native_mods/extra_scenes/shot_variants.h -text whitespace=cr-at-eol
+ModCarrerMode/source/native_mods/frontend_stadium/frontend_stadium.lua -text whitespace=cr-at-eol
+ModCarrerMode/source/scripts/run_regressions.py -text whitespace=cr-at-eol
+ModCarrerMode/source/server16_py/__init__.py -text whitespace=cr-at-eol
+ModCarrerMode/source/server16_py/app.py -text whitespace=cr-at-eol
+ModCarrerMode/source/server16_py/build_check.py -text whitespace=cr-at-eol
+ModCarrerMode/source/server16_py/chants_runtime.py -text whitespace=cr-at-eol
+ModCarrerMode/source/server16_py/extra_scenes_panel.py -text whitespace=cr-at-eol
+ModCarrerMode/source/server16_py/file_tools.py -text whitespace=cr-at-eol
+ModCarrerMode/source/server16_py/ini_file.py -text whitespace=cr-at-eol
+ModCarrerMode/source/server16_py/match_hub_panel.py -text whitespace=cr-at-eol
+ModCarrerMode/source/server16_py/match_state.py -text whitespace=cr-at-eol
+ModCarrerMode/source/server16_py/stadium_match_assets.py -text whitespace=cr-at-eol
+ModCarrerMode/source/server16_py/stadium_runtime.py -text whitespace=cr-at-eol
+ModCarrerMode/source/tests/native_extra_scenes_test.cpp -text whitespace=cr-at-eol
+ModCarrerMode/source/tests/test_audio_module_defaults.py -text whitespace=cr-at-eol
+ModCarrerMode/source/tests/test_chants_match_lifecycle.py -text whitespace=cr-at-eol
+ModCarrerMode/source/tests/test_extra_scenes.py -text whitespace=cr-at-eol
+ModCarrerMode/source/tests/test_first_person_and_hub.py -text whitespace=cr-at-eol
+ModCarrerMode/source/tests/test_match_scene_audio.py -text whitespace=cr-at-eol
+ModCarrerMode/source/tests/test_overlay_layout.py -text whitespace=cr-at-eol
+ModCarrerMode/source/tests/test_rar_extraction.py -text whitespace=cr-at-eol
+ModCarrerMode/source/tests/test_release_features.py -text whitespace=cr-at-eol
+ModCarrerMode/source/tests/test_stadium_replacement.py -text whitespace=cr-at-eol
+data/fifarna/lua/assets/server16_frontend_stadium.lua -text whitespace=cr-at-eol
