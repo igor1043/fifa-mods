@@ -7,9 +7,24 @@
       "sha256": "4b3cca9fdb1d51e80da11d80dbb517fd69b956ca94416cd83a972ef37a8cb375"
     },
     {
+      "path": "ModCarrerMode/config/frontend_stadium.ini",
+      "bytes": 164,
+      "sha256": "91f11b9e9accae8151e8fcad70fb46d529a1bfee60b468848ef47061376fb347"
+    },
+    {
       "path": "ModCarrerMode/config/goal_news.ini",
       "bytes": 113,
       "sha256": "2c98d74f4eafb7eb147d68e9c354f65326c94c1d6871181c0295ae5a26ecdf0c"
+    },
+    {
+      "path": "ModCarrerMode/config/match_presentation.ini",
+      "bytes": 203,
+      "sha256": "8ce04ea641ab41807585ae17f7120390fb5cf4073aa0e1580f44cad093b71e1a"
+    },
+    {
+      "path": "ModCarrerMode/crowd.ini",
+      "bytes": 4650,
+      "sha256": "d87d96c5239d37c3d04d8de8045a4b72ff1cbc955aeb1895a67498de0b2b5c18"
     },
     {
       "path": "ModCarrerMode/data/catalogs/presentation_assets.json",
@@ -922,6 +937,11 @@
       "sha256": "d865d57050f1672b50d26247c84bd121c1151f88d8c9d8bc290779f63831b15c"
     },
     {
+      "path": "ModCarrerMode/source/server16_py/prematch_panel.py",
+      "bytes": 12318,
+      "sha256": "40689ce1a843fa05dbde498ad4ed47d7e82db3bc3a80e91f5f71baff9daa3fcc"
+    },
+    {
       "path": "ModCarrerMode/source/server16_py/stadium_match_assets.py",
       "bytes": 2929,
       "sha256": "c58dc03c29cb1fafdb1a6f0bd65edf495d516345921f0351abdb940453ef3903"
@@ -1153,8 +1173,8 @@
     },
     {
       "path": "data/ui/game/screens/career/server16/bankloansv2.big",
-      "bytes": 89892,
-      "sha256": "72e96355bfba2df660f026f30a2e517e26150afd95fc63b48114acbb460d6a52"
+      "bytes": 94347,
+      "sha256": "f43951397f23ca23c701067cf600b3a6f3a9fd52a16fc0ff6f6a362f2d72b19d"
     },
     {
       "path": "data/ui/game/screens/career/server16/clubbrowser.big",
@@ -1163,8 +1183,8 @@
     },
     {
       "path": "data/ui/game/screens/career/server16/dressingroom.big",
-      "bytes": 7477,
-      "sha256": "cc7ee6ff5d8bda73892a88af955cc97442d1aac83ddaf575134e811b0fa9f223"
+      "bytes": 206595,
+      "sha256": "33a4da03cb6aca206ac682fda242449cf3658fcbd34958d74bcb85ba58996deb"
     },
     {
       "path": "data/ui/game/screens/career/server16/markethubbootstrap.big",
@@ -1173,8 +1193,8 @@
     },
     {
       "path": "data/ui/game/screens/career/server16/matchpreview.big",
-      "bytes": 22480,
-      "sha256": "cf578fe9883d2405604a7cee7becfda7dbb4fbfc4142ba19e18c451bdd6a7aa3"
+      "bytes": 430741,
+      "sha256": "5017ebfa377dfb0b60e653ad28bbc3954be50c1da88a8374ecee78a9e883f1c1"
     },
     {
       "path": "data/ui/game/screens/career/server16/matchpreviewloading.big",
@@ -1183,8 +1203,8 @@
     },
     {
       "path": "data/ui/game/screens/career/server16/transfermarket.big",
-      "bytes": 7357,
-      "sha256": "50534e8bae67e24b3cc2d550341dc421298a820f290baad84bc8dfaf83677e41"
+      "bytes": 7356,
+      "sha256": "0852d58dbe152fd21376896e6a9e1740ae9f5d64b64c77b909bac5d37e12018a"
     },
     {
       "path": "data/ui/game/screens/career/server16/transfermarketloading.big",

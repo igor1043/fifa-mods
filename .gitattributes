@@ -70,3 +70,9 @@ ModCarrerMode/source/tests/test_rar_extraction.py -text whitespace=cr-at-eol
 ModCarrerMode/source/tests/test_release_features.py -text whitespace=cr-at-eol
 ModCarrerMode/source/tests/test_stadium_replacement.py -text whitespace=cr-at-eol
 data/fifarna/lua/assets/server16_frontend_stadium.lua -text whitespace=cr-at-eol
+
+# Installed-game configuration exported byte for byte.
+ModCarrerMode/config/frontend_stadium.ini -text whitespace=cr-at-eol,-blank-at-eof
+ModCarrerMode/config/match_presentation.ini -text whitespace=cr-at-eol,-blank-at-eof
+ModCarrerMode/crowd.ini -text whitespace=cr-at-eol,-blank-at-eol,-blank-at-eof
+ModCarrerMode/source/server16_py/prematch_panel.py -text whitespace=cr-at-eol

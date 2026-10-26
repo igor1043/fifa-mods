@@ -58,14 +58,9 @@
     "hidhide_installer_present": true
   },
   "frozen_source_modules_verified": 80,
-  "release_files": 246,
+  "release_files": 250,
   "game_source_manifest_differences": [],
-  "generated_career_screens_preserved": [
-    "data/ui/game/screens/career/server16/bankloansv2.big",
-    "data/ui/game/screens/career/server16/dressingroom.big",
-    "data/ui/game/screens/career/server16/matchpreview.big",
-    "data/ui/game/screens/career/server16/transfermarket.big"
-  ],
+  "generated_career_screens_preserved": [],
   "complementary_static_assets": 650,
   "presentation_asset_groups": {
     "mascots": 252,
@@ -80,5 +75,26 @@
     "Final native cutscene duration and continuity after restart",
     "Consecutive stadium matches after texture-route update",
     "XI on Robson PC after full update"
+  ],
+  "screens_copied_from_installed_game": [
+    "data/ui/game/screens/career/server16/bankloansv2.big",
+    "data/ui/game/screens/career/server16/dressingroom.big",
+    "data/ui/game/screens/career/server16/matchpreview.big",
+    "data/ui/game/screens/career/server16/transfermarket.big"
+  ],
+  "configurations_copied_from_installed_game": [
+    "ModCarrerMode/config/frontend_stadium.ini",
+    "ModCarrerMode/config/match_presentation.ini",
+    "ModCarrerMode/crowd.ini"
+  ],
+  "runtime_code_origin": "Installed game EXE/DLL and mirrored source; frozen source equality checked",
+  "local_stadium_routes": "Generated paths remain local; portable release regenerates them",
+  "installed_game_runtime_files_identical": 4747,
+  "installed_game_assets_verified": 650,
+  "canonical_server_source_modules_equal_to_game": 84,
+  "additional_game_reference_tests": 40,
+  "expected_local_route_differences": [
+    "data/fifarna/lua/assets/server16_frontend_176.lua",
+    "data/fifarna/lua/assets/server16_frontend_261.lua"
   ]
 }
