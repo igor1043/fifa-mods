@@ -1,0 +1,159 @@
+competition_id	visual_id	label
+1	990	FIFA - Copa do Mundo WORLD CUP
+63	74	FIFA - Mundial de Clubes
+99	73	FIFA - INTER CUP
+117	991	FIFA - Eliminatorias Europa Copa do Mundo
+130	980	FIFA - Eurocopa
+175	981	UEFA - Nations League
+192	232	UEFA - Super Cup
+195	223	UEFA - Champions League
+247	224	UEFA - Europa League
+280	226	UEFA - Conference League
+314	1	GRE - Superleague
+320	228	ENG - F. A. Community Shield
+323	13	ENG - Premiere League
+326	14	ENG - Sky Bet Championship
+329	60	ENG - EFL League One
+332	61	ENG - EFL League Two
+335	62	ENG - National League
+338	201	ENG - The Emirates FA Cup
+479	202	ENG - Carabao CUP
+594	16	FRA - Ligue 1
+597	17	FRA - Ligue 2
+600	233	FRA - Supercopa da França
+603	69	FRA - Ligue 3
+606	204	FRA - Coupe de France
+679	19	GER - Bundesliga
+682	20	GER - Bundesliga 2
+685	207	GER - DFL-Supercup
+688	3	GER - 3. Bundesliga
+691	206	GER - Copa Alemanha
+761	31	ITA - Italy Serie A
+764	32	ITA - Italy Serie B
+767	211	ITA - Supercoppa
+775	65	ITA - Serie C
+778	210	ITA - Coppa Italia Frecciarossa
+840	10	HOL - Netherland Eredivisie
+844	308	POR - Liga Betclic
+847	46	POR - Portugal Liga 2
+850	272	POR - Super Taca
+853	309	POR - LIGA 3
+859	218	POR - Taca Portuguesa
+926	50	SCO - Cinch Premiereship
+932	53	ESP - La Liga EA Sports
+935	54	ESP - LaLiga Smartbank 123
+938	225	ESP - Super Copa
+946	55	ESP - Primera Federacion
+949	208	ESP - Copa do Rey da Espanha
+1023	68	TUR - Super LIG
+1027	15	POL - PKO Bank Polski Ekstraklasa
+1031	56	SWE - Allsvenskan
+1035	189	SWI - Raiffeisen Super League
+1041	80	AUT - Tipico Bundesliga
+1047	4	BEL - Jupiter League
+1054	214	BEL - Jupiter League
+1058	2076	BELGICA 2 ***
+1061	2006	BELGICA 2 ***
+1072	330	ROM - Superliga
+1078	332	UKR - FavBet Liha
+1082	319	CZE - Chance LIGA
+1088	67	DEN - 3F Superliga
+1094	59	NOR - Eliteserien
+1098	71	IRL - SSE Airtricity League
+1102	91	CRO - HNL Studio Supersport
+1106	6	CON - Concacaf CL
+1145	940	CON - Copa Oro
+1159	3034	LEAGUE CUP ***
+1175	341	MEX - Liga MX
+1197	342	MEX - Liga MX
+1220	39	USA - MLS
+1249	381	COSTA RICA ***
+1257	440	COSTA RICA ***
+1266	322	HONDURAS ***
+1277	1208	HONDURAS ***
+1289	993	AFC - Eliminatorias Asiatica
+1292	1005	AFC - Asia Champions League
+1318	191	CHN - Chinese Super League
+1322	349	JAP - J-LEAGUE
+1326	47	KOR - K-League
+1330	450	SAU - Roshn Saudi League
+1334	8	QAT - Ooredoo Stars League
+1338	379	AUST - Isuzu UTE A-League
+1353	551	Australia Cup ***
+1371	3000	OFC Professional League ***
+1385	992	COM - Eliminatorias America do Sul Copa do Mundo
+1388	970	COM - Copa America
+1407	1009	COM - Recopa Sudamericana
+1410	1007	COM - Copa Sudamericana
+1460	1003	COM - Copa Libertadores
+1513	353	ARG - Liga Argentina
+1531	18	ARG - Primera Nacional B
+1539	230	ARG - Copa Argentina
+1612	335	CHI - Liga de Primera
+1616	336	COL - Liga Dimayor
+1620	229	BRA - Copa do Brasil - Primeira Fase
+1761	7	BRA - Brasileirao Serie A
+1764	83	BRA - Brasileirao Serie B
+1770	350	BRA - Brasileirao Serie C
+1780	351	BRA - Brasileirao Serie D-1
+1836	354	BRA - Brasileirao Serie Divisao de Acesso
+1839	9	BRA - Supercopa Brasil
+1842	24	BRA - Copa Verde
+1861	40	BRA - Copa do Nordeste
+1880	66	URU - Campeonato Uruguayo
+1884	41	PAR - Copa de Primera
+1888	154	ECU - Copa Pilsener
+1892	11	PER - Liga Betsson 1
+1896	12	BOL - Liga Bolivia
+1900	153	VEN - Liga FutVe
+1904	960	CAF - Copa da Africa
+1918	3003	CAF CL ***
+1944	443	WE Cup ***
+1971	352	Nile League ***
+1977	447	Nedbank Cup ***
+1999	356	DStv Premiership ***
+2003	1225	Taça de Angola ***
+2025	355	ANG - Girabola
+2029	445	Coupe du Trône ***
+2051	84	Botola Pro 1 Inwi ***
+2056	107	OFC - Campeonato Sergipano
+2063	28	OFC - Campeonato Bahiano
+2073	29	OFC - Campeonato Cearense
+2088	27	OFC - Campeonato Pernambucano
+2101	159	OFC - Campeonato Baiano Serie B
+2111	158	OFC - Campeonato Pernambucano B
+2121	167	OFC - Campeonato Cearense B
+2129	35	OFC - Campeonato Alagoano
+2136	45	OFC - Campeonato Paraibano
+2146	44	OFC - Campeonato Potiguar
+2156	49	OFC - Campeonato Piauiense
+2163	34	OFC - Campeonato Maranhense
+2171	5	OFC - Campeonato Paranaense
+2182	33	OFC - Campeonato Catarinense
+2193	30	OFC - Campeonato Gaucho
+2205	126	OFC - Campeonato Gaucho Acesso
+2216	166	OFC - Campeonato Paranaense Segunda Divisao
+2226	165	OFC - Campeonato Catarinense B
+2237	37	OFC - Campeonato Goiano
+2247	43	OFC - Campeonato Matogrossense
+2257	36	OFC - Campeonato Brasiliense
+2267	90	OFC - Campeonato Sul Matogrossense
+2277	92	OFC - Campeonato Tocantinense
+2287	151	OFC - Campeonato Goiano B
+2298	48	OFC - Campeonato Amazonense
+2307	94	OFC - Campeonato Roraimense
+2317	38	OFC - Campeonato Paraense
+2327	129	OFC - Campeonato Paraense B
+2338	42	OFC - Campeonato Capixaba
+2348	22	OFC - Campeonato Paulista - Grupo
+2363	120	OFC - Campeonato Paulista A2
+2378	121	OFC - Campeonato Paulista A3
+2393	122	OFC - Campeonato Paulista A4
+2408	25	OFC - Campeonato Mineiro
+2431	125	OFC - Campeonato Mineiro 2
+2442	23	OFC - Carioca Rio
+2460	123	OFC - Campeonato Carioca A2
+2471	124	OFC - Campeonato Paulista Segunda SUB23
+2490	86	OFC - Campeonato Rondoniense
+2500	95	OFC - Campeonato Amapaense
+2510	96	OFC - Campeonato Acreano

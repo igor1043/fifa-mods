@@ -1,0 +1,62 @@
+#include <assert.h>
+#include <stdio.h>
+#include "crowd_policy.h"
+#include "country_policy.h"
+#include "scene_policy.h"
+int main() {
+    int32_t scene[32]{}; UltraSceneTeams teams;
+    assert(!ultra_scene_teams(scene, teams));
+    scene[16] = 1; scene[17] = 1043; scene[18] = 567;
+    scene[19] = 130000; // Kit team is independent of the actual club.
+    assert(ultra_scene_teams(scene, teams));
+    assert(teams.index == 1 && teams.home == 1043 && teams.away == 567);
+    scene[16] = 0; scene[17] = 112893; scene[18] = 1;
+    assert(ultra_scene_teams(scene, teams));
+    assert(teams.index == 0 && teams.home == 112893 && teams.away == 1);
+    scene[16] = 2; assert(!ultra_scene_teams(scene, teams));
+    scene[16] = 1; scene[17] = -1; assert(!ultra_scene_teams(scene, teams));
+    scene[17] = 1000001; assert(!ultra_scene_teams(scene, teams));
+    assert(!ultra_scene_teams(nullptr, teams));
+    assert(ultra_brazil_country("Brazil"));
+    assert(ultra_brazil_country("Brasil Sul"));
+    assert(!ultra_brazil_country("England"));
+    assert(!ultra_brazil_country("Brazilian fantasy"));
+    assert(!ultra_brazil_country(nullptr));
+    UltraConfig c;
+    c.replacePercent = 100;
+    for (uint32_t i = 0; i < 1000; ++i) {
+        const uint32_t home = 0x08000000U, away = 0;
+        assert(ultra_scoped_flags(home, i, c, true, false) == ultra_flags(home, i, c));
+        assert(ultra_scoped_flags(away, i, c, true, false) == away);
+        assert(ultra_scoped_flags(home, i, c, false, true) == home);
+        assert(ultra_scoped_flags(away, i, c, false, true) == ultra_flags(away, i, c));
+        const uint32_t random = ultra_hash(i);
+        assert(ultra_scoped_flags(random, i, c, false, false) == random);
+    }
+    unsigned primary = 0, secondary = 0;
+    for (uint32_t i = 0; i < 100000; ++i) {
+        const uint32_t original = ultra_hash(i);
+        const uint32_t after = ultra_flags(original, i, c);
+        assert((original & ~0x00380000U) == (after & ~0x00380000U));
+        if (((original >> 22) & 3U) == 2U) { assert(original == after); continue; }
+        assert(after & 0x80000U);
+        assert(((after >> 20) & 1U) == ((original & 0x08000000U) ? 0U : 1U));
+        if (after & 0x00200000U) ++secondary; else ++primary;
+        assert(after == ultra_flags(original, i, c));
+    }
+    assert(primary * 100U / (primary + secondary) >= 87);
+    assert(primary * 100U / (primary + secondary) <= 89);
+    assert(ultra_third_count(1200, c) == 300);
+    assert(ultra_goalkeeper_count(1200, c) == 100);
+    for (unsigned n = 0; n < 5000; ++n) assert(ultra_third_count(n, c) + ultra_goalkeeper_count(n, c) <= n);
+    c.replacePercent = 96;
+    unsigned selected = 0;
+    for (uint32_t i = 0; i < 100000; ++i) if (ultra_flags(0, i, c) & 0x80000U) ++selected;
+    assert(selected >= 95000 && selected <= 97000);
+    c.replacePercent = 0;
+    for (uint32_t i = 0; i < 1000; ++i) assert(ultra_flags(i, i, c) == i);
+    c.kit2Percent = c.kit3Percent = c.goalkeeperPercent = 0; c.kit1Percent = 100;
+    assert(ultra_third_count(2000, c) == 0);
+    assert(ultra_goalkeeper_count(2000, c) == 0);
+    printf("PASS: early scene identity, seat bits, affiliation, deterministic mix, zero replacement and kit split. Primary=%u Secondary=%u\n", primary, secondary);
+}

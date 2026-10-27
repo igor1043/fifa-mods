@@ -1,0 +1,14 @@
+# Runtime tested with Python 3.13 x64. Install rtmlib with --no-deps;
+# its generic onnxruntime dependency must not replace DirectML.
+rtmlib==0.0.16
+onnxruntime-directml==1.24.4
+numpy==2.4.3
+Pillow==12.2.0
+opencv-python==4.13.0.92
+flatbuffers==25.12.19
+packaging==26.0
+protobuf==7.34.1
+sympy==1.14.0
+mpmath==1.3.0
+tqdm==4.67.3
+colorama==0.4.6

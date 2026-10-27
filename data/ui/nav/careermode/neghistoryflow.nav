@@ -1,0 +1,111 @@
+{
+	"name":"NegHistoryFlow"
+	,"initial": { "targets":["NegHistory"] }
+	,"states":
+	[
+		{
+			"name":"NegHistory"
+			,"onEnter":
+			[
+				["loadScreenController", ["NegHistory"]]
+				,["loadView", ["screen", "game/screens/career/transfers/NegotiationsHistory"]]
+				,["loadView",["background", "BOOTFLOW"]]
+			]
+			,"onExit":
+			[
+				["unloadView", ["screen", "game/screens/career/transfers/NegotiationsHistory"]]
+				,["unloadScreenController", ["NegHistory"]]
+				,["unloadView",["background"]]
+			]
+			,"transitions":
+			[
+				{
+					"event":"Back"
+					,"targets":["Back"] 
+				}
+				,{
+					"event":"EnterContractOffer"
+					,"targets":["ContractOffer"] 
+					,"actions":[ ["executeCMAction",["EnterContractOfferFromNegHistory"]] ]
+				}
+				,{
+					"event":"EnterTransferOffer"
+					,"targets":["TransferOffer"] 
+					,"actions":[ ["executeCMAction",["EnterTransferOfferFromNegHistory"]] ]
+				}
+				,{
+					"event":"EnterAcceptRejectPlayers"
+					,"targets":["AcceptRejectPlayers"] 
+					,"actions":[ ["executeCMAction",["EnterAcceptRejectPlayersFromNegHistory"]] ]
+				}
+			]
+		}
+		,{
+			"name":"ContractOffer"
+			,"onEnter":
+			[
+				["loadScreenController", ["ContractOffer"]]
+				,["loadView", ["screen", "game/screens/career/transfers/ContractOffer"]]
+				,["loadView",["background", "BOOTFLOW"]]
+			]
+			,"onExit":
+			[
+				["unloadView", ["screen", "game/screens/career/transfers/ContractOffer"]]
+				,["unloadScreenController", ["ContractOffer"]]
+				,["unloadView",["background"]]
+			]
+			,"transitions":
+			[
+				{
+					"event":"Back"
+					,"targets":["NegHistory"] 
+				}
+			]
+		}
+		,{
+			"name":"TransferOffer"
+			,"onEnter":
+			[
+				["loadScreenController", ["TransferOffer"]]
+				,["loadView", ["screen", "game/screens/career/transfers/transferOffer"]]
+				,["loadView",["background", "BOOTFLOW"]]
+			]
+			,"onExit":
+			[
+				["unloadView", ["screen", "game/screens/career/transfers/transferOffer"]]
+				,["unloadScreenController", ["TransferOffer"]]
+				,["unloadView",["background"]]
+			]
+			,"transitions":
+			[
+				{
+					"event":"Back"
+					,"targets":["NegHistory"] 
+				}
+			]
+		}
+		,{
+			"name":"AcceptRejectPlayers"
+			,"onEnter":
+			[
+				["loadScreenController", ["AcceptRejectPlayers"]]
+				,["loadView", ["screen", "game/screens/career/transfers/AcceptRejectPlayers"]]
+				,["loadView",["background", "BOOTFLOW"]]
+			]
+			,"onExit":
+			[
+				["unloadView", ["screen", "game/screens/career/transfers/AcceptRejectPlayers"]]
+				,["unloadScreenController", ["AcceptRejectPlayers"]]
+				,["unloadView",["background"]]
+			]
+			,"transitions":
+			[
+				{
+					"event":"Back"
+					,"targets":["NegHistory"] 
+				}
+			]
+		}
+	]
+}
+		

@@ -1,0 +1,164 @@
+﻿ÍCONES DAS COMPETIÇÕES — UMA IMAGEM POR ID DO INI
+
+Use <ID>.png nesta pasta. Calendário, Central e Competições usam esta mesma imagem.
+Abra o Server16 antes do FIFA para preparar as proporções. O módulo gera o BIG do calendário ao iniciar o FIFA.
+As subpastas calendar e cards são geradas automaticamente; não as edite.
+
+1 - FIFA - Copa do Mundo WORLD CUP.png
+63 - FIFA - Mundial de Clubes.png
+99 - FIFA - INTER CUP.png
+117 - FIFA - Eliminatorias Europa Copa do Mundo.png
+130 - FIFA - Eurocopa.png
+175 - UEFA - Nations League.png
+192 - UEFA - Super Cup.png
+195 - UEFA - Champions League.png
+247 - UEFA - Europa League.png
+280 - UEFA - Conference League.png
+314 - GRE - Superleague.png
+320 - ENG - F. A. Community Shield.png
+323 - ENG - Premiere League.png
+326 - ENG - Sky Bet Championship.png
+329 - ENG - EFL League One.png
+332 - ENG - EFL League Two.png
+335 - ENG - National League.png
+338 - ENG - The Emirates FA Cup.png
+479 - ENG - Carabao CUP.png
+594 - FRA - Ligue 1.png
+597 - FRA - Ligue 2.png
+600 - FRA - Supercopa da França.png
+603 - FRA - Ligue 3.png
+606 - FRA - Coupe de France.png
+679 - GER - Bundesliga.png
+682 - GER - Bundesliga 2.png
+685 - GER - DFL-Supercup.png
+688 - GER - 3. Bundesliga.png
+691 - GER - Copa Alemanha.png
+761 - ITA - Italy Serie A.png
+764 - ITA - Italy Serie B.png
+767 - ITA - Supercoppa.png
+775 - ITA - Serie C.png
+778 - ITA - Coppa Italia Frecciarossa.png
+840 - HOL - Netherland Eredivisie.png
+844 - POR - Liga Betclic.png
+847 - POR - Portugal Liga 2.png
+850 - POR - Super Taca.png
+853 - POR - LIGA 3.png
+859 - POR - Taca Portuguesa.png
+926 - SCO - Cinch Premiereship.png
+932 - ESP - La Liga EA Sports.png
+935 - ESP - LaLiga Smartbank 123.png
+938 - ESP - Super Copa.png
+946 - ESP - Primera Federacion.png
+949 - ESP - Copa do Rey da Espanha.png
+1023 - TUR - Super LIG.png
+1027 - POL - PKO Bank Polski Ekstraklasa.png
+1031 - SWE - Allsvenskan.png
+1035 - SWI - Raiffeisen Super League.png
+1041 - AUT - Tipico Bundesliga.png
+1047 - BEL - Jupiter League.png
+1054 - BEL - Jupiter League.png
+1058 - BELGICA 2 ***.png
+1061 - BELGICA 2 ***.png
+1072 - ROM - Superliga.png
+1078 - UKR - FavBet Liha.png
+1082 - CZE - Chance LIGA.png
+1088 - DEN - 3F Superliga.png
+1094 - NOR - Eliteserien.png
+1098 - IRL - SSE Airtricity League.png
+1102 - CRO - HNL Studio Supersport.png
+1106 - CON - Concacaf CL.png
+1145 - CON - Copa Oro.png
+1159 - LEAGUE CUP ***.png
+1175 - MEX - Liga MX.png
+1197 - MEX - Liga MX.png
+1220 - USA - MLS.png
+1249 - COSTA RICA ***.png
+1257 - COSTA RICA ***.png
+1266 - HONDURAS ***.png
+1277 - HONDURAS ***.png
+1289 - AFC - Eliminatorias Asiatica.png
+1292 - AFC - Asia Champions League.png
+1318 - CHN - Chinese Super League.png
+1322 - JAP - J-LEAGUE.png
+1326 - KOR - K-League.png
+1330 - SAU - Roshn Saudi League.png
+1334 - QAT - Ooredoo Stars League.png
+1338 - AUST - Isuzu UTE A-League.png
+1353 - Australia Cup ***.png
+1371 - OFC Professional League ***.png
+1385 - COM - Eliminatorias America do Sul Copa do Mundo.png
+1388 - COM - Copa America.png
+1407 - COM - Recopa Sudamericana.png
+1410 - COM - Copa Sudamericana.png
+1460 - COM - Copa Libertadores.png
+1513 - ARG - Liga Argentina.png
+1531 - ARG - Primera Nacional B.png
+1539 - ARG - Copa Argentina.png
+1612 - CHI - Liga de Primera.png
+1616 - COL - Liga Dimayor.png
+1620 - BRA - Copa do Brasil - Primeira Fase.png
+1761 - BRA - Brasileirao Serie A.png
+1764 - BRA - Brasileirao Serie B.png
+1770 - BRA - Brasileirao Serie C.png
+1780 - BRA - Brasileirao Serie D-1.png
+1836 - BRA - Brasileirao Serie Divisao de Acesso.png
+1839 - BRA - Supercopa Brasil.png
+1842 - BRA - Copa Verde.png
+1861 - BRA - Copa do Nordeste.png
+1880 - URU - Campeonato Uruguayo.png
+1884 - PAR - Copa de Primera.png
+1888 - ECU - Copa Pilsener.png
+1892 - PER - Liga Betsson 1.png
+1896 - BOL - Liga Bolivia.png
+1900 - VEN - Liga FutVe.png
+1904 - CAF - Copa da Africa.png
+1918 - CAF CL ***.png
+1944 - WE Cup ***.png
+1971 - Nile League ***.png
+1977 - Nedbank Cup ***.png
+1999 - DStv Premiership ***.png
+2003 - Taça de Angola ***.png
+2025 - ANG - Girabola.png
+2029 - Coupe du Trône ***.png
+2051 - Botola Pro 1 Inwi ***.png
+2056 - OFC - Campeonato Sergipano.png
+2063 - OFC - Campeonato Bahiano.png
+2073 - OFC - Campeonato Cearense.png
+2088 - OFC - Campeonato Pernambucano.png
+2101 - OFC - Campeonato Baiano Serie B.png
+2111 - OFC - Campeonato Pernambucano B.png
+2121 - OFC - Campeonato Cearense B.png
+2129 - OFC - Campeonato Alagoano.png
+2136 - OFC - Campeonato Paraibano.png
+2146 - OFC - Campeonato Potiguar.png
+2156 - OFC - Campeonato Piauiense.png
+2163 - OFC - Campeonato Maranhense.png
+2171 - OFC - Campeonato Paranaense.png
+2182 - OFC - Campeonato Catarinense.png
+2193 - OFC - Campeonato Gaucho.png
+2205 - OFC - Campeonato Gaucho Acesso.png
+2216 - OFC - Campeonato Paranaense Segunda Divisao.png
+2226 - OFC - Campeonato Catarinense B.png
+2237 - OFC - Campeonato Goiano.png
+2247 - OFC - Campeonato Matogrossense.png
+2257 - OFC - Campeonato Brasiliense.png
+2267 - OFC - Campeonato Sul Matogrossense.png
+2277 - OFC - Campeonato Tocantinense.png
+2287 - OFC - Campeonato Goiano B.png
+2298 - OFC - Campeonato Amazonense.png
+2307 - OFC - Campeonato Roraimense.png
+2317 - OFC - Campeonato Paraense.png
+2327 - OFC - Campeonato Paraense B.png
+2338 - OFC - Campeonato Capixaba.png
+2348 - OFC - Campeonato Paulista - Grupo.png
+2363 - OFC - Campeonato Paulista A2.png
+2378 - OFC - Campeonato Paulista A3.png
+2393 - OFC - Campeonato Paulista A4.png
+2408 - OFC - Campeonato Mineiro.png
+2431 - OFC - Campeonato Mineiro 2.png
+2442 - OFC - Carioca Rio.png
+2460 - OFC - Campeonato Carioca A2.png
+2471 - OFC - Campeonato Paulista Segunda SUB23.png
+2490 - OFC - Campeonato Rondoniense.png
+2500 - OFC - Campeonato Amapaense.png
+2510 - OFC - Campeonato Acreano.png

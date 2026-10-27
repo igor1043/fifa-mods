@@ -1,0 +1,15 @@
+{
+  "models": {
+    "rtmw3d.onnx": {
+      "url": "https://huggingface.co/Soykaf/RTMW3D-x/resolve/main/onnx/rtmw3d-x_8xb64_cocktail14-384x288-b0a0eab7_20240626.onnx",
+      "bytes": 369330857,
+      "sha256": "4a289c0e99d47eb595e99679d9d4a2d1def1b4241f9adcbafba44b9ff585ebcd"
+    },
+    "yolox.zip": {
+      "url": "https://download.openmmlab.com/mmpose/v1/projects/rtmposev1/onnx_sdk/yolox_m_8xb8-300e_humanart-c2c7a14a.zip",
+      "bytes": 94223081,
+      "sha256": "a000224fd8ba283202bc62d4a5fcdfe353adb9f468777dbac1ea2ada2093adde"
+    }
+  },
+  "reference": "https://github.com/Tau-J/rtmlib/blob/main/rtmlib/tools/solution/wholebody3d.py"
+}

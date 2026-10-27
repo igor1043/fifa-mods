@@ -1,0 +1,43 @@
+{
+  "date": "2026-10-21",
+  "issue": "next-match club IDs were passed to the nation-name resolver",
+  "ram_read_only": true,
+  "ram_writes": false,
+  "ram_evidence": {
+    "pid": 37812,
+    "fixture_home": 1,
+    "fixture_away": 9,
+    "legacy_table": "nations",
+    "legacy_id_field": "nationid",
+    "legacy_name_field": "nationname"
+  },
+  "lookup": {
+    "table": "teams",
+    "id_field": "teamid",
+    "name_field": "teamname",
+    "source": "current in-process database",
+    "hardcoded_club_names": false
+  },
+  "tests": {
+    "corrected": "passed",
+    "legacy": "failed as expected",
+    "coverage": [
+      "next-match names and crests",
+      "fixture side swaps",
+      "mod team IDs",
+      "UTF-8 names",
+      "cache and temporary service gap",
+      "invalid and missing IDs",
+      "query lifetime",
+      "country resolver never called"
+    ]
+  },
+  "binary": {
+    "bytes": 603136,
+    "sha256": "98ae0e56b3d8fb68d935a7c2a3aeaa729a2a1b739c4e9f44bfeb132568171543",
+    "exports_unchanged": true,
+    "embedded_resources_unchanged": true,
+    "machine": "0x8664"
+  },
+  "visual_validation": "pending FIFA restart and user confirmation"
+}

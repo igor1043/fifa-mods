@@ -1,0 +1,273 @@
+{
+  "schema": 1,
+  "edition": "v12",
+  "features": [
+    {
+      "id": "next_match",
+      "name": "Próxima Partida",
+      "behavior": "Nomes dos clubes, escudos, competição, data, horário, estádio e público estimado da próxima partida.",
+      "source": "ModCarrerMode/source/career_native",
+      "configuration": "data/ui/layout/careermanagerhubcfg.xml",
+      "limits": "Resolve nomes na tabela teams pelo teamid da partida, incluindo times do mod. Correção do resolvedor de países testada no publicador real; conferência visual pendente após reiniciar o FIFA.",
+      "status": "implemented"
+    },
+    {
+      "id": "my_team",
+      "name": "Meu Time",
+      "behavior": "Informações do clube, jogadores, líderes de estatísticas, cartões e lesões.",
+      "source": "ModCarrerMode/source/career_native",
+      "configuration": "data/ui/layout/careermanagerhubcfg.xml",
+      "limits": "Usa os dados da carreira ativa.",
+      "status": "implemented"
+    },
+    {
+      "id": "competition",
+      "name": "Competição",
+      "behavior": "Classificação e informações de ligas, copas, fases e partidas.",
+      "source": "ModCarrerMode/source/career_native",
+      "configuration": "data/ui/layout/careermanagerhubcfg.xml",
+      "limits": "Conforme os dados disponíveis da carreira.",
+      "status": "implemented"
+    },
+    {
+      "id": "var_cabin",
+      "name": "Cabine do VAR",
+      "behavior": "Cabine na beira do gramado nas Séries A e B do Brasileirão.",
+      "source": "ModCarrerMode/source/var_cabin",
+      "configuration": "ModCarrerMode/mods/var_cabin/var_cabin.ini",
+      "limits": "Objeto visual; não muda decisões da arbitragem. Requer modelo e textura locais.",
+      "status": "implemented"
+    },
+    {
+      "id": "cloth_motion",
+      "name": "Física de roupas",
+      "behavior": "Simula o movimento e as dobras de camisas e calções. A revisão 0.8.2 começa desativada, salva a escolha feita no Server16 antes ou durante a partida e eleva progressivamente a barra do calção em até 3 mm adicionais, sem mover a cintura ou os pontos presos. Mantém os demais parâmetros de física, tamanho da camisa e proteções de curvatura, autocolisão local e contato da revisão anterior.",
+      "source": "ModCarrerMode/source/cloth_motion",
+      "configuration": "ModCarrerMode/mods/cloth_motion/cloth_motion.ini; Server16 > Módulos > Física de roupas; F12 > Configurações/Ajustes da partida",
+      "limits": "Experimental. Mantém a resolução das malhas físicas do FIFA. A autocolisão local de partículas não cobre todos os triângulos nem movimentos rápidos. Braços usam volumes nativos ou aproximações das mangas animadas. Aparência e FPS precisam de teste na partida. O instalador preserva a escolha existente, inclusive quando está ativada.",
+      "status": "implemented"
+    },
+    {
+      "id": "mascot",
+      "name": "Mascotes",
+      "behavior": "Mascote do mandante com caminhada, apoio e comemoração.",
+      "source": "ModCarrerMode/source/mascot_photographer",
+      "configuration": "ModCarrerMode/config/match_presentation.ini",
+      "limits": "Depende do pacote local do clube.",
+      "status": "implemented"
+    },
+    {
+      "id": "multiball",
+      "name": "Bolas na beira do gramado",
+      "behavior": "Mantém as 13 bolas de reposição e acrescenta suportes 3D por competição: Série A, CBF para B/C/D, Paulista e dois genéricos.",
+      "source": "ModCarrerMode/source/multiball_visual",
+      "configuration": "ModCarrerMode/mods/multiball_visual/standball.ini",
+      "limits": "São visuais, sem física. Suportes dependem dos RX3; sem recursos prontos, as bolas ficam no gramado. Conferência visual no FIFA pendente.",
+      "status": "implemented"
+    },
+    {
+      "id": "entrance_props",
+      "name": "Objetos de abertura por competição",
+      "behavior": "Escolhe arco e placas pelo campeonato; retira modelo e escudos juntos ao fim das escalações ou da apresentação avançada.",
+      "source": "ModCarrerMode/source/entrance_props",
+      "configuration": "ModCarrerMode/config/match_presentation.ini; IDs em FSW/settings.ini",
+      "limits": "Padrão Sim. Pacote ausente ou inválido deixa a partida sem objetos; assets são locais.",
+      "status": "implemented"
+    },
+    {
+      "id": "club_crests",
+      "name": "Escudos dinâmicos",
+      "behavior": "Aplica os escudos dos clubes de cada partida com recorte do fundo transparente.",
+      "source": "ModCarrerMode/source/entrance_props",
+      "configuration": "data/ui/imgAssets/crest/light",
+      "limits": "Um escudo ausente deixa sua superfície vazia.",
+      "status": "implemented"
+    },
+    {
+      "id": "pyrotechnics",
+      "name": "Pirotecnia",
+      "behavior": "Fogos, fumaça e confete na abertura e nos gols do mandante, com as cores do clube.",
+      "source": "ModCarrerMode/source/stadium_pyrotechnics",
+      "configuration": "ModCarrerMode/config/match_presentation.ini",
+      "limits": "Requer os recursos locais de partículas.",
+      "status": "implemented"
+    },
+    {
+      "id": "smoke_machine",
+      "name": "Máquinas de fumaça",
+      "behavior": "Adiciona 20 equipamentos físicos; disparos e cores continuam sob controle da pirotecnia do estádio.",
+      "source": "ModCarrerMode/source/smoke_machine",
+      "configuration": "ModCarrerMode/mods/enabled.txt; ModCarrerMode/mods/smoke_machine/smoke_machine.ini",
+      "limits": "Requer os modelos e as texturas locais; usa o módulo stadium_pyrotechnics para os disparos.",
+      "status": "implemented"
+    },
+    {
+      "id": "crowd",
+      "name": "Torcida e público",
+      "behavior": "Estima a ocupação na carreira e permite ajustar o público pelo Server16.",
+      "source": "ModCarrerMode/source/career_native",
+      "configuration": "ModCarrerMode/crowd.ini",
+      "limits": "O ajuste manual depende da confirmação do módulo nativo.",
+      "status": "implemented"
+    },
+    {
+      "id": "crowd_kits",
+      "name": "Uniformes da torcida",
+      "behavior": "Usa os uniformes disponíveis para os clubes da partida.",
+      "source": "ModCarrerMode/source/crowd_ultra_kits",
+      "configuration": "ModCarrerMode/mods/crowd_ultra_kits/crowd_ultra_kits.ini",
+      "limits": "Pacotes de uniformes são locais.",
+      "status": "implemented"
+    },
+    {
+      "id": "bench",
+      "name": "Banco com 12 reservas",
+      "behavior": "Configura o banco com 12 reservas usando SubsOn e a integracao nativa.",
+      "source": "ModCarrerMode/source/subson",
+      "configuration": "SubsOn.ini",
+      "limits": "Requer SubsOn.dll, SubsOn.ini, subson_bridge.dll e o complemento com data/ant.cbac e compdata/settings.txt.",
+      "status": "implemented"
+    },
+    {
+      "id": "substitutions",
+      "name": "Sete substituições",
+      "behavior": "Permite até sete trocas.",
+      "source": "ModCarrerMode/source/substitution_all7_rulescan_native",
+      "configuration": "ModCarrerMode/mods/enabled.txt",
+      "limits": "A quantidade de reservas é controlada pelo módulo do banco.",
+      "status": "implemented"
+    },
+    {
+      "id": "kickoff",
+      "name": "Saída de bola moderna",
+      "behavior": "Organiza o primeiro passe para trás, receptor e jogadores fora do círculo central.",
+      "source": "ModCarrerMode/source/kickoff_modern",
+      "configuration": "ModCarrerMode/mods/enabled.txt",
+      "limits": "Mantém a bola real e as regras da partida.",
+      "status": "implemented"
+    },
+    {
+      "id": "calendar_icons",
+      "name": "Ícones da carreira",
+      "behavior": "Resolve os ícones das competições e da pré-temporada. O Server16 atualizado importa imagens pelo nome ou ID da competição, converte e atualiza o índice automaticamente, preservando os originais.",
+      "source": "ModCarrerMode/source/career_ui_assets",
+      "configuration": "data/ui/imgAssets/careerCompetitionIcons",
+      "limits": "A importação exige o Server16 atualizado e ocorre com o FIFA fechado. Sem imagem válida, conserva o caminho original. Novas estruturas de competição continuam pertencendo ao CompData.",
+      "status": "implemented"
+    },
+    {
+      "id": "career_operations",
+      "name": "Aposentadoria e verba",
+      "behavior": "Remoção da aposentadoria, ajuste de idade e acréscimos de verba.",
+      "source": "ModCarrerMode/source/career_native",
+      "configuration": "ModCarrerMode/config/career_retirement_background.ini",
+      "limits": "Processamento fora do save aberto; siga a instrução exibida pela carreira. Painel revisado no Server16 0.2.9, com avisos separados dos botões e rodapé.",
+      "status": "implemented"
+    },
+    {
+      "id": "birthdate",
+      "name": "Criação de jogador",
+      "behavior": "Adapta o intervalo de nascimento para 2006–2012.",
+      "source": "ModCarrerMode/mods/career_birthdate_2006",
+      "configuration": "ModCarrerMode/mods/enabled.txt",
+      "limits": "Ativacao do BIG solto corrigida no indice BH local. Desbloqueio e lista confirmados pelo usuario em 21/10/2026. O reparo nao edita saves.",
+      "status": "implemented"
+    },
+    {
+      "id": "tournament_compatibility",
+      "name": "Compatibilidade de competições",
+      "behavior": "Mantém a leitura das competições usadas pelos módulos da carreira.",
+      "source": "ModCarrerMode/source/tournament_compat_native",
+      "configuration": "ModCarrerMode/mods/enabled.txt",
+      "limits": "Requer o executável compatível com as assinaturas nativas.",
+      "status": "implemented"
+    },
+    {
+      "id": "goal_kick_short_pass",
+      "name": "Tiro de meta moderno",
+      "behavior": "Usa quatro hooks específicos para reposicionar/preparar o tiro de meta e reduz a velocidade usada pelo solver de trajetórias em passes rasteiros curtos do goleiro para um dos zagueiros selecionados próximos.",
+      "source": "ModCarrerMode/source/goal_kick_short_pass",
+      "configuration": "ModCarrerMode/mods/goal_kick_short_pass/goal_kick_short_pass.ini; ModCarrerMode/mods/enabled.txt",
+      "limits": "Experimental e limitado ao hash de fifa16.exe compatível com o pacote original. Não altera quando a bola passa a estar em jogo dentro da área. Posicionamento e sensação do passe precisam ser avaliados em partida.",
+      "status": "experimental"
+    },
+    {
+      "id": "frontend_stadium",
+      "name": "Estadio de fundo do perfil e carreira",
+      "behavior": "Prepara o estadio do clube ou a escolha manual e solicita a recarga nativa do menu.",
+      "source": "ModCarrerMode/source/native_mods/frontend_stadium",
+      "configuration": "ModCarrerMode/config/frontend_stadium.ini",
+      "limits": "Começa desligado; modelos permanecem nos pacotes locais; usa a imagem padrão quando não há estádio disponível. Seletor com teclado QWERTY escalonado e navegação geométrica.",
+      "status": "implemented"
+    },
+    {
+      "id": "panorama_drone",
+      "name": "Panorâmica com 39 tomadas",
+      "behavior": "Acrescenta 39 cenas na panorâmica dos menus, incluindo órbita alta mais lenta, órbita horizontal do estádio e travessia completa da linha central.",
+      "source": "ModCarrerMode/source/native_mods/panorama_drone",
+      "configuration": "ModCarrerMode/config/panorama_drone.ini",
+      "limits": "Somente panorâmica FE; preserva as transições nativas. Revisão de tomadas 6 testada, com conferência visual pendente após reiniciar o FIFA. A vista externa depende da geometria do modelo.",
+      "status": "implemented"
+    },
+    {
+      "id": "extra_scenes",
+      "name": "Cenas de técnico e mascote",
+      "behavior": "Câmeras nativas frontais de técnico e mascote, cinco variações por perfil, preservando o personagem durante os fragmentos compatíveis da sequência.",
+      "source": "ModCarrerMode/source/native_mods/extra_scenes",
+      "configuration": "ModCarrerMode/config/extra_scenes.ini",
+      "limits": "40% por parada elegível, 10 s de intervalo mínimo e pesos 1:1. Fim controlado pela sequência nativa, sem limite artificial de 5 s. Revisão 12 testada offline; tempo de permanência requer conferência visual.",
+      "status": "implemented"
+    },
+    {
+      "id": "narration_selection",
+      "name": "Seletor de narrador",
+      "behavior": "Implementacao de selecao e aplicacao de narracao preservada.",
+      "source": "ModCarrerMode/source/server16_py/narration_runtime.py",
+      "configuration": "ModCarrerMode/source/server16_py/__init__.py",
+      "limits": "Selecao manual/automatica, progresso e avisos ocultos por NARRATION_PICKER_AVAILABLE=False.",
+      "status": "disabled"
+    },
+    {
+      "id": "career_branding",
+      "name": "Logo FIFA Friends no menu inicial e na carreira",
+      "behavior": "Interface anterior restaurada nos hubs inicial e da carreira.",
+      "source": "ModCarrerMode/source/tools/career_branding",
+      "configuration": "data/ui/game/components/careercomponents/careerhubwidget.big; data/ui/pow/components/easfcwidget.big; data/ui/game/widgets/mainhubwidget.big",
+      "limits": "Logo e ocultacao desativadas por solicitacao do usuario para isolar o crash recorrente do Robson. Fontes e arquivos modificados preservados em ModCarrerMode/disabled/career_branding; causa exata do crash ainda nao confirmada.",
+      "status": "disabled"
+    },
+    {
+      "id": "player_camera",
+      "name": "Câmeras do jogador",
+      "behavior": "Revisão 14: lente sem arrasto nos cantos com escala central preservada; busca da bola suavizada e olhadas ocasionais para os pés na primeira pessoa. Terceira pessoa gira mais rápido sem a posse, preservando o acompanhamento com a bola.",
+      "source": "ModCarrerMode/source/native_mods/first_person",
+      "configuration": "Server16 > Câmera; runtime/first_person_camera.json",
+      "limits": "Lente confirmada pelo usuário em RAM. Movimentos novos aguardam validação visual da DLL v14. Não modifica malhas nem corrige a invisibilidade geral de jogadores.",
+      "status": "implemented"
+    },
+    {
+      "id": "startup_diagnostics",
+      "name": "Diagnóstico da inicialização",
+      "behavior": "Por sessão do FIFA: logs ativos zerados antes da abertura pelo Server; arquivos separados por mod, última tela, arquivos/DLLs e código da exceção/módulo do dump quando disponível. ZIP encerrado preservado para envio.",
+      "source": "ModCarrerMode/source/server16_py/startup_diagnostics.py",
+      "configuration": "Automático ao abrir FIFA com o Server16; referência embutida no executável.",
+      "limits": "Só logs são zerados; configurações e saves preservados. Ao conectar em jogo já aberto, coleta somente registros posteriores. Dumps antigos/outro PID não entram. Local da exceção não prova a causa.",
+      "status": "implemented"
+    }
+  ],
+  "not_implemented": [
+    {
+      "name": "Suportes de bola BMPES",
+      "status": "extracted_for_study_only"
+    },
+    {
+      "name": "Decisões de arbitragem pelo VAR",
+      "status": "visual_cabin_only"
+    }
+  ],
+  "reviewed_on": "2026-10-25",
+  "native_entrance_revision": 19,
+  "native_var_revision": 3,
+  "native_cloth_revision": 9,
+  "native_cloth_control_revision": 1
+}

@@ -1,0 +1,91 @@
+{
+	"name":"ScoutReportFlow"
+	,"initial": { "targets":["ScoutReport"] }
+	,"states":
+	[
+		{
+			"name":"ScoutReport"
+			,"onEnter":
+			[
+				["loadScreenController", ["ScoutReport"]]
+				,["loadView", ["screen", "game/screens/career/YouthScout/YouthSquad"]]
+				,["loadView",["background", "BOOTFLOW"]]
+			]
+			,"onExit":
+			[
+				["unloadView", ["screen", "game/screens/career/YouthScout/YouthSquad"]]
+				,["unloadScreenController", ["ScoutReport"]]
+				,["unloadView",["background"]]
+			]
+			,"transitions":
+			[
+				{
+					"event":"Back"
+					,"targets":["Back"] 
+				}
+				,{
+					"event":"EnterYouthSquad"
+					,"targets":["YouthSquad"] 
+					,"actions":
+					[
+						["unloadView",["screen", "game/screens/career/YouthScout/YouthSquad"]]
+						,["executeCMAction",["EnterYouthSquadFromReport"]]
+					]
+				}
+				,{
+					"event":"EnterBudgetAlloc"
+					,"targets":["BudgetAlloc"] 
+					,"actions":[ ["executeCMAction",["EnterBudgetAllocFromReport"]] ]
+				}
+			]
+		}
+		,{
+			"name":"YouthSquad"
+			,"type":"external"
+			,"file":"/careerMode/youthSquadFlow.nav"
+			,"outputs":	
+			{ 
+				"Back":"BackToScoutReportFromYouthSquad"
+			}
+		}
+		,{
+			"name":"BackToScoutReportFromYouthSquad"
+			,"onEnter":
+			[
+				["unloadView",["screen", "game/screens/career/YouthScout/YouthSquad"]]
+				,["executeCMAction",["EnterScoutReportFromSquad"]]
+				,["invoke", ["GoToScoutReport"]]
+			]
+			,"transitions":
+			[
+				{
+					"event":"GoToScoutReport"
+					,"targets":["ScoutReport"]
+				}
+			]
+		}
+		,{
+			"name":"BudgetAlloc"
+			,"onEnter":
+			[
+				["loadScreenController", ["BudgetAlloc"]]
+				,["loadView", ["screen", "game/screens/career/transfers/BudgetAllocation"]]
+				,["loadView",["background", "BOOTFLOW"]]
+			]
+			,"onExit":
+			[
+				["unloadView", ["screen", "game/screens/career/transfers/BudgetAllocation"]]
+				,["unloadScreenController", ["BudgetAlloc"]]
+				,["unloadView",["background"]]
+			]
+			,"transitions":
+			[
+				{
+					"event":"Back"
+					,"targets":["ScoutReport"]
+					,"actions":[ ["executeCMAction",["ScoutReportFromBudgetAlloc"]] ]
+				}
+			]
+		}
+	]
+}

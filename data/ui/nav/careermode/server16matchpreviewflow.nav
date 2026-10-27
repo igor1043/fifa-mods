@@ -1,0 +1,121 @@
+{
+  "name": "Server16MatchPreviewFlow",
+  "initial": {
+    "targets": [
+      "Preview"
+    ]
+  },
+  "states": [
+    {
+      "name": "Preview",
+      "onEnter": [
+        [
+          "executeCMAction",
+          [
+            "EnterCalendar"
+          ]
+        ],
+        [
+          "loadScreenController",
+          [
+            "Calendar"
+          ]
+        ],
+        [
+          "loadViewModel",
+          [
+            "StartingXIViewModel"
+          ]
+        ],
+        [
+          "loadView",
+          [
+            "screen",
+            "game/screens/career/server16/MatchPreviewLoading"
+          ]
+        ],
+        [
+          "loadView",
+          [
+            "background",
+            "BOOTFLOW"
+          ]
+        ]
+      ],
+      "onExit": [
+        [
+          "unloadView",
+          [
+            "screen"
+          ]
+        ],
+        [
+          "unloadViewModel",
+          [
+            "StartingXIViewModel"
+          ]
+        ],
+        [
+          "unloadScreenController",
+          [
+            "Calendar"
+          ]
+        ],
+        [
+          "unloadView",
+          [
+            "background"
+          ]
+        ]
+      ],
+      "transitions": [
+        {
+          "event": "Back",
+          "targets": [
+            "Back"
+          ],
+          "actions": [
+            [
+              "executeCMAction",
+              [
+                "ReturnToHubFromCalendar"
+              ]
+            ]
+          ]
+        },
+        {
+          "event": "back",
+          "targets": [
+            "Back"
+          ],
+          "actions": [
+            [
+              "executeCMAction",
+              [
+                "ReturnToHubFromCalendar"
+              ]
+            ]
+          ]
+        },
+        {
+          "event": "Server16RefreshMatchPreview",
+          "actions": [
+            [
+              "unloadView",
+              [
+                "screen"
+              ]
+            ],
+            [
+              "loadView",
+              [
+                "screen",
+                "game/screens/career/server16/MatchPreview"
+              ]
+            ]
+          ]
+        }
+      ]
+    }
+  ]
+}

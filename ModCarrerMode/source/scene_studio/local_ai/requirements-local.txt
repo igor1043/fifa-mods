@@ -1,0 +1,7 @@
+# Install rtmlib==0.0.16 separately with --no-deps so its CPU-only ORT dependency
+# cannot overwrite the isolated DirectML runtime on Windows.
+onnxruntime-directml==1.24.4; sys_platform == 'win32'
+onnxruntime==1.24.4; sys_platform != 'win32'
+opencv-python>=4.10
+numpy>=2.0
+Pillow>=11.0

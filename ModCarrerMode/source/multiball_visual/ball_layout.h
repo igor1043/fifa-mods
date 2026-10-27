@@ -1,0 +1,44 @@
+#ifndef BALL_LAYOUT_H
+#define BALL_LAYOUT_H
+#include <math.h>
+#include <stdint.h>
+#include <string.h>
+#define BALL_STATE_BYTES 0x820
+#define SPARE_BALLS 13
+/* FIFA world coordinates are centimetres: X along the pitch, Z across it.
+   Spare balls are 30cm closer to their nearest pitch boundary. */
+static const float ball_positions[SPARE_BALLS][3] = {
+ {-5520,11.1252f,-2016},{-5520,11.1252f,2016},
+ {5520,11.1252f,-2016},{5520,11.1252f,2016},
+ {-4200,11.1252f,-3620},{-2100,11.1252f,-3620},
+ {0,11.1252f,-3620},{2100,11.1252f,-3620},{4200,11.1252f,-3620},
+ {-4200,11.1252f,3620},{-1400,11.1252f,3620},
+ {1400,11.1252f,3620},{4200,11.1252f,3620}
+};
+/* Only a PRIVATE rendering snapshot is changed; never the live ball state. */
+static inline int ball_expand_snapshot_at_height(unsigned char *state, int include_match_ball, float height_cm) {
+ int count, id, i, reserved; float original[16], scale;
+ memcpy(&count,state+0x7f8,4); memcpy(&id,state+0x50,4);
+ if(!isfinite(height_cm) || height_cm<11 || height_cm>100 || id!=1 || count<1 || count>16-SPARE_BALLS || state[0x80e] || !state[0x80f] ||
+    !state[0x7fc] || !state[0x7fd])return 0;
+ memcpy(original,state+0x3b0,sizeof(original));
+ scale=sqrtf(original[0]*original[0]+original[1]*original[1]+original[2]*original[2]);
+ if(!isfinite(scale) || scale<0.5f || scale>2.0f)return 0;
+ reserved=count;
+ for(i=0;i<SPARE_BALLS;i++) {
+  float matrix[16]={0};
+  matrix[0]=matrix[5]=matrix[10]=scale;matrix[15]=1;
+  matrix[12]=ball_positions[i][0];matrix[13]=height_cm;matrix[14]=ball_positions[i][2];
+  memcpy(state+0x3b0+(i+reserved)*64,matrix,sizeof(matrix));
+  /* Share the current ball's lighting bindings, not stale spare slot values. */
+  memcpy(state+0xa0+(i+reserved)*48,state+0xa0,48);
+  state[0x7fd+i+reserved]=1;
+ }
+ count=SPARE_BALLS+reserved;memcpy(state+0x7f8,&count,4);
+ if(!include_match_ball)for(i=0;i<reserved;i++)state[0x7fd+i]=0;
+ return 1;
+}
+static inline int ball_expand_snapshot(unsigned char *state,int include_match_ball) {
+ return ball_expand_snapshot_at_height(state,include_match_ball,11.1252f);
+}
+#endif

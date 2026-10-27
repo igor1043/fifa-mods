@@ -1,0 +1,93 @@
+# Stadium Pyrotechnics — pirotecnia para qualquer time
+
+O módulo `stadium_pyrotechnics.dll` oferece pirotecnia para qualquer time. Na abertura, usa as duas cores institucionais do mandante; após um gol, os efeitos são acionados somente para o mandante.
+
+## Comportamento
+
+- Abertura de 60 segundos reais, acionada pela apresentação real da partida (incluindo StadiumPan/TV bumper) com duas equipes nativas confirmadas. Pausa e replay não consomem a duração.
+- Gol do mandante: 25 segundos reais de efeitos. Gol do visitante não inicia um novo show. Duração e intervalo entre máquinas usam relógio monotônico do Windows, sem depender da escala do contador nativo da cena.
+- Fogos, confete e duas camadas de fumaça; encerramento gradual das fontes, com cauda de partículas incluída na duração.
+- Todas as 20 máquinas disparam na abertura; as 12 traseiras disparam imediatamente no gol do mandante.
+- Os 11 grupos de partículas respeitam o trigger externo: cada gol e reinício da partida renova o relógio de emissão das instâncias reutilizadas, mesmo depois de terminar a abertura. Instale o `.lnx` atualizado junto da DLL.
+- Cada máquina usa grupos privados (`iInstancing=0`). No modo compartilhado anterior, o caminho nativo de instâncias podia pular a emissão e a limpeza de um emissor atingia os buffers compartilhados. O modo privado preserva os limites por ponto e permite o reinício de cada máquina no gol.
+- Os efeitos usam orientação fixa, sem rotação conforme o lado do campo. A posição de saída acompanha a boca da máquina.
+- Prévia de estádio, seleção de uniformes e outros menus não acionam abertura. Reiniciar Partida rearma abertura e detector de gols.
+- Pausa e replay preservam as instâncias e partículas do show em andamento. O estado nativo de replay também é reconhecido quando o nome da tela está vazio. Entrar, buscar outro instante e sair do replay ajusta somente o relógio de emissão, sem apagar as partículas nem registrar um novo gol.
+- O recurso de partículas é solicitado no primeiro batch disponível da apresentação real, antes da leitura das tabelas de jogadores. O módulo não depende de um aviso de carregamento do Server16.
+- Uma ausência temporária do registro de equipes, das tabelas Lua ou do placar mantém o evento em curso. Se o FIFA substituir o recurso, o módulo valida os novos objetos e recupera o tempo restante, sem usar ponteiros antigos.
+- A pausa preserva o evento consumido e o placar. Voltar à partida, abrir seleção de lados/detalhes ou reconstruir tabelas Lua não rearma a fumaça. O relógio nativo permite reconhecer um reinício antes do pontapé inicial, mesmo com placar 0 a 0. Abertura e gols do mandante são os únicos disparos automáticos.
+- Sem comandos F7/F8: os gatilhos são automáticos.
+
+## Compilação
+
+Na raiz do repositório:
+
+```powershell
+.\ModCarrerMode\source\stadium_pyrotechnics\build.cmd
+```
+
+O script executa nove testes antes de compilar `stadium_pyrotechnics.cpp`, com MSVC C++17 x64 e `/W4 /WX`. O teste de integração executa o tick real sobre uma imagem de memória privada, sem abrir o processo do FIFA. Saída: `ModCarrerMode/source/stadium_pyrotechnics/build/stadium_pyrotechnics.dll`.
+
+`python ModCarrerMode/source/stadium_pyrotechnics/prepare.py` copia os recursos atuais de `assets/` para o build e usa a paleta publicada em `team_palettes.h`. Funciona sem uma instalação local do FIFA e preserva o código do runtime.
+
+Para regenerar as cores a partir de outro banco, informe a instalação explicitamente:
+
+```powershell
+python ModCarrerMode/source/stadium_pyrotechnics/prepare.py --game-dir 'C:\Games\FIFA 16'
+```
+
+O exportador `export_palettes.py` e seu leitor `fifa_db.py` estão incluídos nos fontes e usam somente a biblioteca padrão do Python. Leem `data/db/fifa_ng_db.db` e seu arquivo de metadados, sem modificá-los. A regeneração atualiza o cabeçalho e grava um diagnóstico local em `build/team_palettes.json`; recompile a DLL para aplicar uma nova paleta. Os estudos e revisões anteriores ficam separados do módulo atual.
+
+`python ModCarrerMode/source/stadium_pyrotechnics/test_assets.py` verifica os 11 grupos, o reinício por trigger externo e as referências entre partículas.
+
+## Instalação manual
+
+Feche o FIFA. A partir do pacote local de recursos, coloque os arquivos nos seguintes destinos, relativos à pasta de `FIFA16.exe`:
+
+```text
+ModCarrerMode/mods/stadium_pyrotechnics/stadium_pyrotechnics.dll
+ModCarrerMode/mods/stadium_pyrotechnics/pyro.ini
+ModCarrerMode/config/match_presentation.ini
+data/sceneassets/particles/stadium_pyrotechnics_0.lnx
+data/sceneassets/particles/stadium_pyrotechnics_0.rx3
+```
+
+O par `.lnx/.rx3`, a DLL e as configurações correspondentes estão incluídos no pacote publicado. O build C++ atualiza a DLL; preserve o par de recursos ao instalar.
+
+Em `ModCarrerMode/mods/enabled.txt`, adicione uma única entrada:
+
+```text
+stadium_pyrotechnics\stadium_pyrotechnics.dll
+```
+
+Mantenha uma única entrada deste módulo e reabra o FIFA após a instalação.
+
+O instalador `ModCarrerMode/tools/maintenance/Install-Game.ps1` também aplica o pacote e preserva as configurações locais. A instalação manual acima não depende de caminhos específicos da máquina de desenvolvimento.
+
+## Configuração
+
+Em `ModCarrerMode/mods/stadium_pyrotechnics/pyro.ini`:
+
+```ini
+[pyro]
+enabled=1
+```
+
+O runtime atual é automático. `enabled=0` desliga o módulo na próxima inicialização.
+
+Em `ModCarrerMode/config/match_presentation.ini`:
+
+```ini
+[match]
+pyrotechnics=1
+entrance=1
+goal=1
+```
+
+`pyrotechnics` é a chave geral; `entrance` e `goal` controlam separadamente abertura e gol. Preserve as outras chaves e preferências existentes ao editar. Essas opções são consultadas durante a sessão; na ausência delas, a pirotecnia fica desativada por padrão. O mascote pode ser desativado pela sua entrada em `enabled.txt`.
+
+## Diagnóstico e desativação
+
+Log: `ModCarrerMode/logs/stadium_pyrotechnics.log`. Os registros `MATCH_DETECTED`, `SHOW_STARTED` e `HOME_GOAL_CONFIRMED` identificam os gatilhos. `SLOT_UNAVAILABLE`, `ASSET_TIMEOUT` ou `UNSUPPORTED_IMAGE` indicam por que o show não iniciou.
+
+Para desativar, ajuste os controles acima ou comente a entrada da DLL em `enabled.txt` e reinicie o FIFA. Use apenas a DLL canônica atual, evitando carregar revisões históricas juntas.

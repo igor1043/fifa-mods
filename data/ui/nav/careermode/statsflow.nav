@@ -1,0 +1,118 @@
+{
+	"name":"StatsFlow"
+	,"states":
+	[
+		{
+			"name":"FixturesByDay"
+			,"onEnter":
+			[
+				["loadScreenController", ["Fixtures"]]
+				,["loadView", ["screen", "game/screens/career/Stats/Fixtures"]]
+				,["executeCMAction",["ViewFixturesByDay"]]
+				,["loadView",["background", "BOOTFLOW"]]
+			]
+			,"onExit":
+			[
+				["unloadView", ["screen", "game/screens/career/Stats/Fixtures"]]
+				,["unloadScreenController", ["Fixtures"]]
+				,["unloadView",["background"]]
+			]
+			,"transitions":
+			[
+				{
+					"event":"Back"
+					,"targets":["Back"] 
+					,"actions":[ ["executeCMAction",["ClearFixtures"]] ]
+				}
+				,{
+					"event":"EnterFixtures"
+					,"actions":[ ["executeCMAction",["ViewFixturesByDay"]] ]
+				}
+			]
+		}	
+		,{
+			"name":"Fixtures"
+			,"onEnter":
+			[
+				["loadScreenController", ["Fixtures"]]
+				,["executeCMAction",["ViewFixtures"]]
+				,["loadView", ["screen", "game/screens/career/Stats/Fixtures"]]
+				,["loadView",["background", "BOOTFLOW"]]
+			]
+			,"onExit": 
+			[
+				["unloadView", ["screen", "game/screens/career/Stats/Fixtures"]]
+				,["unloadScreenController", ["Fixtures"]]
+				,["unloadView",["background"]]
+			]
+			,"transitions":
+			[
+				{
+					"event":"Back"
+					,"targets":["Back"] 
+					,"actions":[ ["executeCMAction",["ClearFixtures"]] ]
+				}
+				,{
+					"event":"EnterFixtures"
+					,"actions":[ ["executeCMAction",["ViewFixtures"]] ]
+				}
+			]
+		}
+		,{
+			"name":"Statistics"
+			,"onEnter":
+			[
+				["executeCMAction",["ViewStatistics"]]
+				,["loadScreenController", ["Statistics"]]
+				,["loadView", ["screen", "game/screens/career/stats/LeagueStats"]]
+				,["loadView",["background", "BOOTFLOW"]]
+			]
+			,"onExit":
+			[
+				["unloadView", ["screen", "game/screens/career/stats/LeagueStats"]]
+				,["unloadScreenController", ["Statistics"]]
+				,["unloadView",["background"]]
+			]
+			,"transitions":
+			[
+				{
+					"event":"Back"
+					,"targets":["Back"] 
+					,"actions":[ ["executeCMAction",["ClearTeamStatistics"]] ]
+				}
+				,{
+					"event":"SelectStat"
+					,"actions":[ ["executeCMAction",["ViewStatistics"]] ]
+				}
+			]
+		}
+		,{
+			"name":"ViewOtherComps"
+			,"onEnter":
+			[
+				["loadScreenController", ["ViewOtherComps"]]
+				,["loadView", ["screen", "game/screens/career/stats/LeagueTables"]]
+				,["loadView",["background", "BOOTFLOW"]]
+			]
+			,"onExit":
+			[
+				["unloadView", ["screen", "game/screens/career/stats/LeagueTables"]]
+				,["unloadScreenController", ["ViewOtherComps"]]
+				,["unloadView",["background"]]
+			]
+			,"transitions":
+			[
+				{
+					"event":"Back"
+					,"targets":["Back"] 
+					,"actions":[ ["executeCMAction",["ClearCountryCompList"]] ]
+				}
+				,{
+					"event":"SelectCompetition"
+					,"targets":["Back"] 
+					,"actions":[ ["executeCMAction",["ClearCountryCompList"]] ]
+				}
+			]
+		}
+	]
+}

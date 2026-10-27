@@ -1,0 +1,53 @@
+{
+	"name":"SelectEditPlayerFlow"
+	,"initial": { "targets":["SelectEditPlayer"] }
+	,"states":
+	[
+		{
+			"name":"SelectEditPlayer"
+			,"onEnter":
+			[
+				["loadScreenController", ["SelectEditPlayer"]]
+				,["loadView", ["screen", "game/screens/CreatePlayer/69a_editPlayer"]]
+			]
+			,"onExit":
+			[
+				["unloadView", ["screen", "game/screens/CreatePlayer/69a_editPlayer"]]
+				,["unloadScreenController", ["SelectEditPlayer"]]
+			]
+			,"transitions":
+			[
+				{
+					"event":"Back"
+					,"targets":["Back"] 
+					,"actions":[ ["executeCMAction",["ExitEditPlayer"]] ]
+				}
+				,{
+					"event":"Advance"
+					,"targets":["EditPlayer"] 
+				}
+			]
+		}
+		,{
+			"name":"EditPlayer"
+			,"onEnter":
+			[
+				["loadScreenController", ["EditPlayer"]]
+				,["loadView", ["screen", "game/screens/CreatePlayer/CreatePlayerHub"]]
+			]
+			,"onExit":
+			[
+				["unloadView", ["screen", "game/screens/CreatePlayer/CreatePlayerHub"]]
+				,["unloadScreenController", ["EditPlayer"]]
+			]
+			,"transitions":
+			[
+				{
+					"event":"Back"
+					,"targets":["SelectEditPlayer"] 
+				}
+			]
+		}
+	
+	]
+}

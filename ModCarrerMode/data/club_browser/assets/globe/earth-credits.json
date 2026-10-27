@@ -1,0 +1,23 @@
+{
+  "title": "Blue Marble: Next Generation with Topography and Bathymetry, October 2004",
+  "credit": "NASA Earth Observatory / Reto Stöckli",
+  "source": "https://assets.science.nasa.gov/content/dam/science/esd/eo/images/bmng/bmng-topography-bathymetry/october/world.topo.bathy.200410.3x21600x10800.jpg",
+  "information": "https://science.nasa.gov/earth/earth-observatory/blue-marble-next-generation/base-topography-bathymetry/",
+  "processing": "21600x10800 source downsampled to 8192x4096; BC1 DDS, 14 mip levels.",
+  "boundaries": {
+    "credit": "Made with Natural Earth",
+    "source": "https://raw.githubusercontent.com/nvkelso/natural-earth-vector/v5.1.2/geojson/ne_50m_admin_0_countries.geojson",
+    "information": "https://www.naturalearthdata.com/downloads/50m-cultural-vectors/50m-admin-0-countries-2/",
+    "license": "Public domain",
+    "resolution": [
+      8192,
+      4096
+    ],
+    "distance_range": 16,
+    "processing": "Exact country IDs (R), 16-texel unsigned distance field (G on GPU)."
+  },
+  "source_sha256": {
+    "countries-50m.geojson": "3e458fc036ad0a66411f2c1e6cac49c5d7bfb81cb1123bc513b22511a2b7fdeb",
+    "earth-21600.jpg": "af9bea6c86e684923d72842e629be0a9401d0d4f0cb76411199c8519519114ce"
+  }
+}

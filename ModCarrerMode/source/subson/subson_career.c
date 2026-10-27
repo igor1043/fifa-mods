@@ -1,0 +1,103 @@
+#include "subson_friendly.h"
+#include <stdio.h>
+#include <string.h>
+#include <limits.h>
+
+#define CAREER_BENCH_RVA 0x5AF8E00U
+static const unsigned char before[6]={0x8B,0x8A,0x94,0,0,0};
+static const unsigned char minimum11[11]={0xBB,0,0,0,0,0x90,0x30,0xC9,0x83,0xC3,0x0B};
+static char diagnostics[MAX_PATH];
+static RUNTIME_FUNCTION record;
+static void event(const char *message)
+{
+    FILE *file=NULL;
+    if(diagnostics[0] && !fopen_s(&file,diagnostics,"ab") && file){
+        fprintf(file,"career_optional_bench_v1 pid=%lu %s\r\n",GetCurrentProcessId(),message);fclose(file);
+    }
+}
+static int read_at(uintptr_t at,void *out,SIZE_T size)
+{SIZE_T got=0;return ReadProcessMemory(GetCurrentProcess(),(void*)at,out,size,&got) && got==size;}
+
+size_t subson_emit_career(unsigned char *page,uintptr_t resume)
+{
+    size_t size=(size_t)(SubsonCareerEnd-SubsonCareerBegin);
+    if(!page || size>0x200U)return 0;
+    memcpy(page,SubsonCareerBegin,size);
+    memcpy(page+(SubsonCareerResume-SubsonCareerBegin),&resume,8);
+    return size;
+}
+static int install(uintptr_t image,SIZE_T image_size)
+{
+    DWORD64 parent_base=0;PRUNTIME_FUNCTION parent;
+    unsigned char header[4],current[6],applied[6]={0xE9,0,0,0,0,0x90};
+    unsigned char *page;size_t size;int64_t distance;int32_t relative;DWORD old;
+    if(!read_at(image+CAREER_BENCH_RVA,current,6) || memcmp(current,before,6)){event("blocked stage=bench_instruction");return 0;}
+    parent=RtlLookupFunctionEntry(image+CAREER_BENCH_RVA,&parent_base,NULL);
+    if(!parent || parent_base!=image || parent->BeginAddress!=0x5AF8BF0U || parent->EndAddress!=0x5AF91F6U ||
+       !read_at(image+parent->UnwindData,header,4) || memcmp(header,"\x21\x19\x06\0",4)){event("blocked stage=bench_unwind");return 0;}
+    page=subson_near_page(image,image_size,image+CAREER_BENCH_RVA);
+    if(!page){event("blocked stage=allocate");return 0;}
+    size=subson_emit_career(page,image+CAREER_BENCH_RVA+6U);
+    if(!size){event("blocked stage=emit");return 0;}
+    /* Two one-byte pushes allocate 16 bytes; chain the original FCE frame. */
+    memcpy(page+0x300,"\x21\x02\x01\0\x02\x12\0\0",8);
+    memcpy(page+0x308,parent,sizeof(*parent));
+    record.BeginAddress=(DWORD)((uintptr_t)page-image);
+    record.EndAddress=record.BeginAddress+(DWORD)size;
+    record.UnwindData=record.BeginAddress+0x300U;
+    distance=(int64_t)(uintptr_t)page-(int64_t)(image+CAREER_BENCH_RVA+5U);
+    if(distance<INT32_MIN || distance>INT32_MAX || !VirtualProtect(page,4096,PAGE_EXECUTE_READ,&old) ||
+       !FlushInstructionCache(GetCurrentProcess(),page,0x314U) || !RtlAddFunctionTable(&record,1,image)){event("blocked stage=register");return 0;}
+    relative=(int32_t)distance;memcpy(applied+1,&relative,4);
+    if(!subson_write_bytes(image+CAREER_BENCH_RVA,before,applied,6)){
+        /* A startup thread may exit between enumeration and suspension.
+         * Release an unreachable registration before the owner retries.
+         * If the complete jump did become visible, retain its RX storage.
+         */
+        if(read_at(image+CAREER_BENCH_RVA,current,6)&&!memcmp(current,before,6)){
+            RtlDeleteFunctionTable(&record);VirtualFree(page,0,MEM_RELEASE);
+        }
+        event("blocked stage=write retry_safe=1");return 0;
+    }
+    event("installed eligible_min=11 bench=min(rule,eligible-11) max=12 global_rule_unchanged=1");return 1;
+}
+BOOL subson_career_ensure_now(uintptr_t image,SIZE_T image_size,const char *log_path)
+{
+    unsigned char current[0x200],expected[0x200],entry[6];int32_t delta;uintptr_t target;size_t size;
+    if(!log_path)return FALSE;
+    strcpy_s(diagnostics,sizeof(diagnostics),log_path);
+    if(!read_at(image+CAREER_BENCH_RVA,entry,6))return FALSE;
+    if(entry[0]==0xE9&&entry[5]==0x90){
+        memcpy(&delta,entry+1,4);target=(uintptr_t)((int64_t)(image+CAREER_BENCH_RVA+5U)+delta);
+        size=subson_emit_career(expected,image+CAREER_BENCH_RVA+6U);
+        return size&&read_at(target,current,size)&&!memcmp(current,expected,size);
+    }
+    if(memcmp(entry,before,6))return FALSE;
+    return install(image,image_size);
+}
+static DWORD WINAPI worker(void *unused)
+{
+    uintptr_t image=(uintptr_t)GetModuleHandleA(NULL);IMAGE_DOS_HEADER dos;IMAGE_NT_HEADERS64 nt;
+    unsigned attempt;unsigned char guard[11];(void)unused;
+    if(!read_at(image,&dos,sizeof(dos)) || dos.e_magic!=IMAGE_DOS_SIGNATURE || dos.e_lfanew<0 || dos.e_lfanew>0x1000 ||
+       !read_at(image+(unsigned)dos.e_lfanew,&nt,sizeof(nt)) || nt.Signature!=IMAGE_NT_SIGNATURE ||
+       nt.FileHeader.Machine!=IMAGE_FILE_MACHINE_AMD64 || nt.FileHeader.TimeDateStamp!=0x577DE45CU ||
+       (nt.OptionalHeader.SizeOfImage!=0x9524000U && nt.OptionalHeader.SizeOfImage!=0x9525000U)){
+        event("not_installed unsupported_executable");return 0;
+    }
+    for(attempt=0;attempt<600U;++attempt){
+        if(read_at(image+0x5AF8DBFU,guard,11) && !memcmp(guard,minimum11,11)){
+            if(!install(image,nt.OptionalHeader.SizeOfImage))event("not_installed native_signature_or_hook_conflict");
+            return 0;
+        }
+        Sleep(200);
+    }
+    event("not_installed requires_WorkLab_MIN_PLAYERS_11");return 0;
+}
+BOOL subson_career_start(unsigned bench,const char *log_path)
+{
+    HANDLE thread;if(bench<7U || bench>12U || !log_path)return FALSE;
+    strcpy_s(diagnostics,sizeof(diagnostics),log_path);
+    thread=CreateThread(NULL,0,worker,NULL,0,NULL);if(!thread)return FALSE;
+    CloseHandle(thread);return TRUE;
+}

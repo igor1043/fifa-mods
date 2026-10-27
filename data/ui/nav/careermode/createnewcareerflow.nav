@@ -1,0 +1,193 @@
+{
+	"name":"CreateNewCareerFlow"
+	,"initial": { "targets":["SelectCareerType"] }
+	,"onEnter":
+	[
+		["loadViewModel",["CareerCreationViewModel"]]
+		,["sendAction", ["setStadiumPosition", ".StadiumFECameras.STADIUM_FE_CAMERA_STEP_2"] ]
+	]
+	,"onExit":
+	[
+		["unloadViewModel",["CareerCreationViewModel"]]
+	]
+	,"states":
+	[
+		{
+			"name":"SelectCareerType"
+			,"onEnter":
+			[
+				["loadScreenController", ["SelectCareerType"]]
+				,["loadView", ["screen", "game/screens/career/CareerType"]]
+				,["loadView",["background", "BOOTFLOW"]]
+			]
+			,"onExit":
+			[
+				["unloadView", ["screen", "game/screens/career/CareerType"]]
+				,["unloadScreenController", ["SelectCareerType"]]
+				,["unloadView",["background"]]
+			]
+			,"transitions":
+			[
+				{
+					"event":"Back"
+					,"actions":[ ["invoke",["QuitMode"]] ]
+				}
+				,{
+					"event":"Player"
+					,"targets":["CheckPlayerCareerBoosts"]
+					,"actions":[ ["executeCMAction",["LeaveSelectCareerTypeFromPlayer"]] ]
+				}
+				,{
+					"event":"Manager"
+					,"targets":["CheckManagerCareerBoosts"]
+					,"actions":[ ["executeCMAction",["LeaveSelectCareerTypeFromManager"]] ]
+				}
+			]
+		}
+		,{
+			"name":"CheckPlayerCareerBoosts"
+			,"onEnter":
+			[
+				["sendAction",["condition", "hasBoosts"]]
+			]
+			,"onExit":[]
+			,"transitions":
+			[
+				{
+					"event":"true"
+					,"targets":["ChoosePlayerCareerBoosts"]
+				}
+				,{
+					"event":"false"
+					,"targets":["CreateNewPlayerCareer"]
+				}
+			]
+		}
+		,{
+			"name":"CheckPlayerCareerBoostsBack"
+			,"onEnter":
+			[
+				["sendAction",["condition", "hasBoosts"]]
+			]
+			,"onExit":[]
+			,"transitions":
+			[
+				{
+					"event":"true"
+					,"targets":["ChoosePlayerCareerBoosts"]
+				}
+				,{
+					"event":"false"
+					,"targets":["SelectCareerType"]
+				}
+			]
+		}
+		,{
+			"name":"ChoosePlayerCareerBoosts"
+			,"onEnter":
+			[
+				["loadScreenController", ["BoostOptions"]]
+				,["loadView", ["screen", "game/screens/career/UpgradeBoostOptions"]]
+				,["sendAction", ["setCareerType", "isPlayerCareer"]]
+			]
+			,"onExit":
+			[
+				["unloadView", ["screen", "game/screens/career/UpgradeBoostOptions"]]
+				,["unloadScreenController", ["BoostOptions"]]
+			]
+			,"transitions":
+			[
+				{
+					"event":"advance"
+					,"targets":["CreateNewPlayerCareer"]
+				}
+				,{
+					"event":"back"
+					,"targets":["SelectCareerType"] 
+				}
+			]
+		}
+		,{
+			"name":"CreateNewPlayerCareer"
+			,"type":"external"
+			,"file":"/careerMode/createNewPlayerCareerFlow.nav"
+			,"outputs": 
+			{ 
+				"Back":"CheckPlayerCareerBoostsBack"
+				,"profileSignOut":"profileSignOut"
+			}	
+		}
+		,{
+			"name":"CheckManagerCareerBoosts"
+			,"onEnter":
+			[
+				["sendAction",["condition", "hasBoosts"]]
+			]
+			,"onExit":[]
+			,"transitions":
+			[
+				{
+					"event":"true"
+					,"targets":["ChooseManagerCareerBoosts"]
+				}
+				,{
+					"event":"false"
+					,"targets":["CreateNewManagerCareer"]
+				}
+			]
+		}
+		,{
+			"name":"CheckManagerCareerBoostsBack"
+			,"onEnter":
+			[
+				["sendAction",["condition", "hasBoosts"]]
+			]
+			,"onExit":[]
+			,"transitions":
+			[
+				{
+					"event":"true"
+					,"targets":["ChooseManagerCareerBoosts"]
+				}
+				,{
+					"event":"false"
+					,"targets":["SelectCareerType"]
+				}
+			]
+		}
+		,{
+			"name":"ChooseManagerCareerBoosts"
+			,"onEnter":
+			[
+				["loadScreenController", ["BoostOptions"]]
+				,["loadView", ["screen", "game/screens/career/UpgradeBoostOptions"]]
+				,["sendAction", ["setCareerType", "isManagerCareer"]]
+			]
+			,"onExit":
+			[
+				["unloadView", ["screen", "game/screens/career/UpgradeBoostOptions"]]
+				,["unloadScreenController", ["BoostOptions"]]
+			]
+			,"transitions":
+			[
+				{
+					"event":"advance"
+					,"targets":["CreateNewManagerCareer"]
+				}
+				,{
+					"event":"back"
+					,"targets":["SelectCareerType"] 
+				}
+			]
+		}
+		,{
+			"name":"CreateNewManagerCareer"
+			,"type":"external"
+			,"file":"/careerMode/createNewManagerCareerFlow.nav"
+			,"outputs": 
+			{ 
+				"Back":"CheckManagerCareerBoostsBack"
+			}	
+		}
+	]
+}

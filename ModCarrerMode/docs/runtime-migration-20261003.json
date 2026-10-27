@@ -1,0 +1,11 @@
+{
+  "career_native_mode.ini": "config/career_native_mode.ini",
+  "career_retirement_background.ini": "config/career_retirement_background.ini",
+  "career_retirement_background.ini.example": "config/career_retirement_background.ini.example",
+  "club_formation_fallback.tsv": "data/catalogs/club_formation_fallback.tsv",
+  "club_manager_fallback.tsv": "data/catalogs/club_manager_fallback.tsv",
+  "club_stadium_fallback.tsv": "data/catalogs/club_stadium_fallback.tsv",
+  "coach_identity.tsv": "data/catalogs/coach_identity.tsv",
+  "injury_snapshot.tsv": "runtime/injury_snapshot.tsv",
+  "ranking_overlay.ini": "config/ranking_overlay.ini"
+}

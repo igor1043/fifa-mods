@@ -1,0 +1,65 @@
+{
+	"name":"JobOfferSignFlow"
+	,"initial": { "targets":["JobOfferSign"] }
+	,"states":
+	[	
+		{
+			"name":"JobOfferSign"
+			,"onEnter":
+			[
+				["loadScreenController", ["JobOfferSign"]]
+				,["loadView", ["screen", "game/screens/career/InternationalJobOffers"]]
+				,["loadView",["background", "BOOTFLOW"]]
+			]
+			,"onExit":
+			[
+				["unloadView", ["screen", "game/screens/career/InternationalJobOffers"]]
+				,["unloadScreenController", ["JobOfferSign"]]
+				,["unloadView",["background"]]
+			]
+			,"transitions":
+			[
+				{
+					"event":"PAPOfferAccept"
+					,"actions":
+					[ 
+						["executeCMAction",["PapOfferAccept"]]
+					   ,["invoke", ["GotoMainMenuHub"]]
+					]
+				}
+				,{
+					"event":"PAPOfferReject"
+					,"targets":["Back"] 
+					,"actions":[ ["executeCMAction",["PapOfferRejectFromEmail"]] ]
+				}
+				,{
+					"event":"PAPOfferRejectToHub"
+					,"targets":["Back"] 
+					,"actions":[ ["executeCMAction",["PapOfferReject"]] ]
+				}
+				,{
+					"event":"JobOfferAccept"
+					,"actions":
+					[ 
+						["executeCMAction",["JobOfferAccept"]]
+					   ,["invoke", ["GotoMainMenuHub"]]
+					]
+				}
+				,{
+					"event":"JobOfferReject"
+					,"targets":["Back"] 
+					,"actions":[ ["executeCMAction",["JobOfferRejectFromEmail"]] ]
+				}
+				,{
+					"event":"JobOfferRejectToHub"
+					,"targets":["Back"] 
+					,"actions":[ ["executeCMAction",["JobOfferReject"]] ]
+				}
+				,{
+					"event":"Back"
+					,"targets":["Back"] 
+				}
+			]
+		}
+	]
+}

@@ -1,0 +1,390 @@
+{
+  "revision": 56,
+  "room_bounds": {
+    "lo": [
+      -1110,
+      0,
+      955
+    ],
+    "hi": [
+      -335,
+      319,
+      1752
+    ]
+  },
+  "width_cm": 775,
+  "previous_width_cm": 409,
+  "bindings": [
+    {
+      "material": "wall",
+      "submesh": "room_part_1"
+    },
+    {
+      "material": "charcoal",
+      "submesh": "room_part_2"
+    },
+    {
+      "material": "floor",
+      "submesh": "room_part_3"
+    },
+    {
+      "material": "ceiling",
+      "submesh": "room_part_4"
+    },
+    {
+      "material": "primary",
+      "submesh": "room_part_5"
+    },
+    {
+      "material": "brand",
+      "submesh": "room_part_6"
+    },
+    {
+      "material": "door_sign_medical",
+      "submesh": "room_part_7"
+    },
+    {
+      "material": "door_sign_coach",
+      "submesh": "room_part_8"
+    },
+    {
+      "material": "metal",
+      "submesh": "room_part_9"
+    },
+    {
+      "material": "light",
+      "submesh": "room_part_10"
+    },
+    {
+      "material": "leather",
+      "submesh": "room_part_11"
+    },
+    {
+      "material": "rubber",
+      "submesh": "room_part_12"
+    },
+    {
+      "material": "towel",
+      "submesh": "room_part_13"
+    },
+    {
+      "material": "crest",
+      "submesh": "room_part_14"
+    },
+    {
+      "material": "cabinet",
+      "submesh": "room_part_15"
+    },
+    {
+      "material": "glass",
+      "submesh": "room_part_16"
+    },
+    {
+      "material": "bottle",
+      "submesh": "room_part_17"
+    },
+    {
+      "material": "rehab",
+      "submesh": "room_part_18"
+    },
+    {
+      "material": "injuries",
+      "submesh": "room_part_19"
+    },
+    {
+      "material": "injuries_2",
+      "submesh": "room_part_20"
+    }
+  ],
+  "obstacles": [
+    {
+      "name": "Medical wall",
+      "lo": [
+        -1119.0,
+        0.0,
+        955.0
+      ],
+      "hi": [
+        -1109.0,
+        310.0,
+        1745.0
+      ]
+    },
+    {
+      "name": "Medical wall",
+      "lo": [
+        -1115.0,
+        0.0,
+        945.0
+      ],
+      "hi": [
+        -750.0,
+        310.0,
+        955.0
+      ]
+    },
+    {
+      "name": "Medical wall",
+      "lo": [
+        -1119.5,
+        0.0,
+        1752.0
+      ],
+      "hi": [
+        -754.5,
+        310.0,
+        1762.0
+      ]
+    },
+    {
+      "name": "Medical wall",
+      "lo": [
+        -338.0,
+        0.0,
+        965.0
+      ],
+      "hi": [
+        -332.0,
+        310.0,
+        1735.0
+      ]
+    },
+    {
+      "name": "Medical charcoal",
+      "lo": [
+        -1110.0,
+        5.0,
+        1741.5
+      ],
+      "hi": [
+        -340.0,
+        315.0,
+        1746.5
+      ]
+    },
+    {
+      "name": "Medical metal",
+      "lo": [
+        -998.5,
+        58.5,
+        1242.5
+      ],
+      "hi": [
+        -931.5,
+        70.5,
+        1417.5
+      ]
+    },
+    {
+      "name": "Maca acolchoada",
+      "lo": [
+        -1002.0,
+        70.5,
+        1292.0
+      ],
+      "hi": [
+        -928.0,
+        87.5,
+        1418.0
+      ]
+    },
+    {
+      "name": "Maca acolchoada",
+      "lo": [
+        -1002.0,
+        74.5,
+        1233.0
+      ],
+      "hi": [
+        -928.0,
+        91.5,
+        1289.0
+      ]
+    },
+    {
+      "name": "Medical metal",
+      "lo": [
+        -768.5,
+        58.5,
+        1242.5
+      ],
+      "hi": [
+        -701.5,
+        70.5,
+        1417.5
+      ]
+    },
+    {
+      "name": "Maca acolchoada",
+      "lo": [
+        -772.0,
+        70.5,
+        1292.0
+      ],
+      "hi": [
+        -698.0,
+        87.5,
+        1418.0
+      ]
+    },
+    {
+      "name": "Maca acolchoada",
+      "lo": [
+        -772.0,
+        74.5,
+        1233.0
+      ],
+      "hi": [
+        -698.0,
+        91.5,
+        1289.0
+      ]
+    },
+    {
+      "name": "Medical metal",
+      "lo": [
+        -436.0,
+        1.0,
+        1606.0
+      ],
+      "hi": [
+        -350.0,
+        199.0,
+        1690.0
+      ]
+    }
+  ],
+  "navigation": [
+    [
+      -545,
+      185,
+      875,
+      -545,
+      175,
+      1060,
+      64
+    ],
+    [
+      -545,
+      185,
+      1010,
+      -650,
+      165,
+      1330,
+      64
+    ],
+    [
+      -565,
+      185,
+      1190,
+      -740,
+      140,
+      1420,
+      66
+    ],
+    [
+      -710,
+      185,
+      1550,
+      -725,
+      180,
+      1740,
+      66
+    ],
+    [
+      -980,
+      185,
+      1575,
+      -730,
+      145,
+      1320,
+      66
+    ]
+  ],
+  "scenes": [
+    {
+      "label": "Departamento médico · entrada",
+      "pose": [
+        -555,
+        178,
+        1060,
+        -795,
+        140,
+        1450,
+        72
+      ]
+    },
+    {
+      "label": "Departamento médico · visão interna",
+      "pose": [
+        -980,
+        178,
+        1625,
+        -615,
+        130,
+        1220,
+        70
+      ]
+    },
+    {
+      "label": "Departamento médico · tratamento",
+      "pose": [
+        -870,
+        155,
+        1160,
+        -965,
+        86,
+        1330,
+        58
+      ]
+    },
+    {
+      "label": "Departamento médico · recuperação",
+      "pose": [
+        -610,
+        165,
+        1515,
+        -740,
+        100,
+        1330,
+        60
+      ]
+    },
+    {
+      "label": "Departamento médico · quadro de lesões",
+      "pose": [
+        -575,
+        217,
+        1150,
+        -344,
+        219,
+        1150,
+        52
+      ]
+    },
+    {
+      "label": "Departamento médico · acompanhamento",
+      "pose": [
+        -575,
+        217,
+        1330,
+        -344,
+        219,
+        1330,
+        52
+      ]
+    },
+    {
+      "label": "Departamento médico · identificação do clube",
+      "pose": [
+        -725,
+        205,
+        1430,
+        -725,
+        224,
+        1740,
+        62
+      ]
+    }
+  ]
+}

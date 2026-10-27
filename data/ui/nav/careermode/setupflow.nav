@@ -1,0 +1,121 @@
+{
+	"name":"SetupFlow"
+	,"initial": { "targets":["Setup"] }
+	,"states":
+	[
+		{
+			"name":"Setup"
+			,"onEnter": 
+			[ 
+				["loadScreenController", ["Setup"]] 
+				, ["loadView",["screen", "game/screens/career/Setup"]]
+				,["loadView",["background", "BOOTFLOW"]]
+			]
+			,"onExit": 
+			[	
+				["unloadView", ["screen", "game/screens/career/Setup"]]
+				,["unloadScreenController", ["Setup"]]
+				,["unloadView",["background"]]
+			]			
+			,"transitions":
+			[
+				{
+					"event":"Back"
+					,"targets":["Back"] 
+				}
+				,{
+					"event":"Advance"
+					,"targets":["Advance"] 
+					,"actions":[ ["executeCMAction",["SetUserTypeFlow"]] ]
+				}
+				,{
+					"event":"AdvanceStadium"
+					,"targets":["StadiumAssignment"] 
+				}
+				,{
+					"event":"AdvanceDLSquad"
+					,"targets":["SquadDownload"] 
+				}
+				,{
+					"event":"AdvanceEUFirstSeason"
+					,"targets":["EuropeFirstSeason"] 
+				}
+			]
+		}	
+		,{
+			"name":"StadiumAssignment"
+			,"onEnter": 
+			[ 
+				["loadViewModel",["StadiumAssignmentViewModel", "career"]]
+				,["loadScreenController", ["StadiumAssignment"]] 
+				, ["loadView",["screen", "game/screens/stadiumAssignment/StadiumAssignment"]]
+				,["loadView",["background", "BOOTFLOW"]]
+			]
+			,"onExit": 
+			[	
+				["unloadView", ["screen", "game/screens/stadiumAssignment/StadiumAssignment"]]
+				,["unloadScreenController", ["StadiumAssignment"]]
+				,["unloadViewModel",["StadiumAssignmentViewModel"]]
+				,["unloadView",["background"]]
+			]				
+			,"transitions":
+			[
+				{
+					"event":"Back"
+					,"targets":["Setup"] 
+				}
+			]
+		}
+		,{
+			"name":"SquadDownload"
+			,"onEnter": 
+			[ 
+				["sendAction",["evt_sign_out_flow_not_ready"]]
+				, ["loadScreenController", ["SquadDownload"]] 
+				, ["loadView",["screen", "game/screens/liveDB/livedb_downloadLiveDB"]]
+				,["loadView",["background", "BOOTFLOW"]]
+			]
+			,"onExit": 
+			[	
+				["unloadView", ["screen", "game/screens/liveDB/livedb_downloadLiveDB"]]
+				,["unloadScreenController", ["SquadDownload"]]
+				,["sendAction",["evt_sign_out_flow_ready"]]
+				,["unloadView",["background"]]
+			]			
+			,"transitions":
+			[
+				{
+					"event":"Cancel"
+					,"targets":["Setup"] 
+				}
+				,{
+					"event":"Advance"
+					,"targets":["Advance"] 
+					,"actions":[ ["executeCMAction",["SetUserTypeFlow"]] ]
+				}
+			]
+		}
+		,{
+			"name":"EuropeFirstSeason"
+			,"onEnter": 
+			[ 
+				["loadScreenController", ["EuropeFirstSeason"]] 
+				, ["loadView",["screen", "game/screens/career/EuropeanFirstSeason/EuropeanFirstSeason"]]
+				,["loadView",["background", "BOOTFLOW"]]
+			]
+			,"onExit": 
+			[	
+				["unloadView", ["screen", "game/screens/career/EuropeanFirstSeason/EuropeanFirstSeason"]]
+				,["unloadScreenController", ["EuropeFirstSeason"]]
+				,["unloadView",["background"]]
+			]
+			,"transitions":
+			[
+				{
+					"event":"Back"
+					,"targets":["Setup"]
+				}
+			]
+		}
+	]
+}

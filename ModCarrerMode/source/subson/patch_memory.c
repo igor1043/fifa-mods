@@ -1,0 +1,141 @@
+#define WIN32_LEAN_AND_MEAN
+#include "subson_friendly.h"
+#include <string.h>
+#include <limits.h>
+#include <tlhelp32.h>
+
+#define BENCH_PATCH_MAX_THREADS 512U
+
+/* A seven-byte detour is not an atomic write. Collect handles before
+ * suspending, then keep the protected write window short. Never allocate,
+ * log, wait for the game or call a native game function while suspended.
+ */
+typedef struct PatchThreads {
+    HANDLE handles[BENCH_PATCH_MAX_THREADS];
+    size_t count;
+    size_t suspended;
+} PatchThreads;
+
+static void release_threads(PatchThreads *threads)
+{
+    size_t index;
+    for (index=threads->suspended;index>0U;--index)
+        (void)ResumeThread(threads->handles[index-1U]);
+    for (index=0;index<threads->count;++index)
+        CloseHandle(threads->handles[index]);
+    threads->suspended=0;threads->count=0;
+}
+
+static BOOL pause_threads(PatchThreads *threads, uintptr_t site, SIZE_T length)
+{
+    THREADENTRY32 entry;
+    HANDLE snapshot;
+    const DWORD process=GetCurrentProcessId(), current=GetCurrentThreadId();
+    size_t index;
+    BOOL ok=TRUE;
+    memset(threads,0,sizeof(*threads));
+    snapshot=CreateToolhelp32Snapshot(TH32CS_SNAPTHREAD,0);
+    if (snapshot==INVALID_HANDLE_VALUE) return FALSE;
+    memset(&entry,0,sizeof(entry));entry.dwSize=sizeof(entry);
+    if (!Thread32First(snapshot,&entry)) ok=FALSE;
+    while (ok) {
+        if (entry.th32OwnerProcessID==process && entry.th32ThreadID!=current) {
+            HANDLE thread;
+            if (threads->count==BENCH_PATCH_MAX_THREADS) { ok=FALSE;break; }
+            thread=OpenThread(THREAD_SUSPEND_RESUME|THREAD_GET_CONTEXT|
+                              THREAD_QUERY_INFORMATION,FALSE,entry.th32ThreadID);
+            if (!thread) {
+                /* A thread that already exited cannot execute this patch. */
+                if (GetLastError()!=ERROR_INVALID_PARAMETER) { ok=FALSE;break; }
+            } else threads->handles[threads->count++]=thread;
+        }
+        entry.dwSize=sizeof(entry);
+        if (!Thread32Next(snapshot,&entry)) {
+            if (GetLastError()!=ERROR_NO_MORE_FILES) ok=FALSE;
+            break;
+        }
+    }
+    CloseHandle(snapshot);
+    if (!ok) { release_threads(threads);return FALSE; }
+    for (index=0;index<threads->count;++index) {
+        CONTEXT context;
+        if (SuspendThread(threads->handles[index])==(DWORD)-1) {
+            release_threads(threads);return FALSE;
+        }
+        ++threads->suspended;
+        memset(&context,0,sizeof(context));context.ContextFlags=CONTEXT_CONTROL;
+        if (!GetThreadContext(threads->handles[index],&context) ||
+            (context.Rip>=site && context.Rip<site+length)) {
+            release_threads(threads);return FALSE;
+        }
+    }
+    return TRUE;
+}
+
+static BOOL copy_read(uintptr_t address, void *out, SIZE_T size)
+{
+    SIZE_T received=0;
+    return ReadProcessMemory(GetCurrentProcess(),(const void *)address,out,size,&received) &&
+        received==size;
+}
+
+unsigned char *subson_near_page(uintptr_t image, SIZE_T image_size, uintptr_t site)
+{
+    SYSTEM_INFO system;
+    MEMORY_BASIC_INFORMATION info;
+    uintptr_t address, limit=site+(uintptr_t)INT32_MAX-0x10000U;
+    GetSystemInfo(&system);
+    address=(image+image_size+system.dwAllocationGranularity-1U)&
+        ~((uintptr_t)system.dwAllocationGranularity-1U);
+    while (address<limit) {
+        uintptr_t end;
+        if (!VirtualQuery((const void *)address,&info,sizeof(info))) return NULL;
+        end=(uintptr_t)info.BaseAddress+info.RegionSize;
+        if (end<=address) return NULL;
+        if (info.State==MEM_FREE) {
+            uintptr_t aligned=(address+system.dwAllocationGranularity-1U)&
+                ~((uintptr_t)system.dwAllocationGranularity-1U);
+            if (aligned<limit && aligned+0x1000U<=end) {
+                unsigned char *page=(unsigned char *)VirtualAlloc((void *)aligned,0x1000U,
+                    MEM_RESERVE|MEM_COMMIT,PAGE_READWRITE);
+                if (page) return page;
+            }
+        }
+        address=end;
+    }
+    return NULL;
+}
+
+BOOL subson_write_bytes(uintptr_t address, const unsigned char *before,
+    const unsigned char *after,SIZE_T length)
+{
+    unsigned char current[SUBSON_PATCH_MAX_BYTES];
+    PatchThreads threads;
+    DWORD previous=0, ignored=0;
+    BOOL flushed, restored, matched, ok=FALSE;
+    if (!length || length>sizeof(current) || !before || !after ||
+        !copy_read(address,current,length) ||
+        memcmp(current,before,length)!=0) return FALSE;
+    if (!pause_threads(&threads,address,length)) return FALSE;
+    if (!copy_read(address,current,length) ||
+        memcmp(current,before,length)!=0 ||
+        !VirtualProtect((void *)address,length,PAGE_EXECUTE_READWRITE,&previous))
+        goto finish;
+    /* Installed only at startup, before real players load, with existing
+     * threads paused. The game never resumes on a half-written instruction.
+     */
+    memcpy((void *)address,after,length);
+    flushed=FlushInstructionCache(GetCurrentProcess(),(const void *)address,length);
+    matched=copy_read(address,current,length) &&
+        memcmp(current,after,length)==0;
+    if (!flushed || !matched) {
+        memcpy((void *)address,before,length);
+        (void)FlushInstructionCache(GetCurrentProcess(),(const void *)address,length);
+    }
+    restored=VirtualProtect((void *)address,length,previous,&ignored);
+    ok=flushed && matched && restored;
+finish:
+    release_threads(&threads);
+    return ok;
+}
+

@@ -1,0 +1,138 @@
+{
+	"name":"ActionPopupFlow"
+	,"initial": { "targets":["ActionPopup"] }
+	,"states":
+	[
+		{
+			"name":"ActionPopup"
+			,"onEnter": 
+			[ 
+				["loadScreenController", ["ActionPopup"]] 
+				, ["loadView",["frontScreen", "game/screens/career/PlayerActions", ".direction"]]
+			]
+			,"onExit": 
+			[			
+				["unloadView",["frontScreen", ".direction"]]
+				, ["unloadScreenController", ["ActionPopup"]]			
+			]
+			,"transitions":
+			[
+				{
+					"event":"ApproachToSign"
+					,"targets":["ContractOffer"] 
+					,"actions":[ ["executeCMAction",["EnterContractOfferFromActionPopup"]] ]
+				}
+				,{
+					"event":"ApproachToPreContractSign"
+					,"targets":["ContractOffer"] 
+					,"actions":[ ["executeCMAction",["EnterPreContractOfferFromActionPopup"]] ]
+				}
+				,{
+					"event":"TransferOffer"
+					,"targets":["TransferOffer"] 
+					,"actions":[ ["executeCMAction",["EnterTransferOfferActionPopup"]] ]
+				}
+				,{
+					"event":"LoanOffer"
+					,"targets":["TransferOffer"] 
+					,"actions":[ ["executeCMAction",["EnterLoanOfferActionPopup"]] ]
+				}
+				,{
+					"event":"ContractOffer"
+					,"targets":["PlayerContractNegotiation"] 
+					,"actions":[ ["executeCMAction",["EnterPlayerContractNegotiationFromActionPopup"]] ]
+				}
+				,{
+					"event":"EnterJobOfferSign"
+					,"targets":["JobOfferSign"] 
+					,"actions":[ ["executeCMAction",["JobOfferSignFromHub"]] ]
+				}
+				,{
+					"event":"EnterPlayerRetireState"
+					,"targets":["BackFromPopup"]
+					,"let":{ "direction":"exit" }
+					,"actions":
+					[
+						["executeCMAction",["EnterPlayerRetireStateFromActionPopup"]]
+					]
+				}
+				,{
+					"event":"Back"
+					,"targets":["BackFromPopup"] 	
+					,"let":{ "direction":"exit" }		
+				}
+			]
+		}
+		,{
+			"name":"ContractOffer"
+			,"onEnter": 
+			[ 
+				["loadScreenController", ["ContractOffer"]] 
+				, ["loadView",["screen", "game/screens/career/transfers/ContractOffer"]]
+			]		
+			,"onExit": 			
+			[	["unloadView", ["screen", "game/screens/career/transfers/ContractOffer"]]
+				, ["unloadScreenController", ["ContractOffer"]]
+			]
+			,"transitions":
+			[
+				{
+					"event":"Back"
+					,"targets":["BackFromScreen"] 
+				}
+			]
+		}
+		,{
+			"name":"TransferOffer"
+			,"onEnter": 
+			[ 
+				["loadScreenController", ["TransferOffer"]] 
+				, ["loadView",["screen", "game/screens/career/transfers/transferOffer"]]
+			]		
+			,"onExit": 
+			[	
+				["unloadView", ["screen", "game/screens/career/transfers/transferOffer"]]
+				, ["unloadScreenController", ["TransferOffer"]]
+			]
+			,"transitions":
+			[
+				{
+					"event":"Back"
+					,"targets":["BackFromScreen"] 
+				}
+			]
+		}
+		,{
+			"name":"PlayerContractNegotiation"
+			,"onEnter": 
+			[ 
+				["loadScreenController", ["PlayerContractNegotiation"]] 
+				, ["loadView",["screen", "game/screens/career/squad/ContractNegotiation"]]
+			]		
+			,"onExit": 
+			[	
+				["unloadView", ["screen", "game/screens/career/squad/ContractNegotiation"]]
+				, ["unloadScreenController", ["PlayerContractNegotiation"]]
+			]	
+			,"transitions":
+			[
+				{
+					"event":"Back"
+					,"targets":["BackFromScreen"] 
+				}
+			]
+		}
+		,{
+			"name":"JobOfferSign"
+			,"type":"external"
+			,"file":"/careerMode/jobOfferSignFlow.nav"
+			,"outputs":
+			{	
+				 "Back":"BackFromScreen"
+			}			
+		}	
+	]
+}
+
+
+

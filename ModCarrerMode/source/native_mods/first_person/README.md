@@ -1,0 +1,192 @@
+# Primeira pessoa no Server16
+
+Componente x64 `server16_first_person_v14.dll`, carregado pelo Server usando o helper
+existente `cgfs16_inject.exe`. O controle é o mapa `Local\FIFA16_FirstPersonCamera_v4`,
+80 bytes, versão 4, declarado em `camera_channel.h` e `first_person_runtime.CameraShared`.
+O Server publica owner/heartbeat e comando; a DLL publica ack/estado/erro. Não há
+processo de painel externo. Sem heartbeat por três segundos ou ao fechar o Server,
+a câmera desativa. F10 também desativa. O Server salva ativação e abertura e
+recupera a escolha na inicialização, sem exigir abertura do menu. Reiniciar o Server reaproveita a DLL já
+carregada, inclusive se o diretório temporário do PyInstaller mudou.
+
+A revisão v6 adia a ativação até o próprio FIFA inicializar o cache de nomes dos
+ossos (flag RVA 3518200 no executável 577DE45C). Apenas carregar BCEngine não basta:
+consultar o osso antes disso aciona a inicialização preguiçosa contra uma tabela
+ainda ausente e derruba o jogo. O erro transitório 3 indica espera, mantém a escolha
+salva e tenta de novo automaticamente, sem chamar o resolvedor durante a espera.
+
+O protótipo usa o BCEngine desta compilação do FIFA (timestamp 577DE45C), com três
+desvios de vtable verificados antes da escrita. Captura Head pela matriz animada,
+com a fonte no sexto argumento do coletor, e substitui a saída do comportamento
+ThirdPerson após a função original. Valida jogador, GameData, idade, matriz e estado
+2–15, incluindo as cobranças, reposicionamento e bola em jogo. A rotina
+nativa atualiza o jogador selecionado antes de ler a fase; excluir 14 interrompia
+o acompanhamento antes de a bola entrar em jogo. O modo de jogo usa FOV
+85 graus por padrão, mantendo a lente constante com ou sem a bola para conciliar
+a visão do campo com a bola nos pés. Dá mais atenção ao controle próximo nativo
+(`isInPaceControl`, comportamento +A10), sem tratá-lo como identificador universal
+de drible. Ao soltar a bola, prioriza o campo por 650 ms; isso inclui passes e chutes,
+sem distinguir a animação. Não gira o heading em direção à bola. O Server mantém
+enquadramento Campo e bola (1) e viés neutro (0). O menu expõe ativação, modo,
+FOV por modo, suavização da cabeça na primeira pessoa e distância na terceira pessoa.
+A primeira pessoa aceita 75–150° e a terceira 60–90°, sem aumento automático com posse. A posse usa
+PossesorPlayerId (+A30) comparado ao jogador seguido (+9CC). A folga de segurança
+mantém o olho pelo menos 21 cm à frente do centro animado da cabeça quando a
+ocultação da cabeça não está disponível. A revisão v11 restaura essa posição, sem recuo.
+
+Modo 1 (Terceira pessoa · carreira) usa `career_camera.h`: câmera 480 cm atrás da
+raiz e 230 cm acima, com referência de mira 850 cm à frente / 110 cm de altura.
+Órbita horizontal com resposta de 600 ms, limite de 0,75 rad/s e aceleração de
+1,8 rad/s², com referência corporal filtrada e zona de 2 graus. A translação da raiz passa por dois filtros (100 e 140 ms), sem copiar
+altura/pitch/roll animados da cabeça. A bola à frente atrai parcialmente a direção;
+o corpo inteiro cabe no FOV padrão 85°. Sem teste de colisão contra o cenário.
+Não usa `headClearance`, que empurraria a câmera para dentro da posição de primeira
+pessoa. Alternar o modo reinicia os filtros. O campo reservado de CameraStatus
+reflete o modo para diagnóstico, preservando o tamanho público de 56 bytes.
+
+`head_camera_stabilizer.h` filtra o movimento relativo ao corpo, com quatro intensidades,
+e reinicia ao trocar jogador/contexto, em intervalos grandes ou teletransporte. O
+corpo continua acompanhando a translação sem atraso. Inclinação lateral é atenuada.
+Suavização da cabeça: 0 Média (mesma resposta da antiga configuração fixa Forte),
+1 Alta, 2 Extra alta e 3 Agressiva. Aumentar o nível filtra progressivamente mais
+as rotações e oscilações locais, sem atrasar a translação da raiz do corpo.
+`head_smoothing` é salvo nas preferências; arquivos anteriores começam em Média,
+preservando ativação, modo, distância e FOV. A terceira pessoa usa seus próprios filtros.
+Durante KickOff e OutOfPlay, a posição local acompanha a cabeça imediatamente; a suavização
+dos ângulos continua. A mudança de fase e saltos locais maiores que 45 cm também
+reiniciam o filtro para recuperar a pose inicial sem aproximação lenta.
+O export `CameraTrackingStatus` (80 bytes) permite conferir raiz, olho da cabeça,
+olho da câmera, idade da captura, fase, modo, validade e contadores.
+
+Fontes derivadas do experimento local em
+`J:\mods\fifa 16\estudos fifa 16\97_PRIMEIRA_PESSOA_RAM_20261018`.
+Compilar: `scripts\build_first_person.cmd`; testar matemática:
+`scripts\test_first_person.cmd`. `build_exe.bat` inclui a DLL no executável do Server.
+O painel antigo deve ser fechado e seu protótipo parado ou o FIFA reiniciado antes
+de ativar esta versão, pois ambos usam as mesmas funções da câmera.
+
+Distância (campo int32 final do canal): 0 Perto (480/230 cm), 1 Intermediária
+(750/320 cm), 2 Afastada (1150/450 cm), com filtros de 160 e 180 ms para a transição. Preferências versão 4
+guardam o FOV de cada modo separadamente; ambos começam em 85°. A primeira pessoa
+sincroniza a pose aplicada com o cache nativo +BE0, usado na interpolação de transições.
+
+A revisão v11 retira integralmente o hook Player::GetLod e as cópias de
+malhas introduzidos nas revisões v8–v10. O dump de 19/10/2026 20:27:15
+registrou uma leitura nula em FIFA+4ADC62E no render, com retorno para a
+DLL v10+2CDD e o caminho BatchPlayer em FIFA+43BE32B.
+Foi restaurado o gerador da revisão v7, mantendo somente o controle dos quatro
+níveis de suavização. A câmera volta à folga anterior, à frente da cabeça;
+cabeça, olhos, boca e cabelo permanecem com o render original, inclusive ao
+alternar o jogador. Não há hook de render nem descritores substituídos.
+`head_mesh_filter.h` e seu teste ficam apenas como experimento isolado, sem
+inclusão no componente instalado. A ocultação de malhas não é entregue nesta revisão.
+
+Na terceira pessoa, trocas de jogador de até 25 m preservam o filtro em vez de
+reiniciá-lo. Trocas mais distantes, pausa longa, novo contexto ou mudança de fase
+readquirem a câmera para evitar travessias longas do estádio. Os filtros de translação descritos são exclusivos da terceira pessoa.
+
+## Histórico da validação v11
+
+O teste em jogo de 19/10/2026 confirmou atraso na saída de bola e na retomada após gol na revisão v11, mesmo com o reset matemático da âncora. A revisão v12 abaixo corrige o fluxo e ainda aguarda validação visual. O acompanhamento durante lances normais foi relatado como correto na v11.
+
+A pasta `experimental/` preserva o teste v12 de cabeça oculta/recuo e os observadores de transição em RAM. Esses fontes não são incluídos no EXE nem carregados automaticamente. `head_mesh_filter.h` preserva o wrapper nativo completo de 232 bytes e a revisão do descritor, mas continua fora do runtime instalado. A ocultação permanece experimental; a correção das transições usa o fluxo da revisão v12 abaixo.
+
+## Revisão v12 — 21/10/2026
+
+A leitura da enumeração nativa GameplayGameState confirmou as fases de cobrança
+3–13. Elas eram excluídas pelo módulo, que só aceitava KickOff (2), OutOfPlay
+(14) e Play (15); isso devolvia o controle ao efeito de aproximação nativo.
+Agora mantém a pose nas fases 2–15, com matriz válida e fresca, e suspende a
+substituição nas fases de limite da partida/criação.
+
+Um hook adicional no adaptador CameraModule::Update (BCEngine +123E40) corrige
+a pose após a interpolação e reconstrói a conversão nativa de projeção/viewport.
+Só age quando o gerador produziu uma pose modificada durante essa mesma chamada
+e pertence à mesma interface. Preserva os campos nativos de clipping/lente.
+As flags locais do frame dofForceOff e motionBlurForceOffCamera/Ball/Players
+são ativadas nos quadros modificados para evitar desfoque com FOV ampliado;
+nenhum parâmetro global do render é alterado. A atualização nativa seguinte
+restabelece as flags quando a câmera modificada deixa de atuar.
+
+A terceira pessoa conserva distância, altura e FOV. A referência é a orientação
+horizontal válida da raiz, com trajetória filtrada como alternativa; a cabeça
+animada só inicia a direção quando não há uma referência corporal. Pequenas
+oscilações da raiz ficam dentro de uma zona de 4 cm. A órbita limita-se a
+0,75 rad/s e 1,8 rad/s², com resposta de 600 ms, referência filtrada e menor
+atração da bola distante. Toques próximos não puxam a câmera.
+
+O indicador nativo areUsersLockedToPlayers (+9C1) fixa o atleta por contexto
+de partida; o foco temporário da câmera Profissional não troca esse vínculo.
+Modos que controlam o time continuam seguindo a seleção nativa. Não há hook
+Player::GetLod, modificação de malha, máscara de desenho ou ocultação de atores.
+
+Validação: matemática/limites/FPS/oscilações, fases de cobrança, vínculo do atleta,
+campos preservados, flags de desfoque e protocolo real da DLL passaram nos testes
+isolados. São 9 testes Python da câmera e 10 da física de roupas aprovados.
+O usuário relatou melhora significativa em 21/10/2026 após instalar a revisão.
+Casos específicos ainda aguardam validação; a invisibilidade continua em
+investigação e não foi corrigida por este módulo.
+
+## Revisão v13 — 21/10/2026
+
+A nitidez com FOV amplo foi isolada em RAM: além das flags de desfoque, o motor
+aplicava sua curva de distorção retangular entre 80 e 120 graus, chegando a 0,4
+e zoom inverso 0,78. Desligar a curva melhorou o centro, mas o usuário relatou
+deformação excessiva nas laterais. O teste com correção 0,25 e zoom inverso 1
+preservou a nitidez e melhorou as proporções, com ajuste restante nos cantos.
+
+A revisão usa metade da compensação nativa, limitada a 0,20, e zoom inverso 1,
+somente na primeira pessoa. Não altera o FOV escolhido, a resolução, a curva
+nativa nem recursos do render. A terceira pessoa mantém os parâmetros de lente
+do motor; lentes explicitamente desativadas continuam desativadas. A versão
+anterior com distorção completamente desligada não foi publicada.
+
+Na primeira pessoa, a suavização mantém no máximo 20 graus de atraso horizontal
+nas viradas fortes. A proteção de posição usa também a direção final da câmera,
+mantendo o centro da cabeça ao menos 23 cm atrás do plano da câmera, sem ocultar
+malhas. Os filtros de pequenos movimentos continuam usando a intensidade salva.
+
+Na terceira pessoa, a posse vem do atleta nativo em +A30. Sem a bola, a câmera
+gira parcialmente em direção à jogada, com viés limitado a 0,8 rad e os mesmos
+limites de velocidade e aceleração da revisão 12. Uma zona de histerese evita
+que a bola diretamente atrás alterne o lado da órbita. Com a bola, volta
+gradualmente ao acompanhamento corporal já existente.
+
+Matemática, limites de virada, segurança da cabeça, posse/recuperação, bola atrás
+e protocolo real da DLL passaram nos testes isolados. A compensação final 0,20,
+as viradas e o foco sem posse ainda precisam de validação visual após carregar
+a DLL nova. A invisibilidade geral de jogadores continua sem causa confirmada.
+
+## Revisão v14 — 21/10/2026
+
+Corrige as faixas arrastadas nos cantos com um par de coeficientes que conserva
+a escala central da revisão 13. A conferência dos pixel shaders nativos
+`rectilineardistortion.fxo` e `combiner.fxo` confirmou a mesma equação:
+`q = p * (d * length(p) + (1-d) * z)`, com `p` entre -1 e 1 nos dois eixos.
+O par antigo `d=0,20 / z=1` passava do limite nos cantos. Reduzir só `z` para
+0,89 eliminava as faixas, mas ampliava novamente o centro; o usuário rejeitou
+esse teste por perda de nitidez.
+
+Para cada quadro, `wanted=min(nativeDistortion*0.5,0.2)`, `d=wanted*0.7` e
+`z=(1-wanted)/(1-d)`. Assim a escala central continua `1-wanted`; o fator máximo
+no canto é `1-wanted + d*sqrt(2)`, menor que 1. No FOV alto, resulta em
+`d=0,14 / z≈0,93023256`, com centro 0,8 e fator de canto ≈0,99799. O usuário
+confirmou em RAM bordas corrigidas e centro nítido com esse par. Não modifica
+o shader, os arquivos BIG, a resolução, o FOV salvo ou a lente da terceira pessoa.
+
+A primeira pessoa suaviza separadamente a contribuição vertical da busca da
+bola, com limite de 0,45 rad/s e entrada gradual da velocidade. Acrescenta uma
+olhada breve para os pés após pelo menos 0,75 s de posse com a bola próxima,
+ou em controle próximo, com envelope de 1,8 s, até 0,18 rad e intervalo mínimo
+de 5,5 s. A simples permanência da bola próxima não repete o movimento. O
+olhar passa pela mesma suavização e não altera a posição da câmera ou malhas.
+
+Sem a bola, a terceira pessoa usa resposta de viés de 0,35 s, órbita de até
+1,05 rad/s e aceleração de 2,6 rad/s². Com a posse, mantém os limites anteriores
+de 0,75 rad/s e 1,8 rad/s². Conserva a proteção contra inversão da órbita quando
+a bola está diretamente atrás.
+
+Testes cobrem a equação original do shader em toda a tela e FOVs de 75° a 150°,
+preservação da escala central, velocidade da busca da bola, olhada para os pés
+e limites das duas velocidades de órbita. O ajuste de lente foi confirmado em
+RAM; os movimentos novos aguardam validação visual após carregar a DLL v14.

@@ -1,0 +1,60 @@
+#pragma once
+#include <d3d11.h>
+#include <d3dcompiler.h>
+#include <wincodec.h>
+#include <vector>
+#include <string>
+#include <array>
+#include "game_assets.h"
+namespace clubgfx {
+template<class T>inline void release(T*& p){if(p){p->Release();p=nullptr;}}
+struct Vertex{float x,y,u,v;};
+struct Texture{ID3D11Texture2D* texture=nullptr;ID3D11ShaderResourceView* view=nullptr;int w=0,h=0;std::wstring key;void clear(){release(view);release(texture);key.clear();w=h=0;}};
+inline bool upload(ID3D11Device* dev,Texture& out,const void* data,unsigned width,unsigned height){
+ if(!width||!height||width>8192||height>8192)return false;D3D11_TEXTURE2D_DESC desc{};desc.Width=width;desc.Height=height;desc.MipLevels=desc.ArraySize=desc.SampleDesc.Count=1;desc.Format=DXGI_FORMAT_B8G8R8A8_UNORM;desc.Usage=D3D11_USAGE_IMMUTABLE;desc.BindFlags=D3D11_BIND_SHADER_RESOURCE;D3D11_SUBRESOURCE_DATA init{data,width*4,0};
+ Texture t;if(FAILED(dev->CreateTexture2D(&desc,&init,&t.texture)))return false;if(FAILED(dev->CreateShaderResourceView(t.texture,nullptr,&t.view))){t.clear();return false;}out.clear();out=t;out.w=width;out.h=height;return true;
+}
+inline bool image(ID3D11Device* dev,Texture& out,const std::wstring& path){if(out.key==path)return out.view!=nullptr;Texture next;IWICImagingFactory* factory=nullptr;IWICBitmapDecoder* decoder=nullptr;IWICBitmapFrameDecode* frame=nullptr;IWICFormatConverter* converter=nullptr;bool ok=false;
+ if(SUCCEEDED(CoCreateInstance(CLSID_WICImagingFactory,nullptr,CLSCTX_INPROC_SERVER,IID_PPV_ARGS(&factory)))&&SUCCEEDED(factory->CreateDecoderFromFilename(path.c_str(),nullptr,GENERIC_READ,WICDecodeMetadataCacheOnDemand,&decoder))&&SUCCEEDED(decoder->GetFrame(0,&frame))&&SUCCEEDED(factory->CreateFormatConverter(&converter))&&SUCCEEDED(converter->Initialize(frame,GUID_WICPixelFormat32bppBGRA,WICBitmapDitherTypeNone,nullptr,0,WICBitmapPaletteTypeCustom))){UINT w=0,h=0;converter->GetSize(&w,&h);if(w&&h&&w<=8192&&h<=8192){std::vector<unsigned char> bytes(size_t(w)*h*4);if(SUCCEEDED(converter->CopyPixels(nullptr,w*4,UINT(bytes.size()),bytes.data())))ok=upload(dev,next,bytes.data(),w,h);}}
+ release(converter);release(frame);release(decoder);release(factory);out.clear();out=next;out.key=path;return ok;
+}
+inline bool gameImage(ID3D11Device* dev,Texture& out,const clubassets::Reader& reader,const std::vector<std::string>& paths){
+ std::wstring key;for(const auto& p:paths)key+=std::wstring(p.begin(),p.end())+L";";if(out.key==key)return out.view!=nullptr;out.clear();
+ for(const auto& path:paths){auto bytes=clubassets::texture(reader.asset(path));if(bytes.size()<16)continue;
+  if(bytes.size()>=128&&!memcmp(bytes.data(),"DDS ",4)){
+   auto w=clubassets::le(bytes.data()+16),h=clubassets::le(bytes.data()+12),fourcc=clubassets::le(bytes.data()+84);if(!w||!h||w>4096||h>4096||clubassets::le(bytes.data()+4)!=124)continue;
+   DXGI_FORMAT format=DXGI_FORMAT_UNKNOWN;unsigned block=0;if(fourcc==0x31545844){format=DXGI_FORMAT_BC1_UNORM;block=8;}if(fourcc==0x33545844){format=DXGI_FORMAT_BC2_UNORM;block=16;}if(fourcc==0x35545844){format=DXGI_FORMAT_BC3_UNORM;block=16;}
+   unsigned pitch=block?((w+3)/4)*block:w*4;size_t length=size_t(pitch)*(block?(h+3)/4:h);if(128+length>bytes.size())continue;
+   if(!fourcc&&clubassets::le(bytes.data()+88)==32){format=clubassets::le(bytes.data()+92)==0x00ff0000?DXGI_FORMAT_B8G8R8A8_UNORM:DXGI_FORMAT_R8G8B8A8_UNORM;}
+   if(format==DXGI_FORMAT_UNKNOWN)continue;D3D11_TEXTURE2D_DESC d{};d.Width=w;d.Height=h;d.MipLevels=d.ArraySize=d.SampleDesc.Count=1;d.Format=format;d.Usage=D3D11_USAGE_IMMUTABLE;d.BindFlags=D3D11_BIND_SHADER_RESOURCE;D3D11_SUBRESOURCE_DATA initial{bytes.data()+128,pitch,0};
+   if(SUCCEEDED(dev->CreateTexture2D(&d,&initial,&out.texture))&&SUCCEEDED(dev->CreateShaderResourceView(out.texture,nullptr,&out.view))){out.w=w;out.h=h;out.key=key;return true;}out.clear();
+  }else{
+   IWICImagingFactory* f=nullptr;IWICStream* stream=nullptr;IWICBitmapDecoder* decoder=nullptr;IWICBitmapFrameDecode* frame=nullptr;IWICFormatConverter* convert=nullptr;bool ok=false;
+   if(SUCCEEDED(CoCreateInstance(CLSID_WICImagingFactory,nullptr,CLSCTX_INPROC_SERVER,IID_PPV_ARGS(&f)))&&SUCCEEDED(f->CreateStream(&stream))&&SUCCEEDED(stream->InitializeFromMemory(bytes.data(),DWORD(bytes.size())))&&SUCCEEDED(f->CreateDecoderFromStream(stream,nullptr,WICDecodeMetadataCacheOnDemand,&decoder))&&SUCCEEDED(decoder->GetFrame(0,&frame))&&SUCCEEDED(f->CreateFormatConverter(&convert))&&SUCCEEDED(convert->Initialize(frame,GUID_WICPixelFormat32bppBGRA,WICBitmapDitherTypeNone,nullptr,0,WICBitmapPaletteTypeCustom))){UINT w=0,h=0;convert->GetSize(&w,&h);if(w&&h&&w<=4096&&h<=4096){std::vector<unsigned char> pixels(size_t(w)*h*4);if(SUCCEEDED(convert->CopyPixels(nullptr,w*4,UINT(pixels.size()),pixels.data())))ok=upload(dev,out,pixels.data(),w,h);}}
+   release(convert);release(frame);release(decoder);release(stream);release(f);if(ok){out.key=key;return true;}
+  }
+ }
+ out.key=key;return false;
+}
+inline bool text(ID3D11Device* dev,Texture& out,const std::wstring& value,int width,int height,int size,COLORREF color,bool center=false){
+ std::wstring key=value+L"#"+std::to_wstring(width)+L"#"+std::to_wstring(height)+L"#"+std::to_wstring(center)+L"#"+std::to_wstring(color)+L"#"+std::to_wstring(size);if(out.key==key)return out.view!=nullptr;
+ BITMAPINFO info{};info.bmiHeader.biSize=sizeof(BITMAPINFOHEADER);info.bmiHeader.biWidth=width;info.bmiHeader.biHeight=-height;info.bmiHeader.biPlanes=1;info.bmiHeader.biBitCount=32;info.bmiHeader.biCompression=BI_RGB;
+ HDC dc=CreateCompatibleDC(nullptr);void* bytes=nullptr;HBITMAP bitmap=CreateDIBSection(dc,&info,DIB_RGB_COLORS,&bytes,nullptr,0);if(!bitmap){DeleteDC(dc);return false;}auto old=SelectObject(dc,bitmap);HFONT font=CreateFontW(-size,0,0,0,FW_NORMAL,FALSE,FALSE,FALSE,DEFAULT_CHARSET,OUT_DEFAULT_PRECIS,CLIP_DEFAULT_PRECIS,ANTIALIASED_QUALITY,DEFAULT_PITCH,L"eahelveticaneuemed-mod");auto oldFont=SelectObject(dc,font);memset(bytes,0,size_t(width)*height*4);SetBkMode(dc,TRANSPARENT);SetTextColor(dc,RGB(255,255,255));RECT rect{0,0,width,height};DrawTextW(dc,value.c_str(),-1,&rect,DT_SINGLELINE|DT_VCENTER|DT_NOPREFIX|DT_END_ELLIPSIS|(center?DT_CENTER:DT_LEFT));GdiFlush();auto p=(unsigned char*)bytes;for(int i=0;i<width*height;++i,p+=4){p[3]=(std::max)({p[0],p[1],p[2]});p[0]=GetBValue(color);p[1]=GetGValue(color);p[2]=GetRValue(color);}bool ok=upload(dev,out,bytes,width,height);out.key=key;SelectObject(dc,oldFont);SelectObject(dc,old);DeleteObject(font);DeleteObject(bitmap);DeleteDC(dc);return ok;
+}
+struct SavedState{
+ ID3D11DeviceContext* owner=nullptr;bool active=false;~SavedState(){if(active)restore(owner);}
+ ID3D11RenderTargetView* rt[8]{};ID3D11DepthStencilView* depth=nullptr;ID3D11BlendState* blend=nullptr;float bf[4]{};UINT mask=0,stencil=0;ID3D11DepthStencilState* ds=nullptr;ID3D11RasterizerState* raster=nullptr;D3D11_VIEWPORT vp[16]{};UINT vpCount=16;ID3D11VertexShader* vs=nullptr;ID3D11PixelShader* ps=nullptr;ID3D11GeometryShader* gs=nullptr;ID3D11HullShader* hs=nullptr;ID3D11DomainShader* dsShader=nullptr;ID3D11ClassInstance* vsClasses[256]{},*psClasses[256]{},*gsClasses[256]{},*hsClasses[256]{},*dsClasses[256]{};UINT vsCount=256,psCount=256,gsCount=256,hsCount=256,dsCount=256;ID3D11InputLayout* layout=nullptr;ID3D11Buffer* vb=nullptr;UINT stride=0,offset=0;D3D11_PRIMITIVE_TOPOLOGY topology{};ID3D11ShaderResourceView* srv[2]{};ID3D11SamplerState* sampler[2]{};ID3D11Buffer* constants=nullptr;
+ void save(ID3D11DeviceContext* c){owner=c;active=true;c->OMGetRenderTargets(8,rt,&depth);c->OMGetBlendState(&blend,bf,&mask);c->OMGetDepthStencilState(&ds,&stencil);c->RSGetState(&raster);c->RSGetViewports(&vpCount,vp);c->VSGetShader(&vs,vsClasses,&vsCount);c->PSGetShader(&ps,psClasses,&psCount);c->GSGetShader(&gs,gsClasses,&gsCount);c->HSGetShader(&hs,hsClasses,&hsCount);c->DSGetShader(&dsShader,dsClasses,&dsCount);c->IAGetInputLayout(&layout);c->IAGetVertexBuffers(0,1,&vb,&stride,&offset);c->IAGetPrimitiveTopology(&topology);c->PSGetShaderResources(0,2,srv);c->PSGetSamplers(0,2,sampler);c->PSGetConstantBuffers(0,1,&constants);}
+ void restore(ID3D11DeviceContext* c){active=false;c->OMSetRenderTargets(8,rt,depth);c->OMSetBlendState(blend,bf,mask);c->OMSetDepthStencilState(ds,stencil);c->RSSetState(raster);c->RSSetViewports(vpCount,vp);c->VSSetShader(vs,vsClasses,vsCount);c->PSSetShader(ps,psClasses,psCount);c->GSSetShader(gs,gsClasses,gsCount);c->HSSetShader(hs,hsClasses,hsCount);c->DSSetShader(dsShader,dsClasses,dsCount);c->IASetInputLayout(layout);c->IASetVertexBuffers(0,1,&vb,&stride,&offset);c->IASetPrimitiveTopology(topology);c->PSSetShaderResources(0,2,srv);c->PSSetSamplers(0,2,sampler);c->PSSetConstantBuffers(0,1,&constants);for(auto& p:rt)release(p);release(depth);release(blend);release(ds);release(raster);release(vs);release(ps);release(gs);release(hs);release(dsShader);for(auto* classes:{vsClasses,psClasses,gsClasses,hsClasses,dsClasses})for(unsigned i=0;i<256;++i)release(classes[i]);release(layout);release(vb);for(auto& p:srv)release(p);for(auto& p:sampler)release(p);release(constants);}
+};
+struct Renderer{
+ ID3D11Device* device=nullptr;ID3D11VertexShader* vs=nullptr;ID3D11PixelShader* ps=nullptr,*globe=nullptr;ID3D11InputLayout* layout=nullptr;ID3D11Buffer* vb=nullptr,*constants=nullptr;ID3D11BlendState* blend=nullptr;ID3D11DepthStencilState* ds=nullptr;ID3D11RasterizerState* raster=nullptr;ID3D11SamplerState* linear=nullptr,*nearest=nullptr;Texture white,earth,atlas,dot;std::array<Texture,42> labels;Texture countryIcon,leagueIcon,clubIcon;float width=0,height=0,scale=1,left=0,top=0;
+ void clear(){for(auto& t:labels)t.clear();for(auto* t:{&white,&earth,&atlas,&dot,&countryIcon,&leagueIcon,&clubIcon})t->clear();release(vs);release(ps);release(globe);release(layout);release(vb);release(constants);release(blend);release(ds);release(raster);release(linear);release(nearest);release(device);}
+ bool init(ID3D11Device* dev,const std::wstring& root);
+ void begin(ID3D11DeviceContext* c,ID3D11RenderTargetView* target,float w,float h){width=w;height=h;scale=(std::min)(w/1600.f,h/900.f);left=(w-1600*scale)/2;top=(h-900*scale)/2;c->OMSetRenderTargets(1,&target,nullptr);D3D11_VIEWPORT viewport{0,0,w,h,0,1};c->RSSetViewports(1,&viewport);c->OMSetBlendState(blend,nullptr,0xffffffff);c->OMSetDepthStencilState(ds,0);c->RSSetState(raster);c->HSSetShader(nullptr,nullptr,0);c->DSSetShader(nullptr,nullptr,0);c->GSSetShader(nullptr,nullptr,0);c->VSSetShader(vs,nullptr,0);c->PSSetShader(ps,nullptr,0);c->IASetInputLayout(layout);c->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLESTRIP);UINT stride=sizeof(Vertex),offset=0;c->IASetVertexBuffers(0,1,&vb,&stride,&offset);ID3D11SamplerState* samplers[]={linear,nearest};c->PSSetSamplers(0,2,samplers);}
+ void quad(ID3D11DeviceContext* c,float x,float y,float w,float h,ID3D11ShaderResourceView* texture){if(!texture)return;x=left+x*scale;y=top+y*scale;w*=scale;h*=scale;float x0=x/width*2-1,x1=(x+w)/width*2-1,y0=1-y/height*2,y1=1-(y+h)/height*2;Vertex v[]={{x0,y0,0,0},{x1,y0,1,0},{x0,y1,0,1},{x1,y1,1,1}};D3D11_MAPPED_SUBRESOURCE mapped{};if(FAILED(c->Map(vb,0,D3D11_MAP_WRITE_DISCARD,0,&mapped)))return;memcpy(mapped.pData,v,sizeof(v));c->Unmap(vb,0);c->PSSetShaderResources(0,1,&texture);c->Draw(4,0);}
+ void rectangle(ID3D11DeviceContext* c,float x,float y,float w,float h,unsigned color){float rgba[16]={float((color>>16)&255)/255,float((color>>8)&255)/255,float(color&255)/255,float((color>>24)&255)/255};c->UpdateSubresource(constants,0,nullptr,rgba,0,0);c->PSSetConstantBuffers(0,1,&constants);quad(c,x,y,w,h,white.view);}
+ void normal(ID3D11DeviceContext* c){float rgba[16]={1,1,1,1};c->UpdateSubresource(constants,0,nullptr,rgba,0,0);c->PSSetConstantBuffers(0,1,&constants);c->PSSetShader(ps,nullptr,0);}
+ void label(ID3D11DeviceContext* c,int index,const std::wstring& value,float x,float y,int w,int h,int size,COLORREF ink,bool center=false){if(index<0||size_t(index)>=labels.size())return;text(device,labels[index],value,w,h,size,ink,center);normal(c);quad(c,x,y,float(w),float(h),labels[index].view);}
+};
+}

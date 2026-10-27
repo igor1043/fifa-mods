@@ -1,0 +1,244 @@
+{
+  "version": "0.2.13",
+  "branch": "fifa-friends-v12",
+  "date": "2026-10-21",
+  "features": {
+    "extra_scenes": false,
+    "narrator_selection": false,
+    "narration_notifications": false,
+    "custom_stadium_default": false,
+    "career_header_branding": false,
+    "main_menu_header_branding": false,
+    "career_team_name_identity": true,
+    "overlay_layout_review": true,
+    "qwerty_keyboard": true,
+    "birthyear_ui_index_activation": true
+  },
+  "enabled_plugins": 18,
+  "files": {
+    "Server16Python.exe": {
+      "bytes": 45767534,
+      "sha256": "455969be053698bd3625f22fa02f9b713573dd470d543b26e527d1da431d293c"
+    },
+    "ModCarrerMode/tools/frontend_stadium_prepare.exe": {
+      "bytes": 8418377,
+      "sha256": "0c1c1bc86f06ccec86da9fc5812a805a01949bab26d0091655242ac80867a510"
+    },
+    "SubsOn.dll": {
+      "bytes": 49664,
+      "sha256": "c66ee4e64a4823c99b5f3a74a7b5a4e58537130bf810492e34d6d34710dded77"
+    },
+    "SubsOn.ini": {
+      "bytes": 232,
+      "sha256": "c2b2d3544f2acf3f7b9d1df2a72850d58e366a73e0e9331849e3b259cfc95c00"
+    },
+    "ModCarrerMode/mods/crowd/crowd_plugin.dll": {
+      "bytes": 192000,
+      "sha256": "9f5f76a7bb48e185ad6e3158b4793f3a80d44cd857e052a7a96baee1ec248284"
+    },
+    "ModCarrerMode/mods/career_birthdate_2006/birthyear_range_2006_2012.dll": {
+      "bytes": 164864,
+      "sha256": "99a50d5a4eb99fe0674586fc865fed6b6bddcf6ec77f85ab1053a2ba98f7e179"
+    },
+    "ModCarrerMode/mods/substitution_all7_rulescan_native/substitution_all7_rulescan_native.dll": {
+      "bytes": 158208,
+      "sha256": "e818b67756b5610c42ba8c77b6d4114d8c35167af57c6f593c38186bf058ed4e"
+    },
+    "ModCarrerMode/mods/subson/subson_bridge.dll": {
+      "bytes": 179200,
+      "sha256": "d37af9429d59f1128108dfee1381df0489836744e11ca9ed67fb92113e7f9f20"
+    },
+    "ModCarrerMode/mods/mascot_single/mascot_goal_line.dll": {
+      "bytes": 945152,
+      "sha256": "c6c41f1c433a154e651aebe3f061e480f84c29ec561506b23f14c55f3492b9c4"
+    },
+    "ModCarrerMode/mods/tournament_compat_native/tournament_compat_native.dll": {
+      "bytes": 192512,
+      "sha256": "138dbc757a8af7e76a75ef0a7821166d08e8b2344b9eae60d61d8af6ff3525fc"
+    },
+    "ModCarrerMode/mods/career_ui_assets/career_ui_assets.dll": {
+      "bytes": 201728,
+      "sha256": "f06f92c471c5d3be99740a45b085d9d8765e43e19e4d0245ab7d526991872420"
+    },
+    "ModCarrerMode/mods/kickoff_modern/kickoff_modern.dll": {
+      "bytes": 187392,
+      "sha256": "ae124bf1b6a82fd90eb0c929e9b26ed0eb4bee6c3d1678648d74a853f44bb004"
+    },
+    "ModCarrerMode/mods/goal_kick_short_pass/goal_kick_short_pass.dll": {
+      "bytes": 264704,
+      "sha256": "c41f163c77f645bcef3a2ec3fb7569f471e1075e63f43d43138697da35c1062f"
+    },
+    "ModCarrerMode/mods/multiball_visual/multiball_visual.dll": {
+      "bytes": 216576,
+      "sha256": "8296ac4223e32dd9f5e75a4546935e4bbc0d5985b99c1d4f44a2606c17c95e76"
+    },
+    "ModCarrerMode/mods/stadium_pyrotechnics/stadium_pyrotechnics.dll": {
+      "bytes": 225792,
+      "sha256": "7a7cdf25c27b4d4734368881c04a345c413769c73da0a6234e1a4dbb053f0382"
+    },
+    "ModCarrerMode/mods/crowd_ultra_kits/crowd_ultra_kits.dll": {
+      "bytes": 220160,
+      "sha256": "ed15c407dda4d5cec79442156c2545bf5cd77584dee51d7fa4960109564dccc2"
+    },
+    "ModCarrerMode/mods/entrance_props/entrance_props.dll": {
+      "bytes": 311808,
+      "sha256": "06c88b46534d8e14d82262e6495ecf7c2e9407ec1efba8a454c59f1218a785b5"
+    },
+    "ModCarrerMode/mods/var_cabin/var_cabin.dll": {
+      "bytes": 187904,
+      "sha256": "1c1495e68b1f352f2ea82fb97bc1c5b0c3abd12613caf8b9f54f9233d0d1a92d"
+    },
+    "ModCarrerMode/mods/smoke_machine/smoke_machine.dll": {
+      "bytes": 194048,
+      "sha256": "9ee40ed3fc4023901108b392b52cf488fc91e2eca0bc16f78fa159be226e21b5"
+    },
+    "ModCarrerMode/mods/cloth_motion/cloth_motion.dll": {
+      "bytes": 322560,
+      "sha256": "1106f6fb9209698886bd6fb5cb4b1523255cf9587361437e0749eaa522d43161"
+    },
+    "ModCarrerMode/mods/frontend_stadium/frontend_stadium_native_v11.dll": {
+      "bytes": 202752,
+      "sha256": "b4301386ef30095434de24085b84fb0b8dc8a2b6c809f7a2daa01110195bd97a"
+    },
+    "ModCarrerMode/mods/panorama_drone/panorama_drone_v5.dll": {
+      "bytes": 189952,
+      "sha256": "9d9b1320779e72073965cc9275bdb63450df90f8b6728c76c19d760ff72844e3"
+    },
+    "data/ui/game/components/careercomponents/careerhubwidget.big": {
+      "bytes": 48640,
+      "sha256": "9fb40d261e9d04033d9e606507a7c1dc88f5ca6c0107e6cd4350e38e77707260"
+    },
+    "data/ui/pow/components/easfcwidget.big": {
+      "bytes": 250773,
+      "sha256": "192ef034f327914c055779e0163c5ddecfc1247b28d47a261a752e9b150dbf28"
+    },
+    "data/ui/game/widgets/mainhubwidget.big": {
+      "bytes": 106414,
+      "sha256": "ce6974096b1a5a1fa3ccd1b26a9312f965256ec476fa0ffbafab7804bc81cca3"
+    },
+    "dinput8.dll": {
+      "bytes": 603136,
+      "sha256": "98ae0e56b3d8fb68d935a7c2a3aeaa729a2a1b739c4e9f44bfeb132568171543"
+    },
+    "ModCarrerMode/tools/maintenance/Enable-BirthyearUI.ps1": {
+      "bytes": 7946,
+      "sha256": "ed3d60d59d91e47b2f02e74e2b1c961c7ad673d91756048871d16b2f81ff3fc9"
+    },
+    "data/ui/game/screens/virtualpro/vpro_proinfo.big": {
+      "bytes": 28800,
+      "sha256": "b5cff1df25eafe1453e11589cfd39675463db3a63f80371c967cb47f88b342ce"
+    }
+  },
+  "panorama_exterior_orbit": {
+    "default_seconds": 98.8,
+    "duration_scale": 1.9,
+    "endpoint_ramp_seconds": 8.32,
+    "cruise_speed_ratio_to_revision5": 0.8275862068965516,
+    "timing_patch": "2026-10-21"
+  },
+  "career_header_branding": {
+    "scope": [
+      "career_hub",
+      "main_menu"
+    ],
+    "artwork": "FIFA Friends Premium! Plus",
+    "visual_validation": "revision_7_transitions_confirmed_by_user",
+    "native_action_vm": "passed",
+    "revision": 7,
+    "startup_validation": "revision_7_confirmed_by_user",
+    "startup_fix": "replace embedded End padding; preserve constructor hook and all other runtime bytes",
+    "career_revision2_visual": "confirmed_by_user",
+    "alignment": {
+      "native_right": 1811,
+      "native_top": 73,
+      "height": 79
+    },
+    "main_menu_activation": "native_constructor_and_publish",
+    "main_menu_revision3_visual": "logo_displayed_but_original_banner_remained",
+    "rollback": true,
+    "global_access_fix": "use native 0x71 global object instead of 0x58 _global string",
+    "revision_5_result": "no_crash_but_main_menu_banner_still_visible",
+    "native_global_handlers_read_only": true,
+    "banner_first_paint": "transparent native root before constructor",
+    "banner_refresh": "zero opacity after native InitializeLayout and ChangeWidgetState",
+    "banner_suppression_scope": "all native EASFCWidget instances including transitions",
+    "career_and_main_logo_files": "identical to user-validated revision 6",
+    "validated_on": "2026-10-21",
+    "enabled": false,
+    "status": "disabled_by_user_robson_crash_isolation"
+  },
+  "career_team_name_identity": {
+    "table": "teams",
+    "key": "teamid",
+    "value": "teamname",
+    "native_regression_tests": "passed",
+    "visual_validation": "pending user test after restart"
+  },
+  "birthyear_ui_activation": {
+    "range": [
+      2006,
+      2012
+    ],
+    "method": "Resolve installed BIG directory, validate matching BH, deactivate only target hash",
+    "fixed_ram_addresses": false,
+    "full_bh_distributed": false,
+    "fixture_tests": 10,
+    "offline_apt_year_editable_and_lock_hidden": "passed",
+    "visual": "confirmed by user 2026-10-21",
+    "save_persistence": "not tested; repair does not edit saves"
+  },
+  "panorama_scene_pack_revision": 6,
+  "panorama_shots": 39,
+  "player_camera": {
+    "revision": 14,
+    "embedded_dll": "bin\\server16_first_person_v14.dll",
+    "sha256": "4b15fcc7793213c50d3831d1e9cc7f1d3839f76605c1d80ab79c2f7ece96ccad",
+    "restart_phases": [
+      2,
+      3,
+      4,
+      5,
+      6,
+      7,
+      8,
+      9,
+      10,
+      11,
+      12,
+      13,
+      14,
+      15
+    ],
+    "native_math_and_protocol": "passed",
+    "python_camera_tests": 9,
+    "visual_validation": {
+      "lens": "user confirmed in RAM: borders corrected and center sharp at FOV 140",
+      "new_movements": "awaiting reload of production v14 DLL"
+    },
+    "mesh_visibility_hook": false,
+    "invisible_players": "unresolved; separate investigation",
+    "wide_fov_lens": "center-preserving native shader pair; no out-of-range screen UVs",
+    "sharp_turn_yaw_lag_degrees": 20,
+    "off_ball_follow": true,
+    "first_person_ball_look": "eased speed, max 0.45 rad/s",
+    "foot_glance": "event driven, 1.8 s, max 0.18 rad, min 5.5 s interval",
+    "off_ball_orbit_rad_s": 1.05,
+    "off_ball_acceleration_rad_s2": 2.6
+  },
+  "cloth_preference": {
+    "fresh_default": false,
+    "update_preserves_choice": true,
+    "installer_test": "passed"
+  },
+  "startup_diagnostics": {
+    "reference_files": 729,
+    "embedded_baseline_sha256": "269b3121de66546fa0317dea89d1c2d429f5be3f67ee3c90f0b3e20f4d4404fa",
+    "directory": "runtime/diagnostics",
+    "automatic_zip": true,
+    "read_only": true,
+    "python_tests": 10,
+    "reset_logs_before_launch": true,
+    "per_mod_logs": true,
+    "session_dump_metadata": true
+  }
+}

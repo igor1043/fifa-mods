@@ -1,0 +1,187 @@
+[CmdletBinding()]
+param([string]$FixtureDirectory = (Join-Path ([IO.Path]::GetTempPath()) ('ModCarrerMode_PackageTest_'+(Get-Date -Format 'yyyyMMdd_HHmmss_fff'))),
+      [string]$SupplementalAssetDirectory)
+$ErrorActionPreference='Stop'
+$fixture=[IO.Path]::GetFullPath($FixtureDirectory)
+$fixturePrefix=Join-Path ([IO.Path]::GetTempPath()) 'ModCarrerMode_PackageTest_'
+if (-not $fixture.StartsWith($fixturePrefix,[StringComparison]::OrdinalIgnoreCase)) { throw 'Este teste aceita somente sua pasta isolada de fixture.' }
+if (Test-Path -LiteralPath $fixture) { throw 'A fixture precisa ser nova.' }
+$mod=[IO.Path]::GetFullPath((Join-Path $PSScriptRoot '..\..'))
+$repo=[IO.Directory]::GetParent($mod).FullName
+New-Item -ItemType Directory -Path $fixture | Out-Null
+# A marker file, never executed; this is NOT a real FIFA installation.
+[IO.File]::WriteAllBytes((Join-Path $fixture 'FIFA16.exe'),[byte[]](0,0,0))
+# A miniature BIG/BH pair tests activation of the loose birth-year interface.
+# The game is never launched; this entry is deliberately not at retail index 1675.
+$birthName=[Text.Encoding]::ASCII.GetBytes("data/ui/game/screens/virtualpro/vpro_proinfo.big`0")
+$bigFixture=[byte[]]::new(128)
+[Array]::Copy([Text.Encoding]::ASCII.GetBytes('BIG4'),0,$bigFixture,0,4)
+[Array]::Copy([BitConverter]::GetBytes([uint32]128),0,$bigFixture,4,4)
+$bigFixture[11]=1;$bigFixture[15]=[byte](24+$birthName.Length)
+$bigFixture[19]=112;$bigFixture[23]=16
+[Array]::Copy($birthName,0,$bigFixture,24,$birthName.Length)
+$bhFixture=[byte[]]::new(36)
+[Array]::Copy([Text.Encoding]::ASCII.GetBytes('ViV4'),0,$bhFixture,0,4)
+$bhFixture[4]=36;$bhFixture[11]=1;$bhFixture[15]=36
+$bhFixture[19]=112;$bhFixture[23]=16
+for($i=28;$i -lt 36;$i++) { $bhFixture[$i]=[byte]($i+1) }
+[IO.File]::WriteAllBytes((Join-Path $fixture 'data_front_end_extra.big'),$bigFixture)
+$birthIndex=Join-Path $fixture 'data_front_end_extra.bh'
+[IO.File]::WriteAllBytes($birthIndex,$bhFixture)
+$birthIndexBeforeHash=(Get-FileHash -LiteralPath $birthIndex).Hash
+foreach($folder in @('ModCarrerMode\runtime\operations','data\loc')) { New-Item -ItemType Directory -Force -Path (Join-Path $fixture $folder) | Out-Null }
+$supplementalRoot=if ($SupplementalAssetDirectory) { $SupplementalAssetDirectory } else { $repo }
+$supplementalFile=Join-Path $supplementalRoot 'data\ant.cbac'
+if (-not (Test-Path -LiteralPath $supplementalFile -PathType Leaf)) { throw 'Informe -SupplementalAssetDirectory com o complemento SubsOn extraido para o teste isolado.' }
+Copy-Item -LiteralPath $supplementalFile -Destination (Join-Path $fixture 'data\ant.cbac')
+$supplementalHash=(Get-FileHash -LiteralPath (Join-Path $fixture 'data\ant.cbac')).Hash
+foreach($name in @('model.rx3','textures.rx3')) {
+    $local=Join-Path $fixture ('data\sceneassets\var_cabin\'+$name)
+    New-Item -ItemType Directory -Force -Path (Split-Path $local) | Out-Null
+    # The fixture never runs FIFA or loads these marker assets.
+    [IO.File]::WriteAllText($local,'preserved local VAR fixture '+$name)
+}
+$localVarModelHash=(Get-FileHash -LiteralPath (Join-Path $fixture 'data\sceneassets\var_cabin\model.rx3')).Hash
+$localVarTextureHash=(Get-FileHash -LiteralPath (Join-Path $fixture 'data\sceneassets\var_cabin\textures.rx3')).Hash
+# Check this isolated installation while the real game may still be open.
+function Get-Process { param([string]$Name,[string]$ErrorAction) return $null }
+$config=Join-Path $fixture 'ModCarrerMode\career_native_mode.ini'
+[IO.File]::WriteAllText($config,'[native]'+[Environment]::NewLine+'mode=trace')
+$snapshot=Join-Path $fixture 'ModCarrerMode\injury_snapshot.tsv'
+[IO.File]::WriteAllText($snapshot,'fixture injury snapshot')
+$private=Join-Path $fixture 'ModCarrerMode\runtime\operations\preserve.bin'
+[IO.File]::WriteAllBytes($private,[byte[]](1,2,3,4))
+$db=Join-Path $fixture 'data\loc\por_br.db'
+[IO.File]::WriteAllBytes($db,[byte[]](5,6,7,8))
+$hashes=@{Config=(Get-FileHash -LiteralPath $config).Hash;Snapshot=(Get-FileHash -LiteralPath $snapshot).Hash;Private=(Get-FileHash -LiteralPath $private).Hash;DB=(Get-FileHash -LiteralPath $db).Hash}
+# Simulate an upgrade from a package with inactive historical DLLs.
+$legacyFiles = @(
+    'skip_server_shutdown_notice\skip_server_shutdown_notice.dll',
+    'kickoff_modern_v20\kickoff_modern_v20.dll',
+    'kickoff_modern_restore_v18\kickoff_modern_restore_v18.dll',
+    'multiball_visual\multiball_visual_v16.dll',
+    'multiball_visual\multiball_visual_v3.dll',
+    'mascot_single\mascot_goal_line_v28.dll',
+    'mascot_single\mascot_corner.dll',
+    'mascot_single\mascot_goal_line.dll.before-base-robson-test',
+    'mascot_single\mascot_goal_line.dll.in_use_backup_test',
+    'mascot_single\animation_command.txt',
+    'extra_scenes\extra_scenes_native_v5.dll',
+    'extra_scenes\release.json',
+    'bench_native12\bench_native12_v5.dll',
+    'enabled.txt.before-test.bak',
+    'enabled_birthdate_2006.txt'
+)
+$legacyHashes = @{}
+foreach ($relative in $legacyFiles) {
+    $path = Join-Path $fixture ('ModCarrerMode\mods\'+$relative)
+    New-Item -ItemType Directory -Force -Path ([IO.Path]::GetDirectoryName($path)) | Out-Null
+    [IO.File]::WriteAllText($path,'legacy fixture: '+$relative)
+    $legacyHashes[$relative] = (Get-FileHash -LiteralPath $path).Hash
+}
+$customPlugin = Join-Path $fixture 'ModCarrerMode\mods\custom_module\custom.dll'
+New-Item -ItemType Directory -Force -Path ([IO.Path]::GetDirectoryName($customPlugin)) | Out-Null
+[IO.File]::WriteAllBytes($customPlugin,[byte[]](20,21,22))
+$customHash = (Get-FileHash -LiteralPath $customPlugin).Hash
+$localIcons = Join-Path $fixture 'data\ui\imgAssets\careerCompetitionIcons'
+New-Item -ItemType Directory -Force -Path $localIcons | Out-Null
+$localDds = Join-Path $localIcons 'c9999.dds'
+$localIndex = Join-Path $localIcons 'index.tsv'
+[IO.File]::WriteAllText($localDds, 'user-edited local icon')
+[IO.File]::WriteAllText($localIndex, "9999`t1`n")
+$localDdsHash = (Get-FileHash -LiteralPath $localDds).Hash
+$localIndexHash = (Get-FileHash -LiteralPath $localIndex).Hash
+& (Join-Path $PSScriptRoot 'Install-Game.ps1') -GameDirectory $fixture -BackupDirectory (Join-Path $fixture 'installer-backups')
+$activatedBirthIndex=[IO.File]::ReadAllBytes($birthIndex)
+for($i=0;$i -lt 36;$i++) {
+    $expected=if ($i -ge 28) {0} else {$bhFixture[$i]}
+    if ($activatedBirthIndex[$i] -ne $expected) { throw "BH de nascimento incorreto no byte $i." }
+}
+$birthBackups=@(Get-ChildItem -LiteralPath (Join-Path $fixture 'installer-backups') -Recurse -File -Filter 'data_front_end_extra.bh')
+if ($birthBackups.Count -ne 1 -or (Get-FileHash -LiteralPath $birthBackups[0].FullName).Hash -ne $birthIndexBeforeHash) { throw 'Backup BH de nascimento ausente/divergente.' }
+$helperRelative='ModCarrerMode\tools\frontend_stadium_prepare.exe'
+if ((Get-FileHash -LiteralPath (Join-Path $fixture $helperRelative)).Hash -ne (Get-FileHash -LiteralPath (Join-Path $repo $helperRelative)).Hash) { throw 'Preparador do estadio ausente/divergente.' }
+$frontendConfig=Join-Path $fixture 'ModCarrerMode\config\frontend_stadium.ini'
+if ((Get-Content -LiteralPath $frontendConfig -Raw) -notmatch '(?m)^enabled=0\s*$') { throw 'Estadio personalizado deve comecar desligado.' }
+[IO.File]::WriteAllText($frontendConfig,"[frontend_stadium]`r`nenabled=1`r`nselected_stadium=auto`r`n[frontend_stadium_clubs]`r`n42=User choice`r`n")
+$frontendHash=(Get-FileHash -LiteralPath $frontendConfig).Hash
+$clothConfig=Join-Path $fixture 'ModCarrerMode\mods\cloth_motion\cloth_motion.ini'
+if ((Get-Content -LiteralPath $clothConfig -Raw) -notmatch '(?m)^enabled=0\s*$') { throw 'Fisica de roupas deve comecar desligada.' }
+$clothUserConfig=[IO.File]::ReadAllText($clothConfig) -replace '(?m)^enabled=0\s*$','enabled=1'
+[IO.File]::WriteAllText($clothConfig,$clothUserConfig)
+$clothUserHash=(Get-FileHash -LiteralPath $clothConfig).Hash
+if ((Get-FileHash -LiteralPath (Join-Path $fixture 'data\sceneassets\var_cabin\model.rx3')).Hash -ne $localVarModelHash -or
+    (Get-FileHash -LiteralPath (Join-Path $fixture 'data\sceneassets\var_cabin\textures.rx3')).Hash -ne $localVarTextureHash) { throw 'Cabine local alterada.' }
+if ((Get-FileHash -LiteralPath $localDds).Hash -ne $localDdsHash -or (Get-FileHash -LiteralPath $localIndex).Hash -ne $localIndexHash) { throw 'Icone local ou suas regras de disponibilidade alterados.' }
+foreach ($relative in $legacyFiles) {
+    if (Test-Path -LiteralPath (Join-Path $fixture ('ModCarrerMode\mods\'+$relative))) { throw "Revisao antiga permaneceu instalada: $relative" }
+    $saved = @(Get-ChildItem -LiteralPath (Join-Path $fixture 'installer-backups') -Recurse -File | Where-Object { $_.FullName.EndsWith('\edition-switch\ModCarrerMode\mods\'+$relative,[StringComparison]::OrdinalIgnoreCase) })
+    if ($saved.Count -ne 1 -or (Get-FileHash -LiteralPath $saved[0].FullName).Hash -ne $legacyHashes[$relative]) { throw "Backup historico ausente/divergente: $relative" }
+}
+if ((Get-FileHash -LiteralPath $customPlugin).Hash -ne $customHash) { throw 'Mod adicional do usuario alterado.' }
+& (Join-Path $PSScriptRoot 'Verify-Package.ps1') -PackageRoot $fixture
+# A disabled revision must also fail package verification.
+$invalidDll = Join-Path $fixture 'ModCarrerMode\mods\mascot_single\mascot_goal_line_v99.dll'
+[IO.File]::WriteAllBytes($invalidDll,[byte[]](0,0,0))
+$rejected = $false
+try { & (Join-Path $PSScriptRoot 'Verify-Package.ps1') -PackageRoot $fixture | Out-Null }
+catch { if ($_.Exception.Message -like 'Revisao antiga/backup*') { $rejected = $true } else { throw } }
+Remove-Item -LiteralPath $invalidDll
+if (-not $rejected) { throw 'Verificador aceitou uma DLL historica desabilitada.' }
+$invalidDll = Join-Path $fixture 'ModCarrerMode\mods\mascot_single\extra.dll'
+[IO.File]::WriteAllBytes($invalidDll,[byte[]](0,0,0))
+$rejected = $false
+try { & (Join-Path $PSScriptRoot 'Verify-Package.ps1') -PackageRoot $fixture | Out-Null }
+catch { if ($_.Exception.Message -like 'Mais de uma DLL no pacote*') { $rejected = $true } else { throw } }
+Remove-Item -LiteralPath $invalidDll
+if (-not $rejected) { throw 'Verificador aceitou duas DLLs do mesmo mod.' }
+$newConfig=Join-Path $fixture 'ModCarrerMode\config\career_native_mode.ini'
+$newSnapshot=Join-Path $fixture 'ModCarrerMode\runtime\injury_snapshot.tsv'
+if ((Get-FileHash -LiteralPath $newConfig).Hash -ne $hashes.Config) { throw 'Configuracao pessoal alterada.' }
+if ((Get-FileHash -LiteralPath $newSnapshot).Hash -ne $hashes.Snapshot) { throw 'Snapshot alterado.' }
+if ((Get-FileHash -LiteralPath $private).Hash -ne $hashes.Private) { throw 'Estado privado alterado.' }
+if ((Get-FileHash -LiteralPath $db).Hash -ne $hashes.DB) { throw 'DB sobrescrito sem solicitar restauracao.' }
+if ((Get-FileHash -LiteralPath (Join-Path $fixture 'data\ant.cbac')).Hash -ne $supplementalHash) { throw 'Complemento SubsOn alterado pela atualizacao.' }
+$runtimeSource=Join-Path $fixture 'ModCarrerMode\source'
+if (Test-Path -LiteralPath $runtimeSource) {
+    foreach ($entry in Get-ChildItem -LiteralPath $runtimeSource -Force) {
+        if ($entry.Name -ne 'club_environment' -or -not $entry.PSIsContainer) { throw 'Fontes de desenvolvimento instaladas indevidamente.' }
+    }
+    foreach ($relative in @('portable_paths.py','room\prepare_native_room_components_r46_20261022.py','bank\watch_r57.py')) {
+        if (-not (Test-Path -LiteralPath (Join-Path $runtimeSource ('club_environment\'+$relative)) -PathType Leaf)) { throw "Auxiliar de execucao ausente: $relative" }
+    }
+}
+if ((Get-FileHash -LiteralPath (Join-Path $fixture 'dinput8.dll')).Hash -ne (Get-FileHash -LiteralPath (Join-Path $repo 'dinput8.dll')).Hash) { throw 'DLL incorreta.' }
+if (-not (Test-Path -LiteralPath (Join-Path $fixture 'ModCarrerMode\crowd.ini'))) { throw 'Configuracao do plugin legado ausente.' }
+& (Join-Path $PSScriptRoot 'Install-Game.ps1') -GameDirectory $fixture -BackupDirectory (Join-Path $fixture 'installer-backups') -RestoreLocalization -ArchiveDevelopmentFiles
+if ((Get-FileHash -LiteralPath $clothConfig).Hash -ne $clothUserHash) { throw 'Escolha salva da fisica de roupas alterada pela atualizacao.' }
+if ((Get-FileHash -LiteralPath $frontendConfig).Hash -ne $frontendHash) { throw 'Preferencia do estadio personalizado alterada.' }
+if (-not (Test-Path -LiteralPath (Join-Path $fixture $helperRelative) -PathType Leaf)) { throw 'Preparador do estadio arquivado como ferramenta de desenvolvimento.' }
+if ((Get-FileHash -LiteralPath $db).Hash -ne (Get-FileHash -LiteralPath (Join-Path $repo 'data\loc\por_br.db')).Hash) { throw 'Restauracao opcional da localizacao falhou.' }
+$result=& (Join-Path $PSScriptRoot 'Install-Game.ps1') -GameDirectory $fixture -VerifyOnly
+if ($result[0].ToInstall -ne 0) { throw 'Instalacao nao e idempotente.' }
+# These exact marker files belong to this validated isolated fixture only.
+foreach($name in @('model.rx3','textures.rx3')) {
+    $target=[IO.Path]::GetFullPath((Join-Path $fixture ('data\sceneassets\var_cabin\'+$name)))
+    if (-not $target.StartsWith($fixture+'\',[StringComparison]::OrdinalIgnoreCase)) { throw 'Asset fora da fixture.' }
+    Remove-Item -LiteralPath $target
+}
+& (Join-Path $PSScriptRoot 'Install-Game.ps1') -GameDirectory $fixture -BackupDirectory (Join-Path $fixture 'installer-backups') | Out-Null
+foreach($relative in @('data\sceneassets\smoke_machine\model.rx3','data\sceneassets\smoke_machine\textures.rx3',
+                       'data\sceneassets\particles\stadium_pyrotechnics_0.lnx','ModCarrerMode\mods\stadium_pyrotechnics\stadium_pyrotechnics.dll')) {
+    if ((Get-FileHash -LiteralPath (Join-Path $fixture $relative)).Hash -ne (Get-FileHash -LiteralPath (Join-Path $repo $relative)).Hash) { throw "Modelo/efeito novo divergente: $relative" }
+}
+$fixtureEnabled=Get-Content -LiteralPath (Join-Path $fixture 'ModCarrerMode\mods\enabled.txt')
+if ($fixtureEnabled -contains 'var_cabin\var_cabin.dll' -or $fixtureEnabled -notcontains 'smoke_machine\smoke_machine.dll' -or
+    $fixtureEnabled -notcontains 'stadium_pyrotechnics\stadium_pyrotechnics.dll') { throw 'Falta do VAR bloqueou/desabilitou os efeitos.' }
+foreach($name in @('model.rx3','textures.rx3')) {
+    if (Test-Path -LiteralPath (Join-Path $fixture ('data\sceneassets\var_cabin\'+$name))) { throw 'Asset local de VAR incluido no pacote.' }
+}
+& (Join-Path $PSScriptRoot 'Verify-Package.ps1') -PackageRoot $fixture | Out-Null
+foreach($name in @('model.rx3','textures.rx3')) {
+    [IO.File]::WriteAllText((Join-Path $fixture ('data\sceneassets\var_cabin\'+$name)),'local fixture cabin restored')
+}
+& (Join-Path $PSScriptRoot 'Install-Game.ps1') -GameDirectory $fixture -BackupDirectory (Join-Path $fixture 'installer-backups') | Out-Null
+if ((Get-Content -LiteralPath (Join-Path $fixture 'ModCarrerMode\mods\enabled.txt')) -notcontains 'var_cabin\var_cabin.dll') { throw 'Cabine com assets locais nao foi reabilitada.' }
+Write-Output 'PASS: VAR ausente nao bloqueia fogos/maquina, assets do VAR nao distribuidos, cabine local preservada e reabilitada apos instalar assets.'
+Write-Output "PASS: pacote completo, uma DLL por mod, revisoes antigas arquivadas com hashes preservados, mods adicionais/configuracoes/DB/contratos preservados, restauracao opcional e reinstalacao idempotente. Fixture: $fixture"

@@ -1,0 +1,147 @@
+{
+	"name":"SimMatchFlow"
+	,"initial": { "targets":["SimMatch"] }
+	,"states":
+	[
+		{
+			"name":"SimMatch"
+			,"onEnter":
+			[
+				["loadScreenController", ["PreMatchReport"]]
+				,["loadView", ["screen", "game/screens/career/PreMatchReport"]]
+				,["loadView",["background", "BOOTFLOW"]]
+			]
+			,"onExit":
+			[
+				["unloadView", ["screen", "game/screens/career/PreMatchReport"]]
+				,["unloadScreenController", ["PreMatchReport"]]
+				,["unloadView",["background"]]
+			]
+			,"transitions":
+			[
+				{
+					"event":"BackToMainHub"
+					,"targets":["Back"] 
+				}
+				,{
+					"event":"SimGames"
+					,"actions":[ ["executeCMAction",["PrepareCommentatorNotes"]] ]
+				}
+				,{
+					"event":"CommentatorNotesReady"
+					,"actions":[ ["executeCMAction",["SimUserFixtureDay"]] ]
+				}
+				,{
+					"event":"ShowUserGame"
+					,"actions":[ ["executeCMAction",["StartMatchSim"]] ]
+				}
+				,{
+					"event":"AdvanceToPostMatchFlow"
+					,"cond":["==", ".FCE_TESTBED", true]
+					,"targets":["PostMatchFlowExecTestBed"] 
+					,"actions":[ ["executeCMAction",["LeaveMatchSim"]] ]					
+				}
+				,{
+					"event":"AdvanceToPostMatchFlow"
+					,"targets":["PostMatchFlowExec"] 
+					,"actions":[ ["executeCMAction",["LeaveMatchSim"]] ]
+				}
+				,{
+					"event":"SkipMatch"
+					,"actions":[ ["executeCMAction",["SkipMatchSimulator"]] ]
+				}
+			]
+		}	
+		,{
+			"name":"PostMatchFlowExec"
+			,"onEnter":
+			[
+				["loadScreenController", ["PostMatchFlowExec"]]
+				,["loadViewModel", ["CountdownTimerViewModel", "1000"]]	/* Delays the 'Updating Facts & Figures' popup */
+				,["loadView",["background", "BOOTFLOW"]]
+			]
+			,"onExit": 
+			[
+				["unloadViewModel", ["CountdownTimerViewModel"]]
+				,["unloadScreenController", ["PostMatchFlowExec"]]
+				,["unloadView",["background"]]
+			]
+			,"transitions":
+			[
+				{
+					"event":"evt_countdown_done"
+					,"targets":["PostMatchWaitForFCE"] 
+					,"actions":[ ["executeCMAction",["ExecutePostMatchFlow"]] ]
+				}
+			]
+		}
+		,{
+			"name":"PostMatchFlowExecTestBed"
+			,"onEnter":
+			[
+				["loadScreenController", ["PostMatchFlowExec"]]
+				,["invoke", ["advance"]]
+				,["loadView",["background", "BOOTFLOW"]]
+			]
+			,"onExit": 
+			[
+				["unloadScreenController", ["PostMatchFlowExec"]]
+				,["unloadView",["background"]]
+			]
+			,"transitions":
+			[
+				{
+					"event":"advance"
+					,"targets":["PostMatchWaitForFCE"] 
+					,"actions":[ ["executeCMAction",["ExecutePostMatchFlow"]] ]
+				}
+			]
+		}
+		,{
+			"name":"PostMatchWaitForFCE"
+			,"onEnter":
+			[
+				["loadScreenController", ["PostMatchWaitForFCE"]]
+				,["loadView",["background", "BOOTFLOW"]]
+			]
+			,"onExit":
+			[
+				["unloadScreenController", ["PostMatchWaitForFCE"]]
+				,["unloadView",["background"]]
+			]
+			,"transitions":
+			[
+				{
+					"event":"AdvanceHub"
+					,"actions":
+					[ 
+						["invoke", ["GotoMainMenuHub"]]
+					]
+				}
+				,{
+					"event":"AdvanceInbox"
+					,"targets":["Inbox"] 
+					,"actions":[ ["executeCMAction",["EnterInbox"]] ]
+				}
+				,{
+					"event":"AdvanceSackMail"
+					,"targets":["Inbox"] 
+					,"actions":[ ["executeCMAction",["GenerateSackedMail"]] ]
+				}
+			]
+		}
+		,{
+			"name":"Inbox"
+			,"type":"external"
+			,"file":"/careerMode/inboxFlow.nav"
+			,"outputs": 
+			{ 
+				"Back":"ReturnToMainHub"
+			}
+		}
+		,{
+			"name":"ReturnToMainHub"
+			,"onEnter": [ ["invoke", ["GotoMainMenuHub"]] ]
+		}
+	]
+}

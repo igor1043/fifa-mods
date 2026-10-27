@@ -1,0 +1,335 @@
+#include "../native_mods/first_person/game_framing.h"
+#include "../native_mods/first_person/career_camera.h"
+#include "../native_mods/first_person/camera_bootstrap.h"
+#include "../native_mods/first_person/camera_subject.h"
+#include "../native_mods/first_person/camera_final_pose.h"
+#include <cassert>
+#include <cstdio>
+#include <limits>
+int main(){
+    int calls=0,headBone=-1,rootBone=-1;
+    const auto lookup=[&](int bone){++calls;return bone==3?12:0;};
+    const unsigned char notReady[]={0,2,255};
+    for(auto ready:notReady){
+        assert(!fp::initializedBones(ready,lookup,headBone,rootBone));
+        assert(calls==0&&headBone==-1&&rootBone==-1);
+    }
+    assert(fp::initializedBones(1,lookup,headBone,rootBone));
+    assert(calls==2&&headBone==12&&rootBone==0);
+    assert(!fp::initializedBones(1,[](int){return -1;},headBone,rootBone));
+    assert(!fp::initializedBones(1,[](int){return 256;},headBone,rootBone));
+    assert(headBone==12&&rootBone==0);
+    std::puts("PASS: saved activation never calls bone resolver before native initialization");
+    assert(fp::settings(0).heading==.13f&&fp::settings(0).rollGain==.10f);
+    float priorShake=100.f;
+    for(int profile=0;profile<4;++profile){
+        fp::Stabilizer smoothing;
+        fp::Pose p{};p.eye={0,175,0};fp::axes(p);
+        smoothing.update(p,{0,0,0},0,profile);
+        p.eye.x=100;p.heading=.3f;p.pitch=.2f;p.roll=.2f;
+        const auto filtered=smoothing.update(p,{100,0,0},1.f/60,profile);
+        assert(filtered.eye.x==100.f); // Whole-body travel never lags.
+        assert(filtered.heading>0&&filtered.heading<priorShake);
+        priorShake=filtered.heading;
+        p.eye.y=190;
+        const auto acquired=smoothing.update(p,{100,0,0},1.f/60,profile,true);
+        assert(acquired.eye.y==190); // Every profile attaches immediately at kickoff.
+        assert(acquired.heading<.3f); // Immediate anchor retains angular smoothing.
+        for(int frame=0;frame<600;++frame)smoothing.update(p,{100,0,0},1.f/60,profile);
+        const auto settled=smoothing.update(p,{100,0,0},1.f/60,profile);
+        assert(std::fabs(settled.heading-.3f)<.001f);
+    }
+    std::puts("PASS: four progressively stronger head filters, unchanged medium baseline, instant body translation and restart anchor");
+    fp::Pose head{};head.eye={14,175,0};fp::axes(head);
+    const auto near=fp::gameFraming(head,{0,0,0},{90,10,0});
+    const auto far=fp::gameFraming(head,{0,0,0},{3000,10,0});
+    assert(near.pitch>far.pitch&&near.pitch<=.78f);
+    assert(near.heading==head.heading);
+    const auto behind=fp::gameFraming(head,{0,0,0},{-100,10,0});assert(behind.pitch==far.pitch);
+    const auto high=fp::gameFraming(head,{0,0,0},{90,500,0});assert(high.pitch==far.pitch);
+    const auto invalid=fp::gameFraming(head,{0,0,0},{std::numeric_limits<float>::quiet_NaN(),0,0});assert(std::isfinite(invalid.pitch));
+    fp::Stabilizer filter;filter.update(head,{0,0,0},0);
+    fp::Pose out{};
+    for(int i=0;i<240;++i)out=filter.update(near,{0,0,0},1.f/120.f);
+    assert(std::fabs(out.pitch-near.pitch)<.002f);
+    filter.reset();head.eye.x=5014;head.heading=2;out=filter.update(head,{5000,0,0},1.f/60.f);
+    assert(out.eye.x==5014&&out.heading==2);
+    fp::PossessionFraming view;
+    head.eye={14,175,0};head.heading=0;head.pitch=.1f;head.roll=0;fp::axes(head);
+    const fp::Vec ball{90,10,0};
+    auto off=view.update(head,{0,0,0},ball,false,0);
+    auto legacy=fp::gameFraming(head,{0,0,0},ball);
+    assert(off.pose.pitch==legacy.pitch&&off.pose.heading==legacy.heading);
+    auto on=view.update(head,{0,0,0},ball,true,1.f/60.f);
+    for(int i=0;i<120;++i)on=view.update(head,{0,0,0},ball,true,1.f/120.f);
+    assert(on.pose.pitch<off.pose.pitch-.15f); // More field while owning ball.
+    assert(on.pose.heading==head.heading&&on.pose.eye.x==head.eye.x);
+    assert(std::fabs(on.fov-90*.01745329252f)<.001f);
+    float ballAngle=std::atan2(165.f,76.f);
+    assert(ballAngle-on.pose.pitch<on.fov*.5f);
+    view.reset();auto feet=view.update(head,{0,0,0},{14,10,0},true,0);
+    assert(std::atan2(165.f,25.f)-feet.pose.pitch<feet.fov*.5f);
+    const auto before=view.update(head,{0,0,0},ball,true,1.f/60.f);
+    auto after=view.update(head,{0,0,0},ball,false,1.f/60.f);
+    assert(after.fov==before.fov); // Possession and passes preserve the chosen lens.
+    assert(std::fabs(after.pose.pitch-before.pose.pitch)<.02f); // Release no longer snaps the ball framing upward.
+    for(int i=0;i<120;++i)after=view.update(head,{0,0,0},ball,false,1.f/120.f);
+    assert(std::fabs(after.fov-1.5707963f)<.004f);
+    for(int phase=2;phase<=15;++phase)assert(fp::playerCameraPhase(phase));
+    for(int phase:{-1,0,1,16,29})assert(!fp::playerCameraPhase(phase));
+    fp::PossessionFraming plain,precision;
+    auto normal=plain.update(head,{0,0,0},ball,true,0);
+    auto controlled=precision.update(head,{0,0,0},ball,true,0,true);
+    assert(controlled.pose.pitch>normal.pose.pitch);
+    auto clear=head;fp::headClearance(clear,head);
+    assert(std::fabs(clear.eye.x-(head.eye.x+head.forward.x*9.f))<.001f);
+    assert(std::fabs(clear.eye.y-(head.eye.y+head.forward.y*9.f))<.001f);
+    assert(clear.heading==head.heading&&clear.pitch==head.pitch);
+    auto turn=head;turn.forward={0,0,1};turn.eye={0,175,14};
+    fp::headClearance(clear,turn);
+    assert(fp::dot(clear.eye-(turn.eye-turn.forward*14.f-turn.up*5.f),turn.forward)>=20.99f);
+    // Abrupt alternating turns must keep the entire skull behind the camera
+    // near plane even at maximum yaw smoothing and a very wide field of view.
+    for(int profile=0;profile<4;++profile){
+        fp::Stabilizer abrupt;
+        fp::Pose animated{};animated.eye={14,175,0};fp::axes(animated);
+        abrupt.update(animated,{0,0,0},0,profile);
+        for(int frame=0;frame<240;++frame){
+            animated.heading=frame%60<30?2.8f:-2.8f;
+            animated.pitch=.6f*std::sin(frame*.3f);fp::axes(animated);
+            const fp::Vec skull{0,170,0};
+            animated.eye=skull+animated.forward*14.f+animated.up*5.f;
+            auto gaze=animated;gaze.pitch=.1f;fp::axes(gaze);
+            auto safe=abrupt.update(gaze,{0,0,0},1.f/120,profile);
+            fp::headClearance(safe,animated);
+            assert(std::fabs(fp::wrap(animated.heading-safe.heading))<=.349067f);
+            assert(fp::dot(safe.eye-skull,safe.forward)>=22.99f);
+            assert(std::isfinite(safe.eye.x)&&std::isfinite(safe.eye.y)&&std::isfinite(safe.eye.z));
+        }
+    }
+    fp::PossessionFraming custom;
+    auto wide=custom.update(head,{0,0,0},ball,true,0,false,110);
+    assert(wide.fov>normal.fov&&wide.fov<=120*.01745329252f);
+    assert(wide.pose.pitch<=normal.pose.pitch); // Wider lens preserves more field.
+    for(float requested:{125.f,145.f,150.f,200.f}){
+        const float expected=std::min(requested,150.f)*.01745329252f;
+        for(bool possession:{false,true}){
+            custom.reset();
+            const auto panoramic=custom.update(head,{0,0,0},ball,possession,0,false,requested);
+            assert(std::fabs(panoramic.fov-expected)<.001f);
+            assert(std::isfinite(panoramic.pose.pitch)&&std::isfinite(std::tan(panoramic.fov*.5f)));
+        }
+    }
+    auto tilted=fp::personalizeLook(head,10);
+    assert(std::fabs(tilted.pitch-head.pitch-.1745329252f)<.001f);
+    assert(tilted.heading==head.heading&&tilted.eye.x==head.eye.x);
+    fp::Stabilizer acquisition;
+    acquisition.update(head,{0,0,0},0);
+    auto corrected=head;corrected.eye.y+=20;
+    auto immediate=acquisition.update(corrected,{0,0,0},1.f/60,2,true);
+    assert(immediate.eye.y==corrected.eye.y); // No kickoff crawl despite strong smoothing.
+    corrected.eye.y+=60;
+    immediate=acquisition.update(corrected,{0,0,0},1.f/60,2);
+    assert(immediate.eye.y==corrected.eye.y); // Corrected skeleton/root pose reacquired.
+    fp::CareerCamera career;
+    head.heading=0;head.pitch=.8f;head.roll=.7f;fp::axes(head);
+    auto third=career.update(head,{0,0,0},{900,10,0},0,85);
+    assert(third.pose.eye.x==-480.f&&third.pose.eye.y==230.f); // Behind the whole player.
+    assert(std::fabs(third.fov-85*.01745329252f)<.001f);
+    assert(third.pose.roll==0&&third.pose.pitch<.15f); // Keep the field visible.
+    const float feetAngle=std::atan2(230.f,480.f);
+    const float headAngle=std::atan2(230.f-175.f,480.f);
+    assert(feetAngle-third.pose.pitch<third.fov*.5f);
+    assert(std::fabs(headAngle-third.pose.pitch)<third.fov*.5f); // Entire body fits.
+    head.eye.y+=20;head.pitch=-.5f;head.roll=-.6f;
+    auto steady=career.update(head,{0,0,0},{900,10,0},1.f/60,75);
+    assert(steady.pose.eye.y==third.pose.eye.y&&steady.pose.pitch==third.pose.pitch);
+    assert(steady.pose.roll==0); // Animated nod/tilt does not shake this mode.
+    auto translated=career.update(head,{100,0,0},{1000,10,0},1.f/60,75);
+    assert(translated.pose.eye.x>third.pose.eye.x&&translated.pose.eye.x<third.pose.eye.x+10.f);
+    for(int i=0;i<180;++i)translated=career.update(head,{100,0,0},{1000,10,0},1.f/60,75);
+    assert(std::fabs(translated.pose.eye.x-third.pose.eye.x-96.f)<.01f);
+    head.heading=1.f;
+    auto orbit=career.update(head,{100,0,0},{1000,10,0},1.f/60,75,0,false,true,1.f);
+    assert(orbit.pose.heading>0&&orbit.pose.heading<.1f); // Strong orbit smoothing.
+    float priorHeading=orbit.pose.heading,priorSpeed=priorHeading*60.f;
+    for(int i=0;i<180;++i){
+        orbit=career.update(head,{100,0,0},{100.f+900.f*std::cos(1.f),10.f,-900.f*std::sin(1.f)},1.f/60,75,0,false,true,1.f);
+        const float speed=fp::wrap(orbit.pose.heading-priorHeading)*60.f;
+        assert(std::fabs(speed)<=.751f);
+        assert(std::fabs(speed-priorSpeed)<=1.8f/60.f+.001f);
+        priorHeading=orbit.pose.heading;priorSpeed=speed;
+    }
+    assert(std::fabs(orbit.pose.heading-1.f)<.06f);
+    career.reset();
+    auto reset=career.update(head,{2000,0,0},{2900,10,0},1.f/60,75);
+    assert(reset.pose.heading>.5f); // New selected player/context acquires immediately.
+    auto tight=career.update(head,{2000,0,0},{2900,10,0},0,60);
+    assert(feetAngle-tight.pose.pitch<tight.fov*.5f); // Feet remain visible at the tightest lens.
+    fp::CareerCamera presets;
+    head.heading=0;fp::axes(head);
+    auto closePreset=presets.update(head,{0,0,0},{900,10,0},0,85,0);
+    auto midPreset=presets.update(head,{0,0,0},{900,10,0},1.f/60,85,1);
+    assert(midPreset.pose.eye.x<closePreset.pose.eye.x&&midPreset.pose.eye.x>-750.f);
+    for(int i=0;i<240;++i)midPreset=presets.update(head,{0,0,0},{900,10,0},1.f/120,85,1);
+    assert(std::fabs(midPreset.pose.eye.x+750.f)<1.f);
+    auto farPreset=presets.update(head,{0,0,0},{900,10,0},0,85,2);
+    assert(farPreset.pose.eye.x==-1150.f&&farPreset.pose.eye.y==450.f);
+    assert(closePreset.fov==midPreset.fov&&midPreset.fov==farPreset.fov);
+    fp::CareerCamera handoff;
+    const auto oldPlayer=handoff.update(head,{0,0,0},{900,10,0},0,85);
+    auto newPlayer=handoff.update(head,{1000,0,0},{1900,10,0},1.f/60,85,0,true);
+    assert(newPlayer.pose.eye.x>oldPlayer.pose.eye.x&&newPlayer.pose.eye.x<oldPlayer.pose.eye.x+50.f);
+    for(int i=0;i<180;++i)newPlayer=handoff.update(head,{1000,0,0},{1900,10,0},1.f/60,85);
+    assert(std::fabs(newPlayer.pose.eye.x-516.f)<.01f);
+    const auto remote=handoff.update(head,{9000,0,0},{9900,10,0},1.f/60,85,0,true);
+    assert(remote.pose.eye.x==8520.f); // No long sweep across the stadium.
+    fp::CareerCamera fps60,fps120;
+    head.heading=0;fps60.update(head,{0,0,0},{900,10,0},0,85);fps120.update(head,{0,0,0},{900,10,0},0,85);
+    head.heading=1.f;
+    fp::FramedView at60{},at120{};
+    for(int i=0;i<120;++i)at60=fps60.update(head,{100,0,0},{1000,10,0},1.f/60,85,0,false,true,1.f);
+    for(int i=0;i<240;++i)at120=fps120.update(head,{100,0,0},{1000,10,0},1.f/120,85,0,false,true,1.f);
+    assert(std::fabs(at60.pose.heading-at120.pose.heading)<.01f);
+    assert(std::fabs(at60.pose.eye.x-at120.pose.eye.x)<5.f);
+    fp::PossessionFraming defaultWide;
+    head.heading=0;head.pitch=.1f;fp::axes(head);
+    auto defaultOff=defaultWide.update(head,{0,0,0},ball,false,0,false,85);
+    auto defaultOn=defaultWide.update(head,{0,0,0},ball,true,0,false,85);
+    assert(std::fabs(defaultOff.fov-85*.01745329252f)<.001f);
+    assert(defaultOn.fov==defaultOff.fov);
+    auto defaultFeet=defaultWide.update(head,{0,0,0},{14,10,0},true,0,false,85);
+    assert(std::atan2(head.eye.y-10.f,25.f)-defaultFeet.pose.pitch<defaultFeet.fov*.5f);
+    fp::CareerCamera jitter;
+    head.heading=0;fp::axes(head);
+    const auto baseline=jitter.update(head,{0,0,0},{80,10,0},0,85,0,false,true,0);
+    float peak=0;
+    for(int i=0;i<1200;++i){
+        const float phase=i/120.f;
+        head.heading=.6f*std::sin(phase*13.f);
+        const auto stable=jitter.update(head,{2.f*std::sin(phase*17.f),0,2.f*std::cos(phase*17.f)},
+                                        {80.f,10,50.f*std::sin(phase*10.f)},1.f/120,85,0,false,true,0);
+        peak=std::max(peak,std::fabs(stable.pose.heading));
+        assert(fp::dot(stable.pose.eye-baseline.pose.eye,stable.pose.eye-baseline.pose.eye)<.01f);
+    }
+    assert(peak<.001f); // Head gaze, root sway and close touches cannot orbit the camera.
+    fp::CareerCamera offBall,withBall;
+    head.heading=0;fp::axes(head);
+    const fp::Vec wideBall{2500,10,-2500};
+    auto following=offBall.update(head,{0,0,0},wideBall,0,85,0,false,true,0,false);
+    auto carrying=withBall.update(head,{0,0,0},wideBall,0,85,0,false,true,0,true);
+    assert(following.pose.heading>carrying.pose.heading+.2f);
+    const float offBallHeading=following.pose.heading;
+    for(int frame=0;frame<480;++frame)
+        following=offBall.update(head,{0,0,0},wideBall,1.f/120,85,0,false,true,0,true);
+    assert(following.pose.heading<offBallHeading-.2f); // Regaining possession returns to body framing.
+    fp::CareerCamera rearBall;
+    float rearPrior=0.f,rearSpeed=0.f;
+    for(int frame=0;frame<720;++frame){
+        const fp::Vec rear{-3000,10,frame%2?10.f:-10.f};
+        auto rearView=rearBall.update(head,{0,0,0},rear,frame?1.f/120:0.f,85,0,false,true,0,false);
+        if(frame){
+            const float speed=fp::wrap(rearView.pose.heading-rearPrior)*120.f;
+            assert(std::fabs(speed)<=1.051f&&std::fabs(speed-rearSpeed)<=2.6f/120+.001f);
+            rearSpeed=speed;
+        }
+        rearPrior=rearView.pose.heading;
+        assert(rearPrior>0.f); // Tiny ball movement across directly behind cannot reverse the orbit.
+        assert(rearView.pose.roll==0.f&&rearView.fov==85*.01745329252f);
+    }
+    fp::CameraSubject bound;
+    assert(bound.resolve(0x1234,9,true)==9);
+    for(int candidate:{0,10,45,-1,32})assert(bound.resolve(0x1234,candidate,true)==9);
+    assert(bound.resolve(0x5678,32,true)==32); // A new match gets a new subject.
+    assert(bound.resolve(0x5678,11,false)==11); // Team mode still follows manual selection.
+    float source[28]{},native[28]{};
+    for(int i=0;i<28;++i){source[i]=static_cast<float>(i+1);native[i]=100.f+i;}
+    source[1]=180.f;source[12]=150.f*.01745329252f;
+    assert(fp::finiteCameraData(source));
+    fp::applyFinalPose(native,source);
+    for(int i:{0,1,2,4,5,6,12,13,14,16,17})assert(native[i]==source[i]);
+    for(int i:{3,7,8,9,10,11,15,18,19,20,21,22,23,24,25,26,27})assert(native[i]==100.f+i);
+    unsigned char module[0x180]{};fp::clearNativeCameraEffects(module);
+    for(int i=0;i<0x180;++i)assert(module[i]==((i==0x141||i==0x158||i==0x159||i==0x15a)?1:0));
+    // The first-person lens keeps edge compensation without the stock
+    // enlargement. Third person and explicitly disabled native lenses retain
+    // their parameters; no pose, clipping or projection bytes are changed.
+    for(const float input:{0.f,.2f,.4f}){
+        unsigned char lensModule[0x180];std::memset(lensModule,0xa5,sizeof lensModule);
+        const float nativeZoom=.78f;
+        std::memcpy(lensModule+0x164,&input,4);std::memcpy(lensModule+0x168,&nativeZoom,4);
+        fp::clearNativeCameraEffects(lensModule,false);
+        float distortion=0,zoom=0;
+        std::memcpy(&distortion,lensModule+0x164,4);std::memcpy(&zoom,lensModule+0x168,4);
+        assert(distortion==input&&zoom==nativeZoom);
+        unsigned char previousLens[0x180];std::memcpy(previousLens,lensModule,sizeof previousLens);
+        fp::clearNativeCameraEffects(lensModule,true);
+        std::memcpy(&distortion,lensModule+0x164,4);std::memcpy(&zoom,lensModule+0x168,4);
+        const float center=1.f-input*.5f;
+        assert(std::fabs(distortion-input*.35f)<.000001f);
+        assert(std::fabs((1.f-distortion)*zoom-center)<.000001f);
+        for(int i=0;i<0x180;++i)if(i<0x164||i>=0x16c)assert(lensModule[i]==previousLens[i]);
+    }
+    const float disabled=-1.f;
+    std::memcpy(module+0x164,&disabled,4);std::memcpy(module+0x168,&disabled,4);
+    fp::clearNativeCameraEffects(module,true);
+    assert(std::memcmp(module+0x164,&disabled,4)==0&&std::memcmp(module+0x168,&disabled,4)==0);
+    // Execute the actual native shader's UV equation over the whole screen.
+    // The former 0.2 / 1 pair sampled beyond corners; zoom-only 0.89 changed
+    // the central scale. This pair must satisfy both constraints at every FOV.
+    assert(.8f+.2f*std::sqrt(2.f)>1.f);
+    for(int angle=75;angle<=150;++angle){
+        const float nativeDistortion=.4f*fp::clamp((angle-80.f)/40.f,0.f,1.f);
+        const auto safeLens=fp::firstPersonLens(nativeDistortion);
+        const float center=1.f-std::min(nativeDistortion*.5f,.2f);
+        assert(std::fabs((1-safeLens.distortion)*safeLens.inverseZoom-center)<.000001f);
+        for(int y=-100;y<=100;++y)for(int x=-100;x<=100;++x){
+            const float px=x/100.f,py=y/100.f;
+            const float factor=safeLens.distortion*std::hypot(px,py)+(1-safeLens.distortion)*safeLens.inverseZoom;
+            assert(std::fabs(px*factor)<=1.000001f&&std::fabs(py*factor)<=1.000001f);
+        }
+    }
+    fp::PossessionFraming gentleBall;
+    head.heading=0;head.pitch=.1f;fp::axes(head);
+    auto previousBallView=gentleBall.update(head,{0,0,0},{2000,10,0},false,0,false,140);
+    float peakBallSpeed=0.f;
+    for(int frame=0;frame<600;++frame){
+        const fp::Vec movingBall=frame<300?fp::Vec{20,10,0}:fp::Vec{2000,10,0};
+        auto nextView=gentleBall.update(head,{0,0,0},movingBall,false,1.f/120,false,140);
+        const float speed=std::fabs(nextView.pose.pitch-previousBallView.pose.pitch)*120.f;
+        assert(speed<=.451f);peakBallSpeed=std::max(peakBallSpeed,speed);
+        if(frame==0)assert(std::fabs(nextView.pose.pitch-previousBallView.pose.pitch)<.001f);
+        previousBallView=nextView;
+    }
+    assert(peakBallSpeed>.1f); // The framing actually follows the ball, rather than freezing it.
+    fp::FootGlance footLook;
+    float glancePeak=0.f;
+    for(int frame=0;frame<720;++frame){
+        const float glance=footLook.update(true,true,false,1.f/120);
+        assert(glance>=0.f&&glance<=.180001f);
+        if(frame<85)assert(glance==0.f); // No first-frame glance at acquisition.
+        if(frame>330)assert(glance==0.f); // A close ball alone cannot cause constant head bob.
+        glancePeak=std::max(glancePeak,glance);
+    }
+    assert(glancePeak>.17f);
+    for(int frame=0;frame<120;++frame)assert(footLook.update(false,true,true,1.f/120)==0.f);
+    footLook.reset();
+    for(int frame=0;frame<240;++frame)assert(footLook.update(true,false,true,1.f/120)==0.f);
+    fp::CareerCamera fasterPlay;
+    fasterPlay.update(head,{0,0,0},{3000,10,0},0,85,0,false,true,0,false);
+    float fastPrior=0.f,fastPeak=0.f;
+    for(int frame=0;frame<120;++frame){
+        const auto chasing=fasterPlay.update(head,{0,0,0},{-3000,10,-300},1.f/120,85,0,false,true,0,false);
+        const float speed=std::fabs(fp::wrap(chasing.pose.heading-fastPrior))*120.f;
+        fastPeak=std::max(fastPeak,speed);assert(speed<=1.051f);
+        fastPrior=chasing.pose.heading;
+    }
+    assert(fastPeak>.75f); // Off-ball orbit can now respond faster than the prior cap.
+    source[0]=std::numeric_limits<float>::quiet_NaN();assert(!fp::finiteCameraData(source));
+    std::puts("PASS: body/trajectory orbit rejects head/root/dribble jitter; locked subject survives restart focus; final pose preserves clipping and disables native blur flags only");
+    std::puts("PASS: ball/field balance, FOV/tilt personalization, hair clearance, immediate kickoff anchor and pose reacquisition");
+    std::puts("PASS: career third person, whole-body framing, stable height/roll, root tracking and smooth orbit");
+    std::puts("PASS: native shader UVs stay within all screen edges at FOV 75..150; central scale, third-person/disabled lenses and projection bytes are preserved");
+    std::puts("PASS: sharp turns keep the skull behind the near plane; third person follows off-ball play without rear-ball orbit reversal");
+    std::puts("PASS: ball framing eases in under a rate limit, off-ball orbit is faster, and event-based foot glances return without continuous bobbing");
+}

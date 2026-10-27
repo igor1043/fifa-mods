@@ -1,0 +1,13 @@
+{
+  "url": "https://cdn.jsdelivr.net/npm/logos-bancos-br@0/logos/png/00360305.png",
+  "catalog": "https://rzmt.github.io/logos-bancos-br/",
+  "official": {
+    "type": "openfinance",
+    "org": "CAIXA ECONOMICA FEDERAL",
+    "cnpj": "00360305000104",
+    "uri": "https://consentimento.openbanking.caixa.gov.br/assets/images/logomarca_caixa.svg",
+    "sha256": "3073827b49f87a32f69c93d8008583a1af2f2498b873eabd9f9d64d130c70dfd",
+    "updatedAt": "2026-07-17"
+  },
+  "sha256_download": "5954989326ffdd4dbce76b5a1edeb115338f1d537bf85f77e03bc22a2c0413f2"
+}

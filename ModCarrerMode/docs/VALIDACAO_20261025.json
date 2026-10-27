@@ -1,0 +1,100 @@
+{
+  "date": "2026-10-25",
+  "server_version": "0.2.18",
+  "extra_scenes_revision": 12,
+  "probability_percent": 40,
+  "cooldown_seconds": 10,
+  "actor_weights": [
+    1,
+    1
+  ],
+  "test_mode": false,
+  "python_tests": 704,
+  "regression_commands": 113,
+  "native_commands": 41,
+  "additional_final_frequency_tests": 12,
+  "final_frequency_native_rebuilt": true,
+  "all_regressions_passed": true,
+  "public_inactive_exclusions": {
+    "test_narration_panel": "NARRATION_PICKER_AVAILABLE is disabled in the public build",
+    "test_narration_autosave": "External narration authoring tools are not part of this repository",
+    "test_narration_club_names": "External narration authoring tools are not part of this repository",
+    "test_narration_editor": "External narration authoring tools are not part of this repository",
+    "test_narration_generic_policy": "External narration authoring tools are not part of this repository",
+    "test_narration_library": "External narration authoring tools are not part of this repository",
+    "test_narration_portability": "External narration authoring tools are not part of this repository",
+    "test_narration_projects": "External narration authoring tools are not part of this repository",
+    "test_narration_startup": "External narration authoring tools are not part of this repository"
+  },
+  "frozen_selftest": {
+    "version": "0.2.18",
+    "frozen": true,
+    "modules": {
+      "sqlite3": "ok",
+      "numpy": "ok",
+      "PIL.Image": "ok",
+      "psutil": "ok",
+      "server16_py.app": "ok",
+      "server16_py.club_environment": "ok",
+      "server16_py.career_context": "ok",
+      "server16_py.frontend_stadium": "ok",
+      "server16_py.gamepad_panel": "ok",
+      "server16_py.stadium_match_assets": "ok",
+      "server16_py.match_state": "ok",
+      "server16_py.extra_scenes_panel": "ok"
+    },
+    "binaries": {
+      "cgfs16_overlay.dll": true,
+      "cgfs16_inject.exe": true,
+      "fifa16_narration.dll": true,
+      "server16_first_person_v14.dll": true,
+      "FifaLibrary16.dll": true,
+      "career_jobs_runtime.dll": true
+    },
+    "ok": true,
+    "gamepad_package_present": true,
+    "vigem_client_present": true,
+    "vigem_installer_present": true,
+    "hidhide_installer_present": true
+  },
+  "frozen_source_modules_verified": 80,
+  "release_files": 250,
+  "game_source_manifest_differences": [],
+  "generated_career_screens_preserved": [],
+  "complementary_static_assets": 650,
+  "presentation_asset_groups": {
+    "mascots": 252,
+    "competition_presentations": 348,
+    "replacement_ball_stands": 10,
+    "pitchside_var_cabin": 2,
+    "xi_neutral_lighting": 2
+  },
+  "experimental_var_room_removed": true,
+  "pitchside_var_cabin_preserved": true,
+  "visual_checks_pending": [
+    "Final native cutscene duration and continuity after restart",
+    "Consecutive stadium matches after texture-route update",
+    "XI on Robson PC after full update"
+  ],
+  "screens_copied_from_installed_game": [
+    "data/ui/game/screens/career/server16/bankloansv2.big",
+    "data/ui/game/screens/career/server16/dressingroom.big",
+    "data/ui/game/screens/career/server16/matchpreview.big",
+    "data/ui/game/screens/career/server16/transfermarket.big"
+  ],
+  "configurations_copied_from_installed_game": [
+    "ModCarrerMode/config/frontend_stadium.ini",
+    "ModCarrerMode/config/match_presentation.ini",
+    "ModCarrerMode/crowd.ini"
+  ],
+  "runtime_code_origin": "Installed game EXE/DLL and mirrored source; frozen source equality checked",
+  "local_stadium_routes": "Generated paths remain local; portable release regenerates them",
+  "installed_game_runtime_files_identical": 4747,
+  "installed_game_assets_verified": 650,
+  "canonical_server_source_modules_equal_to_game": 84,
+  "additional_game_reference_tests": 40,
+  "expected_local_route_differences": [
+    "data/fifarna/lua/assets/server16_frontend_176.lua",
+    "data/fifarna/lua/assets/server16_frontend_261.lua"
+  ]
+}

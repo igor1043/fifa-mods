@@ -1,0 +1,100 @@
+{
+  "source": "J:\\mods\\fifa 16\\estudos fifa 16\\58_VAR_TEXTURAS_20261015\\source\\Cabine_geometry.blend",
+  "vertices": 12324,
+  "triangles": 19447,
+  "static": true,
+  "skeleton": false,
+  "height_cm": 200,
+  "bounds_cm": [
+    [
+      -66.3125,
+      0.0,
+      -55.375
+    ],
+    [
+      66.3125,
+      200.0,
+      55.375
+    ]
+  ],
+  "position_error_cm": 0.0621185302734375,
+  "uv_error": 0.0002440810203552246,
+  "winding": {
+    "positive": 19409,
+    "negative": 38
+  },
+  "textures": [
+    [
+      2047566042,
+      "var_cabin_cm"
+    ],
+    [
+      2047566042,
+      "var_cabin_coeff"
+    ],
+    [
+      2047566042,
+      "var_cabin_nm"
+    ]
+  ],
+  "texture_size": [
+    1024,
+    2048
+  ],
+  "texture_sizes": {
+    "cm": [
+      1024,
+      2048
+    ],
+    "coeff": [
+      256,
+      512
+    ],
+    "nm": [
+      512,
+      1024
+    ]
+  },
+  "texture_mip_levels": {
+    "cm": 12,
+    "coeff": 10,
+    "nm": 11
+  },
+  "texture_compression": "DXT5",
+  "uv_layout": "original OBJ UVs matched to the supplied COLOR.png/nm.png",
+  "maximum_geometry_change_cm": 0,
+  "diffuse_source_size": [
+    2048,
+    2048
+  ],
+  "diffuse_detail_region_size": [
+    1024,
+    1024
+  ],
+  "material_triangle_counts": {
+    "body": 6785,
+    "frame": 5998,
+    "mirror": 48,
+    "cabinet": 5058,
+    "screen": 259,
+    "black": 1299
+  },
+  "normal_map_green_inverted": true,
+  "normal_mips_renormalized": true,
+  "mirror_finish": "native environment/specular inputs, not planar real-time reflection",
+  "source_files": {
+    "Cabine_geometry.blend": "3790126638307d8afe1c4462be2c1f935ab4ae039c8f1b0e11dbb162631b4391",
+    "COLOR.png": "3e5690436663f567b0075e7410fa385d17ea213bea04b43f4f5af223e11d343f",
+    "nm.png": "78d7ca9c904a13290cfb396fa0ef0f92e36738c2bd6a09e6761077856f11510a"
+  },
+  "files": {
+    "model.rx3": {
+      "size": 363520,
+      "sha256": "90f5e1bcc820c600cf8eb5682cf1f21852c256f81681c466c1ea18ce63aaa667"
+    },
+    "textures.rx3": {
+      "size": 3670960,
+      "sha256": "404f57d1cdd17c7f00503473cf25e8f271be30c8c5060dad1d63993a80c8073d"
+    }
+  }
+}

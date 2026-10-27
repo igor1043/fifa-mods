@@ -1,0 +1,13 @@
+{
+  "url": "https://cdn.jsdelivr.net/npm/logos-bancos-br@0/logos/png/60701190.png",
+  "catalog": "https://rzmt.github.io/logos-bancos-br/",
+  "official": {
+    "type": "openfinance",
+    "org": "ITAU UNIBANCO S.A.",
+    "cnpj": "60701190000104",
+    "uri": "https://www.itau.com.br/media/dam/m/4ee2c952e1fa91a2/original/Novo_itau.svg",
+    "sha256": "9b2cadfb4ec44d8a3f9b24e9b3e7439e128164ab05ab1044ad37742255795af2",
+    "updatedAt": "2026-07-17"
+  },
+  "sha256_download": "bae3af73a45838ae7cffdfcf9dec281d892fc952efc0980c9b8985c1d329039b"
+}

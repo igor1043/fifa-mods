@@ -1,0 +1,23 @@
+{
+  "schema": 1,
+  "source_sha256": "ced82867cbc6d95940b53a38e304f02ecafa2e19d4accdabcd1eaf859ed424db",
+  "recipe_sha256": "e00d85c374301432e2239330de19105687c4530c225c811f8e05a5221816aa33",
+  "players": 11,
+  "bones": 400,
+  "units": "centimeters",
+  "mapping": "photo slots; goalkeeper first, remaining actors by native height order",
+  "source_player_ids": [
+    227275,
+    222895,
+    213629,
+    233206,
+    233605,
+    247204,
+    231355,
+    225964,
+    205498,
+    251445,
+    225645
+  ],
+  "recipe_bytes": 292440
+}

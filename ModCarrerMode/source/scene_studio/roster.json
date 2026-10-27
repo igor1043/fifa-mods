@@ -1,0 +1,79 @@
+[
+  {
+    "id": 227275,
+    "name": "Agustín Rossi",
+    "number": 1,
+    "position": 0,
+    "overall": 78
+  },
+  {
+    "id": 247204,
+    "name": "Emerson Royal",
+    "number": 22,
+    "position": 3,
+    "overall": 76
+  },
+  {
+    "id": 233206,
+    "name": "Léo Ortiz",
+    "number": 3,
+    "position": 4,
+    "overall": 80
+  },
+  {
+    "id": 222895,
+    "name": "Léo Pereira",
+    "number": 4,
+    "position": 6,
+    "overall": 80
+  },
+  {
+    "id": 231355,
+    "name": "Ayrton Lucas",
+    "number": 6,
+    "position": 7,
+    "overall": 77
+  },
+  {
+    "id": 213629,
+    "name": "Erick Pulgar",
+    "number": 5,
+    "position": 13,
+    "overall": 78
+  },
+  {
+    "id": 205498,
+    "name": "Jorginho",
+    "number": 21,
+    "position": 15,
+    "overall": 80
+  },
+  {
+    "id": 225645,
+    "name": "De Arrascaeta",
+    "number": 10,
+    "position": 18,
+    "overall": 83
+  },
+  {
+    "id": 225964,
+    "name": "Jorge Carrascal",
+    "number": 15,
+    "position": 23,
+    "overall": 78
+  },
+  {
+    "id": 233605,
+    "name": "Pedro",
+    "number": 9,
+    "position": 25,
+    "overall": 80
+  },
+  {
+    "id": 251445,
+    "name": "Samuel Lino",
+    "number": 16,
+    "position": 27,
+    "overall": 79
+  }
+]
