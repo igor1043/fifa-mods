@@ -1,0 +1,36 @@
+{
+  "date": "2026-10-26",
+  "validated_code_commit": "8e5bc43abd5fc38ead215ea96b8f2d31e6ee7643",
+  "regression_commands": 70,
+  "regression_passed": true,
+  "frozen_modules_match": 80,
+  "canonical_server_modules_match": 84,
+  "external_injector_absent": true,
+  "clean_git_plus_previous_assets_and_delta": true,
+  "enabled_dlls": 26,
+  "release_files_verified": 369,
+  "runtime_or_save_copied": false,
+  "fifa_started_by_test": false,
+  "delta": {
+    "file": "FIFA-Friends-Assets-Delta-20261026.zip",
+    "bytes": 85918,
+    "sha256": "470acb3f6336152587d92b3c4bb10bd32e89f64914cb8da132b34b426dd90590",
+    "files": [
+      "ModCarrerMode/data/club_browser/poses/starting_eleven.pose"
+    ],
+    "requires": "FIFA-Friends-Assets-Complementares-20261025.zip",
+    "previous_assets_unchanged": 650
+  },
+  "studio": {
+    "zip": "FIFA-Friends-Bancada-Cenas-IA-20261026.zip",
+    "bytes": 700597416,
+    "sha256": "1c42b482ac85d5c57449806800433ae798924076e1a6182b6acf591695a6bf73",
+    "files": 3534,
+    "uncompressed_bytes": 1084948198,
+    "private_data_included": false
+  },
+  "limitations": [
+    "Recipient PC and final native visual checks remain necessary.",
+    "XI uses static GameplayProp, without integrated dynamic ground shadows."
+  ]
+}
