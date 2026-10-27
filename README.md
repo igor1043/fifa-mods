@@ -18,7 +18,7 @@ A combinação Git + ZIP é agora verificada em uma pasta vazia, sem caches do d
 - **Onze titulares:** pose autoral da revisão `(15)`, aplicada ao elenco atual do clube, cache identificado pelo conteúdo e alerta para complemento ausente/desatualizado. Exportador e definição editável versionados.
 - **Bancada de cenas:** editor externo com jogadores, 400 ossos, FK/IK em punhos e pés, desfazer/refazer e exportação JSON/RX3. IA local de múltiplas pessoas por imagem, mapa de 133 pontos, correções e prévia 3D. [Fontes e instruções](ModCarrerMode/source/scene_studio/LEIA-ME-PORTATIL.md).
 
-**Instalação:** atualize esta branch e extraia **FIFA-Friends-Assets-Complementares-20261026.zip** na raiz do FIFA, com FIFA/Server fechados. São **651 assets**, incluindo a nova pose. Quem já aplicou o complemento completo de 25/10 pode usar somente **FIFA-Friends-Assets-Delta-20261026.zip**, além da branch atualizada. O Server16 pronto e as DLLs estão nesta branch. A bancada é opcional: extraia seu ZIP em uma pasta separada, fora do jogo.
+**Instalação:** atualize esta branch e extraia **FIFA-Friends-Assets-Delta-20261026.zip** na raiz do FIFA, com FIFA/Server fechados. O delta contém somente a pose nova (cerca de 86 KB) e exige o complemento completo de **25/10/2026** já instalado. Os 650 assets anteriores não mudaram e não precisam ser enviados novamente. O Server16 pronto, as DLLs, as interfaces e os fontes vêm desta branch. A bancada de cenas/IA é opcional e roda numa pasta separada, fora do jogo.
 
 [Changelog, testes e limites desta entrega](ModCarrerMode/docs/RELEASE_20261026.md). Os mods de placares, cenas de técnico/mascote e cabine de campo continuam presentes; a sala experimental do VAR continua excluída.
 
