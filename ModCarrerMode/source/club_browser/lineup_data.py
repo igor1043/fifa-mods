@@ -61,9 +61,10 @@ def starting_sheet(rows,club,members):
     if len(set(ids))!=11 or any(p not in members for p in ids):raise ValueError('A escalação não tem 11 jogadores distintos vinculados a este clube.')
     return [(int(sheet.get('position'+str(i)) or 0),members[p]) for i,p in enumerate(ids)]
 
-def pack_fixture(club,name,team,players,lineup,names,edited):
-    if len(lineup)!=11 or len({r['playerid'] for _,r in lineup})!=11:raise ValueError('São necessários 11 titulares reais.')
-    out=bytearray(struct.pack('<8sIII128s',b'C3DQA003',11,club,420,name.encode('utf8')[:127].ljust(128,b'\0')))
+def pack_fixture(club,name,team,players,lineup,names,edited,roster=False):
+    count=len(lineup)
+    if (not 1<=count<=100 if roster else count!=11) or len({r['playerid'] for _,r in lineup})!=count:raise ValueError('Escalação inválida.')
+    out=bytearray(struct.pack('<8sIII128s',b'C3DQA003',count,club,420,name.encode('utf8')[:127].ljust(128,b'\0')))
     color=sum(int(team.get('teamcolor1'+ch) or 0)<<shift for ch,shift in zip('rgb',(16,8,0)))
     def value(row,key,default=-1):return int(row[key]) if row.get(key) is not None else default
     roster=[]

@@ -83,3 +83,8 @@ ModCarrerMode/source/scene_studio/vendor/** -text whitespace=-space-before-tab
 ModCarrerMode/source/Server16Python.spec -text whitespace=cr-at-eol
 ModCarrerMode/source/career_native/src/host/career_bank_input.inc -text whitespace=cr-at-eol
 ModCarrerMode/source/career_native/src/host/career_prepared_views.inc -text whitespace=cr-at-eol
+# Exact bytes for the 27/10 release inputs.
+ModCarrerMode/docs/RELEASE_20261027.md -text whitespace=cr-at-eol
+ModCarrerMode/mods/README.md -text whitespace=cr-at-eol
+
+/README.md -text whitespace=cr-at-eol

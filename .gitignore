@@ -136,3 +136,5 @@ runtime/diagnostics/
 !ModCarrerMode/mods/first_person/server16_first_person_v14.dll
 !ModCarrerMode/source/scene_studio/vendor/three/build/
 !ModCarrerMode/source/scene_studio/vendor/three/build/*.js
+# Extracted native idle animation ships only in the incremental asset ZIP.
+/ModCarrerMode/data/club_browser/animations/idle_crossed.json

@@ -23,7 +23,7 @@ def open_native(path,full=FULL,setup=None,callbacks=None):
     manager={k:Object({n:Native(n) for n in methods}) for k,methods in {
         'InputManager':('SetLocalEventHandler','DisableCurrentLocalEventHandler'),
         'ScreenManager':('SetOnExitScreenCallback','BeginAnimateIn'),
-        'HelpManager':('Update','Clear')}.items()}
+        'HelpManager':('Update','Clear','Show','SetCustomSource')}.items()}
     manager['InputCodes']=Object(dict(BACK=1,ADVANCE=2,PRIMARY_SELECT=7,LEFT=5,RIGHT=6,UP=3,DOWN=4,L1=8,R1=9,OPTION_TOP=10,L2=11,R2=12,LAS_LEFT=13,LAS_RIGHT=14,LAS_UP=15,LAS_DOWN=16))
     vm.global_.set('game',Object({'globalClasses':Object(manager)}))
     vm.global_.set('ION_CareerMode',Object({n:Native(n) for n in ('GetScreenStaticData','GetEvents','SendEvent','SendSystemEvent')}))

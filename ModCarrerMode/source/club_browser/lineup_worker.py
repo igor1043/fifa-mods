@@ -26,6 +26,12 @@ def request(path,pid):
     data=dict(line.split('=',1) for line in raw.decode('ascii').splitlines())
     result={k:int(data[k]) for k in ('schema','pid','seq','club')}
     if result['schema']!=1 or result['pid']!=pid or not 0<result['seq']<2**63 or not 0<result['club']<500000:raise ValueError('Pedido de outra sessão.')
+    if 'kind' in data:
+        if data['kind'] not in ('roster','player'):raise ValueError('Tipo de visualização inválido.')
+        result['kind']=data['kind']
+        if data['kind']=='player':
+            result['player']=int(data['player'])
+            if not 0<result['player']<200000000:raise ValueError('Jogador inválido.')
     return result
 
 def observe(memory,game):
@@ -109,8 +115,14 @@ def main():
                 signature=(req['seq'],req['club'])
                 if signature!=last:
                     last=signature;publish(folder,req,'loading')
-                    print('REQUEST',json.dumps(req),flush=True);completed=generate(game,folder,req,m,exporter=exporter,projection_cache=projection_cache)
+                    print('REQUEST',json.dumps(req),flush=True)
+                    if req.get('kind') in ('roster','player'):
+                        from roster_worker import generate as prepare_roster
+                        completed=prepare_roster(game,folder,req,m,exporter,projection_cache)
+                    else:completed=generate(game,folder,req,m,exporter=exporter,projection_cache=projection_cache)
                     print('COMPLETE' if completed else 'SUPERSEDED',req['seq'],flush=True)
+            except InterruptedError:
+                if req:print('SUPERSEDED',req['seq'],flush=True)
             except FileNotFoundError as error:
                 if req:print('MISSING_RESOURCE',repr(error),flush=True);traceback.print_exc(file=sys.stdout)
                 if req:publish(folder,req,'error',message='Um recurso necessário para os titulares não foi encontrado.')

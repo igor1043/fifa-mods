@@ -1,5 +1,5 @@
 {
-  "release": "FIFA Friends V12 / Server16 0.2.19 / 2026-10-26",
+  "release": "FIFA Friends V12 / native animated roster / 2026-10-27",
   "files": [
     {
       "path": "ModCarrerMode/config/extra_scenes.ini",
@@ -32,9 +32,14 @@
       "sha256": "2302a8e60522f5b37d05328e6be493dccbcbb0de0f9ffffab4467219599f501b"
     },
     {
+      "path": "ModCarrerMode/data/club_browser/animations/idle_crossed.json",
+      "bytes": 163330,
+      "sha256": "dc17d1fa88c017a25a8c34bc490fd0d078a4ce2b54452af2bd92389d9c3a342d"
+    },
+    {
       "path": "ModCarrerMode/data/club_browser/assets-manifest.json",
-      "bytes": 527,
-      "sha256": "f4d56493a8f1b566c6a89b3f69f32c347fb4e85d76bd13b060866a18e32d2421"
+      "bytes": 729,
+      "sha256": "49d255226634d643f24c19cfb7c30dc098844a36a2c5245657d1b1c423e42695"
     },
     {
       "path": "ModCarrerMode/data/club_browser/assets/globe/atlas-hd.png",
@@ -212,14 +217,24 @@
       "sha256": "105578917a1bc947b609bb8eef70c730ee2dd1b470bde6bfa401a078830690e5"
     },
     {
+      "path": "ModCarrerMode/docs/RELEASE_20261027.md",
+      "bytes": 3396,
+      "sha256": "8dc700051165944a4a03936455ddfaaf0df6c1214ef4b3903637be77f9b009dd"
+    },
+    {
+      "path": "ModCarrerMode/mods/README.md",
+      "bytes": 6738,
+      "sha256": "63b455950ed35f9a90ac2586193b20c18f641813c7814b94a6b95c453eb44bfa"
+    },
+    {
       "path": "ModCarrerMode/mods/career_jobs/career_jobs_runtime.dll",
       "bytes": 193024,
       "sha256": "6b03319dad74d96d732d8638b949a527c75841a8bc8db16400c4fb016dc9539a"
     },
     {
       "path": "ModCarrerMode/mods/club_browser/club_browser.dll",
-      "bytes": 500736,
-      "sha256": "e7707e5f36b393d54ab6671fb0870f078eb7b5d4d70970435784a30b18caee6f"
+      "bytes": 636928,
+      "sha256": "80380c3f7a6d783de822b36fdf5708dfa8b2b4beb0ca843e643287bbae058afc"
     },
     {
       "path": "ModCarrerMode/mods/club_environment/native_dressing_room.dll",
@@ -273,8 +288,8 @@
     },
     {
       "path": "ModCarrerMode/source/career_native/src/host/career_bank_input.inc",
-      "bytes": 6693,
-      "sha256": "e50346689cd6e955302883d9c46960c55626df44787239663e1ecf16e586b613"
+      "bytes": 7317,
+      "sha256": "027bea8c0abc1ca6a3d122edc239c91728af10004db2b08cfbd8aac4caa60e07"
     },
     {
       "path": "ModCarrerMode/source/career_native/src/host/career_prepared_views.inc",
@@ -283,13 +298,13 @@
     },
     {
       "path": "ModCarrerMode/source/club_browser/README.md",
-      "bytes": 11339,
-      "sha256": "791c8d0eae413e87f2b4c486a855f9cf6af053dff94c3cdb46e66661cbd2f7b5"
+      "bytes": 30679,
+      "sha256": "201973981fafe9b8e227acdfe5ea1ef22ac94393bac0a0fdee6c323ea636b434"
     },
     {
       "path": "ModCarrerMode/source/club_browser/build_apt.py",
-      "bytes": 5117,
-      "sha256": "46e286485697d1fe2c5d52665710543af5094e5bfe4e1cacce53f8abb95c73df"
+      "bytes": 9656,
+      "sha256": "e3a460c0bc0e4a966fdbdbb889e4e25cdc1821a8030649d1848375afcddaae6a"
     },
     {
       "path": "ModCarrerMode/source/club_browser/build_globe_assets.py",
@@ -774,12 +789,12 @@
     {
       "path": "ModCarrerMode/source/club_browser/exporter/fixture.h",
       "bytes": 2680,
-      "sha256": "5313c5b4271ea47da88d0b35e99196ab8989907b41f69336790bec52e1f1a567"
+      "sha256": "34a64cd1f7bbf5eacbf88d3b5082345b66da42b8acda81bb8e4ad4080bf0addd"
     },
     {
       "path": "ModCarrerMode/source/club_browser/exporter/generate_lineup.cpp",
-      "bytes": 2516,
-      "sha256": "4305c2d6a7224df9b4d40beab09e8b377bbe4bb083822f9847978fa65cac48d6"
+      "bytes": 2915,
+      "sha256": "59b204a59ac14b19f4b07df1cd024e9949ec408061464ef992a24405321fa559"
     },
     {
       "path": "ModCarrerMode/source/club_browser/exporter/pose_reference.json",
@@ -802,19 +817,24 @@
       "sha256": "bd05d36eaed9a0d8e51ce6d7dca55e787dd5e452a6545bf445e5b3c4554ffbc1"
     },
     {
+      "path": "ModCarrerMode/source/club_browser/kit_personalization.py",
+      "bytes": 7309,
+      "sha256": "49bc35f7a759cebf43ebb6190e66a49d5c48064c7c587b5d51d27fdff822731b"
+    },
+    {
       "path": "ModCarrerMode/source/club_browser/lineup_data.py",
-      "bytes": 9065,
-      "sha256": "80b0e30519646fe2755bda695f87953b2c23a78c857a4f22c869bfb5b6945812"
+      "bytes": 9120,
+      "sha256": "a69252b728b7af733f1589cc0b9f5a4e1d59ac5d48e639c75c0c5934776d032d"
     },
     {
       "path": "ModCarrerMode/source/club_browser/lineup_worker.py",
-      "bytes": 8302,
-      "sha256": "a3b3f56dcec3a48c0c2920b82ad15f12c27bc89d3b31831adf73bd187e07488f"
+      "bytes": 9136,
+      "sha256": "bff7779047dab61047fde086b626fdf1cc569623a311732f7639e74d57386927"
     },
     {
       "path": "ModCarrerMode/source/club_browser/model_exporter.py",
-      "bytes": 3152,
-      "sha256": "f09435d57ca36eb8a988e5262e47557c9d6c365cfd13abceea734fe86721e357"
+      "bytes": 3296,
+      "sha256": "af84ad57296eb9b61d4c8fe54b72a4d229f7bc84acaf9aa7af21288a99fd3d44"
     },
     {
       "path": "ModCarrerMode/source/club_browser/native/game_assets.h",
@@ -828,13 +848,13 @@
     },
     {
       "path": "ModCarrerMode/source/club_browser/native/graphics.h",
-      "bytes": 12128,
-      "sha256": "b6d259647c0a43a51741c088886e6a5600f32688063c3ef2a7683897bad943b9"
+      "bytes": 15796,
+      "sha256": "350391d4088ab25d6ec32106c5c87a551a85d02bcc2138166ff223129780f209"
     },
     {
       "path": "ModCarrerMode/source/club_browser/native/lineup_view.h",
-      "bytes": 8079,
-      "sha256": "659fd5ed772b4b741ed4e5ceb2a3232d7b0e501f9f0c42e08ede8bf94cfe1a2e"
+      "bytes": 8529,
+      "sha256": "188cb98ade6dd7647d49c5238b9ab0a13669e346fa8e6652f0d239fe26f4e401"
     },
     {
       "path": "ModCarrerMode/source/club_browser/native/model.h",
@@ -842,14 +862,59 @@
       "sha256": "b254d0df6790d4a3e22992cd073daf40b383037a33ff2b6b299ac5a4d041ff5a"
     },
     {
+      "path": "ModCarrerMode/source/club_browser/native/native_animation.h",
+      "bytes": 12761,
+      "sha256": "5fffb5f5213b98f79e6af50a3af149a1a79885a492540e6ffd96fcbc941f0ad1"
+    },
+    {
       "path": "ModCarrerMode/source/club_browser/native/native_scene.h",
-      "bytes": 16465,
-      "sha256": "059f2837e140dbdcef0309a266f64bdda686f1cfe3d1175ea812f88d46dcc461"
+      "bytes": 19424,
+      "sha256": "6889396f0251d1f370bb1c3184f918ae08e3fa2254d9cc8987a78daf7c5a7ba6"
     },
     {
       "path": "ModCarrerMode/source/club_browser/native/render.cpp",
-      "bytes": 27384,
-      "sha256": "520f5b8ded34cecd6615e50d34f4e9ccd7199963438528ce69d383b0f9213451"
+      "bytes": 31774,
+      "sha256": "59a536a3db56e406234a58f0f364eff6dfd6bfa87a85e0fc9aca5d3fdd50c9db"
+    },
+    {
+      "path": "ModCarrerMode/source/club_browser/native/roster_ui.inc",
+      "bytes": 13482,
+      "sha256": "715cda542540664907aeb689c075dfc1340d3c07f6216bc0d017a4659ea619b1"
+    },
+    {
+      "path": "ModCarrerMode/source/club_browser/native/roster_view.h",
+      "bytes": 5926,
+      "sha256": "9e5b93f99033244902b3a2bdfb53332dce2448cab8d262731a68621f5ce25436"
+    },
+    {
+      "path": "ModCarrerMode/source/club_browser/native/test_constant_range_pixels.cpp",
+      "bytes": 3703,
+      "sha256": "603ce978d6ce3f7391a8dd52ecccd4f5a62046715973e993f31b195b6076a201"
+    },
+    {
+      "path": "ModCarrerMode/source/club_browser/native/test_context_restore.cpp",
+      "bytes": 4762,
+      "sha256": "6f7df08d872b0ca9d790797b542bd9bda20796250d1e7514cc4272d1997a660e"
+    },
+    {
+      "path": "ModCarrerMode/source/club_browser/native/test_native.cpp",
+      "bytes": 14753,
+      "sha256": "c765f309d7bd4853f9b1d3f26b4e01121dc79692b408e9eac97e0307ce947251"
+    },
+    {
+      "path": "ModCarrerMode/source/club_browser/native/test_native_gpu_layout.cpp",
+      "bytes": 991,
+      "sha256": "a8f2e816905e66fd74ba1b5ccc30446fb0227b8bc952472f15f108ba8465d411"
+    },
+    {
+      "path": "ModCarrerMode/source/club_browser/native/test_player_animation.cpp",
+      "bytes": 7783,
+      "sha256": "8c4743223ce7e3ed2530001ca88838246a661498df4ea43d2ee2cf1319f04a19"
+    },
+    {
+      "path": "ModCarrerMode/source/club_browser/native/test_scene_publication.cpp",
+      "bytes": 3472,
+      "sha256": "1db119ccd3d7be3ed8c794e9d91600472d067b7b0caad456e9ddcb2a75f81ce2"
     },
     {
       "path": "ModCarrerMode/source/club_browser/native/third_party/miniz/LICENSE",
@@ -887,14 +952,64 @@
       "sha256": "341dcbf66a57edb785986535bdd97c565c0e56312b49d30de5e2c4abbf48fd59"
     },
     {
+      "path": "ModCarrerMode/source/club_browser/player_animation.py",
+      "bytes": 9528,
+      "sha256": "fb1255afd72b5b7171f7d866ed6687e72b53413f6142f01c3c1c9ccd6122aa31"
+    },
+    {
       "path": "ModCarrerMode/source/club_browser/pose_profile.py",
       "bytes": 1129,
       "sha256": "9ac9cabb6828d39d1570cdd7c918accfcc4b5cc1d741c2597ffdbd0c9f00e8e8"
     },
     {
+      "path": "ModCarrerMode/source/club_browser/rig_model.py",
+      "bytes": 2760,
+      "sha256": "421709d65ee9ff9d5bf7f84820ff32fc57476e43ff71a2c43df81f0216f87c7e"
+    },
+    {
+      "path": "ModCarrerMode/source/club_browser/roster_data.py",
+      "bytes": 6294,
+      "sha256": "637545ecfdf0f57c2e875b73264d4e151b9227ede8ef9730994c33df314624f3"
+    },
+    {
+      "path": "ModCarrerMode/source/club_browser/roster_worker.py",
+      "bytes": 3891,
+      "sha256": "c604a2ddb3779aec6d67676b31f6c0f4ef7b3723c4732c50eb70527bf258d1b2"
+    },
+    {
+      "path": "ModCarrerMode/source/club_browser/season_stats.py",
+      "bytes": 2796,
+      "sha256": "81a2c5818eb924fee04ba09c8bd9eed092b2e56d1eea6b9ab9cb7eb5f1dfd969"
+    },
+    {
       "path": "ModCarrerMode/source/club_browser/test_authored_pose.py",
       "bytes": 2943,
       "sha256": "cbc0b2db9b2aa27cb35c4b0e9e61fbfe4220fbdafec1f4eed1528b45782ccd44"
+    },
+    {
+      "path": "ModCarrerMode/source/club_browser/test_integration.py",
+      "bytes": 4528,
+      "sha256": "ff0a066209b5832cf65ff0b0844c5205770d0a0ccbedfdc23347c26eba4d4dc6"
+    },
+    {
+      "path": "ModCarrerMode/source/club_browser/test_kit_personalization.py",
+      "bytes": 1746,
+      "sha256": "6671a669eeec4ad5f20bd9ae3ec3a9c6f289fef67b5aa2e1479538ab72dbbd2a"
+    },
+    {
+      "path": "ModCarrerMode/source/club_browser/test_native.cmd",
+      "bytes": 2578,
+      "sha256": "e790bd5b5802074205c0a35eac68d0d26080cfc615de28407af50ee4101d9e3d"
+    },
+    {
+      "path": "ModCarrerMode/source/club_browser/test_roster.py",
+      "bytes": 2357,
+      "sha256": "84a821dcabacc8067546bf45d9915dd4b3f96df446ddfd2eae4eb8d5daf7a444"
+    },
+    {
+      "path": "ModCarrerMode/source/club_browser/test_season_stats.py",
+      "bytes": 1113,
+      "sha256": "e064167df4cd307805423cb72d26ed1513f80099f0e17805c64b07fd2a493e94"
     },
     {
       "path": "ModCarrerMode/source/club_environment/CAREER_DATA.md",
@@ -1027,6 +1142,11 @@
       "sha256": "880743022d31c7ed3632abb7e770d6f8fc29c83e0493c595cfd595aacbb29e89"
     },
     {
+      "path": "ModCarrerMode/source/club_environment/kit_selection.py",
+      "bytes": 703,
+      "sha256": "a0383c485abed15b118841fe7c7fb254292eeffb8a3a839688bd8ae2f78f8dea"
+    },
+    {
       "path": "ModCarrerMode/source/club_environment/market/README.md",
       "bytes": 5838,
       "sha256": "4423c675bd13454ffd0efcd670ad0e4667010a849fb5bcc0b3b50108fbb502aa"
@@ -1078,8 +1198,8 @@
     },
     {
       "path": "ModCarrerMode/source/club_environment/market/native_review_vm.py",
-      "bytes": 2604,
-      "sha256": "a251b7414e9a8efb60c0d8606ac5026f02971ced07d0b07f58fc56e0a272e4c6"
+      "bytes": 2629,
+      "sha256": "0207731b73bfa42311215cbaa60e8839d384be0f70e287391223c971ff13287e"
     },
     {
       "path": "ModCarrerMode/source/club_environment/market/native_screen.py",
@@ -1298,8 +1418,8 @@
     },
     {
       "path": "ModCarrerMode/source/club_environment/room/prepare_native_room_components_r46_20261022.py",
-      "bytes": 21824,
-      "sha256": "83e87988b2c6c486da07e1a895616ea3a92f52eeb66a6b77ee70d50ef6455be6"
+      "bytes": 21886,
+      "sha256": "77f7e83882f5ddac57fd31490759e2a1bbeee2816eb64e957e6b603ae6b3a83d"
     },
     {
       "path": "ModCarrerMode/source/club_environment/room/room_control_bridge_r52.py",
@@ -1588,13 +1708,18 @@
     },
     {
       "path": "ModCarrerMode/tools/club_browser/generate_lineup.exe",
-      "bytes": 619008,
-      "sha256": "a079114a59ec9ca68c7de90909066509ecae38d005719c85d4917b43f47653da"
+      "bytes": 623616,
+      "sha256": "024479a6e06c0967446bda131cf6890b8362706c7f65337e192761ce79698110"
     },
     {
       "path": "ModCarrerMode/tools/frontend_stadium_prepare.exe",
       "bytes": 8670180,
       "sha256": "b5f325e3ac6e75e5831c9688aeba853e6e51388bb707ac9e2a9eb54acc400b2f"
+    },
+    {
+      "path": "README.md",
+      "bytes": 27562,
+      "sha256": "78c4736de823dab955255bdcfed04121d56d2ad6394284a99e8f335eadaad985"
     },
     {
       "path": "Server16Python.exe",
@@ -1773,8 +1898,8 @@
     },
     {
       "path": "data/ui/game/screens/career/server16/clubbrowser.big",
-      "bytes": 5197,
-      "sha256": "d7e6968c499613edf5be027d22d5a6cf67b69dcf4ac0fbd4d54118e8d34ca74a"
+      "bytes": 6339,
+      "sha256": "37a3a9a604e1e8288254e5985aa9db1c5beda00e0815e8fe33973081d4bfd884"
     },
     {
       "path": "data/ui/game/screens/career/server16/dressingroom.big",
@@ -1843,8 +1968,8 @@
     },
     {
       "path": "dinput8.dll",
-      "bytes": 630272,
-      "sha256": "bf7742a4dbb69657ac38dbf0570b852b750ccd48e7beed39d2521b912f7fe33b"
+      "bytes": 630784,
+      "sha256": "91b96430e8757d3dae932cd159bc96be8b7c9661bada7a4a2ee8d6ec5aac2466"
     }
   ]
 }

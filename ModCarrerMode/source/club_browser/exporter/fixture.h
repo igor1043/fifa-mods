@@ -40,7 +40,7 @@ static bool read_fixture(const fs::path &path, std::vector<ClubPlayerRow> &rows,
     std::set<int> ids;
     for (const auto &item : old) {
         if (item.team_id != static_cast<int>(team) || item.player_id <= 0 ||
-            item.height < 130 || item.height > 230 || item.squad_position < 0 || item.squad_position > (roster?29:27) ||
+            item.height < 130 || item.height > 230 || item.squad_position < 0 || item.squad_position > (roster?99:27) ||
             !ids.insert(item.player_id).second) return false;
         rows.push_back(upgrade(item));
     }

@@ -16,6 +16,7 @@
 #include "globe_texture.h"
 #include "native_scene.h"
 #include "lineup_view.h"
+#include "roster_view.h"
 #include "../../server16_py/d3d_overlay/third_party/reshade/reshade_events.hpp"
 namespace fs=std::filesystem;
 namespace {
@@ -24,6 +25,9 @@ clublineup::View lineup;clubassets::Reader art;clubs::Model model;clubgfx::Rende
 #ifdef CLUB_BROWSER_VALIDATION
 std::atomic<int> validationClub{-1};std::atomic<bool> validationCapture{false};
 #endif
+std::atomic<bool>rosterMouseActive{false};std::atomic<int>wheelDelta{0};HWND inputWindow=nullptr;WNDPROC originalWindowProc=nullptr;
+LRESULT CALLBACK rosterWindowProc(HWND window,UINT message,WPARAM w,LPARAM l){if(message==WM_MOUSEWHEEL&&rosterMouseActive&&!stopped){wheelDelta.fetch_add((short)HIWORD(w));return 0;}return originalWindowProc?CallWindowProcW(originalWindowProc,window,message,w,l):DefWindowProcW(window,message,w,l);}
+void attachInputWindow(HWND window){if(inputWindow==window)return;if(inputWindow&&originalWindowProc&&(WNDPROC)GetWindowLongPtrW(inputWindow,GWLP_WNDPROC)==rosterWindowProc)SetWindowLongPtrW(inputWindow,GWLP_WNDPROC,(LONG_PTR)originalWindowProc);inputWindow=window;originalWindowProc=(WNDPROC)GetWindowLongPtrW(window,GWLP_WNDPROC);SetWindowLongPtrW(window,GWLP_WNDPROC,(LONG_PTR)rosterWindowProc);}
 using Present=HRESULT(WINAPI*)(IDXGISwapChain*,UINT,UINT);Present originalPresent=nullptr;void** hookedTable=nullptr;
 using ReadPad=DWORD(WINAPI*)(DWORD,XINPUT_STATE*);ReadPad readPad=nullptr;
 void log(const char* value){std::ofstream out(logPath,std::ios::app);out<<GetTickCount64()<<" pid="<<GetCurrentProcessId()<<" "<<value<<"\n";}
@@ -62,7 +66,7 @@ bool clubgfx::Renderer::init(ID3D11Device* dev,const std::wstring& path){
  if(!compile("VS","vs_4_0",&vertex)||!compile("PS","ps_4_0",&pixel)||!compile("Earth","ps_4_0",&earthCode)){clubgfx::release(vertex);clubgfx::release(pixel);clubgfx::release(earthCode);clear();return false;}
  D3D11_INPUT_ELEMENT_DESC elements[]={{"POSITION",0,DXGI_FORMAT_R32G32_FLOAT,0,0,D3D11_INPUT_PER_VERTEX_DATA,0},{"TEXCOORD",0,DXGI_FORMAT_R32G32_FLOAT,0,8,D3D11_INPUT_PER_VERTEX_DATA,0}};
  bool ok=SUCCEEDED(dev->CreateVertexShader(vertex->GetBufferPointer(),vertex->GetBufferSize(),nullptr,&vs))&&SUCCEEDED(dev->CreatePixelShader(pixel->GetBufferPointer(),pixel->GetBufferSize(),nullptr,&ps))&&SUCCEEDED(dev->CreatePixelShader(earthCode->GetBufferPointer(),earthCode->GetBufferSize(),nullptr,&globe))&&SUCCEEDED(dev->CreateInputLayout(elements,2,vertex->GetBufferPointer(),vertex->GetBufferSize(),&layout));release(vertex);release(pixel);release(earthCode);
- D3D11_BUFFER_DESC bd{};bd.ByteWidth=4*sizeof(Vertex);bd.Usage=D3D11_USAGE_DYNAMIC;bd.BindFlags=D3D11_BIND_VERTEX_BUFFER;bd.CPUAccessFlags=D3D11_CPU_ACCESS_WRITE;ok=ok&&SUCCEEDED(dev->CreateBuffer(&bd,nullptr,&vb));bd={};bd.ByteWidth=64;bd.Usage=D3D11_USAGE_DEFAULT;bd.BindFlags=D3D11_BIND_CONSTANT_BUFFER;ok=ok&&SUCCEEDED(dev->CreateBuffer(&bd,nullptr,&constants));
+ D3D11_BUFFER_DESC bd{};bd.ByteWidth=96*sizeof(Vertex);bd.Usage=D3D11_USAGE_DYNAMIC;bd.BindFlags=D3D11_BIND_VERTEX_BUFFER;bd.CPUAccessFlags=D3D11_CPU_ACCESS_WRITE;ok=ok&&SUCCEEDED(dev->CreateBuffer(&bd,nullptr,&vb));bd={};bd.ByteWidth=64;bd.Usage=D3D11_USAGE_DEFAULT;bd.BindFlags=D3D11_BIND_CONSTANT_BUFFER;ok=ok&&SUCCEEDED(dev->CreateBuffer(&bd,nullptr,&constants));
  D3D11_BLEND_DESC blendDesc{};auto& rt=blendDesc.RenderTarget[0];rt.BlendEnable=TRUE;rt.SrcBlend=D3D11_BLEND_SRC_ALPHA;rt.DestBlend=D3D11_BLEND_INV_SRC_ALPHA;rt.BlendOp=D3D11_BLEND_OP_ADD;rt.SrcBlendAlpha=D3D11_BLEND_ONE;rt.DestBlendAlpha=D3D11_BLEND_INV_SRC_ALPHA;rt.BlendOpAlpha=D3D11_BLEND_OP_ADD;rt.RenderTargetWriteMask=D3D11_COLOR_WRITE_ENABLE_ALL;ok=ok&&SUCCEEDED(dev->CreateBlendState(&blendDesc,&blend));
  D3D11_DEPTH_STENCIL_DESC depth{};depth.DepthEnable=FALSE;depth.DepthWriteMask=D3D11_DEPTH_WRITE_MASK_ZERO;depth.DepthFunc=D3D11_COMPARISON_ALWAYS;ok=ok&&SUCCEEDED(dev->CreateDepthStencilState(&depth,&ds));D3D11_RASTERIZER_DESC rd{};rd.FillMode=D3D11_FILL_SOLID;rd.CullMode=D3D11_CULL_NONE;rd.DepthClipEnable=TRUE;ok=ok&&SUCCEEDED(dev->CreateRasterizerState(&rd,&raster));
  D3D11_SAMPLER_DESC sd{};sd.Filter=D3D11_FILTER_MIN_MAG_MIP_LINEAR;sd.AddressU=D3D11_TEXTURE_ADDRESS_WRAP;sd.AddressV=sd.AddressW=D3D11_TEXTURE_ADDRESS_CLAMP;sd.MaxLOD=D3D11_FLOAT32_MAX;ok=ok&&SUCCEEDED(dev->CreateSamplerState(&sd,&linear));sd.Filter=D3D11_FILTER_MIN_MAG_MIP_POINT;ok=ok&&SUCCEEDED(dev->CreateSamplerState(&sd,&nearest));
@@ -71,6 +75,8 @@ bool clubgfx::Renderer::init(ID3D11Device* dev,const std::wstring& path){
 }
 
 namespace {
+void prepareClub();
+#include "roster_ui.inc"
 void drawContent(ID3D11DeviceContext* context){auto& r=renderer;const auto& c=model.club();const auto white=RGB(255,255,255),ink=RGB(52,77,90),muted=RGB(118,141,151);int label=0;
  auto text=[&](std::wstring value,float x,float y,int w,int h,int size,COLORREF color,bool centered=false){r.label(context,label++,value,x,y,w,h,size,color,centered);};
  float params[16]={model.yaw,model.pitch,model.zoom,float(c.world),clubs::GlobeView::w/clubs::GlobeView::h,1600.f/clubs::GlobeView::w,-clubs::GlobeView::x/clubs::GlobeView::w,760.f/clubs::GlobeView::h,-clubs::GlobeView::y/clubs::GlobeView::h};context->UpdateSubresource(r.constants,0,nullptr,params,0,0);context->PSSetConstantBuffers(0,1,&r.constants);context->PSSetShader(r.globe,nullptr,0);context->PSSetShaderResources(1,1,&r.atlas.view);r.quad(context,0,0,1600,760,r.earth.view);r.normal(context);
@@ -111,7 +117,7 @@ void drawLineup(ID3D11DeviceContext* context){
  r.label(context,4,L"11 titulares · escalação do save da carreira",162,115,1300,20,16,RGB(220,233,240));
 }
 void prepareClub(){lineup.career=careerClub();if(lineup.career)lineup.request(model.club().id);else{lineup.status="error";lineup.message="A carreira ainda não está disponível.";}}
-void activateClub(){if(!model.detailOpen)model.activate();prepareClub();clubscene::intent(true,lineup.sequence);log("REQUEST_STARTING_XI");}
+void activateClub(){openXI();log("REQUEST_STARTING_XI");}
 #ifdef CLUB_BROWSER_VALIDATION
 void captureNative(ID3D11Device* dev,ID3D11DeviceContext* context,ID3D11Texture2D* back){
  if(!validationCapture.exchange(false))return;D3D11_TEXTURE2D_DESC desc{};back->GetDesc(&desc);desc.Usage=D3D11_USAGE_STAGING;desc.BindFlags=desc.MiscFlags=0;desc.CPUAccessFlags=D3D11_CPU_ACCESS_READ;ID3D11Texture2D* staging=nullptr;if(FAILED(dev->CreateTexture2D(&desc,nullptr,&staging)))return;context->CopyResource(staging,back);D3D11_MAPPED_SUBRESOURCE pixels{};
@@ -122,29 +128,41 @@ void inputs(HWND window,float w,float h,float dt){
  DWORD pid=0;GetWindowThreadProcessId(GetForegroundWindow(),&pid);if(pid!=GetCurrentProcessId()||GetTickCount64()<enteredAt+250)return;
  static std::array<bool,256> previous{};std::array<bool,256> keys{};for(int key:std::initializer_list<int>{VK_LEFT,VK_RIGHT,VK_UP,VK_DOWN,VK_RETURN,VK_ESCAPE,'X','C','E','R','W','I','J','K','L',VK_ADD,VK_SUBTRACT,VK_OEM_PLUS,VK_OEM_MINUS,VK_LBUTTON})keys[key]=(GetAsyncKeyState(key)&0x8000)!=0;
  XINPUT_STATE pad{};if(readPad)for(DWORD i=0;i<4;i++)if(readPad(i,&pad)==ERROR_SUCCESS)break;static WORD previousPad=0;const WORD pressed=pad.Gamepad.wButtons&~previousPad;
- if(model.detailOpen){if((keys[VK_ESCAPE]&&!previous[VK_ESCAPE])||(pressed&XINPUT_GAMEPAD_B)){model.closeDetail();log("RETURN_CLUB_SELECTOR");}else if((keys[VK_RETURN]&&!previous[VK_RETURN])||(pressed&XINPUT_GAMEPAD_A))activateClub();previous=keys;previousPad=pad.Gamepad.wButtons;return;}
- if((keys[VK_RETURN]&&!previous[VK_RETURN])||(pressed&XINPUT_GAMEPAD_A)){activateClub();previous=keys;previousPad=pad.Gamepad.wButtons;return;}
+ if(model.detailOpen){
+  if(actorPage()){
+   auto axis=[](SHORT v){return std::abs(int(v))>8000?v/32768.f:0.f;};clubscene::playerAngle=clubscene::playerAngle.load()+axis(pad.Gamepad.sThumbRX)*dt*2.8f;clubscene::playerPan=std::clamp(clubscene::playerPan.load()+axis(pad.Gamepad.sThumbRY)*dt*.6f,-.45f,.65f);
+   int wheel=wheelDelta.exchange(0);POINT mouse{};GetCursorPos(&mouse);ScreenToClient(window,&mouse);float mouseFit=(std::min)(w/1600,h/900),mouseX=(mouse.x-(w-1600*mouseFit)/2)/mouseFit,mouseY=(mouse.y-(h-900*mouseFit)/2)/mouseFit;if(clubPage==ClubPage::Roster&&wheel&&mouseX>=68&&mouseX<493&&mouseY>=270&&mouseY<774&&roster.ready){roster.choose(roster.selected+(wheel>0?-1:1));wheel=0;}if(mouseX<1000)wheel=0;
+   float input=(pad.Gamepad.bRightTrigger-pad.Gamepad.bLeftTrigger)/255.f+(keys['E']||keys[VK_ADD]||keys[VK_OEM_PLUS]?1:0)-(keys['W']||keys[VK_SUBTRACT]||keys[VK_OEM_MINUS]?1:0);clubscene::playerZoom=std::clamp(clubscene::playerZoom.load()*std::exp(input*dt+wheel*.001f),.65f,2.8f);
+   POINT pt{};GetCursorPos(&pt);ScreenToClient(window,&pt);float fit=(std::min)(w/1600,h/900),mx=(pt.x-(w-1600*fit)/2)/fit,my=(pt.y-(h-900*fit)/2)/fit;static float lastMouse=0,lastMouseY=0;static bool rotate=false;
+   if(keys[VK_LBUTTON]&&!previous[VK_LBUTTON]){if(clubPage==ClubPage::Roster&&mx>=68&&mx<493&&my>=230&&my<262){roster.sortFocus=true;roster.setSort(std::clamp(int((mx-68)/106),0,3));}else if(clubPage==ClubPage::Roster&&mx>=68&&mx<493&&my>=270&&my<774&&roster.ready){roster.sortFocus=false;roster.choose(roster.scroll+int((my-270)/72));}else if(mx>=530&&mx<972&&my>=173&&my<213)roster.tab=std::clamp(int((mx-530)/147),0,2);else if(mx>1000){rotate=true;lastMouse=mx;lastMouseY=my;}}
+   if(rotate&&keys[VK_LBUTTON]){clubscene::playerAngle=clubscene::playerAngle.load()+(mx-lastMouse)*.012f;clubscene::playerPan=std::clamp(clubscene::playerPan.load()+(my-lastMouseY)*.003f,-.45f,.65f);lastMouse=mx;lastMouseY=my;}if(!keys[VK_LBUTTON])rotate=false;
+  }
+  if(clubPage==ClubPage::Choice){POINT point{};GetCursorPos(&point);ScreenToClient(window,&point);float fit=(std::min)(w/1600,h/900),mx=(point.x-(w-1600*fit)/2)/fit,my=(point.y-(h-900*fit)/2)/fit;static POINT lastPoint{};if(point.x!=lastPoint.x||point.y!=lastPoint.y){for(int i=0;i<2;++i)if(mx>=166+i*650&&mx<781+i*650&&my>=275&&my<615)hubFocus=i;}lastPoint=point;}
+  previous=keys;previousPad=pad.Gamepad.wButtons;return;
+ }
  static int direction=0;static ULONGLONG repeatAt=0;int next=keys[VK_LEFT]||(pad.Gamepad.wButtons&XINPUT_GAMEPAD_DPAD_LEFT)||pad.Gamepad.sThumbLX< -16000?1:keys[VK_RIGHT]||(pad.Gamepad.wButtons&XINPUT_GAMEPAD_DPAD_RIGHT)||pad.Gamepad.sThumbLX>16000?2:keys[VK_UP]||(pad.Gamepad.wButtons&XINPUT_GAMEPAD_DPAD_UP)||pad.Gamepad.sThumbLY>16000?3:keys[VK_DOWN]||(pad.Gamepad.wButtons&XINPUT_GAMEPAD_DPAD_DOWN)||pad.Gamepad.sThumbLY< -16000?4:0;
  auto now=GetTickCount64();if(next&&(next!=direction||now>=repeatAt)){if(next<=2)model.step(model.focus,next==1?-1:1);else model.moveFocus(next==3?-1:1);repeatAt=now+(next!=direction?360:150);}direction=next;
  if((keys['X']&&!previous['X'])||(pressed&XINPUT_GAMEPAD_LEFT_SHOULDER))model.step(1,-1);if((keys['C']&&!previous['C'])||(pressed&XINPUT_GAMEPAD_RIGHT_SHOULDER))model.step(1,1);if((keys['R']&&!previous['R'])||(pressed&XINPUT_GAMEPAD_RIGHT_THUMB))model.recenter();
  auto axis=[](SHORT v){return std::abs(int(v))>8000?v/32768.f:0.f;};model.rotate((axis(pad.Gamepad.sThumbRX)+(keys['L']?1:0)-(keys['J']?1:0))*dt*1.7f,(-axis(pad.Gamepad.sThumbRY)+(keys['K']?1:0)-(keys['I']?1:0))*dt*1.3f);
  model.zoomBy(((pad.Gamepad.bRightTrigger-pad.Gamepad.bLeftTrigger)/255.f+(keys[VK_ADD]||keys[VK_OEM_PLUS]||keys['E']?1:0)-(keys[VK_SUBTRACT]||keys[VK_OEM_MINUS]||keys['W']?1:0))*dt*.5f);
  POINT point{};GetCursorPos(&point);ScreenToClient(window,&point);float scale=(std::min)(w/1600,h/900),mx=(point.x-(w-1600*scale)/2)/scale,my=(point.y-(h-900*scale)/2)/scale;static bool dragging=false;static float lastX=0,lastY=0;
- if(keys[VK_LBUTTON]&&!previous[VK_LBUTTON]){if(mx>=64&&mx<=464&&my>=150&&my<=706){int kind=my<246?0:my<354?1:2;model.focus=kind;++model.revision;if(mx<112)model.step(kind,-1);else if(mx>416)model.step(kind,1);else if(kind==2)activateClub();}else if(mx>470&&mx<1600&&my>145&&my<745){dragging=true;lastX=mx;lastY=my;}}
+ if(keys[VK_LBUTTON]&&!previous[VK_LBUTTON]){if(mx>=64&&mx<=464&&my>=150&&my<=706){int kind=my<246?0:my<354?1:2;model.focus=kind;++model.revision;if(mx<112)model.step(kind,-1);else if(mx>416)model.step(kind,1);else if(kind==2)enterChoice();}else if(mx>470&&mx<1600&&my>145&&my<745){dragging=true;lastX=mx;lastY=my;}}
  if(dragging&&keys[VK_LBUTTON]){model.rotate((mx-lastX)*.006f,(my-lastY)*.005f);lastX=mx;lastY=my;}if(!keys[VK_LBUTTON])dragging=false;previous=keys;previousPad=pad.Gamepad.wButtons;
 }
 void render(IDXGISwapChain* swap){
- if(!swap||drawing||stopped)return;if(!page()){clubscene::intent(false,0);entered=false;model.detailOpen=false;return;}drawing=true;std::lock_guard<std::mutex> guard(drawLock);DXGI_SWAP_CHAIN_DESC sd{};ID3D11Device* dev=nullptr;ID3D11DeviceContext* context=nullptr;ID3D11Texture2D* back=nullptr;ID3D11RenderTargetView* target=nullptr;
+ if(!swap||drawing||stopped)return;if(!page()){clubscene::intent(false,0);entered=false;model.detailOpen=false;clubPage=ClubPage::Map;clubscene::rosterCamera=false;rosterMouseActive=false;return;}drawing=true;std::lock_guard<std::mutex> guard(drawLock);DXGI_SWAP_CHAIN_DESC sd{};ID3D11Device* dev=nullptr;ID3D11DeviceContext* context=nullptr;ID3D11Texture2D* back=nullptr;ID3D11RenderTargetView* target=nullptr;
  if(SUCCEEDED(swap->GetDesc(&sd))&&SUCCEEDED(swap->GetDevice(IID_PPV_ARGS(&dev)))&&SUCCEEDED(swap->GetBuffer(0,IID_PPV_ARGS(&back)))){DWORD pid=0;GetWindowThreadProcessId(sd.OutputWindow,&pid);D3D11_TEXTURE2D_DESC desc{};back->GetDesc(&desc);
-  if(pid==GetCurrentProcessId()&&desc.Width>=320&&desc.Height>=180){gameWindow=sd.OutputWindow;dev->GetImmediateContext(&context);if(context&&SUCCEEDED(dev->GetDeviceRemovedReason())&&SUCCEEDED(dev->CreateRenderTargetView(back,nullptr,&target))){
+  if(pid==GetCurrentProcessId()&&desc.Width>=320&&desc.Height>=180){gameWindow=sd.OutputWindow;attachInputWindow(sd.OutputWindow);dev->GetImmediateContext(&context);if(context&&SUCCEEDED(dev->GetDeviceRemovedReason())&&SUCCEEDED(dev->CreateRenderTargetView(back,nullptr,&target))){
    static thread_local bool comInitialized=false;if(!comInitialized){CoInitializeEx(nullptr,COINIT_MULTITHREADED);comInitialized=true;}if(!model.rows.empty()||loadCatalog()){
-    auto now=GetTickCount64();float dt=lastFrame?(std::min)(.06f,float(now-lastFrame)*.001f):0.f;lastFrame=now;if(!entered){model.detailOpen=false;lineup.club=0;lineup.sequence=0;model.zoom=model.targetZoom=1.3f;int club=careerClub();if(club)model.choose(club);enteredAt=now;entered=true;log("ENTER_CLUB_BROWSER");}
+    auto now=GetTickCount64();float dt=lastFrame?(std::min)(.06f,float(now-lastFrame)*.001f):0.f;lastFrame=now;if(!entered){clubPage=ClubPage::Map;roster.clear();{std::lock_guard<std::mutex> q(commandMutex);commands.clear();}model.detailOpen=false;lineup.club=0;lineup.sequence=0;model.zoom=model.targetZoom=1.3f;int club=careerClub();if(club)model.choose(club);enteredAt=now;entered=true;log("ENTER_CLUB_BROWSER");}
     #ifdef CLUB_BROWSER_VALIDATION
     auto command=validationClub.exchange(-1);if(command==0)model.closeDetail();else if(command>0&&model.choose(command))activateClub();
     #endif
+    drainClubCommands();rosterMouseActive=actorPage();clubscene::rosterCamera=actorPage();
     inputs(sd.OutputWindow,float(desc.Width),float(desc.Height),dt);
     // Model preparation is requested only by Ver titulares / Atualizar.
-    clubscene::intent(model.detailOpen,lineup.sequence);model.tick(dt);if(renderer.init(dev,root.wstring())){clubgfx::SavedState saved;saved.save(context);renderer.begin(context,target,float(desc.Width),float(desc.Height));if(model.detailOpen)drawLineup(context);else drawContent(context);saved.restore(context);
+    clubscene::intent(clubPage==ClubPage::XI||(actorPage()&&roster.submitted&&roster.submitted==lineup.sequence),lineup.sequence);model.tick(dt);if(renderer.init(dev,root.wstring())){clubgfx::SavedState saved;saved.save(context);renderer.begin(context,target,float(desc.Width),float(desc.Height));if(clubPage==ClubPage::XI)drawLineup(context);else if(clubPage==ClubPage::Choice)drawChoice(context);else if(actorPage())drawRoster(context);else drawContent(context);saved.restore(context);
+
      #ifdef CLUB_BROWSER_VALIDATION
      captureNative(dev,context,back);
      #endif
@@ -166,6 +184,11 @@ DWORD initializeImpl(){
 }
 DWORD WINAPI initialize(void*){try{return initializeImpl();}catch(...){log("INITIALIZATION_EXCEPTION");return 0;}}
 }
+inline bool copyClubCommand(const char*wire,char*command){__try{for(unsigned i=0;i<31;++i){command[i]=wire[i];if(!wire[i])break;}return true;}__except(EXCEPTION_EXECUTE_HANDLER){return false;}}
+extern "C" __declspec(dllexport) BOOL WINAPI Fifa16ClubBrowserCommand(const char* wire){
+ if(!wire||!page()||stopped)return FALSE;char command[32]{};if(!copyClubCommand(wire,command))return FALSE;if(!memchr(command,0,sizeof(command))||std::string(command).find_first_not_of("abcdefghijklmnopqrstuvwxyz_")!=std::string::npos)return FALSE;
+ static const char*allowed[]={"open","xi","roster","detail","back","left","right","prev","next","refresh","sort","tab_prev","tab_next"};bool valid=false;for(auto*a:allowed)if(!strcmp(command,a))valid=true;if(!valid)return FALSE;std::lock_guard<std::mutex>lock(commandMutex);if(commands.size()>=32)return FALSE;commands.emplace_back(command);return TRUE;
+}
 extern "C" __declspec(dllexport) unsigned WINAPI Fifa16ModGetApiVersion(){return 1;}
 #ifdef CLUB_BROWSER_VALIDATION
 // Test build only: queue work for Present/the verified FIFA frame callback.
@@ -176,5 +199,5 @@ extern "C" __declspec(dllexport) DWORD WINAPI Fifa16ClubBrowserCapture(void*){va
 extern "C" __declspec(dllexport) BOOL WINAPI Fifa16ModStart(const char*){
  if(InterlockedCompareExchange(&started,1,0))return TRUE;executable=(uintptr_t)GetModuleHandleW(nullptr);if(get<uint16_t>(executable)!=0x5a4d||get<unsigned>(executable+get<int>(executable+0x3c)+8)!=0x577de45c){started=0;return FALSE;}wchar_t path[1024]{};GetModuleFileNameW(nullptr,path,1024);root=fs::path(path).parent_path()/L"ModCarrerMode/data/club_browser";logPath=fs::path(path).parent_path()/L"ModCarrerMode/logs/club_browser.log";if(!fs::is_regular_file(root/L"catalog.tsv")){log("MISSING_CATALOG");started=0;return FALSE;}HMODULE pin=nullptr;GetModuleHandleExW(GET_MODULE_HANDLE_EX_FLAG_FROM_ADDRESS|GET_MODULE_HANDLE_EX_FLAG_PIN,(LPCWSTR)&started,&pin);HMODULE xi=LoadLibraryW(L"xinput1_4.dll");if(!xi)xi=LoadLibraryW(L"xinput9_1_0.dll");readPad=xi?reinterpret_cast<ReadPad>(GetProcAddress(xi,"XInputGetState")):nullptr;HANDLE thread=CreateThread(nullptr,0,initialize,nullptr,0,nullptr);if(!thread){started=0;return FALSE;}CloseHandle(thread);log("START");return TRUE;
 }
-extern "C" __declspec(dllexport) BOOL WINAPI Fifa16ModStop(){InterlockedExchange(&stopped,1);clubscene::stop();lineup.stop();return TRUE;}
+extern "C" __declspec(dllexport) BOOL WINAPI Fifa16ModStop(){InterlockedExchange(&stopped,1);rosterMouseActive=false;if(inputWindow&&originalWindowProc&&(WNDPROC)GetWindowLongPtrW(inputWindow,GWLP_WNDPROC)==rosterWindowProc)SetWindowLongPtrW(inputWindow,GWLP_WNDPROC,(LONG_PTR)originalWindowProc);clubscene::stop();clubanim::stop();lineup.stop();return TRUE;}
 BOOL WINAPI DllMain(HINSTANCE module,DWORD reason,LPVOID){if(reason==DLL_PROCESS_ATTACH){own=module;DisableThreadLibraryCalls(module);}return TRUE;}

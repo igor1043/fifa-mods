@@ -4,11 +4,20 @@ Mais vida na carreira, nos uniformes e na apresentação das partidas do FIFA 16
 
 O FIFA Friends V12 reúne melhorias para acompanhar seu clube, personalizar a experiência e dar mais identidade a cada competição. O [Server16](https://github.com/igor1043/CG-File-Server-16---Python-Port/tree/fifa-friends) é o painel que acompanha o projeto e permite escolher os recursos antes e durante a partida.
 
-**Edição:** FIFA Friends V12 · **Atualizado em:** 26/10/2026
+**Edição:** FIFA Friends V12 · **Atualizado em:** 27/10/2026
 
 **Server16 incluído:** 0.2.19. As DLLs compiladas ficam nesta branch, organizadas em uma pasta por mod. O [índice dos módulos ativos](ModCarrerMode/mods/README.md) informa arquivos, funções e configurações.
 
 A combinação Git + ZIP é agora verificada em uma pasta vazia, sem caches do desenvolvedor, incluindo igualdade entre o módulo embutido no EXE e o fonte publicado.
+
+## Entrega — 27/10/2026
+
+- **Jogadores do time:** elenco dinâmico por clube, filtros, atributos, desempenho e detalhes; jogador animado no estádio, com órbita e zoom.
+- **Renderização:** corrigidas as piscadas pretas e o retorno breve à pose original; buffers próprios com WRITE_DISCARD, preservando os recursos nativos do FIFA.
+- **Uniformes e vestiário:** nomes/números com os assets e as regras atuais do clube, evitando fontes de kits clássicos.
+- **Regressões:** testes de animação/GPU, câmera, navegação, estado gráfico e troca de jogador/clube.
+
+**Para o Robson:** atualize esta branch e extraia somente **FIFA-Friends-Assets-Delta-20261027.zip** na raiz do jogo, com FIFA/Server fechados. O ZIP acrescenta apenas a animação individual. Mantenha os complementos de 25/10 e da pose de 26/10 já instalados. O Server16 permanece em **0.2.19**. [Instalação, changelog e validação](ModCarrerMode/docs/RELEASE_20261027.md).
 
 ## Entrega — 26/10/2026
 

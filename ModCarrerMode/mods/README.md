@@ -39,7 +39,7 @@ somente o EXE sem atualizar esta lista e as DLLs. Vestiário nesta entrega usa A
 ## Ambiente do clube — 24/10/2026
 
 - `club_environment/native_dressing_room.dll`: vestiário R62, cenas e retorno do fundo. Fontes/apoio em `source/club_environment`; modelos e poses no ZIP complementar.
-- `club_browser/club_browser.dll`: globo e seletores, com titulares em GameplayProp nativo; aliases imutáveis por seleção e sem pré-carregamento no mapa.
+- `club_browser/club_browser.dll`: globo, seletores e escolha entre 11 iniciais estáticos e elenco com jogador animado; render GameplayProp nativo, buffer dinâmico próprio com WRITE_DISCARD, filtros/detalhes, aliases imutáveis por seleção e sem pré-carregamento no mapa. A animação individual exige o delta de assets de 27/10/2026.
 - `subson/subson_match_gate_v5.dll`: guarda adicional de elegibilidade da partida, preservando os 12 lugares máximos do banco.
 - `dinput8.dll`, na raiz: serviços de contexto, atualização das telas, snapshot do mercado e e-mails, na thread da interface. Não distribua DLLs de revisão anteriores em paralelo.
 

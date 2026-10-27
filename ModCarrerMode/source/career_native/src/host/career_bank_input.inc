@@ -72,6 +72,15 @@ static uintptr_t bank_input_event(void *bridge,const char *controller,const char
         }
         return 0;
     }
+    if(bank_mail_string(event,128) && !strcmp(event,"Server16ClubBrowser")) {
+        if(bank_mail_string(controller,64) && !strcmp(controller,"Calendar") && bank_mail_string(argument,32)) {
+            typedef BOOL (WINAPI *ClubCommand)(const char *);
+            HMODULE module=GetModuleHandleW(L"club_browser.dll");
+            ClubCommand command=module?(ClubCommand)GetProcAddress(module,"Fifa16ClubBrowserCommand"):NULL;
+            if(command)(void)command(argument);
+        }
+        return 0;
+    }
     if(bank_mail_string(event,128) && !strcmp(event,"Server16SubmitBank")) {
         if(bank_mail_string(controller,64) && !strcmp(controller,"Calendar"))
             (void)bank_input_capture(argument);

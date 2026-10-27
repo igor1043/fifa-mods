@@ -1,12 +1,15 @@
 #pragma once
 #include <d3d11.h>
+#include <d3d11_1.h>
 #include <d3dcompiler.h>
 #include <wincodec.h>
 #include <vector>
 #include <string>
 #include <array>
+#include <atomic>
 #include "game_assets.h"
 namespace clubgfx {
+inline std::atomic<unsigned> packedConstantRestores{0},lastConstantFirst{0},lastConstantCount{0};
 template<class T>inline void release(T*& p){if(p){p->Release();p=nullptr;}}
 struct Vertex{float x,y,u,v;};
 struct Texture{ID3D11Texture2D* texture=nullptr;ID3D11ShaderResourceView* view=nullptr;int w=0,h=0;std::wstring key;void clear(){release(view);release(texture);key.clear();w=h=0;}};
@@ -43,16 +46,58 @@ inline bool text(ID3D11Device* dev,Texture& out,const std::wstring& value,int wi
 }
 struct SavedState{
  ID3D11DeviceContext* owner=nullptr;bool active=false;~SavedState(){if(active)restore(owner);}
- ID3D11RenderTargetView* rt[8]{};ID3D11DepthStencilView* depth=nullptr;ID3D11BlendState* blend=nullptr;float bf[4]{};UINT mask=0,stencil=0;ID3D11DepthStencilState* ds=nullptr;ID3D11RasterizerState* raster=nullptr;D3D11_VIEWPORT vp[16]{};UINT vpCount=16;ID3D11VertexShader* vs=nullptr;ID3D11PixelShader* ps=nullptr;ID3D11GeometryShader* gs=nullptr;ID3D11HullShader* hs=nullptr;ID3D11DomainShader* dsShader=nullptr;ID3D11ClassInstance* vsClasses[256]{},*psClasses[256]{},*gsClasses[256]{},*hsClasses[256]{},*dsClasses[256]{};UINT vsCount=256,psCount=256,gsCount=256,hsCount=256,dsCount=256;ID3D11InputLayout* layout=nullptr;ID3D11Buffer* vb=nullptr;UINT stride=0,offset=0;D3D11_PRIMITIVE_TOPOLOGY topology{};ID3D11ShaderResourceView* srv[2]{};ID3D11SamplerState* sampler[2]{};ID3D11Buffer* constants=nullptr;
- void save(ID3D11DeviceContext* c){owner=c;active=true;c->OMGetRenderTargets(8,rt,&depth);c->OMGetBlendState(&blend,bf,&mask);c->OMGetDepthStencilState(&ds,&stencil);c->RSGetState(&raster);c->RSGetViewports(&vpCount,vp);c->VSGetShader(&vs,vsClasses,&vsCount);c->PSGetShader(&ps,psClasses,&psCount);c->GSGetShader(&gs,gsClasses,&gsCount);c->HSGetShader(&hs,hsClasses,&hsCount);c->DSGetShader(&dsShader,dsClasses,&dsCount);c->IAGetInputLayout(&layout);c->IAGetVertexBuffers(0,1,&vb,&stride,&offset);c->IAGetPrimitiveTopology(&topology);c->PSGetShaderResources(0,2,srv);c->PSGetSamplers(0,2,sampler);c->PSGetConstantBuffers(0,1,&constants);}
- void restore(ID3D11DeviceContext* c){active=false;c->OMSetRenderTargets(8,rt,depth);c->OMSetBlendState(blend,bf,mask);c->OMSetDepthStencilState(ds,stencil);c->RSSetState(raster);c->RSSetViewports(vpCount,vp);c->VSSetShader(vs,vsClasses,vsCount);c->PSSetShader(ps,psClasses,psCount);c->GSSetShader(gs,gsClasses,gsCount);c->HSSetShader(hs,hsClasses,hsCount);c->DSSetShader(dsShader,dsClasses,dsCount);c->IASetInputLayout(layout);c->IASetVertexBuffers(0,1,&vb,&stride,&offset);c->IASetPrimitiveTopology(topology);c->PSSetShaderResources(0,2,srv);c->PSSetSamplers(0,2,sampler);c->PSSetConstantBuffers(0,1,&constants);for(auto& p:rt)release(p);release(depth);release(blend);release(ds);release(raster);release(vs);release(ps);release(gs);release(hs);release(dsShader);for(auto* classes:{vsClasses,psClasses,gsClasses,hsClasses,dsClasses})for(unsigned i=0;i<256;++i)release(classes[i]);release(layout);release(vb);for(auto& p:srv)release(p);for(auto& p:sampler)release(p);release(constants);}
+ ID3D11RenderTargetView* rt[8]{};ID3D11DepthStencilView* depth=nullptr;
+ ID3D11UnorderedAccessView* omUav[8]{},*csUav[8]{};
+ ID3D11BlendState* blend=nullptr;float bf[4]{};UINT mask=0,stencil=0;
+ ID3D11DepthStencilState* ds=nullptr;ID3D11RasterizerState* raster=nullptr;D3D11_VIEWPORT vp[16]{};UINT vpCount=16;
+ ID3D11VertexShader* vs=nullptr;ID3D11PixelShader* ps=nullptr;ID3D11GeometryShader* gs=nullptr;ID3D11HullShader* hs=nullptr;ID3D11DomainShader* dsShader=nullptr;
+ ID3D11ClassInstance* vsClasses[256]{},*psClasses[256]{},*gsClasses[256]{},*hsClasses[256]{},*dsClasses[256]{};
+ UINT vsCount=256,psCount=256,gsCount=256,hsCount=256,dsCount=256;
+ ID3D11InputLayout* layout=nullptr;ID3D11Buffer* vb=nullptr;UINT stride=0,offset=0;D3D11_PRIMITIVE_TOPOLOGY topology{};
+ // Binding the swap-chain texture as an output implicitly unbinds overlapping
+ // inputs on ANY shader stage, including slots untouched by the UI itself.
+ ID3D11ShaderResourceView* resources[6][D3D11_COMMONSHADER_INPUT_RESOURCE_SLOT_COUNT]{};
+ ID3D11SamplerState* sampler[2]{};ID3D11Buffer* constants=nullptr;ID3D11DeviceContext1* context1=nullptr;UINT constantFirst=0,constantCount=0;
+ void save(ID3D11DeviceContext* c){
+  owner=c;active=true;c->OMGetRenderTargets(8,rt,&depth);
+  c->OMGetRenderTargetsAndUnorderedAccessViews(0,nullptr,nullptr,0,8,omUav);c->CSGetUnorderedAccessViews(0,8,csUav);
+  c->OMGetBlendState(&blend,bf,&mask);c->OMGetDepthStencilState(&ds,&stencil);c->RSGetState(&raster);c->RSGetViewports(&vpCount,vp);
+  c->VSGetShader(&vs,vsClasses,&vsCount);c->PSGetShader(&ps,psClasses,&psCount);c->GSGetShader(&gs,gsClasses,&gsCount);c->HSGetShader(&hs,hsClasses,&hsCount);c->DSGetShader(&dsShader,dsClasses,&dsCount);
+  c->IAGetInputLayout(&layout);c->IAGetVertexBuffers(0,1,&vb,&stride,&offset);c->IAGetPrimitiveTopology(&topology);
+  constexpr UINT n=D3D11_COMMONSHADER_INPUT_RESOURCE_SLOT_COUNT;
+  c->VSGetShaderResources(0,n,resources[0]);c->PSGetShaderResources(0,n,resources[1]);c->GSGetShaderResources(0,n,resources[2]);c->HSGetShaderResources(0,n,resources[3]);c->DSGetShaderResources(0,n,resources[4]);c->CSGetShaderResources(0,n,resources[5]);
+  c->PSGetSamplers(0,2,sampler);
+  // FIFA binds ranges inside packed D3D11.1 constant buffers. The base
+  // Get/SetConstantBuffers API retains the pointer but loses that range,
+  // so the native shader can subsequently read unrelated/zero constants.
+  if(SUCCEEDED(c->QueryInterface(__uuidof(ID3D11DeviceContext1),(void**)&context1)))context1->PSGetConstantBuffers1(0,1,&constants,&constantFirst,&constantCount);else c->PSGetConstantBuffers(0,1,&constants);
+ }
+ void restore(ID3D11DeviceContext* c){
+  active=false;UINT targets=0;for(UINT i=0;i<8;++i)if(rt[i])targets=i+1;
+  ID3D11UnorderedAccessView* empty[8]{};UINT keep[8];for(auto&v:keep)v=UINT(-1);
+  // Remove overlay outputs first. Otherwise restoring an input can itself be
+  // rejected because the same texture is still bound as our render target.
+  c->OMSetRenderTargetsAndUnorderedAccessViews(0,nullptr,nullptr,0,8,empty,keep);c->CSSetUnorderedAccessViews(0,8,empty,keep);
+  c->OMSetRenderTargetsAndUnorderedAccessViews(targets,targets?rt:nullptr,depth,targets,8-targets,omUav+targets,keep);
+  c->CSSetUnorderedAccessViews(0,8,csUav,keep);
+  c->OMSetBlendState(blend,bf,mask);c->OMSetDepthStencilState(ds,stencil);c->RSSetState(raster);c->RSSetViewports(vpCount,vp);
+  c->VSSetShader(vs,vsClasses,vsCount);c->PSSetShader(ps,psClasses,psCount);c->GSSetShader(gs,gsClasses,gsCount);c->HSSetShader(hs,hsClasses,hsCount);c->DSSetShader(dsShader,dsClasses,dsCount);
+  c->IASetInputLayout(layout);c->IASetVertexBuffers(0,1,&vb,&stride,&offset);c->IASetPrimitiveTopology(topology);
+  constexpr UINT n=D3D11_COMMONSHADER_INPUT_RESOURCE_SLOT_COUNT;
+  c->VSSetShaderResources(0,n,resources[0]);c->PSSetShaderResources(0,n,resources[1]);c->GSSetShaderResources(0,n,resources[2]);c->HSSetShaderResources(0,n,resources[3]);c->DSSetShaderResources(0,n,resources[4]);c->CSSetShaderResources(0,n,resources[5]);
+  c->PSSetSamplers(0,2,sampler);bool ranged=context1&&constants&&(constantFirst||constantCount!=4096);if(ranged){context1->PSSetConstantBuffers1(0,1,&constants,&constantFirst,&constantCount);++packedConstantRestores;}else c->PSSetConstantBuffers(0,1,&constants);lastConstantFirst=constantFirst;lastConstantCount=constantCount;
+  for(auto& p:rt)release(p);for(auto*views:{omUav,csUav})for(unsigned i=0;i<8;++i)release(views[i]);for(auto&stage:resources)for(auto&p:stage)release(p);
+  release(depth);release(blend);release(ds);release(raster);release(vs);release(ps);release(gs);release(hs);release(dsShader);for(auto* classes:{vsClasses,psClasses,gsClasses,hsClasses,dsClasses})for(unsigned i=0;i<256;++i)release(classes[i]);release(layout);release(vb);for(auto& p:sampler)release(p);release(constants);release(context1);
+ }
 };
 struct Renderer{
- ID3D11Device* device=nullptr;ID3D11VertexShader* vs=nullptr;ID3D11PixelShader* ps=nullptr,*globe=nullptr;ID3D11InputLayout* layout=nullptr;ID3D11Buffer* vb=nullptr,*constants=nullptr;ID3D11BlendState* blend=nullptr;ID3D11DepthStencilState* ds=nullptr;ID3D11RasterizerState* raster=nullptr;ID3D11SamplerState* linear=nullptr,*nearest=nullptr;Texture white,earth,atlas,dot;std::array<Texture,42> labels;Texture countryIcon,leagueIcon,clubIcon;float width=0,height=0,scale=1,left=0,top=0;
- void clear(){for(auto& t:labels)t.clear();for(auto* t:{&white,&earth,&atlas,&dot,&countryIcon,&leagueIcon,&clubIcon})t->clear();release(vs);release(ps);release(globe);release(layout);release(vb);release(constants);release(blend);release(ds);release(raster);release(linear);release(nearest);release(device);}
+ ID3D11Device* device=nullptr;ID3D11VertexShader* vs=nullptr;ID3D11PixelShader* ps=nullptr,*globe=nullptr;ID3D11InputLayout* layout=nullptr;ID3D11Buffer* vb=nullptr,*constants=nullptr;ID3D11BlendState* blend=nullptr;ID3D11DepthStencilState* ds=nullptr;ID3D11RasterizerState* raster=nullptr;ID3D11SamplerState* linear=nullptr,*nearest=nullptr;Texture white,earth,atlas,dot;std::array<Texture,144> labels;Texture countryIcon,leagueIcon,clubIcon;std::array<Texture,7> portraits;float width=0,height=0,scale=1,left=0,top=0;
+ void clear(){for(auto& t:portraits)t.clear();for(auto& t:labels)t.clear();for(auto* t:{&white,&earth,&atlas,&dot,&countryIcon,&leagueIcon,&clubIcon})t->clear();release(vs);release(ps);release(globe);release(layout);release(vb);release(constants);release(blend);release(ds);release(raster);release(linear);release(nearest);release(device);}
  bool init(ID3D11Device* dev,const std::wstring& root);
  void begin(ID3D11DeviceContext* c,ID3D11RenderTargetView* target,float w,float h){width=w;height=h;scale=(std::min)(w/1600.f,h/900.f);left=(w-1600*scale)/2;top=(h-900*scale)/2;c->OMSetRenderTargets(1,&target,nullptr);D3D11_VIEWPORT viewport{0,0,w,h,0,1};c->RSSetViewports(1,&viewport);c->OMSetBlendState(blend,nullptr,0xffffffff);c->OMSetDepthStencilState(ds,0);c->RSSetState(raster);c->HSSetShader(nullptr,nullptr,0);c->DSSetShader(nullptr,nullptr,0);c->GSSetShader(nullptr,nullptr,0);c->VSSetShader(vs,nullptr,0);c->PSSetShader(ps,nullptr,0);c->IASetInputLayout(layout);c->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLESTRIP);UINT stride=sizeof(Vertex),offset=0;c->IASetVertexBuffers(0,1,&vb,&stride,&offset);ID3D11SamplerState* samplers[]={linear,nearest};c->PSSetSamplers(0,2,samplers);}
  void quad(ID3D11DeviceContext* c,float x,float y,float w,float h,ID3D11ShaderResourceView* texture){if(!texture)return;x=left+x*scale;y=top+y*scale;w*=scale;h*=scale;float x0=x/width*2-1,x1=(x+w)/width*2-1,y0=1-y/height*2,y1=1-(y+h)/height*2;Vertex v[]={{x0,y0,0,0},{x1,y0,1,0},{x0,y1,0,1},{x1,y1,1,1}};D3D11_MAPPED_SUBRESOURCE mapped{};if(FAILED(c->Map(vb,0,D3D11_MAP_WRITE_DISCARD,0,&mapped)))return;memcpy(mapped.pData,v,sizeof(v));c->Unmap(vb,0);c->PSSetShaderResources(0,1,&texture);c->Draw(4,0);}
+ void primitive(ID3D11DeviceContext*c,const std::vector<std::array<float,2>>&points,unsigned color,bool triangle=false){if(points.empty()||points.size()>96||points.size()%(triangle?3u:2u))return;float rgba[16]={float((color>>16)&255)/255,float((color>>8)&255)/255,float(color&255)/255,float((color>>24)&255)/255};c->UpdateSubresource(constants,0,nullptr,rgba,0,0);c->PSSetConstantBuffers(0,1,&constants);D3D11_MAPPED_SUBRESOURCE mapped{};if(FAILED(c->Map(vb,0,D3D11_MAP_WRITE_DISCARD,0,&mapped)))return;auto*v=(Vertex*)mapped.pData;for(size_t i=0;i<points.size();++i)v[i]={(left+points[i][0]*scale)/width*2-1,1-(top+points[i][1]*scale)/height*2,0,0};c->Unmap(vb,0);c->PSSetShaderResources(0,1,&white.view);c->IASetPrimitiveTopology(triangle?D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST:D3D11_PRIMITIVE_TOPOLOGY_LINELIST);c->Draw(UINT(points.size()),0);c->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLESTRIP);}
+ void line(ID3D11DeviceContext*c,float x,float y,float X,float Y,unsigned color){primitive(c,{{x,y},{X,Y}},color);}
  void rectangle(ID3D11DeviceContext* c,float x,float y,float w,float h,unsigned color){float rgba[16]={float((color>>16)&255)/255,float((color>>8)&255)/255,float(color&255)/255,float((color>>24)&255)/255};c->UpdateSubresource(constants,0,nullptr,rgba,0,0);c->PSSetConstantBuffers(0,1,&constants);quad(c,x,y,w,h,white.view);}
  void normal(ID3D11DeviceContext* c){float rgba[16]={1,1,1,1};c->UpdateSubresource(constants,0,nullptr,rgba,0,0);c->PSSetConstantBuffers(0,1,&constants);c->PSSetShader(ps,nullptr,0);}
  void label(ID3D11DeviceContext* c,int index,const std::wstring& value,float x,float y,int w,int h,int size,COLORREF ink,bool center=false){if(index<0||size_t(index)>=labels.size())return;text(device,labels[index],value,w,h,size,ink,center);normal(c);quad(c,x,y,float(w),float(h),labels[index].view);}

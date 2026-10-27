@@ -20,11 +20,12 @@ class Exporter:
             try:process.wait(timeout=5)
             except subprocess.TimeoutExpired:pass
             if process.stdin:process.stdin.close()
-    def run(self,tool,game,fixture,target,timeout=120):
+    def run(self,tool,game,fixture,target,timeout=120,pose=1):
+        if pose not in (1,401):raise ValueError('Modo de exportação inválido.')
         signature=(str(Path(game).resolve()),tool.stat().st_size,tool.stat().st_mtime_ns)
         if self.process and (self.process.poll() is not None or self.signature!=signature):self.close()
         if self.process is None:
-            flags=getattr(subprocess,'CREATE_NO_WINDOW',0)|getattr(subprocess,'BELOW_NORMAL_PRIORITY_CLASS',0)
+            flags=getattr(subprocess,'CREATE_NO_WINDOW',0)|getattr(subprocess,'NORMAL_PRIORITY_CLASS',0)
             self.process=subprocess.Popen([str(tool),'--web-worker',str(game)],cwd=game,stdin=subprocess.PIPE,stdout=subprocess.PIPE,stderr=subprocess.STDOUT,text=True,encoding='utf8',errors='replace',creationflags=flags)
             self.signature=signature;self.lines=Queue(maxsize=128);stream=self.process.stdout;lines=self.lines
             def read():
@@ -39,7 +40,7 @@ class Exporter:
             Thread(target=read,daemon=True,name='FIFA-XI-export').start()
         transcript=[]
         try:
-            self.process.stdin.write(f'{fixture}\t{target}\t1\n');self.process.stdin.flush();deadline=time.monotonic()+timeout
+            self.process.stdin.write(f'{fixture}\t{target}\t{pose}\n');self.process.stdin.flush();deadline=time.monotonic()+timeout
             while True:
                 remaining=deadline-time.monotonic()
                 if remaining<=0:raise ExportError('A preparação dos titulares excedeu o tempo limite.',''.join(transcript))

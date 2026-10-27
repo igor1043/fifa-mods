@@ -4,6 +4,7 @@
 #include "render.cpp"
 
 int wmain(int argc,wchar_t** argv){
+ _set_error_mode(_OUT_TO_STDERR);
  if(argc!=4)return 2;
  root=argv[1];logPath=std::filesystem::path(argv[3])/L"native_test.log";art.initialize(argv[2]);CoInitializeEx(nullptr,COINIT_MULTITHREADED);
  assert(loadCatalog());assert(model.rows.size()==1647);assert(model.choices(0).size()==49);assert(model.choose(1629));assert(model.club().name=="Grêmio");assert(model.choices(2).size()>=18);
@@ -60,6 +61,18 @@ int wmain(int argc,wchar_t** argv){
  assert(model.choose(1043));assert(model.activate());lineup.sequence=123;lineup.status="ready";clubscene::readySequence=123;
  {clubgfx::SavedState state;state.save(context);frame();drawLineup(context);state.restore(context);}capture(L"lineup_preview.bgra");
  assert(model.closeDetail());assert(model.club().id==1043);
+ // Full-roster rendering must retain D3D state and return to the club choice.
+ auto rosterFile=std::filesystem::path(argv[3]).parent_path()/L"roster-1043.tsv";
+ if(std::filesystem::exists(rosterFile)){
+  std::ifstream input(rosterFile,std::ios::binary);assert(clubroster::parse(input,1043,roster.name,roster.players));assert(roster.players.size()>11);roster.club=1043;roster.ready=true;roster.consumed=roster.submitted=lineup.sequence;roster.pending=false;clubPage=ClubPage::Roster;model.detailOpen=true;
+  for(int tab=0;tab<3;++tab){roster.tab=tab;clubgfx::SavedState state;state.save(context);frame();drawRoster(context);state.restore(context);capture((L"roster_tab_"+std::to_wstring(tab)+L".bgra").c_str());}
+  int hero=roster.player()->id;for(int mode=0;mode<4;++mode){roster.setSort(mode);assert(roster.player()->id==hero&&roster.submitted==lineup.sequence&&!roster.pending);for(size_t i=1;i<roster.players.size();++i){auto&a=roster.players[i-1];auto&b=roster.players[i];if(mode==1)assert(a.overall>=b.overall);if(mode==2&&a.age>=0&&b.age>=0)assert(a.age<=b.age);if(mode==3)assert(a.starter>=b.starter);}}roster.setSort(0);
+  roster.selected=0;roster.pending=false;hero=roster.player()->id;roster.navigate(-1);assert(roster.sortFocus&&roster.player()->id==hero&&!roster.pending);roster.horizontal(1);assert(roster.sortMode==1&&roster.player()->id==hero&&!roster.pending);roster.navigate(1);assert(!roster.sortFocus&&roster.player()->id==hero&&!roster.pending);auto sequence=roster.submitted;openPlayerDetail();assert(clubPage==ClubPage::PlayerDetail&&roster.submitted==sequence&&!roster.pending);frame();drawRoster(context);capture(L"player_detail.bgra");goBack();assert(clubPage==ClubPage::Roster&&roster.submitted==sequence&&!roster.pending);roster.setSort(0);
+  roster.choose(int(roster.players.size())-1);assert(roster.selected==int(roster.players.size())-1&&roster.scroll>0);roster.choose(int(roster.players.size()));assert(roster.selected==0&&roster.scroll==0);goBack();assert(clubPage==ClubPage::Choice&&model.detailOpen);goBack();assert(clubPage==ClubPage::Map&&!model.detailOpen);
+  std::string oldName=roster.name;auto oldCount=roster.players.size();std::istringstream wrong("S16ROSTER1\t1629\tForeign club\n");assert(!clubroster::parse(wrong,1043,roster.name,roster.players)&&roster.name==oldName&&roster.players.size()==oldCount);
+  std::ifstream valid(rosterFile,std::ios::binary);std::string blob((std::istreambuf_iterator<char>(valid)),{});auto first=blob.find('\n')+1,last=blob.find('\n',first);std::istringstream duplicate(blob+blob.substr(first,last-first)+"\n");assert(!clubroster::parse(duplicate,1043,roster.name,roster.players));
+  std::cout<<"PASS native roster: full save roster, three rendered tabs, scrolling/wrapping, nested back, invalid/duplicate/foreign records rejected\n";
+ }
  clubgfx::release(staging);background.clear();renderer.clear();context->ClearState();clubgfx::release(target);clubgfx::release(output);clubgfx::release(context);clubgfx::release(device);
  clubscene::Assets job;job.sequence=1;job.club=130285;job.career=1043;job.pages=3;job.hash=std::string(64,'a');assert(clubscene::validAssets(job));job.hash="../bad";assert(!clubscene::validAssets(job));job.hash=std::string(64,'a');clubscene::loadingPages.fill(0);auto lua=clubscene::bindScript(job,true,true);std::ofstream(std::filesystem::path(argv[3])/L"native_bind.lua")<<lua;
  assert(lua.find("ContextAddRenderable('gameplayprops'")!=std::string::npos);assert(lua.find("'xi_part_96'")!=std::string::npos);assert(lua.find("'prop_plastic'")!=std::string::npos);assert(lua.find("neutral_v2.rx3")!=std::string::npos);job.sequence=2;auto rebind=clubscene::bindScript(job,true,true);assert(clubscene::objectName(job)=="server16_native_club_xi_v5_2");assert(rebind.find("CreateMaterialFromAttribulator")!=std::string::npos);std::ofstream(std::filesystem::path(argv[3])/L"native_rebind.lua")<<rebind;

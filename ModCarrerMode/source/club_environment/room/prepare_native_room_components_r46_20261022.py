@@ -9,6 +9,7 @@ from rx3 import Rx3,VERTEX,FORMAT,MESH,TEXTURE
 from room_native_hanging_20261022 import prepare_geometry,hardware_texture,texture_package
 from room_dynamic_context_20261022 import make_context,write_tour
 from room_native_kit_rules_r46 import rules,number_candidates,name_candidates
+from kit_selection import current_kits
 ROOT=portable.ROOM;GAME=portable.GAME
 CACHE=ROOT/'runtime/native_source_geometry';CACHE.mkdir(exist_ok=True)
 EXTRACT=None
@@ -91,14 +92,11 @@ def career():
    if fixed==name:break
    name=fixed
   roster.append(dict(id=pid,name=name,number=links[pid].value('jerseynumber'),shoe=value('shoetypecode',15),design=value('shoedesigncode'),goalkeeper=value('preferredposition1')==0,glove=value('gkglovetypecode')))
- kits={r.value('teamkittypetechid'):r for r in rows('teamkits') if r.value('teamtechid')==club} if rows('teamkits') and 'teamtechid' in rows('teamkits')[0].fields else {}
- if not kits:
-  for r in rows('teamkits'):
-   k='teamtechid' if 'teamtechid' in r.fields else 'teamid'
-   if k in r.fields and r.value(k)==club:kits[r.value('teamkittypetechid')]=r
+ kit_fields=('teamtechid','teamid','teamkittypetechid','year','teamkitid','numberfonttype','numbercolor','jerseynamefonttype','jerseynamecolorr','jerseynamecolorg','jerseynamecolorb','jerseynamelayouttype','jerseybacknameplacementcode','jerseybacknamefontcase')
+ kits=current_kits([{k:r.value(k) if k in r.fields else None for k in kit_fields} for r in rows('teamkits')],club)
  info={}
  for typ in (0,2):
-  r=kits.get(typ);get=lambda k,default=0:r.value(k) if r and k in r.fields else default
+  r=kits.get(typ,{});get=lambda k,default=0:r[k] if r.get(k) is not None else default
   info[typ]={'font':get('numberfonttype'),'color':get('numbercolor'),'name_font':get('jerseynamefonttype'),'name_color':[get('jerseynamecolor'+c,255) for c in 'rgb'],'layout':get('jerseynamelayouttype'),'name_placement':get('jerseybacknameplacementcode'),'name_case':get('jerseybacknamefontcase')}
  context=make_context(snap,current,roster,rows,base,read_asset)
  from room_medical_r53 import context_for_room

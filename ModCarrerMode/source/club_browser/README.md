@@ -149,3 +149,302 @@ verificação: `code-release/xi_pose_20261026/`. A conferência visual fica para
 próxima abertura de Ver titulares/Atualizar. O JSON de autoria e o exportador são
 versionados; a receita compilada acompanha o complemento de 26/10. Metadados
 validam o hash e mostram um erro claro se faltar a receita ou ela for antiga.
+
+
+### Elenco individual — teste local de 26/10/2026
+
+Selecionar um clube no globo abre duas opções: **11 iniciais**, mantendo a foto
+existente, e **Jogadores do time**. A segunda lê o elenco completo do clube no
+save ativo, incluindo reservas, nome editado, número, posição, nacionalidade,
+altura, peso e 34 atributos. A projeção e o preparador são compartilhados com o
+fluxo existente, sem escrever no save. Os escudos e retratos são consultados na
+própria instalação. O globo não faz pré-carregamento de modelos.
+
+A tela usa APT transparente, a barra original de ajuda do FIFA e cards nativos
+claros. A lista muda com cima/baixo ou analógico esquerdo; X/C ou LB/RB mudam as
+abas, o analógico direito gira o jogador e W/E ou LT/RT ajustam a aproximação.
+O retorno é Elenco/Onze → escolha das opções → globo → carreira. O APT publica
+comandos limitados por uma fila; somente o callback verificado da engine toca
+na cena e na câmera. A seleção rápida cancela a preparação anterior e oculta o
+modelo antigo para não exibir um jogador de outro clube.
+
+O modelo individual também é desenhado pelo FIFA como GameplayProp, com os
+materiais e UVs originais. Não há WebView/WebGL no jogador em jogo. O preparador
+retargeta o clipe ANT original
+`F13_B196A1_Sideline_MNGR_idle_ArmsCrossed_EDIT_02_Player_1` para o esqueleto
+original de 400 ossos e oito pesos. A sequência compacta de vértices é interpolada
+por quadro e enviada apenas aos buffers cujo conteúdo inicial corresponde
+exatamente ao modelo validado. Outros buffers e texturas ficam fora da seleção.
+Isso não é a fábrica completa de atores do FIFA e não adiciona sombras dinâmicas.
+A aba Desempenho informa a indisponibilidade dos registros individuais; não cria
+estatísticas fictícias.
+
+O primeiro preparo gera os materiais e a animação; as visitas seguintes usam
+cache por jogador, aparência, uniforme, clipe e exportador. Medição isolada:
+exportação individual 0,12–0,37 s; preparação da animação de referência cerca de
+5 s com cache de materiais. São medidas de laboratório, não garantia de tempo
+no FIFA. Erros têm diagnóstico e não reaproveitam o modelo da seleção anterior.
+`native_status.json` registra jogador, buffers animados e atualizações.
+
+Validação local: elencos reais de três clubes; um jogador e o XI no mesmo
+exportador persistente; animação e UVs no D3D11 WARP, buffers alheios intactos;
+rolagem, retorno e três abas renderizadas; emulador APT; 23 regressões de
+finanças, vestiário e próxima partida. Evidências e cópia de segurança em
+`code-release/club_roster_local_20261026/`. A instalação é local para teste:
+**sem commit, push ou publicação**. A conferência visual no FIFA ainda depende
+da abertura do jogo após substituir as DLLs.
+
+
+### Correção do piscar em modo janela — teste local de 27/10/2026
+
+O desenho nativo pronto deixa de ser despublicado no início de cada atualização.
+A identidade e a visibilidade dos titulares permanecem válidas durante um quadro
+sem mudanças. Sair da tela, trocar de carreira, iniciar outra seleção ou perder
+a cena válida continua desabilitando o desenho explicitamente.
+
+A captura de estado da interface agora conserva todos os 128 slots de recursos
+nos seis estágios de shader e os UAVs do pixel/compute. O Direct3D pode limpar
+esses vínculos automaticamente quando a textura da apresentação passa a ser
+um render target; conservar apenas PS 0/1 não desfazia essa limpeza. A restauração
+remove primeiro os outputs da interface, recupera os outputs nativos com os
+contadores preservados e então recupera os inputs, sem alterar texturas, materiais
+ou iluminação dos modelos.
+
+O teste anterior à correção perdeu 24 vínculos em três tamanhos de apresentação.
+O mesmo teste passou após o ajuste, incluindo buffers alternados, inputs dos
+seis estágios, UAVs e render target. O teste da cena falhava durante o quadro
+sem mudanças; agora mantém a publicação por 2.000 quadros e confirma que as
+saídas e contextos inválidos continuam ocultando o modelo. Ambos fazem parte
+de `test_native.cmd`. Evidências e cópia anterior estão em
+`code-release/club_windowed_flicker_20261027/`. A revisão é local, sem commit/push;
+a confirmação visual do piscar no FIFA em modo janela ainda precisa ser feita.
+
+
+### Elenco individual, revisão 2 — local de 27/10/2026
+
+A câmera permanece sob controle da tela de elenco durante a preparação e a
+troca de jogador, mantendo zoom, altura e órbita. A rotação altera a câmera
+nativa em torno do jogador e do estádio; o objeto do jogador continua com a
+transformação identidade. Gatilhos/W/E ou +/− aproximam, analógico direito e
+arraste orbitam e ajustam a altura. A roda sobre a lista percorre jogadores;
+sobre o jogador controla o zoom. A faixa do cabeçalho foi removida somente
+nesta tela, preservando os textos e o escudo.
+
+A lista possui ordenação por Elenco, Geral, Idade e Titulares. A ordenação mantém
+o jogador que está sendo visualizado e não gera outro pedido de modelo. As
+idades usam a data da carreira e o nascimento gravado no DB; titularidade vem
+da escalação favorita/default validada. O campo mostra área, linha central,
+círculos e pontos de posição, com a posição principal e as secundárias do DB.
+Os dois cards da escolha de visualização recebem foco com o mouse, mantendo
+a seleção do APT e a do renderizador sincronizadas.
+
+Desempenho consulta a publicação nativa já existente `career_fce_snapshot.json`,
+validando PID, criação do processo, clube da carreira, identidade/versão do save
+e data atual do calendário na RAM. Jogos, minutos, gols e assistências são
+agregados por competição sem somar uma totalização raiz novamente às fases.
+Registros conflitantes ou de outra sessão não viram números. Quando não existe
+publicação confirmada para o clube, a tela mostra valores indisponíveis; não
+cria partidas. Teste com a sessão real confirmou duas aparições/180 minutos para
+os titulares do Flamengo. O Grêmio não tinha registros nessa publicação.
+
+O transporte do elenco passa a S16ROSTER2 (52 campos), com leitura compatível da
+versão anterior. O rodapé continua usando HelpManager e os símbolos originais
+do FIFA. Há atualização imediata e novas atualizações após a entrada/troca de
+página, para aguardar a barra nativa. LB/RB mudam abas; Y/triângulo/tecla original
+de ação superior alterna ordenação. Nenhum ícone de controle foi redesenhado.
+
+A animação agora reconhece interfaces de dispositivo D3D11 adicionais, faixas
+exatas de um mesh dentro de buffers agrupados e recursos DEFAULT preenchidos
+posteriormente por cópia da GPU. A leitura de descoberta é limitada por quadro,
+por tentativas e a 32 MiB de candidatos; somente bytes iguais ao mesh validado
+podem ser animados. Updates alteram apenas a faixa própria, preservando as
+outras regiões, UVs e materiais. O cache de recursos confirmados é limitado a
+64 MiB. Não há atualização de um buffer alheio baseada só em tamanho. O status
+inclui contadores de criação, descoberta e atualização para validação no FIFA.
+
+O cálculo da pose reutiliza as matrizes locais dos ossos não animados. O mesmo
+caso isolado passou de aproximadamente 5,2 s para 2,9 s, mantendo 23 amostras e
+os materiais originais. Auxiliar e exportador usam prioridade normal; a seleção
+substituída é cancelada sem publicar erro de renderização. Não há pré-carregamento
+no globo.
+
+Evidências em `code-release/club_roster_r2_20261027/`: 14 testes Python, teste APT
+com hover/retorno/abas/ordenação e atualização da ajuda, dados reais e save
+imutável, três abas renderizadas, ordenações, câmera durante espera, buffers
+agrupados/cópia tardia/interfaces D3D11 e preservação dos demais recursos. A
+animação, a órbita e a barra de ajuda ainda precisam de conferência visual no
+FIFA após instalar e reabrir. Sem commit ou push nesta revisão.
+
+
+### Elenco individual, revisão 3 — teste local de 27/10/2026
+
+Cima no primeiro jogador leva o foco às ordenações; esquerda/direita alteram
+Elenco/GER/Idade/Titulares e baixo devolve o foco à lista. A/Enter abre os
+detalhes individuais. Voltar retorna ao elenco sem recarregar o ator, sem
+reiniciar a animação e sem mudar a órbita da câmera aprovada.
+
+A câmera preserva sua matriz original durante reaplicações sucessivas e só a
+restaura ao sair da visualização. O teste cobre 120 reaplicações e a restauração
+exata, além da publicação estável do ator em 2.000 quadros. A confirmação visual
+do piscar continua pendente no FIFA; não é declarada corrigida só pelo teste.
+
+Nome e número seguem os hotspots UV, fontes nativas e dígitos RX3 do jogo.
+São superfícies com os pesos do esqueleto da própria camisa; a textura original
+da camisa permanece intacta e os pixels comprimidos dos dígitos são mantidos.
+A projeção seleciona `teamkits.year == 0`, correspondente ao asset atual
+`kit_<clube>_<tipo>_0`. O caso Flamengo tinha também uma linha de 1989: a seleção
+anterior por tipo apenas sobrescrevia a fonte atual 201/cor 7 pela clássica
+248/cor 13. A escolha é agora independente da ordem das linhas. Regras Lua
+avaliadas são consultadas por leitura da RAM, quando disponíveis, sem executar
+scripts no processo para essa consulta. O cache inclui as regras da impressão.
+
+O diagnóstico da animação utiliza uma flag temporária em
+`ModCarrerMode/runtime/club_browser/enable_vertex_probe`. Ele registra no máximo
+64 amostras dos buffers do renderizador (até 1 MiB cada), apenas para comparar
+o layout real aos streams próprios do ator. Não usa depurador. As leituras GPU
+são assíncronas e usam DO_NOT_WAIT para não bloquear Present. Nenhum buffer é
+animado só pelo tamanho: a posse continua dependendo da correspondência dos
+bytes da geometria. Na última sessão anterior à revisão, a animação tinha zero
+buffers reconhecidos; esta revisão ainda precisa confirmar a captura real.
+A barra de ações segue o HelpManager original e ainda exige validação visual.
+
+Testes: foco e ordenações sem novos pedidos de modelo, detalhe/retorno sem
+recarga, APT com navegação aninhada, todas as abas renderizadas em WARP,
+restauração D3D11, câmera, leitura de save imutável, seleção de uniforme atual,
+superfícies com skinning e bake completo do clipe com nome/número. Evidências em
+`code-release/club_roster_r3_20261027`. Somente instalação local; sem commit,
+push ou ZIP de distribuição nesta revisão.
+
+
+### Revisão 4 — formato real da GPU e uniformes no vestiário
+
+A captura da sessão 14520 confirmou dez malhas nativas completas: o FIFA
+expande normal e tangente 3s10n para half4, mantendo posições/UVs e passando
+de 20 para 28 bytes por vértice. A conversão trunca a mantissa half em direção
+a zero. `test_native_gpu_layout.cpp` compara a conversão inteira às amostras
+reais, byte por byte. O animador reconhece ambos os formatos e atualiza somente
+as faixas próprias verificadas. O teste D3D11 cobre também buffers imutáveis no
+formato expandido, preservação das UVs e recursos alheios. A flag de captura é
+removida na instalação desta revisão; os contadores de animação permanecem no
+status para conferir a execução real.
+
+A seleção de uniformes agora é compartilhada com o vestiário por
+`club_environment/kit_selection.py`. A verificação percorreu os 1.863 clubes da
+base: elimina os anos clássicos e mantém a primeira chave primária nativa em
+caso de repetição do tipo atual. A ordem de consulta não altera o resultado.
+Números, nomes, cores e fontes continuam sendo determinados por clube/tipo e
+regras do jogo, sem constante específica para o Flamengo no código de produção.
+
+A leitura do HelpManager original confirmou que Update não exibe uma barra
+oculta. A tela passa seu getHelpContext como fonte local pela API nativa
+SetCustomSource e chama Show, além de Update; Clear libera a fonte ao sair.
+Os ícones continuam sendo os originais do jogo, sem imagens de botões próprias.
+Validação visual da animação/rodapé após instalação ainda é necessária.
+Sem commit, push ou ZIP. Evidências adicionais em
+`code-release/club_roster_r4_20261027` e nos logs da revisão 3.
+
+
+### Correção do piscar preto — teste local de 27/10/2026
+
+As imagens e a captura da sessão 38656 confirmaram que a geometria permanece
+visível como silhueta preta. Os 4.096 registros da captura tiveram os mesmos
+coeficientes de iluminação; o patch não altera a luz, as texturas ou a animação.
+
+Foi reproduzido um defeito na restauração do estado D3D11 da interface: a API
+PSGetConstantBuffers/PSSetConstantBuffers preservava o ponteiro do buffer, mas
+perdia o intervalo D3D11.1 definido por PSSetConstantBuffers1. Os testes com
+intervalos 16/16, 64/16 e 256/16 voltavam como 0/4096. Assim, um shader nativo
+podia ler outra região do mesmo buffer, inclusive zeros. Um teste renderizado
+reproduz a passagem de uma cor válida para preto com a restauração antiga.
+
+SavedState agora consulta ID3D11DeviceContext1 e preserva FirstConstant e
+NumConstants do PS b0, único slot de constantes modificado pela interface.
+A restauração usa SetConstantBuffers1 para intervalos e mantém a API base para
+buffers inteiros/nulos ou contexto sem suporte à interface. Os testes de
+intervalo passaram; o teste renderizado manteve exatamente os pixels coloridos
+por 120 quadros consecutivos após o desenho da interface. Ambos integram
+`test_native.cmd`, junto à preservação de recursos dos seis estágios, UAVs,
+câmera e publicação do modelo em 2.000 quadros.
+
+A correção vale para o renderizador compartilhado pelo elenco e pelos 11
+iniciais. A animação confirmada na revisão 4, a câmera e os assets são mantidos.
+O status nativo inclui packed_constant_restores, ps_constant_first e
+ps_constant_count para confirmar o uso de intervalos reais no jogo. A captura
+experimental e seus hooks foram retirados do código de produção; a flag de
+captura é removida na instalação. Fontes experimentais e evidências permanecem
+somente em `code-release/club_roster_flicker_20261027`. A confirmação visual
+após reiniciar o FIFA ainda é necessária. Sem commit ou push.
+
+
+### Jogador animado sem silhueta preta — revisão local de 27/10/2026
+
+A correção de intervalos D3D11.1 acima resolve um defeito do salvamento de
+estado, mas não resolveu o piscar observado nesta sessão. O teste A/B em RAM
+comprovou que pausar uploads removia o movimento e estabilizava a textura. O
+usuário confirmou animação e textura estáveis após trocar o caminho dos uploads.
+
+O modo individual não atualiza mais buffers de vértices nativos em Present,
+nem muda o descriptor de buffers IMMUTABLE do FIFA. Na chamada GPU real de
+desenho, a malha completa é conferida contra o primeiro quadro do clipe. Uma
+cópia própria recebe a animação, é ligada somente nesse desenho e a ligação
+original é restaurada em seguida. Materiais, shaders, texturas, câmera e
+estádio continuam no renderizador nativo do jogo; não há render WebGL.
+A comparação usa todos os bytes da malha, além do layout e das dimensões,
+sem clube ou jogador fixado. Recursos de outro jogador são rejeitados e o
+cache da associação é descartado ao trocar o clipe ou sair da visualização.
+
+O contexto D3D11 atualiza sua própria tabela de despacho conforme o estado.
+O callback nativo rearma somente as duas entradas observadas antes de submeter
+o modelo. Mudanças feitas pelo próprio módulo nativo são acompanhadas;
+entradas de outro módulo não são sobrescritas. No encerramento, somente
+entradas que ainda apontam para esta revisão são restauradas. Os 11 iniciais
+continuam na visualização estática, sem esse caminho de animação.
+
+`test_player_animation.cpp`, agora em `test_native.cmd`, reproduz a perda da
+entrada após o primeiro desenho, valida o rearme, movimenta vértices reais na
+GPU WARP e confere que o buffer original permanece IMMUTABLE e idêntico após
+240 desenhos. Verifica os dois tipos de desenho, restauração da ligação,
+coordenadas UV, estado oculto/desativado, recursos alheios e troca de jogador
+ou clube. O teste padrão gera uma fixture pequena, sem modelos externos;
+aceita um animation.bin real como argumento para verificação adicional.
+O status registra `animation_backend`, `animation_private_uploads`,
+`animation_draw_matches`, `animation_dispatch_rearms` e rejeições de malha.
+
+A validação visual confirmada corresponde ao teste em RAM no jogador atual;
+a instalação permanente deve ser conferida após reabrir e em outros clubes.
+Sem commit, push, ZIP ou novos assets. Evidências em
+`code-release/club_player_animation_ab_20261027`.
+
+
+### Continuidade da animação — revisão adicional de 27/10/2026
+
+Após reiniciar, a revisão anterior ainda piscou em preto e alternou brevemente
+a posição. A RAM confirmou um único objeto e a mesma sequência: não ocorria
+recriação do jogador. Ocultar somente os cards, mantendo a animação, não
+removeu o defeito. A ligação contínua sozinha também não o resolveu.
+
+O novo teste em RAM manteve o buffer animado ligado e passou a escrever em
+buffers próprios DYNAMIC/CPU_WRITE com Map(WRITE_DISCARD). O driver pode
+renomear o armazenamento em vez de sobrescrever uma região ainda usada por
+um quadro anterior. O usuário confirmou que pararam as piscadas e o salto,
+com a animação ativa e os cards visíveis. A implementação permanente usa
+esse mesmo caminho: substitui somente o buffer verificado na ligação de
+vértices e não retorna à pose zero após cada desenho. Os materiais, texturas,
+shaders, câmera e recursos originais permanecem no FIFA.
+
+As malhas expandidas são preparadas junto ao clipe na tarefa assíncrona.
+Cada instante da animação é escrito uma vez por buffer, antes da submissão
+nativa. A restauração da interface pode religar o próprio buffer animado sem
+provocar nova captura, nova cópia ou retorno à pose inicial. Mudanças de
+jogador/clube continuam invalidando o cache por identidade completa do clipe.
+Os 11 iniciais mantêm seu caminho estático.
+
+O teste padrão e o teste com um animation.bin real verificam 240 quadros com
+o buffer dinâmico permanentemente ligado, imutabilidade da origem, UVs,
+interpolação, escrita única por instante, religação pela interface, entradas
+nativas atualizadas, visibilidade e troca de jogador/clube. A suíte completa
+inclui estado D3D11, navegação, recuperação do auxiliar e publicação da cena.
+O status identifica `animation_backend: dynamic_discard_persistent_binding`.
+A confirmação em RAM é do jogador atual; a instalação deve ser conferida
+após reabrir e ao percorrer outros clubes. Sem commit, push, ZIP ou assets
+novos. Evidências em `code-release/club_player_render_followup_20261027`.

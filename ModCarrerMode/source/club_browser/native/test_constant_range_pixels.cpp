@@ -1,0 +1,18 @@
+#define WIN32_LEAN_AND_MEAN
+#define NOMINMAX
+#include <windows.h>
+#include <cassert>
+#include <iostream>
+#include <cstring>
+#include "graphics.h"
+int main(){
+ _set_error_mode(_OUT_TO_STDERR);ID3D11Device*d=nullptr;ID3D11DeviceContext*c=nullptr;assert(SUCCEEDED(D3D11CreateDevice(nullptr,D3D_DRIVER_TYPE_WARP,nullptr,0,nullptr,0,D3D11_SDK_VERSION,&d,nullptr,&c)));ID3D11DeviceContext1*c1=nullptr;assert(SUCCEEDED(c->QueryInterface(__uuidof(ID3D11DeviceContext1),(void**)&c1)));
+ const char*code="cbuffer Material:register(b0){float4 tint;};float4 VS(uint i:SV_VertexID):SV_POSITION{float2 p=float2((i<<1)&2,i&2);return float4(p*float2(2,-2)+float2(-1,1),0,1);}float4 PS():SV_TARGET{return tint;}";ID3DBlob *vsCode=nullptr,*psCode=nullptr;assert(SUCCEEDED(D3DCompile(code,strlen(code),nullptr,nullptr,nullptr,"VS","vs_4_0",0,0,&vsCode,nullptr)));assert(SUCCEEDED(D3DCompile(code,strlen(code),nullptr,nullptr,nullptr,"PS","ps_4_0",0,0,&psCode,nullptr)));ID3D11VertexShader*vs=nullptr;ID3D11PixelShader*ps=nullptr;assert(SUCCEEDED(d->CreateVertexShader(vsCode->GetBufferPointer(),vsCode->GetBufferSize(),nullptr,&vs)));assert(SUCCEEDED(d->CreatePixelShader(psCode->GetBufferPointer(),psCode->GetBufferSize(),nullptr,&ps)));vsCode->Release();psCode->Release();
+ float packed[16384]{};UINT first=64,count=16;packed[first*4]=.8f;packed[first*4+1]=.3f;packed[first*4+2]=.1f;packed[first*4+3]=1;D3D11_BUFFER_DESC bd{};bd.ByteWidth=sizeof packed;bd.Usage=D3D11_USAGE_DEFAULT;bd.BindFlags=D3D11_BIND_CONSTANT_BUFFER;D3D11_SUBRESOURCE_DATA initial{packed,0,0};ID3D11Buffer*material=nullptr,*overlay=nullptr;assert(SUCCEEDED(d->CreateBuffer(&bd,&initial,&material)));bd.ByteWidth=64;assert(SUCCEEDED(d->CreateBuffer(&bd,nullptr,&overlay)));
+ D3D11_TEXTURE2D_DESC td{};td.Width=td.Height=8;td.ArraySize=td.MipLevels=td.SampleDesc.Count=1;td.Format=DXGI_FORMAT_R8G8B8A8_UNORM;td.BindFlags=D3D11_BIND_RENDER_TARGET;ID3D11Texture2D*output=nullptr,*staging=nullptr;ID3D11RenderTargetView*rt=nullptr;assert(SUCCEEDED(d->CreateTexture2D(&td,nullptr,&output)));assert(SUCCEEDED(d->CreateRenderTargetView(output,nullptr,&rt)));td.Usage=D3D11_USAGE_STAGING;td.BindFlags=0;td.CPUAccessFlags=D3D11_CPU_ACCESS_READ;assert(SUCCEEDED(d->CreateTexture2D(&td,nullptr,&staging)));c->OMSetRenderTargets(1,&rt,nullptr);D3D11_VIEWPORT viewport{0,0,8,8,0,1};c->RSSetViewports(1,&viewport);c->VSSetShader(vs,nullptr,0);c->PSSetShader(ps,nullptr,0);c->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+ auto pixel=[&](){const float clear[]={0,0,0,0};c->ClearRenderTargetView(rt,clear);c->Draw(3,0);c->CopyResource(staging,output);D3D11_MAPPED_SUBRESOURCE m{};assert(SUCCEEDED(c->Map(staging,0,D3D11_MAP_READ,0,&m)));std::array<unsigned char,4>p;memcpy(p.data(),(const char*)m.pData+3*m.RowPitch+3*4,4);c->Unmap(staging,0);return p;};c1->PSSetConstantBuffers1(0,1,&material,&first,&count);auto color=pixel();assert(color[0]>150&&color[1]>50&&color[2]>10);
+ // The old restoration retains the buffer pointer but renders a black object.
+ c->PSSetConstantBuffers(0,1,&overlay);c->PSSetConstantBuffers(0,1,&material);auto black=pixel();assert(black[0]==0&&black[1]==0&&black[2]==0);
+ c1->PSSetConstantBuffers1(0,1,&material,&first,&count);for(int frame=0;frame<120;++frame){{clubgfx::SavedState state;state.save(c);c->PSSetConstantBuffers(0,1,&overlay);state.restore(c);}assert(pixel()==color);}
+ c->ClearState();rt->Release();staging->Release();output->Release();overlay->Release();material->Release();ps->Release();vs->Release();c1->Release();c->Release();d->Release();std::cout<<"PASS rendered regression: legacy constant restore reproduces black material; D3D11.1 range restore retains exact colored pixels for 120 frames\n";
+}

@@ -3,14 +3,19 @@
   "purpose": "Static globe textures; no FIFA icon copies, club players or career data",
   "files": [
     {
-      "path": "ModCarrerMode/data/club_browser/assets/globe/earth.dds",
-      "bytes": 22369768,
-      "sha256": "24d97ba38b4f4341b681467f06febd174ede321aeefa756e9754291a465157a7"
+      "path": "ModCarrerMode/data/club_browser/animations/idle_crossed.json",
+      "bytes": 163330,
+      "sha256": "dc17d1fa88c017a25a8c34bc490fd0d078a4ce2b54452af2bd92389d9c3a342d"
     },
     {
       "path": "ModCarrerMode/data/club_browser/assets/globe/atlas-hd.png",
       "bytes": 2553987,
       "sha256": "1f008b1f4d48f2892b481d1da308896f9a8d00fbd095d14df6cc7df097ae8123"
+    },
+    {
+      "path": "ModCarrerMode/data/club_browser/assets/globe/earth.dds",
+      "bytes": 22369768,
+      "sha256": "24d97ba38b4f4341b681467f06febd174ede321aeefa756e9754291a465157a7"
     }
   ]
 }

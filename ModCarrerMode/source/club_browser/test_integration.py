@@ -26,19 +26,35 @@ def run(game,package):
     vm,view,apt,calls=open_native(package/'data/ui/game/screens/career/server16/clubbrowser.big',screen.FULL)
     if not view.get('screenReady'):vm.invoke(view.get('Ready'),view)
     assert view.get('screenReady');assert sum(n=='Initialize' for n,_ in calls)==1
+    assert any(n=='SetCustomSource' for n,a in calls) and any(n=='Show' for n,a in calls)
     vm.invoke(view.get('OnAnimateInComplete'),view)
     assert sum(n=='SendSystemEvent' and a[1]=='DONE_LOADING' for n,a in calls)==1
     help_=vm.invoke(view.get('getHelpContext'),view)
     assert [x[0] for x in help_]==['ADVANCE','BACK','LAS_LR','L2R2','L1R1']
-    vm.invoke(view.get('LocalEventHandler'),view,(2,True))
-    assert view.get('detailOpen')
+    def press(code):return vm.invoke(view.get('LocalEventHandler'),view,(code,True))
+    def command(name):return any(n=='SendSystemEvent' and list(a)==['Calendar','Server16ClubBrowser',name] for n,a in calls)
+    press(2);assert view.get('navPage')==1 and command('open')
+    assert [x[0] for x in vm.invoke(view.get('getHelpContext'),view)]==['ADVANCE','BACK','LAS_LR']
+    press(5);assert view.get('hubIndex')==0;press(2);assert view.get('navPage')==2 and command('xi')
     assert [x[0] for x in vm.invoke(view.get('getHelpContext'),view)]==['BACK','ADVANCE']
+    press(2);assert command('refresh')
     before=sum(n=='SendEvent' and list(a)==['Calendar','Back',''] for n,a in calls)
-    vm.invoke(view.get('LocalEventHandler'),view,(1,True))
-    assert not view.get('detailOpen')
+    press(1);assert view.get('navPage')==1
+    button=view.get('scene0').get('action2');vm.invoke(button.get('onRollOver'),button);assert view.get('hubIndex')==1 and command('right');vm.invoke(button.get('onRelease'),button);assert view.get('navPage')==3 and command('roster')
+    assert [x[0] for x in vm.invoke(view.get('getHelpContext'),view)]==['ADVANCE','BACK','LAS_UD','L2R2','RAS_LR','L1R1']
+    press(16);assert command('next');press(15);assert command('prev')
+    press(11);assert command('tab_prev');press(12);assert command('tab_next');press(10);assert command('sort')
+    count=sum(n=='Update' for n,a in calls)
+    for _ in range(3):vm.invoke(view.get('Tick'),view)
+    assert sum(n=='Update' for n,a in calls)>count
+    press(5);assert command('left');press(6);assert command('right')
+    press(2);assert view.get('navPage')==4 and command('detail')
+    assert [x[0] for x in vm.invoke(view.get('getHelpContext'),view)]==['BACK','L2R2','RAS_LR','L1R1']
+    press(1);assert view.get('navPage')==3
+    press(1);assert view.get('navPage')==1
+    press(1);assert view.get('navPage')==0
     assert sum(n=='SendEvent' and list(a)==['Calendar','Back',''] for n,a in calls)==before
-    vm.invoke(view.get('LocalEventHandler'),view,(1,True))
-    assert any(n=='SendEvent' and list(a)==['Calendar','Back',''] for n,a in calls)
+    press(1);assert any(n=='SendEvent' and list(a)==['Calendar','Back',''] for n,a in calls)
     vm.invoke(view.get('OnExitScreen'),view);vm.invoke(view.get('OnExitScreen'),view)
     assert sum(n=='Shutdown' for n,_ in calls)==1
     assert not any('Database' in n or 'SetBudget' in n for n,_ in calls)
