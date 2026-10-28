@@ -17,6 +17,9 @@ from loans import *
 from build_screen import PAGE,NONCE
 import loan_notifications
 import save_sidecar
+import club_finance
+
+FINANCE_PAGE='game/screens/career/server16/ClubFinance'
 
 GAME=portable.GAME
 HERE=Path(__file__).resolve().parent
@@ -76,7 +79,7 @@ class RequestReader:
 def financial_page(page):
     # Both Central's advance and the calendar read the same verified native day.
     # Menu transitions/results wait until one of these stable front-end views.
-    return page.casefold() in (PAGE.casefold(),'game/screens/fluxhub/fluxhub',
+    return page.casefold() in (PAGE.casefold(),FINANCE_PAGE.casefold(),'game/screens/fluxhub/fluxhub',
         'game/screens/misc/stadiumpan','game/screens/career/calendar')
 
 
@@ -199,6 +202,7 @@ class Bridge:
         profile=competition_session(m,True)
         if not isinstance(profile,dict) or profile.get('career_role')!=1:raise RuntimeError('Abra uma carreira de treinador')
         self.club=profile['club_id'];self.context_address=profile['context_address']
+        self.userid=profile['userid']
         self.scope=fingerprint((self.save['path'].casefold()+'|'+str(self.club)).encode())[:20]
         self.snapshots=STATE/self.scope/'snapshots';self.snapshots.mkdir(parents=True,exist_ok=True)
         saved=self.saved()
@@ -249,6 +253,9 @@ class Bridge:
         self.last_write_tick=None
         self.last_advance=(None,None)
         self.nonce=f'B57_{process.pid}_{self.club}_{secrets.token_hex(6)}';self.view_signature=None;self.ui_signature=None;self.feedback=''
+        from finance_inputs import FinanceInputs
+        self.finance_reader=FinanceInputs(GAME);self.finance_next=0.;self.finance_ack=0
+        self.finance_signature=None;self.finance_error=None;self.finance_context=None;self.finance_result=None
         if self.apply:
             self.write_handle=m.kernel32.OpenProcess(0x438,False,process.pid)
             if not self.write_handle:raise OSError('FIFA nao permite aplicar o orcamento')
@@ -302,6 +309,8 @@ class Bridge:
         from club_identity import club_name
         view['club_name']=club_name(GAME,self.club,self.save['path'])
         view['result']=self.result
+        if self.state.get('finance') and not self.state['finance']['settings']['enabled']:
+            view.update(can_borrow=False,error='Movimentações financeiras desativadas. Reative em Finanças do clube → Configurações.')
         if not self.apply:view.update(can_borrow=False,error='Ponte em modo de leitura; nenhuma movimentação disponível.')
         signature=fingerprint(json.dumps(view,sort_keys=True,ensure_ascii=False).encode())
         if signature!=self.view_signature:
@@ -459,7 +468,7 @@ class Bridge:
 
     def publish(self,before,new_state,new_budget,events,reason,result=None):
         if new_budget==before['budget']:
-            if reason in ('loan_requested','loan_refused'):
+            if reason in ('loan_requested','loan_refused','finance_settings','club_finance'):
                 if not self.apply:return
                 self.persist_journal(dict(session=self.session,reason=reason,before=before,
                     after_budget=new_budget,state_before=self.state,state_after=new_state,events=events,
@@ -492,6 +501,7 @@ class Bridge:
         loan_notifications.payment_notice(STATE/self.scope,new_state,before,new_budget,events)
         write_json(STATE/'status.json',{'pid':self.process.pid,'active':True,'last_action':reason,'budget':new_budget,'date':before['date'],'events':events,'awaiting_native_save':True})
         self.feedback='Pagamento aplicado. Salve a carreira no FIFA.' if reason!='loan_confirmed' else 'Crédito aplicado. Salve a carreira no FIFA.'
+        if reason=='club_finance':self.feedback='Finanças do clube atualizadas. Salve a carreira no FIFA.'
         if result:self.result=dict(result,ok=True,budget=new_budget,message=self.feedback,contract_id=next((e['id'] for e in events if e.get('id')),result.get('contract_id')))
         if reason=='loan_confirmed':
             contract=new_state['contracts'][-1]
@@ -592,6 +602,16 @@ class Bridge:
                         transport=getattr(self,'request_transport','legacy_heap'),capture_delay_ms=round(max(0,time.time_ns()-captured)/1e6,1) if captured else None)
                     try:
                         request_id=self.nonce+':'+str(seq)
+                        if live['page'].casefold()==FINANCE_PAGE.casefold():
+                            if action!=2 or not 0<=bank<len(club_finance.SWITCHES) or ai not in (0,1) or ti!=0 or 'finance' not in self.state:
+                                raise ValueError('Configuração financeira inválida ou ainda não carregada')
+                            state=club_finance.toggle(self.state,club_finance.SWITCHES[bank],bool(ai),live['date'])
+                            self.publish(live,state,live['budget'],[],'finance_settings')
+                            self.finance_ack=seq;self.finance_signature=None;self.finance_next=0.;self.last_advance=(None,None)
+                            self.finance_result=dict(sequence=seq,ok=True,message='Configuração aplicada.')
+                            if hasattr(self,'finance_reader'):self.publish_club_finance(live)
+                            return
+                        if not self.finance_enabled():raise ValueError('Movimentações financeiras desativadas nas configurações do clube')
                         if action==0:state,budget,events=request_loan(self.state,request_id=request_id,club=live['club'],today=live['date'],budget=live['budget'],bank=bank,amount=AMOUNTS[ai],months=TERMS[ti],submitted_on=submitted,currency=getattr(self,'currency',None))
                         else:state,budget,events=pay(self.state,request_id=request_id,club=live['club'],today=live['date'],budget=live['budget'],settle=action==2,contract_id=found[6] if len(found)>6 else None)
                         result={'sequence':seq,'action':action}
@@ -600,15 +620,20 @@ class Bridge:
                         self.publish(live,state,budget,events,'loan_requested' if action==0 else 'loan_settled' if action==2 else 'installment_advanced',result)
                     except ValueError as e:
                         self.feedback=str(e);self.result={'sequence':seq,'action':action,'ok':False,'budget':live['budget'],'message':str(e)};log('request_refused',sequence=seq,error=str(e))
+                        if live['page'].casefold()==FINANCE_PAGE.casefold():
+                            self.finance_ack=seq;self.finance_result=dict(sequence=seq,ok=False,message=str(e));self.finance_signature=None
+                            if hasattr(self,'finance_reader'):self.publish_club_finance(live)
         live=self.live()
         if financial_page(live['page']):
+            self.run_club_finance(live)
+            live=self.live()
             key=(live['date'],live['budget'])
-            if key!=self.last_advance:
+            if self.finance_enabled('loans') and key!=self.last_advance:
                 self.last_advance=key
                 state,budget,events=advance(self.state,club=live['club'],today=live['date'],budget=live['budget'])
                 self.publish(live,state,budget,events,'monthly_installment')
             live=self.live()
-            state,budget,events,decision=decide_loan(self.state,club=live['club'],today=live['date'],budget=live['budget'])
+            state,budget,events,decision=decide_loan(self.state,club=live['club'],today=live['date'],budget=live['budget']) if self.finance_enabled() else (self.state,live['budget'],[],None)
             if decision:
                 self.feedback=decision['message']
                 result=None
@@ -621,6 +646,71 @@ class Bridge:
                         message=decision['message'],application=decision,deliver_date=decision['decision_date']))
         self.flush_notifications(self.live())
         self.checkpoint_club();self.publish_view(self.live())
+
+    def finance_enabled(self,kind=None):
+        settings=self.state.get('finance',{}).get('settings',{})
+        return settings.get('enabled',True) and (kind is None or settings.get(kind,True))
+
+    def run_club_finance(self,live):
+        # Existing unit/legacy bridge instances lack the new optional reader.
+        if not hasattr(self,'finance_reader') or time.monotonic()<self.finance_next:return
+        self.finance_next=time.monotonic()+1
+        try:
+            context=self.finance_reader.read(self.save['path'],live,pid=self.process.pid,userid=self.userid,
+                created=self.save.get('process_created_100ns'))
+            policy=save_sidecar.finance_rules(self.save['path'])
+            state,budget,events=club_finance.apply(self.state,club=self.club,today=live['date'],budget=live['budget'],context=context,policy=policy)
+        except (OSError,ValueError,KeyError,ImportError) as error:
+            if str(error)!=self.finance_error:log('club_finance_waiting',error=str(error))
+            self.finance_error=str(error)
+            self.publish_club_finance(live)
+            return
+        self.finance_error=None;self.finance_context=context
+        # Publication failures retain the existing guarded bridge semantics:
+        # never catch an ambiguous write and then blindly replay it next tick.
+        if state!=self.state or budget!=live['budget']:self.publish(live,state,budget,events,'club_finance')
+        self.publish_club_finance(self.live())
+
+    def publish_club_finance(self,live):
+        book=self.state.get('finance',{});context=self.finance_context or {}
+        current=book.get('season');wage=context.get('coach_wage')
+        view=dict(ready=bool(book) and not self.finance_error,club=self.club,club_name=context.get('club_name','Clube'),
+            date=live['date'],budget=live['budget'],currency=self.currency,start=book.get('start'),
+            settings=book.get('settings',dict.fromkeys(club_finance.SWITCHES,True)),nonce=self.nonce,
+            ack=self.finance_ack,setting_result=getattr(self,'finance_result',None),months=club_finance.monthly(self.state),coach_monthly=round(wage*52/12) if wage is not None else None,
+            agreements=[r for r in book.get('agreements',{}).values() if r['season']==current])
+        view.update(budget_initial=context.get('budget_initial'),player_weekly=context.get('player_weekly'),
+            wage_margin=self.memory.read_uint32(self.context_address+0x2a8) if self.live_wage_valid else self.saved_wage_budget)
+        from finance_people import debts
+        view.update(players=context.get('players',[]),transfers=context.get('transfers',[]),
+            player_error=context.get('player_error'),transfer_error=context.get('transfer_error'),
+            debts=debts(self.state['contracts'],BANKS),
+            entries=book.get('entries',[]),coach_weekly=wage)
+        if self.finance_error:view['message']=self.finance_error
+        signature=fingerprint(json.dumps(view,ensure_ascii=False,sort_keys=True).encode())
+        try:
+            if signature!=self.finance_signature:
+                import finance_ui
+                target=GAME/'data/ui/game/screens/career/server16/clubfinance.big';temporary=target.with_suffix('.new')
+                finance_ui.build(view,temporary);temporary.replace(target)
+                write_json(STATE/'club_finance_view.json',view);self.finance_signature=signature
+            # Calendar ignores custom SendSystemEvent navigation. Use the same
+            # scoped UI-owner readiness queue as the market/preview screens.
+            # Refresh the timestamp even when the package did not change.
+            self.publish_finance_ready(live,signature)
+        except Exception as error:
+            # UI failure must not stop loans, payments or observing native saves.
+            log('club_finance_ui_retry',error=str(error))
+
+    def publish_finance_ready(self,live,revision):
+        import prepared_views
+        profile=competition_session(self.memory,True)
+        if (not isinstance(profile,dict) or profile.get('club_id')!=self.club
+            or profile.get('context_address')!=self.context_address
+            or profile.get('context_epoch')!=live['context_epoch'] or self.live()!=live):
+            raise ValueError('Contexto mudou antes de publicar o painel financeiro')
+        prepared_views.publish(STATE/'view_ready.tsv',dict(pid=self.process.pid,
+            process_created_100ns=self.save['process_created_100ns']),profile,live['date'],revision)
 
     def close(self):
         if getattr(self,'request_reader',None):self.request_reader.close()

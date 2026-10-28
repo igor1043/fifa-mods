@@ -4,7 +4,7 @@ No FIFA attachment, native-save mutation or production DLL installation.
 Python suites need the development requirements; native suites need MSVC x64.
 """
 from pathlib import Path
-import argparse, ast, datetime, json, os, subprocess, sys, time
+import argparse, ast, datetime, importlib.util, json, os, subprocess, sys, time
 
 SOURCE = Path(__file__).resolve().parents[1]
 ROOT = SOURCE.parents[1]
@@ -46,6 +46,21 @@ def python_environment(game_root=ROOT, folder=SOURCE):
         ENVIRONMENT/'bank', ENVIRONMENT/'preview', ENVIRONMENT/'market', ENVIRONMENT/'room',
         SOURCE/'club_browser', SOURCE/'tests', SOURCE/'vendor', ROOT/'code-release/test-deps')))
     return env
+
+
+def room_collision_fixtures(output):
+    """Real installed-room bounds, written only under the test report folder."""
+    data=ROOT/'ModCarrerMode/data/club_environment/room/runtime'
+    boxes=(json.loads((data/'room_roles_r62.json').read_text(encoding='utf8'))['obstacles']
+        +json.loads((data/'medical_room_r57.json').read_text(encoding='utf8'))['obstacles'])
+    spec=importlib.util.spec_from_file_location('room_collision_fixture_rules',ENVIRONMENT/'room/room_collision_r70.py')
+    module=importlib.util.module_from_spec(spec);spec.loader.exec_module(module)
+    paths=[]
+    for name,items in [('legacy',boxes),('corrected',module.solid_obstacles(boxes))]:
+        path=output/(name+'-collision.txt')
+        path.write_text(''.join(' '.join(map(str,b['lo']+b['hi']))+'\n' for b in items),encoding='utf8')
+        paths.append(path)
+    return paths
 
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
@@ -115,12 +130,14 @@ def main():
             room_tests=SOURCE/'club_environment/room/native'
             compiler = Path(os.environ.get('VS_VCVARS64',
                 r'C:\Program Files (x86)\Microsoft Visual Studio\18\BuildTools\VC\Auxiliary\Build\vcvars64.bat'))
-            for name in ('test_room_scene_command','test_room_direct_input','test_room_scene_state','test_room_background'):
+            for name in ('test_room_scene_command','test_room_direct_input','test_room_scene_state','test_room_background',
+                         'test_room_free_camera','test_room_camera_projection','test_room_medical_startup'):
                 stage=output/name;stage.mkdir(exist_ok=True);script=stage/'run.cmd'
+                arguments=' '.join('"'+str(p)+'"' for p in room_collision_fixtures(stage)) if name=='test_room_free_camera' else ''
                 script.write_text('@echo off\nsetlocal\ncall "'+str(compiler)+'" >nul\n'
                     'if errorlevel 1 exit /b 1\ncl /nologo /O2 /W3 /EHsc /std:c++17 /MT "'+str(room_tests/(name+'.cpp'))+'" '
                     '/Fe:test.exe /link user32.lib gdi32.lib ole32.lib d3d11.lib d3dcompiler.lib windowscodecs.lib\n'
-                    'if errorlevel 1 exit /b 1\ntest.exe\nif errorlevel 1 exit /b 1\nexit /b 0\n',encoding='utf8')
+                    'if errorlevel 1 exit /b 1\ntest.exe '+arguments+'\nif errorlevel 1 exit /b 1\nexit /b 0\n',encoding='utf8')
                 run(name,['cmd','/d','/c',str(script)],cwd=stage)
             # Compile test executables in the report directory, not production folders.
             compiler = Path(os.environ.get('VS_VCVARS64',

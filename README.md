@@ -12,6 +12,17 @@ A combinação Git + ZIP é agora verificada em uma pasta vazia, sem caches do d
 
 ## Entrega — 28/10/2026
 
+### Revisão de finanças e vestiário
+
+- **Finanças do clube:** painel no Escritório com receitas/despesas, gráficos mensais, jogadores, transferências, dívidas e switches com confirmação na própria tela. TV por partida, bilheteria estimada e salário mensal do técnico integram o serviço de empréstimos, com opções por carreira/clube.
+- **Carregamento da carreira:** captura médica aguarda o núcleo concluir seu preflight, preservando a compatibilidade de memória necessária aos saves existentes.
+- **Vestiário:** jogador afastado da mesa, escudo único, luz interna ajustável, teto modular e suportes dos cabides. Câmera livre com teclado, mouse e controle, eixos corrigidos, caminhada/corrida, balanço de passos e colisão contínua.
+- **Câmeras internas:** corte próximo reduzido em todas as vistas do vestiário, incluindo cenas e elenco. Corrigidas duas colisões decorativas que bloqueavam a sala do treinador; paredes, porta e móveis permanecem sólidos.
+
+Os novos assets próprios estão no complemento **FIFA-Friends-Assets-Delta-Vestiario-20261028.zip**, extraído na raiz do jogo após os complementos anteriores. Escudos, uniformes e imagens originais continuam sendo lidos do FIFA. As fontes, DLLs e interfaces desta revisão ficam no Git. [Regras, testes e limites](ModCarrerMode/docs/REVISAO_FINANCAS_VESTIARIO_20261028.md).
+
+### Entrega anterior do mesmo dia
+
 - **Competições da carreira:** tabelas dinâmicas, grupos navegáveis e chaveamento ampliado de copas, com zoom, movimentação, ida, volta e agregado.
 - **Estatísticas:** carrossel de artilheiros/assistências, time do campeonato por notas reais, escudos na faixa das notas e indicadores circulares de **ÚLTIMAS 5**.
 - **Clubes e vestiário:** perfil/modelo do técnico, acesso ao elenco do clube pelo vestiário, navegação e legendas originais do FIFA.

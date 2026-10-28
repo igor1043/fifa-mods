@@ -1440,6 +1440,12 @@
               "targets": [
                 "Server16CareerCompetitions"
               ]
+            },
+            {
+              "event": "Server16EnterClubFinance",
+              "targets": [
+                "Server16ClubFinance"
+              ]
             }
           ]
         },
@@ -3370,6 +3376,15 @@
           "name": "Server16CareerCompetitions",
           "type": "external",
           "file": "/careerMode/server16CareerCompetitionsFlow.nav",
+          "outputs": {
+            "back": "MainMenuHub",
+            "Back": "MainMenuHub"
+          }
+        },
+        {
+          "name": "Server16ClubFinance",
+          "type": "external",
+          "file": "/careerMode/server16ClubFinanceFlow.nav",
           "outputs": {
             "back": "MainMenuHub",
             "Back": "MainMenuHub"

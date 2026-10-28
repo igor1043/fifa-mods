@@ -1,5 +1,9 @@
 # Empréstimos do clube — 24/10/2026
 
+Revisão local de finanças: [FINANCAS_V1.md](FINANCAS_V1.md) descreve os contratos
+de TV, bilheteria estimada, salário do técnico e configurações individuais. Os
+lançamentos compartilham o coordenador e os checkpoints dos empréstimos.
+
 Tela APT/BIG nativa com bancos, logotipos, simulação, revisão, contratos individuais e tabela de vencimentos. Teclado e controle usam o HelpManager do FIFA. Até dois contratos ativos, respeitando o limite anual e a análise de crédito. Bancos oferecem limites, prazos, taxas e tempos de resposta diferentes; valores são parâmetros de simulação.
 
 A solicitação captura a data do clique no calendário nativo. SQLite registra data enviada, resposta prevista fixa, situação e identificadores da operação por carreira/clube. Avançar dias não redefine a data do pedido. O serviço trabalha durante a sessão sem exigir que a tela de empréstimos permaneça aberta.

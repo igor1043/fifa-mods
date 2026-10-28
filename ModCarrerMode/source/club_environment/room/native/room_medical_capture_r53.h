@@ -34,6 +34,23 @@ template<size_t I>void __fastcall roomInjuryField(void*p,const char*a,const char
 bool medicalExchange(RoomInjuryPatch&p,LONG64 from,LONG64 to){DWORD old=0;if(!VirtualProtect((void*)p.address,8,PAGE_EXECUTE_READWRITE,&old))return false;auto seen=InterlockedCompareExchange64((volatile LONG64*)p.address,to,from);DWORD ignored;VirtualProtect((void*)p.address,8,old,&ignored);FlushInstructionCache(GetCurrentProcess(),(void*)(image+p.source),10);return seen==from;}
 bool installMedicalCapture(){
  if(roomInjuryPatches[0].installed)return true;
+ // The room starts in parallel with the career host. Taking the original
+ // setters first makes the host's strict preflight reject the entire career
+ // chain, including its save-size/memory compatibility initialization.
+ // Wait without allocating or modifying anything, then chain its callbacks.
+ const HMODULE career=GetModuleHandleW(L"dinput8.dll");
+ using CareerReady=BOOL(WINAPI*)();
+ const auto ready=career?reinterpret_cast<CareerReady>(GetProcAddress(career,"Fifa16CareerHooksReady")):nullptr;
+ const bool careerHost=career&&GetProcAddress(career,"Fifa16CareerGetState");
+ if(ready&&!ready())return false;
+ if(careerHost)for(const auto&p:roomInjuryPatches){
+  unsigned char c[5]{};if(!read(image+p.source,c,5)||c[0]!=0xe8)return false;
+  LONG d=0;memcpy(&d,c+1,4);const auto previous=uintptr_t(intptr_t(image+p.source+5)+d);
+  if(previous==image+p.target)return false;
+  unsigned char jump[12]{};if(!read(previous,jump,12)||jump[0]!=0x48||jump[1]!=0xb8||jump[10]!=0xff||jump[11]!=0xe0)return false;
+  uintptr_t fn=0;memcpy(&fn,jump+2,8);HMODULE owner=nullptr;
+  if(!GetModuleHandleExW(GET_MODULE_HANDLE_EX_FLAG_FROM_ADDRESS|GET_MODULE_HANDLE_EX_FLAG_UNCHANGED_REFCOUNT,(LPCWSTR)fn,&owner)||owner!=career)return false;
+ }
  const uintptr_t callbacks[]={(uintptr_t)&roomInjuryId,(uintptr_t)&roomInjuryField<1>,(uintptr_t)&roomInjuryField<2>,(uintptr_t)&roomInjuryField<3>,(uintptr_t)&roomInjuryField<4>};
  if(!roomMedicalRelay){for(uintptr_t step=0x10000;step<0x70000000&&!roomMedicalRelay;step+=0x10000)roomMedicalRelay=VirtualAlloc((void*)(image+step),4096,MEM_COMMIT|MEM_RESERVE,PAGE_READWRITE);if(!roomMedicalRelay)return false;}
  for(size_t i=0;i<std::size(roomInjuryPatches);++i){auto&p=roomInjuryPatches[i];unsigned char c[5]{};if(!read(image+p.source,c,5)||c[0]!=0xe8)return false;LONG d=0;memcpy(&d,c+1,4);p.previous=uintptr_t(intptr_t(image+p.source+5)+d);

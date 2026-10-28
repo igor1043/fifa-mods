@@ -128,6 +128,8 @@ def prepare():
   kit=f'data/sceneassets/kit/kit_{club}_{typ}_0.rx3';native_refs.add(jersey);model=hanging[typ];pose=locker_matrix(i)
   add('jersey_'+str(typ),model,kit,'jersey_cm',pose,submesh='room_part_1')
   add('hanger_'+str(typ),model,hardware,'hardware_cm',pose,submesh='room_part_2')
+  support='data/sceneassets/server16_dressing_room_20261022/locker_support_r68.rx3'
+  if (GAME/support).is_file():add('hanger_support_'+str(typ),support,hardware,'hardware_cm',pose,submesh='room_part_1')
   shoe=f'data/sceneassets/shoe/shoe_{p["shoe"]}.rx3'
   try:lo,hi,sub=bounds(shoe)
   except FileNotFoundError:shoe='data/sceneassets/shoe/shoe_15.rx3';lo,hi,sub=bounds(shoe)
@@ -184,10 +186,11 @@ def prepare():
    if not dest.exists():texture_package(Image.new('RGBA',(8,8),rgb+(255,)),dest,'neutral_cm')
    texture=prefix+filename;texname='neutral_cm'
   elif name=='floor':texture=prefix+'floor_textures_r44.rx3';texname='floor_cm'
-  elif name=='ceiling':texture=prefix+'ceiling_r49.rx3';texname='ceiling_cm'
+  elif name=='ceiling':texture=prefix+('ceiling_r68.rx3' if (GAME/(prefix+'ceiling_r68.rx3')).is_file() else 'ceiling_r49.rx3');texname='ceiling_cm'
   elif name=='board':texture=context['board_texture'];texname='board_cm'
   else:raise ValueError('Unknown role '+name)
-  add('role_'+name+'_'+str(i),prefix+'room_roles_r62.rx3',texture,texname,identity,submesh=role['submesh'],overlay=overlay)
+  role_model='room_roles_r68.rx3' if (GAME/(prefix+'room_roles_r68.rx3')).is_file() else 'room_roles_r62.rx3'
+  add('role_'+name+'_'+str(i),prefix+role_model,texture,texname,identity,submesh=role['submesh'],overlay=overlay)
  add('floor_shadows',prefix+'floor_shadows_r56.rx3',prefix+'floor_shadows_texture_r56.rx3','shadow_cm',identity,True,'room_part_1')
  add('table_shadows',prefix+'floor_shadows_r56.rx3',prefix+'contact_shadow_r51.rx3','shadow_cm',identity,True,'room_part_2')
  assert 0<len(components)<=256,'Native room component group limit exceeded'

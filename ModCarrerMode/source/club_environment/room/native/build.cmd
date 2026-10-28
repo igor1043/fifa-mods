@@ -7,7 +7,7 @@ if errorlevel 1 (
 if not defined CLUB_ROOM_OUTPUT set "CLUB_ROOM_OUTPUT=%TEMP%\Server16ClubRoomBuild"
 if not exist "%CLUB_ROOM_OUTPUT%" mkdir "%CLUB_ROOM_OUTPUT%"
 pushd "%CLUB_ROOM_OUTPUT%"
-cl /nologo /O2 /W3 /EHsc /std:c++17 /utf-8 /MT /LD "%~dp0native_dressing_room_20261022.cpp" /Fe:native_dressing_room.dll /link /INCREMENTAL:NO
+cl /nologo /O2 /W3 /EHsc /std:c++17 /utf-8 /MT /LD "%~dp0native_dressing_room_20261022.cpp" /Fe:native_dressing_room.dll /link /INCREMENTAL:NO user32.lib
 set result=%errorlevel%
 popd
 exit /b %result%

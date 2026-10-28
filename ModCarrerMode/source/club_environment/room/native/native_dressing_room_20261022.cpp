@@ -17,6 +17,9 @@
 #include "motions.h"
 #include "room_cinema_r52.h"
 #include "room_scene_command.h"
+#include "room_free_camera.h"
+#include "room_camera_projection.h"
+#include "room_free_input.h"
 namespace fs=std::filesystem;
 namespace {
 constexpr float roomOriginX=100000.f;
@@ -72,21 +75,22 @@ void visibility(bool value){
 bool roomRosterCameraOwned(){using Query=BOOL(WINAPI*)();auto module=GetModuleHandleW(L"club_browser.dll");auto query=module?reinterpret_cast<Query>(GetProcAddress(module,"Fifa16ClubBrowserRoomRosterActive")):nullptr;return query&&query();}
 bool medicalInstallAttempted=false;
 struct BorrowedCamera {
- uintptr_t scene=0;unsigned char original[0x84]{},written[0x84]{};uint64_t tourTick=0,controlNext=0,controlSequence=0;std::string controlNonce;room_cinema::Director director;panorama::Pose lastSafe{{0,187,600},{0,170,-275},74};
- void resetTour(){tourTick=0;director.initialized=false;}
+ uintptr_t scene=0;unsigned char original[0x84]{},written[0x84]{};uint64_t tourTick=0,controlNext=0,controlSequence=0;std::string controlNonce;room_cinema::Director director;room_free::Walk walk;RoomFreeInput input;panorama::Pose savedTour{},lastSafe{{0,187,600},{0,170,-275},74};room_projection::BorrowedNear projection;
+ void resetTour(){tourTick=0;director.initialized=false;walk.active=false;input.reset();}
  void control(){auto now=GetTickCount64();if(now<controlNext)return;controlNext=now+100;std::ifstream scope(folder/L"runtime/room_control_scope.txt"),command(folder/L"runtime/room_camera_command.txt");std::string a,b,nonce,expected;unsigned v=0,w=0,pid=0,pid2=0,club=0,club2=0;uint64_t seq=0;int code=0;
  if(!(scope>>a>>v>>pid>>club>>expected)||a!="S16ROOMSCOPE"||v!=1||pid!=GetCurrentProcessId()||club!=componentClub||club!=validCareerClub)return;
  if(expected!=controlNonce){controlNonce=expected;controlSequence=0;}
- if(!(command>>b>>w>>pid2>>club2>>nonce>>seq>>code)||b!="S16ROOM"||w!=1||pid2!=pid||club2!=club||nonce!=expected||seq<=controlSequence||code< -3||code>=static_cast<int>(roomTour.sequence.size()))return;controlSequence=seq;const bool ok=director.command(code,roomTour);log(ok?"ROOM_SCENE_COMMAND_APPLIED":"ROOM_SCENE_COMMAND_REJECTED_UNSAFE_ROUTE");
+ if(!(command>>b>>w>>pid2>>club2>>nonce>>seq>>code)||b!="S16ROOM"||w!=1||pid2!=pid||club2!=club||nonce!=expected||seq<=controlSequence||code< -5||code>=static_cast<int>(roomTour.sequence.size()))return;controlSequence=seq;if(code==-4){savedTour=director.current;walk.enter(director.current,roomTour);input.reset();log(walk.active?"ROOM_FREE_CAMERA_ENTER":"ROOM_FREE_CAMERA_NO_CLEAR_START");return;}if(code==-5){walk.active=false;input.reset();director.current=savedTour;director.moving=false;director.pending.clear();director.hold=1;log("ROOM_FREE_CAMERA_EXIT");return;}walk.active=false;input.reset();const bool ok=director.command(code,roomTour);log(ok?"ROOM_SCENE_COMMAND_APPLIED":"ROOM_SCENE_COMMAND_REJECTED_UNSAFE_ROUTE");
  }
- void restore(){if(scene&&scene==get<uintptr_t>(image+0x3517c10)){
-  for(auto r:std::array<std::array<unsigned,2>,4>{{{{0,64}},{{0x48,8}},{{0x70,1}},{{0x7c,8}}}}){unsigned char current[64]{};if(read(scene+0x40+r[0],current,r[1])&&!memcmp(current,written+r[0],r[1]))write(scene+0x40+r[0],original+r[0],r[1]);}
+ void applyNear(){auto current=get<uintptr_t>(image+0x3517c10);auto type=get<int>(current+0x3c);if(type==1||type==13)projection.apply(current,read,write);}
+ void restore(){projection.restore(get<uintptr_t>(image+0x3517c10),read,write);if(scene&&scene==get<uintptr_t>(image+0x3517c10)){
+  for(auto r:room_projection::ownedRanges){unsigned char current[64]{};if(read(scene+0x40+r[0],current,r[1])&&!memcmp(current,written+r[0],r[1]))write(scene+0x40+r[0],original+r[0],r[1]);}
  }scene=0;}
  void apply(bool waiting=false){auto s=get<uintptr_t>(image+0x3517c10);const auto state=get<int>(s+0x3c);roomSceneState=state;if(state!=1&&state!=13)return;float x=get<float>(s+0x88),y=get<float>(s+0x8c);if(!std::isfinite(x)||!std::isfinite(y)||y<=0||x/y<.5f||x/y>4)return;
   auto now=GetTickCount64();const double dt=tourTick?std::min(.1,double(now-tourTick)*.001):0.;tourTick=now;
   if(!director.initialized||director.generation!=roomTourVersion)director.reset(roomTour,roomTourVersion,GetCurrentProcessId()^roomTourVersion^static_cast<unsigned>(now));control();
-  auto pose=waiting?panorama::Pose{{0,187,750},{0,180,0},74}:director.tick(dt,roomTour);if(!waiting&&!room_cinema::poseSafe(pose,roomTour))pose=lastSafe;else if(!waiting)lastSafe=pose;pose.eye=pose.eye+panorama::Vec{roomOriginX,1000,0};pose.target=pose.target+panorama::Vec{roomOriginX,1000,0};float m[16];if(!panorama::matrix(pose,m)||!read(s+0x40,original,sizeof original))return;scene=s;
-  float Y=std::tan(pose.fov*.00872664626f),X=Y*(x/y),zero=0;unsigned char off=0;write(s+0x40,m,sizeof m);write(s+0x88,&X,4);write(s+0x8c,&Y,4);write(s+0xb0,&off,1);write(s+0xbc,&zero,4);write(s+0xc0,&zero,4);read(s+0x40,written,sizeof written);
+  auto pose=waiting?panorama::Pose{{0,187,750},{0,180,0},74}:walk.active?walk.tick(input.sample(static_cast<float>(dt)),static_cast<float>(dt),roomTour):director.tick(dt,roomTour);if(!waiting&&!walk.active&&!room_cinema::poseSafe(pose,roomTour))pose=lastSafe;else if(!waiting)lastSafe=pose;pose.eye=pose.eye+panorama::Vec{roomOriginX,1000,0};pose.target=pose.target+panorama::Vec{roomOriginX,1000,0};float m[16];if(!panorama::matrix(pose,m)||!read(s+0x40,original,sizeof original))return;scene=s;
+  float Y=std::tan(pose.fov*.00872664626f),X=Y*(x/y),zero=0;unsigned char off=0;write(s+0x40,m,sizeof m);write(s+0x88,&X,4);write(s+0x8c,&Y,4);write(s+0xb0,&off,1);write(s+0xbc,&zero,4);write(s+0xc0,&zero,4);read(s+0x40,written,sizeof written);applyNear();
  }
 }camera;
 SRWLOCK roomCommandLock=SRWLOCK_INIT;
@@ -215,7 +219,7 @@ void poll(){
 void*__fastcall frame(){
  camera.restore();void*result=((void*(__fastcall*)())previousFrame)();++frames;
  if(stopping)return result;
- __try{poll();if(active||roomLoading){if(roomRosterCameraOwned())camera.tourTick=0;else camera.apply(roomLoading);}else camera.resetTour();roomReturnTick(page());}
+ __try{poll();if(active||roomLoading){if(roomRosterCameraOwned()){camera.applyNear();camera.tourTick=0;camera.walk.active=false;camera.input.reset();}else camera.apply(roomLoading);}else camera.resetTour();roomReturnTick(page());}
  __except(EXCEPTION_EXECUTE_HANDLER){fault=GetExceptionCode();phase=9;active=false;log("ROOM_MONITOR_EXCEPTION_DISABLED");}
  return result;
 }
@@ -233,7 +237,7 @@ bool install(){
  if(!relay){for(uintptr_t step=0x10000;step<0x70000000&&!relay;step+=0x10000)relay=VirtualAlloc((void*)(image+step),4096,MEM_COMMIT|MEM_RESERVE,PAGE_READWRITE);if(!relay)return false;unsigned char jump[14]={0xff,0x25,0,0,0,0};auto target=(uintptr_t)&frame;memcpy(jump+6,&target,8);memcpy(relay,jump,14);DWORD old;if(!VirtualProtect(relay,4096,PAGE_EXECUTE_READ,&old))return false;FlushInstructionCache(GetCurrentProcess(),relay,4096);}
  oursCall=LONG(intptr_t(relay)-intptr_t(image+0x3a19f84));return exchange(beforeCall,oursCall);
 }
-void status(){std::ofstream f(folder/L"runtime/native_status.json.tmp");f<<"{\"pid\":"<<GetCurrentProcessId()<<",\"installed\":"<<(installed?"true":"false")<<",\"scene_state\":"<<roomSceneState<<",\"active\":"<<(active?"true":"false")<<",\"ready\":"<<(ready?"true":"false")<<",\"loading\":"<<(roomLoading?"true":"false")<<",\"components_ready\":"<<(componentsReadyStatus?"true":"false")<<",\"phase\":"<<phase<<",\"error\":"<<fault<<",\"frames\":"<<frames<<",\"native_draw_callbacks\":"<<draws<<",\"native_draw_returns\":"<<submissions<<",\"object\":"<<object<<",\"indoor_uploads\":"<<indoorUploads<<",\"indoor_failures\":"<<indoorFailures<<",\"return_background_refreshes\":"<<roomReturnRefreshes<<",\"return_background_hook\":"<<(roomPhotoInstalled?"true":"false")<<",\"roster_camera\":"<<(roomRosterCameraOwned()?"true":"false")<<",\"camera_automatic\":"<<(camera.director.automatic?"true":"false")<<",\"camera_selected\":"<<camera.director.selected<<",\"camera_paused\":"<<(camera.director.paused?"true":"false")<<",\"camera_command_sequence\":"<<camera.controlSequence<<",\"stadium_reloads\":0,\"renderer\":\"FIFA native GameplayProp\",\"webview\":false}\n";f.close();MoveFileExW((folder/L"runtime/native_status.json.tmp").c_str(),(folder/L"runtime/native_status.json").c_str(),MOVEFILE_REPLACE_EXISTING);}
+void status(){std::ofstream f(folder/L"runtime/native_status.json.tmp");f<<"{\"pid\":"<<GetCurrentProcessId()<<",\"installed\":"<<(installed?"true":"false")<<",\"scene_state\":"<<roomSceneState<<",\"active\":"<<(active?"true":"false")<<",\"ready\":"<<(ready?"true":"false")<<",\"loading\":"<<(roomLoading?"true":"false")<<",\"components_ready\":"<<(componentsReadyStatus?"true":"false")<<",\"phase\":"<<phase<<",\"error\":"<<fault<<",\"frames\":"<<frames<<",\"native_draw_callbacks\":"<<draws<<",\"native_draw_returns\":"<<submissions<<",\"object\":"<<object<<",\"indoor_uploads\":"<<indoorUploads<<",\"indoor_failures\":"<<indoorFailures<<",\"return_background_refreshes\":"<<roomReturnRefreshes<<",\"return_background_hook\":"<<(roomPhotoInstalled?"true":"false")<<",\"roster_camera\":"<<(roomRosterCameraOwned()?"true":"false")<<",\"free_camera\":"<<(camera.walk.active?"true":"false")<<",\"camera_automatic\":"<<(camera.director.automatic?"true":"false")<<",\"camera_selected\":"<<camera.director.selected<<",\"camera_paused\":"<<(camera.director.paused?"true":"false")<<",\"camera_command_sequence\":"<<camera.controlSequence<<",\"stadium_reloads\":0,\"renderer\":\"FIFA native GameplayProp\",\"webview\":false}\n";f.close();MoveFileExW((folder/L"runtime/native_status.json.tmp").c_str(),(folder/L"runtime/native_status.json").c_str(),MOVEFILE_REPLACE_EXISTING);}
 DWORD WINAPI worker(void*){
  const auto began=GetTickCount64();log("WAIT_NATIVE_CODE: delayed signature validation after executable unpack");
  while(!stopping){
@@ -243,7 +247,11 @@ DWORD WINAPI worker(void*){
   if(!codeValidated&&!fault){if(nativeCodeReady()){codeValidated=true;phase=0;log("NATIVE_CODE_VALIDATED");}else if(GetTickCount64()-began>120000){fault=10;phase=9;log("NATIVE_CODE_NOT_READY_DISABLED");}}
   if(codeValidated&&!installed&&!fault){if(install()){installed=true;log("READY: separate native room scene");}}
   if(codeValidated&&installed&&!roomPhotoInstalled)installRoomPhoto();
-  if(codeValidated&&installed&&!medicalInstallAttempted){medicalInstallAttempted=true;if(!installMedicalCapture())log("MEDICAL_NATIVE_CAPTURE_DISABLED_SIGNATURE_MISMATCH");}
+  if(codeValidated&&installed&&!medicalInstallAttempted){
+   medicalInstallAttempted=installMedicalCapture();
+   static bool waitingReported=false;
+   if(!medicalInstallAttempted&&!waitingReported){log("MEDICAL_WAIT_CAREER_OWNER: shared setters retained until career initialization completes");waitingReported=true;}
+  }
   flushMedicalCapture();
   if(fs::exists(folder/L"runtime/STOP_NATIVE"))stopping=true;status();Sleep(500);
  }

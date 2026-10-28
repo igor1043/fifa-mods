@@ -621,3 +621,27 @@ nos grupos quanto na tabela ampliada. Artilheiros e assistências exibem apenas
 o total, sem repetir a unidade abaixo de cada número. No campinho, o escudo
 fica à esquerda da nota na própria faixa, com o nome abaixo e espaço reservado
 para o goleiro.
+
+### Jogador no vestiário — iluminação local
+
+O elenco do vestiário posiciona o atleta no piso livre à frente da mesa e usa
+uma amostra de iluminação interna própria do renderizável. O desenho continua
+na engine, com os materiais, texturas e buffers animados existentes. A luz do
+estádio e a visualização dos 11 iniciais não recebem esse ajuste.
+
+`ModCarrerMode/data/club_browser/indoor_player_light.txt` contém a intensidade
+linear, com padrão `2.3` validado visualmente no jogo. O worker recarrega o valor a cada meio segundo; valores
+fora de `0.45` a `3.0`, vazios ou inválidos preservam a última intensidade válida.
+Essa escala permite irradiância maior que 1, sem limitar a luz como se fosse
+uma cor de tela. `native_status.json` registra a intensidade efetiva e os erros
+de envio. A iluminação mantém uma componente direcional suave e preserva os
+parâmetros de brilho dos materiais; não adiciona sombras projetadas dinâmicas.
+
+O jogador no vestiário recebe duas sombras suaves de contato sob as chuteiras,
+em malhas nativas presas ao mesmo objeto do ator. Usam por referência a textura
+`contact_shadow_r51.rx3` já existente no vestiário, sem duplicá-la nem alterar
+os pixels dos jogadores. As malhas são afastadas 2,5 mm do piso para evitar
+disputa de profundidade. Elas acompanham a visibilidade e o descarregamento do
+ator; ficam ausentes no estádio e nos 11 iniciais. Trata-se de sombra de contato,
+não de projeção animada de toda a silhueta. `contact_shadow.py` gera apenas a
+geometria e `test_contact_shadow.py` confere o plano, os UVs e os normais.

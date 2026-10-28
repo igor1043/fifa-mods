@@ -1,0 +1,28 @@
+{
+  "version": 1,
+  "date": "2026-10-28",
+  "archive": "FIFA-Friends-Assets-Delta-Vestiario-20261028.zip",
+  "requires_previous_asset_complements": true,
+  "files": [
+    {
+      "path": "data/sceneassets/server16_dressing_room_20261022/room_roles_r68.rx3",
+      "bytes": 6726064,
+      "sha256": "8cc3abb504d0f23d33b30c1f3340786acded61023e0846b0924f2f4d1c5a0c94"
+    },
+    {
+      "path": "data/sceneassets/server16_dressing_room_20261022/ceiling_r68.rx3",
+      "bytes": 349872,
+      "sha256": "34d7cb482f290a6cee3d5b1faf5f943c5afcca2458d4c476d74a93a751fb17a4"
+    },
+    {
+      "path": "data/sceneassets/server16_dressing_room_20261022/locker_support_r68.rx3",
+      "bytes": 3600,
+      "sha256": "18291b1a9477506588aa7ce186a0995cdc51c5d09d3cf4500570f3a2c2c7e610"
+    },
+    {
+      "path": "data/sceneassets/server16_club_xi/player_contact_shadow_r1.rx3",
+      "bytes": 816,
+      "sha256": "97138d4ac59e503d8789c338d58cb49c7bc629f9ff562f0aed2153f300258a18"
+    }
+  ]
+}

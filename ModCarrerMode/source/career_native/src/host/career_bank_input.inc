@@ -8,7 +8,8 @@ static int bank_input_page(void)
     if(!read_card_scope((uintptr_t)g_module_base+0x3809030,&node,8))return 0;
     for(i=0;i<4;++i)if(!node || !read_card_scope(node+offsets[i],&node,8))return 0;
     return node && read_card_scope(node,page,sizeof(page)) && memchr(page,0,sizeof(page))
-        && !strcmp(page,"game/screens/career/server16/BankLoansV2");
+        && (!strcmp(page,"game/screens/career/server16/BankLoansV2")
+            || !strcmp(page,"game/screens/career/server16/ClubFinance"));
 }
 
 static int bank_input_context(CareerContextRead *out,uintptr_t *context,unsigned *club,int *date)

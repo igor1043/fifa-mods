@@ -6,6 +6,7 @@ from lineup_worker import observe,atomic,publish,request
 from roster_data import project,tsv
 from player_animation import bake
 from character_lighting import ensure
+from contact_shadow import ensure_optional as ensure_contact
 from season_stats import current as season_current
 from server16_py.career_context import competition_session
 
@@ -28,6 +29,7 @@ def generate(game,folder,req,memory,exporter,projection_cache):
  identity=hashlib.sha256(player['fixture']+clip.read_bytes()+kit_identity+b'actor-native-stream-v3-native-coeff'+str((tool.stat().st_size,tool.stat().st_mtime_ns)).encode()).hexdigest()
  cache=game/'ModCarrerMode/cache/club_browser/player/prepared'/identity;target=game/'data/sceneassets/server16_club_xi'/str(req['pid'])/identity
  ensure(game,portable_paths.read_asset)
+ ensure_contact(game,portable_paths.read_asset)
  if not (cache/'assets.json').is_file():
   with tempfile.TemporaryDirectory(prefix='player-',dir=folder) as temp:
    temp=Path(temp);fixture=temp/'player.bin';fixture.write_bytes(player['fixture']);model=temp/'player.ff3d';exporter.run(tool,game,fixture,model,timeout=45,pose=401)

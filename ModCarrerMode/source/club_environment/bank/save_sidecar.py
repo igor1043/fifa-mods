@@ -74,6 +74,7 @@ def save_snapshot(save,saved,state,notifications,native_io,clubs=None):
             if int(club)!=row['state']['club']:raise ValueError('Clube divergente no histórico da carreira')
             db.execute('INSERT INTO club_ledgers VALUES(?,?,?,?)',(digest,int(club),encode(row['state']),encode(row['notifications'])))
             write_requests(db,digest,'native-save',row['state'],row['notifications'])
+            write_finance(db,digest,row['state'])
         for table in ('applications','contracts','installments','operations'):db.execute('DELETE FROM '+table+' WHERE save_hash=?',(digest,))
         for row in state.get('applications',[]):
             db.execute('INSERT INTO applications VALUES(?,?,?,?,?,?)',(digest,row['id'],row['date'],row['decision_date'],row['status'],encode(row)))
@@ -105,6 +106,7 @@ def save_session_club(save,digest,session,native_io_tick,state,notifications):
     """Same-process recovery only: never adopt unsaved money from another session."""
     with connection(save) as db:
         write_requests(db,digest,session,state,notifications)
+        write_finance(db,'session:'+session+':'+digest,state)
         db.execute('INSERT OR REPLACE INTO session_clubs VALUES(?,?,?,?,?,?)',(session,digest,state['club'],native_io_tick,json.dumps(state,ensure_ascii=False),json.dumps(notifications,ensure_ascii=False)))
 
 
@@ -131,3 +133,50 @@ def write_requests(db,digest,session,state,notifications):
         if not {'id','request_id','club','due','delivered'}.issubset(n):continue
         db.execute('INSERT OR REPLACE INTO loan_outbox VALUES(?,?,?,?,?,?,?,?,?,?)',
             (n['id'],n['request_id'],session,digest,n['club'],n.get('kind','decision'),n['due'],int(n['delivered']),n.get('delivered_date'),encode(n)))
+
+
+FINANCE_SCHEMA='''
+CREATE TABLE IF NOT EXISTS finance_meta(key TEXT PRIMARY KEY,value INTEGER NOT NULL);
+CREATE TABLE IF NOT EXISTS finance_rules(key TEXT PRIMARY KEY,value INTEGER NOT NULL);
+CREATE TABLE IF NOT EXISTS finance_preferences(checkpoint TEXT,club INTEGER,settings_json TEXT NOT NULL,PRIMARY KEY(checkpoint,club));
+CREATE TABLE IF NOT EXISTS finance_agreements(checkpoint TEXT,club INTEGER,agreement_id TEXT,season INTEGER,competition_id INTEGER,name TEXT,per_match INTEGER,start_date INTEGER,payload_json TEXT,PRIMARY KEY(checkpoint,club,agreement_id));
+CREATE TABLE IF NOT EXISTS finance_entries(checkpoint TEXT,club INTEGER,event_id TEXT,kind TEXT,game_date INTEGER,applied_date INTEGER,amount INTEGER,status TEXT,payload_json TEXT,PRIMARY KEY(checkpoint,club,event_id));
+'''
+
+def finance_schema(db):
+    # Separate additive schema: old loan readers retain user_version=3 and can
+    # still restore their snapshots. Never executescript/commit inside a save.
+    for statement in FINANCE_SCHEMA.split(';'):
+        if statement.strip():db.execute(statement)
+    version=db.execute("SELECT value FROM finance_meta WHERE key='schema'").fetchone()
+    if version and version[0]!=1:raise ValueError('Versão das finanças não suportada')
+    db.execute("INSERT OR IGNORE INTO finance_meta VALUES('schema',1)")
+
+def finance_rules(save):
+    from club_finance import DEFAULT_RULES,rules
+    path=path_for(save);backup=path.with_name('server16_loans.before-finance-v1.sqlite3')
+    if path.exists() and not backup.exists():
+        # SQLite backup includes a consistent database even with WAL enabled.
+        source=sqlite3.connect(path,timeout=3);target=sqlite3.connect(backup)
+        try:source.backup(target)
+        finally:target.close();source.close()
+    with connection(save) as db:
+        finance_schema(db)
+        db.executemany('INSERT OR IGNORE INTO finance_rules VALUES(?,?)',DEFAULT_RULES.items())
+        return rules(dict(db.execute('SELECT key,value FROM finance_rules')))
+
+def write_finance(db,checkpoint,state):
+    book=state.get('finance')
+    if not book:return
+    finance_schema(db);encode=lambda row:json.dumps(row,ensure_ascii=False,sort_keys=True)
+    club=state['club']
+    if book['club']!=club:raise ValueError('Clube divergente nas finanças')
+    db.execute('INSERT OR REPLACE INTO finance_preferences VALUES(?,?,?)',(checkpoint,club,encode(book['settings'])))
+    for table in ('finance_agreements','finance_entries'):
+        db.execute('DELETE FROM '+table+' WHERE checkpoint=? AND club=?',(checkpoint,club))
+    for row in book['agreements'].values():
+        db.execute('INSERT INTO finance_agreements VALUES(?,?,?,?,?,?,?,?,?)',
+            (checkpoint,club,row['id'],row['season'],row['asset'],row['name'],row['per_match'],row['start'],encode(row)))
+    for row in book['entries']:
+        db.execute('INSERT INTO finance_entries VALUES(?,?,?,?,?,?,?,?,?)',
+            (checkpoint,club,row['id'],row['kind'],row['date'],row.get('paid_date'),row['amount'],row['status'],encode(row)))

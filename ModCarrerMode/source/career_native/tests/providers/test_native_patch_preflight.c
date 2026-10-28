@@ -405,6 +405,10 @@ int main(void)
         memcpy(base + p->call_rva + 1, &delta, sizeof(delta));
     }
     check(career_patch_sites_ready(base, NULL), "all native sites are ready");
+    check(!Fifa16CareerHooksReady(), "plugins wait until the entire host installation finishes");
+    InterlockedExchange(&g_career_hooks_ready, 1);
+    check(Fifa16CareerHooksReady(), "explicit hook ownership readiness is observable");
+    InterlockedExchange(&g_career_hooks_ready, 0);
     missing = base + g_call_patches[0].call_rva;
     memcpy(original, missing, sizeof(original));
     memset(missing, 0xCC, sizeof(original));

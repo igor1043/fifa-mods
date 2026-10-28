@@ -14,6 +14,10 @@ def generate():
     import build_loading
     build_loading.build(p.GAME/'data/ui/game/screens/career/server16/matchpreviewloading.big')
     build_loading.build(p.GAME/'data/ui/game/screens/career/server16/transfermarketloading.big','market')
+    import finance_ui
+    finance_ui.build(dict(ready=False,club=0,club_name='Aguardando carreira',date=0,start=0,budget=0,
+        months=[],agreements=[],settings={},nonce='DISABLED',currency=0,ack=0),
+        p.GAME/'data/ui/game/screens/career/server16/clubfinance.big')
     import build_dressing_card_20261022 as room
     from PIL import Image
     import io,struct

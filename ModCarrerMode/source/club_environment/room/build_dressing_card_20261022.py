@@ -14,7 +14,7 @@ import native_roster_footer as roster_footer
 GAME=portable.GAME;CLASS=('game','screens','career','server16','DressingRoom');FULL='.'.join(CLASS);PAGE=FULL.replace('.','/')
 R=b.reg;T=b.this;P=b.prop;CALL=b.call;PATH=b.path;M=b.MANAGER;ION=b.ION
 XML='data/ui/layout/careermanagerhubcfg.xml';NAV='data/ui/nav/careermode/mainmenuhubflow.nav';FLOW='data/ui/nav/careermode/server16dressingroomflow.nav';BIG='data/ui/game/screens/career/server16/dressingroom.big'
-HEADER_REVISION=66
+HEADER_REVISION=68
 def screen(payload=None,asset_reader=None):
  if payload is None:payload=json.loads((ROOT/'runtime/room_context_r46.json').read_text(encoding='utf8'))
  club=int(payload['club']);club_name=payload['club_name'];assert club>=0 and club_name
@@ -44,9 +44,14 @@ def screen(payload=None,asset_reader=None):
  crest_path=f'data/ui/imgassets/crest/light/l{club}.dds'
  try:crest=asset_reader(crest_path)
  except FileNotFoundError:crest=asset_reader(f'data/ui/imgassets/crest/dark/l{club}.dds')
- symbol,width,height=bitmap(crest);scale=92/max(width,height);controls.append(place(symbol,1,109+(92-width*scale)/2,65+(110-height*scale)/2,scale,scale,'clubCrest'))
+ header_controls=[]
+ symbol,width,height=bitmap(crest);scale=92/max(width,height);header_controls.append(place(symbol,1,109+(92-width*scale)/2,65+(110-height*scale)/2,scale,scale,'clubCrest'))
  for i,(name,value,x,y,w,h,size) in enumerate((('title','VESTIÁRIO',223,70,1260,58,46),('subtitle',club_name,223,132,1260,40,28))):
-  raw=bytearray(data[apt.characters[3].offset:apt.characters[3].offset+96]);struct.pack_into('<4f',raw,32,0,0,w,h);struct.pack_into('<If',raw,56,0xffffffff,size);struct.pack_into('<QQ',raw,80,append(value.encode('utf8')+b'\0'),0);cid=addchar(raw);controls.append(place(cid,i+2,x,y,label=name))
+  raw=bytearray(data[apt.characters[3].offset:apt.characters[3].offset+96]);struct.pack_into('<4f',raw,32,0,0,w,h);struct.pack_into('<If',raw,56,0xffffffff,size);struct.pack_into('<QQ',raw,80,append(value.encode('utf8')+b'\0'),0);cid=addchar(raw);header_controls.append(place(cid,i+2,x,y,label=name))
+ # A bitmap/shape placement is not a scriptable MovieClip. Hide its enclosing
+ # clip, so the original crest cannot remain under the roster's own header.
+ raw=bytearray(data[apt.characters[9].offset:apt.characters[9].offset+56]);header_frame=append(struct.pack('<I4xQ',len(header_controls),append(struct.pack('<'+'Q'*len(header_controls),*header_controls))));struct.pack_into('<I4xQ',raw,32,1,header_frame);struct.pack_into('<Q',raw,48,0)
+ controls.append(place(addchar(raw),1,0,0,label='roomHeader'))
  controls.extend(scene_ui.graphics(apt,data,append,addchar,place,bitmap,scope,asset_reader))
  newtable=append(bytes(data[table:table+count*8])+struct.pack('<'+'Q'*len(chars),*chars));struct.pack_into('<I4xQ',data,root+56,count+len(chars),newtable)
  frame=append(struct.pack('<I4xQ',len(controls),append(struct.pack('<'+'Q'*len(controls),*controls))));struct.pack_into('<I4xQ',data,apt.characters[9].offset+32,1,frame)
@@ -63,7 +68,7 @@ def screen(payload=None,asset_reader=None):
   a.do(R(1),'Initialize',FULL,None,True)
   a.do(M('ScreenManager'),'SetOnExitScreenCallback',CALL(PATH('cafe','utility','Delegate'),'Create',R(1),T('OnExitScreen')))
   a.set(R(1),'staticData',CALL(ION,'GetScreenStaticData'));a.set(R(1),'navEvents',CALL(ION,'GetEvents','Navigation'));a.set(R(1),'ready',False);a.do(R(1),'InitSceneControl')
-  for name,value in (('title','VESTIÁRIO'),('subtitle',club_name)):a.set(T(name),'text',value);a.do(M('ScreenManager'),'AddItemToAnimateIn',T(name))
+  for name,value in (('title','VESTIÁRIO'),('subtitle',club_name)):a.set(P(T('roomHeader'),name),'text',value);a.do(M('ScreenManager'),'AddItemToAnimateIn',P(T('roomHeader'),name))
   a.do(M('ScreenManager'),'BeginAnimateIn',CALL(PATH('cafe','utility','Delegate'),'Create',R(1),T('OnAnimateInComplete')));a.do(R(1),'OnAnimateInComplete')
  a.function(CLASS[-1],0,ctor,True);a.expr(PATH(*CLASS));a.expr(PATH('ion','screen','BaseScreen'));a.op(105)
  scene_ui.methods(a,scope)

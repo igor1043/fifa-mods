@@ -1,0 +1,109 @@
+{
+  "name": "Server16ClubFinanceFlow",
+  "initial": {
+    "targets": [
+      "Finance"
+    ]
+  },
+  "states": [
+    {
+      "name": "Finance",
+      "onEnter": [
+        [
+          "executeCMAction",
+          [
+            "EnterCalendar"
+          ]
+        ],
+        [
+          "loadScreenController",
+          [
+            "Calendar"
+          ]
+        ],
+        [
+          "loadView",
+          [
+            "screen",
+            "game/screens/career/server16/ClubFinance"
+          ]
+        ],
+        [
+          "loadView",
+          [
+            "background",
+            "BOOTFLOW"
+          ]
+        ]
+      ],
+      "onExit": [
+        [
+          "unloadView",
+          [
+            "screen"
+          ]
+        ],
+        [
+          "unloadScreenController",
+          [
+            "Calendar"
+          ]
+        ],
+        [
+          "unloadView",
+          [
+            "background"
+          ]
+        ]
+      ],
+      "transitions": [
+        {
+          "event": "Server16RefreshClubFinance",
+          "actions": [
+            [
+              "unloadView",
+              [
+                "screen"
+              ]
+            ],
+            [
+              "loadView",
+              [
+                "screen",
+                "game/screens/career/server16/ClubFinance"
+              ]
+            ]
+          ]
+        },
+        {
+          "event": "Back",
+          "targets": [
+            "Back"
+          ],
+          "actions": [
+            [
+              "executeCMAction",
+              [
+                "ReturnToHubFromCalendar"
+              ]
+            ]
+          ]
+        },
+        {
+          "event": "back",
+          "targets": [
+            "Back"
+          ],
+          "actions": [
+            [
+              "executeCMAction",
+              [
+                "ReturnToHubFromCalendar"
+              ]
+            ]
+          ]
+        }
+      ]
+    }
+  ]
+}

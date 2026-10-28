@@ -8,9 +8,38 @@ int wmain(int argc,wchar_t** argv){
  if(argc!=4)return 2;
  root=argv[1];logPath=std::filesystem::path(argv[3])/L"native_test.log";art.initialize(argv[2]);CoInitializeEx(nullptr,COINIT_MULTITHREADED);
  clubs::RoomRosterMode roomMode;assert(!roomMode.open("game/screens/fluxHub/FluxHub",1043));assert(!roomMode.open("game/screens/career/server16/DressingRoom",0));assert(roomMode.open("game/screens/career/server16/DressingRoom",1043));assert(roomMode.visible("game/screens/career/server16/DressingRoom",1043));assert(!roomMode.visible("game/screens/career/server16/DressingRoom",1629));assert(!roomMode.visible("game/screens/career/server16/ClubBrowser",1043));roomMode.close();assert(!roomMode.visible("game/screens/career/server16/DressingRoom",1043));
- auto indoor=clubs::rosterOrigin(true),outdoor=clubs::rosterOrigin(false);assert(indoor.x==100000&&indoor.y==1000&&indoor.z==100);assert(outdoor.x==0&&outdoor.y==0&&outdoor.z==0);
+ auto indoor=clubs::rosterOrigin(true),outdoor=clubs::rosterOrigin(false);assert(indoor.x==100000&&indoor.y==1000&&indoor.z==530);assert(outdoor.x==0&&outdoor.y==0&&outdoor.z==0);
+ // Indoor fill is private, finite and packed in FIFA's planar SH format.
+ // Front/back and opposing normals remain lit, with soft directional shape.
+ auto sh=clubs::rosterIndoorLight(.74f);assert(sh[27]==0);
+ for(int channel=0;channel<3;++channel){
+  const int at=channel*9;const float ambient=sh[at]*.2820947918f;
+  const float directional=std::hypot(sh[at+1],sh[at+2])*.4886025119f;
+  assert(ambient-directional>.55f&&ambient+directional<.9f);
+  for(int term=3;term<9;++term)assert(sh[at+term]==0);
+ }
+ assert(clubs::rosterMinimumZoom(true)==.95f&&clubs::rosterMinimumZoom(false)==.65f);
+ auto roomLight=clubs::rosterIndoorLight(clubs::rosterIndoorLightDefault);
+ for(int channel=0;channel<3;++channel){
+  int at=channel*9;float dc=roomLight[at]*.2820947918f;
+  float contrast=std::hypot(roomLight[at+1],roomLight[at+2])*.4886025119f;
+  assert(dc-contrast>1.7f&&dc+contrast<2.8f);
+ }
+ assert(clubs::validRosterIndoorLight(1.6f)&&clubs::validRosterIndoorLight(3.f));
+ assert(!clubs::validRosterIndoorLight(0.f)&&!clubs::validRosterIndoorLight(3.1f)&&!clubs::validRosterIndoorLight(NAN));
+ {
+  auto previousGame=clubscene::game;auto previousLight=clubscene::indoorAmbient.load();
+  clubscene::game=std::filesystem::path(argv[3])/L"indoor-light-fixture";
+  auto settings=clubscene::game/L"ModCarrerMode/data/club_browser/indoor_player_light.txt";
+  std::filesystem::create_directories(settings.parent_path());
+  {std::ofstream f(settings);f<<"1.85\n";}clubscene::refreshIndoorLight();assert(clubscene::indoorAmbient==1.85f);
+  for(auto invalid:{"", "nan", "-1", "99", "incomplete"}){
+   {std::ofstream f(settings);f<<invalid;}clubscene::refreshIndoorLight();assert(clubscene::indoorAmbient==1.85f);
+  }
+  clubscene::game=previousGame;clubscene::indoorAmbient=previousLight;
+ }
  auto reserved=reinterpret_cast<uintptr_t>(VirtualAlloc(nullptr,0x3518000,MEM_RESERVE,PAGE_NOACCESS));assert(reserved);assert(VirtualAlloc(reinterpret_cast<void*>(reserved+0x3517000),4096,MEM_COMMIT,PAGE_READWRITE));alignas(16) unsigned char fakeScene[512]{};*reinterpret_cast<uintptr_t*>(reserved+0x3517c10)=reinterpret_cast<uintptr_t>(fakeScene);*reinterpret_cast<unsigned*>(fakeScene+0x3c)=1;*reinterpret_cast<float*>(fakeScene+0x88)=1.78f;*reinterpret_cast<float*>(fakeScene+0x8c)=1;
- auto oldBase=clubscene::base;clubscene::base=reserved;clubscene::roomView=true;clubscene::rosterCamera=true;clubscene::playerZoom=1;clubscene::playerAngle=0;clubscene::playerHeight=180;clubscene::playerPan=0;clubscene::camera.apply();assert(std::abs(*reinterpret_cast<float*>(fakeScene+0x40+48)-99886)<1);assert(*reinterpret_cast<float*>(fakeScene+0x40+52)>1000);assert(*reinterpret_cast<float*>(fakeScene+0x40+56)>100);clubscene::playerAngle=1.57f;clubscene::camera.apply();assert(*reinterpret_cast<float*>(fakeScene+0x40+48)>100200);clubscene::camera.restore();clubscene::base=oldBase;clubscene::roomView=false;clubscene::rosterCamera=false;clubscene::playerAngle=0;VirtualFree(reinterpret_cast<void*>(reserved),0,MEM_RELEASE);std::cout<<"PASS room roster: scoped career entry, isolated indoor actor placement and orbit camera, no navigation departure\n";
+ auto oldBase=clubscene::base;clubscene::base=reserved;clubscene::roomView=true;clubscene::rosterCamera=true;clubscene::playerZoom=1;clubscene::playerAngle=0;clubscene::playerHeight=180;clubscene::playerPan=0;clubscene::camera.apply();assert(std::abs(*reinterpret_cast<float*>(fakeScene+0x40+48)-99886)<1);assert(*reinterpret_cast<float*>(fakeScene+0x40+52)>1000);assert(*reinterpret_cast<float*>(fakeScene+0x40+56)>530);clubscene::playerAngle=1.57f;clubscene::camera.apply();assert(*reinterpret_cast<float*>(fakeScene+0x40+48)>100200);clubscene::camera.restore();clubscene::base=oldBase;clubscene::roomView=false;clubscene::rosterCamera=false;clubscene::playerAngle=0;VirtualFree(reinterpret_cast<void*>(reserved),0,MEM_RELEASE);std::cout<<"PASS room roster: scoped career entry, isolated indoor actor placement and orbit camera, no navigation departure\n";
  assert(loadCatalog());assert(model.rows.size()==1647);assert(model.choices(0).size()==49);assert(model.choose(1629));assert(model.club().name=="Grêmio");assert(model.choices(2).size()>=18);
  auto original=model.selected;model.step(2,1);assert(model.selected!=original);model.step(2,-1);assert(model.selected==original);
  for(int kind=0;kind<3;++kind){auto n=model.choices(kind).size();auto before=model.selected;for(size_t i=0;i<n;++i)model.step(kind,1);if(kind==2)assert(model.selected==before);}
@@ -88,6 +117,21 @@ int wmain(int argc,wchar_t** argv){
  clubgfx::release(staging);background.clear();renderer.clear();context->ClearState();clubgfx::release(target);clubgfx::release(output);clubgfx::release(context);clubgfx::release(device);
  clubscene::Assets job;job.sequence=1;job.club=130285;job.career=1043;job.pages=3;job.hash=std::string(64,'a');assert(clubscene::validAssets(job));job.hash="../bad";assert(!clubscene::validAssets(job));job.hash=std::string(64,'a');clubscene::loadingPages.fill(0);auto lua=clubscene::bindScript(job,true,true);std::ofstream(std::filesystem::path(argv[3])/L"native_bind.lua")<<lua;
  assert(lua.find("ContextAddRenderable('gameplayprops'")!=std::string::npos);assert(lua.find("'xi_part_96'")!=std::string::npos);assert(lua.find("'prop_plastic'")!=std::string::npos);assert(lua.find("neutral_v2.rx3")!=std::string::npos);job.sequence=2;auto rebind=clubscene::bindScript(job,true,true);assert(clubscene::objectName(job)=="server16_native_club_xi_v5_2");assert(rebind.find("CreateMaterialFromAttribulator")!=std::string::npos);std::ofstream(std::filesystem::path(argv[3])/L"native_rebind.lua")<<rebind;
+ {
+  auto oldGame=clubscene::game;clubscene::game=std::filesystem::path(argv[3])/L"contact-shadow-fixture"/std::to_wstring(GetCurrentProcessId());
+  auto modelFile=clubscene::game/clubscene::contactShadowModel,textureFile=clubscene::game/clubscene::contactShadowTexture;
+  assert(!clubscene::indoorContactAvailable());std::filesystem::create_directories(modelFile.parent_path());
+  {std::ofstream f(modelFile);f<<"fixture";}assert(!clubscene::indoorContactAvailable());
+  std::filesystem::create_directories(textureFile.parent_path());{std::ofstream f(textureFile);f<<"fixture";}
+  assert(clubscene::indoorContactAvailable());job.single=true;clubscene::roomView=true;
+  for(int i=0;i<2;++i){job.sequence=3+i;auto indoorScript=clubscene::bindScript(job,true,true);
+   assert(clubscene::contactShadowParts==2&&indoorScript.find("xi_floor_contact_2")!=std::string::npos);
+   std::ofstream(std::filesystem::path(argv[3])/(i?L"native_indoor_rebind.lua":L"native_indoor_bind.lua"))<<indoorScript;
+  }
+  clubscene::roomView=false;assert(clubscene::bindScript(job,true,true).find("xi_floor_contact_")==std::string::npos);
+  clubscene::roomView=true;job.single=false;assert(clubscene::bindScript(job,true,true).find("xi_floor_contact_")==std::string::npos);
+  assert(clubscene::contactShadowParts==0);clubscene::roomView=false;clubscene::game=oldGame;
+ }
  // Borrow/restore an artificial scene. No game is attached, no hook installed.
  auto fake=VirtualAlloc(nullptr,0x3600000,MEM_COMMIT|MEM_RESERVE,PAGE_READWRITE);assert(fake);clubscene::base=(uintptr_t)fake;alignas(16)unsigned char scene[0xd0]{};auto ptr=(uintptr_t)scene;memcpy((char*)fake+0x3517c10,&ptr,8);int enabled=1;memcpy(scene+0x3c,&enabled,4);float x=1,y=.5625f;memcpy(scene+0x88,&x,4);memcpy(scene+0x8c,&y,4);unsigned char sceneOriginal[sizeof scene];memcpy(sceneOriginal,scene,sizeof scene);clubscene::camera.apply();assert(clubscene::camera.scene==ptr);assert(memcmp(scene+0x40,sceneOriginal+0x40,64));clubscene::camera.restore();assert(!memcmp(scene,sceneOriginal,sizeof scene));
  clubscene::camera.apply();float other=42;memcpy(scene+0xbc,&other,4);clubscene::camera.restore();assert(clubscene::get<float>(ptr+0xbc)==42);assert(!memcmp(scene+0x40,sceneOriginal+0x40,64));

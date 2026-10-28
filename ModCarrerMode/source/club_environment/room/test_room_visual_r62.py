@@ -32,16 +32,46 @@ def open_room():
     blocks=list(actions.cache.values());vm.pending_packages[card.FULL]=blocks[0];vm.run(blocks[1],vm.global_,vm.global_);klass=vm.path(card.FULL)
     stage=[p for p in apt.characters[9].frames[0] if isinstance(p,Placement)]
     screen=Object({p.name:Object() for p in stage if p.name},klass.get('prototype'))
+    screen.get('roomHeader').set('title',Object());screen.get('roomHeader').set('subtitle',Object())
     modal=screen.get('sceneModal')
     for name in ('groupTitle','counter','previousPage','nextPage','backGroup'):
         modal.set(name,Object({'label':Object()}))
     for i in range(5):modal.set('row'+str(i),Object({'label':Object(),'highlight':Object(),'head233605':Object(),'head213629':Object()}))
-    for button in ('sceneButton','playersButton'):
+    for button in ('sceneButton','playersButton','freeButton'):
         screen.get(button).set('label',Object());screen.get(button).set('highlight',Object())
     vm.invoke(klass,screen);vm.invoke(screen.get('WaitForSceneClips'),screen)
     return vm,screen,calls,saved_scope,apt
 
 class VisualRoomTests(unittest.TestCase):
+    def test_free_camera_is_third_action_and_back_returns_without_unloading_room(self):
+        vm,screen,calls,scope,_=open_room()
+        vm.invoke(screen.get('LocalEventHandler'),screen,[14,True])
+        vm.invoke(screen.get('LocalEventHandler'),screen,[14,True])
+        self.assertEqual(screen.get('roomActionFocus'),2)
+        vm.invoke(screen.get('LocalEventHandler'),screen,[2,True])
+        self.assertTrue(screen.get('freeCameraOpen'));self.assertFalse(screen.get('roomPlayersOpen'))
+        self.assertTrue(screen.get('freeHint').get('_visible'))
+        self.assertFalse(screen.get('roomHeader').get('_visible'))
+        self.assertIn(('RAS_LR','Olhar'),vm.invoke(screen.get('getHelpContext'),screen))
+        self.assertEqual(decode_requests(vm.global_.get('Server16RoomRequest').encode(),42,scope['nonce'],1043)[-1][1],-4)
+        vm.invoke(screen.get('LocalEventHandler'),screen,[14,True]);self.assertEqual(screen.get('roomActionFocus'),2)
+        vm.invoke(screen.get('LocalEventHandler'),screen,[1,True])
+        self.assertFalse(screen.get('freeCameraOpen'));self.assertTrue(screen.get('freeButton').get('_visible'))
+        self.assertEqual(decode_requests(vm.global_.get('Server16RoomRequest').encode(),42,scope['nonce'],1043)[-1][1],-5)
+        self.assertFalse(any(name=='SendEvent' and args[1]=='Back' for name,args in calls))
+
+    def test_header_is_a_single_clip_and_remains_hidden_after_animate_in(self):
+        vm,screen,_,_,apt=open_room()
+        stage=[p for p in apt.characters[9].frames[0] if isinstance(p,Placement)]
+        self.assertEqual(sum(p.name=='roomHeader' for p in stage),1)
+        self.assertFalse(any(p.name in ('clubCrest','title','subtitle') for p in stage))
+        vm.invoke(screen.get('OpenPlayers'),screen)
+        screen.get('roomHeader').set('_visible',True)
+        vm.invoke(screen.get('RoomPlayersTick'),screen)
+        self.assertFalse(screen.get('roomHeader').get('_visible'))
+        vm.invoke(screen.get('RoomPlayersBack'),screen)
+        self.assertTrue(screen.get('roomHeader').get('_visible'))
+
     def test_opening_and_closing_scenes_keeps_the_camera_running_with_original_select_help(self):
         vm,screen,calls,scope,_=open_room()
         self.assertEqual(vm.invoke(screen.get('getHelpContext'),screen),[('ADVANCE','Selecionar'),('BACK','Voltar'),('LAS_LR','OpÃ§Ãµes')])
@@ -90,7 +120,7 @@ class VisualRoomTests(unittest.TestCase):
         for key,value in [('LAS_UP',15),('LAS_DOWN',16),('L2',11),('R2',12),('OPTION_TOP',10)]:codes.set(key,value)
         vm.invoke(screen.get('OpenPlayers'),screen)
         self.assertTrue(screen.get('roomPlayersOpen'))
-        for name in ('title','subtitle','clubCrest','sceneButton','playersButton','sceneModal'):
+        for name in ('roomHeader','sceneButton','playersButton','freeButton','sceneModal'):
             self.assertFalse(screen.get(name).get('_visible'))
         help=vm.invoke(screen.get('getHelpContext'),screen)
         self.assertIn(('ADVANCE','Detalhes'),help);self.assertIn(('BACK','Voltar'),help)
@@ -107,7 +137,7 @@ class VisualRoomTests(unittest.TestCase):
         self.assertFalse(screen.get('roomPlayersOpen'))
         self.assertIn(('SendSystemEvent',['Calendar','Server16ClubBrowser','room_close']),calls)
         self.assertFalse(any(name=='SendEvent' and args[1] in ('Back','Server16OpenRoomPlayers') for name,args in calls))
-        for name in ('title','subtitle','clubCrest','sceneButton','playersButton'):self.assertTrue(screen.get(name).get('_visible'))
+        for name in ('roomHeader','sceneButton','playersButton','freeButton'):self.assertTrue(screen.get(name).get('_visible'))
         vm.invoke(screen.get('OpenPlayers'),screen)
         self.assertTrue(screen.get('roomPlayersOpen'))
 

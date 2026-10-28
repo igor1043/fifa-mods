@@ -27,7 +27,7 @@ def decode_requests(data,pid,nonce,club=None):
     for raw in samples:
         for prefix,pattern in request_patterns(pid,nonce,club):
             if prefix in raw:result.extend((int(m[1]),int(m[2])) for m in pattern.finditer(raw))
-    return [(seq,code) for seq,code in result if seq>0 and -3<=code<128]
+    return [(seq,code) for seq,code in result if seq>0 and -5<=code<128]
 
 def arena_chunks(base,size,hit):
     """Warm the adjacent APT allocations while keeping every read <=512KiB."""

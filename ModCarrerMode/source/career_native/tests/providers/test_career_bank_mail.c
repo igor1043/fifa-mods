@@ -168,6 +168,9 @@ static void bank_input_test(void) {
      assert(GetExitCodeThread(thread,&result) && result==1);CloseHandle(thread);}
     snprintf(path,sizeof(path),"%s\\runtime\\club_environment\\bank\\runtime\\native_request.tsv",g_mod_dir);
     f=fopen(path,"rb");assert(f);while(fgets(line,sizeof(line),f))if(!strcmp(line,"date=20270104\n"))++matched;fclose(f);assert(matched==1);
+    /* Finance switches share only the scoped click transport, not loan logic. */
+    strcpy((char *)nodes+0x1000,"game/screens/career/server16/ClubFinance");assert(bank_input_capture(wire));
+    strcpy((char *)nodes+0x1000,"game/screens/career/server16/ClubFinanceLoading");assert(!bank_input_capture(wire));
     strcpy((char *)nodes+0x1000,"game/screens/fluxHub/FluxHub");assert(!bank_input_capture(wire));
     strcpy((char *)nodes+0x1000,"game/screens/career/server16/BankLoansV2");
     assert(!bank_input_capture("S16BANK_V3|B57_999_1629_nonce|1|0|9|2|1|20270101|END_S16BANK"));

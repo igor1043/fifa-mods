@@ -17,3 +17,4 @@ EXPORTS
     Fifa16CareerRegisterJobUiCallback @15
     Fifa16CareerQueueBackgroundRefresh @16
     Fifa16CareerContextRead @17 DATA
+    Fifa16CareerHooksReady @18

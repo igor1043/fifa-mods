@@ -205,7 +205,9 @@ def build(game,output,scenes,assets,*,script_factory=None,full_name=FULL):
     white=write(Image.new('RGBA',(4,4),'white'));image_chars={}
     dot_image=Image.new('RGBA',(32,32));ImageDraw.Draw(dot_image).ellipse((0,0,31,31),fill='white');dot=write(dot_image)
     for key,path in assets.items():
-        with Image.open(path) as im:image=im.convert('RGBA')
+        if isinstance(path,Image.Image):image=path.convert('RGBA')
+        else:
+            with Image.open(path) as im:image=im.convert('RGBA')
         image_chars[key]=(write(image),image.size)
     def rect(depth,x,y,w,h,tint):return place(white,depth,x,y,w/4,h/4,tint=color(tint))
     def text(depth,node,name=None):
@@ -221,10 +223,14 @@ def build(game,output,scenes,assets,*,script_factory=None,full_name=FULL):
             kind=node['type']
             if kind=='rect':parts.append(rect(depth,node['x'],node['y'],node['w'],node['h'],node['color']))
             elif kind=='dot':parts.append(place(dot,depth,node['x'],node['y'],node['w']/32,node['h']/32,tint=color(node['color'])))
-            elif kind=='text':parts.append(text(depth,node))
+            elif kind=='text':parts.append(text(depth,node,node.get('name')))
             elif kind=='image':
                 if node['asset'] in image_chars:
-                    cid,(w,h)=image_chars[node['asset']];parts.append(place(cid,depth,node['x'],node['y'],node['w']/w,node['h']/h))
+                    cid,(w,h)=image_chars[node['asset']]
+                    # Named artwork must be a MovieClip, not a shape: APT's
+                    # _visible and other script properties belong to clips.
+                    if node.get('name'):cid=sprite([place(cid,1,0,0)])
+                    parts.append(place(cid,depth,node['x'],node['y'],node['w']/w,node['h']/h,name=node.get('name')))
             elif kind=='action':
                 w,h=node['w'],node['h'];border=[rect(1,0,0,w,3,'#35b8ff'),rect(2,0,h-3,w,3,'#35b8ff'),rect(3,0,0,3,h,'#35b8ff'),rect(4,w-3,0,3,h,'#35b8ff')]
                 children=[rect(1,0,0,w,h,node['color']),place(sprite(border),2,0,0,name='selected')]

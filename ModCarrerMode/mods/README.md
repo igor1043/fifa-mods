@@ -83,3 +83,18 @@ notas e estatísticas vêm da publicação validada da carreira. A DLL de vesti�
 o overlay compartilhado e `dinput8.dll` acompanham a revisão. Consulte as
 [notas da entrega](../docs/RELEASE_20261028.md) e os
 [fontes e testes](../source/club_browser/README.md).
+
+## Finanças e câmeras do vestiário — revisão de 28/10/2026
+
+O núcleo e o serviço de empréstimos também atendem Finanças do clube no
+Escritório: gráficos, extratos, jogadores/transferências, contratos de TV,
+bilheteria estimada, salário do técnico e switches por carreira/clube.
+A captura médica aguarda o núcleo concluir a inicialização para preservar a
+compatibilidade de memória da carreira.
+
+`native_dressing_room.dll` atende cenas, elenco e câmera livre com projeção
+interna próxima, colisão contínua e passagem da sala do treinador corrigida.
+O elenco conserva a animação e recebe luz interna configurável. Teto e suportes
+dos cabides exigem o novo delta pequeno de assets do vestiário. Os experimentos
+de sombras nativas de corpo em RAM não entram nesta revisão permanente.
+[Instalação, dependências e limites](../docs/REVISAO_FINANCAS_VESTIARIO_20261028.md).

@@ -44,6 +44,13 @@ static void publish_coach_record(void *provider);
 static void native_context_reset(void);
 static int native_club;
 static void append_loader_log(const char *event);
+/* Optional plugins may chain shared UI setters only after the complete
+ * all-or-nothing career preflight and installation have finished. */
+static volatile LONG g_career_hooks_ready;
+__declspec(dllexport) BOOL WINAPI Fifa16CareerHooksReady(void)
+{
+    return InterlockedCompareExchange(&g_career_hooks_ready, 0, 0) == 1;
+}
 
 
 typedef HRESULT(WINAPI *DirectInput8CreateFn)(
@@ -4381,6 +4388,7 @@ static DWORD WINAPI patch_standings_provider(LPVOID unused)
     {
         append_loader_log("career_native_card_hooks_installed");
         append_loader_log("career_cards_redraw_v1_hooks_installed");
+        InterlockedExchange(&g_career_hooks_ready, 1);
         swiss_delta_notify_ready(g_self, g_game_dir, g_mod_dir, SWISS_READY_NATIVE);
     }
     return (
