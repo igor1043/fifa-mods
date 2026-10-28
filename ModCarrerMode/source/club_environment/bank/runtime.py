@@ -306,10 +306,27 @@ class Bridge:
         signature=fingerprint(json.dumps(view,sort_keys=True,ensure_ascii=False).encode())
         if signature!=self.view_signature:
             write_json(STATE/'finance_view.json',view);self.view_signature=signature
-        if signature!=self.ui_signature:
+        if signature!=self.ui_signature:self.publish_screen(view,signature)
+
+    def publish_screen(self,view,signature):
+        # A presentation/compiler failure must never stop the financial clock,
+        # lose the recovered ledger, or suppress observing a completed save.
+        now=time.monotonic()
+        if now<getattr(self,'ui_retry_after',0):return False
+        try:
             import bank_ui_r57
             bank_ui_r57.build(view)
-            source=HERE/'package/data/ui/game/screens/career/server16/bankloans.big';target=GAME/'data/ui/game/screens/career/server16/bankloansv2.big';temp=target.with_suffix('.new');temp.write_bytes(source.read_bytes());temp.replace(target);self.ui_signature=signature
+            source=HERE/'package/data/ui/game/screens/career/server16/bankloans.big'
+            target=GAME/'data/ui/game/screens/career/server16/bankloansv2.big'
+            temp=target.with_suffix('.new');temp.write_bytes(source.read_bytes());temp.replace(target)
+        except Exception as error:
+            message=str(error);self.ui_retry_after=now+3
+            if message!=getattr(self,'ui_error',None):log('financial_ui_retry',error=message)
+            self.ui_error=message
+            return False
+        if getattr(self,'ui_error',None):log('financial_ui_recovered')
+        self.ui_error=None;self.ui_retry_after=0;self.ui_signature=signature
+        return True
 
     def page(self):
         return self.memory.get_string(self.offsets['ORIPGBASE'],self.offsets['PG1'],128)
@@ -493,15 +510,27 @@ class Bridge:
         loan_notifications.dispatch(STATE/self.scope,STATE,live,pid=self.process.pid,context=self.context_address,state=self.state)
 
     def observe_save(self):
-        current=read_active_save(GAME,self.memory)
+        try:current=read_active_save(GAME,self.memory)
+        except (OSError,ValueError):
+            # Save As can remove the source slot before publishing its complete
+            # replacement. Retain the ledger and suspend transactions meanwhile.
+            self.live()
+            return False
         if current['path'].casefold()!=self.save['path'].casefold():
             # FIFA may Save As/autosave to a new slot. Transfer this ledger only
             # after a completed native WRITE in the same verified RAM context.
             previous=self.save;self.save=current
-            record=self.io_record();saved=self.saved();live=self.live()
-            if (record.get('operation')!='write' or saved['club']!=self.club
-                    or saved['date']!=live['date'] or saved['budget']!=live['budget']):
-                self.save=previous;raise RuntimeError('Outro slot foi carregado; aguardando seu próprio estado financeiro')
+            try:record=self.io_record();saved=self.saved();live=self.live()
+            except (OSError,ValueError):
+                self.save=previous
+                return False
+            matches=(saved['club']==self.club and saved['date']==live['date'] and saved['budget']==live['budget'])
+            if record.get('operation')=='read' and matches:
+                self.save=previous
+                raise RuntimeError('Outro slot foi carregado; aguardando seu próprio estado financeiro')
+            if record.get('operation')!='write' or not matches:
+                self.save=previous
+                return False
             old_scope=self.scope
             self.saved_hash=saved['hash']
             self.scope=fingerprint((current['path'].casefold()+'|'+str(self.club)).encode())[:20]
@@ -514,10 +543,15 @@ class Bridge:
         record=self.io_record();tick=int(record.get('access_tick_ms',0))
         version_changed=(current['size'],current['mtime_ns'])!=(self.save['size'],self.save['mtime_ns'])
         if not version_changed and tick==self.io_tick:return
-        self.io_tick=tick
-        self.save=current;saved=self.saved();live=self.live();snapshot=self.snapshots/(saved['hash']+'.json')
+        previous=self.save;self.save=current
+        try:saved=self.saved();live=self.live()
+        except (OSError,ValueError):
+            self.save=previous
+            return False
         if saved['budget']!=live['budget'] or saved['date']!=live['date'] or saved['club']!=self.club:
-            raise RuntimeError('O save gravado diverge da RAM; revisar a persistencia antes de prosseguir')
+            self.save=previous
+            return False
+        self.io_tick=tick;snapshot=self.snapshots/(saved['hash']+'.json')
         self.saved_hash=saved['hash']
         if record.get('operation')=='read':
             self.club_states=save_sidecar.load_clubs(self.save['path'],saved['hash'])
@@ -539,7 +573,8 @@ class Bridge:
 
     def tick(self):
         if (STATE/'STOP').exists():raise RuntimeError('Teste interrompido pelo arquivo STOP')
-        self.observe_save();self.refresh_catalog();live=self.live();now=time.monotonic()
+        if self.observe_save() is False:return
+        self.refresh_catalog();live=self.live();now=time.monotonic()
         if live['page'].casefold()==PAGE.casefold():self.last_bank_seen=now
         # The reader remains active on Central, Calendar and every other page.
         # Leaving Loans must never suspend receipt of an already submitted click.

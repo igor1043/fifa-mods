@@ -40,7 +40,7 @@ def run(game,package):
     press(2);assert command('refresh')
     before=sum(n=='SendEvent' and list(a)==['Calendar','Back',''] for n,a in calls)
     press(1);assert view.get('navPage')==1
-    button=view.get('scene0').get('action2');vm.invoke(button.get('onRollOver'),button);assert view.get('hubIndex')==1 and command('right');vm.invoke(button.get('onRelease'),button);assert view.get('navPage')==3 and command('roster')
+    button=view.get('scene0').get('action2');vm.invoke(button.get('onRollOver'),button);assert view.get('hubIndex')==1 and command('focus_roster');vm.invoke(button.get('onRelease'),button);assert view.get('navPage')==3 and command('roster')
     assert [x[0] for x in vm.invoke(view.get('getHelpContext'),view)]==['ADVANCE','BACK','LAS_UD','L2R2','RAS_LR','L1R1']
     press(16);assert command('next');press(15);assert command('prev')
     press(11);assert command('tab_prev');press(12);assert command('tab_next');press(10);assert command('sort')

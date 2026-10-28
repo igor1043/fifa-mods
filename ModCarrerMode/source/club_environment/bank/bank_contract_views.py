@@ -12,6 +12,7 @@ def contracts(view):
     return [dict(active,schedule=view.get('schedule',[]),remaining=sum(p['amount'] for p in active['payments'][active['paid']:]),status='Ativo')]
 
 def blocked_reason(view):
+    if not view.get('ready'):return 'Aguardando os dados do clube.'
     application=view.get('application')
     if application:return 'Solicitação em análise. Aguarde a resposta do banco.'
     if sum(c['paid']<c['months'] for c in contracts(view))>=2:return 'Limite de dois empréstimos ativos atingido.'
@@ -20,6 +21,7 @@ def blocked_reason(view):
 def install(ui):
     u=ui;T=u.T;R=u.R;P=u.P;EQ=u.EQ;ADD=u.ADD
     original={name:getattr(u,name) for name in ('init','refresh','select','focus','shift','back','graphics')}
+    u.EXTRA.append(('RefreshDesign',0,original['refresh']))
     extra_fields=(('overviewTitle',820,330,900,48,32),('overviewState',820,395,900,42,30),
         ('overviewBudgetLabel',820,465,500,36,24),('overviewBudget',1350,465,380,36,28),
         ('overviewWageLabel',820,515,500,36,24),('overviewWage',1350,515,380,36,28),
@@ -84,7 +86,7 @@ def install(ui):
             a.when(EQ(item(BANK),bank),show)
 
     def refresh(a):
-        original['refresh'](a)
+        a.do(R(1),'RefreshDesign')
         for name in ('overviewPanel','contractsPanel','statementPanel'):u.show(a,name,False)
         # All views share the same safe header and leave the FIFA footer clear.
         for name,x,y in (('title',120,125),('subtitle',122,190),('section',120,245),('status',130,850)):

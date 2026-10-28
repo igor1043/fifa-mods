@@ -69,7 +69,7 @@ struct View{
   if(lastPoll-sequence>140000){status="error";message="A renderização demorou mais que o esperado. Selecione novamente para tentar de novo.";return;}std::error_code error;auto file=folder/L"status.tsv";auto size=fs::file_size(file,error);if(error||size>4096)return;
   std::ifstream input(file,std::ios::binary);std::map<std::string,std::string> values;std::string line;while(std::getline(input,line)){auto equal=line.find('=');if(equal!=std::string::npos)values.emplace(line.substr(0,equal),line.substr(equal+1));}
   try{if(values["schema"]!="1"||std::stoul(values["pid"])!=GetCurrentProcessId()||std::stoull(values["seq"])!=sequence||std::stoi(values["club"])!=club)return;}catch(...){return;}
-  if(values["status"]=="error"){status="error";message=values["message"].substr(0,250);return;}
+  if(values["status"]=="error"){if(kind=="competitions")lastValues=values;status="error";message=values["message"].substr(0,250);return;}
   if(values["status"]!="ready")return;
   if(!kind.empty()){if(values["kind"]!=kind||(kind=="player"&&values["player"]!=std::to_string(player)))return;lastValues=values;status="ready";return;}
   if(values["players"]!="11")return;

@@ -27,7 +27,7 @@ def request(path,pid):
     result={k:int(data[k]) for k in ('schema','pid','seq','club')}
     if result['schema']!=1 or result['pid']!=pid or not 0<result['seq']<2**63 or not 0<result['club']<500000:raise ValueError('Pedido de outra sessão.')
     if 'kind' in data:
-        if data['kind'] not in ('roster','player'):raise ValueError('Tipo de visualização inválido.')
+        if data['kind'] not in ('roster','player','coach','competitions'):raise ValueError('Tipo de visualização inválido.')
         result['kind']=data['kind']
         if data['kind']=='player':
             result['player']=int(data['player'])
@@ -116,7 +116,13 @@ def main():
                 if signature!=last:
                     last=signature;publish(folder,req,'loading')
                     print('REQUEST',json.dumps(req),flush=True)
-                    if req.get('kind') in ('roster','player'):
+                    if req.get('kind')=='competitions':
+                        from competitions_worker import generate as prepare_competitions
+                        completed=prepare_competitions(game,folder,req,m,projection_cache)
+                    elif req.get('kind')=='coach':
+                        from coach_worker import generate as prepare_coach
+                        completed=prepare_coach(game,folder,req,m,exporter,projection_cache)
+                    elif req.get('kind') in ('roster','player'):
                         from roster_worker import generate as prepare_roster
                         completed=prepare_roster(game,folder,req,m,exporter,projection_cache)
                     else:completed=generate(game,folder,req,m,exporter=exporter,projection_cache=projection_cache)
@@ -129,7 +135,7 @@ def main():
             except Exception as error:
                 print('ERROR',repr(error),flush=True)
                 traceback.print_exc(file=sys.stdout)
-                if req:publish(folder,req,'error',message=str(error)[:220])
+                if req:publish(folder,req,'error',message=str(error)[:220],**({'kind':'competitions','retry':1} if req.get('kind')=='competitions' else {}))
             if args.once:return
             time.sleep(.03)
     except psutil.NoSuchProcess:pass

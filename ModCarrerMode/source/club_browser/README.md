@@ -448,3 +448,176 @@ O status identifica `animation_backend: dynamic_discard_persistent_binding`.
 A confirmação em RAM é do jogador atual; a instalação deve ser conferida
 após reabrir e ao percorrer outros clubes. Sem commit, push, ZIP ou assets
 novos. Evidências em `code-release/club_player_render_followup_20261027`.
+
+
+### Acesso pelo vestiário — revisão local de 27/10/2026
+
+O vestiário oferece Cenas e Jogadores do time, com foco por mouse, setas e
+analógico esquerdo. Selecionar o elenco mantém a página DressingRoom e o
+ambiente 3D carregados. A lista e os detalhes reutilizam o mesmo componente,
+os filtros, dados da carreira, uniformes e animação da visualização pelo globo.
+O jogador é colocado no piso do vestiário, na origem isolada do ambiente,
+com a câmera orbitando o jogador e o cenário juntos. Não há outro WebView.
+
+O APT envia o comando direto Server16ClubBrowser/room_roster pelo transporte
+nativo já instalado. A tentativa anterior de SendEvent para outra página não
+ativou o fluxo em jogo; este acesso não depende dessa transição. O plugin
+aceita a abertura apenas na página do vestiário e com clube atual válido.
+Uma seleção antiga no globo não determina o elenco da carreira.
+
+Enquanto o elenco está aberto, o vestiário mantém suas geometrias e texturas,
+mas cede a câmera ao renderizador do jogador. A câmera das cenas continua
+reservada e é retomada ao sair. As legendas usam o HelpManager original do
+FIFA: detalhes, voltar, elenco, abas, giro e zoom. Voltar nos detalhes retorna
+à lista; voltar na lista retorna às cenas. Reabrir/fechar a página limpa o
+modo do elenco para não deixar outro clube ou uma câmera antiga ativos.
+
+HEADER_REVISION 66 atualiza o APT do vestiário. Testes verificam mouse/controle,
+comandos diretos, retorno em duas etapas, materiais e animação com DISCARD,
+clube atual, origem do jogador no ambiente e órbita da câmera. A animação e a
+pose dos 11 iniciais e os assets existentes permanecem os mesmos. Revisão
+local, aguardando confirmação visual após instalar; sem commit ou push.
+
+### Isolamento gráfico e rodapé — revisão local de 27/10/2026
+
+O desenho dos cards usa um estado de contexto D3D11 separado. Ao terminar,
+limpa as ligações do estado da interface e restaura o estado completo do FIFA
+antes de apresentar o quadro. Assim, a restauração dos cards não repassa as
+ligações de vértices pela atualização da animação nem retém o render target
+da janela durante ResizeBuffers. O overlay do Server16 usa a mesma proteção.
+A câmera escolhida pelo usuário também é aplicada antes da atualização nativa
+da cena, além da publicação posterior já existente.
+
+A implementação usa CreateDeviceContextState/SwapDeviceContextState, com
+fallback para a proteção anterior quando a API não está disponível. Referência:
+https://learn.microsoft.com/en-us/windows/win32/api/d3d11_1/nf-d3d11_1-id3d11devicecontext1-swapdevicecontextstate
+
+As legendas continuam no HelpManager original. Somente durante o elenco,
+mcHelpItemsHolder e mcTextScroller são posicionados em Y=1030 no APT 1920x1080,
+abaixo dos cards; a posição anterior volta ao sair. Vale para o globo e o vestiário.
+
+A regressão gráfica verifica 300 mudanças de conteúdo preservando vértices,
+texturas e intervalos de constantes do jogador e liberando as referências do
+render target da interface. Na tentativa em RAM, o usuário confirmou melhora
+e autorizou prosseguir, ainda relatando pequena piscada em transições. Isso
+permanece uma limitação a confirmar na instalação, não uma garantia de ausência
+total de flicker. Sem commit, push ou novos assets nesta revisão.
+
+
+### Coeficientes do jogador animado — revisão local de 27/10/2026
+
+O jogador individual usa o mapa auxiliar de coeficientes original do FIFA,
+com todos os pixels comprimidos e oito níveis de mip preservados. Apenas o
+nome de consulta no contêiner é adaptado ao material nativo existente. As
+imagens de camisa, pele e cabelo, a geometria, os UVs e a animação continuam
+iguais. A geração dos 11 iniciais estáticos mantém o comportamento anterior.
+
+No diagnóstico em jogo, os quadros pretos corresponderam a valores inválidos
+no alvo HDR do jogador. A revisão elimina o mapa zerado no caminho animado e
+invalida o cache de preparação pela identidade v3, para não reutilizar a
+versão anterior. Não recarrega materiais de um objeto que já está desenhando.
+O caminho é compartilhado pelo elenco no estádio e no vestiário, por clube.
+
+A validação em RAM registrou 0 silhuetas pretas em 2.048 amostras do goleiro
+e outras 2.048 do jogador de linha; o usuário também confirmou a melhora.
+A regressão compara o mapa auxiliar com o payload nativo e verifica que a
+troca não modifica geometria nem texturas de cor. Isso não constitui uma
+garantia absoluta para todos os drivers e cenários. Revisão local, sem commit
+ou push, e sem alteração de DATA, INDEX ou tabelas da carreira.
+
+
+### Técnico do time (revisão local, 27/10/2026)
+
+Em Ver clubes, o clube selecionado agora tem três cards: **11 iniciais**,
+**Jogadores do time** e **Técnico do time**. O terceiro abre uma tela clara com
+o estádio ao fundo e o técnico nativo em 3D à direita. Teclado, controle e mouse
+usam o mesmo fluxo; as legendas são do HelpManager original do FIFA. Voltar
+retorna à escolha do clube. A câmera orbita o técnico e mantém zoom e movimento.
+
+Abas: **Resumo** (identidade, país, clube, competição, confiança, reputação,
+salário mensal, formação, estádio, capacidade e desempenho do clube),
+**Temporada** (competições, aproveitamento, gols e histórico registrado no save,
+com rolagem), **Escalação** (os 11 titulares do clube na carreira). Resultados
+do clube são identificados como tais, sem inventar um currículo do técnico.
+Salário, confiança e reputação do usuário exigem a junção exata de userid e
+clubteamid; não são copiados para outros clubes. Ausência de dados aparece como
+travessão. Os valores de salário mantêm a unidade monetária da carreira.
+
+`coach_data.py` apenas lê a carreira validada e o snapshot nativo da sessão;
+não altera DATA, INDEX, tabelas da carreira ou o banco SQL dos empréstimos.
+`coach_worker.py` prepara fora da thread gráfica e publica somente resultados
+completos do clube/solicitação/contexto ainda atuais. O modo **402** do exportador
+aceita a ABI dedicada FFCOACH1: ID e cores do clube, sem jogador fictício.
+Carrega apenas `specificmanager_<clube>_0_0.rx3` e sua textura da instalação.
+O esqueleto compacto SLC é próprio do técnico; não usa o rig dos jogadores.
+A animação `coach_crossed.json` vem da referência Nova Experiência. O desenho
+final usa GameplayProp no motor do FIFA, sem WebView ou WebGL dentro do jogo.
+Se um clube não tiver o modelo instalado, o perfil continua disponível e
+informa a ausência do 3D; não substitui pelo técnico de outro time.
+
+Cache separado em `ModCarrerMode/cache/club_browser/coach`, invalidado por clube,
+modelo, textura, animação e exportador. Escudos, bandeiras e ícones de competição
+são lidos da biblioteca do próprio jogo. O material auxiliar mantém o payload
+nativo e seus mipmaps, preservando a correção de renderização dos jogadores.
+Os testes cobrem dados de clubes distintos, calendário, partidas futuras,
+duplicidade, identidade, protocolo nativo e navegação sem regredir XI/elenco.
+
+## Competições da carreira — revisão local de 28/10
+
+O card **Classificação** da aba Competições abre a tela nativa
+`CareerCompetitions`, com o mesmo isolamento gráfico usado pelos outros cards.
+O destino antigo `EnterStandings` continua disponível para outros fluxos.
+L1/R1 (LB/RB) muda a competição; L2/R2 (LT/RT) alterna artilheiros e assistências.
+As legendas são produzidas pelo HelpManager original do FIFA, conforme o dispositivo.
+
+A lista usa as inscrições reais do clube na carreira e mantém competições
+eliminadas no fim. A tabela comporta vinte equipes, mostra a movimentação desde
+a última rodada e lê as faixas de classificação/rebaixamento do CompData instalado.
+Não deduz regras pelo número de equipes nem pelo nome do campeonato.
+
+Copas leem `match_stagetype` (LEAGUE, KO1LEG, KO2LEGS) e os vínculos de
+`advancement.txt`. Os grupos são navegáveis, inclusive os que não contêm o usuário.
+**Ver chaveamento** ou A/Enter abre uma vista ampliada, com final no centro,
+confrontos nos dois lados, escudos originais e placares de ida, volta e agregado.
+Analógico esquerdo/setas movimentam; gatilhos/W/E ou roda do mouse ampliam;
+mouse arrasta; A/Enter centraliza; B/Esc fecha primeiro a vista ampliada.
+Clubes e fases ainda não sorteados ficam como **A definir**. Não há vencedores
+de pênaltis inventados nem classificação antecipada após só a ida.
+
+`competitions_worker.py` espera pela publicação da sessão/data atuais, descarta
+leituras quando a carreira muda e sinaliza nova tentativa se o snapshot ainda não
+estiver pronto. A exportação usa o auxiliar existente; a thread gráfica não lê o
+save inteiro. Entradas e respostas têm clube/PID/sequência validados.
+
+O snapshot JSON mantém seus oito campos originais de estatísticas e acrescenta
+`rating_sum` e `profile_valid`, já calculados pelo núcleo. O time do campeonato
+usa somente médias reais por posição, com onze jogadores distintos. Na ausência
+de notas válidas, informa a indisponibilidade; overall não substitui a nota.
+
+Nenhum DATA, INDEX, banco da carreira ou SQL é alterado por esta tela. Escudos,
+fotos e ícones vêm da instalação do jogo. Os testes portáveis de copas e de
+publicação estão em `test_competition_cups.py` e `test_competitions_worker.py`.
+Esta revisão integra a entrega de 28/10/2026, publicada com fontes, binários e animações. Não exige novo ZIP além dos complementos anteriores.
+
+### Refinamento visual das competições — 28/10
+
+A coluna de artilheiros/assistências passou de 292 para 352 unidades no desenho
+nativo de 1600 × 900. Exibe a posição no ranking, foto, nome, posição em campo,
+clube e total, com cards claros e cantos suaves. A posição vem do cadastro do
+jogador; o leitor aceita tanto o protocolo anterior de nove campos quanto o
+campo opcional novo, sem invalidar uma publicação anterior.
+
+O card do time do campeonato passou de 476 para 416 unidades de largura.
+Somente esse campinho ganhou um escudo do clube junto à foto de cada atleta,
+sempre lido do acervo original do FIFA. A disposição reserva espaço para foto,
+nota e nome, inclusive para o goleiro. `native/test_competitions_layout.cpp`
+valida os limites e a ausência de sobreposição nas cinco formações suportadas.
+Navegação, calendário, critérios de seleção e arquivos da carreira permanecem
+sob o mesmo fluxo de leitura da revisão anterior.
+
+Acabamento local: a coluna de resultados recentes é identificada por
+**ÚLTIMAS 5**, com indicadores circulares tanto na classificação compacta e
+nos grupos quanto na tabela ampliada. Artilheiros e assistências exibem apenas
+o total, sem repetir a unidade abaixo de cada número. No campinho, o escudo
+fica à esquerda da nota na própria faixa, com o nome abaixo e espaço reservado
+para o goleiro.

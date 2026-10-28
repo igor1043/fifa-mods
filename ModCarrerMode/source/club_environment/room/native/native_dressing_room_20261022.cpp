@@ -69,6 +69,7 @@ void visibility(bool value){
 #include "room_lighting_r46.h"
 #include "room_components_native_r46.h"
 #include "room_medical_capture_r53.h"
+bool roomRosterCameraOwned(){using Query=BOOL(WINAPI*)();auto module=GetModuleHandleW(L"club_browser.dll");auto query=module?reinterpret_cast<Query>(GetProcAddress(module,"Fifa16ClubBrowserRoomRosterActive")):nullptr;return query&&query();}
 bool medicalInstallAttempted=false;
 struct BorrowedCamera {
  uintptr_t scene=0;unsigned char original[0x84]{},written[0x84]{};uint64_t tourTick=0,controlNext=0,controlSequence=0;std::string controlNonce;room_cinema::Director director;panorama::Pose lastSafe{{0,187,600},{0,170,-275},74};
@@ -214,7 +215,7 @@ void poll(){
 void*__fastcall frame(){
  camera.restore();void*result=((void*(__fastcall*)())previousFrame)();++frames;
  if(stopping)return result;
- __try{poll();if(active||roomLoading)camera.apply(roomLoading);else camera.resetTour();roomReturnTick(page());}
+ __try{poll();if(active||roomLoading){if(roomRosterCameraOwned())camera.tourTick=0;else camera.apply(roomLoading);}else camera.resetTour();roomReturnTick(page());}
  __except(EXCEPTION_EXECUTE_HANDLER){fault=GetExceptionCode();phase=9;active=false;log("ROOM_MONITOR_EXCEPTION_DISABLED");}
  return result;
 }
@@ -232,7 +233,7 @@ bool install(){
  if(!relay){for(uintptr_t step=0x10000;step<0x70000000&&!relay;step+=0x10000)relay=VirtualAlloc((void*)(image+step),4096,MEM_COMMIT|MEM_RESERVE,PAGE_READWRITE);if(!relay)return false;unsigned char jump[14]={0xff,0x25,0,0,0,0};auto target=(uintptr_t)&frame;memcpy(jump+6,&target,8);memcpy(relay,jump,14);DWORD old;if(!VirtualProtect(relay,4096,PAGE_EXECUTE_READ,&old))return false;FlushInstructionCache(GetCurrentProcess(),relay,4096);}
  oursCall=LONG(intptr_t(relay)-intptr_t(image+0x3a19f84));return exchange(beforeCall,oursCall);
 }
-void status(){std::ofstream f(folder/L"runtime/native_status.json.tmp");f<<"{\"pid\":"<<GetCurrentProcessId()<<",\"installed\":"<<(installed?"true":"false")<<",\"scene_state\":"<<roomSceneState<<",\"active\":"<<(active?"true":"false")<<",\"ready\":"<<(ready?"true":"false")<<",\"loading\":"<<(roomLoading?"true":"false")<<",\"components_ready\":"<<(componentsReadyStatus?"true":"false")<<",\"phase\":"<<phase<<",\"error\":"<<fault<<",\"frames\":"<<frames<<",\"native_draw_callbacks\":"<<draws<<",\"native_draw_returns\":"<<submissions<<",\"object\":"<<object<<",\"indoor_uploads\":"<<indoorUploads<<",\"indoor_failures\":"<<indoorFailures<<",\"return_background_refreshes\":"<<roomReturnRefreshes<<",\"return_background_hook\":"<<(roomPhotoInstalled?"true":"false")<<",\"camera_automatic\":"<<(camera.director.automatic?"true":"false")<<",\"camera_selected\":"<<camera.director.selected<<",\"camera_paused\":"<<(camera.director.paused?"true":"false")<<",\"camera_command_sequence\":"<<camera.controlSequence<<",\"stadium_reloads\":0,\"renderer\":\"FIFA native GameplayProp\",\"webview\":false}\n";f.close();MoveFileExW((folder/L"runtime/native_status.json.tmp").c_str(),(folder/L"runtime/native_status.json").c_str(),MOVEFILE_REPLACE_EXISTING);}
+void status(){std::ofstream f(folder/L"runtime/native_status.json.tmp");f<<"{\"pid\":"<<GetCurrentProcessId()<<",\"installed\":"<<(installed?"true":"false")<<",\"scene_state\":"<<roomSceneState<<",\"active\":"<<(active?"true":"false")<<",\"ready\":"<<(ready?"true":"false")<<",\"loading\":"<<(roomLoading?"true":"false")<<",\"components_ready\":"<<(componentsReadyStatus?"true":"false")<<",\"phase\":"<<phase<<",\"error\":"<<fault<<",\"frames\":"<<frames<<",\"native_draw_callbacks\":"<<draws<<",\"native_draw_returns\":"<<submissions<<",\"object\":"<<object<<",\"indoor_uploads\":"<<indoorUploads<<",\"indoor_failures\":"<<indoorFailures<<",\"return_background_refreshes\":"<<roomReturnRefreshes<<",\"return_background_hook\":"<<(roomPhotoInstalled?"true":"false")<<",\"roster_camera\":"<<(roomRosterCameraOwned()?"true":"false")<<",\"camera_automatic\":"<<(camera.director.automatic?"true":"false")<<",\"camera_selected\":"<<camera.director.selected<<",\"camera_paused\":"<<(camera.director.paused?"true":"false")<<",\"camera_command_sequence\":"<<camera.controlSequence<<",\"stadium_reloads\":0,\"renderer\":\"FIFA native GameplayProp\",\"webview\":false}\n";f.close();MoveFileExW((folder/L"runtime/native_status.json.tmp").c_str(),(folder/L"runtime/native_status.json").c_str(),MOVEFILE_REPLACE_EXISTING);}
 DWORD WINAPI worker(void*){
  const auto began=GetTickCount64();log("WAIT_NATIVE_CODE: delayed signature validation after executable unpack");
  while(!stopping){

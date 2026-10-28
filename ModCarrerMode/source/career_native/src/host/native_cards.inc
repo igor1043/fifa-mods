@@ -1517,10 +1517,13 @@ static int native_fce_snapshot_write(void)
     if (ok && fputs("],\"stats\":[", file) == EOF) ok = 0;
     for (i = 0; ok && i < model->stat_count; ++i) {
         const FceStat *stat = model->stats + i;
-        if (fprintf(file, "%s[%d,%d,%d,%d,%d,%d,%d,%d]", i ? "," : "",
+        /* Append optional validated ratings; preserve the first eight fields
+           consumed by roster, coach and market readers. JSON output only. */
+        if (fprintf(file, "%s[%d,%d,%d,%d,%d,%d,%d,%d,%d,%u]", i ? "," : "",
             (int)stat->stats_id, (int)stat->competition, (int)stat->team,
             (int)stat->player, (int)stat->appearances, (int)stat->minutes,
-            (int)stat->goals, (int)stat->assists) < 0) ok = 0;
+            (int)stat->goals, (int)stat->assists,
+            (int)stat->rating_sum, (unsigned int)stat->profile_valid) < 0) ok = 0;
     }
     if (ok && fputs("]}\n", file) == EOF) ok = 0;
     if (fflush(file) != 0) ok = 0;

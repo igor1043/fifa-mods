@@ -4,6 +4,7 @@ import io,struct
 from pathlib import Path
 from PIL import Image
 import build_screen as b
+import native_roster_footer as roster_footer
 R=b.reg;T=b.this;P=b.prop;CALL=b.call;PATH=b.path;M=b.MANAGER;EQ=b.equal
 
 def graphics(apt,data,append,addchar,place,bitmap,scope,read_asset):
@@ -38,8 +39,10 @@ def graphics(apt,data,append,addchar,place,bitmap,scope,read_asset):
     page_button=clip([place(neutral,1,0,0,3.3,.5),place(text('',196,30,18),2,10,1,label='label')])
     controls.extend([place(page_button,40,24,510,label='previousPage'),place(page_button,41,284,510,label='nextPage'),place(page_button,42,284,18,label='backGroup')])
     modal=clip(controls)
-    button=clip([place(neutral,1,0,0,3.4,.75),place(text('Cenas',195,42,25),2,18,4,label='label')])
-    return [place(modal,100,1260,212,label='sceneModal',color=0x00ffffff),place(button,101,1580,930,label='sceneButton')]
+    def action_button(label,width):
+        focus=clip([place(selected,1,0,0,width/64,.75)])
+        return clip([place(neutral,1,0,0,width/64,.75),place(focus,2,0,0,label='highlight'),place(text(label,width-30,42,25),3,16,4,label='label')])
+    return [place(modal,100,1260,212,label='sceneModal',color=0x00ffffff),place(action_button('Cenas',216),101,1260,930,label='sceneButton'),place(action_button('Jogadores do time',300),102,1500,930,label='playersButton')]
 
 def methods(a,scope):
     categories=[('Vestiário',[]),('Jogadores',[]),('Quadros',[]),('Departamento médico',[])]
@@ -51,14 +54,44 @@ def methods(a,scope):
     objects=lambda items:('array',tuple(('map',v) for v in items))
     groups=('array',tuple(objects(items) for _,items in categories));root_items=objects(root)
     def init(a):
-        for key,value in (('modalOpen',False),('sceneFocus',0),('sceneGroup',-1),('sceneItems',root_items)):a.set(R(1),key,value)
+        for key,value in (('modalOpen',False),('sceneFocus',0),('sceneGroup',-1),('sceneItems',root_items),('roomActionFocus',0),('openingPlayers',False),('roomPlayersOpen',False),('roomPlayersDetail',False)):a.set(R(1),key,value)
         a.set(T('sceneModal'),'_visible',False);a.set(T('sceneModal'),'_alpha',0);a.set(T('sceneButton'),'owner',R(1));a.set(T('sceneButton'),'onRelease',T('SceneButtonClick'));a.set(R(1),'onEnterFrame',T('WaitForSceneClips'))
         a.when(b.G('Server16RoomSequence'),lambda a:None,lambda a:a.set(b.GLOBAL,'Server16RoomSequence',0));a.do(R(1),'PublishScene',-1)
-        a.do(PATH('Key'),'addListener',R(1))
+        a.do(R(1),'PublishRoster','room_close');a.do(PATH('Key'),'addListener',R(1))
     a.function('InitSceneControl',0,init)
     a.function('SceneButtonClick',0,lambda a:a.do(P(R(1),'owner'),'OpenScenes'))
+    a.function('PlayersButtonClick',0,lambda a:a.do(P(R(1),'owner'),'OpenPlayers'))
+    a.function('SceneButtonOver',0,lambda a:(a.set(P(R(1),'owner'),'roomActionFocus',0),a.do(P(R(1),'owner'),'RefreshRoomActions')))
+    a.function('PlayersButtonOver',0,lambda a:(a.set(P(R(1),'owner'),'roomActionFocus',1),a.do(P(R(1),'owner'),'RefreshRoomActions')))
+    def refresh_actions(a):
+        for index,name,click,hover in ((0,'sceneButton','SceneButtonClick','SceneButtonOver'),(1,'playersButton','PlayersButtonClick','PlayersButtonOver')):
+            button=T(name);a.set(button,'owner',R(1));a.set(button,'onRelease',T(click));a.set(button,'onRollOver',T(hover))
+            a.set(P(button,'highlight'),'_alpha',0);a.set(P(button,'label'),'textColor',0x334b56)
+            a.when(EQ(T('roomActionFocus'),index),lambda a,button=button:(a.set(P(button,'highlight'),'_alpha',100),a.set(P(button,'label'),'textColor',0xffffff)))
+        a.do(M('HelpManager'),'Update')
+    a.function('RefreshRoomActions',0,refresh_actions)
+    def roster_command(a):a.do(b.ION,'SendSystemEvent',P(T('staticData'),'SCREEN_CONTROLLER_ID'),'Server16ClubBrowser',R(2))
+    a.function('PublishRoster',1,roster_command)
+    def roster_help(a):
+        a.do(M('HelpManager'),'SetCustomSource',CALL(PATH('cafe','utility','Delegate'),'Create',R(1),T('getHelpContext')));a.do(M('HelpManager'),'Update');a.do(M('HelpManager'),'Show')
+        a.when(T('roomPlayersOpen'),roster_footer.apply,roster_footer.restore)
+    a.function('RefreshRosterHelp',0,roster_help)
+    def roster_tick(a):
+        a.when(T('rosterHelpDelay'),lambda a:(a.set(R(1),'rosterHelpDelay',('bin',11,T('rosterHelpDelay'),1)),a.when(('bin',17,EQ(T('rosterHelpDelay'),60),EQ(T('rosterHelpDelay'),0)),lambda a:a.do(R(1),'RefreshRosterHelp'))))
+    a.function('RoomPlayersTick',0,roster_tick)
+    def open_players(a):
+        a.when(T('roomPlayersOpen'),lambda a:a.ret());a.set(R(1),'roomPlayersOpen',True);a.set(R(1),'roomPlayersDetail',False);a.set(R(1),'modalOpen',False);a.do(R(1),'PublishScene',-3)
+        for name in ('title','subtitle','clubCrest','sceneButton','playersButton','sceneModal'):a.set(T(name),'_visible',False)
+        a.do(R(1),'PublishRoster','room_roster');a.set(R(1),'rosterHelpDelay',90);a.set(R(1),'onEnterFrame',T('RoomPlayersTick'));a.do(R(1),'RefreshRosterHelp')
+    a.function('OpenPlayers',0,open_players)
+    def roster_back(a):
+        a.when(T('roomPlayersDetail'),lambda a:(a.set(R(1),'roomPlayersDetail',False),a.do(R(1),'PublishRoster','back'),a.do(R(1),'RefreshRosterHelp'),a.ret()))
+        a.do(R(1),'PublishRoster','room_close');a.set(R(1),'roomPlayersOpen',False);a.set(R(1),'onEnterFrame',None)
+        for name in ('title','subtitle','clubCrest','sceneButton','playersButton'):a.set(T(name),'_visible',True)
+        a.do(R(1),'RefreshRoomActions');a.do(R(1),'RefreshRosterHelp')
+    a.function('RoomPlayersBack',0,roster_back)
     def wait(a):
-        a.when(T('sceneModal'),lambda a:(a.do(R(1),'RefreshSceneModal'),a.set(T('sceneButton'),'owner',R(1)),a.set(T('sceneButton'),'onRelease',T('SceneButtonClick')),a.set(R(1),'onEnterFrame',None)))
+        a.when(T('sceneModal'),lambda a:(a.do(R(1),'RefreshSceneModal'),a.set(T('sceneButton'),'owner',R(1)),a.set(T('sceneButton'),'onRelease',T('SceneButtonClick')),a.do(R(1),'RefreshRoomActions'),a.set(R(1),'onEnterFrame',None)))
     a.function('WaitForSceneClips',0,wait)
     def publish(a):
         a.set(b.GLOBAL,'Server16RoomSequence',b.plus(b.G('Server16RoomSequence'),1));value=f'S16ROOM2|{scope["club"]}|{scope["nonce"]}|'
@@ -111,22 +144,40 @@ def methods(a,scope):
     a.function('RowOver',0,row_over)
     a.function('RowClick',0,lambda a:(a.do(R(1),'onRollOver'),a.do(P(R(1),'owner'),'ApplyScene')))
     def help(a):
+        def roster_items(a,details=False):
+            items=[('BACK','Voltar'),('L2R2','Abas'),('RAS_LR','Girar'),('L1R1','Zoom')]
+            if not details:items=[('ADVANCE','Detalhes'),('BACK','Voltar'),('LAS_UD','Elenco')]+items[1:]
+            a.ret(('array',tuple(CALL(PATH('ion','manager','HelpItem'),'CreateHelpTickerItem',code,label) for code,label in items)))
+        a.when(T('roomPlayersOpen'),lambda a:a.when(T('roomPlayersDetail'),lambda a:roster_items(a,True),roster_items))
         a.when(T('modalOpen'),lambda a:a.ret(('array',(CALL(PATH('ion','manager','HelpItem'),'CreateHelpTickerItem','ADVANCE','Selecionar'),CALL(PATH('ion','manager','HelpItem'),'CreateHelpTickerItem','BACK','Voltar')))))
-        a.ret(('array',(CALL(PATH('ion','manager','HelpItem'),'CreateHelpTickerItem','ADVANCE','Cenas'),CALL(PATH('ion','manager','HelpItem'),'CreateHelpTickerItem','BACK','Voltar'))))
+        a.ret(('array',(CALL(PATH('ion','manager','HelpItem'),'CreateHelpTickerItem','ADVANCE','Selecionar'),CALL(PATH('ion','manager','HelpItem'),'CreateHelpTickerItem','BACK','Voltar'),CALL(PATH('ion','manager','HelpItem'),'CreateHelpTickerItem','LAS_LR','Opções'))))
     a.function('getHelpContext',0,help)
     def key(a):
+        def roster_keys(a):
+            a.when(EQ(R(2),P(M('InputCodes'),'BACK')),lambda a:(a.do(R(1),'RoomPlayersBack'),a.ret(True)))
+            for name in ('PRIMARY_SELECT','ADVANCE'):
+                def detail(a):
+                    a.when(T('roomPlayersDetail'),lambda a:None,lambda a:(a.set(R(1),'roomPlayersDetail',True),a.do(R(1),'PublishRoster','detail'),a.do(R(1),'RefreshRosterHelp')));a.ret(True)
+                a.when(('bin',16,P(M('InputCodes'),name),EQ(R(2),P(M('InputCodes'),name))),detail)
+            for name,command in (('LEFT','left'),('LAS_LEFT','left'),('RIGHT','right'),('LAS_RIGHT','right'),('UP','prev'),('LAS_UP','prev'),('DOWN','next'),('LAS_DOWN','next'),('L2','tab_prev'),('R2','tab_next'),('OPTION_TOP','sort')):
+                a.when(('bin',16,P(M('InputCodes'),name),EQ(R(2),P(M('InputCodes'),name))),lambda a,command=command:(a.do(R(1),'PublishRoster',command),a.ret(True)))
+            a.ret(True)
+        a.when(T('roomPlayersOpen'),roster_keys)
         def back(a):
             a.when(T('modalOpen'),lambda a:a.do(R(1),'CloseScenes'),lambda a:(a.do(b.ION,'SendEvent',P(T('staticData'),'SCREEN_CONTROLLER_ID'),P(T('navEvents'),'BACK'),''),a.do(M('InputManager'),'DisableCurrentLocalEventHandler')));a.ret(True)
         a.when(EQ(R(2),P(M('InputCodes'),'BACK')),back)
         for name in ('PRIMARY_SELECT','SELECT','ADVANCE'):
-            a.when(('bin',16,P(M('InputCodes'),name),EQ(R(2),P(M('InputCodes'),name))),lambda a:(a.when(T('modalOpen'),lambda a:a.do(R(1),'ApplyScene'),lambda a:a.do(R(1),'OpenScenes')),a.ret(True)))
+            a.when(('bin',16,P(M('InputCodes'),name),EQ(R(2),P(M('InputCodes'),name))),lambda a:(a.when(T('modalOpen'),lambda a:a.do(R(1),'ApplyScene'),lambda a:a.when(EQ(T('roomActionFocus'),1),lambda a:a.do(R(1),'OpenPlayers'),lambda a:a.do(R(1),'OpenScenes'))),a.ret(True)))
         for name in ('SECONDARY_SELECT','SECONDARY','SQUARE','X'):
             a.when(('bin',16,P(M('InputCodes'),name),EQ(R(2),P(M('InputCodes'),name))),lambda a:(a.when(T('modalOpen'),lambda a:a.do(R(1),'CloseScenes'),lambda a:a.do(R(1),'OpenScenes')),a.ret(True)))
         def arrows(a):
             for name,delta in (('UP',-1),('DOWN',1),('LEFT',-5),('RIGHT',5),('UI_UP',-1),('UI_DOWN',1),('UI_LEFT',-5),('UI_RIGHT',5),('PREVIOUS',-5),('NEXT',5),('L1',-5),('R1',5)):
                 a.when(('bin',16,P(M('InputCodes'),name),EQ(R(2),P(M('InputCodes'),name))),lambda a,delta=delta:(a.do(R(1),'ShiftScene',delta),a.ret(True)))
-        a.when(T('modalOpen'),arrows);a.ret(True)
+        def action_arrows(a):
+            for name,index in (('LEFT',0),('LAS_LEFT',0),('UI_LEFT',0),('RIGHT',1),('LAS_RIGHT',1),('UI_RIGHT',1)):
+                a.when(('bin',16,P(M('InputCodes'),name),EQ(R(2),P(M('InputCodes'),name))),lambda a,index=index:(a.set(R(1),'roomActionFocus',index),a.do(R(1),'RefreshRoomActions'),a.ret(True)))
+        a.when(T('modalOpen'),arrows,action_arrows);a.ret(True)
     a.function('LocalEventHandler',2,key)
     def keyboard(a):
-        a.when(EQ(CALL(PATH('Key'),'getCode'),9),lambda a:a.when(T('modalOpen'),lambda a:a.do(R(1),'CloseScenes'),lambda a:a.do(R(1),'OpenScenes')))
+        a.when(('bin',16,('bin',73,T('roomPlayersOpen'),False),EQ(CALL(PATH('Key'),'getCode'),9)),lambda a:a.when(T('modalOpen'),lambda a:a.do(R(1),'CloseScenes'),lambda a:a.do(R(1),'OpenScenes')))
     a.function('onKeyDown',0,keyboard)

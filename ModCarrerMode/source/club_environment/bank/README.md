@@ -19,3 +19,13 @@ A moeda vem de `career_managerpref.currency`. O ID identifica uma opção do sav
 Cada nova proposta registra uma análise de crédito fictícia. A chance base de recusa varia de 8% a 18% conforme o banco e cresce com o valor em relação ao orçamento, dívidas em aberto e prazos acima de 24 meses. Esses percentuais são regras do jogo, sem relação com taxas reais de aprovação. O sorteio e as circunstâncias ficam congelados na proposta e no checkpoint SQLite. Recusar não credita dinheiro, envia a decisão pela fila existente e permite pedir a outro banco. Pedidos anteriores sem essa análise mantêm o comportamento anterior.
 
 Os testes verificam as três opções monetárias com símbolos fornecidos pelo jogo, prefixos e valores compostos, limite de ações do APT, moeda nos e-mails, recusa sem crédito, nova tentativa, decisão persistida após salto de calendário e restauração SQLite, além da preservação dos bytes do save.
+
+## Recuperação de cobranças — revisão local de 27/10/2026
+
+A construção da tela foi dividida em métodos APT menores. Um contrato aprovado com valores localizados podia ultrapassar o limite do decodificador ao montar o método de atualização e encerrar o auxiliar antes das cobranças seguintes. Falhas de geração/publicação visual agora preservam a última tela válida e tentam novamente após três segundos, sem interromper o calendário financeiro nem a observação dos salvamentos.
+
+A revisão verifica o salto de fevereiro para maio, a cobrança das duas parcelas vencidas sem duplicação, a manutenção do contrato no checkpoint da sessão e sua restauração após uma gravação nativa completa. Inclui contratos simultâneos de 48 meses, navegação, moedas, troca de clube e notificações. O serviço recupera o livro existente; não cria outro empréstimo nem reaplica seu crédito. O jogador continua responsável por salvar a carreira no FIFA para registrar o orçamento e o histórico juntos.
+
+Esta revisão integra a entrega publicada de 28/10/2026; os testes e os limites estão em `ModCarrerMode/docs/RELEASE_20261028.md`.
+
+A troca de slot durante Salvar como aguarda o novo DATA completo antes de trocar de contexto. Leituras transitórias ou um arquivo temporariamente ausente suspendem as transações sem descartar o contrato. Os testes reproduzem a remoção do slot anterior, preservam parcelas já pagas e mantêm a restauração independente quando outro save é efetivamente carregado.

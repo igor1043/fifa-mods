@@ -1,0 +1,38 @@
+{
+  "date": "2026-10-28",
+  "scope": "Published installed-game changes; offline validation",
+  "game_and_development_changed_files_sha256_equal": true,
+  "main_regression_suites": 52,
+  "main_regression_suites_passed": 52,
+  "python_tests": {
+    "bank": 101,
+    "browser_final_run": 37,
+    "next_match_preview": 33,
+    "transfer_market": 29,
+    "dressing_room": 23
+  },
+  "server_overlay_python_tests": 29,
+  "native_checks_include": [
+    "Career context, publication queues and save identity",
+    "Original APT and HelpManager navigation",
+    "Animation buffers, packed constant ranges and graphics state restoration",
+    "Three hundred changing UI frames and backbuffer release before resize",
+    "Five competition XI formations, no overlapping player cards and labels within pitch",
+    "Both legacy and optional-position leaderboard protocols",
+    "Room scene commands and room roster return flow",
+    "Shared Server16 overlay and controller/input bridges"
+  ],
+  "git_index_manifest_audit": {
+    "manifest_files": 439,
+    "missing_or_mismatched_new_files": 0,
+    "previous_complement_assets_unchanged": 36,
+    "new_external_asset_zip_required": false
+  },
+  "excluded_from_publication": [
+    "Career saves and INDEX files",
+    "Loan SQLite/session data",
+    "Generated current-career screens and caches",
+    "Per-machine preferences, logs and RAM probes"
+  ],
+  "limits": "Offline tests and local visual confirmation do not replace verification on the recipient's installation and GPU. Retained inactive narration authoring tools are outside this release gate."
+}

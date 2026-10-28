@@ -4,11 +4,22 @@ Mais vida na carreira, nos uniformes e na apresentação das partidas do FIFA 16
 
 O FIFA Friends V12 reúne melhorias para acompanhar seu clube, personalizar a experiência e dar mais identidade a cada competição. O [Server16](https://github.com/igor1043/CG-File-Server-16---Python-Port/tree/fifa-friends) é o painel que acompanha o projeto e permite escolher os recursos antes e durante a partida.
 
-**Edição:** FIFA Friends V12 · **Atualizado em:** 27/10/2026
+**Edição:** FIFA Friends V12 · **Atualizado em:** 28/10/2026
 
 **Server16 incluído:** 0.2.19. As DLLs compiladas ficam nesta branch, organizadas em uma pasta por mod. O [índice dos módulos ativos](ModCarrerMode/mods/README.md) informa arquivos, funções e configurações.
 
 A combinação Git + ZIP é agora verificada em uma pasta vazia, sem caches do desenvolvedor, incluindo igualdade entre o módulo embutido no EXE e o fonte publicado.
+
+## Entrega — 28/10/2026
+
+- **Competições da carreira:** tabelas dinâmicas, grupos navegáveis e chaveamento ampliado de copas, com zoom, movimentação, ida, volta e agregado.
+- **Estatísticas:** carrossel de artilheiros/assistências, time do campeonato por notas reais, escudos na faixa das notas e indicadores circulares de **ÚLTIMAS 5**.
+- **Clubes e vestiário:** perfil/modelo do técnico, acesso ao elenco do clube pelo vestiário, navegação e legendas originais do FIFA.
+- **Renderização:** estado gráfico separado para os cards e o overlay do Server16, com preservação dos materiais e liberação do backbuffer no modo janela.
+- **Empréstimos:** recuperação da interface sem parar cobranças; preservação do contrato durante Salvar como e leituras transitórias do novo slot.
+- **Entrega:** fontes, DLLs, interfaces, exportador e animações publicados nesta branch; a correção compartilhada do overlay também está na branch `fifa-friends` do Server16.
+
+Atualize com FIFA/Server fechados. Os complementos de assets de 25/10 e da pose de 26/10 continuam válidos; esta revisão não exige um novo ZIP. As novas animações pequenas estão no Git. Não copie saves, SQL ou caches de outra máquina. [Notas, testes e limites da entrega](ModCarrerMode/docs/RELEASE_20261028.md).
 
 ## Entrega — 27/10/2026
 

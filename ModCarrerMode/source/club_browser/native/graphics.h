@@ -8,7 +8,9 @@
 #include <array>
 #include <atomic>
 #include "game_assets.h"
+#include "ui_pipeline_state.h"
 namespace clubgfx {
+inline std::atomic<unsigned> isolatedUiPasses{0},isolatedUiRestores{0},uiFallbackPasses{0};
 inline std::atomic<unsigned> packedConstantRestores{0},lastConstantFirst{0},lastConstantCount{0};
 template<class T>inline void release(T*& p){if(p){p->Release();p=nullptr;}}
 struct Vertex{float x,y,u,v;};
@@ -90,9 +92,16 @@ struct SavedState{
   release(depth);release(blend);release(ds);release(raster);release(vs);release(ps);release(gs);release(hs);release(dsShader);for(auto* classes:{vsClasses,psClasses,gsClasses,hsClasses,dsClasses})for(unsigned i=0;i<256;++i)release(classes[i]);release(layout);release(vb);for(auto& p:sampler)release(p);release(constants);release(context1);
  }
 };
+struct UiPass {
+ UiPipelineState& state;SavedState fallback;bool isolated=false;
+ UiPass(ID3D11DeviceContext*c,UiPipelineState&value):state(value){isolated=state.enter(c);if(isolated)++isolatedUiPasses;else{++uiFallbackPasses;fallback.save(c);}}
+ ~UiPass(){restore();}
+ void restore(){if(isolated){state.leave();++isolatedUiRestores;isolated=false;}else if(fallback.active)fallback.restore(fallback.owner);}
+};
 struct Renderer{
+ UiPipelineState uiPipeline;
  ID3D11Device* device=nullptr;ID3D11VertexShader* vs=nullptr;ID3D11PixelShader* ps=nullptr,*globe=nullptr;ID3D11InputLayout* layout=nullptr;ID3D11Buffer* vb=nullptr,*constants=nullptr;ID3D11BlendState* blend=nullptr;ID3D11DepthStencilState* ds=nullptr;ID3D11RasterizerState* raster=nullptr;ID3D11SamplerState* linear=nullptr,*nearest=nullptr;Texture white,earth,atlas,dot;std::array<Texture,144> labels;Texture countryIcon,leagueIcon,clubIcon;std::array<Texture,7> portraits;float width=0,height=0,scale=1,left=0,top=0;
- void clear(){for(auto& t:portraits)t.clear();for(auto& t:labels)t.clear();for(auto* t:{&white,&earth,&atlas,&dot,&countryIcon,&leagueIcon,&clubIcon})t->clear();release(vs);release(ps);release(globe);release(layout);release(vb);release(constants);release(blend);release(ds);release(raster);release(linear);release(nearest);release(device);}
+ void clear(){uiPipeline.clear();for(auto& t:portraits)t.clear();for(auto& t:labels)t.clear();for(auto* t:{&white,&earth,&atlas,&dot,&countryIcon,&leagueIcon,&clubIcon})t->clear();release(vs);release(ps);release(globe);release(layout);release(vb);release(constants);release(blend);release(ds);release(raster);release(linear);release(nearest);release(device);}
  bool init(ID3D11Device* dev,const std::wstring& root);
  void begin(ID3D11DeviceContext* c,ID3D11RenderTargetView* target,float w,float h){width=w;height=h;scale=(std::min)(w/1600.f,h/900.f);left=(w-1600*scale)/2;top=(h-900*scale)/2;c->OMSetRenderTargets(1,&target,nullptr);D3D11_VIEWPORT viewport{0,0,w,h,0,1};c->RSSetViewports(1,&viewport);c->OMSetBlendState(blend,nullptr,0xffffffff);c->OMSetDepthStencilState(ds,0);c->RSSetState(raster);c->HSSetShader(nullptr,nullptr,0);c->DSSetShader(nullptr,nullptr,0);c->GSSetShader(nullptr,nullptr,0);c->VSSetShader(vs,nullptr,0);c->PSSetShader(ps,nullptr,0);c->IASetInputLayout(layout);c->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLESTRIP);UINT stride=sizeof(Vertex),offset=0;c->IASetVertexBuffers(0,1,&vb,&stride,&offset);ID3D11SamplerState* samplers[]={linear,nearest};c->PSSetSamplers(0,2,samplers);}
  void quad(ID3D11DeviceContext* c,float x,float y,float w,float h,ID3D11ShaderResourceView* texture){if(!texture)return;x=left+x*scale;y=top+y*scale;w*=scale;h*=scale;float x0=x/width*2-1,x1=(x+w)/width*2-1,y0=1-y/height*2,y1=1-(y+h)/height*2;Vertex v[]={{x0,y0,0,0},{x1,y0,1,0},{x0,y1,0,1},{x1,y1,1,1}};D3D11_MAPPED_SUBRESOURCE mapped{};if(FAILED(c->Map(vb,0,D3D11_MAP_WRITE_DISCARD,0,&mapped)))return;memcpy(mapped.pData,v,sizeof(v));c->Unmap(vb,0);c->PSSetShaderResources(0,1,&texture);c->Draw(4,0);}

@@ -37,9 +37,21 @@ cl /nologo /O2 /W3 /EHsc /std:c++17 /utf-8 /MT "%CLUB_SOURCE%\test_scene_publica
 if errorlevel 1 exit /b 1
 test_scene_publication.exe
 if errorlevel 1 exit /b 1
+cl /nologo /O2 /W3 /EHsc /std:c++17 /utf-8 /MT "%CLUB_SOURCE%\test_ui_pipeline_state.cpp" /Fe:test_ui_pipeline_state.exe /link user32.lib gdi32.lib ole32.lib d3d11.lib d3dcompiler.lib dxgi.lib windowscodecs.lib
+if errorlevel 1 exit /b 1
+test_ui_pipeline_state.exe
+if errorlevel 1 exit /b 1
 cl /nologo /O2 /W3 /EHsc /std:c++17 /utf-8 /MT "%CLUB_SOURCE%\test_player_animation.cpp" /Fe:test_player_animation.exe /link d3d11.lib dxgi.lib
 if errorlevel 1 exit /b 1
 test_player_animation.exe
+if errorlevel 1 exit /b 1
+cl /nologo /O2 /W3 /EHsc /std:c++17 /utf-8 /MT "%CLUB_SOURCE%\test_coach_profile.cpp" /Fe:test_coach_profile.exe
+if errorlevel 1 exit /b 1
+test_coach_profile.exe
+if errorlevel 1 exit /b 1
+cl /nologo /O2 /W3 /EHsc /std:c++17 /utf-8 /MT "%CLUB_SOURCE%\test_competitions_layout.cpp" /Fe:test_competitions_layout.exe
+if errorlevel 1 exit /b 1
+test_competitions_layout.exe
 if errorlevel 1 exit /b 1
 popd
 exit /b 0

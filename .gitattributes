@@ -88,3 +88,8 @@ ModCarrerMode/docs/RELEASE_20261027.md -text whitespace=cr-at-eol
 ModCarrerMode/mods/README.md -text whitespace=cr-at-eol
 
 /README.md -text whitespace=cr-at-eol
+# Exact installed bytes for the shared overlay and 28/10 release inputs.
+ModCarrerMode/source/career_native/src/host/native_cards.inc -text whitespace=cr-at-eol
+ModCarrerMode/source/server16_py/d3d_overlay/cgfs16_overlay.cpp -text whitespace=cr-at-eol
+ModCarrerMode/source/server16_py/d3d_overlay/ui_pipeline_state.h -text whitespace=cr-at-eol
+ModCarrerMode/docs/RELEASE_20261028.md -text whitespace=cr-at-eol

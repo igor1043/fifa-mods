@@ -106,7 +106,25 @@ def original_texture(source,template,name):
     rx.sections=[s for s in rx.sections if s[0] not in (TEXTURE,0x6bd085dc)];rx.sections.insert(0,[0x6bd085dc,struct.pack('<4I',1,0,0,0)+raw[:16],0]);rx.sections.append([TEXTURE,bytes(raw),0]);rx.set_names([(TEXTURE,name)])
     return rx.build()
 
-def convert(model,output,read_asset,material_cache=None):
+def player_coefficient(template):
+    """Keep FIFA's complete native coefficient texture and every mip unchanged.
+
+    The animated actor cannot use the static scene's zero coefficient map:
+    the native shader can emit NaN HDR pixels, which resolve to black. Adapt
+    only the container lookup name; colour textures are never involved.
+    """
+    rx=Rx3(template);names=[name for kind,name in rx.names() if kind==TEXTURE]
+    entries=rx.get(TEXTURE)
+    if len(names)!=len(entries) or names.count('prop_coeff')!=1:
+        raise ValueError('Native player coefficient texture unavailable.')
+    data=entries[names.index('prop_coeff')]
+    rx.sections=[s for s in rx.sections if s[0] not in (TEXTURE,0x6bd085dc)]
+    rx.sections.insert(0,[0x6bd085dc,struct.pack('<4I',1,0,0,0)+data[:16],0])
+    rx.sections.append([TEXTURE,data,0]);rx.set_names([(TEXTURE,'xi_coeff')])
+    return rx.build()
+
+
+def convert(model,output,read_asset,material_cache=None,*,animated=False):
     output=Path(output);output.mkdir(parents=True,exist_ok=True);parts,textures=read_model(model)
     keys={};groups=collections.defaultdict(list)
     for p in parts:
@@ -193,7 +211,9 @@ def convert(model,output,read_asset,material_cache=None):
     (output/'geometry.rx3').write_bytes(geometry(batches,model_template))
     (output/'white.rx3').write_bytes(texture(Image.new('RGBA',(4,4),'white'),tex_template,'white_cm'))
     (output/'flat_normal.rx3').write_bytes(texture(Image.new('RGBA',(4,4),(128,128,255,255)),tex_template,'xi_nm'))
-    (output/'neutral_coeff.rx3').write_bytes(texture(Image.new('RGBA',(4,4),(0,0,0,255)),tex_template,'xi_coeff'))
+    coefficient=player_coefficient(tex_template) if animated else texture(Image.new('RGBA',(4,4),(0,0,0,255)),tex_template,'xi_coeff')
+    (output/'neutral_coeff.rx3').write_bytes(coefficient)
     positions=np.concatenate([p['v']['p'] for p in parts]);bounds=np.r_[positions.min(axis=0),positions.max(axis=0)].tolist()
     result=dict(version=VERSION,parts=len(used_slots),used_slots=used_slots,slots=SLOTS,pages=len(keys),bindings=bindings,bounds=bounds,vertices=sum(len(p['v']) for p in parts),original_compressed_textures=copied,texture_sizes=sizes,texture_layout='original FIFA UVs',renderer='FIFA native GameplayProp')
+    if animated:result['player_coefficient']='native_payload_all_mips_v1'
     (output/'assets.json').write_text(json.dumps(result,indent=2),encoding='utf8');return result

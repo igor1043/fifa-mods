@@ -137,4 +137,4 @@ runtime/diagnostics/
 !ModCarrerMode/source/scene_studio/vendor/three/build/
 !ModCarrerMode/source/scene_studio/vendor/three/build/*.js
 # Extracted native idle animation ships only in the incremental asset ZIP.
-/ModCarrerMode/data/club_browser/animations/idle_crossed.json
+# Small native idle animation is versioned with the player/coach code.

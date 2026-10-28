@@ -16,6 +16,15 @@ using namespace fifa_player;namespace fs=std::filesystem;
 #include "authored_pose.h"
 static bool generate(Assets&assets,const fs::path&game,const fs::path&fixture,const fs::path&target,int pose,const fs::path&override_pose={}){
  std::vector<ClubPlayerRow>rows;int club=0;unsigned colors[3]{};
+ if(pose==402){
+  struct CoachRequest{char magic[8];uint32_t club,colors[3];}input{};static_assert(sizeof input==24,"Coach request ABI");
+  std::ifstream file(fixture,std::ios::binary);file.read((char*)&input,sizeof input);if(!file||file.peek()!=std::char_traits<char>::eof()||memcmp(input.magic,"FFCOACH1",8)||!input.club||input.club>200000)throw std::runtime_error("Invalid coach request");
+  ClubPlayerRow row{};row.team_id=club=int(input.club);row.club_colors_valid=1;for(int i=0;i<3;++i){if(input.colors[i]>0xffffff)throw std::runtime_error("Invalid coach colors");row.club_colors[i]=input.colors[i];}
+  auto coach=assets.coach(row);if(!coach.model||coach.model->parts.empty()||coach.model->team_id!=club)throw std::runtime_error("Club coach model unavailable");
+  Model model=*coach.model;model.player_id=100000000+club;
+  std::cout<<model.diagnostic<<"\n";
+  return model.skeleton?export_web_skinned_model(model,target,coach.name):export_web_model(model,target);
+ }
  if(pose==401){
   if(!read_fixture(fixture,rows,club,colors,true)||rows.size()!=1)throw std::runtime_error("Invalid individual-player request");
   auto model=assets.load(rows[0]);if(model.parts.empty()||!model.skeleton||model.player_id!=rows[0].player_id||model.team_id!=club)throw std::runtime_error("Incomplete individual player");

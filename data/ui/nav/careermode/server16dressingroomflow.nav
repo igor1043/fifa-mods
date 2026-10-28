@@ -90,6 +90,73 @@
               ]
             ]
           ]
+        },
+        {
+          "event": "Server16OpenRoomPlayers",
+          "targets": [
+            "Players"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Players",
+      "onEnter": [
+        [
+          "loadScreenController",
+          [
+            "Calendar"
+          ]
+        ],
+        [
+          "loadView",
+          [
+            "screen",
+            "game/screens/career/server16/DressingRoomPlayers"
+          ]
+        ],
+        [
+          "loadView",
+          [
+            "background",
+            "FIFA",
+            "BOOTFLOW"
+          ]
+        ]
+      ],
+      "onExit": [
+        [
+          "unloadView",
+          [
+            "screen",
+            "game/screens/career/server16/DressingRoomPlayers"
+          ]
+        ],
+        [
+          "unloadScreenController",
+          [
+            "Calendar"
+          ]
+        ],
+        [
+          "unloadView",
+          [
+            "background"
+          ]
+        ]
+      ],
+      "transitions": [
+        {
+          "event": "Back",
+          "targets": [
+            "Room"
+          ]
+        },
+        {
+          "event": "back",
+          "targets": [
+            "Room"
+          ]
         }
       ]
     }

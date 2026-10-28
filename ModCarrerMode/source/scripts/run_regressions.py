@@ -100,6 +100,8 @@ def main():
                 str(args.game_root),str(output/'browser-native')])
             run('globe-assets', [sys.executable,'-B',str(SOURCE/'club_browser/test_globe_assets.py'),
                 str(ROOT/'ModCarrerMode/data/club_browser')])
+            run('room-roster-route', [sys.executable,'-B',str(SOURCE/'club_browser/test_room_players.py'),
+                str(args.game_root),str(output/'room-roster-route')])
         elif group == 'native':
             if os.name != 'nt':
                 run('native-requires-windows', [sys.executable, '-c', 'raise SystemExit(2)']); continue

@@ -10,10 +10,11 @@ from build_preview import Code
 from build_package import read_nav,walk
 from formats import AptFile,BigFile,Reader
 from apt_actions import Actions
+import native_roster_footer as roster_footer
 GAME=portable.GAME;CLASS=('game','screens','career','server16','DressingRoom');FULL='.'.join(CLASS);PAGE=FULL.replace('.','/')
 R=b.reg;T=b.this;P=b.prop;CALL=b.call;PATH=b.path;M=b.MANAGER;ION=b.ION
 XML='data/ui/layout/careermanagerhubcfg.xml';NAV='data/ui/nav/careermode/mainmenuhubflow.nav';FLOW='data/ui/nav/careermode/server16dressingroomflow.nav';BIG='data/ui/game/screens/career/server16/dressingroom.big'
-HEADER_REVISION=64
+HEADER_REVISION=66
 def screen(payload=None,asset_reader=None):
  if payload is None:payload=json.loads((ROOT/'runtime/room_context_r46.json').read_text(encoding='utf8'))
  club=int(payload['club']);club_name=payload['club_name'];assert club>=0 and club_name
@@ -73,14 +74,14 @@ def screen(payload=None,asset_reader=None):
  a.function('OnAnimateInComplete',0,complete)
  def exit(a):
   a.when(T('exiting'),lambda a:a.ret());a.set(R(1),'exiting',True);a.set(R(1),'onEnterFrame',None);a.set(R(1),'onKeyDown',None)
-  a.do(PATH('Key'),'removeListener',R(1))
+  roster_footer.restore(a);a.do(R(1),'PublishRoster','room_close');a.do(PATH('Key'),'removeListener',R(1))
   a.do(M('InputManager'),'DisableCurrentLocalEventHandler');a.do(M('HelpManager'),'Clear');a.do(R(1),'Shutdown')
  a.function('OnExitScreen',0,exit);a.op(0);a.finish();a.align();reg=len(data);data.extend(dictionaries[1]);a.string(FULL);a.op(28);a.string(FULL);a.expr(2);a.expr(PATH('Object'));a.method('registerClass');a.op(23);a.op(0);a.finish()
  for tag,target in ((apt.root_frames[0][1],start),(apt.root_frames[0][2],reg)):
   matches=[i for i in range(0,len(apt.entry.original)-7,8) if apt.entry.original[i:i+8]==struct.pack('<Q',tag[-1])];assert len(matches)==1;struct.pack_into('<Q',data,matches[0],target)
  out=ROOT/'package'/BIG;out.parent.mkdir(parents=True,exist_ok=True);b.write_big(big,out,additions)
  parsed=AptFile(BigFile(out));actions=Actions(parsed).read_all();assert not actions.errors and FULL in parsed.exports
- (ROOT/'runtime/room_header.json').write_text(json.dumps({'revision':HEADER_REVISION,'pid':payload['pid'],'catalog_hash':hashlib.sha256(json.dumps(scope['scenes'],sort_keys=True).encode()).hexdigest(),'club':club,'name':club_name,'crest':crest_path,'help':{'ADVANCE':'Cenas','BACK':'Voltar'},'bytes':out.stat().st_size},ensure_ascii=False,indent=2),encoding='utf8')
+ (ROOT/'runtime/room_header.json').write_text(json.dumps({'revision':HEADER_REVISION,'pid':payload['pid'],'catalog_hash':hashlib.sha256(json.dumps(scope['scenes'],sort_keys=True).encode()).hexdigest(),'club':club,'name':club_name,'crest':crest_path,'help':{'ADVANCE':'Selecionar','BACK':'Voltar','LAS_LR':'Opções'},'bytes':out.stat().st_size},ensure_ascii=False,indent=2),encoding='utf8')
  return out
 def stage():
  screen();xml=ET.fromstring((GAME/XML).read_text(encoding='utf8'));panel=xml.find('panel_3')
@@ -103,6 +104,8 @@ def stage():
  flow={'name':'Server16DressingRoomFlow','initial':{'targets':['Room']},'states':[{'name':'Room','onEnter':[['executeCMAction',['EnterCalendar']],['loadScreenController',['Calendar']],['loadView',['screen',PAGE]]],
  'onExit':[['unloadView',['screen',PAGE]],['unloadScreenController',['Calendar']]],'transitions':[{'event':e,'targets':['Back'],'actions':[['executeCMAction',['ReturnToHubFromCalendar']]]} for e in ('Back','back')]}]}
  flow['states'][0]['transitions'].append({'event':'Server16RefreshDressingRoom','actions':[['unloadView',['screen']],['loadView',['screen',PAGE]]]})
+ from club_browser.room_players import integrate
+ flow=integrate(flow)
  for rel,data in {XML:ET.tostring(xml,encoding='utf-8',xml_declaration=True),NAV:(json.dumps(nav,ensure_ascii=False,indent=2)+'\n').encode('utf8'),FLOW:(json.dumps(flow,indent=2)+'\n').encode()}.items():
   p=ROOT/'package'/rel;p.parent.mkdir(parents=True,exist_ok=True);p.write_bytes(data)
  # Shared features remain represented after inserting only this card/branch.

@@ -73,3 +73,13 @@ arquivam revisões antigas conhecidas e preservam módulos adicionais do usuári
 Antes de publicar, execute `ModCarrerMode/tools/maintenance/Verify-Package.ps1`.
 O teste de instalação é `Test-Package.ps1 -SupplementalAssetDirectory "PASTA_DO_FIFA"`,
 usando uma instalação com o complemento SubsOn para fornecer o asset à fixture.
+
+## Revisão de clubes e competições — 28/10/2026
+
+`club_browser/club_browser.dll` reúne mapa de clubes, onze titulares, elenco,
+perfil do técnico e competições da carreira. O acesso ao elenco do clube também
+existe no vestiário. Grupos e chaveamentos são definidos pelo CompData instalado;
+notas e estatísticas vêm da publicação validada da carreira. A DLL de vestiário,
+o overlay compartilhado e `dinput8.dll` acompanham a revisão. Consulte as
+[notas da entrega](../docs/RELEASE_20261028.md) e os
+[fontes e testes](../source/club_browser/README.md).

@@ -1434,6 +1434,12 @@
               "targets": [
                 "Server16ClubBrowser"
               ]
+            },
+            {
+              "event": "Server16EnterCareerCompetitions",
+              "targets": [
+                "Server16CareerCompetitions"
+              ]
             }
           ]
         },
@@ -3355,6 +3361,15 @@
           "name": "Server16ClubBrowser",
           "type": "external",
           "file": "/careerMode/server16ClubBrowserFlow.nav",
+          "outputs": {
+            "back": "MainMenuHub",
+            "Back": "MainMenuHub"
+          }
+        },
+        {
+          "name": "Server16CareerCompetitions",
+          "type": "external",
+          "file": "/careerMode/server16CareerCompetitionsFlow.nav",
           "outputs": {
             "back": "MainMenuHub",
             "Back": "MainMenuHub"

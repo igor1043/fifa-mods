@@ -21,7 +21,7 @@ class Exporter:
             except subprocess.TimeoutExpired:pass
             if process.stdin:process.stdin.close()
     def run(self,tool,game,fixture,target,timeout=120,pose=1):
-        if pose not in (1,401):raise ValueError('Modo de exportação inválido.')
+        if pose not in (1,401,402):raise ValueError('Modo de exportação inválido.')
         signature=(str(Path(game).resolve()),tool.stat().st_size,tool.stat().st_mtime_ns)
         if self.process and (self.process.poll() is not None or self.signature!=signature):self.close()
         if self.process is None:

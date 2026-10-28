@@ -117,7 +117,7 @@ def bake(model,clip_path,output,read_asset,material_cache=None,cancel=None,playe
   rig,kit_report=personalize(rig,player,read_asset)
  anim=Animation(rig,json.loads(Path(clip_path).read_text(encoding='utf-8-sig')));initial=skin(rig,anim.pose(0));floor=min(v['p'][:,1].min() for v in initial);
  for v in initial:v['p'][:,1]-=floor
- intermediate=Path(output).parent/'player-static.ff3d';write_model(rig,initial,intermediate);report=convert(intermediate,output,read_asset,material_cache)
+ intermediate=Path(output).parent/'player-static.ff3d';write_model(rig,initial,intermediate);report=convert(intermediate,output,read_asset,material_cache,animated=True)
  parts,_=read_model(intermediate);keys={};groups=collections.defaultdict(list)
  for i,p in enumerate(parts):
   key=(p['tex'],p['coeff'],tuple(p['tint'] if p['tex']>=0 else p['color']),p['alpha'],p['blend'],p['hair']);tile=keys.setdefault(key,len(keys));groups[(tile,p['blend'] or p['hair'])].append(i)

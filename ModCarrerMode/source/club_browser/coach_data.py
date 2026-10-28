@@ -1,0 +1,161 @@
+"""Read-only coach profile, scoped by selected club and validated active career.
+
+Club results are never presented as a coach's lifetime record. User statistics
+require an exact userid/club join; another club cannot inherit the user's wage.
+"""
+from pathlib import Path
+import struct,json
+from lineup_data import ProjectionCache,project as starting_eleven
+
+KEYS=('games','wins','draws','losses','goalsFor','goalsAgainst','points')
+
+def clean(value):
+ return str(value if value is not None else '—').replace('\t',' ').replace('\r',' ').replace('\n',' ').strip()[:180] or '—'
+
+def catalog(path):
+ try:
+  raw=Path(path).read_bytes()
+  try:text=raw.decode('utf-8-sig')
+  except UnicodeDecodeError:text=raw.decode('cp1252')
+  return [line.split('|') for line in text.splitlines() if line.strip() and not line.startswith('#')]
+ except OSError:return []
+
+def manager_for(club,managers,users,info):
+ rows=[r for r in managers if r.get('teamid')==club]
+ result=dict(rows[0]) if len(rows)==1 else {}
+ users=[r for r in users if r.get('clubteamid')==club and r.get('usertype')==1]
+ if len(users)==1:
+  u=users[0];matches=[r for r in info if r.get('userid')==u.get('userid') and r.get('clubteamid')==club]
+  if len(matches)==1:result.update(u);result.update(matches[0])
+ return result
+
+def record(matches):
+ s=dict.fromkeys(KEYS,0)
+ for r in matches:
+  gf,ga=r['gf'],r['ga'];s['games']+=1;s['wins']+=gf>ga;s['draws']+=gf==ga;s['losses']+=gf<ga;s['goalsFor']+=gf;s['goalsAgainst']+=ga
+ s['points']=s['wins']*3+s['draws'];return s
+
+def season(snapshot,club,leagues):
+ if not snapshot:return {},[],''
+ today=snapshot['date'];nodes={r[0]:r for r in snapshot.get('nodes',[]) if len(r)==5};matches={};groups={}
+ def root(key):
+  seen=set()
+  while key in nodes and key not in seen:
+   seen.add(key);n=nodes[key]
+   if n[2]==3:return n[0],n[3]
+   key=n[1]
+  return None
+ for r in snapshot.get('fixtures',[]):
+  if len(r)<10 or any(type(v)!=int for v in r[:10]) or club not in r[5:7] or r[5]==r[6]:continue
+  comp=root(r[1])
+  if not comp:continue
+  group=groups.setdefault(comp,dict(asset=comp[1],name=leagues.get(comp[1],'Competição'),upcoming=False,matches=[]))
+  if not r[9]:
+   if r[3]>=today:group['upcoming']=True
+   continue
+  if not 20080101<=r[3]<=today or not all(0<=v<=255 for v in r[7:9]):continue
+  if r[0] in matches:
+   if matches[r[0]]['raw']!=tuple(r):raise ValueError('Resultados conflitantes da carreira.')
+   continue
+  home=r[5]==club;m=dict(raw=tuple(r),date=r[3],id=r[0],home=home,gf=r[7 if home else 8],ga=r[8 if home else 7]);matches[r[0]]=m;group['matches'].append(m)
+ values=list(matches.values());s=record(values);s['home']=record([r for r in values if r['home']]);s['away']=record([r for r in values if not r['home']])
+ competitions=[]
+ for _,g in sorted(groups.items()):
+  competitions.append(dict(asset=g['asset'],name=g['name'],**record(g['matches']),status='Em andamento' if g['upcoming'] and g['matches'] else 'A disputar' if g['upcoming'] else 'Resultados registrados'))
+ form=''.join('V' if r['gf']>r['ga'] else 'E' if r['gf']==r['ga'] else 'D' for r in sorted(values,key=lambda r:(r['date'],r['id']),reverse=True)[:5])
+ return s,competitions,form
+
+def project(game,save,club,cache=None,snapshot=None):
+ game=Path(game);cache=cache or ProjectionCache();raw,dbs,base=cache.load(game,save)
+ def table(name,fields,base_only=False):
+  matches=[db for db in dbs if name in db.tables]
+  if len(matches)>1:raise ValueError('Tabela de técnico ambígua: '+name)
+  db=matches[0] if matches and not base_only else base
+  if name not in db.tables:return []
+  key=('coach',id(db),name,tuple(fields))
+  if key not in cache.rows:
+   def value(index,field):
+    try:return db.value(db.tables[name],index,field)
+    except UnicodeDecodeError:
+     kind,bit,depth,low=db.tables[name]['fields'][field]
+     if kind!=0:return None
+     at=db.tables[name]['records']+index*db.tables[name]['stride']+bit//8
+     return db.data[at:at+depth//8].split(b'\0',1)[0].decode('cp1252',errors='replace')
+   cache.rows[key]=[{field:value(i,field) for field in fields} for i in range(db.tables[name]['rows'])]
+  return cache.rows[key]
+ def match(name,fields,key,ids):
+  return [r for r in table(name,fields) if r.get(key) in ids]
+ team=match('teams',['teamid','teamname',*('teamcolor'+str(i)+ch for i in (1,2,3) for ch in 'rgb')],'teamid',{club})
+ if len(team)!=1:raise ValueError('Clube não disponível nesta carreira.')
+ managers=match('manager',['teamid','firstname','surname'],'teamid',{club})
+ users=table('career_users',['userid','usertype','clubteamid','firstname','surname','nationalityid'])
+ info=table('career_managerinfo',['userid','clubteamid','boardconfidence','managerreputation','wage'])
+ manager=manager_for(club,managers,users,info)
+ name=' '.join(str(manager.get(k) or '').strip() for k in ('firstname','surname')).strip()
+ if name.casefold().startswith(('téc. ','tec. ','coach ','manager ')):name=name.split(' ',1)[1]
+ if not name:name=next((r[1].strip() for r in catalog(game/'ModCarrerMode/data/catalogs/club_manager_fallback.tsv') if len(r)>=2 and r[0]==str(club)),'Não informado')
+ nation_id=manager.get('nationalityid')
+ if nation_id is None:nation_id=next((int(r[2]) for r in catalog(game/'ModCarrerMode/data/catalogs/coach_identity.tsv') if len(r)==3 and r[0]==str(club) and r[1].strip().casefold()==name.casefold() and r[2].isdigit()),None)
+ nation=next((r for r in table('nations',['nationid','nationname']) if r['nationid']==nation_id),{})
+ league_fields=['leagueid','leaguename','level'];league_rows={r['leagueid']:r for r in table('leagues',league_fields,True)}
+ league_rows.update({r['leagueid']:r for r in table('leagues',league_fields)});league_rows=list(league_rows.values());leagues={r['leagueid']:r['leaguename'] for r in league_rows}
+ countries={}
+ try:
+  for line in (game/'ModCarrerMode/data/club_browser/catalog.tsv').read_text(encoding='utf-8-sig').splitlines():
+   row=line.split('\t')
+   if len(row)==18:countries[int(row[2])]=row[1];leagues[int(row[5])]=row[6]
+ except (OSError,ValueError):pass
+ # Match preview's already-published native localization cache. Reading it
+ # avoids launching a separate localization process while opening this view.
+ try:
+  loc=game/'data/loc/por_br.db';state=json.loads((game/'ModCarrerMode/runtime/club_environment/preview/runtime/competition_labels_r57.json').read_text(encoding='utf8'))
+  if state.get('revision')==3 and state.get('stamp')==[loc.stat().st_mtime_ns,loc.stat().st_size]:
+   for ident in {*leagues,*(r[3] for r in (snapshot or {}).get('nodes',[]) if len(r)==5 and r[2]==3 and r[3]>0)}:
+    for key in (f'TrophyName_{ident}',f'TrophyName_Abbr15_{ident}',f'LeagueName_{ident}',f'LEAGUE_NAME_{ident}',f'CompetitionName_{ident}',f'TournamentName_{ident}'):
+     label=state['names'].get(key)
+     if label and '\ufffd' not in label:leagues[ident]=label;break
+ except (OSError,ValueError,KeyError,TypeError):pass
+ links=match('leagueteamlinks',['teamid','leagueid','secondarytable'],'teamid',{club});members={r['leagueid'] for r in links if not r.get('secondarytable')}
+ primary=min((r for r in league_rows if r['leagueid'] in members),key=lambda r:r.get('level') or 99,default={})
+ fields=dict(name=name,country=countries.get(nation_id,nation.get('nationname','—')),nation=nation_id or 0,league=leagues.get(primary.get('leagueid'),'—'),league_id=primary.get('leagueid',0))
+ for src,dest,maximum in [('boardconfidence','confidence',100),('managerreputation','reputation',1501),('wage','weekly_wage',2147483647)]:
+  v=manager.get(src);fields[dest]=v if type(v)==int and 0<=v<=maximum else -1
+ fields['monthly_wage']=round(fields['weekly_wage']*52/12) if fields['weekly_wage']>0 else -1
+ sheets=match('teamsheets',['teamid','isfavourite','formationid'],'teamid',{club});sheets=[r for r in sheets if r.get('isfavourite')==1]
+ formation_id=sheets[0].get('formationid') if len(sheets)==1 else None
+ fields['formation']=next((r['formationname'] for r in table('formations',['formationid','formationname']) if r['formationid']==formation_id),'—')
+ if fields['formation']=='—':fields['formation']=next((r[1] for r in catalog(game/'ModCarrerMode/data/catalogs/club_formation_fallback.tsv') if len(r)>1 and r[0]==str(club)),'—')
+ stadium_links=match('teamstadiumlinks',['teamid','stadiumid'],'teamid',{club});sid=stadium_links[0].get('stadiumid') if len(stadium_links)==1 else 0
+ stadium=next((r for r in table('stadiums',['stadiumid','name','capacity']) if r['stadiumid']==sid),{})
+ # Reuse the match-preview resolver, including the club's custom DB name.
+ from preview_details import stadium_title
+ class Row:
+  def __init__(self,row):self.row=row
+  def value(self,key):return self.row.get(key)
+ assigned=table('stadiumassignments',['teamid','stadiumcustomname'])
+ fields['stadium']=stadium_title(club,0,lambda name:[Row(r) for r in assigned] if name=='stadiumassignments' else [],{},stadium.get('name',''),game)[0]
+ fields['capacity']=stadium.get('capacity') or -1
+ calendar=table('career_calendar',['currdate','startdate']);fields['date']=snapshot['date'] if snapshot else calendar[0].get('currdate',0) if len(calendar)==1 else 0
+ fields['season_year']=calendar[0].get('startdate',0)//10000 if len(calendar)==1 else 0
+ stats,competitions,form=season(snapshot,club,leagues);fields['form']=form or '—';history=[]
+ history_fields=['teamid','season','games_played','wins','draws','losses','goals_for','goals_against','points','tableposition','leaguetrophies','domesticcuptrophies','continentalcuptrophies']
+ for r in match('career_managerhistory',history_fields,'teamid',{club}):
+  values=[r.get(k) for k in ('games_played','wins','draws','losses','goals_for','goals_against','points')]
+  if any(type(v)!=int or v<0 for v in values) or sum(values[1:4])!=values[0]:continue
+  history.append(dict(season=(r.get('season') or 0)+1,rank=r.get('tableposition') or -1,**dict(zip(KEYS,values)),titles=sum(r.get(k) or 0 for k in ('leaguetrophies','domesticcuptrophies','continentalcuptrophies'))))
+ history.sort(key=lambda r:r['season'],reverse=True)
+ try:starters=starting_eleven(game,save,club,cache)['roster']
+ except ValueError:starters=[]
+ colors=[sum((team[0].get('teamcolor'+str(i)+ch) or 0)<<shift for ch,shift in zip('rgb',(16,8,0))) for i in (1,2,3)]
+ return dict(club=club,club_name=team[0]['teamname'],fields=fields,stats=stats,competitions=competitions,history=history,starters=starters,save_hash=cache.save_hash,fixture=struct.pack('<8s4I',b'FFCOACH1',club,*colors))
+
+def tsv(data):
+ rows=[['S16COACH1',data['club'],data['club_name']]]
+ rows.extend(['F',k,v] for k,v in data['fields'].items())
+ for key in ('total','home','away'):
+  s=data['stats'] if key=='total' else data['stats'].get(key,{})
+  rows.append(['S',key,*(s.get(k,-1) for k in KEYS)])
+ rows.extend(['C',r['asset'],r['name'],*(r.get(k,-1) for k in KEYS),r['status']] for r in data['competitions'])
+ rows.extend(['H',r['season'],r['rank'],*(r[k] for k in KEYS),r['titles']] for r in data['history'])
+ rows.extend(['X',r['id'],r['number'],r['name'],r['position'],r['overall']] for r in data['starters'])
+ return ('\n'.join('\t'.join(map(clean,row)) for row in rows)+'\n').encode('utf8')

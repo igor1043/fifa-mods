@@ -1,0 +1,93 @@
+{
+  "name": "Server16CareerCompetitionsFlow",
+  "initial": {
+    "targets": [
+      "Competitions"
+    ]
+  },
+  "states": [
+    {
+      "name": "Competitions",
+      "onEnter": [
+        [
+          "executeCMAction",
+          [
+            "EnterCalendar"
+          ]
+        ],
+        [
+          "loadScreenController",
+          [
+            "Calendar"
+          ]
+        ],
+        [
+          "loadView",
+          [
+            "screen",
+            "game/screens/career/server16/CareerCompetitions"
+          ]
+        ],
+        [
+          "loadView",
+          [
+            "background",
+            "FIFA",
+            "BOOTFLOW"
+          ]
+        ]
+      ],
+      "onExit": [
+        [
+          "unloadView",
+          [
+            "screen",
+            "game/screens/career/server16/CareerCompetitions"
+          ]
+        ],
+        [
+          "unloadScreenController",
+          [
+            "Calendar"
+          ]
+        ],
+        [
+          "unloadView",
+          [
+            "background"
+          ]
+        ]
+      ],
+      "transitions": [
+        {
+          "event": "Back",
+          "targets": [
+            "Back"
+          ],
+          "actions": [
+            [
+              "executeCMAction",
+              [
+                "ReturnToHubFromCalendar"
+              ]
+            ]
+          ]
+        },
+        {
+          "event": "back",
+          "targets": [
+            "Back"
+          ],
+          "actions": [
+            [
+              "executeCMAction",
+              [
+                "ReturnToHubFromCalendar"
+              ]
+            ]
+          ]
+        }
+      ]
+    }
+  ]
+}

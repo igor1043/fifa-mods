@@ -9,6 +9,8 @@ def install(ui):
     global u,T,R,P,EQ,ADD
     u=ui;T=u.T;R=u.R;P=u.P;EQ=u.EQ;ADD=u.ADD
     original={name:getattr(u,name) for name in ('init','refresh','select','shift','focus','back','wait','graphics')}
+    # Keep each native APT method bounded even with localized money expressions.
+    u.EXTRA.append(('RefreshBase',0,original['refresh']))
     def fields():
         return (('bankHeading',845,312,920,46,32),('bankCaption',845,356,910,34,24),
             ('amountCaption',710,430,425,36,27),('amountHint',710,538,430,34,19),
@@ -57,7 +59,7 @@ def install(ui):
         # Restore the positions used by the other pages before their own draw.
         for name,x,y in (('title',130,155),('subtitle',132,218),('section',130,280),('status',130,900)):
             a.set(T(name),'_x',x);a.set(T(name),'_y',y)
-        original['refresh'](a)
+        a.do(R(1),'RefreshBase')
         for name in ('bankHero','optionsPanel','simulationPanel','ratePanel'):
             u.show(a,name,False)
         for index in range(len(BANKS)):

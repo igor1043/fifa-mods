@@ -16,6 +16,7 @@ from room_roster_r52 import scene_catalog
 def open_room():
     # Reuse only the test engine's native manager stubs, not a live game.
     vm,_,calls=open_screen(presentation(empty(1043,20260211),20260211,10_000_000,ready=True,nonce='TEST'))
+    codes=vm.path('game.globalClasses.InputCodes');codes.set('LAS_LEFT',13);codes.set('LAS_RIGHT',14)
     scope={'pid':42,'club':1043,'club_name':'Flamengo','focus':[{'number':9,'name':'Pedro','player':233605,'locker':0}]}
     roster=[{'id':233605,'number':9,'name':'Pedro'},{'id':213629,'number':5,'name':'Pulgar'}]
     scope['scene_catalog']=scene_catalog(scope,roster)
@@ -35,13 +36,15 @@ def open_room():
     for name in ('groupTitle','counter','previousPage','nextPage','backGroup'):
         modal.set(name,Object({'label':Object()}))
     for i in range(5):modal.set('row'+str(i),Object({'label':Object(),'highlight':Object(),'head233605':Object(),'head213629':Object()}))
+    for button in ('sceneButton','playersButton'):
+        screen.get(button).set('label',Object());screen.get(button).set('highlight',Object())
     vm.invoke(klass,screen);vm.invoke(screen.get('WaitForSceneClips'),screen)
     return vm,screen,calls,saved_scope,apt
 
 class VisualRoomTests(unittest.TestCase):
     def test_opening_and_closing_scenes_keeps_the_camera_running_with_original_select_help(self):
         vm,screen,calls,scope,_=open_room()
-        self.assertEqual(vm.invoke(screen.get('getHelpContext'),screen),[('ADVANCE','Cenas'),('BACK','Voltar')])
+        self.assertEqual(vm.invoke(screen.get('getHelpContext'),screen),[('ADVANCE','Selecionar'),('BACK','Voltar'),('LAS_LR','OpÃ§Ãµes')])
         for _ in range(4):
             vm.invoke(screen.get('OpenScenes'),screen)
             command=vm.global_.get('Server16RoomRequest')
@@ -52,6 +55,76 @@ class VisualRoomTests(unittest.TestCase):
             vm.invoke(screen.get('CloseScenes'),screen)
             self.assertFalse(screen.get('modalOpen'))
             self.assertTrue(all(code==-3 for seq,code in decode_requests(vm.global_.get('Server16RoomRequest').encode(),42,scope['nonce'],1043)))
+
+    def test_room_actions_select_roster_with_arrows_and_keep_scenes_independent(self):
+        vm,screen,calls,scope,_=open_room()
+        self.assertEqual(screen.get('roomActionFocus'),0)
+        vm.invoke(screen.get('LocalEventHandler'),screen,[14,True])
+        self.assertEqual(screen.get('roomActionFocus'),1)
+        self.assertEqual(screen.get('playersButton').get('highlight').get('_alpha'),100)
+        vm.invoke(screen.get('LocalEventHandler'),screen,[2,True])
+        opened=[args for name,args in calls if name=='SendSystemEvent' and args==['Calendar','Server16ClubBrowser','room_roster']]
+        self.assertEqual(len(opened),1)
+        self.assertFalse(screen.get('modalOpen'))
+        vm.invoke(screen.get('OpenPlayers'),screen)
+        self.assertEqual(sum(name=='SendSystemEvent' and args==['Calendar','Server16ClubBrowser','room_roster'] for name,args in calls),1)
+        self.assertTrue(all(code==-3 for seq,code in decode_requests(vm.global_.get('Server16RoomRequest').encode(),42,scope['nonce'],1043)))
+        vm,screen,calls,scope,_=open_room()
+        vm.invoke(screen.get('LocalEventHandler'),screen,[6,True]);vm.invoke(screen.get('LocalEventHandler'),screen,[5,True]);vm.invoke(screen.get('LocalEventHandler'),screen,[2,True])
+        self.assertTrue(screen.get('modalOpen'))
+        self.assertFalse(any(name=='SendSystemEvent' and args==['Calendar','Server16ClubBrowser','room_roster'] for name,args in calls))
+
+    def test_mouse_focus_and_click_open_the_current_club_roster(self):
+        vm,screen,calls,_,_=open_room();button=screen.get('playersButton')
+        vm.invoke(button.get('onRollOver'),button)
+        self.assertEqual(screen.get('roomActionFocus'),1)
+        self.assertEqual(button.get('highlight').get('_alpha'),100)
+        self.assertEqual(screen.get('sceneButton').get('highlight').get('_alpha'),0)
+        vm.invoke(button.get('onRelease'),button)
+        self.assertTrue(any(name=='SendSystemEvent' and args==['Calendar','Server16ClubBrowser','room_roster'] for name,args in calls))
+        self.assertFalse(any(name=='SendSystemEvent' and 'Server16SubmitBank' in args for name,args in calls))
+
+    def test_roster_keeps_room_loaded_routes_all_inputs_and_returns_from_detail_before_scenes(self):
+        vm,screen,calls,_,_=open_room()
+        codes=vm.path('game.globalClasses.InputCodes')
+        for key,value in [('LAS_UP',15),('LAS_DOWN',16),('L2',11),('R2',12),('OPTION_TOP',10)]:codes.set(key,value)
+        vm.invoke(screen.get('OpenPlayers'),screen)
+        self.assertTrue(screen.get('roomPlayersOpen'))
+        for name in ('title','subtitle','clubCrest','sceneButton','playersButton','sceneModal'):
+            self.assertFalse(screen.get(name).get('_visible'))
+        help=vm.invoke(screen.get('getHelpContext'),screen)
+        self.assertIn(('ADVANCE','Detalhes'),help);self.assertIn(('BACK','Voltar'),help)
+        self.assertIn(('L2R2','Abas'),help);self.assertIn(('RAS_LR','Girar'),help);self.assertIn(('L1R1','Zoom'),help)
+        for key,command in [(15,'prev'),(16,'next'),(13,'left'),(14,'right'),(11,'tab_prev'),(12,'tab_next'),(10,'sort')]:
+            vm.invoke(screen.get('LocalEventHandler'),screen,[key,True])
+            self.assertIn(('SendSystemEvent',['Calendar','Server16ClubBrowser',command]),calls)
+        vm.invoke(screen.get('LocalEventHandler'),screen,[2,True])
+        self.assertTrue(screen.get('roomPlayersDetail'))
+        vm.invoke(screen.get('LocalEventHandler'),screen,[1,True])
+        self.assertTrue(screen.get('roomPlayersOpen'));self.assertFalse(screen.get('roomPlayersDetail'))
+        self.assertIn(('SendSystemEvent',['Calendar','Server16ClubBrowser','back']),calls)
+        vm.invoke(screen.get('LocalEventHandler'),screen,[1,True])
+        self.assertFalse(screen.get('roomPlayersOpen'))
+        self.assertIn(('SendSystemEvent',['Calendar','Server16ClubBrowser','room_close']),calls)
+        self.assertFalse(any(name=='SendEvent' and args[1] in ('Back','Server16OpenRoomPlayers') for name,args in calls))
+        for name in ('title','subtitle','clubCrest','sceneButton','playersButton'):self.assertTrue(screen.get(name).get('_visible'))
+        vm.invoke(screen.get('OpenPlayers'),screen)
+        self.assertTrue(screen.get('roomPlayersOpen'))
+
+    def test_original_help_footer_moves_below_cards_only_while_roster_is_open(self):
+        vm,screen,calls,_,_=open_room()
+        display=Object({'mcHelpItemsHolder':Object({'_y':940}),'mcTextScroller':Object({'_y':942})})
+        vm.path('game.globalClasses.HelpManager').set('mcHelpDisplay',display)
+        vm.invoke(screen.get('OpenPlayers'),screen)
+        self.assertEqual(display.get('mcHelpItemsHolder').get('_y'),1030)
+        self.assertEqual(display.get('mcTextScroller').get('_y'),1030)
+        vm.invoke(screen.get('RefreshRosterHelp'),screen)
+        vm.invoke(screen.get('RoomPlayersBack'),screen)
+        self.assertEqual(display.get('mcHelpItemsHolder').get('_y'),940)
+        self.assertEqual(display.get('mcTextScroller').get('_y'),942)
+        vm.invoke(screen.get('OpenPlayers'),screen)
+        vm.invoke(screen.get('OnExitScreen'),screen)
+        self.assertEqual(display.get('mcHelpItemsHolder').get('_y'),940)
 
     def test_locker_plate_renders_text_at_double_resolution_and_keeps_the_native_crest(self):
         from room_kit_print_r56 import locker_plate

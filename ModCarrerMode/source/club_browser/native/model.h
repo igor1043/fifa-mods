@@ -33,5 +33,6 @@ struct Model {
  void zoomBy(float value){targetZoom=std::clamp(targetZoom+value,.85f,2.2f);}
  void tick(float dt){float f=1-std::exp(-std::clamp(dt,0.f,.06f)*10);yaw+=(targetYaw-yaw)*f;pitch+=(targetPitch-pitch)*f;zoom+=(targetZoom-zoom)*f;}
 };
-inline bool isPage(const char* name){return name&&std::string(name)=="game/screens/career/server16/ClubBrowser";}
+inline bool isRoomPlayersPage(const char* name){return name&&std::string(name)=="game/screens/career/server16/DressingRoomPlayers";}
+inline bool isPage(const char* name){return name&&(std::string(name)=="game/screens/career/server16/ClubBrowser"||isRoomPlayersPage(name));}
 }

@@ -7,6 +7,10 @@ int wmain(int argc,wchar_t** argv){
  _set_error_mode(_OUT_TO_STDERR);
  if(argc!=4)return 2;
  root=argv[1];logPath=std::filesystem::path(argv[3])/L"native_test.log";art.initialize(argv[2]);CoInitializeEx(nullptr,COINIT_MULTITHREADED);
+ clubs::RoomRosterMode roomMode;assert(!roomMode.open("game/screens/fluxHub/FluxHub",1043));assert(!roomMode.open("game/screens/career/server16/DressingRoom",0));assert(roomMode.open("game/screens/career/server16/DressingRoom",1043));assert(roomMode.visible("game/screens/career/server16/DressingRoom",1043));assert(!roomMode.visible("game/screens/career/server16/DressingRoom",1629));assert(!roomMode.visible("game/screens/career/server16/ClubBrowser",1043));roomMode.close();assert(!roomMode.visible("game/screens/career/server16/DressingRoom",1043));
+ auto indoor=clubs::rosterOrigin(true),outdoor=clubs::rosterOrigin(false);assert(indoor.x==100000&&indoor.y==1000&&indoor.z==100);assert(outdoor.x==0&&outdoor.y==0&&outdoor.z==0);
+ auto reserved=reinterpret_cast<uintptr_t>(VirtualAlloc(nullptr,0x3518000,MEM_RESERVE,PAGE_NOACCESS));assert(reserved);assert(VirtualAlloc(reinterpret_cast<void*>(reserved+0x3517000),4096,MEM_COMMIT,PAGE_READWRITE));alignas(16) unsigned char fakeScene[512]{};*reinterpret_cast<uintptr_t*>(reserved+0x3517c10)=reinterpret_cast<uintptr_t>(fakeScene);*reinterpret_cast<unsigned*>(fakeScene+0x3c)=1;*reinterpret_cast<float*>(fakeScene+0x88)=1.78f;*reinterpret_cast<float*>(fakeScene+0x8c)=1;
+ auto oldBase=clubscene::base;clubscene::base=reserved;clubscene::roomView=true;clubscene::rosterCamera=true;clubscene::playerZoom=1;clubscene::playerAngle=0;clubscene::playerHeight=180;clubscene::playerPan=0;clubscene::camera.apply();assert(std::abs(*reinterpret_cast<float*>(fakeScene+0x40+48)-99886)<1);assert(*reinterpret_cast<float*>(fakeScene+0x40+52)>1000);assert(*reinterpret_cast<float*>(fakeScene+0x40+56)>100);clubscene::playerAngle=1.57f;clubscene::camera.apply();assert(*reinterpret_cast<float*>(fakeScene+0x40+48)>100200);clubscene::camera.restore();clubscene::base=oldBase;clubscene::roomView=false;clubscene::rosterCamera=false;clubscene::playerAngle=0;VirtualFree(reinterpret_cast<void*>(reserved),0,MEM_RELEASE);std::cout<<"PASS room roster: scoped career entry, isolated indoor actor placement and orbit camera, no navigation departure\n";
  assert(loadCatalog());assert(model.rows.size()==1647);assert(model.choices(0).size()==49);assert(model.choose(1629));assert(model.club().name=="Grêmio");assert(model.choices(2).size()>=18);
  auto original=model.selected;model.step(2,1);assert(model.selected!=original);model.step(2,-1);assert(model.selected==original);
  for(int kind=0;kind<3;++kind){auto n=model.choices(kind).size();auto before=model.selected;for(size_t i=0;i<n;++i)model.step(kind,1);if(kind==2)assert(model.selected==before);}
@@ -17,7 +21,7 @@ int wmain(int argc,wchar_t** argv){
  float eye=clubs::GlobeView::camera/1.3f;float radius=clubs::GlobeView::focal/std::sqrt(eye*eye-1)*clubs::GlobeView::h/2;assert(radius<clubs::GlobeView::h/2-10);
  auto projected=clubs::project(0,0,0,0,1.3f);assert(projected.visible);assert(std::abs(projected.x-1035)<.01f);assert(std::abs(projected.y-424)<.01f);assert(!clubs::project(0,180,0,0,1.3f).visible);assert(!clubs::project(0,80,0,0,1.3f).visible);
  std::istringstream malformed("broken");auto count=model.rows.size();assert(!model.load(malformed)&&model.rows.size()==count);
- assert(clubs::isPage("game/screens/career/server16/ClubBrowser"));assert(!clubs::isPage("game/screens/fluxHub/FluxHub"));
+ assert(clubs::isPage("game/screens/career/server16/ClubBrowser"));assert(clubs::isPage("game/screens/career/server16/DressingRoomPlayers"));assert(!clubs::isPage("game/screens/career/server16/DressingRoom"));assert(!clubs::isRoomPlayersPage("game/screens/career/server16/ClubBrowser"));assert(!clubs::isPage("game/screens/fluxHub/FluxHub"));
  auto a=art.asset("data/ui/imgAssets/crest/light/l1629.dds");assert(a.size()>128&&!memcmp(a.data(),"DDS ",4));
  auto flag=clubassets::texture(art.asset("data/ui/artassets/countryflags/f_54.big"));assert(flag.size()>128&&!memcmp(flag.data(),"DDS ",4));
  unsigned packed=0;for(const auto& e:art.index){if(std::filesystem::exists(art.game/e.first))continue;auto data=clubassets::texture(art.asset(e.first));if(data.size()>128&&!memcmp(data.data(),"DDS ",4)){++packed;if(packed==8)break;}}assert(packed==8);
@@ -61,6 +65,14 @@ int wmain(int argc,wchar_t** argv){
  assert(model.choose(1043));assert(model.activate());lineup.sequence=123;lineup.status="ready";clubscene::readySequence=123;
  {clubgfx::SavedState state;state.save(context);frame();drawLineup(context);state.restore(context);}capture(L"lineup_preview.bgra");
  assert(model.closeDetail());assert(model.club().id==1043);
+ // Draw each coach tab through the same UI state guard used in the game.
+ auto coachFile=std::filesystem::path(argv[3]).parent_path()/L"coach-1043.tsv";
+ if(std::filesystem::exists(coachFile)){
+  std::ifstream input(coachFile,std::ios::binary);assert(clubcoach::parse(input,1043,coach.profile));coach.ready=true;coach.club=1043;assert(model.choose(1043));lineup.status="ready";lineup.kind="test";clubPage=ClubPage::Coach;
+  for(int tab=0;tab<3;++tab){coach.tab=tab;clubgfx::UiPass saved(context,renderer.uiPipeline);frame();drawCoach(context);saved.restore();capture((L"coach_tab_"+std::to_wstring(tab)+L".bgra").c_str());}
+  assert(coachFlag.view&&coachLeague.view);coach.setTab(1);for(int i=0;i<50;++i)coach.navigate(1);assert(coach.scroll>=0);coach.setTab(0);assert(coach.scroll==0);goBack();assert(clubPage==ClubPage::Choice);goBack();assert(clubPage==ClubPage::Map);coach.clear();assert(model.choose(1629));
+  std::cout<<"PASS coach native layout: original flag/competition artwork, three tabs, scrolling, nested back and isolated D3D state\n";
+ }
  // Full-roster rendering must retain D3D state and return to the club choice.
  auto rosterFile=std::filesystem::path(argv[3]).parent_path()/L"roster-1043.tsv";
  if(std::filesystem::exists(rosterFile)){
@@ -84,5 +96,12 @@ int wmain(int argc,wchar_t** argv){
  for(int state:{0,2,8,12,-1}){memcpy(scene,sceneOriginal,sizeof scene);memcpy(scene+0x3c,&state,4);assert(!clubscene::sceneAvailable());clubscene::camera.apply();assert(!clubscene::camera.scene);}
  memcpy(scene,sceneOriginal,sizeof scene);int state=13;memcpy(scene+0x3c,&state,4);float invalid=0;memcpy(scene+0x8c,&invalid,4);assert(!clubscene::sceneAvailable());clubscene::camera.apply();assert(!clubscene::camera.scene);
  clubscene::base=0;VirtualFree(fake,0,MEM_RELEASE);
+ // Exercise the actual room entry policy with a non-signaled owned handle.
+ // No FIFA/Server process is started; request files live only in test output.
+ roomEntry=true;assert(model.choose(1629));lineup.folder=std::filesystem::path(argv[3])/L"room-roster-entry";lineup.child=CreateEventW(nullptr,TRUE,FALSE,nullptr);assert(lineup.child);
+ assert(syncRoomRoster(1043));assert(model.club().id==1043&&roster.club==1043&&lineup.career==1043&&clubPage==ClubPage::Roster);auto roomSequence=lineup.sequence;
+ assert(!syncRoomRoster(1043)&&lineup.sequence==roomSequence);assert(syncRoomRoster(1629));assert(model.club().id==1629&&roster.club==1629&&lineup.career==1629);
+ assert(!syncRoomRoster(0)&&roster.club==0&&!clubscene::requested);lineup.stop();roster.clear();roomEntry=false;
+ std::cout<<"PASS room roster entry: live career club overrides old globe selection, unchanged club reuses request, career change reloads, missing club clears stale data\n";
  std::cout<<"PASS model: 1647 clubs, 49 regions; game art; WARP shaders; horizon/zoom; native scene job/script; camera states 1/13 and restoration; invalid scenes rejected; D3D state restoration\n";CoUninitialize();return 0;
 }
