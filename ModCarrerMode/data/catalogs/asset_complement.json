@@ -4,13 +4,13 @@
   "purpose": "Complete external assets, including previous environment/presentation packs and integrated Robson layout; combine with the code branch on a supported FIFA Friends base.",
   "groups": {
     "robson_layout": 291,
+    "instructions": 1,
     "globe": 2,
     "pose": 1,
     "environment": 33,
-    "manager_minifaces": 780,
+    "manager_minifaces": 851,
     "subson": 1,
-    "presentation": 614,
-    "instructions": 1
+    "presentation": 614
   },
   "files": [
     {
@@ -2648,6 +2648,12 @@
       "group": "manager_minifaces"
     },
     {
+      "path": "ModCarrerMode/data/manager_market/minifaces/COACH-0ad2dc082db61b0b.png",
+      "bytes": 204423,
+      "sha256": "52e340bd53eaa6a95c9482e9b301415f1193434fd84af9f5787b6cf0945d85cb",
+      "group": "manager_minifaces"
+    },
+    {
       "path": "ModCarrerMode/data/manager_market/minifaces/COACH-0c30a8ff6b10b41e.png",
       "bytes": 174689,
       "sha256": "6fa60faaa8de8a47f99bf36c91cd5f4ce1b02eb44e2d32628441b970e6b3fbaf",
@@ -2720,6 +2726,18 @@
       "group": "manager_minifaces"
     },
     {
+      "path": "ModCarrerMode/data/manager_market/minifaces/COACH-153a1a39b8c15c08.png",
+      "bytes": 175509,
+      "sha256": "a5b7da40ea2fdcbc9390ca33209fe70f4e3b52547db9960ef6cf936889ada361",
+      "group": "manager_minifaces"
+    },
+    {
+      "path": "ModCarrerMode/data/manager_market/minifaces/COACH-154fe1234f304bad.png",
+      "bytes": 170189,
+      "sha256": "f547ed048f1205946b199066e21acaf4e186e649998287b48eea3940ce905f75",
+      "group": "manager_minifaces"
+    },
+    {
       "path": "ModCarrerMode/data/manager_market/minifaces/COACH-16a9c01447a03ea5.png",
       "bytes": 168044,
       "sha256": "0f1536f819ec88db1f6d02fa7ca01712421efc12a42395804c54e9ab3dadaa16",
@@ -2735,6 +2753,12 @@
       "path": "ModCarrerMode/data/manager_market/minifaces/COACH-183cfdf1367c25c7.png",
       "bytes": 188848,
       "sha256": "b7c1ca79af683cef4a63e881352533f6f6a66a5dfff2df38d781a913cb7f6684",
+      "group": "manager_minifaces"
+    },
+    {
+      "path": "ModCarrerMode/data/manager_market/minifaces/COACH-1a4d5c1a05dfd8aa.png",
+      "bytes": 228842,
+      "sha256": "1e38b642f8bf96b4530e82f487a1325d9c62cda2758cf6d082be7404e70d36cb",
       "group": "manager_minifaces"
     },
     {
@@ -2792,6 +2816,12 @@
       "group": "manager_minifaces"
     },
     {
+      "path": "ModCarrerMode/data/manager_market/minifaces/COACH-208e54c2bc5cdc9b.png",
+      "bytes": 194935,
+      "sha256": "940b2c86fd3e3d624fd07353a082131442b507c852b161bb66ffb5571f727892",
+      "group": "manager_minifaces"
+    },
+    {
       "path": "ModCarrerMode/data/manager_market/minifaces/COACH-20a2a0f3026dc727.png",
       "bytes": 165922,
       "sha256": "e21c7a31a0cd94400c422aabfd35c81f8dcb35592054ce409ec1d63f480cf740",
@@ -2837,6 +2867,12 @@
       "path": "ModCarrerMode/data/manager_market/minifaces/COACH-26ebe89a08ee0203.png",
       "bytes": 231318,
       "sha256": "1aa138542ba841a05e9240c44cdc32bee7b43b3babb699bb341db7f910b024cf",
+      "group": "manager_minifaces"
+    },
+    {
+      "path": "ModCarrerMode/data/manager_market/minifaces/COACH-270ccb024c8fd16f.png",
+      "bytes": 191430,
+      "sha256": "c97b9e55058f60b6f882953bb3302eaabfc12d5a59fdc8c3a7c3db237c07d5ca",
       "group": "manager_minifaces"
     },
     {
@@ -2912,6 +2948,12 @@
       "group": "manager_minifaces"
     },
     {
+      "path": "ModCarrerMode/data/manager_market/minifaces/COACH-3163cff2f7ee17ab.png",
+      "bytes": 196704,
+      "sha256": "24f8b79554647a42f36b5544dbfea5db26875b946304bbe1bb4b74d0250f6aec",
+      "group": "manager_minifaces"
+    },
+    {
       "path": "ModCarrerMode/data/manager_market/minifaces/COACH-327b82c6fcf2e9ee.png",
       "bytes": 173112,
       "sha256": "fc91c1661cc988a75daca12e8d225ffd82fc7a7fccfe8fd73933b94b8179fd18",
@@ -2954,6 +2996,12 @@
       "group": "manager_minifaces"
     },
     {
+      "path": "ModCarrerMode/data/manager_market/minifaces/COACH-3628088b6c0d0221.png",
+      "bytes": 231979,
+      "sha256": "3deacfa0b95b30ac26cd6b5f733786af40f1c443a24f53952558a3a7512f2823",
+      "group": "manager_minifaces"
+    },
+    {
       "path": "ModCarrerMode/data/manager_market/minifaces/COACH-3647f4e5c12c67f3.png",
       "bytes": 169996,
       "sha256": "b6f9b4161bce9cb3b807e5383feb00fe0f5fa884fab239f462de76f3c7dae69f",
@@ -2969,6 +3017,12 @@
       "path": "ModCarrerMode/data/manager_market/minifaces/COACH-368bab9ca0aef1d1.png",
       "bytes": 193320,
       "sha256": "1ddafc874131918931be61d220e6cadea80173a63f0e6c69850b8fcdb64f6736",
+      "group": "manager_minifaces"
+    },
+    {
+      "path": "ModCarrerMode/data/manager_market/minifaces/COACH-376706d30c3e5ab4.png",
+      "bytes": 214390,
+      "sha256": "f0576e4aa65612b82aad09c359d54935b484e15e1631deb6ad195b985409cdfc",
       "group": "manager_minifaces"
     },
     {
@@ -2990,6 +3044,18 @@
       "group": "manager_minifaces"
     },
     {
+      "path": "ModCarrerMode/data/manager_market/minifaces/COACH-39c46478dc93b589.png",
+      "bytes": 185636,
+      "sha256": "478296cf2dbffbdf2b62e02de1d47b66b2d4108db759ead07c8549f0480631ca",
+      "group": "manager_minifaces"
+    },
+    {
+      "path": "ModCarrerMode/data/manager_market/minifaces/COACH-39d83bc85f569774.png",
+      "bytes": 175222,
+      "sha256": "76ed3175f59ac566790fa3c7acb22b8793672f4d8189500aaa6cc113d6ce2fa5",
+      "group": "manager_minifaces"
+    },
+    {
       "path": "ModCarrerMode/data/manager_market/minifaces/COACH-3a7a30705462d061.png",
       "bytes": 227116,
       "sha256": "e1194254826c54aeb7266d26f9eb83f89166987cf37d01f12c0cb6604288daa4",
@@ -3008,15 +3074,33 @@
       "group": "manager_minifaces"
     },
     {
+      "path": "ModCarrerMode/data/manager_market/minifaces/COACH-3c13f07ef1f8987c.png",
+      "bytes": 218743,
+      "sha256": "5e0c8926f4a6dfc670279eb89435c42b121bcca70c2ee761e23f8364aa2f004e",
+      "group": "manager_minifaces"
+    },
+    {
       "path": "ModCarrerMode/data/manager_market/minifaces/COACH-3d437491ffbe6b2b.png",
       "bytes": 171963,
       "sha256": "ecce16ac8e4fcb709c3cb0d99721b455066068ac593cec68921b29467f494e5d",
       "group": "manager_minifaces"
     },
     {
+      "path": "ModCarrerMode/data/manager_market/minifaces/COACH-3def6443a8c5d2a3.png",
+      "bytes": 199453,
+      "sha256": "ff84d530a47204f52973156515b0f21983b4e9539a565cf5459a9b1327650c01",
+      "group": "manager_minifaces"
+    },
+    {
       "path": "ModCarrerMode/data/manager_market/minifaces/COACH-3e22e1849c562cef.png",
       "bytes": 221511,
       "sha256": "26253bc9dfab392ab63429f6a728afd915bd145a19d402bbb38150a10c1b3f74",
+      "group": "manager_minifaces"
+    },
+    {
+      "path": "ModCarrerMode/data/manager_market/minifaces/COACH-3e2936dfb9e791c1.png",
+      "bytes": 196373,
+      "sha256": "ecdad198886869c8f65627cf7181a8e728910aca1b150522abcf7528f7ec33cd",
       "group": "manager_minifaces"
     },
     {
@@ -3035,6 +3119,12 @@
       "path": "ModCarrerMode/data/manager_market/minifaces/COACH-40cc52ec2042b11e.png",
       "bytes": 171297,
       "sha256": "d5e0f86f46c0c5196d645a6d393598aa8576612420de72b885d0f3fcbaf72684",
+      "group": "manager_minifaces"
+    },
+    {
+      "path": "ModCarrerMode/data/manager_market/minifaces/COACH-4135aa9dc1b842a6.png",
+      "bytes": 215729,
+      "sha256": "173299850e97bb4943776f3a0c67d8bf4573a6d8d6044d5c2d3907fbf6e74316",
       "group": "manager_minifaces"
     },
     {
@@ -3116,6 +3206,12 @@
       "group": "manager_minifaces"
     },
     {
+      "path": "ModCarrerMode/data/manager_market/minifaces/COACH-49133f4132deabc0.png",
+      "bytes": 215016,
+      "sha256": "f25990620465f8c735bc2dd7acfecb943abb37b70c56d782fe456a737fe63752",
+      "group": "manager_minifaces"
+    },
+    {
       "path": "ModCarrerMode/data/manager_market/minifaces/COACH-49168c06714b4782.png",
       "bytes": 159795,
       "sha256": "dddc7d77d3faf64e869038c9b1460e9bdac7d3929095b3b3fd933badeb4e7a43",
@@ -3140,15 +3236,39 @@
       "group": "manager_minifaces"
     },
     {
+      "path": "ModCarrerMode/data/manager_market/minifaces/COACH-4b97cbe17b1286ab.png",
+      "bytes": 164757,
+      "sha256": "6f51da2be783dcf1a1c25e3433db0a780d8ba7f1dd97ea2321cd104324b7ca30",
+      "group": "manager_minifaces"
+    },
+    {
       "path": "ModCarrerMode/data/manager_market/minifaces/COACH-4dd1e499a988e9b3.png",
       "bytes": 157403,
       "sha256": "8e33e136cc4c4f60b1bf92d98d631f13c993a52108179f07d17470f97a9904df",
       "group": "manager_minifaces"
     },
     {
+      "path": "ModCarrerMode/data/manager_market/minifaces/COACH-4f7cec9a2c25c5ca.png",
+      "bytes": 160688,
+      "sha256": "55a0fd792cd1f7e3c5d43bae3016fc04a4709c5fb04349f8eeac8a2a3490acd8",
+      "group": "manager_minifaces"
+    },
+    {
+      "path": "ModCarrerMode/data/manager_market/minifaces/COACH-4fa3777aad337250.png",
+      "bytes": 218624,
+      "sha256": "0a458fb893b1d4524e4ad00d07dff3c36839c2a90f255d6a4704f18a08a6a12c",
+      "group": "manager_minifaces"
+    },
+    {
       "path": "ModCarrerMode/data/manager_market/minifaces/COACH-5115b6e169d99eef.png",
       "bytes": 179453,
       "sha256": "1be7d8a9a0984e5a29a4fd09d25fe12a2c53656b4145d7675da803f8a2e44d35",
+      "group": "manager_minifaces"
+    },
+    {
+      "path": "ModCarrerMode/data/manager_market/minifaces/COACH-5117c82bc83dd577.png",
+      "bytes": 188318,
+      "sha256": "4e36a05368d8807f7b81142d10770a3d8e471762142f0c43ca8fb13a13af0b47",
       "group": "manager_minifaces"
     },
     {
@@ -3236,6 +3356,12 @@
       "group": "manager_minifaces"
     },
     {
+      "path": "ModCarrerMode/data/manager_market/minifaces/COACH-5720cac212eb3759.png",
+      "bytes": 174814,
+      "sha256": "c1159b7cc058209cadfcbc5fb4253921f158e474bb16367edcb78c7d3510a611",
+      "group": "manager_minifaces"
+    },
+    {
       "path": "ModCarrerMode/data/manager_market/minifaces/COACH-5785010141e229b3.png",
       "bytes": 198951,
       "sha256": "4a7fc94e050e385efb8d11be9b199e2080dad318cefd0bbddc0e4ba5763ad741",
@@ -3302,6 +3428,12 @@
       "group": "manager_minifaces"
     },
     {
+      "path": "ModCarrerMode/data/manager_market/minifaces/COACH-5e3f9c43736ae3be.png",
+      "bytes": 221582,
+      "sha256": "1f5d09159c4bbfd6f8f51fd227252ce881cc4c41570f6e7052fd1a3ad5c3f25d",
+      "group": "manager_minifaces"
+    },
+    {
       "path": "ModCarrerMode/data/manager_market/minifaces/COACH-5ed2b447bc026fc2.png",
       "bytes": 164765,
       "sha256": "0e64fb5ced77306ab4a385c3ba72a417ba9eb44caf403b61ce1fdf66ba1cade7",
@@ -3320,6 +3452,12 @@
       "group": "manager_minifaces"
     },
     {
+      "path": "ModCarrerMode/data/manager_market/minifaces/COACH-60c0fb8ec375b1cb.png",
+      "bytes": 212166,
+      "sha256": "529dae137f078d860428c93ca3fa74441bfc829fe91425bc121882bd654588e3",
+      "group": "manager_minifaces"
+    },
+    {
       "path": "ModCarrerMode/data/manager_market/minifaces/COACH-618fbf5013f1c017.png",
       "bytes": 216249,
       "sha256": "5b273b0e89d30bc78901f0a543ec4db3b94441efa3824e695c64d71badcb08a8",
@@ -3332,9 +3470,21 @@
       "group": "manager_minifaces"
     },
     {
+      "path": "ModCarrerMode/data/manager_market/minifaces/COACH-64ab0245080652a5.png",
+      "bytes": 257688,
+      "sha256": "847c65abdfa9f40a991e8de3a6eb524f9eeac7de48c071da23c469f7b07f2dc7",
+      "group": "manager_minifaces"
+    },
+    {
       "path": "ModCarrerMode/data/manager_market/minifaces/COACH-64bebe215c62e0dd.png",
       "bytes": 229254,
       "sha256": "39dd4127c1a716fe4176b6823558860fd950912525fc89905113e9486c4a9e1c",
+      "group": "manager_minifaces"
+    },
+    {
+      "path": "ModCarrerMode/data/manager_market/minifaces/COACH-64d9148fa7d54c87.png",
+      "bytes": 176553,
+      "sha256": "8b464ce4e7198802239fe454560ea2766cc2b93f64671d7835b41ea2f9965a2a",
       "group": "manager_minifaces"
     },
     {
@@ -3398,6 +3548,12 @@
       "group": "manager_minifaces"
     },
     {
+      "path": "ModCarrerMode/data/manager_market/minifaces/COACH-6aa2d158c0ec1091.png",
+      "bytes": 192524,
+      "sha256": "6d5b26c3c21ee1d82f1f7840b11ef2fdea2eab47579fa80864414bdc99a36173",
+      "group": "manager_minifaces"
+    },
+    {
       "path": "ModCarrerMode/data/manager_market/minifaces/COACH-6ae5b42f00e0ffb8.png",
       "bytes": 191660,
       "sha256": "22c5acb07460d4f299ffdc3fe8a44d352b64d335c26e8e86875f7429732ed9e9",
@@ -3422,15 +3578,39 @@
       "group": "manager_minifaces"
     },
     {
+      "path": "ModCarrerMode/data/manager_market/minifaces/COACH-6d37b7aa061c9355.png",
+      "bytes": 170391,
+      "sha256": "7bcdeaada41876bd18bbd11deb0509599c6495e2f21d7b97af3fc1f39ac902f7",
+      "group": "manager_minifaces"
+    },
+    {
       "path": "ModCarrerMode/data/manager_market/minifaces/COACH-6d7f616a4b8bc390.png",
       "bytes": 178604,
       "sha256": "76a2f71e35da4e854a4e2124f15ef50a86a0279ec58424479fefc7808c86595e",
       "group": "manager_minifaces"
     },
     {
+      "path": "ModCarrerMode/data/manager_market/minifaces/COACH-6f4d28d4f635498a.png",
+      "bytes": 200749,
+      "sha256": "1c2ad971ed8d76eacb4a2c63ff8910b57784f841280fa02df2b1db257c7e6d80",
+      "group": "manager_minifaces"
+    },
+    {
+      "path": "ModCarrerMode/data/manager_market/minifaces/COACH-6f9ee76ccc773d0e.png",
+      "bytes": 228629,
+      "sha256": "aef1b4e3f2fd01de9a002a4cab7cc2289d15c44aa4e637c3085654ced28ff23d",
+      "group": "manager_minifaces"
+    },
+    {
       "path": "ModCarrerMode/data/manager_market/minifaces/COACH-7101183a8597ab02.png",
       "bytes": 203299,
       "sha256": "76b5cb677fb64b1d4345edf94cd1bdbbf12cd9e061d35464e8419219ceb97a85",
+      "group": "manager_minifaces"
+    },
+    {
+      "path": "ModCarrerMode/data/manager_market/minifaces/COACH-71210a3d4df7f65e.png",
+      "bytes": 198331,
+      "sha256": "4fe0e15d357124a8e0a6e64afe27f79aca821c55929871ba0d5b2cddf4325d08",
       "group": "manager_minifaces"
     },
     {
@@ -3455,6 +3635,18 @@
       "path": "ModCarrerMode/data/manager_market/minifaces/COACH-72a88e7099908ee8.png",
       "bytes": 217602,
       "sha256": "0d327fb72da132c3e71f4fcfd0e659a60a5075b22f80ff8a845147a7ea9cfb31",
+      "group": "manager_minifaces"
+    },
+    {
+      "path": "ModCarrerMode/data/manager_market/minifaces/COACH-72dc1265ca28e4ff.png",
+      "bytes": 231128,
+      "sha256": "64e2bd4fa38d47f01e8dd5b13ad245be84dcfbbed85d8f1312c03d21fe3c745a",
+      "group": "manager_minifaces"
+    },
+    {
+      "path": "ModCarrerMode/data/manager_market/minifaces/COACH-72e243eb746c29a6.png",
+      "bytes": 135852,
+      "sha256": "07f7f81af7178cfc21b63f54af851bc0c62aadf121189bfe99344a9ff894cfc1",
       "group": "manager_minifaces"
     },
     {
@@ -3512,6 +3704,12 @@
       "group": "manager_minifaces"
     },
     {
+      "path": "ModCarrerMode/data/manager_market/minifaces/COACH-78fd684cfa3c21dc.png",
+      "bytes": 213120,
+      "sha256": "53267802608de1da08d575ee818cb430706c2efe2491b50263bfafd51fd86065",
+      "group": "manager_minifaces"
+    },
+    {
       "path": "ModCarrerMode/data/manager_market/minifaces/COACH-796c81f705478b2a.png",
       "bytes": 218411,
       "sha256": "c40908ecdea843b7172953adae16be7b4db2c2c0fee4dd571cca5438cd61616b",
@@ -3545,6 +3743,12 @@
       "path": "ModCarrerMode/data/manager_market/minifaces/COACH-7c3bc9ffe5fc37fc.png",
       "bytes": 250392,
       "sha256": "9bf3f1ad21a194ff8464a5866e0fea95601296cf84495253e7e0068cc12b2130",
+      "group": "manager_minifaces"
+    },
+    {
+      "path": "ModCarrerMode/data/manager_market/minifaces/COACH-7c445a351aff31a5.png",
+      "bytes": 188648,
+      "sha256": "5c2f36ce97a6a5f05eb4f25a9ad5ae74f1beea886aa2f63cd5a315d71d200598",
       "group": "manager_minifaces"
     },
     {
@@ -3668,6 +3872,18 @@
       "group": "manager_minifaces"
     },
     {
+      "path": "ModCarrerMode/data/manager_market/minifaces/COACH-86d15ed3ad0a7d06.png",
+      "bytes": 238715,
+      "sha256": "a652d4a2aae3a7bf26b2243845d53b8dabd49b75a774ca609df9d2882165f9d9",
+      "group": "manager_minifaces"
+    },
+    {
+      "path": "ModCarrerMode/data/manager_market/minifaces/COACH-871a395a85a19c0d.png",
+      "bytes": 181270,
+      "sha256": "68d4636014d5698098687494522bf83e5291de71c3035377f805f6fee8833847",
+      "group": "manager_minifaces"
+    },
+    {
       "path": "ModCarrerMode/data/manager_market/minifaces/COACH-8875c4cc60350d1e.png",
       "bytes": 240027,
       "sha256": "ea3a7f9105955a875bc4a9f19a1e99960521d20dc8a0dce7b43aee1e24f57e14",
@@ -3740,6 +3956,12 @@
       "group": "manager_minifaces"
     },
     {
+      "path": "ModCarrerMode/data/manager_market/minifaces/COACH-8f1f441870928051.png",
+      "bytes": 175718,
+      "sha256": "697618a11c4d2bcaaebe0bb6151f4b1f87f5e98472838390724363275b20db94",
+      "group": "manager_minifaces"
+    },
+    {
       "path": "ModCarrerMode/data/manager_market/minifaces/COACH-91097811116021d4.png",
       "bytes": 236227,
       "sha256": "21a9c4d6f3d0a483c6376b8bb031970fd3ccc3b35ba1474f564b9d7cec614262",
@@ -3758,6 +3980,12 @@
       "group": "manager_minifaces"
     },
     {
+      "path": "ModCarrerMode/data/manager_market/minifaces/COACH-91ec8be5c9f25ac4.png",
+      "bytes": 182217,
+      "sha256": "e7ed5b0f0255e2746fb2a51b0728472bc2858d228129a8cc0d49be4106d7d490",
+      "group": "manager_minifaces"
+    },
+    {
       "path": "ModCarrerMode/data/manager_market/minifaces/COACH-9271f87cf533a8a4.png",
       "bytes": 192352,
       "sha256": "fcd9232d1d0dc2b9f5cdd0e33dbf358683fcb3d47f2df058ac7a7312802d07d0",
@@ -3773,6 +4001,12 @@
       "path": "ModCarrerMode/data/manager_market/minifaces/COACH-937172a29118bdfc.png",
       "bytes": 222575,
       "sha256": "64d9ab39ffa96b655c92e88f372178ac30e53c3cbe3ab917f56dd83c62968ce4",
+      "group": "manager_minifaces"
+    },
+    {
+      "path": "ModCarrerMode/data/manager_market/minifaces/COACH-939cabcc617dd145.png",
+      "bytes": 138269,
+      "sha256": "3ede6e1360ebf56c67cc1e15849df80b4769f8b55863deb1931a79d4570dabc8",
       "group": "manager_minifaces"
     },
     {
@@ -3812,6 +4046,18 @@
       "group": "manager_minifaces"
     },
     {
+      "path": "ModCarrerMode/data/manager_market/minifaces/COACH-98a33ab68f5e5ace.png",
+      "bytes": 200361,
+      "sha256": "241c88baa6ebe47dcd0bd514dab93d3a50d7c7361c0c9ffd0fd44cafbf475597",
+      "group": "manager_minifaces"
+    },
+    {
+      "path": "ModCarrerMode/data/manager_market/minifaces/COACH-9959d47547eeed61.png",
+      "bytes": 246935,
+      "sha256": "859fa43df4e305f69498d767bd29c5c1d4794c29f513be66d7cb47f199c3f929",
+      "group": "manager_minifaces"
+    },
+    {
       "path": "ModCarrerMode/data/manager_market/minifaces/COACH-99f5062cfc1f528b.png",
       "bytes": 166640,
       "sha256": "e37e017aa476ec57ed6961212efd6e257bc78e3c606e3e849063c3bf67d24fc9",
@@ -3833,6 +4079,12 @@
       "path": "ModCarrerMode/data/manager_market/minifaces/COACH-9b669fff391e832b.png",
       "bytes": 195793,
       "sha256": "a8589b1606ef221e227da68a2e66b1289740eb792f0d7174107ddf0d89ae07d8",
+      "group": "manager_minifaces"
+    },
+    {
+      "path": "ModCarrerMode/data/manager_market/minifaces/COACH-9c31f8d1a562f3ca.png",
+      "bytes": 218247,
+      "sha256": "108e69066cf94154af186b0ce78d54607a8b7084dabf087e7e596a7b70c56368",
       "group": "manager_minifaces"
     },
     {
@@ -3956,6 +4208,24 @@
       "group": "manager_minifaces"
     },
     {
+      "path": "ModCarrerMode/data/manager_market/minifaces/COACH-a73a23b1a4416351.png",
+      "bytes": 203137,
+      "sha256": "62cdb91065da3a4778b5a1078f87380f4624eebe514233c5afe39dc39beaf268",
+      "group": "manager_minifaces"
+    },
+    {
+      "path": "ModCarrerMode/data/manager_market/minifaces/COACH-a74bed5b3124cd65.png",
+      "bytes": 210976,
+      "sha256": "da7c7ff878ca054f370aabff549f6a817ffaaa2c8a11e2101586671de6bf20ee",
+      "group": "manager_minifaces"
+    },
+    {
+      "path": "ModCarrerMode/data/manager_market/minifaces/COACH-a7659dc2f5194fe6.png",
+      "bytes": 204557,
+      "sha256": "961b32a05c15e1e9f41a2b55a9241fb08ef5c2dd66835e015b14df8bfccd9132",
+      "group": "manager_minifaces"
+    },
+    {
       "path": "ModCarrerMode/data/manager_market/minifaces/COACH-a7a0445a11276a96.png",
       "bytes": 218848,
       "sha256": "2663656229cfbe9b0d91723c3baa8fa4da4b4078a2168b4fc7c9f6c47660219c",
@@ -3965,6 +4235,12 @@
       "path": "ModCarrerMode/data/manager_market/minifaces/COACH-a7acef4127706d38.png",
       "bytes": 188132,
       "sha256": "70044fc829dc9226a928a2cd42d8826b1a978a637cb6be68bad45be08b608d41",
+      "group": "manager_minifaces"
+    },
+    {
+      "path": "ModCarrerMode/data/manager_market/minifaces/COACH-a96efaed59c92d0d.png",
+      "bytes": 178867,
+      "sha256": "80b3ed13e3914452b6fe88f9249721153b9584a42928f0290b95bb7e74fb2522",
       "group": "manager_minifaces"
     },
     {
@@ -4022,6 +4298,12 @@
       "group": "manager_minifaces"
     },
     {
+      "path": "ModCarrerMode/data/manager_market/minifaces/COACH-b0f61f9fd6f4cc90.png",
+      "bytes": 179109,
+      "sha256": "6c63194c6dad32d2cfd8e2f46467e4327e8d87f77a7a6c27ebe77e593c5c10f3",
+      "group": "manager_minifaces"
+    },
+    {
       "path": "ModCarrerMode/data/manager_market/minifaces/COACH-b1434956167021b1.png",
       "bytes": 184910,
       "sha256": "2f33b653622972b436448add9a5a05e5cac9f5d23a5349dfe887b1a8c3dff5ca",
@@ -4052,6 +4334,12 @@
       "group": "manager_minifaces"
     },
     {
+      "path": "ModCarrerMode/data/manager_market/minifaces/COACH-b43f92dda353623f.png",
+      "bytes": 165925,
+      "sha256": "b17ecb2f7e185ff7aff2cf1310de012bbac54ba76599ce365650aa84dba69f08",
+      "group": "manager_minifaces"
+    },
+    {
       "path": "ModCarrerMode/data/manager_market/minifaces/COACH-b451a18795a91919.png",
       "bytes": 203453,
       "sha256": "d3c4324f5ba5c7ddd4cd46a90cff54e14f0629b9434ac4f75961f52f0c2b0e77",
@@ -4061,6 +4349,12 @@
       "path": "ModCarrerMode/data/manager_market/minifaces/COACH-b49032916e1418be.png",
       "bytes": 178332,
       "sha256": "6981f9a6ace7b475fe4e7fc6c269b47a962707f3625ac9b5db0294ec47575c74",
+      "group": "manager_minifaces"
+    },
+    {
+      "path": "ModCarrerMode/data/manager_market/minifaces/COACH-b72a8a437a0bd231.png",
+      "bytes": 207751,
+      "sha256": "92ce8fdc9e7a1157e4b6ff4e76133f11a0a7d010945cc1bf0056d441f3daa7df",
       "group": "manager_minifaces"
     },
     {
@@ -4160,6 +4454,12 @@
       "group": "manager_minifaces"
     },
     {
+      "path": "ModCarrerMode/data/manager_market/minifaces/COACH-c20ec5bd595a919f.png",
+      "bytes": 190601,
+      "sha256": "3346130f227401479ca16ea330e819b54daab9b77ea089f34ca97e8d85ce66ae",
+      "group": "manager_minifaces"
+    },
+    {
       "path": "ModCarrerMode/data/manager_market/minifaces/COACH-c23f56844d10bd15.png",
       "bytes": 178914,
       "sha256": "1e2d57c57d50c426e0f342184dd544e0c10c73868c4da6093bfd0125f9ccdecc",
@@ -4205,6 +4505,12 @@
       "path": "ModCarrerMode/data/manager_market/minifaces/COACH-c62bee0b7086690e.png",
       "bytes": 103880,
       "sha256": "3e1194ad4b46b67d81b94378187421d6fb55dfad222e9cf94584532a3591ed22",
+      "group": "manager_minifaces"
+    },
+    {
+      "path": "ModCarrerMode/data/manager_market/minifaces/COACH-c6530e6cf5f991f9.png",
+      "bytes": 236056,
+      "sha256": "87a10d1cfa4cb7203f8d76e7b08643a277ced136969bc3377e0b00eb76fce2e0",
       "group": "manager_minifaces"
     },
     {
@@ -4277,6 +4583,12 @@
       "path": "ModCarrerMode/data/manager_market/minifaces/COACH-ccd3828d90157bdd.png",
       "bytes": 250000,
       "sha256": "a916e8a332d4ebd2ef6620fe4eb7c46cf730418d48fd8ef8c31bc88646aece75",
+      "group": "manager_minifaces"
+    },
+    {
+      "path": "ModCarrerMode/data/manager_market/minifaces/COACH-cf056c0aabf57ff1.png",
+      "bytes": 145026,
+      "sha256": "f5b9cf44eadf70c705108ac30e9f737e4652fc98940c8a59afb0fee8dea57e3c",
       "group": "manager_minifaces"
     },
     {
@@ -4376,6 +4688,12 @@
       "group": "manager_minifaces"
     },
     {
+      "path": "ModCarrerMode/data/manager_market/minifaces/COACH-d7f44fe1ffa75f37.png",
+      "bytes": 259578,
+      "sha256": "6264fdf4613185dc1a2ede42c47f505d80cf7f3bc976ab5c3a89373faefa479c",
+      "group": "manager_minifaces"
+    },
+    {
       "path": "ModCarrerMode/data/manager_market/minifaces/COACH-d95d84f62c3e2082.png",
       "bytes": 244053,
       "sha256": "98a618871bf02a03a0ee912e9297286e23b42913c2843dc239595b0cf215f27d",
@@ -4409,6 +4727,12 @@
       "path": "ModCarrerMode/data/manager_market/minifaces/COACH-db16acc190f38759.png",
       "bytes": 179978,
       "sha256": "39f8916601f9706e22475d9b8ed698e8317131c733ecb8f60cd23e4b09f500cf",
+      "group": "manager_minifaces"
+    },
+    {
+      "path": "ModCarrerMode/data/manager_market/minifaces/COACH-db9763c0e62cb499.png",
+      "bytes": 217576,
+      "sha256": "c0f2f5e2640bb9494acb708764ab6276e0d189429e7a5e9ace0bff7fe6e7f099",
       "group": "manager_minifaces"
     },
     {
@@ -4496,6 +4820,12 @@
       "group": "manager_minifaces"
     },
     {
+      "path": "ModCarrerMode/data/manager_market/minifaces/COACH-df318778683e59b2.png",
+      "bytes": 172973,
+      "sha256": "f75dce93c31175dce9107be5e7e903715f74edc0856b2da488beee7940e0bdc4",
+      "group": "manager_minifaces"
+    },
+    {
       "path": "ModCarrerMode/data/manager_market/minifaces/COACH-df9e47ff1389d8a2.png",
       "bytes": 265684,
       "sha256": "3adb72425ad0c77e5fcb924696d216e76d8ee65f9f666bcdd36180110cc33c4e",
@@ -4526,9 +4856,33 @@
       "group": "manager_minifaces"
     },
     {
+      "path": "ModCarrerMode/data/manager_market/minifaces/COACH-e0ca388ea49c4c01.png",
+      "bytes": 220277,
+      "sha256": "5e65d15ef4342cedeac67c30b7829cb3b37e4c217b912034e6b4bf7bbffb4200",
+      "group": "manager_minifaces"
+    },
+    {
+      "path": "ModCarrerMode/data/manager_market/minifaces/COACH-e0d5a78b809f5e62.png",
+      "bytes": 201039,
+      "sha256": "347e0a2f4690ee6e2fd0d43d6b6068693f20559362fdda0b143eb8df343c7872",
+      "group": "manager_minifaces"
+    },
+    {
       "path": "ModCarrerMode/data/manager_market/minifaces/COACH-e1a2d1e12027c4f4.png",
       "bytes": 184094,
       "sha256": "6230c3a6ed5e85a27672b7a0185f294fb75108b77c22db80b537f6345395404e",
+      "group": "manager_minifaces"
+    },
+    {
+      "path": "ModCarrerMode/data/manager_market/minifaces/COACH-e1c988aabab175c5.png",
+      "bytes": 244731,
+      "sha256": "ab3977ee49bc97640b16a5847a89e397e25c48a2892c33444d3af00aee4fc49e",
+      "group": "manager_minifaces"
+    },
+    {
+      "path": "ModCarrerMode/data/manager_market/minifaces/COACH-e3817654d1ef18cf.png",
+      "bytes": 161752,
+      "sha256": "7cfddb91bc42741e367d1f3910a2b5d5efcb81111ddfa247cd16593ac64c09a4",
       "group": "manager_minifaces"
     },
     {
@@ -4541,6 +4895,18 @@
       "path": "ModCarrerMode/data/manager_market/minifaces/COACH-e47b4b4d200ab8db.png",
       "bytes": 183695,
       "sha256": "719e6a29b33f665e1e460e0959e44173a68cd83cfc51f9b610bd555e2bf44647",
+      "group": "manager_minifaces"
+    },
+    {
+      "path": "ModCarrerMode/data/manager_market/minifaces/COACH-e4f02ae24e83f233.png",
+      "bytes": 235284,
+      "sha256": "fc23ce71fad8bcae3c25067903b13f5ffebc3cb2fbcc7148be73d7f6bac2e2cb",
+      "group": "manager_minifaces"
+    },
+    {
+      "path": "ModCarrerMode/data/manager_market/minifaces/COACH-e57cf372dc58673c.png",
+      "bytes": 187391,
+      "sha256": "dbbfb307b6ec591278d8baef0117226f804947cc7ab0c70a02cc53d7acc9f851",
       "group": "manager_minifaces"
     },
     {
@@ -4559,6 +4925,24 @@
       "path": "ModCarrerMode/data/manager_market/minifaces/COACH-e89b6fbe5b864f62.png",
       "bytes": 200249,
       "sha256": "57fa8d48f46105cbdc284e6a8ea9f2834990617a536310b600a112244a69fc70",
+      "group": "manager_minifaces"
+    },
+    {
+      "path": "ModCarrerMode/data/manager_market/minifaces/COACH-e95693c22b501eeb.png",
+      "bytes": 198781,
+      "sha256": "cd521ebcb7feb05dcc2aadc688de41810a47c9128d6bd412db7922a121c285b0",
+      "group": "manager_minifaces"
+    },
+    {
+      "path": "ModCarrerMode/data/manager_market/minifaces/COACH-e9658002bf0e6bb1.png",
+      "bytes": 273996,
+      "sha256": "3c1dbf5b747a83933e7bc0d7493a2d9f9ef41311aaf1b3b2264bef1f7759c1e6",
+      "group": "manager_minifaces"
+    },
+    {
+      "path": "ModCarrerMode/data/manager_market/minifaces/COACH-ea211631b1ae5636.png",
+      "bytes": 180164,
+      "sha256": "212fc1f04dda3d742732be0703b509a1623214ad2123b0a70b032adf21ea84f2",
       "group": "manager_minifaces"
     },
     {
@@ -4604,6 +4988,12 @@
       "group": "manager_minifaces"
     },
     {
+      "path": "ModCarrerMode/data/manager_market/minifaces/COACH-f007348239a81f30.png",
+      "bytes": 181341,
+      "sha256": "b825604b4c50fb078e2644aa84c55fb39e49beb7adde79d293593afbb9792fcb",
+      "group": "manager_minifaces"
+    },
+    {
       "path": "ModCarrerMode/data/manager_market/minifaces/COACH-f0aecd16ddceeece.png",
       "bytes": 201644,
       "sha256": "71506134616ce259692c1ad57ee7857d4d96afb3d043cac12cf34c362addd251",
@@ -4619,6 +5009,12 @@
       "path": "ModCarrerMode/data/manager_market/minifaces/COACH-f0d87f421fa87e4c.png",
       "bytes": 185712,
       "sha256": "67ccccecd9cbc6769e6439c8d924eb0931bc9fb4cb0022f03866b4b2605926d7",
+      "group": "manager_minifaces"
+    },
+    {
+      "path": "ModCarrerMode/data/manager_market/minifaces/COACH-f1057eb5815e702e.png",
+      "bytes": 223554,
+      "sha256": "32bde3da68f2b34db8e3a91420b0ae9307b506afeee99b81ae2507f36eb2b7fc",
       "group": "manager_minifaces"
     },
     {
@@ -4664,9 +5060,21 @@
       "group": "manager_minifaces"
     },
     {
+      "path": "ModCarrerMode/data/manager_market/minifaces/COACH-f6de1827f0c21f8d.png",
+      "bytes": 254624,
+      "sha256": "66dc9f93d82bdbbaefd0b624c07513bf5bbcdc837ecb213891b43de1d672e40e",
+      "group": "manager_minifaces"
+    },
+    {
       "path": "ModCarrerMode/data/manager_market/minifaces/COACH-f74c2bc85b84449f.png",
       "bytes": 240527,
       "sha256": "a45ff610e565b2a6505d40f9fd24ec6b3cf5fbc5ec87f8e5f046cb8eead22b9a",
+      "group": "manager_minifaces"
+    },
+    {
+      "path": "ModCarrerMode/data/manager_market/minifaces/COACH-f7bc63193288f005.png",
+      "bytes": 191717,
+      "sha256": "f5d98d24a34bce3671b7cdc3dc9112d4b8ceecd8236de5860d2c39a39d9f17d9",
       "group": "manager_minifaces"
     },
     {
@@ -4685,6 +5093,12 @@
       "path": "ModCarrerMode/data/manager_market/minifaces/COACH-f9b5e9aab62502f8.png",
       "bytes": 204274,
       "sha256": "3daf5f362a7edff97821701deba6193bf9299975276d109ec1168abf86ac6f25",
+      "group": "manager_minifaces"
+    },
+    {
+      "path": "ModCarrerMode/data/manager_market/minifaces/COACH-fa9f393fdee48d33.png",
+      "bytes": 199469,
+      "sha256": "efccf5514c0ba8d3276a95f64a7bccfb1e8d5edeedc9d6fa10a7337b54096585",
       "group": "manager_minifaces"
     },
     {
@@ -4727,6 +5141,18 @@
       "path": "ModCarrerMode/data/manager_market/minifaces/COACH-fd1189340efbef04.png",
       "bytes": 242760,
       "sha256": "59ee6e1c785caf3d6167852d82b7513b8c704e4501205a619242733880134fca",
+      "group": "manager_minifaces"
+    },
+    {
+      "path": "ModCarrerMode/data/manager_market/minifaces/COACH-fd261fecf574db77.png",
+      "bytes": 147384,
+      "sha256": "ea7f796fd34f0b6b28d6583df89f48702fb64ed9644eebf4113976e1d8bab45a",
+      "group": "manager_minifaces"
+    },
+    {
+      "path": "ModCarrerMode/data/manager_market/minifaces/COACH-fd89323fc8d593b5.png",
+      "bytes": 196720,
+      "sha256": "378cf955b638350d36322b2a9c9d7ef94db9c7ee34fe4938b98a362f7ab17533",
       "group": "manager_minifaces"
     },
     {

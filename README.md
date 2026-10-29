@@ -19,7 +19,7 @@ A combinação Git + ZIP é agora verificada em uma pasta vazia, sem caches do d
 - **Visual:** integração do Robson, abertura GOAT, fundos dourados, transparências, tema central `#B9A274`, ocultação EA/Q e correção das fontes de `globalcomponents` copiadas pelo Server. IDs do calendário preservados.
 - **Cards:** mercado e técnicos em Transferências; finanças/empréstimos no Escritório; Vestiário em segundo no Meu time; Ver clubes próprio na Temporada e estatísticas agrupadas.
 - **Server16:** auxiliar sincronizado também no executável pronto, com log próprio para o mercado de técnicos. Os demais módulos embarcados foram preservados.
-- **Entrega:** o Git leva lógica, catálogo público, binários e telas próprias. O ZIP reúne os assets externos anteriores, 780 minifaces e a integração visual; não contém saves, SQL pessoal, runtimes ou caches.
+- **Entrega:** o Git leva lógica, catálogo público, binários e telas próprias. O ZIP reúne os assets externos anteriores, 851 minifaces e a integração visual; não contém saves, SQL pessoal, runtimes ou caches.
 
 [Changelog, instalação e limites](ModCarrerMode/docs/RELEASE_20261029.md) · [Manifesto dos assets do ZIP](ModCarrerMode/data/catalogs/asset_complement.json) · [Organização dos cards](ModCarrerMode/docs/CAREER_HUB_ORGANIZATION.md).
 

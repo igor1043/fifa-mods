@@ -123,3 +123,14 @@ ModCarrerMode/source/tools/career_branding/README.md -text whitespace=cr-at-eol
 
 data/fifarna/lua/assets/server16_frontend_176.lua -text
 data/fifarna/lua/assets/server16_frontend_261.lua -text
+
+# Runtime release manifests validate the same bytes after Git archive/clone.
+ModCarrerMode/docs/COACH_MINIFACE.md -text whitespace=cr-at-eol
+ModCarrerMode/docs/CUSTOM_UI_THEME.md -text whitespace=cr-at-eol
+ModCarrerMode/docs/SCOREBOARD_THEME.md -text whitespace=cr-at-eol
+ModCarrerMode/source/career_native/src/host/career_manager_read.inc -text whitespace=cr-at-eol
+ModCarrerMode/source/common/custom_ui_theme.h -text whitespace=cr-at-eol
+ModCarrerMode/source/common/test_custom_ui_theme.cmd -text whitespace=cr-at-eol
+ModCarrerMode/source/common/test_custom_ui_theme.cpp -text whitespace=cr-at-eol
+ModCarrerMode/source/tests/test_asset_complement.py -text whitespace=cr-at-eol
+ModCarrerMode/source/tests/test_scoreboard_theme_baseline.py -text whitespace=cr-at-eol

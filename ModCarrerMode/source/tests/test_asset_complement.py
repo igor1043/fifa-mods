@@ -53,7 +53,7 @@ class AssetComplementTests(unittest.TestCase):
         sources=[row['sha256'] for name,row in self.rows.items() if name.endswith('/globalcomponents/globalcomponents.big')]
         self.assertEqual(len(sources),3)
         self.assertEqual(len(set(sources)),1)
-        self.assertEqual(sum('/manager_market/minifaces/' in name for name in self.rows),780)
+        self.assertEqual(sum('/manager_market/minifaces/' in name for name in self.rows),851)
         self.assertFalse(any('/var_room/' in name for name in self.rows))
         self.assertTrue(any('/var_cabin/' in name for name in self.rows))
 
