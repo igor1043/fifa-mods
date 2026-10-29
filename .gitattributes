@@ -93,3 +93,33 @@ ModCarrerMode/source/career_native/src/host/native_cards.inc -text whitespace=cr
 ModCarrerMode/source/server16_py/d3d_overlay/cgfs16_overlay.cpp -text whitespace=cr-at-eol
 ModCarrerMode/source/server16_py/d3d_overlay/ui_pipeline_state.h -text whitespace=cr-at-eol
 ModCarrerMode/docs/RELEASE_20261028.md -text whitespace=cr-at-eol
+
+# Shared source, public catalogue and release manifests are byte-identical to the game.
+ModCarrerMode/source/career_native/src/host/career_ui_jobs.inc -text
+ModCarrerMode/source/career_native/tests/providers/test_active_career_save.c -text
+ModCarrerMode/source/career_native/tests/providers/test_prepared_views.c -text
+ModCarrerMode/source/native_mods/career_overlay/layout/careermanagerhubcfg.xml -text
+ModCarrerMode/source/server16_py/club_environment.py -text
+ModCarrerMode/source/tools/career_branding/hide_online_card.py -text whitespace=cr-at-eol
+ModCarrerMode/source/tools/expand_career_transfer_cards.py -text
+ModCarrerMode/source/tools/reorganize_career_hub.py -text
+ModCarrerMode/source/tests/test_career_hub_reorganization.py -text
+ModCarrerMode/source/tests/fixtures/career_hub_before_reorganization.xml -text
+ModCarrerMode/data/manager_market/catalog.sqlite3 -text
+ModCarrerMode/data/custom_ui_theme.json -text
+ModCarrerMode/data/catalogs/asset_complement.json -text
+ModCarrerMode/docs/RELEASE_20261029.md -text whitespace=cr-at-eol
+ModCarrerMode/source/career_native/tests/providers/test_career_ui_jobs.c -text whitespace=cr-at-eol
+ModCarrerMode/source/tests/test_bootstrap_ui.py -text whitespace=cr-at-eol
+ModCarrerMode/source/tests/test_club_environment.py -text whitespace=cr-at-eol
+ModCarrerMode/tools/Build-PortablePackages.py -text whitespace=cr-at-eol
+ModCarrerMode/tools/Verify-PortablePackage.py -text whitespace=cr-at-eol
+ModCarrerMode/docs/CAREER_HUB_ORGANIZATION.md -text whitespace=cr-at-eol
+ModCarrerMode/source/career_native/src/host/active_save_probe.inc -text whitespace=cr-at-eol
+ModCarrerMode/source/career_native/src/host/dinput8_wrapper.c -text whitespace=cr-at-eol
+ModCarrerMode/source/career_native/tests/providers/test_career_market_read.c -text whitespace=cr-at-eol
+ModCarrerMode/source/tests/test_career_transfer_cards_layout.py -text whitespace=cr-at-eol
+ModCarrerMode/source/tools/career_branding/README.md -text whitespace=cr-at-eol
+
+data/fifarna/lua/assets/server16_frontend_176.lua -text
+data/fifarna/lua/assets/server16_frontend_261.lua -text

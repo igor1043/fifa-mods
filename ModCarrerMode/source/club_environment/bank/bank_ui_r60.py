@@ -1,3 +1,4 @@
+from ui_theme import ACCENT, ACCENT_TEXT, rgb, argb
 import portable_paths as portable
 """Small native FIFA form: one focus model for pad, keyboard and pointer."""
 import sys,json,struct
@@ -105,7 +106,7 @@ def draw_row(a,name,index,text,hint='',arrows=False):
   a.set(P(obj,'label'),'_y',top if hint else (height-label_height)/2)
  a.set(P(obj,'hint'),'_visible',bool(hint));a.set(P(obj,'label'),'text',text);a.set(P(obj,'hint'),'text',hint)
  a.set(P(obj,'selected'),'_alpha',0);a.set(P(obj,'label'),'textColor',0x334b56);a.set(P(obj,'hint'),'textColor',0x536874)
- a.when(EQ(T('focus'),index),lambda a:(a.set(P(obj,'selected'),'_alpha',100),a.set(P(obj,'label'),'textColor',0xffffff),a.set(P(obj,'hint'),'textColor',0xe1edf3)))
+ a.when(EQ(T('focus'),index),lambda a:(a.set(P(obj,'selected'),'_alpha',100),a.set(P(obj,'label'),'textColor',rgb(ACCENT_TEXT)),a.set(P(obj,'hint'),'textColor',rgb(ACCENT_TEXT))))
  if name.startswith('row'):
   for side in ('less','more'):a.set(P(obj,side),'_visible',arrows)
 
@@ -370,7 +371,7 @@ def graphics(data,apt,template,shape,append,new_chars,controls,count,additions):
  def clip(parts):
   raw=bytearray(data[apt.characters[9].offset:apt.characters[9].offset+56]);frame=append(struct.pack('<I4xQ',len(parts),append(struct.pack('<'+'Q'*len(parts),*parts))));struct.pack_into('<I4xQ',raw,32,1,frame);struct.pack_into('<Q',raw,48,0);return character(raw)
  def button(name,x,y,w,h,label='',arrows=False):
-  selected=clip([place(shape,1,0,0,w,h,color=0xff075a9e)])
+  selected=clip([place(shape,1,0,0,w,h,color=argb(ACCENT))])
   parts=[place(shape,1,0,0,w,h,color=0xffd9e0e3),place(selected,2,0,0,name='selected'),place(text(label,w-170 if arrows else w-30,34,28,0xff334b56),3,16,6,name='label'),place(text('',w-32,22,18,0xff536874),4,16,36,name='hint')]
   for side,glyph,xpos in ((('less','<',w-122),('more','>',w-62)) if arrows else ()):
    arrow=clip([place(shape,1,0,0,46,42,color=0xffbac9d3),place(text(glyph,42,38,29,0xff173d54),2,12,1)])

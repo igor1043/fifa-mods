@@ -86,4 +86,22 @@ class TransferCardsLayoutTests(unittest.TestCase):
             self.assertEqual(before_names,after_names)
             for cid in (8,10):
                 self.assertEqual(b.characters[cid].alignment,0)
-                self.assertEqual(b.characters[cid].color,0xFF405660)
+                self.assertEqual(b.characters[cid].color,0xFFF1F5F8)
+
+    def test_text_has_high_contrast_against_both_transfer_row_backgrounds(self):
+        sys.path.insert(0,str(ROOT/'tools'))
+        sys.path.insert(0,str(ROOT/'tools/apt_vendor'))
+        from expand_career_transfer_cards import style_component
+        from formats import BigFile,AptFile,Placement
+        original=ROOT/'tools/career_branding/originals/transferinfo.big'
+        def luminance(rgb):
+            channels=[((rgb>>shift)&255)/255 for shift in (16,8,0)]
+            linear=[v/12.92 if v<=.04045 else ((v+.055)/1.055)**2.4 for v in channels]
+            return sum(v*w for v,w in zip(linear,(.2126,.7152,.0722)))
+        with tempfile.TemporaryDirectory() as folder:
+            output=Path(folder)/'transferinfo.big';output.write_bytes(style_component(original))
+            apt=AptFile(BigFile(output))
+            panel=next(p for p in apt.characters[11].frames[0] if isinstance(p,Placement) and p.character==3)
+            for cid in (8,10):
+                a,b=sorted((luminance(apt.characters[cid].color),luminance(panel.bias)))
+                self.assertGreater((b+.05)/(a+.05),7)

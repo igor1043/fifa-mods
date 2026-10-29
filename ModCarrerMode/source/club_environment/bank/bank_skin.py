@@ -1,3 +1,4 @@
+from ui_theme import ACCENT, ACCENT_SOFT, FOCUS_OUTLINE
 """Small, local card textures; all labels and controls remain native APT."""
 from PIL import Image,ImageDraw
 
@@ -11,15 +12,15 @@ def panel(width,height,top,bottom,border,radius=10):
     return image
 
 def textures():
-    header=panel(1152,120,'#e7f1f9','#e7f1f9','#cedce8')
+    header=panel(1152,120,ACCENT_SOFT,ACCENT_SOFT,'#cedce8')
     draw=ImageDraw.Draw(header)
-    for x in range(760,1150,60):draw.line((x+100,1,x-80,119),fill='#c8dce9',width=2)
+    for x in range(760,1150,60):draw.line((x+100,1,x-80,119),fill=FOCUS_OUTLINE,width=2)
     return {
         'bank_idle':panel(576,96,'#edf3f7','#edf3f7','#cfdbe4'),
-        'bank_selected':panel(576,96,'#0877c9','#004b91','#35b8ff'),
+        'bank_selected':panel(576,96,ACCENT,ACCENT,FOCUS_OUTLINE),
         'header':header,
         'options':panel(496,352,'#f7fbff','#f7fbff','#d5e0e8'),
         'summary':panel(640,464,'#f7fbff','#f7fbff','#d5e0e8'),
         'action_idle':panel(496,80,'#edf3f7','#edf3f7','#d0dde7'),
-        'action_selected':panel(496,80,'#147fc6','#075a9e','#35b8ff'),
+        'action_selected':panel(496,80,ACCENT,ACCENT,FOCUS_OUTLINE),
     }

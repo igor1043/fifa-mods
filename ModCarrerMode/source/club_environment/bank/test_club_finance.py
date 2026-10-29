@@ -22,9 +22,9 @@ class ClubFinanceTests(unittest.TestCase):
   self.assertEqual(b,10_000_000);self.assertFalse(e);self.assertTrue(all(s['finance']['settings'].values()))
  def test_one_payment_per_completed_fixture_and_month_is_only_aggregation(self):
   s,b,e=step(self.state,20260512,self.budget,[match()]);first=b
-  self.assertEqual({r['kind'] for r in e},{'tv','tickets'})
+  self.assertEqual({r['kind'] for r in e},{'tv','tickets','match_costs'})
   for _ in range(5):s,b,e=step(s,20260512,b,[match()]);self.assertFalse(e)
-  self.assertEqual(b,first);rows=f.monthly(s);self.assertEqual(rows[0]['income'],first-self.budget)
+  self.assertEqual(b,first);rows=f.monthly(s);self.assertEqual(rows[0]['cash_result'],first-self.budget)
   self.assertEqual(self.state['finance']['entries'],[])
  def test_away_game_only_tv_and_unplayed_or_neutral_has_no_ticket(self):
   s,b,e=step(self.state,20260512,self.budget,[match(home=567,away=1043),match(2,played=False),match(3,neutral=True)])
@@ -42,7 +42,7 @@ class ClubFinanceTests(unittest.TestCase):
   s,b,e=step(s,20260512,self.budget,[match()]);self.assertFalse(e)
   self.assertTrue(all(r['status']=='disabled' for r in s['finance']['entries']))
   s=f.toggle(s,'tv',True,20260512);s=f.toggle(s,'tickets',True,20260512)
-  s,b,e=step(s,20260513,b,[match(),match(2,20260513)]);self.assertEqual(len(e),2)
+  s,b,e=step(s,20260513,b,[match(),match(2,20260513)]);self.assertEqual(len(e),3)
   self.assertTrue(all(r['fixture']==2 for r in s['finance']['entries'] if r['status']=='applied'))
  def test_master_switch_freezes_money_and_coach_does_not_charge_disabled_days(self):
   s=f.toggle(self.state,'enabled',False,20260511)
@@ -56,14 +56,16 @@ class ClubFinanceTests(unittest.TestCase):
   payroll=s['finance']['entries'][0];self.assertEqual(payroll['enabled_days'],16)
   self.assertEqual(payroll['amount'],-round(38000*52/12*16/31))
  def test_pending_salary_waits_for_balance_and_is_not_marked_paid(self):
-  s,b,e=step(self.state,20260531,0)
+  disabled=f.toggle(self.state,'sponsor',False,20260511)
+  disabled=f.toggle(disabled,'staff',False,20260511)
+  s,b,e=step(disabled,20260531,0)
   self.assertEqual(b,0);self.assertFalse(e);self.assertEqual(s['finance']['entries'][0]['status'],'pending')
   s,b,e=step(s,20260601,1_000_000);self.assertEqual(len(e),1);self.assertEqual(e[0]['paid_date'],20260601)
  def test_unknown_coach_never_invents_or_deducts_salary(self):
   ctx=context(20260511);ctx['coach_wage']=None
   s,b,e=f.apply(empty(1043,20260511),club=1043,today=20260511,budget=self.budget,context=ctx)
   ctx['date']=20260531;s,b,e=f.apply(s,club=1043,today=20260531,budget=b,context=ctx)
-  self.assertFalse(e);self.assertFalse(s['finance']['entries'])
+  self.assertFalse(any(x['kind']=='coach' for x in e));self.assertFalse(any(x['kind']=='coach' for x in s['finance']['entries']))
  def test_agreement_is_frozen_against_balance_rule_and_budget_changes(self):
   before=deepcopy(self.state['finance']['agreements'])
   ctx=context(20260512,[match()]);ctx['competitions'][0]['budgets']=[999_000_000]
@@ -101,7 +103,7 @@ class ClubFinanceTests(unittest.TestCase):
    restored=sql.load_snapshot(p,digest,1043)['state'];self.assertEqual(restored,s)
    with sql.connection(p) as db:
     self.assertEqual(db.execute('PRAGMA user_version').fetchone()[0],3)
-    self.assertEqual(db.execute('SELECT COUNT(*) FROM finance_entries WHERE checkpoint=?',(digest,)).fetchone()[0],2)
+    self.assertEqual(db.execute('SELECT COUNT(*) FROM finance_entries WHERE checkpoint=?',(digest,)).fetchone()[0],3)
     self.assertFalse(json.loads(db.execute('SELECT settings_json FROM finance_preferences WHERE checkpoint=?',(digest,)).fetchone()[0])['tickets'])
    newer,b,_=step(s,20260630,b,[match(),match(2,20260615)])
    self.assertEqual(sql.load_snapshot(p,digest,1043)['state'],s)

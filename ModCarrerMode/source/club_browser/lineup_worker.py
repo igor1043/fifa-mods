@@ -113,8 +113,13 @@ def main():
             try:
                 req=request(folder/'request.tsv',args.pid)
                 signature=(req['seq'],req['club'])
+                if req.get('kind')=='coach':
+                    from coach_worker import refresh_key
+                    signature+= (refresh_key(game),)
                 if signature!=last:
-                    last=signature;publish(folder,req,'loading')
+                    refreshing=req.get('kind')=='coach' and last and signature[:2]==last[:2]
+                    last=signature
+                    if not refreshing:publish(folder,req,'loading')
                     print('REQUEST',json.dumps(req),flush=True)
                     if req.get('kind')=='competitions':
                         from competitions_worker import generate as prepare_competitions

@@ -685,7 +685,8 @@ class Bridge:
         view.update(players=context.get('players',[]),transfers=context.get('transfers',[]),
             player_error=context.get('player_error'),transfer_error=context.get('transfer_error'),
             debts=debts(self.state['contracts'],BANKS),
-            entries=book.get('entries',[]),coach_weekly=wage)
+            entries=book.get('entries',[]),coach_weekly=wage,commercial=book.get('commercial',{}),
+            fixtures=context.get('fixtures',[]))
         if self.finance_error:view['message']=self.finance_error
         signature=fingerprint(json.dumps(view,ensure_ascii=False,sort_keys=True).encode())
         try:

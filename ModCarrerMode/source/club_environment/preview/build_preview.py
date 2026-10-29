@@ -1,3 +1,4 @@
+from ui_theme import ACCENT, argb
 import portable_paths as portable
 """Standalone native match preview with a reusable custom LineupPitch symbol."""
 from pathlib import Path
@@ -302,7 +303,7 @@ def build(payload=None):
     pc=[];depth=0
     def rect(x,y,w,h,color):
         nonlocal depth;depth+=1;pc.append(place(shape_id,depth,x,y,w,h,color=color))
-    rect(0,0,PANEL_W,PANEL_H,0xffd4d7cf);rect(FIELD_X,0,FIELD_W,FIELD_Y,payload['user'].get('header_color',0xff163e62))
+    rect(0,0,PANEL_W,PANEL_H,0xffd4d7cf);rect(FIELD_X,0,FIELD_W,FIELD_Y,payload['user'].get('header_color',argb(ACCENT)))
     for i in range(10):rect(FIELD_X,FIELD_Y+i*FIELD_H/10,FIELD_W,FIELD_H/10,0xff2a6127 if i%2 else 0xff2d672a)
     line=0xff6d8f61
     for r in ((12,80,640,3),(12,709,640,3),(12,80,3,632),(649,80,3,632),(12,395,640,3),
@@ -326,7 +327,7 @@ def build(payload=None):
             name=name[:11]
         return name
     def native_pitch(team):
-        controls=pc.copy();controls[0]=place(shape_id,1,0,0,0,0,color=0x00ffffff);controls[1]=place(shape_id,2,FIELD_X,0,FIELD_W,FIELD_Y,label='teamHeader',color=team.get('header_color',0xff163e62))
+        controls=pc.copy();controls[0]=place(shape_id,1,0,0,0,0,color=0x00ffffff);controls[1]=place(shape_id,2,FIELD_X,0,FIELD_W,FIELD_Y,label='teamHeader',color=team.get('header_color',argb(ACCENT)))
         ink=0xff000000|team.get('header_ink',0xffffff)
         crest_symbol=native_art('S16Crest_'+str(team['team_id']),56,'crest')
         controls.extend([place(crest_symbol,200,FIELD_X+14,12,label='crest'),text(201,FIELD_X+84,9,FIELD_W-96,40,31 if len(team['name'])<27 else 26,'teamName',ink,value=team['name']),text(202,FIELD_X+84,48,FIELD_W-96,26,20,'caption',ink,value='PROVÁVEL ESCALAÇÃO' if team['probable'] else 'SEU TIME TITULAR'),text(203,20,662,210,49,41,'formation',0xffffffff,font=4,value=team['formation'])])

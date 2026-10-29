@@ -645,3 +645,24 @@ disputa de profundidade. Elas acompanham a visibilidade e o descarregamento do
 ator; ficam ausentes no estádio e nos 11 iniciais. Trata-se de sombra de contato,
 não de projeção animada de toda a silhueta. `contact_shadow.py` gera apenas a
 geometria e `test_contact_shadow.py` confere o plano, os UVs e os normais.
+
+## Resumos do time e do técnico
+
+A tela Técnico do time usa três abas: **Resumo do time**, **Resumo do técnico**
+e **Temporada**. Os totais do time são independentes dos totais da passagem atual
+do treinador. `manager_market/club_profile.py` abre o SQLite em modo somente
+leitura e aceita apenas `state_ready.json` do mesmo processo, contexto/época,
+clube humano, hash/data do save e evento nativo de I/O. A publicação ocorre
+depois do commit SQL e antes de montar a tela do mercado.
+
+O resumo cruza IDs das nomeações e datas com as partidas identificadas na
+carreira. Jogos associados a outro treinador, inclusive no dia da troca, não
+são herdados. Renovações consecutivas mantêm a passagem; uma demissão e posterior
+retorno iniciam outra. Dados ainda não sincronizados ficam indisponíveis, sem
+usar os totais do time como substituto. Os registros `S` e `T` transportam,
+respectivamente, time e técnico, cada qual com total/mandante/visitante.
+Atualizações dos dados não reiniciam o ator 3D.
+
+Temporada exibe até três cards por página, com a arte da competição por ID,
+J/V/E/D, gols pró/contra, pontos e aproveitamento por pontos conquistados.
+↑/↓, direcional do controle e a roda do mouse sobre o painel percorrem as páginas.

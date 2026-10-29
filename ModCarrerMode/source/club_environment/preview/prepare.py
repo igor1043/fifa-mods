@@ -68,7 +68,7 @@ def once():
 
 def main():
     # An isolated process prevents market builders from touching preview globals.
-    companion=None;market_child=None;market_retry=0
+    companion=None;market_child=None;market_retry=0;manager_child=None;manager_retry=0
     market_source=portable.SOURCES/'market'
     if (market_source/'companion.py').is_file():
         import importlib.util
@@ -89,6 +89,10 @@ def main():
                     market_retry=time.monotonic()+15
                     try:market_child=companion.launch(portable,portable.session_process().pid)
                     except Exception as error:note('market_companion_waiting',error=str(error))
+                if companion and hasattr(companion,'launch_managers') and time.monotonic()>=manager_retry and (manager_child is None or manager_child.poll() is not None):
+                    manager_retry=time.monotonic()+15
+                    try:manager_child=companion.launch_managers(portable,portable.session_process().pid)
+                    except Exception as error:note('manager_companion_waiting',error=str(error))
                 snapshot=GAME/'ModCarrerMode/runtime/career_fce_snapshot.json';data=json.loads(snapshot.read_text(encoding='utf8'));save=Path(data['savePath']);stat=save.stat()
                 page,today,profile=current_state(data['pid'],details=True)
                 # Snapshot generation is a polling counter, not a content change.
@@ -105,6 +109,7 @@ def main():
                 if message!=last_error:note('waiting',error=message);last_error=message
             time.sleep(2)
     finally:
+        if manager_child is not None and manager_child.poll() is None:manager_child.terminate()
         if market_child is not None and market_child.poll() is None:market_child.terminate()
         if lock.exists() and lock.read_text()==str(os.getpid()):lock.unlink()
 

@@ -32,7 +32,7 @@ def open_finance(payload,globals_=None):
  vm=BankInputVM(native)
  if globals_ is not None:vm.global_=globals_
  managers={k:Object({n:Native(n) for n in ns}) for k,ns in {'InputManager':['SetLocalEventHandler','DisableCurrentLocalEventHandler'],'ScreenManager':['SetOnExitScreenCallback','BeginAnimateIn'],'HelpManager':['Update','Clear']}.items()}
- managers['InputCodes']=Object({'ADVANCE':2,'BACK':1,'UP':3,'DOWN':4,'LEFT':5,'RIGHT':6,'LAS_UP':7,'LAS_DOWN':8,'L2':9,'R2':10})
+ managers['InputCodes']=Object({'ADVANCE':2,'BACK':1,'UP':3,'DOWN':4,'LEFT':5,'RIGHT':6,'LAS_UP':7,'LAS_DOWN':8,'L2':9,'R2':10,'RAS_UP':11,'RAS_DOWN':12})
  vm.global_.set('game',Object({'globalClasses':Object(managers)}))
  vm.global_.set('ION_CareerMode',Object({n:Native(n) for n in ('GetScreenStaticData','GetEvents','SendEvent','SendSystemEvent')}))
  vm.global_.set('ION_Localization',Object({'LocalizeCurrencyWithType':Native('LocalizeCurrencyWithType')}))

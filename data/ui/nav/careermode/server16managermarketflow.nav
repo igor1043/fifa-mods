@@ -1,0 +1,109 @@
+{
+  "name": "Server16ManagerMarketFlow",
+  "initial": {
+    "targets": [
+      "Managers"
+    ]
+  },
+  "states": [
+    {
+      "name": "Managers",
+      "onEnter": [
+        [
+          "executeCMAction",
+          [
+            "EnterCalendar"
+          ]
+        ],
+        [
+          "loadScreenController",
+          [
+            "Calendar"
+          ]
+        ],
+        [
+          "loadView",
+          [
+            "screen",
+            "game/screens/career/server16/ManagerMarket"
+          ]
+        ],
+        [
+          "loadView",
+          [
+            "background",
+            "BOOTFLOW"
+          ]
+        ]
+      ],
+      "onExit": [
+        [
+          "unloadView",
+          [
+            "screen"
+          ]
+        ],
+        [
+          "unloadScreenController",
+          [
+            "Calendar"
+          ]
+        ],
+        [
+          "unloadView",
+          [
+            "background"
+          ]
+        ]
+      ],
+      "transitions": [
+        {
+          "event": "Server16RefreshManagerMarket",
+          "actions": [
+            [
+              "unloadView",
+              [
+                "screen"
+              ]
+            ],
+            [
+              "loadView",
+              [
+                "screen",
+                "game/screens/career/server16/ManagerMarket"
+              ]
+            ]
+          ]
+        },
+        {
+          "event": "Back",
+          "targets": [
+            "Back"
+          ],
+          "actions": [
+            [
+              "executeCMAction",
+              [
+                "ReturnToHubFromCalendar"
+              ]
+            ]
+          ]
+        },
+        {
+          "event": "back",
+          "targets": [
+            "Back"
+          ],
+          "actions": [
+            [
+              "executeCMAction",
+              [
+                "ReturnToHubFromCalendar"
+              ]
+            ]
+          ]
+        }
+      ]
+    }
+  ]
+}

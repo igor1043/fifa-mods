@@ -1,3 +1,4 @@
+from ui_theme import ACCENT, argb
 import portable_paths as portable
 """Native FIFA card geometry for the venue and recent-results carousel pages."""
 import textwrap
@@ -46,7 +47,7 @@ def graphics(payload,place,text,sprite,shape_id,solid_shape,dot_shape,arrows,nat
     histories=[]
     for side in ('user','opponent'):
         label_owner='userHistory' if side=='user' else 'opponentHistory'
-        team=payload[side];primary=team.get('header_color',0xff163e62);fg=0xff000000|team.get('header_ink',0xffffff)
+        team=payload[side];primary=team.get('header_color',argb(ACCENT));fg=0xff000000|team.get('header_ink',0xffffff)
         controls=[place(shape_id,1,0,0,704,640,color=0xffedf0ed),place(shape_id,2,0,0,704,84,color=primary),
                   label(3,90,19,586,46,32,'teamName',team['name'],fg),place(sprite([]),4,18,13,label='crest'),
                   label(5,26,105,650,32,23,'subtitle','ÚLTIMOS 5 JOGOS NESTA CARREIRA')]
@@ -139,7 +140,7 @@ def graphics(payload,place,text,sprite,shape_id,solid_shape,dot_shape,arrows,nat
         return sprite([place(shape_id,1,0,0,34,32,color=0xff26343c),place(arrow,2,12,10,9,12,color=0xffe4ebeb)])
     # Native shapes are not addressable MovieClips. Use root strip instances
     # with baked colors so the selected dot never depends on a shape setter.
-    strips=[sprite([place(circle,1+i,146+i*34,12,16,16,color=0xffd7f51b if i==page else 0xff839196) for i in range(3)]) for page in range(3)]
+    strips=[sprite([place(circle,1+i,146+i*34,12,16,16,color=argb(ACCENT) if i==page else 0xff839196) for i in range(3)]) for page in range(3)]
     dot=sprite([place(shape_id,1,0,0,18,18,color=0x01ffffff)])
     label_owner=None
     return [place(sprite(center),9,SUMMARY_X,SUMMARY_Y,label='lineupSummary'),

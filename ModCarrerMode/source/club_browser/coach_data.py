@@ -4,8 +4,8 @@ Club results are never presented as a coach's lifetime record. User statistics
 require an exact userid/club join; another club cannot inherit the user's wage.
 """
 from pathlib import Path
-import struct,json
-from lineup_data import ProjectionCache,project as starting_eleven
+import struct,json,sqlite3
+from lineup_data import ProjectionCache
 
 KEYS=('games','wins','draws','losses','goalsFor','goalsAgainst','points')
 
@@ -35,7 +35,7 @@ def record(matches):
   gf,ga=r['gf'],r['ga'];s['games']+=1;s['wins']+=gf>ga;s['draws']+=gf==ga;s['losses']+=gf<ga;s['goalsFor']+=gf;s['goalsAgainst']+=ga
  s['points']=s['wins']*3+s['draws'];return s
 
-def season(snapshot,club,leagues):
+def season(snapshot,club,leagues,include=None):
  if not snapshot:return {},[],''
  today=snapshot['date'];nodes={r[0]:r for r in snapshot.get('nodes',[]) if len(r)==5};matches={};groups={}
  def root(key):
@@ -57,13 +57,38 @@ def season(snapshot,club,leagues):
   if r[0] in matches:
    if matches[r[0]]['raw']!=tuple(r):raise ValueError('Resultados conflitantes da carreira.')
    continue
-  home=r[5]==club;m=dict(raw=tuple(r),date=r[3],id=r[0],home=home,gf=r[7 if home else 8],ga=r[8 if home else 7]);matches[r[0]]=m;group['matches'].append(m)
- values=list(matches.values());s=record(values);s['home']=record([r for r in values if r['home']]);s['away']=record([r for r in values if not r['home']])
+  home=r[5]==club;m=dict(raw=tuple(r),root=comp[0],date=r[3],id=r[0],home=home,home_club=r[5],away_club=r[6],gf=r[7 if home else 8],ga=r[8 if home else 7]);matches[r[0]]=m
+  if include is None or include(m):group['matches'].append(m)
+ values=[m for m in matches.values() if include is None or include(m)];s=record(values);s['home']=record([r for r in values if r['home']]);s['away']=record([r for r in values if not r['home']])
  competitions=[]
  for _,g in sorted(groups.items()):
   competitions.append(dict(asset=g['asset'],name=g['name'],**record(g['matches']),status='Em andamento' if g['upcoming'] and g['matches'] else 'A disputar' if g['upcoming'] else 'Resultados registrados'))
  form=''.join('V' if r['gf']>r['ga'] else 'E' if r['gf']==r['ga'] else 'D' for r in sorted(values,key=lambda r:(r['date'],r['id']),reverse=True)[:5])
  return s,competitions,form
+
+def tenure(market,snapshot,club):
+ """Confirmed SQL ownership wins over a date interval, especially on hire day."""
+ if not market:return {},''
+ ids=set(market['appointments']);start=market['start'];today=snapshot['date'] if snapshot else 99991231;known={};matches={}
+ def key(r):return r['root'],r['id'],r['home_club'],r['away_club'],r['date']
+ for r in market['results']:
+  try:_,root,ident,home,away=map(int,r['match_key'].split(':'))
+  except (ValueError,KeyError):continue
+  own=r['home']==club;m=dict(root=root,id=ident,home_club=home,away_club=away,date=r['game_date'],home=own,gf=r['hg'] if own else r['ag'],ga=r['ag'] if own else r['hg'])
+  if not start<=m['date']<=today:continue
+  owner=r.get('home_appointment' if own else 'away_appointment');known[key(m)]=owner
+  if owner in ids:matches[key(m)]=m
+ def include(m):
+  k=key(m)
+  if not start<=m['date']<=today:return False
+  if known.get(k) is not None:allowed=known[k] in ids
+  else:allowed=m['date']>start or market['initial']
+  if allowed:matches[k]=m
+  return allowed
+ if snapshot:season(snapshot,club,{},include)
+ values=list(matches.values());s=record(values);s['home']=record([r for r in values if r['home']]);s['away']=record([r for r in values if not r['home']])
+ form=''.join('V' if r['gf']>r['ga'] else 'E' if r['gf']==r['ga'] else 'D' for r in sorted(values,key=lambda r:(r['date'],r['id']),reverse=True)[:5])
+ return s,form
 
 def project(game,save,club,cache=None,snapshot=None):
  game=Path(game);cache=cache or ProjectionCache();raw,dbs,base=cache.load(game,save)
@@ -117,7 +142,8 @@ def project(game,save,club,cache=None,snapshot=None):
  except (OSError,ValueError,KeyError,TypeError):pass
  links=match('leagueteamlinks',['teamid','leagueid','secondarytable'],'teamid',{club});members={r['leagueid'] for r in links if not r.get('secondarytable')}
  primary=min((r for r in league_rows if r['leagueid'] in members),key=lambda r:r.get('level') or 99,default={})
- fields=dict(name=name,country=countries.get(nation_id,nation.get('nationname','—')),nation=nation_id or 0,league=leagues.get(primary.get('leagueid'),'—'),league_id=primary.get('leagueid',0))
+ from coach_portrait import portrait
+ fields=dict(name=name,portrait=portrait(game,name),country=countries.get(nation_id,nation.get('nationname','—')),nation=nation_id or 0,league=leagues.get(primary.get('leagueid'),'—'),league_id=primary.get('leagueid',0))
  for src,dest,maximum in [('boardconfidence','confidence',100),('managerreputation','reputation',1501),('wage','weekly_wage',2147483647)]:
   v=manager.get(src);fields[dest]=v if type(v)==int and 0<=v<=maximum else -1
  fields['monthly_wage']=round(fields['weekly_wage']*52/12) if fields['weekly_wage']>0 else -1
@@ -144,10 +170,29 @@ def project(game,save,club,cache=None,snapshot=None):
   if any(type(v)!=int or v<0 for v in values) or sum(values[1:4])!=values[0]:continue
   history.append(dict(season=(r.get('season') or 0)+1,rank=r.get('tableposition') or -1,**dict(zip(KEYS,values)),titles=sum(r.get(k) or 0 for k in ('leaguetrophies','domesticcuptrophies','continentalcuptrophies'))))
  history.sort(key=lambda r:r['season'],reverse=True)
- try:starters=starting_eleven(game,save,club,cache)['roster']
- except ValueError:starters=[]
  colors=[sum((team[0].get('teamcolor'+str(i)+ch) or 0)<<shift for ch,shift in zip('rgb',(16,8,0))) for i in (1,2,3)]
- return dict(club=club,club_name=team[0]['teamname'],fields=fields,stats=stats,competitions=competitions,history=history,starters=starters,save_hash=cache.save_hash,fixture=struct.pack('<8s4I',b'FFCOACH1',club,*colors))
+ return dict(club=club,club_name=team[0]['teamname'],fields=fields,stats=stats,coach_stats={},competitions=competitions,history=history,starters=[],save_hash=cache.save_hash,fixture=struct.pack('<8s4I',b'FFCOACH1',club,*colors))
+
+def attach_market(data,market,snapshot,game):
+ fields=data['fields'];fields.update(coach_available=0,coach_form='—')
+ if not market:return
+ person=market['coach'];a=market['appointment'];start=market['start'];today=fields['date'];data['coach_stats'],form=tenure(market,snapshot,data['club'])
+ from coach_portrait import portrait
+ fields['portrait']=portrait(game,person['name'],person)
+ from datetime import date
+ elapsed=(date(today//10000,today//100%100,today%100)-date(start//10000,start//100%100,start%100)).days
+ fields.update(name=person['name'],monthly_wage=a['monthly_wage'],coach_available=1,coach_since=f'{start%100:02d}/{start//100%100:02d}/{start//10000}',coach_days=elapsed,coach_form=form or '—')
+ human=person.get('coach_id','').startswith('USER-')
+ if not human:
+  fields['reputation']=round(max(1,min(10,person['reputation']))*1501/10)
+  fields['confidence']=market.get('confidence',{}).get('value',-1)
+ if human and not person['nationality']:return
+ try:
+  from manager_market.catalog_meta import Labels
+  path=Path(game)/'ModCarrerMode/data/manager_market/catalog.sqlite3'
+  if not path.is_file():raise OSError('Catálogo indisponível')
+  country,flag=Labels(path).nationality(person['nationality']);fields['country']=country;fields['nation']=int(flag.split('_')[-1]) if flag.split('_')[-1].isdigit() else 0
+ except (OSError,ValueError,sqlite3.Error):fields['country']=person['nationality'] or '—';fields['nation']=0
 
 def tsv(data):
  rows=[['S16COACH1',data['club'],data['club_name']]]
@@ -155,6 +200,8 @@ def tsv(data):
  for key in ('total','home','away'):
   s=data['stats'] if key=='total' else data['stats'].get(key,{})
   rows.append(['S',key,*(s.get(k,-1) for k in KEYS)])
+  s=data.get('coach_stats',{}) if key=='total' else data.get('coach_stats',{}).get(key,{})
+  rows.append(['T',key,*(s.get(k,-1) for k in KEYS)])
  rows.extend(['C',r['asset'],r['name'],*(r.get(k,-1) for k in KEYS),r['status']] for r in data['competitions'])
  rows.extend(['H',r['season'],r['rank'],*(r[k] for k in KEYS),r['titles']] for r in data['history'])
  rows.extend(['X',r['id'],r['number'],r['name'],r['position'],r['overall']] for r in data['starters'])

@@ -35,9 +35,23 @@ def verify(root,complement,output):
         if profile.is_file():
             metadata=json.loads(profile.read_text(encoding='utf8'))
             expected[pose]={'path':pose,'bytes':metadata['recipe_bytes'],'sha256':metadata['recipe_sha256']}
+        full_manifest=stage/'ModCarrerMode/data/catalogs/asset_complement.json'
+        if full_manifest.is_file():
+            complete=json.loads(full_manifest.read_text(encoding='utf8'))
+            assert complete['schema']==1
+            external={row['path']:row for row in complete['files']}
+            assert len(external)==len(complete['files'])
+            # Older module manifests may reference a small animation already
+            # versioned with its code. Every external dependency must be present.
+            for name,row in expected.items():
+                if name in tracked:
+                    assert (stage/name).is_file() and digest(stage/name)==row['sha256'],name
+                else:
+                    assert name in external and external[name]['sha256']==row['sha256'],name
+            expected=external
         with zipfile.ZipFile(complement) as z:
             names=z.namelist();assert len(names)==len(set(names))
-            assert set(names)==set(expected)|{'data/ant.cbac'},'Complement has missing or unexpected assets'
+            assert set(names)==(set(expected) if full_manifest.is_file() else set(expected)|{'data/ant.cbac'}),'Complement has missing or unexpected assets'
             assert not set(names)&tracked,'Complement duplicates the Git payload'
             assert z.testzip() is None
             for name in names:
@@ -95,6 +109,7 @@ def verify(root,complement,output):
                       frozen=json.loads((stage/'selftest.json').read_text()),pose_and_bank_check=True,
                       frozen_worker_matches_published_source=True,
                       direct_worker_tests=True,invalid_stdout_cannot_abort_worker=True,exporter_failure_tests=True,room_geometry_textures_mips_and_lighting_tests=True,
+                      full_asset_manifest=full_manifest.is_file(),
                       runtime_or_save_copied=False,drivers_installed=False,fifa_started=False)
     (output/'clean-package.json').write_text(json.dumps(report,ensure_ascii=False,indent=2)+'\n',encoding='utf8')
     return report

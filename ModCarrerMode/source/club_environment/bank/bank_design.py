@@ -1,3 +1,4 @@
+from ui_theme import ACCENT_TEXT, ACCENT_INK, ACCENT_SOFT, rgb, argb
 """Reference-inspired bank list and proposal cards on the native FIFA screen."""
 from loans import BANKS,AMOUNTS,TERMS,quote,offered,amount_indices,term_indices,product_limits
 
@@ -93,7 +94,7 @@ def install(ui):
                         a.set(obj,'index',index);u.show(a,name,True)
                         a.set(P(obj,'label'),'text',item['name']);a.set(P(obj,'hint'),'text','Até '+u.b.money(product_limits(bank)[0])+' · a partir de '+str(item['rate_bps']/100).replace('.',',')+'% a.m.')
                         a.set(P(obj,'label'),'textColor',0x203b55);a.set(P(obj,'hint'),'textColor',0x536b80);a.set(P(obj,'selected'),'_alpha',0)
-                        a.when(EQ(T('bankIndex'),index),lambda a,obj=obj:(a.set(P(obj,'selected'),'_alpha',100),a.set(P(obj,'label'),'textColor',0xffffff),a.set(P(obj,'hint'),'textColor',0xe8f3fc)))
+                        a.when(EQ(T('bankIndex'),index),lambda a,obj=obj:(a.set(P(obj,'selected'),'_alpha',100),a.set(P(obj,'label'),'textColor',rgb(ACCENT_TEXT)),a.set(P(obj,'hint'),'textColor',rgb(ACCENT_TEXT))))
                         logo=T('bankLogo'+str(bank));u.show(a,'bankLogo'+str(bank),True)
                         for key,value in (('_x',100),('_y',304+visible*86),('_xscale',75),('_yscale',100)):a.set(logo,key,value)
                 a.when(EQ(T('bankOffset'),offset),rows)
@@ -126,7 +127,7 @@ def install(ui):
                             for i,value in enumerate(values):u.label(a,'summaryValue'+str(i),value)
                         a.when(condition,fill)
             a.set(T('summaryValue1'),'textColor',0x13883b);a.set(T('summaryValue4'),'textColor',0xdf8c00)
-            for name in ('summaryLabel9','summaryValue9'):a.set(T(name),'textColor',0x005eae)
+            for name in ('summaryLabel9','summaryValue9'):a.set(T(name),'textColor',rgb(ACCENT_INK))
             u.label(a,'status','')
         a.when(EQ(T('page'),1),form)
 
@@ -185,7 +186,7 @@ def install(ui):
         # Native underlays provide separators and a small blue rate strip.
         def colored(name,x,y,w,h,color):
             raw=bytearray(data[template.offset:template.offset+80]);struct.pack_into('<iii6f',raw,8,46,6,shape,w,0,0,h,0,0);struct.pack_into('<II',raw,44,color,0);struct.pack_into('<Q',raw,56,0);struct.pack_into('<i',raw,8,14);child=append(raw);controls.append(place(clip([child]),6,x,y,name=name))
-        colored('ratePanel',1195,815,595,38,0xffdcecfb)
+        colored('ratePanel',1195,815,595,38,argb(ACCENT_SOFT))
         def button(name,x,y,w,h,index,bank=False,arrows=False):
             idle='bank_idle' if bank else 'action_idle';selected='bank_selected' if bank else 'action_selected'
             parts=[textured(idle,1,w,h),place(clip([textured(selected,1,w,h)]),2,0,0,name='selected')]

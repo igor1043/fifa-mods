@@ -2,13 +2,14 @@
 #include <windows.h>
 #include <assert.h>
 #include <stdio.h>
-static int stable,drains,calls,disabled;
+static int stable,drains,calls,disabled,manager_drains;
 static DWORD callback_thread;
 static void drain_pending_stats_refresh(void) {++drains;}
 static void drain_background_refresh(void) {}
 static void drain_preview_refresh(void) {}
 static void drain_bank_mail(void) {}
 static void drain_market_read(void) {}
+static void drain_manager_read(void) {++manager_drains;}
 static void drain_prepared_views(void) {}
 static int fce_runtime_is_stable(void) {return stable;}
 static void append_loader_log(const char *message) {(void)message;++disabled;}
@@ -22,13 +23,13 @@ int main(void)
     assert(Fifa16CareerRegisterJobUiCallback(command));
     assert(Fifa16CareerRegisterJobUiCallback(command));
     assert(!Fifa16CareerRegisterJobUiCallback(different));
-    assert(calls==0);career_ui_jobs_tick();assert(drains==1 && !calls);
-    stable=1;career_ui_jobs_tick();assert(drains==2 && calls==1);
+    assert(calls==0);career_ui_jobs_tick();assert(drains==1 && !calls && !manager_drains);
+    stable=1;career_ui_jobs_tick();assert(drains==2 && calls==1 && manager_drains==1);
     assert(callback_thread==GetCurrentThreadId());
     InterlockedExchangePointer(&g_career_job_ui_callback,NULL);
     assert(Fifa16CareerRegisterJobUiCallback(broken));
     career_ui_jobs_tick();assert(disabled==1 && !g_career_job_ui_callback);
-    assert(Fifa16CareerRegisterJobUiCallback(command));career_ui_jobs_tick();assert(calls==2);
+    assert(Fifa16CareerRegisterJobUiCallback(command));career_ui_jobs_tick();assert(calls==2 && manager_drains==3);
     puts("PASS: UI commands stay on the stable engine caller; registration never runs callbacks; a second owner is rejected; failing callback is disabled; existing refresh pump always runs");
     return 0;
 }

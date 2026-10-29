@@ -1,3 +1,4 @@
+from ui_theme import FOCUS_OUTLINE
 """Separate native FIFA APT, built in staging using the loan screen's ABI."""
 from pathlib import Path
 import io,json,struct,sys
@@ -18,12 +19,26 @@ def color(value):return 0xff000000|int(value.lstrip('#'),16)
 
 @lru_cache(maxsize=8192)
 def fit(value,width,size):
-    import os
-    font=ImageFont.truetype(str(Path(os.environ.get('WINDIR','C:/Windows'))/'Fonts/arial.ttf'),round(size))
+    font=font_for(round(size))
     text=str(value)
     if font.getlength(text)<=width-6:return text
     while text and font.getlength(text+'…')>width-6:text=text[:-1]
     return text.rstrip()+'…'
+
+@lru_cache(maxsize=64)
+def font_for(size):
+    import os
+    return ImageFont.truetype(str(Path(os.environ.get('WINDIR','C:/Windows'))/'Fonts/arial.ttf'),size)
+
+def block_texture(image):
+    """D3D9 DXT textures require 4-pixel blocks, including non-square panels.
+
+    Keep the logical layout dimensions in the caller. Tiny transparent padding
+    is preferable to a texture silently rejected by FIFA's resource loader.
+    """
+    width,height=image.size;size=((width+3)//4*4,(height+3)//4*4)
+    if size==image.size:return image
+    padded=Image.new('RGBA',size);padded.paste(image,(0,0));return padded
 
 def neighbors(actions):
     result=[]
@@ -188,7 +203,7 @@ def script(data,dictionaries,scenes):
     a.align();registration=len(data);data.extend(dictionaries[1]);a.string(FULL);a.op(28);a.string(FULL);a.expr(2);a.expr(PATH('Object'));a.method('registerClass');a.op(23);a.op(0);a.finish()
     return start,registration
 
-def build(game,output,scenes,assets,*,script_factory=None,full_name=FULL):
+def build(game,output,scenes,assets,*,script_factory=None,full_name=FULL,compression_level=9):
     game=Path(game);output=Path(output)
     big=BigFile(game/'ModCarrerMode/source/club_environment/bank/careertype.big');apt=AptFile(big);data=apt.data
     root=Reader(big.entries['1'].data,20,8).ptr();count,table=struct.unpack_from('<I4xQ',data,root+56)
@@ -208,6 +223,7 @@ def build(game,output,scenes,assets,*,script_factory=None,full_name=FULL):
         if isinstance(path,Image.Image):image=path.convert('RGBA')
         else:
             with Image.open(path) as im:image=im.convert('RGBA')
+        image=block_texture(image)
         image_chars[key]=(write(image),image.size)
     def rect(depth,x,y,w,h,tint):return place(white,depth,x,y,w/4,h/4,tint=color(tint))
     def text(depth,node,name=None):
@@ -232,8 +248,9 @@ def build(game,output,scenes,assets,*,script_factory=None,full_name=FULL):
                     if node.get('name'):cid=sprite([place(cid,1,0,0)])
                     parts.append(place(cid,depth,node['x'],node['y'],node['w']/w,node['h']/h,name=node.get('name')))
             elif kind=='action':
-                w,h=node['w'],node['h'];border=[rect(1,0,0,w,3,'#35b8ff'),rect(2,0,h-3,w,3,'#35b8ff'),rect(3,0,0,3,h,'#35b8ff'),rect(4,w-3,0,3,h,'#35b8ff')]
-                children=[rect(1,0,0,w,h,node['color']),place(sprite(border),2,0,0,name='selected')]
+                w,h=node['w'],node['h'];border=[rect(1,0,0,w,3,FOCUS_OUTLINE),rect(2,0,h-3,w,3,FOCUS_OUTLINE),rect(3,0,0,3,h,FOCUS_OUTLINE),rect(4,w-3,0,3,h,FOCUS_OUTLINE)]
+                background=image_chars.get(node.get('background_asset'))
+                children=([place(background[0],1,0,0,w/background[1][0],h/background[1][1])] if background else [rect(1,0,0,w,h,node['color'])])+[place(sprite(border),2,0,0,name='selected')]
                 if node['text']:children.append(text(3,dict(x=12,y=max(1,(h-node['size']*1.2)/2),w=w-24,h=node['size']*1.3,text=node['text'],size=node['size'],color=node['ink'],align=2)))
                 parts.append(place(sprite(children),depth,node['x'],node['y'],name='action'+str(node['index'])))
         scene_controls.append(place(sprite(parts),i+1,0,0,name='scene'+str(i)))
@@ -256,6 +273,6 @@ def build(game,output,scenes,assets,*,script_factory=None,full_name=FULL):
     for tag,target in ((apt.root_frames[0][1],start),(apt.root_frames[0][2],registration)):
         signature=struct.pack('<Q',tag[-1]);matches=[j for j in range(0,len(apt.entry.original)-7,8) if apt.entry.original[j:j+8]==signature]
         assert len(matches)==1;struct.pack_into('<Q',data,matches[0],target)
-    output.parent.mkdir(parents=True,exist_ok=True);b.write_big(big,output,additions)
+    output.parent.mkdir(parents=True,exist_ok=True);b.write_big(big,output,additions,compression_level=compression_level)
     check=AptFile(BigFile(output));decoded=Actions(check).read_all();assert not decoded.errors;assert full_name in check.exports
     return dict(path=str(output),bytes=output.stat().st_size,scenes=len(scenes),characters=count+len(characters),native_font_descriptor=2,help='Original FIFA HelpManager',installed=False)

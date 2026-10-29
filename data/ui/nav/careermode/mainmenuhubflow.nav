@@ -1446,6 +1446,12 @@
               "targets": [
                 "Server16ClubFinance"
               ]
+            },
+            {
+              "event": "Server16EnterManagerMarket",
+              "targets": [
+                "Server16ManagerMarket"
+              ]
             }
           ]
         },
@@ -3385,6 +3391,15 @@
           "name": "Server16ClubFinance",
           "type": "external",
           "file": "/careerMode/server16ClubFinanceFlow.nav",
+          "outputs": {
+            "back": "MainMenuHub",
+            "Back": "MainMenuHub"
+          }
+        },
+        {
+          "name": "Server16ManagerMarket",
+          "type": "external",
+          "file": "/careerMode/server16ManagerMarketFlow.nav",
           "outputs": {
             "back": "MainMenuHub",
             "Back": "MainMenuHub"

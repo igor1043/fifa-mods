@@ -12,6 +12,11 @@ PAGE='game/screens/career/server16/ClubBrowser'
 
 def carousel(raw):
     root=ET.fromstring(raw)
+    existing=[n for n in root.iter() if n.get('DESTINATION')==EVENT]
+    if len(existing)>1:raise ValueError('Acesso Ver clubes duplicado no hub')
+    # New layouts give Ver clubes its own Season card. Preserve that placement
+    # instead of reinserting a duplicate slide in Outras ligas on the next build.
+    if existing:return raw
     candidates=[t for t in root.find('panel_4').findall('tile') if t.find('tileid').get('NAME')=='OTHER_LEAGUES']
     if len(candidates)!=1:raise ValueError('Card Outras ligas não identificado')
     tile=candidates[0]

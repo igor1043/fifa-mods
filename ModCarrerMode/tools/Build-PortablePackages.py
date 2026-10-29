@@ -5,21 +5,31 @@ import argparse,hashlib,json,os,subprocess,zipfile,importlib.util
 def sha(path):
     with path.open('rb') as stream:return hashlib.file_digest(stream,'sha256').hexdigest()
 
+def asset_rows(root):
+    """The full complement manifest also includes the integrated UI artwork."""
+    path=Path(root)/'ModCarrerMode/data/catalogs/asset_complement.json'
+    if path.is_file():
+        data=json.loads(path.read_text(encoding='utf8'))
+        if data.get('schema')!=1:raise ValueError('Unknown asset complement schema')
+        return [dict(row) for row in data['files']]
+    return None
+
 def build(root,out,stamp,reuse_archive=None):
     root=Path(root).resolve();out=Path(out);out.mkdir(parents=True,exist_ok=True)
     tracked={p.decode('utf8').casefold() for p in subprocess.check_output(['git','ls-files','-z'],cwd=root).split(b'\0') if p}
-    assets=json.loads((root/'ModCarrerMode/source/club_environment/assets-manifest.json').read_text(encoding='utf8'))
-    rows=[dict(row) for row in assets['files']]
-    globe=json.loads((root/'ModCarrerMode/data/club_browser/assets-manifest.json').read_text(encoding='utf8'))
-    rows.extend(dict(row) for row in globe['files'])
-    presentation=json.loads((root/'ModCarrerMode/data/catalogs/presentation_assets.json').read_text(encoding='utf8'))
-    rows.extend(dict(row) for row in presentation['files'])
-    pose=root/'ModCarrerMode/data/club_browser/poses/starting_eleven.pose'
-    if pose.with_suffix('.json').is_file():
-        metadata=json.loads(pose.with_suffix('.json').read_text(encoding='utf8'))
-        rows.append({'path':pose.relative_to(root).as_posix(),'bytes':pose.stat().st_size,'sha256':metadata['recipe_sha256']})
-    animation='data/ant.cbac'
-    rows.append({'path':animation,'bytes':(root/animation).stat().st_size,'sha256':sha(root/animation)})
+    rows=asset_rows(root)
+    if rows is None:
+        rows=[]
+        for relative in ('ModCarrerMode/source/club_environment/assets-manifest.json',
+                         'ModCarrerMode/data/club_browser/assets-manifest.json',
+                         'ModCarrerMode/data/catalogs/presentation_assets.json'):
+            rows.extend(dict(row) for row in json.loads((root/relative).read_text(encoding='utf8'))['files'])
+        pose=root/'ModCarrerMode/data/club_browser/poses/starting_eleven.pose'
+        if pose.with_suffix('.json').is_file():
+            metadata=json.loads(pose.with_suffix('.json').read_text(encoding='utf8'))
+            rows.append({'path':pose.relative_to(root).as_posix(),'bytes':pose.stat().st_size,'sha256':metadata['recipe_sha256']})
+        animation='data/ant.cbac'
+        rows.append({'path':animation,'bytes':(root/animation).stat().st_size,'sha256':sha(root/animation)})
     paths=set()
     for row in rows:
         relative=row['path'];path=Path(relative)
@@ -27,13 +37,17 @@ def build(root,out,stamp,reuse_archive=None):
         if relative.casefold() in tracked:raise ValueError('Already published in Git: '+relative)
         if relative.casefold() in paths:raise ValueError('Duplicate asset: '+relative)
         paths.add(relative.casefold())
-        if path.suffix.casefold() not in ('.rx3','.npz','.cbac','.dds','.png','.bin','.ini','.pose'):raise ValueError('Not a static asset: '+relative)
+        if path.suffix.casefold() not in ('.rx3','.npz','.cbac','.dds','.png','.bin','.ini','.pose','.big','.fsh','.db','.txt'):raise ValueError('Not a static asset: '+relative)
+        if path.suffix.casefold()=='.db' and relative!='data/loc/por_br.db':raise ValueError('Private database is not an asset: '+relative)
+        if path.suffix.casefold()=='.txt' and relative!='LEIA-ME-ROBSON-ASSETS.txt':raise ValueError('Unexpected asset documentation: '+relative)
         source=root/path
         if source.stat().st_size!=row['bytes'] or sha(source)!=row['sha256']:raise ValueError('Asset differs from manifest: '+relative)
     target=out/f'FIFA-Friends-Assets-Complementares-{stamp}.zip';temporary=target.with_suffix('.zip.new')
     if reuse_archive is None:
-        with zipfile.ZipFile(temporary,'w',zipfile.ZIP_DEFLATED,compresslevel=9) as archive:
-            for row in sorted(rows,key=lambda r:r['path']):archive.write(root/row['path'],row['path'])
+        with zipfile.ZipFile(temporary,'w',zipfile.ZIP_DEFLATED,compresslevel=6,allowZip64=True) as archive:
+            for i,row in enumerate(sorted(rows,key=lambda r:r['path'])):
+                archive.write(root/row['path'],row['path'])
+                if i%100==0:print(f'Assets compressed: {i+1}/{len(rows)}',flush=True)
     elif Path(reuse_archive).resolve()!=temporary.resolve():
         import shutil
         shutil.copy2(reuse_archive,temporary)

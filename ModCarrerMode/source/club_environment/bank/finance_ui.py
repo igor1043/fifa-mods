@@ -1,3 +1,4 @@
+from ui_theme import ACCENT, ACCENT_INK, ACCENT_TEXT, rgb
 """Native white FIFA finance screen and original keyboard/pad help ticker."""
 from pathlib import Path
 import json,sys
@@ -13,7 +14,7 @@ from loans import parse_date
 
 CLASS=('game','screens','career','server16','ClubFinance');FULL='.'.join(CLASS);PAGE='/'.join(CLASS)
 TABS=(('overview','Visão geral'),('receipts','Receitas'),('expenses','Despesas'),('transfers','Transferências'),('salaries','Salários'),('loans','Dívidas'),('budget','Orçamento'),('settings','Configurações'))
-ROOT_TABS={'contracts':'receipts','statement':'budget','monthly':'overview'}
+ROOT_TABS={'contracts':'receipts','tickets':'receipts','statement':'budget','monthly':'overview'}
 
 def root_tab(key):return ROOT_TABS.get(key.split(':')[0],key.split(':')[0])
 R=b.reg;T=b.this;P=b.prop;EQ=b.equal;CALL=b.call;M=b.MANAGER;ION=b.ION
@@ -21,15 +22,15 @@ def day(value):
  try:return parse_date(value).strftime('%d/%m/%Y')
  except (ValueError,TypeError):return 'Aguardando carreira'
 
-def money(s,x,y,w,h,value,size=27,color=BLUE,align=1):
+def money(s,x,y,w,h,value,size=27,color=BLUE,align=1,compact=False):
  name='money'+str(sum(n.get('name','').startswith('money') for n in s.nodes))
- s.text(x,y,w,h,'',size,color,align);s.nodes[-1].update(name=name,amount=int(value))
+ s.text(x,y,w,h,'',size,color,align);s.nodes[-1].update(name=name,amount=int(value),compact=compact)
 
 def shell(view,key,tab):
  s=Scene(key,'Finanças do clube');s.rect(60,90,1800,828,PAPER)
  s.text(100,120,1720,58,'FINANÇAS DO CLUBE',40)
  s.text(102,182,1720,34,f"{view.get('club_name','Clube')} · {day(view.get('date'))} · Acompanhamento desde {day(view.get('start'))}",23,MUTED)
- for i,(target,label) in enumerate(TABS):s.action(100+i*216,234,208,50,label,target,BLUE if target==tab else LIGHT,WHITE if target==tab else INK,22)
+ for i,(target,label) in enumerate(TABS):s.action(100+i*216,234,208,50,label,target,ACCENT if target==tab else LIGHT,ACCENT_TEXT if target==tab else INK,22)
  s.text(100,876,1715,30,view.get('message','Receitas adicionais do mod · Valores aplicados à verba de transferências.'),19,MUTED)
  return s
 
@@ -39,26 +40,29 @@ def scenes(view):
  rows=view.get('months',[]);result=[summary(view,shell,money)]+detail_pages(view,shell,money)
  contracts=view.get('agreements',[]);pages=max(1,(len(contracts)+5)//6)
  for page in range(pages):
-  key='contracts' if page==0 else 'contracts:'+str(page);s=shell(view,key,'receipts')
+  key='contracts' if page==0 else 'contracts:'+str(page);s=shell(view,key,'receipts');assets={}
   s.text(120,310,1320,40,'TV · CONTRATO POR COMPETIÇÃO',28)
   s.text(1450,315,350,35,'VALOR POR PARTIDA',21,MUTED,1)
   for i,c in enumerate(contracts[page*6:page*6+6]):
    y=367+i*72;s.rect(100,y,1720,65,WHITE)
-   s.text(120,y+4,1210,33,c['name'],25);s.text(120,y+37,1210,24,'Vigência: temporada da carreira · Somente partidas efetivamente disputadas',18,MUTED)
-   money(s,1400,y+15,400,36,c['per_match'],27)
+   from finance_pages import picture
+   from club_finance import match_terms
+   picture(s,assets,'crest',view.get('club',0),119,y+9,42,46);picture(s,assets,'competition',c['asset'],175,y+7,46,49)
+   s.text(240,y+4,1090,33,c['name'],25);s.text(240,y+37,1090,24,'Vigência: temporada da carreira · Somente partidas efetivamente disputadas',18,MUTED)
+   money(s,1400,y+15,400,36,match_terms(c,view.get('date') or 0)['per_match'],27)
   if not contracts:s.text(120,390,1600,55,'Os contratos aparecem ao confirmar as competições da carreira.',25,MUTED)
   if pages>1:
    s.action(100,811,155,42,'‹','contracts' if page<=1 else 'contracts:'+str(page-1));s.action(270,811,155,42,'›','contracts:'+str(page+1) if page+1<pages else key)
-  result.append(s.pack())
+  packed=s.pack();packed['assets']=assets;result.append(packed)
  months=rows[:24];pages=max(1,(len(months)+6)//7)
  for page in range(pages):
   key='statement' if page==0 else 'statement:'+str(page);s=shell(view,key,'budget')
   s.text(120,310,1700,40,'EXTRATO MENSAL · MOVIMENTAÇÕES EFETIVADAS',28)
-  for x,w,label in ((120,200,'MÊS'),(340,325,'TV'),(680,340,'BILHETERIA'),(1040,345,'TÉCNICO'),(1400,400,'PARCELAS')):s.text(x,366,w,30,label,22,MUTED,0 if x==120 else 1)
+  for x,w,label in ((120,150,'MÊS'),(285,230,'TV'),(530,230,'BILHETERIA'),(775,230,'PATROCÍNIO'),(1020,230,'EQUIPE'),(1265,230,'JOGOS'),(1510,290,'PARCELAS')):s.text(x,366,w,30,label,20,MUTED,0 if x==120 else 1)
   for i,row in enumerate(months[page*7:page*7+7]):
    y=410+i*53;s.rect(100,y,1720,47,WHITE if i%2==0 else LIGHT)
-   text=str(row['month']);s.text(120,y+6,200,34,text[4:]+'/'+text[:4],24)
-   for x,w,k in ((340,325,'tv'),(680,340,'tickets'),(1040,345,'coach'),(1400,400,'loans')):money(s,x,y+6,w,35,row[k],24)
+   text=str(row['month']);s.text(120,y+6,150,34,text[4:]+'/'+text[:4],22)
+   for x,w,value in ((285,230,row.get('tv',0)),(530,230,row.get('tickets',0)),(775,230,row.get('sponsor',0)),(1020,230,row.get('coach',0)+row.get('staff',0)),(1265,230,row.get('match_costs',0)),(1510,290,row.get('loans',0))):money(s,x,y+6,w,35,value,22)
   if not months:s.text(120,450,1640,65,'Ainda não há lançamentos. Acompanhe após disputar jogos e avançar o calendário.',25,MUTED)
   if pages>1:
    s.action(100,811,155,42,'‹','statement' if page<=1 else 'statement:'+str(page-1));s.action(270,811,155,42,'›','statement:'+str(page+1) if page+1<pages else key)
@@ -66,26 +70,33 @@ def scenes(view):
  import finance_art as art
  s=shell(view,'settings','settings');assets={}
  s.text(120,308,1670,42,'MODO FINANCEIRO · OPÇÕES DESTA CARREIRA E CLUBE',28)
- labels=('Sistema financeiro · chave geral','Receitas de TV por partida','Bilheteria estimada dos jogos em casa','Cobrança mensal do técnico','Cobrança automática dos empréstimos')
+ labels=('Sistema financeiro · chave geral','Receitas de TV por partida','Bilheteria dos jogos em casa','Salário mensal do técnico','Cobrança automática dos empréstimos','Patrocínio do clube','Comissão técnica','Custos das partidas em casa')
  descriptions=('Controla os acréscimos e débitos do sistema financeiro.',
   'Recebe o contrato da competição por partida concluída.',
   'Receita adicional calculada para jogos como mandante.',
   'Desconta a remuneração do técnico ao fechar o mês.',
-  'Mantém as parcelas e cobra os vencimentos pelo calendário.')
+  'Mantém as parcelas e cobra os vencimentos pelo calendário.',
+  'Um contrato por clube e temporada, proporcional à reputação.',
+  'Equipe de apoio estimada pelo porte do clube, descontada ao mês.',
+  'Operação e taxas estimadas, cobradas junto à renda do jogo em casa.')
  for i,(kind,label) in enumerate(zip(SWITCHES,labels)):
-  enabled=view.get('settings',{}).get(kind,True);y=365+i*76
-  s.action(100,y,1720,63,'','toggle:'+kind,WHITE,INK,25)
+  enabled=view.get('settings',{}).get(kind,True);y=354+i*56
+  s.action(100,y,1720,52,'','toggle:'+kind,WHITE,INK,25)
   s.actions[-1].update(setting=i,value=not enabled)
-  s.text(125,y+7,1270,30,label,25);s.text(125,y+36,1270,23,descriptions[i],18,MUTED)
-  s.text(1420,y+19,230,30,'Ativado' if enabled else 'Desativado',22,BLUE if enabled else MUTED,1);s.nodes[-1]['name']='switchState'+str(i)
+  s.text(125,y+3,1270,27,label,23);s.text(125,y+29,1270,21,descriptions[i],17,MUTED)
+  s.text(1420,y+12,230,30,'Ativado' if enabled else 'Desativado',22,BLUE if enabled else MUTED,1);s.nodes[-1]['name']='switchState'+str(i)
   for state in (False,True):
    asset='switch'+str(int(state));assets[asset]=art.switch(state)
-   s.image(asset,1686,y+14,92,36);s.nodes[-1]['name']=('switchOn' if state else 'switchOff')+str(i)
- s.text(120,748,1670,26,'Desativar mantém o histórico e os contratos. A chave geral bloqueia créditos e débitos.',20,MUTED)
- s.text(120,779,1670,26,'Empréstimos: a dívida permanece. Ao reativar, parcelas vencidas continuam devidas.',20,MUTED)
- s.text(120,818,1670,30,'',21,BLUE);s.nodes[-1]['name']='settingsFeedback'
+   s.image(asset,1686,y+8,92,36);s.nodes[-1]['name']=('switchOn' if state else 'switchOff')+str(i)
+ s.text(120,809,1670,24,'A chave geral bloqueia novos créditos e débitos. Desativar mantém o histórico e as dívidas existentes.',18,MUTED)
+ s.text(120,840,1670,28,'',20,BLUE);s.nodes[-1]['name']='settingsFeedback'
  packed=s.pack();packed['assets']=assets;result.append(packed)
- for scene in result:scene['back']='overview'
+ # Page chunks keep bounded APT work and original native help/input handling.
+ for scene in result:
+  scene['back']='overview'
+  buttons=scene['actions']
+  scene['scrollPrevious']=next((b['target'] for b in buttons if b['label']=='‹'),scene['key'])
+  scene['scrollNext']=next((b['target'] for b in buttons if b['label']=='›'),scene['key'])
  return result
 
 def script(data,dictionaries,items,view):
@@ -148,13 +159,13 @@ def script(data,dictionaries,items,view):
   for i in range(len(SWITCHES)):
    state=T('setting'+str(i));a.set(P(settings_clip,'switchOn'+str(i)),'_visible',state);a.set(P(settings_clip,'switchOff'+str(i)),'_visible',('not',state))
    field=P(settings_clip,'switchState'+str(i))
-   a.when(state,lambda a,field=field:(a.set(field,'text','Ativado'),a.set(field,'textColor',0x0063b1)),lambda a,field=field:(a.set(field,'text','Desativado'),a.set(field,'textColor',0x6b818d)))
+   a.when(state,lambda a,field=field:(a.set(field,'text','Ativado'),a.set(field,'textColor',rgb(ACCENT_INK))),lambda a,field=field:(a.set(field,'text','Desativado'),a.set(field,'textColor',0x6b818d)))
   a.set(P(settings_clip,'settingsFeedback'),'text',T('settingsFeedback'))
  a.function('RefreshSwitches',0,switches)
  for i,s in enumerate(items):
   def values(a,i=i,s=s):
    for n in s['nodes']:
-    if 'amount' in n:a.set(P(T('scene'+str(i)),n['name']),'text',CALL(b.path('ION_Localization'),'LocalizeCurrencyWithType',False,n['amount'],view.get('currency',0)))
+    if 'amount' in n:a.set(P(T('scene'+str(i)),n['name']),'text',CALL(b.path('ION_Localization'),'LocalizeCurrencyWithType',n.get('compact',False),n['amount'],view.get('currency',0)))
   a.function('Money'+str(i),0,values)
  def go(a):
   a.set(R(1),'page',R(2));a.set(R(1),'focus',('index',focus_for_page,R(2)));a.do(R(1),'Refresh')
@@ -197,6 +208,11 @@ def script(data,dictionaries,items,view):
   selected=arr(next((i for i,(key,_) in enumerate(TABS) if root_tab(s['key'])==key),0) for s in items)
   at=('bin',63,b.plus(b.plus(('index',selected,T('page')),R(2)),len(roots)),len(roots));a.do(R(1),'Go',('index',arr(roots),at))
  a.function('ChangeTab',1,tab)
+ def scroll(a):
+  previous=arr(keys.get(s['scrollPrevious'],keys[s['key']]) for s in items)
+  following=arr(keys.get(s['scrollNext'],keys[s['key']]) for s in items)
+  a.when(EQ(R(2),-1),lambda a:a.do(R(1),'Go',('index',previous,T('page'))),lambda a:a.do(R(1),'Go',('index',following,T('page'))))
+ a.function('Scroll',1,scroll)
  def back(a):
   def leave(a):
    a.set(R(1),'leaving',True);a.do(ION,'SendEvent',P(T('staticData'),'SCREEN_CONTROLLER_ID'),P(T('navEvents'),'BACK'),'')
@@ -209,13 +225,13 @@ def script(data,dictionaries,items,view):
   a.when(('bin',103,T('pollFrames'),1799),slow)
  a.function('Poll',0,poll)
  def key(a):
-  for name,method,argument in (('BACK','Back',None),('ADVANCE','Select',None),('PRIMARY_SELECT','Select',None),('LEFT','Move',0),('RIGHT','Move',1),('UP','Move',2),('DOWN','Move',3),('LAS_LEFT','Move',0),('LAS_RIGHT','Move',1),('LAS_UP','Move',2),('LAS_DOWN','Move',3),('L2','ChangeTab',-1),('R2','ChangeTab',1)):
+  for name,method,argument in (('BACK','Back',None),('ADVANCE','Select',None),('PRIMARY_SELECT','Select',None),('LEFT','Move',0),('RIGHT','Move',1),('UP','Move',2),('DOWN','Move',3),('LAS_LEFT','Move',0),('LAS_RIGHT','Move',1),('LAS_UP','Move',2),('LAS_DOWN','Move',3),('RAS_UP','Scroll',-1),('RAS_DOWN','Scroll',1),('L2','ChangeTab',-1),('R2','ChangeTab',1)):
    code=P(M('InputCodes'),name)
    def handle(a,method=method,argument=argument):a.do(R(1),method,*(() if argument is None else (argument,)));a.ret(True)
    a.when(('bin',16,code,EQ(R(2),code)),handle)
   a.ret(True)
  a.function('LocalEventHandler',2,key)
- a.function('getHelpContext',0,lambda a:a.ret(arr(CALL(b.path('ion','manager','HelpItem'),'CreateHelpTickerItem',code,label) for code,label in (('ADVANCE','Selecionar'),('BACK','Voltar'),('L2R2','Abas')))))
+ a.function('getHelpContext',0,lambda a:a.ret(arr(CALL(b.path('ion','manager','HelpItem'),'CreateHelpTickerItem',code,label) for code,label in (('ADVANCE','Selecionar'),('BACK','Voltar'),('L2R2','Abas'),('RAS_UD','Rolar lista')))))
  def shutdown(a):
   a.set(b.GLOBAL,'Server16FinanceReloading',('not',T('leaving')))
   a.set(b.GLOBAL,'Server16FinancePageKey',('index',arr(s['key'] for s in items),T('page')));a.set(b.GLOBAL,'Server16FinanceFocus',T('focus'))
@@ -227,10 +243,8 @@ def script(data,dictionaries,items,view):
 def build(view,output):
  saved={k:getattr(b,k) for k in ('CLASS','FULL')}
  items=scenes(view);assets={k:v for s in items for k,v in s.get('assets',{}).items()}
- # Native UI textures use BC3/DXT5. Align the encoded surface to 4x4 blocks;
- # the placement still uses the requested display dimensions from the scene.
- from PIL import Image
- assets={k:(im.resize(((im.width+3)//4*4,(im.height+3)//4*4),Image.Resampling.LANCZOS) if im.width%4 or im.height%4 else im) for k,im in assets.items()}
- try:return build_native(portable.GAME,output,items,assets,script_factory=lambda data,dictionaries,items:script(data,dictionaries,items,view),full_name=FULL)
+ # The shared native builder pads BC3 surfaces to 4px blocks without resampling
+ # icons/charts. Fast lossless archive compression avoids delaying live updates.
+ try:return build_native(portable.GAME,output,items,assets,script_factory=lambda data,dictionaries,items:script(data,dictionaries,items,view),full_name=FULL,compression_level=1)
  finally:
   for key,value in saved.items():setattr(b,key,value)

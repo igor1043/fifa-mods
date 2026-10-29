@@ -4,11 +4,24 @@ Mais vida na carreira, nos uniformes e na apresentação das partidas do FIFA 16
 
 O FIFA Friends V12 reúne melhorias para acompanhar seu clube, personalizar a experiência e dar mais identidade a cada competição. O [Server16](https://github.com/igor1043/CG-File-Server-16---Python-Port/tree/fifa-friends) é o painel que acompanha o projeto e permite escolher os recursos antes e durante a partida.
 
-**Edição:** FIFA Friends V12 · **Atualizado em:** 28/10/2026
+**Edição:** FIFA Friends V12 · **Atualizado em:** 29/10/2026
 
 **Server16 incluído:** 0.2.19. As DLLs compiladas ficam nesta branch, organizadas em uma pasta por mod. O [índice dos módulos ativos](ModCarrerMode/mods/README.md) informa arquivos, funções e configurações.
 
 A combinação Git + ZIP é agora verificada em uma pasta vazia, sem caches do desenvolvedor, incluindo igualdade entre o módulo embutido no EXE e o fonte publicado.
+
+## Entrega — 29/10/2026
+
+**Atualização conjunta: código desta branch + FIFA-Friends-Assets-Complementares-20261029.zip.** O novo ZIP é completo e substitui a sequência anterior de complementos; extraia depois de atualizar o código, com FIFA e Server fechados. Requer a base FIFA Friends instalada.
+
+- **Finanças:** gráficos/ícones com resolução maior, bilheteria apenas em casa e extrato por jogo, TV recalibrada, patrocínio, comissão técnica e custos, com switches e moeda da carreira. Migração preserva os lançamentos anteriores.
+- **Mercado de técnicos:** clubes/ligas, movimentações, livres, filtros e perfis, com contratos e histórico separados por carreira. O perfil do técnico usa a miniface do vínculo atual.
+- **Visual:** integração do Robson, abertura GOAT, fundos dourados, transparências, tema central `#B9A274`, ocultação EA/Q e correção das fontes de `globalcomponents` copiadas pelo Server. IDs do calendário preservados.
+- **Cards:** mercado e técnicos em Transferências; finanças/empréstimos no Escritório; Vestiário em segundo no Meu time; Ver clubes próprio na Temporada e estatísticas agrupadas.
+- **Server16:** auxiliar sincronizado também no executável pronto, com log próprio para o mercado de técnicos. Os demais módulos embarcados foram preservados.
+- **Entrega:** o Git leva lógica, catálogo público, binários e telas próprias. O ZIP reúne os assets externos anteriores, 780 minifaces e a integração visual; não contém saves, SQL pessoal, runtimes ou caches.
+
+[Changelog, instalação e limites](ModCarrerMode/docs/RELEASE_20261029.md) · [Manifesto dos assets do ZIP](ModCarrerMode/data/catalogs/asset_complement.json) · [Organização dos cards](ModCarrerMode/docs/CAREER_HUB_ORGANIZATION.md).
 
 ## Entrega — 28/10/2026
 

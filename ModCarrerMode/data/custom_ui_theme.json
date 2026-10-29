@@ -1,0 +1,11 @@
+{
+  "version": 1,
+  "accent": "#B9A274",
+  "accent_text": "#17242C",
+  "accent_ink": "#76623D",
+  "accent_hover": "#C8B58F",
+  "accent_soft": "#EEE7DA",
+  "focus_outline": "#E5D4B0",
+  "surface": "#FFFFFF",
+  "paper": "#F4F6F7"
+}

@@ -26,12 +26,12 @@ def chunk_unwrap(data):
     if len(decoded)!=size: raise FormatError('Tamanho chunkzip inconsistente.')
     return bytes(decoded),data[:40]
 
-def chunk_wrap(data,header):
+def chunk_wrap(data,header,*,level=9):
     block_size=struct.unpack_from('>I',header,16)[0]
     out=bytearray(header); struct.pack_into('>I',out,12,len(data)); struct.pack_into('>I',out,20,math.ceil(len(data)/block_size))
     for p in range(0,len(data),block_size):
         start=((len(out)+8+15)//16)*16-8; out.extend(b'\0'*(start-len(out)))
-        compressor=zlib.compressobj(9,zlib.DEFLATED,-15)
+        compressor=zlib.compressobj(level,zlib.DEFLATED,-15)
         encoded=compressor.compress(data[p:p+block_size])+compressor.flush()
         out.extend(struct.pack('>II',len(encoded),1)); out.extend(encoded)
     return bytes(out)

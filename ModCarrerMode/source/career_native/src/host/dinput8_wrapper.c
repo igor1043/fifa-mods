@@ -2486,6 +2486,19 @@ static void *owner_service(
 
 #include "career_context_read.inc"
 
+/* I/O hooks only copy the cached identity; they never query FIFA off owner. */
+static int append_career_save_scope(char *record,int length,size_t capacity)
+{
+    uintptr_t context;DWORD epoch;int added;
+    AcquireSRWLockShared(&g_context_read_lock);
+    context=(uintptr_t)g_career_context_identity;
+    epoch=Fifa16CareerContextRead.epoch;
+    ReleaseSRWLockShared(&g_context_read_lock);
+    added=snprintf(record+length,capacity-(size_t)length,
+        "context=%llx\r\nepoch=%lu\r\n",(unsigned long long)context,(unsigned long)epoch);
+    return added<0?0:length+added;
+}
+
 static int resolve_user_club_id(void *provider_owner, FILE *log)
 {
     void *service = owner_service(provider_owner,g_get_career_service_descriptor,NULL);
@@ -4777,6 +4790,7 @@ void WINAPI Fifa16CareerReleaseSnapshot(void *snapshot)
 #include "career_background_refresh.inc"
 #include "career_market_read.inc"
 #include "career_prepared_views.inc"
+#include "career_manager_read.inc"
 #include "career_ui_jobs.inc"
 
 BOOL WINAPI DllMain(HINSTANCE instance, DWORD reason, LPVOID reserved)

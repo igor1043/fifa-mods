@@ -43,7 +43,7 @@ static void submit(void *bus,void *message){
 }
 static void process_queued(void){
     if(ack && queued_event[0]){
-        strcpy(mock_page,strstr(queued_event,"Finance")?"game/screens/career/server16/ClubFinance":strstr(queued_event,"Dressing")?"game/screens/career/server16/DressingRoom":strstr(queued_event,"Transfer")?"game/screens/career/server16/TransferMarket":"game/screens/career/server16/MatchPreview");queued_event[0]=0;
+        strcpy(mock_page,strstr(queued_event,"Manager")?"game/screens/career/server16/ManagerMarket":strstr(queued_event,"Finance")?"game/screens/career/server16/ClubFinance":strstr(queued_event,"Dressing")?"game/screens/career/server16/DressingRoom":strstr(queued_event,"Transfer")?"game/screens/career/server16/TransferMarket":"game/screens/career/server16/MatchPreview");queued_event[0]=0;
     }
 }
 static void trampoline(unsigned offset,uintptr_t callback,int prefix){
@@ -55,7 +55,7 @@ static void write_ready(const char *file,const PreparedViewRecord *r){
     FILE *f=fopen(file,"wb");assert(f);
     fprintf(f,"schema=%u\npid=%u\nclub=%u\nepoch=%u\nprocess_created_100ns=%llu\ncontext=%llx\nregistry=%llx\ncaptured_ms=%llu\ndate=%d\nfixture=%d\nrevision=%s\n",r->schema,r->pid,r->club,r->epoch,r->created,r->context,r->registry,r->captured,r->date,r->fixture,r->revision);assert(!fclose(f));
 }
-static void tick(void){int i;for(i=0;i<4;++i)g_prepared_views[i].next=0;drain_prepared_views();process_queued();}
+static void tick(void){int i;for(i=0;i<5;++i)g_prepared_views[i].next=0;drain_prepared_views();process_queued();}
 int main(void){
     unsigned char service[32]={0},contexts[0x318]={0},cal[80]={0};uintptr_t nodes[4][64]={{0}},vtable[2]={0};
     char temp[MAX_PATH],folder[MAX_PATH],preview[MAX_PATH],market[MAX_PATH];FILETIME created,exit,kernel,user;ULARGE_INTEGER identity;
@@ -110,6 +110,18 @@ int main(void){
      memset(good.revision,'e',64);good.captured=GetTickCount64();write_ready(finance,&good);tick();assert(calls==before+2);tick();assert(calls==before+2);
      bad=good;++bad.club;memset(bad.revision,'f',64);write_ready(finance,&bad);tick();assert(calls==before+2);
      DeleteFileA(finance);*strrchr(finance,'\\')=0;assert(RemoveDirectoryA(finance));*strrchr(finance,'\\')=0;assert(RemoveDirectoryA(finance));
+    }
+    {char managers[MAX_PATH];
+     snprintf(managers,sizeof(managers),"%s\\runtime\\manager_market",g_mod_dir);assert(CreateDirectoryA(managers,NULL));strcat(managers,"\\view_ready.tsv");
+     strcpy(mock_page,"game/screens/career/server16/ManagerMarket");before=calls;tick();assert(calls==before);
+     good.captured=GetTickCount64();memset(good.revision,'1',64);write_ready(managers,&good);tick();assert(calls==before+1);tick();assert(calls==before+1);
+     /* The first placeholder refreshes automatically when the helper publishes.
+        Heartbeats do not repeatedly rebuild an already-open ready screen. */
+     good.captured=GetTickCount64();write_ready(managers,&good);tick();assert(calls==before+1);
+     bad=good;++bad.club;memset(bad.revision,'2',64);write_ready(managers,&bad);tick();assert(calls==before+1);
+     good.captured=GetTickCount64();memset(good.revision,'3',64);write_ready(managers,&good);tick();assert(calls==before+2);
+     strcpy(mock_page,"game/screens/fluxHub/FluxHub");tick();strcpy(mock_page,"game/screens/career/server16/ManagerMarket");tick();assert(calls==before+2);
+     DeleteFileA(managers);*strrchr(managers,'\\')=0;assert(RemoveDirectoryA(managers));
     }
     assert(constructed==released && released==calls);
     DeleteFileA(preview);DeleteFileA(market);*strrchr(preview,'\\')=0;assert(RemoveDirectoryA(preview));*strrchr(preview,'\\')=0;assert(RemoveDirectoryA(preview));*strrchr(market,'\\')=0;assert(RemoveDirectoryA(market));assert(RemoveDirectoryA(folder));*strrchr(folder,'\\')=0;assert(RemoveDirectoryA(folder));assert(RemoveDirectoryA(g_mod_dir));VirtualFree(g_module_base,0,MEM_RELEASE);

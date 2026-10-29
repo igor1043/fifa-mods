@@ -53,7 +53,7 @@ struct CompetitionView{
  static std::string num(int n){return n<0?"—":std::to_string(n);}
  void image(ID3D11DeviceContext*c,const std::string&kind,int id,float x,float y,float w,float h){if(id<=0)return;std::string key=kind+std::to_string(id);if(images.size()>512&&!images.count(key)){for(auto&it:images)it.second.clear();images.clear();}auto&t=images[key];std::string i=std::to_string(id);std::vector<std::string>paths=kind=="head"?std::vector<std::string>{"data/ui/imgAssets/heads/p"+i+".dds","data/ui/imgAssets/heads/p0.dds"}:kind=="comp"?std::vector<std::string>{"data/ui/imgAssets/careerCompetitionIcons/"+i+".png","data/ui/imgAssets/league/light/l"+i+".dds","data/ui/imgAssets/league/dark/l"+i+".dds"}:std::vector<std::string>{"data/ui/imgAssets/crest/light/l"+i+".dds","data/ui/imgAssets/crest/dark/l"+i+".dds"};clubgfx::gameImage(renderer.device,t,art,paths);if(!t.view||!t.w||!t.h)return;float fit=(std::min)(w/t.w,h/t.h);renderer.normal(c);renderer.quad(c,x+(w-t.w*fit)/2,y+(h-t.h*fit)/2,t.w*fit,t.h*fit,t.view);}
  unsigned color(const std::string&v,unsigned fallback=0xffd6e0e5){if(v.size()!=7||v[0]!='#')return fallback;try{return 0xff000000|unsigned(std::stoul(v.substr(1),nullptr,16));}catch(...){return fallback;}}
- void arrow(ID3D11DeviceContext*c,float x,float y,int dir,unsigned ink=0xff0074b2){renderer.primitive(c,{{x-4,y+dir*3.f},{x+4,y+dir*3.f},{x,y-dir*4.f}},ink,true);}
+ void arrow(ID3D11DeviceContext*c,float x,float y,int dir,unsigned ink=uitheme::accent()){renderer.primitive(c,{{x-4,y+dir*3.f},{x+4,y+dir*3.f},{x,y-dir*4.f}},ink,true);}
  void rounded(ID3D11DeviceContext*c,float x,float y,float w,float h,float radius,unsigned fill){
   auto&r=renderer;if(w<=0||h<=0)return;float rad=(std::min)(radius,(std::min)(w,h)*.5f);if(rad<=0){r.rectangle(c,x,y,w,h,fill);return;}std::vector<std::array<float,2>>points,triangles;const float centres[4][2]={{x+rad,y+rad},{x+w-rad,y+rad},{x+w-rad,y+h-rad},{x+rad,y+h-rad}};
   for(int corner=0;corner<4;++corner)for(int i=0;i<=4;++i){float a=3.14159265f+(corner*4+i)*1.57079633f/4;points.push_back({centres[corner][0]+rad*std::cos(a),centres[corner][1]+rad*std::sin(a)});}
@@ -64,21 +64,21 @@ struct CompetitionView{
   auto&r=renderer;panel(c,60,155,682,635);
   if(comp.groups.empty()){text(c,"Aguardando a composição dos grupos",90,370,620,65,24,RGB(116,138,150),true);return;}
   group=std::clamp(group,0,int(comp.groups.size())-1);auto&g=comp.groups[group];
-  r.line(c,74,207,728,207,0xffe5edf3);text(c,comp.format=="league"?"CLASSIFICAÇÃO":g.name+"  ·  "+std::to_string(group+1)+" / "+std::to_string(comp.groups.size()),82,165,565,31,23);if(comp.format=="cup"){text(c,"Ver chaveamento",500,168,187,27,18,RGB(0,108,170),true);text(c,"‹",69,165,30,31,27,RGB(0,108,170),true);text(c,"›",695,165,30,31,27,RGB(0,108,170),true);}
+  r.line(c,74,207,728,207,0xffe5edf3);text(c,comp.format=="league"?"CLASSIFICAÇÃO":g.name+"  ·  "+std::to_string(group+1)+" / "+std::to_string(comp.groups.size()),82,165,565,31,23);if(comp.format=="cup"){text(c,"Ver chaveamento",500,168,187,27,18,uitheme::accentInk(),true);text(c,"‹",69,165,30,31,27,uitheme::accentInk(),true);text(c,"›",695,165,30,31,27,uitheme::accentInk(),true);}
   text(c,"CLUBE",143,208,224,26,14);text(c,"#",75,208,26,26,14);text(c,"ÚLTIMAS 5",329,208,62,26,12,RGB(116,138,150),true);const char*heads[]={"J","V","E","D","GP","GC","SG","PTS"};for(int i=0;i<8;++i)text(c,heads[i],393+i*42.f,208,40,26,14,RGB(116,138,150),true);
-  int rows=(std::min)(20,int(g.rows.size())-scroll);for(int i=0;i<rows;++i){auto&t=g.rows[scroll+i];float y=235+i*24.4f;bool own=t.id==data.club;unsigned bg=own?0xff005db9:(i%2?0xffeaf1f8:0xfff4f8fc);r.rectangle(c,68,y,666,24,bg);auto ink=own?RGB(255,255,255):RGB(36,66,94);if(!t.color.empty())r.rectangle(c,68,y,4,24,color(t.color));text(c,std::to_string(t.rank),76,y,25,24,16,ink,true);if(t.movement){arrow(c,110,y+12,t.movement>0?1:-1,t.movement>0?0xff55a65b:0xffcf6164);}else r.rectangle(c,106,y+11,7,2,own?0xffd6e7ee:0xffaebdc5);image(c,"crest",t.id,118,y+1,23,23);text(c,t.name,147,y,187,24,17,ink);for(size_t f=0;f<t.form.size()&&f<5;++f){unsigned shade=t.form[f]=='V'?0xff4c9b63:t.form[f]=='D'?0xffca6468:0xff9daeb7;rounded(c,341+float(f)*8,y+9,6,6,3,shade);}
+  int rows=(std::min)(20,int(g.rows.size())-scroll);for(int i=0;i<rows;++i){auto&t=g.rows[scroll+i];float y=235+i*24.4f;bool own=t.id==data.club;unsigned bg=own?0xff005db9:(i%2?0xffeaf1f8:0xfff4f8fc);r.rectangle(c,68,y,666,24,bg);auto ink=own?uitheme::selectedText():RGB(36,66,94);if(!t.color.empty())r.rectangle(c,68,y,4,24,color(t.color));text(c,std::to_string(t.rank),76,y,25,24,16,ink,true);if(t.movement){arrow(c,110,y+12,t.movement>0?1:-1,t.movement>0?0xff55a65b:0xffcf6164);}else r.rectangle(c,106,y+11,7,2,own?0xffd6e7ee:0xffaebdc5);image(c,"crest",t.id,118,y+1,23,23);text(c,t.name,147,y,187,24,17,ink);for(size_t f=0;f<t.form.size()&&f<5;++f){unsigned shade=t.form[f]=='V'?0xff4c9b63:t.form[f]=='D'?0xffca6468:0xff9daeb7;rounded(c,341+float(f)*8,y+9,6,6,3,shade);}
    int values[]={t.games,t.wins,t.draws,t.losses,t.gf,t.ga,(t.gf<0||t.ga<0)?-1000:t.gf-t.ga,t.points};for(int j=0;j<8;++j)text(c,j==6?(values[j]==-1000?"—":std::to_string(values[j])):num(values[j]),393+j*42.f,y,40,24,16,ink,true);
   }
   float lx=79,ly=735;for(auto&z:g.legend){int width=(std::min)(320,25+int(z.second.size())*8);if(lx+width>733){lx=79;ly+=22;}if(ly>765)break;rounded(c,lx,ly+8,8,8,4,color(z.first));text(c,z.second,lx+15,ly,width-15,24,14,RGB(116,138,150));lx+=width;}
   if(g.rows.size()>20)text(c,std::to_string(scroll+1)+"–"+std::to_string(scroll+rows)+" de "+std::to_string(g.rows.size()),80,771,630,18,13,RGB(116,138,150),true);
  }
  void cup(ID3D11DeviceContext*c,clubcomp::Competition&comp){
-  auto&r=renderer;panel(c,60,155,682,635);r.line(c,74,207,728,207,0xffe5edf3);text(c,"‹",69,165,30,31,27,RGB(0,108,170),true);text(c,"›",695,165,30,31,27,RGB(0,108,170),true);text(c,"CHAVEAMENTO",106,165,370,31,23);text(c,"Ver chaveamento",500,168,187,27,18,RGB(0,108,170),true);
+  auto&r=renderer;panel(c,60,155,682,635);r.line(c,74,207,728,207,0xffe5edf3);text(c,"‹",69,165,30,31,27,uitheme::accentInk(),true);text(c,"›",695,165,30,31,27,uitheme::accentInk(),true);text(c,"CHAVEAMENTO",106,165,370,31,23);text(c,"Ver chaveamento",500,168,187,27,18,uitheme::accentInk(),true);
   if(comp.rounds.empty()){text(c,"Aguardando os confrontos do mata-mata",82,355,638,55,23,RGB(116,138,150),true);text(c,"O sorteio aparecerá quando estiver registrado na carreira.",82,413,638,50,18,RGB(116,138,150),true);return;}
   round=std::clamp(round,0,int(comp.rounds.size())-1);
   for(int col=0;col<2;++col){int index=round+col;if(index>=int(comp.rounds.size()))break;auto&phase=comp.rounds[index];float x=78+col*338.f;int start=col?scroll/2:scroll;start=(std::min)(start,(std::max)(0,int(phase.ties.size())-4));int count=(std::min)(4,int(phase.ties.size())-start);
-   text(c,phase.name,x,212,310,30,22,RGB(0,108,170));if(phase.ties.empty()){r.rectangle(c,x,379,310,118,0xffedf3f6);text(c,"A definir",x+16,395,278,36,23,RGB(116,138,150),true);text(c,"Aguardando o sorteio desta fase",x+16,438,278,35,16,RGB(116,138,150),true);}for(int j=0;j<count;++j){auto&t=phase.ties[start+j];float y=252+j*127.f;unsigned border=(t.home==data.club||t.away==data.club)?0xff0071b2:0xffc9d8e1;r.rectangle(c,x,y,310,118,border);r.rectangle(c,x+2,y+2,306,114,0xffedf3f6);
-    for(int side=0;side<2;++side){int id=side?t.away:t.home;float yy=y+7+side*28;image(c,"crest",id,x+8,yy,24,24);text(c,side?t.awayName:t.homeName,x+40,yy,220,24,18,id==t.winner?RGB(0,112,175):RGB(52,77,90));text(c,num(side?t.a:t.h),x+266,yy,35,24,21,RGB(0,112,175),true);}
+   text(c,phase.name,x,212,310,30,22,uitheme::accentInk());if(phase.ties.empty()){r.rectangle(c,x,379,310,118,0xffedf3f6);text(c,"A definir",x+16,395,278,36,23,RGB(116,138,150),true);text(c,"Aguardando o sorteio desta fase",x+16,438,278,35,16,RGB(116,138,150),true);}for(int j=0;j<count;++j){auto&t=phase.ties[start+j];float y=252+j*127.f;unsigned border=(t.home==data.club||t.away==data.club)?uitheme::accent():0xffc9d8e1;r.rectangle(c,x,y,310,118,border);r.rectangle(c,x+2,y+2,306,114,0xffedf3f6);
+    for(int side=0;side<2;++side){int id=side?t.away:t.home;float yy=y+7+side*28;image(c,"crest",id,x+8,yy,24,24);text(c,side?t.awayName:t.homeName,x+40,yy,220,24,18,id==t.winner?uitheme::accentInk():RGB(52,77,90));text(c,num(side?t.a:t.h),x+266,yy,35,24,21,uitheme::accentInk(),true);}
     std::string detail=t.legs.size()>1?"Agregado · ida e volta":"Jogo único";text(c,detail,x+10,y+66,290,20,13,RGB(116,138,150));
     for(size_t k=0;k<t.legs.size()&&k<2;++k){auto&l=t.legs[k];std::string date=std::to_string(l.date);date=date.size()==8?date.substr(6,2)+"/"+date.substr(4,2):"A definir";std::string score=l.h<0?"a disputar":std::to_string(l.h)+"–"+std::to_string(l.a);text(c,date+"  "+(t.legs.size()>1?(k?"Volta  ":"Ida  "):"")+score,x+10,y+86+float(k)*14,290,16,12,RGB(116,138,150));}
     // Connect only ties which actually share a registered participant.
@@ -89,7 +89,7 @@ struct CompetitionView{
  }
  void leaders(ID3D11DeviceContext*c,clubcomp::Competition&comp){
   auto&r=renderer;const auto box=clubcomp::leadersArea;const float x=box.x,w=box.w;panel(c,x,box.y,w,box.h);
-  text(c,"‹",x+6,165,30,32,26,RGB(0,108,182),true);text(c,stat?"ASSISTÊNCIAS":"ARTILHEIROS",x+38,165,int(w)-76,32,23,RGB(22,49,74),true);text(c,"›",x+w-36,165,30,32,26,RGB(0,108,182),true);r.line(c,x+12,207,x+w-12,207,0xffe5edf3);
+  text(c,"‹",x+6,165,30,32,26,uitheme::accentInk(),true);text(c,stat?"ASSISTÊNCIAS":"ARTILHEIROS",x+38,165,int(w)-76,32,23,RGB(22,49,74),true);text(c,"›",x+w-36,165,30,32,26,uitheme::accentInk(),true);r.line(c,x+12,207,x+w-12,207,0xffe5edf3);
   auto&list=comp.leaders[stat];statScroll=std::clamp(statScroll,0,(std::max)(0,int(list.size())-6));
   for(int i=0;i<6&&statScroll+i<int(list.size());++i){
    auto&p=list[statScroll+i];const float y=222+i*85.f,copy=x+118,value=x+w-51;const int copyWidth=int(value-copy-11);
@@ -97,10 +97,10 @@ struct CompetitionView{
    image(c,"head",p.id,x+46,y+5,60,70);image(c,"crest",p.club,x+87,y+53,21,22);
    text(c,p.name,copy,y+9,copyWidth,25,19,RGB(27,54,78));
    if(!p.position.empty())text(c,p.position,copy,y+34,copyWidth,19,13,RGB(100,125,148));
-   text(c,p.clubName,copy,y+53,copyWidth,18,13,RGB(100,125,148));text(c,std::to_string(p.value),value,y+21,40,36,29,RGB(0,96,190),true);
+   text(c,p.clubName,copy,y+53,copyWidth,18,13,RGB(100,125,148));text(c,std::to_string(p.value),value,y+21,40,36,29,uitheme::accentInk(),true);
   }
   if(list.empty())text(c,"Sem registros nesta competição",x+20,355,int(w)-40,60,18,RGB(116,138,150),true);
-  for(int i=0;i<2;++i)rounded(c,x+w/2-26+i*32.f,745,21,5,2.5f,i==stat?0xff006bc4:0xffc8d8e6);
+  for(int i=0;i<2;++i)rounded(c,x+w/2-26+i*32.f,745,21,5,2.5f,i==stat?uitheme::accent():0xffc8d8e6);
   text(c,list.empty()?"":std::to_string(statScroll+1)+"–"+std::to_string((std::min)(statScroll+6,int(list.size())))+" de "+std::to_string(list.size()),x+20,761,int(w)-40,23,14,RGB(109,132,152),true);
  }
  void pitch(ID3D11DeviceContext*c,clubcomp::Competition&comp){
@@ -125,8 +125,8 @@ struct CompetitionView{
   auto&r=renderer;if(device!=r.device){clearTextures();device=r.device;}label=0;r.normal(c);r.rectangle(c,40,20,1520,790,0xffedf2f5);
   if(!ready){text(c,"COMPETIÇÕES DA CARREIRA",80,65,1440,65,35);text(c,lineup.status=="error"?lineup.message:"Carregando as competições desta carreira...",80,350,1440,90,25,RGB(116,138,150),true);return;}
   if(data.competitions.empty()){text(c,"Nenhuma competição registrada para este clube",80,350,1440,90,25,RGB(116,138,150),true);return;}
-  selected=std::clamp(selected,0,int(data.competitions.size())-1);auto&comp=data.competitions[selected];if(expanded){drawExpanded(c,comp);return;}r.rectangle(c,40,20,1520,80,0xfff8fbfc);image(c,"comp",comp.asset,136,32,60,57);text(c,"‹",68,35,56,53,44,RGB(0,108,170),true);text(c,"›",1477,35,56,53,44,RGB(0,108,170),true);text(c,comp.name,214,29,1100,45,31);text(c,comp.status+" · "+data.clubName+" · "+std::to_string(data.date/10000),216,71,1100,25,16,RGB(116,138,150));if(comp.rank>0)text(c,std::to_string(comp.rank)+"º  ·  "+num(comp.points)+" PTS",1298,35,168,47,23,RGB(0,108,170),true);
-  float tabWidth=1504.f/data.competitions.size();for(size_t i=0;i<data.competitions.size();++i){float xx=48+i*tabWidth;r.rectangle(c,xx,102,tabWidth-5,40,i==selected?0xff0071b2:0xffdde6eb);text(c,data.competitions[i].name,xx+8,106,int(tabWidth)-21,32,15,i==selected?RGB(255,255,255):RGB(52,77,90),true);}
+  selected=std::clamp(selected,0,int(data.competitions.size())-1);auto&comp=data.competitions[selected];if(expanded){drawExpanded(c,comp);return;}r.rectangle(c,40,20,1520,80,0xfff8fbfc);image(c,"comp",comp.asset,136,32,60,57);text(c,"‹",68,35,56,53,44,uitheme::accentInk(),true);text(c,"›",1477,35,56,53,44,uitheme::accentInk(),true);text(c,comp.name,214,29,1100,45,31);text(c,comp.status+" · "+data.clubName+" · "+std::to_string(data.date/10000),216,71,1100,25,16,RGB(116,138,150));if(comp.rank>0)text(c,std::to_string(comp.rank)+"º  ·  "+num(comp.points)+" PTS",1298,35,168,47,23,uitheme::accentInk(),true);
+  float tabWidth=1504.f/data.competitions.size();for(size_t i=0;i<data.competitions.size();++i){float xx=48+i*tabWidth;r.rectangle(c,xx,102,tabWidth-5,40,i==selected?uitheme::accent():0xffdde6eb);text(c,data.competitions[i].name,xx+8,106,int(tabWidth)-21,32,15,i==selected?uitheme::selectedText():RGB(52,77,90),true);}
   if(comp.format=="cup"&&bracket)cup(c,comp);else table(c,comp);leaders(c,comp);pitch(c,comp);r.normal(c);
  }
 } competitions;

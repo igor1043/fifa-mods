@@ -56,11 +56,11 @@ def style_component(source):
     }
     for name,matrix in matrices.items():
         struct.pack_into('<6f',apt.data,named[name].matrix_offset,*matrix)
-    # Reuse the original solid rectangle as a pale FIFA row background. Its
+    # Reuse the original solid rectangle as a dark FIFA row background with light text. Its
     # symbol/depth stays in place, so ImageLoader and provider code are intact.
     panel=next(p for p in placements if p.character==3)
     struct.pack_into('<6f',apt.data,panel.matrix_offset,99.,0.,0.,23.,0.,0.)
-    struct.pack_into('<II',apt.data,panel.matrix_offset+24,0xFF000000,0x00F1F3F2)
+    struct.pack_into('<II',apt.data,panel.matrix_offset+24,0xFF000000,0x00273543)
     arrow=next(p for p in placements if p.character==5)
     struct.pack_into('<6f',apt.data,arrow.matrix_offset,.6,0.,0.,.6,124.,30.)
     for cid,size,width in ((8,22.,290.),(10,21.,156.)):
@@ -69,7 +69,7 @@ def style_component(source):
         struct.pack_into('<4f',apt.data,reader.pos,-2.,-2.,width,30.)
         reader.pos+=16;reader.i()
         struct.pack_into('<i',apt.data,reader.pos,0)
-        struct.pack_into('<I',apt.data,character.color_offset,0xFF405660)
+        struct.pack_into('<I',apt.data,character.color_offset,0xFFF1F5F8)
         struct.pack_into('<f',apt.data,character.font_offset,size)
     # Exported movie dimensions agree with the XML row box.
     constants=next(e for e in big.entries.values() if e.data[:4]==b'Apt1' or e.data[:17]==b'Apt constant file')

@@ -14,7 +14,11 @@ def run(game,package):
         assert ET.tostring(old.find(panel))==ET.tostring(new.find(panel)),panel
     tile=next(t for t in new.find('panel_4').findall('tile') if t.find('tileid').get('NAME')=='OTHER_LEAGUES')
     assert tile.find('main_tile').get('DESTINATION')=='ViewOtherCompetitions'
-    assert tile.find('subtile1').get('DESTINATION')==EVENT
+    entries=[n for n in new.find('panel_4').iter() if n.get('DESTINATION')==EVENT]
+    assert len(entries)==1
+    # Both the original Outras ligas slide and the independent Season card are
+    # supported without duplicating the browser callback.
+    assert entries[0].get('ID')=='1902'
     assert navigation((package/NAV).read_bytes())==(package/NAV).read_bytes()
     nav=read_nav((package/NAV).read_bytes());previous=read_nav((game/NAV).read_bytes())
     # Removing just our two additions reproduces the entire prior flow.

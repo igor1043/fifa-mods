@@ -95,12 +95,18 @@ int wmain(int argc,wchar_t** argv){
  {clubgfx::SavedState state;state.save(context);frame();drawLineup(context);state.restore(context);}capture(L"lineup_preview.bgra");
  assert(model.closeDetail());assert(model.club().id==1043);
  // Draw each coach tab through the same UI state guard used in the game.
+ {HDC dc=CreateCompatibleDC(nullptr);HFONT font=CreateFontW(-16,0,0,0,FW_NORMAL,FALSE,FALSE,FALSE,DEFAULT_CHARSET,OUT_DEFAULT_PRECIS,CLIP_DEFAULT_PRECIS,ANTIALIASED_QUALITY,DEFAULT_PITCH,L"eahelveticaneuemed-mod");auto old=SelectObject(dc,font);const wchar_t*titles[]={L"Resumo do time",L"Resumo do técnico",L"Temporada"};for(int i=0;i<3;++i){SIZE measured{};assert(GetTextExtentPoint32W(dc,titles[i],int(wcslen(titles[i])),&measured));assert(measured.cx<=clubcoach::tabWidth[i]-8);}SelectObject(dc,old);DeleteObject(font);DeleteDC(dc);}
  auto coachFile=std::filesystem::path(argv[3]).parent_path()/L"coach-1043.tsv";
  if(std::filesystem::exists(coachFile)){
   std::ifstream input(coachFile,std::ios::binary);assert(clubcoach::parse(input,1043,coach.profile));coach.ready=true;coach.club=1043;assert(model.choose(1043));lineup.status="ready";lineup.kind="test";clubPage=ClubPage::Coach;
   for(int tab=0;tab<3;++tab){coach.tab=tab;clubgfx::UiPass saved(context,renderer.uiPipeline);frame();drawCoach(context);saved.restore();capture((L"coach_tab_"+std::to_wstring(tab)+L".bgra").c_str());}
-  assert(coachFlag.view&&coachLeague.view);coach.setTab(1);for(int i=0;i<50;++i)coach.navigate(1);assert(coach.scroll>=0);coach.setTab(0);assert(coach.scroll==0);goBack();assert(clubPage==ClubPage::Choice);goBack();assert(clubPage==ClubPage::Map);coach.clear();assert(model.choose(1629));
+  assert(coachFlag.view&&coachLeague.view);for(size_t i=0;i<(std::min)(size_t(3),coach.profile.competitions.size());++i)assert(coachCompetitionIcons[i].view);coach.setTab(1);coach.navigate(1);assert(coach.scroll==0);coach.setTab(2);for(int i=0;i<50;++i)coach.navigate(1);assert(coach.scroll==((std::max)(0,int(coach.profile.competitions.size()+coach.profile.history.size())-1)/3)*3);coach.setTab(0);assert(coach.scroll==0);goBack();assert(clubPage==ClubPage::Choice);goBack();assert(clubPage==ClubPage::Map);coach.clear();assert(model.choose(1629));
   std::cout<<"PASS coach native layout: original flag/competition artwork, three tabs, scrolling, nested back and isolated D3D state\n";
+ }
+ for(int club:{1035,1629}){
+  auto file=std::filesystem::path(argv[3]).parent_path()/(L"coach-"+std::to_wstring(club)+L".tsv");if(!std::filesystem::exists(file))continue;
+  std::ifstream input(file,std::ios::binary);assert(clubcoach::parse(input,club,coach.profile));coach.ready=true;coach.club=club;assert(model.choose(club));lineup.status="ready";lineup.kind="test";clubPage=ClubPage::Coach;
+  for(int tab=0;tab<3;++tab){coach.tab=tab;clubgfx::UiPass saved(context,renderer.uiPipeline);frame();drawCoach(context);saved.restore();capture((L"coach_"+std::to_wstring(club)+L"_tab_"+std::to_wstring(tab)+L".bgra").c_str());}coach.clear();
  }
  // Full-roster rendering must retain D3D state and return to the club choice.
  auto rosterFile=std::filesystem::path(argv[3]).parent_path()/L"roster-1043.tsv";
@@ -114,7 +120,7 @@ int wmain(int argc,wchar_t** argv){
   std::ifstream valid(rosterFile,std::ios::binary);std::string blob((std::istreambuf_iterator<char>(valid)),{});auto first=blob.find('\n')+1,last=blob.find('\n',first);std::istringstream duplicate(blob+blob.substr(first,last-first)+"\n");assert(!clubroster::parse(duplicate,1043,roster.name,roster.players));
   std::cout<<"PASS native roster: full save roster, three rendered tabs, scrolling/wrapping, nested back, invalid/duplicate/foreign records rejected\n";
  }
- clubgfx::release(staging);background.clear();renderer.clear();context->ClearState();clubgfx::release(target);clubgfx::release(output);clubgfx::release(context);clubgfx::release(device);
+ clubgfx::release(staging);background.clear();clearCoachArt();renderer.clear();context->ClearState();clubgfx::release(target);clubgfx::release(output);clubgfx::release(context);clubgfx::release(device);
  clubscene::Assets job;job.sequence=1;job.club=130285;job.career=1043;job.pages=3;job.hash=std::string(64,'a');assert(clubscene::validAssets(job));job.hash="../bad";assert(!clubscene::validAssets(job));job.hash=std::string(64,'a');clubscene::loadingPages.fill(0);auto lua=clubscene::bindScript(job,true,true);std::ofstream(std::filesystem::path(argv[3])/L"native_bind.lua")<<lua;
  assert(lua.find("ContextAddRenderable('gameplayprops'")!=std::string::npos);assert(lua.find("'xi_part_96'")!=std::string::npos);assert(lua.find("'prop_plastic'")!=std::string::npos);assert(lua.find("neutral_v2.rx3")!=std::string::npos);job.sequence=2;auto rebind=clubscene::bindScript(job,true,true);assert(clubscene::objectName(job)=="server16_native_club_xi_v5_2");assert(rebind.find("CreateMaterialFromAttribulator")!=std::string::npos);std::ofstream(std::filesystem::path(argv[3])/L"native_rebind.lua")<<rebind;
  {

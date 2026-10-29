@@ -78,7 +78,8 @@ class FinanceInputs:
    ident=m['stage'];seen=set();fixed=False
    while ident in nodes and ident not in seen:
     seen.add(ident);fixed|=ident in neutral;ident=nodes[ident][1]
-   m=dict(m,neutral=bool(fixed or m['root'] in neutral));own.append(m);roots[m['root']]=m['asset']
+   m=dict(m,neutral=bool(fixed or m['root'] in neutral),home_name=teams.get(m['home'],{}).get('teamname','Clube '+str(m['home'])),
+    away_name=teams.get(m['away'],{}).get('teamname','Clube '+str(m['away'])));own.append(m);roots[m['root']]=m['asset']
   profiles=[]
   for ident,asset in roots.items():
    participants={r['teamid'] for r in links if r['leagueid']==asset}
@@ -100,6 +101,8 @@ class FinanceInputs:
   result=dict(club=club,club_name=teams.get(club,{}).get('teamname','Clube'),date=live['date'],season=season,
    coach_wage=wage,capacity=capacity,competitions=profiles,fixtures=own,player_weekly=payroll,
    budget_initial=preferences[0]['startofseasontransferbudget'] if len(preferences)==1 else None)
+  club_reference=original.get(club,teams.get(club,{}))
+  result['club_profile']=dict(base_budget=club_reference.get('transferbudget',0),prestige=club_reference.get('domesticprestige',5))
   # Optional views never gate the financial clock. Cache save-backed roster
   # metadata independently from the frequently published live fixture snapshot.
   detail_signature=signature[:3]

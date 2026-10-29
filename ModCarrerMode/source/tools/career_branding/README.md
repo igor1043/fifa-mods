@@ -1,16 +1,15 @@
 # Logo no menu inicial e no cabeçalho da carreira
 
-> Em 23/10/2026, a ocultação do card online da EA foi desativada novamente
-> após relato de crash. `easfcwidget.big` foi restaurado byte a byte à base
-> anterior (SHA256 `192ef034f327914c055779e0163c5ddecfc1247b28d47a261a752e9b150dbf28`).
-> Os widgets do menu inicial e da carreira mantêm suas bases anteriores.
-> `hide_online_card.py` é apenas uma ferramenta arquivada: não executar para
-> compor a versão em uso nem incluir o resultado no pacote do Vestiário.
+> Em 28/10/2026, a ocultação simples EA/Q foi reativada a pedido do usuário.
+> O gerador atual preserva o pacote visual instalado e altera somente a
+> atribuição existente de visibilidade da raiz e sua opacidade inicial.
+> Não acrescenta funções ActionScript ou hooks. A implementação antiga com
+> wrappers descrita no histórico foi substituída após o relato de crash.
+> Execute com `--source CAMINHO_ATUAL/easfcwidget.big --output PASTA_DE_STAGE`.
 >
-> A personalização completa com logo descrita abaixo permanece desativada
-> desde 21/10/2026. As versões anteriores estão preservadas em
-> `ModCarrerMode/disabled/career_branding/`. O script
-> `Disable-CareerBranding.ps1 -GameRoot PASTA` restaura as três bases com backup.
+> A personalização completa com logo descrita abaixo continua arquivada;
+> não é necessária para ocultar EA/Q. Backups desta reativação ficam na pasta
+> local de revisão. [Tema atual das telas](../../../docs/CUSTOM_UI_THEME.md).
 
 Substitui a faixa superior direita dos hubs inicial e da carreira pela logo enviada pelo
 usuário. O globo com X, a mensagem de reconexão, o escudo EA, a tecla Q/RS e

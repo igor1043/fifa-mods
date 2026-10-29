@@ -24,6 +24,17 @@ static int is_readable_range(const void *p,size_t n){MEMORY_BASIC_INFORMATION m;
 static int read_card_scope(uintptr_t p,void *out,size_t n){if(!is_readable_range((void *)p,n))return 0;memcpy(out,(void *)p,n);return 1;}
 static unsigned char *bank_mail_service(uintptr_t registry,unsigned descriptor,size_t n){(void)registry;(void)n;return descriptor==0x44563f0?mock_calendar:name_service;}
 #include "../../src/host/career_market_read.inc"
+typedef struct PreparedViewRecord {unsigned schema,pid,club,epoch;unsigned long long created,context,registry,captured;int date,fixture;char revision[65];} PreparedViewRecord;
+static PreparedViewRecord manager_request;
+static int manager_request_enabled;
+static int prepared_view_read_file(const char *path,PreparedViewRecord *record){(void)path;*record=manager_request;return manager_request_enabled;}
+static int prepared_view_scope(const PreparedViewRecord *record,CareerContextRead *captured){
+    *captured=Fifa16CareerContextRead;
+    return captured->sequence==2 && captured->owner_thread==GetCurrentThreadId()
+        && record->pid==GetCurrentProcessId() && record->date==20260111 && record->club==1043
+        && record->epoch==captured->epoch && record->registry==captured->registry;
+}
+#include "../../src/host/career_manager_read.inc"
 typedef struct Query {const char *table;int value;} Query;
 static void *q_init(void *q,int operation,const char *table){assert(operation==1);memset(q,0,56);((Query *)q)->table=table;++queries;return q;}
 static void q_where(void *q,const char *field,int op,int value){(void)field;assert(op==0);((Query *)q)->value=value;}
@@ -60,6 +71,19 @@ int main(void){
     assert(strstr(buffer,"complete=1") && strstr(buffer,"date=20260111") && strstr(buffer,"offer=12,32,7000000,1,1043") && strstr(buffer,"link=234,1043"));
     DeleteFileA(file);strcpy(page,"game/screens/fluxHub/FluxHub");drain_market_read();strcpy(page,"game/screens/career/server16/TransferMarket");mode=1;drain_market_read();assert(GetFileAttributesA(file)==INVALID_FILE_ATTRIBUTES);
     strcpy(page,"game/screens/fluxHub/FluxHub");drain_market_read();strcpy(page,"game/screens/career/server16/TransferMarket");mode=2;drain_market_read();assert(GetFileAttributesA(file)==INVALID_FILE_ATTRIBUTES);
+    {char manager_folder[MAX_PATH],league_file[MAX_PATH];int before;
+     snprintf(manager_folder,sizeof(manager_folder),"%s\\runtime\\manager_market",g_mod_dir);assert(CreateDirectoryA(manager_folder,NULL));
+     snprintf(league_file,sizeof(league_file),"%s\\live_leagues.tsv",manager_folder);
+     mode=0;Fifa16CareerContextRead.sequence=2;strcpy(page,"game/screens/fluxHub/FluxHub");
+     before=queries;g_manager_read_next=0;drain_manager_read();assert(queries==before);
+     manager_request=(PreparedViewRecord){1,GetCurrentProcessId(),1043,2,0,(uintptr_t)contexts,123,GetTickCount64(),20260111,0,{0}};manager_request_enabled=1;
+     ++Fifa16CareerContextRead.owner_thread;g_manager_read_next=0;drain_manager_read();assert(queries==before);--Fifa16CareerContextRead.owner_thread;
+     manager_request.captured=GetTickCount64()+100000;g_manager_read_next=0;drain_manager_read();assert(queries==before);manager_request.captured=GetTickCount64();
+     g_current_stats_provider_owner=(void *)1;g_manager_read_next=0;drain_manager_read();assert(queries==before);g_current_stats_provider_owner=NULL;
+     g_manager_read_next=0;drain_manager_read();assert(queries==before+1);f=fopen(league_file,"rb");assert(f);n=fread(buffer,1,sizeof(buffer)-1,f);fclose(f);buffer[n]=0;assert(strstr(buffer,"complete=1") && strstr(buffer,"league=") && strstr(buffer,"date=20260111"));
+     DeleteFileA(league_file);mode=1;g_manager_read_next=0;drain_manager_read();assert(GetFileAttributesA(league_file)==INVALID_FILE_ATTRIBUTES);
+     mode=2;g_manager_read_next=0;drain_manager_read();assert(GetFileAttributesA(league_file)==INVALID_FILE_ATTRIBUTES);assert(RemoveDirectoryA(manager_folder));
+    }
     VirtualFree(g_module_base,0,MEM_RELEASE);*strrchr(file,'\\')=0;assert(RemoveDirectoryA(file));*strrchr(file,'\\')=0;assert(RemoveDirectoryA(file));*strrchr(file,'\\')=0;assert(RemoveDirectoryA(file));assert(RemoveDirectoryA(g_mod_dir));
-    puts("PASS: live confirmed transfers, scoped current date, native owner thread, bounds, atomic publication and rejection after a context change");return 0;
+    puts("PASS: live transfers and global coach league reads, scoped current date, native owner thread, bounds, atomic publication and rejection after a context change");return 0;
 }

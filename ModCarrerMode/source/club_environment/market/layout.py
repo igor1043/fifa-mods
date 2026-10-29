@@ -1,8 +1,9 @@
+from ui_theme import ACCENT, ACCENT_INK, ACCENT_TEXT
 """One FIFA-style display model shared by the native APT and review preview."""
 from math import ceil
 import re
 
-INK='#334b56';BLUE='#0063b1';MUTED='#6b818d';PAPER='#f4f6f7';LIGHT='#e6ebed';WHITE='#ffffff'
+INK='#334b56';BLUE=ACCENT_INK;MUTED='#6b818d';PAPER='#f4f6f7';LIGHT='#e6ebed';WHITE='#ffffff'
 TABS=(('overview','Resumo'),('leagues','Ligas'),('clubs','Clubes'),('deals','Negócios'),('mine','Minha liga'))
 def money(n):return f'{int(n or 0):,}'.replace(',','.')
 def compact(n):return (f'{n/1_000_000:.1f}'.replace('.',',')+' mi') if abs(n)>=1_000_000 else money(n)
@@ -24,12 +25,12 @@ class Scene:
         return result
 
 def shell(data,key,tab,title=None):
-    s=Scene(key,title or 'Mercado de Transferências');s.rect(0,0,1920,1080,'#034067')
+    s=Scene(key,title or 'Mercado de Transferências')
     s.rect(60,90,1800,828,PAPER);s.image('crest_'+str(data['clubId']),96,112,66,70)
     s.text(184,112,1510,54,'MERCADO DE TRANSFERÊNCIAS',40,bold=True)
     s.text(186,174,1220,34,data['clubName']+'  ·  '+day(data['careerDate'])+'  ·  Temporada '+str(data['careerDate'])[:4],25)
     for i,(target,label) in enumerate(TABS):
-        s.action(96+i*346,224,338,47,label,target,BLUE if tab==target else '#dbe2e5',WHITE if tab==target else INK,25)
+        s.action(96+i*346,224,338,47,label,target,ACCENT if tab==target else '#dbe2e5',ACCENT_TEXT if tab==target else INK,25)
     s.text(96,936,1300,30,'↵ Selecionar     Esc Voltar     ← → Navegar',23,WHITE)
     s.text(96,976,1728,28,'PRÉVIA · Dados do save gravado · Nenhuma alteração no jogo ou na carreira',18,'#c6d7e0')
     return s
@@ -37,7 +38,7 @@ def shell(data,key,tab,title=None):
 def kpis(s,items,y=292):
     width=(1728-14*(len(items)-1))/len(items)
     for i,(title,value,note) in enumerate(items):
-        x=96+i*(width+14);s.rect(x,y,width,90,WHITE);s.rect(x,y,5,90,BLUE)
+        x=96+i*(width+14);s.rect(x,y,width,90,WHITE);s.rect(x,y,5,90,ACCENT)
         s.text(x+18,y+9,width-32,23,title,18,MUTED,bold=True)
         s.text(x+18,y+32,width-32,36,value,30,BLUE,bold=True)
         s.text(x+18,y+69,width-32,19,note,15,MUTED)
@@ -82,7 +83,7 @@ def entry(data):
     s.text(122,449,760,40,'Compras, vendas e empréstimos da carreira',27)
     for i,(label,value) in enumerate((('NEGÓCIOS',str(data['summary']['completedDeals'])),('INVESTIMENTO',compact(data['summary']['investment'])),('LIGAS',str(len(data['leagues']))))):
         x=126+i*262;s.text(x,549,245,30,label,19,MUTED);s.text(x,590,245,57,value,38,BLUE,bold=True)
-    s.action(120,686,794,56,'Entrar no Mercado de Transferências','overview',BLUE,WHITE,26)
+    s.action(120,686,794,56,'Entrar no Mercado de Transferências','overview',ACCENT,ACCENT_TEXT,26)
     s.rect(964,350,418,418,'#e4e9eb');s.text(990,390,360,50,'BUSCAR JOGADORES',30,bold=True)
     s.text(990,457,360,64,'Encontre reforços para o clube',23,MUTED)
     s.rect(1404,350,420,418,'#e4e9eb');s.text(1430,390,360,50,'NEGOCIAÇÕES',30,bold=True)

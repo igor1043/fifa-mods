@@ -1,3 +1,4 @@
+from ui_theme import ACCENT, ACCENT_TEXT, rgb, rgba
 import portable_paths as portable
 """Native APT scene selector. No browser, keyboard hooks or synthetic input."""
 import io,struct
@@ -13,7 +14,7 @@ def graphics(apt,data,append,addchar,place,bitmap,scope,read_asset):
     def raster(im):
         f=io.BytesIO();im.save(f,format='DDS',pixel_format='DXT5');raw=bytearray(f.getvalue());struct.pack_into('<I',raw,20,len(raw)-128);struct.pack_into('<I',raw,88,0);return bitmap(raw)[0]
     def image(color):return raster(Image.new('RGBA',(64,64),color))
-    neutral=image((231,237,241,226));selected=image((5,91,156,248));panel=image((236,240,242,198))
+    neutral=image((231,237,241,226));selected=image(rgba(ACCENT,248));panel=image((236,240,242,198))
     def text(value,w,h,size,color=0xff334b56):
         raw=bytearray(data[apt.characters[3].offset:apt.characters[3].offset+96]);struct.pack_into('<4f',raw,32,0,0,w,h);struct.pack_into('<If',raw,56,color,size);struct.pack_into('<QQ',raw,80,append(value.encode('utf8')+b'\0'),0);return addchar(raw)
     def clip(controls):
@@ -69,7 +70,7 @@ def methods(a,scope):
         for index,name,click,hover in ((0,'sceneButton','SceneButtonClick','SceneButtonOver'),(1,'playersButton','PlayersButtonClick','PlayersButtonOver'),(2,'freeButton','FreeButtonClick','FreeButtonOver')):
             button=T(name);a.set(button,'owner',R(1));a.set(button,'onRelease',T(click));a.set(button,'onRollOver',T(hover))
             a.set(P(button,'highlight'),'_alpha',0);a.set(P(button,'label'),'textColor',0x334b56)
-            a.when(EQ(T('roomActionFocus'),index),lambda a,button=button:(a.set(P(button,'highlight'),'_alpha',100),a.set(P(button,'label'),'textColor',0xffffff)))
+            a.when(EQ(T('roomActionFocus'),index),lambda a,button=button:(a.set(P(button,'highlight'),'_alpha',100),a.set(P(button,'label'),'textColor',rgb(ACCENT_TEXT))))
         a.do(M('HelpManager'),'Update')
     a.function('RefreshRoomActions',0,refresh_actions)
     def roster_command(a):a.do(b.ION,'SendSystemEvent',P(T('staticData'),'SCREEN_CONTROLLER_ID'),'Server16ClubBrowser',R(2))
@@ -130,7 +131,7 @@ def methods(a,scope):
                 if not player:continue
                 a.set(P(row,'head'+str(player)),'_visible',EQ(P(entry,'player'),player))
                 a.when(EQ(P(entry,'player'),player),lambda a:a.set(P(row,'label'),'_x',76))
-            a.when(EQ(index,T('sceneFocus')),lambda a,row=row:(a.set(P(row,'highlight'),'_alpha',100),a.set(P(row,'label'),'textColor',0xffffff)))
+            a.when(EQ(index,T('sceneFocus')),lambda a,row=row:(a.set(P(row,'highlight'),'_alpha',100),a.set(P(row,'label'),'textColor',rgb(ACCENT_TEXT))))
         for name,title_text,method in (('previousPage','< Anterior','PreviousScenePage'),('nextPage','Próxima >','NextScenePage'),('backGroup','< Voltar','SceneBackButton')):
             button=P(T('sceneModal'),name);a.set(button,'owner',R(1));a.set(button,'onRelease',T(method));a.set(P(button,'label'),'text',title_text)
             if name!='backGroup':a.set(button,'_visible',('bin',103,P(T('sceneItems'),'length'),5))

@@ -98,3 +98,7 @@ O elenco conserva a animação e recebe luz interna configurável. Teto e suport
 dos cabides exigem o novo delta pequeno de assets do vestiário. Os experimentos
 de sombras nativas de corpo em RAM não entram nesta revisão permanente.
 [Instalação, dependências e limites](../docs/REVISAO_FINANCAS_VESTIARIO_20261028.md).
+
+## Entrega conjunta — 29/10/2026
+
+O mercado de técnicos usa os serviços do núcleo já existente, sem uma segunda DLL de mercado. Finanças v2 acrescenta patrocínio/comissão/custos e preserva os checkpoints dos empréstimos. O perfil do treinador usa a miniface do vínculo atual. A distribuição reúne a integração visual dourada do Robson e a nova organização dos cards, com Vestiário em segundo no Meu time. Fontes, binários e interfaces próprias ficam no Git; imagens, modelos e pacotes visuais externos ficam no complemento completo de 29/10. [Instalação, novidades e limites](../docs/RELEASE_20261029.md).

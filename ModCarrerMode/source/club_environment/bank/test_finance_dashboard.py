@@ -10,14 +10,14 @@ class FinanceDashboardTests(unittest.TestCase):
   self.assertEqual(result['series'][4],(3000,150,2850));self.assertEqual(len(result['series']),12)
  def test_empty_negative_and_single_month_chart_inputs_are_safe(self):
   for series in ([(0,0,0)]*12,[(0,100,-100)]*12,[(100,0,100)]*12):
-   self.assertEqual(art.evolution(series,observed=1).size,(876,178))
-  self.assertEqual(art.donut((0,0)).size,(170,170));self.assertEqual(art.donut((100,300)).mode,'RGBA')
+   self.assertEqual(art.evolution(series,observed=1).size,(1752,356))
+  self.assertEqual(art.donut((0,0)).size,(510,510));self.assertEqual(art.donut((100,300)).mode,'RGBA')
  def test_budget_variation_is_not_claimed_as_spending_and_payroll_limit_uses_real_margin(self):
   metrics=budget_metrics(dict(budget_initial=100,budget=150,player_weekly=80,wage_margin=20))
   self.assertEqual((metrics['variation'],metrics['budget_ratio'],metrics['salary_limit'],metrics['salary_ratio']),(50,1.5,100,.8))
   self.assertIsNone(budget_metrics({})['salary_ratio'])
  def test_switch_and_progress_art_is_distinct_and_safe_at_empty_and_overflow(self):
   self.assertNotEqual(art.switch(True).tobytes(),art.switch(False).tobytes())
-  for value in (-1,0,.5,2):self.assertEqual(art.progress(value).size,(309,9))
+  for value in (-1,0,.5,2):self.assertEqual(art.progress(value).size,(927,27))
 
 if __name__=='__main__':unittest.main()

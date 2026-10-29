@@ -52,7 +52,8 @@ struct View{
   if(!MoveFileExW(temp.c_str(),target.c_str(),MOVEFILE_REPLACE_EXISTING|MOVEFILE_WRITE_THROUGH)){status="error";message="Não foi possível enviar o pedido de visualização.";return false;}return true;
  }
  void poll(ID3D11Device* device){
-  if(status!="loading"||GetTickCount64()-lastPoll<50)return;lastPoll=GetTickCount64();
+  const bool refresh=kind=="coach"&&status=="ready";
+  if((status!="loading"&&!refresh)||GetTickCount64()-lastPoll<(refresh?250:50))return;lastPoll=GetTickCount64();
   if(retryAt){
    if(lastPoll<retryAt)return;retryAt=0;
    if(!startWorker(gameRoot)||!writeRequest()){status="error";message="Não foi possível reiniciar o auxiliar dos titulares. Consulte launcher.log.";}
@@ -66,7 +67,7 @@ struct View{
    if(exit==DWORD(-1)&&bootRetries<2){++bootRetries;launchLog("BOOTLOADER_RETRY",bootRetries);stop();retryAt=lastPoll+500*bootRetries;return;}
    status="error";message="O auxiliar dos titulares encerrou. Selecione Atualizar para tentar novamente; consulte worker.log.";return;
   }
-  if(lastPoll-sequence>140000){status="error";message="A renderização demorou mais que o esperado. Selecione novamente para tentar de novo.";return;}std::error_code error;auto file=folder/L"status.tsv";auto size=fs::file_size(file,error);if(error||size>4096)return;
+  if(!refresh&&lastPoll-sequence>140000){status="error";message="A renderização demorou mais que o esperado. Selecione novamente para tentar de novo.";return;}std::error_code error;auto file=folder/L"status.tsv";auto size=fs::file_size(file,error);if(error||size>4096)return;
   std::ifstream input(file,std::ios::binary);std::map<std::string,std::string> values;std::string line;while(std::getline(input,line)){auto equal=line.find('=');if(equal!=std::string::npos)values.emplace(line.substr(0,equal),line.substr(equal+1));}
   try{if(values["schema"]!="1"||std::stoul(values["pid"])!=GetCurrentProcessId()||std::stoull(values["seq"])!=sequence||std::stoi(values["club"])!=club)return;}catch(...){return;}
   if(values["status"]=="error"){if(kind=="competitions")lastValues=values;status="error";message=values["message"].substr(0,250);return;}

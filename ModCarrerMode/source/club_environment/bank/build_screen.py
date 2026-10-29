@@ -1,3 +1,4 @@
+from ui_theme import ACCENT_INK, rgb
 import portable_paths as portable
 """Build a separate native APT screen; use only existing fonts and BaseScreen."""
 from pathlib import Path
@@ -13,7 +14,7 @@ FULL = '.'.join(CLASS)
 PAGE = 'game/screens/career/server16/BankLoansV2'
 NONCE = 'B261021A'
 
-def write_big(big,path,additions):
+def write_big(big,path,additions,*,compression_level=9):
     content=lambda name:bytes(big.entries[name].data)
     # Native resource groups: APT + geometry, sg1, textures, sg2, constants.
     # Adding geometry/textures after the original sg2 is structurally parseable
@@ -31,7 +32,7 @@ def write_big(big,path,additions):
         directory.extend(struct.pack('>II',offset,len(blob))+name.encode('latin1')+b'\0')
         payload.extend(blob);offset+=len(blob)
     content=b'BIGF'+struct.pack('<I',offset)+struct.pack('>II',len(entries),header)+directory+payload
-    path.write_bytes(chunk_wrap(content,big.wrapper) if big.wrapper else content)
+    path.write_bytes(chunk_wrap(content,big.wrapper,level=compression_level) if big.wrapper else content)
 
 
 def reg(n): return ('r', n)
@@ -206,7 +207,7 @@ def make_script(data,dictionaries):
             text('step','2. ESCOLHA O VALOR E O PRAZO')
             text('status','Cima / baixo alternam entre valor e prazo. Esquerda / direita ajustam.')
             a.set(this('amount'),'textColor',0x334b56);a.set(this('term'),'textColor',0x334b56)
-            a.when(equal(this('focus'),0),lambda a:a.set(this('amount'),'textColor',0x0565c9),lambda a:a.set(this('term'),'textColor',0x0565c9))
+            a.when(equal(this('focus'),0),lambda a:a.set(this('amount'),'textColor',rgb(ACCENT_INK)),lambda a:a.set(this('term'),'textColor',rgb(ACCENT_INK)))
         a.when(equal(this('page'),1),selection)
         for bank in range(3):
             for ai,amount0 in enumerate(AMOUNTS):

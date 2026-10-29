@@ -48,7 +48,7 @@ def observe(memory):
     return dict(save=save,profile=profile,date=today,signature=signature)
 
 def placeholder(message='Aguardando os dados da carreira.'):
-    s=Scene('overview','Mercado de Transferências');s.rect(0,0,1920,1080,'#034067');s.rect(60,90,1800,828,'#f4f6f7')
+    s=Scene('overview','Mercado de Transferências');s.rect(60,90,1800,828,'#f4f6f7')
     s.text(100,128,1700,70,'MERCADO DE TRANSFERÊNCIAS',40)
     s.text(100,360,1700,60,message,29)
     s.text(100,450,1700,60,'Os dados serão exibidos automaticamente.',25)

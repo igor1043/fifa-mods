@@ -138,3 +138,50 @@ runtime/diagnostics/
 !ModCarrerMode/source/scene_studio/vendor/three/build/*.js
 # Extracted native idle animation ships only in the incremental asset ZIP.
 # Small native idle animation is versioned with the player/coach code.
+
+# Publication 29/10: local authoring workspaces and runtime artwork live outside Git.
+/outputs/
+/ModCarrerMode/data/manager_market/minifaces/
+/FSW/ScoreBoard/
+/ScoreBoardGBD/
+/data/fifarna/splash.fsh
+/data/loc/por_br.db
+/data/ui/game/components/fluxcomponents/career/transferinfo.big
+/data/ui/game/widgets/mainhubwidget.big
+/data/ui/pow/components/easfcwidget.big
+# Robson's shared UI artwork is delivered by the complete asset complement.
+/data/ui/game/components/careercomponents/breadcrumbswidget.big
+/data/ui/game/components/careercomponents/emailnotification.big
+/data/ui/game/components/careercomponents/playerattributes.big
+/data/ui/game/components/careercomponents/playercell.big
+/data/ui/game/components/comparisondiagram.big
+/data/ui/game/components/fifa_loadingbar.big
+/data/ui/game/components/fifacontroller.big
+/data/ui/game/components/fifascoreclock.big
+/data/ui/game/components/flownavdriven/
+/data/ui/game/components/fluxbreadcrumbs.big
+/data/ui/game/components/fluxcore/
+/data/ui/game/components/fluxtiles/
+/data/ui/game/components/gridcontrol.big
+/data/ui/game/components/matchdaytoggle.big
+/data/ui/game/components/pitchview.big
+/data/ui/game/components/statbox.big
+/data/ui/game/components/teampitchplayer.big
+/data/ui/game/components/teamsheets/
+/data/ui/game/globalcomponents/globalcomponents.big
+/data/ui/game/globalcomponents/overlaycomponents_9/
+/data/ui/game/screens/bootflow/
+/data/ui/game/screens/career/calendar.big
+/data/ui/game/screens/career/careertraining/
+/data/ui/game/screens/playnow/
+/data/ui/game/screens/teamsheets/
+/data/ui/imgAssets/backgroundstadiums/
+/data/ui/imgAssets/cmcareerselect/
+/data/ui/imgAssets/tileicons/
+/data/ui/imgAssets/tileshards/
+/data/ui/pow/components/easfccurrency.big
+/data/ui/pow/components/easfclogo.big
+/data/ui/pow/components/news/
+/data/ui/pow/components/powcurrency.big
+/data/ui/pow/components/powexperience.big
+/LEIA-ME-ROBSON-ASSETS.txt

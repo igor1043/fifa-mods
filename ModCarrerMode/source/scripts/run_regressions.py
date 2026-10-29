@@ -15,8 +15,10 @@ GROUPS = {
     'preview': ENVIRONMENT/'preview',
     'room': ENVIRONMENT/'room',
     'market': ENVIRONMENT/'market',
+    'managers': ENVIRONMENT/'manager_market',
     'browser': SOURCE/'club_browser',
     'scenes': SOURCE/'common',
+    'theme': ENVIRONMENT,
 }
 # Retained development screens/tools, unavailable in the public build. The
 # audit option still runs them and reports their failures; never count them as passed.
@@ -123,6 +125,7 @@ def main():
             for script in sorted((SOURCE/'career_native/scripts/tests').glob('test_*.cmd')):
                 run('native-'+script.stem, ['cmd', '/d', '/c', str(script)])
             run('native-competition', ['cmd', '/d', '/c', str(SOURCE/'common/test_competition_identity.cmd')])
+            run('native-ui-theme', ['cmd', '/d', '/c', 'call', str(SOURCE/'common/test_custom_ui_theme.cmd'), str(output/'native-ui-theme')])
             run('native-jobs', ['cmd', '/d', '/c', str(SOURCE/'career_jobs_runtime/test.cmd')])
             run('native-camera', ['cmd', '/d', '/c', str(SOURCE/'scripts/test_first_person.cmd')])
             # Native room commands must remain direct across first entry and
