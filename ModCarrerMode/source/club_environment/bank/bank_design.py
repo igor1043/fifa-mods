@@ -1,6 +1,6 @@
 from ui_theme import ACCENT_TEXT, ACCENT_INK, ACCENT_SOFT, rgb, argb
 """Reference-inspired bank list and proposal cards on the native FIFA screen."""
-from loans import BANKS,AMOUNTS,TERMS,quote,offered,amount_indices,term_indices,product_limits
+from loans import BANKS,AMOUNTS,TERMS,amount_indices as legacy_amount_indices,term_indices,product_limits as legacy_product_limits
 
 ORDER=(7,9,10,11,12,3,4,5,6,8)
 N=len(ORDER)
@@ -9,6 +9,22 @@ ROWS=(469,504,539,585,639,673,707,747,781,818)
 def install(ui):
     global u,T,R,P,EQ,ADD
     u=ui;T=u.T;R=u.R;P=u.P;EQ=u.EQ;ADD=u.ADD
+    quote=u.quote;offered=u.offered
+    def product_limits(bank):
+        maximum,months=legacy_product_limits(bank)
+        credit=u.VIEW.get('credit')
+        return (credit['banks'].get(str(bank),{}).get('limit',0) if credit else maximum),months
+    def amount_indices(bank):
+        credit=u.VIEW.get('credit')
+        values=credit['banks'].get(str(bank),{}).get('amounts',[]) if credit else legacy_amount_indices(bank)
+        return tuple(sorted(values,key=lambda i:AMOUNTS[i])) or (AMOUNTS.index(min(AMOUNTS)),)
+    def blocked(bank):
+        credit=u.VIEW.get('credit')
+        if not credit:return ''
+        row=credit['banks'].get(str(bank),{})
+        if row.get('retry_date'):return 'Nova proposta neste banco em '+u.datestr(row['retry_date'])
+        if not row.get('amounts'):return 'Sem margem de crédito neste banco.'
+        return ''
     original={name:getattr(u,name) for name in ('init','refresh','select','shift','focus','back','wait','graphics')}
     # Keep each native APT method bounded even with localized money expressions.
     u.EXTRA.append(('RefreshBase',0,original['refresh']))
@@ -79,7 +95,7 @@ def install(ui):
             for bank in ORDER:
                 def normalize(a,bank=bank):
                     for key,allowed,values in (('amountIndex',amount_indices(bank),AMOUNTS),('termIndex',term_indices(bank),TERMS)):
-                        clamped=tuple(max((i for i in allowed if values[i]<=value),default=allowed[0]) for value in values)
+                        clamped=tuple(max((i for i in allowed if values[i]<=value),key=lambda i:values[i],default=allowed[0]) for value in values)
                         a.set(R(1),key,('index',('array',clamped),T(key)))
                 a.when(EQ(T('bank'),bank),normalize)
             for selected in range(N):
@@ -92,7 +108,7 @@ def install(ui):
                     for visible,index in enumerate(range(offset,offset+6)):
                         bank=ORDER[index];item=BANKS[bank];name='bankTile'+str(visible);obj=T(name)
                         a.set(obj,'index',index);u.show(a,name,True)
-                        a.set(P(obj,'label'),'text',item['name']);a.set(P(obj,'hint'),'text','Até '+u.b.money(product_limits(bank)[0])+' · a partir de '+str(item['rate_bps']/100).replace('.',',')+'% a.m.')
+                        a.set(P(obj,'label'),'text',item['name']);a.set(P(obj,'hint'),'text',blocked(bank) or 'Até '+u.b.money(product_limits(bank)[0])+' · a partir de '+str(item['rate_bps']/100).replace('.',',')+'% a.m.')
                         a.set(P(obj,'label'),'textColor',0x203b55);a.set(P(obj,'hint'),'textColor',0x536b80);a.set(P(obj,'selected'),'_alpha',0)
                         a.when(EQ(T('bankIndex'),index),lambda a,obj=obj:(a.set(P(obj,'selected'),'_alpha',100),a.set(P(obj,'label'),'textColor',rgb(ACCENT_TEXT)),a.set(P(obj,'hint'),'textColor',rgb(ACCENT_TEXT))))
                         logo=T('bankLogo'+str(bank));u.show(a,'bankLogo'+str(bank),True)
@@ -103,9 +119,9 @@ def install(ui):
             for bank in ORDER:
                 def chosen(a,bank=bank):
                     u.show(a,'bankHeaderLogo'+str(bank),True)
-                    u.label(a,'bankHeading','Banco: '+BANKS[bank]['name']);u.label(a,'bankCaption','SIMULAÇÃO · Até '+u.b.money(product_limits(bank)[0])+' em '+str(product_limits(bank)[1])+' meses')
+                    u.label(a,'bankHeading','Banco: '+BANKS[bank]['name']);u.label(a,'bankCaption',blocked(bank) or 'SIMULAÇÃO · Até '+u.b.money(product_limits(bank)[0])+' em '+str(product_limits(bank)[1])+' meses')
                 a.when(EQ(T('bank'),bank),chosen)
-            u.label(a,'amountCaption','Valor do empréstimo');u.label(a,'amountHint','Crédito no orçamento de transferências')
+            u.label(a,'amountCaption','Valor do empréstimo');u.label(a,'amountHint','Limite calculado pelo porte e pela dívida do clube')
             u.label(a,'termCaption','Prazo');u.label(a,'termHint','Valores e prazos maiores aumentam os juros')
             u.draw_row(a,'amountControl',N,('index',('array',tuple(u.b.money(v) for v in AMOUNTS)),T('amountIndex')))
             u.draw_row(a,'termControl',N+1,ADD(('index',('array',TERMS),T('termIndex')),' meses'))
@@ -116,22 +132,31 @@ def install(ui):
             labels=('Saldo atual','Crédito se aprovado','Saldo após aprovação','Resposta prevista','Parcela mensal','Primeira cobrança prevista','Última cobrança prevista','Total contratado','Juros totais','Taxa simulada')
             for i,label in enumerate(labels):u.label(a,'summaryLabel'+str(i),label)
             for bank in ORDER:
-                for ai,amount in enumerate(AMOUNTS):
-                    for ti,months in enumerate(TERMS):
-                        if not offered(bank,amount,months):continue
-                        q=quote(bank,amount,months)
-                        expected=u.response_date(u.VIEW.get('date'),bank)
-                        condition=('bin',16,('bin',16,EQ(T('bank'),bank),EQ(T('amountIndex'),ai)),EQ(T('termIndex'),ti))
-                        values=(u.b.money(budget),'+'+u.b.money(amount),u.b.money(budget+amount),u.datestr(expected),u.b.money(q['payment']),u.due_date(expected,1),u.due_date(expected,months),u.b.money(q['total']),u.b.money(q['total']-amount),str(q['rate_bps']/100).replace('.',',')+'% ao mês')
-                        def fill(a,values=values):
-                            for i,value in enumerate(values):u.label(a,'summaryValue'+str(i),value)
-                        a.when(condition,fill)
+                a.when(EQ(T('bank'),bank),lambda a,bank=bank:a.do(R(1),'SummaryBank'+str(bank)))
             a.set(T('summaryValue1'),'textColor',0x13883b);a.set(T('summaryValue4'),'textColor',0xdf8c00)
             for name in ('summaryLabel9','summaryValue9'):a.set(T(name),'textColor',rgb(ACCENT_INK))
-            u.label(a,'status','')
+            u.label(a,'status',u.VIEW.get('credit_error',''))
         a.when(EQ(T('page'),1),form)
 
+    def summary_bank(a,bank):
+        budget=u.VIEW.get('budget',0)
+        for ai,amount in enumerate(AMOUNTS):
+            for ti,months in enumerate(TERMS):
+                if not offered(bank,amount,months):continue
+                q=quote(bank,amount,months)
+                expected=u.response_date(u.VIEW.get('date'),bank)
+                condition=('bin',16,('bin',16,EQ(T('bank'),bank),EQ(T('amountIndex'),ai)),EQ(T('termIndex'),ti))
+                values=(u.b.money(budget),'+'+u.b.money(amount),u.b.money(budget+amount),u.datestr(expected),u.b.money(q['payment']),u.due_date(expected,1),u.due_date(expected,months),u.b.money(q['total']),u.b.money(q['total']-amount),str(q['rate_bps']/100).replace('.',',')+'% ao mês')
+                def fill(a,values=values):
+                    for i,value in enumerate(values):u.label(a,'summaryValue'+str(i),value)
+                a.when(condition,fill)
+
     def select(a):
+        for bank in ORDER:
+            reason=blocked(bank)
+            if reason:
+                condition=('bin',16,EQ(T('bank'),bank),('bin',17,('bin',16,EQ(T('page'),1),EQ(T('focus'),N+2)),('bin',16,EQ(T('page'),2),EQ(T('focus'),0))))
+                a.when(condition,lambda a,reason=reason:(u.label(a,'status',reason),a.ret()))
         def form(a):
             a.when(('bin',72,T('focus'),N),lambda a:(u.go(a,1,N),a.ret()))
             a.when(('bin',72,T('focus'),N+2),lambda a:(a.do(R(1),'Shift',1),a.ret()))
@@ -150,7 +175,7 @@ def install(ui):
             for bank in ORDER:
                 def bank_values(a,bank=bank):
                     for index,field,allowed,values in ((N,'amountIndex',amount_indices(bank),AMOUNTS),(N+1,'termIndex',term_indices(bank),TERMS)):
-                        positions=tuple(allowed.index(max((i for i in allowed if values[i]<=value),default=allowed[0])) for value in values)
+                        positions=tuple(allowed.index(max((i for i in allowed if values[i]<=value),key=lambda i:values[i],default=allowed[0])) for value in values)
                         position=('index',('array',positions),T(field))
                         target=('index',('array',allowed),('bin',63,ADD(ADD(position,R(2)),len(allowed)),len(allowed)))
                         a.when(EQ(T('focus'),index),lambda a,field=field,target=target:a.set(R(1),field,target))
@@ -205,6 +230,7 @@ def install(ui):
         button('reviewControl',675,726,490,64,12);button('formBack',675,800,490,64,13)
         button('bankPrevious',80,820,90,36,14);button('bankNext',180,820,90,36,15)
 
+    u.EXTRA.extend(('SummaryBank'+str(bank),0,lambda a,bank=bank:summary_bank(a,bank)) for bank in ORDER)
     u.init=init;u.refresh=refresh;u.select=select;u.shift=shift;u.focus=focus;u.back=back;u.wait=wait;u.graphics=graphics
     u.REPLACE.update(InitComponents=init,Refresh=refresh,Select=select,Shift=shift,Back=back)
     u.EXTRA[:]=[(name,count,wait if name=='WaitButtons' else focus if name=='MoveFocus' else body) for name,count,body in u.EXTRA]

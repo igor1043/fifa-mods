@@ -15,7 +15,10 @@ def safe(name):
     return p
 
 FROZEN_SOURCE_MODULES=('server16_py.club_environment','server16_py.app',
-    'server16_py.asset_runtime','server16_py.file_tools','server16_py.stadium_runtime')
+    'server16_py.asset_runtime','server16_py.file_tools','server16_py.stadium_runtime',
+    'server16_py.d3d_injector','server16_py.first_person_runtime',
+    'server16_py.grass_quality_runtime','server16_py.loading_notices',
+    'server16_py.match_hub_panel','server16_py.stadium_selector')
 
 
 def check_frozen_sources(frozen_archive,source):

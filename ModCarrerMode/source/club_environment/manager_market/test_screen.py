@@ -48,6 +48,11 @@ class NativeScreenTest(unittest.TestCase):
   vm,s,calls=self.open();self.assertEqual(3,len(s.get('filtered')));vm.invoke(s.get('Command'),s,(2,));self.assertGreater(len(s.get('filtered')),0);before=s.get('age');vm.invoke(s.get('Command'),s,(35,));self.assertNotEqual(before,s.get('age'));self.assertEqual(0,len(s.get('filtered')));vm.invoke(s.get('Command'),s,(37,));self.assertEqual(1,s.get('nation'))
  def test_open_profile_back_and_native_exit(self):
   vm,s,calls=self.open();vm.invoke(s.get('Command'),s,(40,));self.assertTrue(s.get('profile'));vm.invoke(s.get('Command'),s,(60,));self.assertFalse(s.get('profile'));vm.invoke(s.get('Command'),s,(60,));self.assertTrue(any(n=='SendEvent' and 'Back' in args for n,args in calls))
+ def test_initial_view_defers_unopened_coach_histories(self):
+  vm,s,_=self.open();self.assertTrue(all(not person[23] and not person[24] for person in s.get('people')))
+  vm.invoke(s.get('Command'),s,(40,));selected=s.get('person')
+  self.assertTrue(s.get('people')[selected][23]);self.assertTrue(s.get('profileLoaded')[selected])
+  self.assertTrue(all(not person[23] for i,person in enumerate(s.get('people')) if i!=selected))
  def test_loader_callbacks_do_not_collide_with_state_in_legacy_member_lookup(self):
   def get(obj,key):
    if isinstance(key,str):
@@ -63,7 +68,7 @@ class NativeScreenTest(unittest.TestCase):
    self.assertTrue(s.get('dataReady'));self.assertTrue(s.get('inputBound'));self.assertTrue(s.get('scene0').get('_visible'));self.assertEqual([],vm.errors)
  def test_profile_tabs_metrics_and_pagination_use_structured_career_data(self):
   vm,s,calls=self.open();vm.invoke(s.get('Command'),s,(40,));clip=s.get('scene1');person=s.get('people')[s.get('person')]
-  self.assertEqual(str(person[23][0]),str(clip.get('metric0').get('text')));self.assertTrue(clip.get('identityCard').get('_visible'))
+  self.assertEqual(float(person[23][0]),float(clip.get('metric0').get('text')));self.assertTrue(clip.get('identityCard').get('_visible'))
   vm.invoke(s.get('Command'),s,(81,));self.assertEqual(1,s.get('profileTab'));self.assertFalse(clip.get('metricCard0').get('_visible'));self.assertTrue(clip.get('entryCard0').get('_visible'));self.assertEqual(person[24][0][0],clip.get('entryName0').get('text'));self.assertTrue(clip.get('current_crest_'+str(self.model['clubRows'][0][4].split('_')[-1])).get('_visible') if self.model['clubRows'][0][4] else True)
   vm.invoke(s.get('LocalEventHandler'),s,(12,None));self.assertEqual(2,s.get('profileTab'));self.assertEqual(0,s.get('tab'));self.assertTrue(clip.get('emptyProfile').get('_visible'));self.assertEqual([],vm.errors)
  def test_reference_profile_has_functional_recent_filters_and_fourth_tab(self):

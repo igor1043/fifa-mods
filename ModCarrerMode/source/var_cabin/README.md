@@ -6,7 +6,7 @@ A versão 3 mostra a cabine somente no Campeonato Brasileiro Série A (ID 7) e S
 
 O RX3 tem 12,324 vértices e 19,447 triângulos, com altura de 200 cm, largura de 132,6 cm e profundidade de 110,8 cm. As posições de todos os triângulos são idênticas às da cabine anterior após a decodificação RX3. Foram restauradas as UVs originais do OBJ que correspondem ao novo COLOR.png e nm.png fornecidos em 15/10/2026. O padrão azul e os logotipos vêm das novas imagens; as tangentes foram recalculadas para esse mapeamento. Os 48 triângulos dos painéis espelhados e o mapa de coeficientes foram preservados. A textura continua em DXT5 com cor em 1024 × 2048, normais em 512 × 1024 e coeficientes em 256 × 512, todos com mipmaps completos. O arquivo textures.rx3 permanece com 3.670.960 bytes (cerca de 3,5 MiB).
 
-A posição atual é X=0, Y=2, Z=4600 cm, centralizada na linha do meio-campo na lateral positiva. A rotação é 3,141593 radianos (180 graus), com o monitor voltado para o gramado. O eixo X acompanha o comprimento do campo e Z sua largura. O módulo não troca de lado no intervalo. O mesmo objeto estático vale durante partida, pausa e replay; a posição é independente do relógio.
+A posição atual é X=-600, Y=2, Z=4200 cm, na lateral positiva: 6 m à esquerda do meio-campo. Em 30/10/2026 a cabine foi recuada 5,5 m em relação a Z=3650 para ficar atrás das placas de publicidade. A rotação é 3,141593 radianos (180 graus), com o monitor voltado para o gramado. O eixo X acompanha o comprimento do campo e Z sua largura. O módulo não troca de lado no intervalo. O mesmo objeto estático vale durante partida, pausa e replay; a posição é independente do relógio.
 
 Arquivos:
 
@@ -21,7 +21,7 @@ O protótipo usa o tipo 3, variação 1, enquanto as câmeras normais ficam na v
 Configuração em var_cabin.ini, relida a cada segundo sem reiniciar:
 
 - x_cm: distância do meio-campo (positivo ou negativo)
-- z_cm: distância lateral; 4600 é a posição atual
+- z_cm: distância lateral; 4200 é a posição atual
 - ground_lift_cm: ajuste do piso, atualmente 2 cm
 - yaw_radians: 0 para frente +Z; 3.141593 para frente -Z
 - enabled: 0 esconde a cabine na sessão e nas próximas partidas
@@ -37,3 +37,6 @@ Modelo 2: fontes, conversão, prévias e backup em J:/mods/fifa 16/estudos fifa 
 Revisão 4: Lua preparado no callback da cena, confirmação dos indicadores de prontidão, nova tentativa após indisponibilidade temporária e criação vinculada à tabela da cena atual. Um booleano de uma partida anterior não impede a criação na seguinte. Os wrappers e atores pendentes não são duplicados. O recurso privado é atualizado depois do Lua, mesmo quando o motor já inicializou sua variação como câmera. As competições permitidas continuam sendo 7 e 83. Consulte `../common/README.md` para testes e limites.
 
 Texturas vigentes desde 15/10/2026: COLOR.png e nm.png, extraídas de Stands e Tex do var.rar. Conversão, fontes e backup em J:/mods/fifa 16/estudos fifa 16/58_VAR_TEXTURAS_20261015. O encaixe foi conferido nas prévias frontal/traseira do RX3; a verificação visual no FIFA aguarda a próxima sessão.
+
+
+Ajuste local de 29/10/2026: cabine aproximada da lateral, junto à área das placas de publicidade. A posição usa o INI já relido a cada segundo, sem alterar a DLL, o modelo ou as texturas. O encaixe em relação à placa depende da geometria do estádio e deve ser conferido na próxima partida. Backup em `code-release/var_cabin_position_20261029/`.

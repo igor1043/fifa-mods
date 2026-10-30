@@ -73,11 +73,12 @@ Os filtros de idade e nacionalidade respondem dentro da tela.
    a pressão quando o desempenho na liga também está abaixo da expectativa.
    O prestígio inicial deriva dos participantes e das ligas da competição;
    `competition_policies` permite ajustar cada ID no banco da carreira.
-4. Acima de 32 pontos de pressão começa uma chance determinística de demissão,
-   com 0,9 ponto percentual por ponto de pressão excedente, limitada por padrão
-   a 25% por avaliação. A revisão 2 atualiza os padrões antigos uma única vez,
+4. Acima de 30 pontos de pressão começa uma chance determinística de demissão,
+   com 1 ponto percentual por ponto de pressão excedente, limitada por padrão
+   a 30% por avaliação. A revisão 3 atualiza os padrões antigos uma única vez,
    preservando parâmetros que já foram personalizados. **O limite absoluto é três demissões
    por clube em cada ano de calendário**, mesmo se o parâmetro SQL for maior.
+
 5. Pedido de demissão tem chance baixa (4 em 10.000 por avaliação elegível).
    Clubes podem buscar um técnico empregado em um projeto de menor reputação
    após 90 dias, com aproveitamento pelo menos 58%, sujeito ao peso de aliciamento.
@@ -243,3 +244,49 @@ resolução superior à apresentação. As cores dos cantos das faces vêm dos R
 do clube na base FIFA, em leitura; as minifaces originais não são modificadas.
 As abas selecionadas usam dourado e texto escuro. O retorno é feito pelo ESC
 ou botão de voltar do controle, sem duplicar botões dentro do painel.
+
+### Revisão local de 30/10/2026
+
+As contratações comparam a reputação do clube e do antecessor, o desempenho
+real nos dez jogos mais recentes de cada candidato, o salário e a situação de
+mercado. Há uma pequena preferência pela nacionalidade do antecessor e pelo
+país do clube; traduções e dupla nacionalidade são normalizadas. Técnicos
+livres recebem uma vantagem sobre uma contratação de outro clube de qualidade
+equivalente. A escolha ponderada entre os candidatos próximos mantém variação
+determinística por carreira. Clubes de elite usam faixa de qualidade mais
+exigente; em 10% das seleções podem considerar uma faixa um ponto mais baixa.
+Falta de candidatos acessíveis pode resultar em um interino, sem duplicar um
+técnico já empregado. O técnico controlado pelo jogador permanece protegido.
+
+A simulação roda no auxiliar, acompanhando o calendário mesmo com a tela
+fechada. A montagem do APT agora roda em uma tarefa separada da simulação.
+Uma atualização da mesma carreira/data mantém o painel validado disponível;
+carreira, carregamento de save, clube ou data diferentes exigem validação nova.
+Um APT só vira cache publicável depois da validação completa.
+
+A abertura instancia os dados compactos das listas; históricos e títulos são
+instanciados somente quando o respectivo perfil é aberto. As imagens de catálogo
+ficam em grupos de até 512 controles, evitando estourar o quadro APT com mais
+de dez mil imagens. O cache DDS reutiliza as texturas já codificadas e valida
+cabeçalho, dimensões e tamanho antes de usá-las. Dados e estatísticas continuam
+separados desse cache de apresentação.
+
+O template visual compilado também é reutilizado: geometria, fotos, escudos,
+bandeiras e cartões não são reconstruídos quando apenas os dados da carreira
+mudam. O controlador recebe a data, os vínculos e as estatísticas atuais. O
+template é invalidado por mudança de código, tema, fotos ou conjuntos de
+imagens, e tem sua integridade conferida antes de reutilizar. Uma falha de cache
+provoca reconstrução validada, sem publicar um arquivo incompleto.
+
+O plano para refletir contratações nos modelos de beira do campo está em
+[SIDELINE_MODELS.md](SIDELINE_MODELS.md).
+
+### Catálogo ampliado e limite do pacote
+
+Os retratos usados pelo APT são limitados a 204 pixels, acima dos 202 pixels
+da maior apresentação. As minifaces originais permanecem intactas. A leitura
+dos retratos distintos usa quatro tarefas; a simulação e o SQLite conservam
+um único responsável. Isso mantém o pacote completo abaixo do limite de
+128 MiB do carregador, sem relaxar a proteção de memória. Templates e DDS
+validados continuam reutilizados. A primeira preparação de um catálogo novo
+é mais lenta e acontece em segundo plano; a tela pronta é reutilizada.

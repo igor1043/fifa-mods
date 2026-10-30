@@ -12,7 +12,7 @@ class FinanceBridgeTests(unittest.TestCase):
   b.process=type('P',(),{'pid':1})();b.context_address=0x1000;b.write_handle=1;b.nonce='B57_1_1043_TEST'
   b.last_sequence=0;b.last_scan=0;b.last_advance=(None,None);b.finance_ack=0;b.finance_signature=None
   live=dict(club=1043,date=today,budget=budget,address=0x1234,page=r.FINANCE_PAGE,context_epoch=3)
-  b.live=lambda:dict(live);b.observe_save=lambda:None;b.flush_notifications=lambda _:None;b.publish_view=lambda _:None
+  b.live=lambda:dict(live);b.observe_save=lambda:None;b.observe_attendance=lambda _:None;b.flush_notifications=lambda _:None;b.publish_view=lambda _:None
   writes=[]
   class Kernel:
    def WriteProcessMemory(self,handle,address,buffer,size,written):

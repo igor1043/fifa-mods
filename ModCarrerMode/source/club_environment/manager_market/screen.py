@@ -1,6 +1,7 @@
 """Bounded native APT data loader and interactive coach market controller."""
 from pathlib import Path
-import hashlib
+import hashlib,json
+import bank_art
 import build_screen as b
 from build_preview import Code
 import native_screen as native
@@ -11,9 +12,14 @@ import asset_cache,club_portraits
 from manager_layout import assets_for,scenes_for,stars,TABS,MAIN,club_xy,free_xy,move_xy,PAGE_SIZE
 
 CLASS=('game','screens','career','server16','ManagerMarket');FULL='.'.join(CLASS)
-UI_SIGNATURE=hashlib.sha256(Path(__file__).read_bytes()+b''.join(Path(m.__file__).read_bytes() for m in (manager_layout,profile_layout,profile_controller,profile_art,asset_cache,club_portraits,native))).hexdigest()
+UI_SIGNATURE=hashlib.sha256(Path(__file__).read_bytes()+b''.join(Path(m.__file__).read_bytes() for m in (manager_layout,profile_layout,profile_controller,profile_art,asset_cache,club_portraits,native,b,bank_art))).hexdigest()
 R=b.reg;T=b.this;P=b.prop;EQ=b.equal;CALL=b.call;PATH=b.path;M=b.MANAGER;ION=b.ION
 def arr(v):return ('array',tuple(v))
+
+def packed_array(values):
+ values=list(values)
+ if not values or any(type(v) not in (str,int,float) or '\x1f' in str(v) for v in values):return arr(values)
+ return CALL(R(1),'DecodeFields','\x1f'.join(('s' if isinstance(v,str) else 'n')+str(v) for v in values))
 def ix(a,i):return ('index',a,i)
 def add(a,c):return ('bin',71,a,c)
 def sub(a,c):return ('bin',11,a,c)
@@ -35,12 +41,9 @@ def script_factory(model,assets):
    parent=b.GLOBAL if not i else PATH(*CLASS[:i]);a.when(P(parent,name),lambda a:None,lambda a,p=parent,n=name:a.set(p,n,('object',)))
   # Hide the catalogue artwork in bounded frames as well. Thousands of crest
   # variants must not turn the final Ready callback into one giant AVM action.
-  operations=[('hide','scene'+str(i),n['name']) for i,s in enumerate(scenes) for n in s['nodes'] if n['type']=='image' and n.get('name')]
+  operations=[('hide','scene'+str(i),n['name']) for i,s in enumerate(scenes) for n in s['nodes'] if n['type']=='image' and n.get('name') and not n.get('native_group')]
   for key,rows in (('clubs',model['clubRows']),('free',model['freeRows']),('moves',model['moveRows']),('hires',model['hireRows'])):operations.extend(('row',key,row) for row in rows)
-  for p in model['people']:
-   for key,values in (('loadingHistory',p['history']),('loadingTitles',p['titles']),('loadingSpells',p.get('spellCards',[])),('loadingAwards',p.get('titleCards',[]))):
-    operations.append(('reset',key,None));operations.extend(('value',key,value) for value in values)
-   operations.append(('profile','people',p))
+  operations.extend(('profile','people',p) for p in model['people'])
   operations.extend(('row','leagues',[l['id'],l['name'],l['country'],l['level'],l['image']]) for l in model['leagues'])
   operations.extend(('row','countries',[c['name'],c['flag']]) for c in model.get('countries',[]) or [dict(name='Aguardando carreira',flag='flag_0')])
   operations.extend(('row','months',m) for m in model.get('months',[]) or [[202601,'Janeiro 2026']]);operations.extend(('value','nations',v) for v in model['nationalities'])
@@ -49,15 +52,48 @@ def script_factory(model,assets):
    a.op(89);a.reg(2);a.op(118);a.op(93);a.do(M('ScreenManager'),'SetOnExitScreenCallback',CALL(PATH('cafe','utility','Delegate'),'Create',R(1),T('OnExitScreen')));a.do(R(1),'Initialize',FULL,None,True)
    a.set(R(1),'_visible',True);a.set(R(1),'_alpha',100);a.set(R(1),'screenReady',False);a.set(R(1),'staticData',CALL(ION,'GetScreenStaticData'));a.set(R(1),'navEvents',CALL(ION,'GetEvents','Navigation'))
    for key,value in dict(tab=0,page=0,country=model.get('initialCountry',0),league=model.get('initialLeague',0),month=model.get('initialMonth',0),hirePage=0,movePage=0,age=0,nation=0,profile=False,person=0,profileTab=0,profileVenue=0,historyPage=0,focus=40,frames=0).items():a.set(R(1),key,value)
-   for key in ('clubs','free','moves','hires','people','leagues','countries','months','nations','rendered'):a.set(R(1),key,arr([]))
+   for key in ('clubs','free','moves','hires','people','leagues','countries','months','nations','rendered','profileLoaded'):a.set(R(1),key,arr([]))
    a.set(R(1),'dataStep',0);a.set(R(1),'dataReady',False);a.set(R(1),'onEnterFrame',T('DataFrame'))
   a.function(CLASS[-1],0,ctor,True);a.expr(PATH(*CLASS));a.expr(PATH('ion','screen','BaseScreen'));a.op(105)
+  def decode_fields(a):
+   a.set(R(1),'decodedFields',CALL(R(2),'split','\x1f'))
+   def decode(a):
+    value=ix(T('decodedFields'),T('fieldIndex'));body=CALL(value,'substr',1)
+    a.expr(T('decodedFields'));a.expr(T('fieldIndex'))
+    a.when(EQ(CALL(value,'charAt',0),'n'),lambda a:a.expr(mul(body,1)),lambda a:a.expr(body));a.op(79)
+   loop(a,'fieldIndex',P(T('decodedFields'),'length'),decode);a.ret(T('decodedFields'))
+  a.function('DecodeFields',1,decode_fields)
+  # Career histories are bytecode in the package, but only the selected
+  # coach's arrays are instantiated. Opening the market never loads every CV.
+  for person_index,person in enumerate(model['people']):
+   def load_person(a,p=person,index=person_index):
+    for key,values,nested in (('loadingHistory',p['history'],False),('loadingTitles',p['titles'],False),('loadingSpells',p.get('spellCards',[]),True),('loadingAwards',p.get('titleCards',[]),True)):
+     if not nested:a.set(R(1),key,packed_array(values));continue
+     a.set(R(1),key,arr([]))
+     for value in values:a.do(T(key),'push',packed_array(value))
+    target=ix(T('people'),index)
+    for col,value in ((7,T('loadingHistory')),(8,T('loadingTitles')),(23,packed_array(p.get('overview',[0]*14+['','','',-1,'','']))),(24,T('loadingSpells')),(25,T('loadingAwards')),(26,packed_array(p.get('visualData',['']*27)))):
+     a.expr(target);a.expr(col);a.expr(value);a.op(79)
+    a.expr(T('profileLoaded'));a.expr(index);a.expr(True);a.op(79)
+    for key in ('loadingHistory','loadingTitles','loadingSpells','loadingAwards'):a.set(R(1),key,None)
+   a.function('LoadPerson'+str(person_index),0,load_person)
+  profile_groups=(len(model['people'])+63)//64
+  for group in range(profile_groups):
+   def load_group(a,group=group):
+    for index in range(group*64,min(len(model['people']),(group+1)*64)):
+     a.when(EQ(T('person'),index),lambda a,index=index:(a.do(R(1),'LoadPerson'+str(index)),a.ret()))
+   a.function('LoadProfileGroup'+str(group),0,load_group)
+  def ensure_profile(a):
+   a.when(ix(T('profileLoaded'),T('person')),lambda a:a.ret())
+   for group in range(profile_groups):
+    a.when(EQ(floor(div(T('person'),64)),group),lambda a,group=group:(a.do(R(1),'LoadProfileGroup'+str(group)),a.ret()))
+  a.function('EnsureProfile',0,ensure_profile)
   for batch_index,batch in enumerate(batches):
    def append_batch(a,batch=batch):
     for kind,key,value in batch:
      if kind=='hide':a.set(P(T(key),value),'_visible',False)
      elif kind=='reset':a.set(R(1),key,arr([]))
-     elif kind=='profile':a.do(T('people'),'push',arr([value['name'],*value['details'],T('loadingHistory'),T('loadingTitles'),value['head'],value['reputation'],value['nationality'],value.get('flag','flag_0'),value['age'],value.get('style','Equilibrado'),value.get('formation','Não informada') if value.get('formation')!='Não informada' else 'Formação pendente',value.get('freeDays',''),f"{int(value['salary']):,}".replace(',','.'),value.get('secondaryStyle',''),native.fit(value['name'],470,26),native.fit(value['nationality'],293,18),native.fit(value['nationality'],445,19),native.fit(value['nationality'],259,17),arr(value.get('overview',[0]*14+['','','',-1,'',''])),T('loadingSpells'),T('loadingAwards'),arr(value.get('visualData',['']*27))]))
+     elif kind=='profile':a.do(T('people'),'push',arr([value['name'],*value['details'],arr([]),arr([]),value['head'],value['reputation'],value['nationality'],value.get('flag','flag_0'),value['age'],value.get('style','Equilibrado'),value.get('formation','Não informada') if value.get('formation')!='Não informada' else 'Formação pendente',value.get('freeDays',''),f"{int(value['salary']):,}".replace(',','.'),value.get('secondaryStyle',''),native.fit(value['name'],470,26),native.fit(value['nationality'],293,18),native.fit(value['nationality'],445,19),native.fit(value['nationality'],259,17),arr([]),arr([]),arr([]),arr([])]))
      elif kind=='value' and key in ('loadingSpells','loadingAwards'):a.do(T(key),'push',arr(value))
      else:
       if kind=='row' and key in ('clubs','moves','hires'):
@@ -86,6 +122,8 @@ def script_factory(model,assets):
   commands=[[int(x['target']) for x in s['actions']] for s in scenes]
   def wait(a):
    a.when(either(('not',T('dataReady')),T('inputBound')),lambda a:a.ret());a.when(('not',P(T('scene1'),'profileCaption')),lambda a:a.ret());a.set(R(1),'inputBound',True)
+   date=str(model['date']);meta=model['clubName']+' · '+date[6:8]+'/'+date[4:6]+'/'+date[:4]+' · Salários em moeda da carreira' if model.get('ready') else 'Aguardando os dados da carreira aberta...'
+   for i in MAIN:a.set(P(T('scene'+str(i)),'careerMeta'),'text',meta)
    for i,s in enumerate(scenes):
     for j,action in enumerate(s['actions']):
      btn=P(T('scene'+str(i)),'action'+str(j));a.set(btn,'owner',R(1));a.set(btn,'code',int(action['target']));a.set(btn,'onRelease',T('Click'));a.set(btn,'onRollOver',T('Over'))
@@ -94,9 +132,16 @@ def script_factory(model,assets):
   def complete(a):
    a.when(T('screenReady'),lambda a:a.ret());a.set(R(1),'screenReady',True);a.do(ION,'SendEvent',P(T('staticData'),'SCREEN_CONTROLLER_ID'),'SCREEN_READY','');a.do(ION,'SendSystemEvent',P(T('staticData'),'SCREEN_CONTROLLER_ID'),'DONE_LOADING','')
   a.function('OnAnimateInComplete',0,complete)
-  def reveal(a):a.when(R(2),lambda a:(a.set(R(2),'_visible',True),a.set(R(2),'_x',R(3)),a.set(R(2),'_y',R(4)),a.do(T('rendered'),'push',R(2))))
+  def reveal(a):a.when(R(2),lambda a:(a.set(R(2),'_visible',True),a.set(R(2),'_alpha',100),a.set(R(2),'_x',R(3)),a.set(R(2),'_y',R(4)),a.do(T('rendered'),'push',R(2))))
   a.function('Reveal',3,reveal)
-  def show(a,root,name,x,y):a.do(R(1),'Reveal',ix(root,name),x,y)
+  groups=sorted({n['native_group'] for s in scenes for n in s['nodes'] if n.get('native_group')})
+  def find_art(a):
+   a.when(ix(R(2),R(3)),lambda a:a.ret(ix(R(2),R(3))))
+   for group in groups:
+    a.when(P(R(2),group),lambda a,group=group:a.when(ix(P(R(2),group),R(3)),lambda a,group=group:a.ret(ix(P(R(2),group),R(3)))))
+   a.ret(None)
+  a.function('FindArtwork',2,find_art)
+  def show(a,root,name,x,y):a.do(R(1),'Reveal',CALL(R(1),'FindArtwork',root,name),x,y)
   def field(a,root,name,value,visible=True):a.set(P(root,name),'_visible',visible);a.when(visible,lambda a:a.set(P(root,name),'text',value))
   def portrait(a,root,prefix,r,slot,x,y):
    key=ix(r,5);a.when(EQ(key,'head_NOTFOUND_DEFAULT'),lambda a:show(a,root,prefix+'fallback'+str(slot),x,y),lambda a:show(a,root,add(prefix,key),x,y))
@@ -106,6 +151,7 @@ def script_factory(model,assets):
    a.set(R(1),key+'Count',CALL(PATH('Math'),'max',1,CALL(PATH('Math'),'ceil',div(P(rows,'length'),size))));a.set(R(1),key,clamp(T(key),0,sub(T(key+'Count'),1)))
   def pagetext(key,count):return add(add(add('Página ',add(T(key),1)),add(' de ',T(key+'Count'))),add(' · ',count))
   def profile(a):
+   a.do(R(1),'EnsureProfile')
    profile_controller.emit(a,scenes,R=R,T=T,P=P,ix=ix,add=add,mul=mul,lt=lt,EQ=EQ,both=both,either=either,clamp=clamp,div=div,CALL=CALL,PATH=PATH,field=field,show=show)
   def clubs(a):
    root=T('scene0');a.set(R(1),'leagueRows',arr([]))
@@ -231,6 +277,26 @@ def script_factory(model,assets):
  return script
 
 def build(game,path,model):
- assets=assets_for(game,model);scenes=scenes_for(model,assets)
- return native.build(game,path,scenes,assets,script_factory=script_factory(model,assets),full_name=FULL,compression_level=1)
+ root=Path(game)/'ModCarrerMode/runtime/manager_market'
+ # All changing career labels are bound by the controller. The template key
+ # covers only geometry, catalogue membership, photos, theme, and generators.
+ keys=[]
+ for group in ('clubRows','freeRows','moveRows','hireRows'):
+  keys.append((group,sorted({str(r[c]) for r in model[group] for c in (4,5)}),sorted({model['people'][r[7]].get('flag','flag_0') for r in model[group]})))
+ token=hashlib.sha256((UI_SIGNATURE+asset_cache.revision(game,model)).encode()+json.dumps(keys,sort_keys=True).encode()).hexdigest()
+ template=root/'native_templates'/('template_'+token+'.big')
+ if template.is_file() and template.with_suffix('.json').is_file():
+  try:return native.build_from_template(template,path,script_factory=script_factory(model,{}),full_name=FULL,compression_level=1)
+  except (OSError,ValueError,KeyError,AssertionError):pass
+ assets=assets_for(game,model)
+ # The largest portrait placement is 202 design pixels. Store heads at the
+ # next complete DXT block (204), not 256 for thousands of offscreen coaches.
+ # Source minifaces remain untouched; no displayed portrait loses resolution.
+ # The full catalogue must remain below the native 128 MiB package limit.
+ from PIL import Image
+ for key,image in list(assets.items()):
+  if key.startswith('head_') and (image.width>204 or image.height>204):
+   copy=image.copy();copy.thumbnail((204,204),Image.Resampling.LANCZOS);assets[key]=copy
+ scenes=scenes_for(model,assets)
+ return native.build(game,path,scenes,assets,script_factory=script_factory(model,assets),full_name=FULL,compression_level=1,catalogue_groups=True,texture_cache=root/'texture_cache',template_cache=template)
 def waiting():return dict(date=20260101,clubName='Carreira',ready=False,people=[],clubRows=[],freeRows=[],moveRows=[],hireRows=[],leagues=[],countries=[],months=[],nationalities=['Todas'],initialLeague=0,initialCountry=0,initialMonth=0)

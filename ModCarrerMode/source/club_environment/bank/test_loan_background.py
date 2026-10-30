@@ -98,7 +98,7 @@ class BackgroundLoanTests(unittest.TestCase):
     def test_native_proposal_shows_only_count_and_selected_bank_deadline(self):
         view=l.presentation(l.empty(1043,20260111),20260111,28_000_000,ready=True,nonce='DESIGN')
         vm,screen,_=open_screen(view)
-        self.assertEqual(text(screen,'subtitle'),'0/2 empréstimos em 2026')
+        self.assertEqual(text(screen,'subtitle'),'0/4 empréstimos em 2026')
         for bank,expected in ((9,'12/01/2026'),(7,'13/01/2026'),(3,'14/01/2026'),(8,'15/01/2026')):
             screen.set('page',1);screen.set('focus',ORDER.index(bank));vm.invoke(screen.get('Refresh'),screen)
             self.assertEqual(text(screen,'summaryValue3'),expected)

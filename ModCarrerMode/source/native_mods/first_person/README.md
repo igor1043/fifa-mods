@@ -22,7 +22,7 @@ ThirdPerson após a função original. Valida jogador, GameData, idade, matriz e
 2–15, incluindo as cobranças, reposicionamento e bola em jogo. A rotina
 nativa atualiza o jogador selecionado antes de ler a fase; excluir 14 interrompia
 o acompanhamento antes de a bola entrar em jogo. O modo de jogo usa FOV
-85 graus por padrão, mantendo a lente constante com ou sem a bola para conciliar
+130 graus por padrão, mantendo a lente constante com ou sem a bola para conciliar
 a visão do campo com a bola nos pés. Dá mais atenção ao controle próximo nativo
 (`isInPaceControl`, comportamento +A10), sem tratá-lo como identificador universal
 de drible. Ao soltar a bola, prioriza o campo por 650 ms; isso inclui passes e chutes,
@@ -50,7 +50,7 @@ corpo continua acompanhando a translação sem atraso. Inclinação lateral é a
 Suavização da cabeça: 0 Média (mesma resposta da antiga configuração fixa Forte),
 1 Alta, 2 Extra alta e 3 Agressiva. Aumentar o nível filtra progressivamente mais
 as rotações e oscilações locais, sem atrasar a translação da raiz do corpo.
-`head_smoothing` é salvo nas preferências; arquivos anteriores começam em Média,
+`head_smoothing` é salvo nas preferências; instalações novas começam em Extra alta,
 preservando ativação, modo, distância e FOV. A terceira pessoa usa seus próprios filtros.
 Durante KickOff e OutOfPlay, a posição local acompanha a cabeça imediatamente; a suavização
 dos ângulos continua. A mudança de fase e saltos locais maiores que 45 cm também
@@ -67,7 +67,7 @@ de ativar esta versão, pois ambos usam as mesmas funções da câmera.
 
 Distância (campo int32 final do canal): 0 Perto (480/230 cm), 1 Intermediária
 (750/320 cm), 2 Afastada (1150/450 cm), com filtros de 160 e 180 ms para a transição. Preferências versão 4
-guardam o FOV de cada modo separadamente; ambos começam em 85°. A primeira pessoa
+guardam o FOV de cada modo separadamente; primeira pessoa começa em 130° e terceira em 85°. A primeira pessoa
 sincroniza a pose aplicada com o cache nativo +BE0, usado na interpolação de transições.
 
 A revisão v11 retira integralmente o hook Player::GetLod e as cópias de

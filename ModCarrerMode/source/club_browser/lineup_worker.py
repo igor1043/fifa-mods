@@ -11,6 +11,7 @@ from native_assets import convert,VERSION
 from model_exporter import Exporter
 from character_lighting import ensure as ensure_character_lighting
 from pose_profile import signature as pose_signature
+from static_stream import prepare as prepare_static,VERSION as STATIC_STREAM_VERSION
 import portable_paths
 from server16_py.memory_access import Memory
 from server16_py.career_context import competition_session
@@ -27,7 +28,7 @@ def request(path,pid):
     result={k:int(data[k]) for k in ('schema','pid','seq','club')}
     if result['schema']!=1 or result['pid']!=pid or not 0<result['seq']<2**63 or not 0<result['club']<500000:raise ValueError('Pedido de outra sessão.')
     if 'kind' in data:
-        if data['kind'] not in ('roster','player','coach','competitions'):raise ValueError('Tipo de visualização inválido.')
+        if data['kind'] not in ('roster','player','coach','competitions','rankings','mascot'):raise ValueError('Tipo de visualização inválido.')
         result['kind']=data['kind']
         if data['kind']=='player':
             result['player']=int(data['player'])
@@ -54,7 +55,7 @@ def generate(game,folder,req,memory,asset_root=None,exporter=None,projection_cac
     if not tool.is_file():raise ValueError('Renderizador dos titulares não está instalado.')
     asset_files=[game/'data/db/fifa_ng_db.db',game/'data/db/fifa_ng_db-meta.xml',tool]
     pose_hash=pose_signature(game)
-    revision=hashlib.sha256(result['fixture']+str(VERSION).encode()+str([(f.stat().st_size,f.stat().st_mtime_ns) for f in asset_files]).encode()+pose_hash).hexdigest()
+    revision=hashlib.sha256(result['fixture']+str((VERSION,STATIC_STREAM_VERSION)).encode()+str([(f.stat().st_size,f.stat().st_mtime_ns) for f in asset_files]).encode()+pose_hash).hexdigest()
     target=(asset_root or game/'data/sceneassets/server16_club_xi')/str(req['pid'])/revision
     cache=(asset_root or game/'ModCarrerMode/cache/club_browser/xi')/'prepared'/revision
     if not (cache/'assets.json').is_file():
@@ -73,6 +74,7 @@ def generate(game,folder,req,memory,asset_root=None,exporter=None,projection_cac
             start=time.perf_counter()
             material_cache=(asset_root or game/'ModCarrerMode/cache/club_browser/xi')/'materials'
             convert(model,temp/'native',portable_paths.read_asset,material_cache)
+            prepare_static(temp/'native',portable_paths.read_asset)
             timings['native_pack_ms']=round((time.perf_counter()-start)*1000,1)
             cache.parent.mkdir(parents=True,exist_ok=True)
             os.replace(temp/'native',cache)
@@ -95,7 +97,7 @@ def generate(game,folder,req,memory,asset_root=None,exporter=None,projection_cac
     pages=','.join(str(pair[0]) for pair in assets['bindings'])
     timings['total_ms']=round((time.perf_counter()-began)*1000,1)
     atomic(folder/'timings.json',json.dumps(dict(club=req['club'],seq=req['seq'],**timings),indent=2).encode())
-    publish(folder,req,'ready',hash=revision,pages=assets['pages'],bindings=pages,players=11,renderer='native',source='active-career-save')
+    publish(folder,req,'ready',hash=revision,pages=assets['pages'],bindings=pages,players=11,renderer='native',source='active-career-save',stable_stream=1)
     return True
 
 def main():
@@ -121,7 +123,13 @@ def main():
                     last=signature
                     if not refreshing:publish(folder,req,'loading')
                     print('REQUEST',json.dumps(req),flush=True)
-                    if req.get('kind')=='competitions':
+                    if req.get('kind')=='mascot':
+                        from mascot_worker import generate as prepare_mascot
+                        completed=prepare_mascot(game,folder,req,m,projection_cache)
+                    elif req.get('kind')=='rankings':
+                        from ranking_worker import generate as prepare_rankings
+                        completed=prepare_rankings(game,folder,req,m,projection_cache)
+                    elif req.get('kind')=='competitions':
                         from competitions_worker import generate as prepare_competitions
                         completed=prepare_competitions(game,folder,req,m,projection_cache)
                     elif req.get('kind')=='coach':
@@ -140,7 +148,7 @@ def main():
             except Exception as error:
                 print('ERROR',repr(error),flush=True)
                 traceback.print_exc(file=sys.stdout)
-                if req:publish(folder,req,'error',message=str(error)[:220],**({'kind':'competitions','retry':1} if req.get('kind')=='competitions' else {}))
+                if req:publish(folder,req,'error',message=str(error)[:220],**({'kind':req['kind'],'retry':1} if req.get('kind') in ('competitions','rankings') else {}))
             if args.once:return
             time.sleep(.03)
     except psutil.NoSuchProcess:pass

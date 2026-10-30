@@ -29,7 +29,6 @@ club_browser\club_browser.dll
 
 # Noticias de gols: painel nativo, sem mudar a narracao.
 goal_news\goal_news.dll
-cloth_motion\cloth_motion.dll
 
 # Cenas cinematograficas ocasionais: tecnico e mascote.
 extra_scenes\extra_scenes.dll
@@ -38,3 +37,4 @@ extra_scenes\extra_scenes.dll
 server16_overlay\cgfs16_overlay.dll
 first_person\server16_first_person_v14.dll
 career_jobs\career_jobs_runtime.dll
+cloth_motion\cloth_motion.dll

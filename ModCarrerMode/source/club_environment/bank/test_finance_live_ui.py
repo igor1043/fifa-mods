@@ -77,7 +77,8 @@ class LiveFinanceTests(unittest.TestCase):
   self.assertEqual(screen.get('cell1_0').get('text'),'01 / 12');self.assertEqual(screen.get('cell1_1').get('text'),'01/02/2026')
   vm.invoke(screen.get('Back'),screen);self.assertEqual(screen.get('page'),7)
   vm.invoke(screen.get('Back'),screen);self.assertEqual(screen.get('page'),0)
-  screen.set('focus',0);vm.invoke(screen.get('Select'),screen);self.assertEqual(screen.get('page'),1)
+  screen.set('focus',0);vm.invoke(screen.get('Select'),screen);self.assertEqual(screen.get('page'),0)
+  self.assertIn('01/03/2026',screen.get('homeNew').get('hint').get('text'))
   self.assertEqual(vm.global_.get('Server16BankRequestV2'),request)
  def test_wrong_sequence_does_not_claim_success_and_refusal_shows_reason(self):
   view=self.view();vm,screen,_=open_screen(view);self.submit(vm,screen)
@@ -102,21 +103,21 @@ class LiveFinanceTests(unittest.TestCase):
  def test_budget_readback_precedes_success_response(self):
   for readback_ok in (True,False):
    b=bridge.Bridge.__new__(bridge.Bridge);b.apply=True;b.session='test';b.scope='test';b.state={};b.result=None;b.process=type('P',(),{'pid':1})();b.write_handle=1
-   before={'club':1043,'address':0x1234,'budget':20,'date':20260101,'page':bridge.PAGE};b.live=lambda:before;b.io_tick=1
+   before={'club':1043,'address':0x1234,'budget':20_000_000,'date':20260101,'page':bridge.PAGE};b.live=lambda:before;b.io_tick=1
    class Kernel:
     def WriteProcessMemory(self,handle,address,data,size,written):
      self.payload=ctypes.string_at(data,size);ctypes.cast(written,ctypes.POINTER(ctypes.c_size_t))[0]=size;return True
-   k=Kernel();b.memory=type('M',(),{'kernel32':k,'read_uint32':lambda _,at:21 if readback_ok else 20})()
+   k=Kernel();b.memory=type('M',(),{'kernel32':k,'read_uint32':lambda _,at:21_000_000 if readback_ok else 20_000_000})()
    shown=[];b.flush_notifications=lambda live:shown.append((live,b.result))
    b.publish_view=lambda _:self.fail('Rendering must not block notification publication')
    with patch.object(bridge,'write_json'),patch.object(bridge,'log'),patch.object(bridge.time,'sleep'),patch.object(bridge.loan_notifications,'record') as record:
     if readback_ok:
-     state,_,_=borrow(empty(1043,20260101),request_id='verified',club=1043,today=20260101,budget=20,bank=0,amount=1_000_000,months=12)
-     b.publish(before,state,21,[{'type':'credit'}],'loan_confirmed',{'sequence':1,'action':0})
-     self.assertTrue(shown[0][1]['ok']);self.assertEqual(shown[0][0]['budget'],21)
+     state,_,_=borrow(empty(1043,20260101),request_id='verified',club=1043,today=20260101,budget=20_000_000,bank=0,amount=1_000_000,months=12)
+     b.publish(before,state,21_000_000,[{'event':'credit','amount':1_000_000}],'loan_confirmed',{'sequence':1,'action':0})
+     self.assertTrue(shown[0][1]['ok']);self.assertEqual(shown[0][0]['budget'],21_000_000)
      self.assertEqual(record.call_count,1)
     else:
-     with self.assertRaises(RuntimeError):b.publish(before,{},21,[],'loan_confirmed',{'sequence':1})
+     with self.assertRaises(RuntimeError):b.publish(before,{},21_000_000,[{'event':'credit','amount':1_000_000}],'loan_confirmed',{'sequence':1})
      self.assertFalse(shown);self.assertIsNone(b.result)
      record.assert_not_called()
 

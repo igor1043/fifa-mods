@@ -16,7 +16,7 @@ def view():
  state,budget,_=finance.apply(empty(1043,20260511),club=1043,today=20260511,budget=20_000_000,context=context())
  book=state['finance']
  return dict(ready=True,club=1043,club_name='Flamengo',date=20260511,start=20260511,budget=budget,
-  months=[],agreements=list(book['agreements'].values()),coach_monthly=164667,settings=book['settings'],currency=0,nonce='B57_123_1043_TEST',ack=0)
+  months=[],agreements=list(book['agreements'].values()),coach_monthly=164667,settings=book['settings'],currency=0,currency_labels={'CM_DollarCurrency':'Real','CM_EuroCurrency':'Dólares','CM_PoundsCurrency':'Euros'},nonce='B57_123_1043_TEST',ack=0)
 
 def open_finance(payload,globals_=None):
  with tempfile.TemporaryDirectory() as folder:
@@ -48,6 +48,45 @@ def open_finance(payload,globals_=None):
  return vm,screen,calls
 
 class ClubFinanceUITests(unittest.TestCase):
+ def registered_buttons(self,screen,items):
+  return [(i,screen.get('scene'+str(i)).get('action'+str(j)))
+   for i,row in enumerate(items) for j,_ in enumerate(row['actions'])
+   if screen.get('scene'+str(i)).get('action'+str(j)).get('onRelease') is not None
+    or screen.get('scene'+str(i)).get('action'+str(j)).get('onRollOver') is not None]
+ def test_mouse_listeners_follow_only_the_visible_page_and_release_owner_cycles(self):
+  payload=view();items=ui.scenes(payload);vm,s,_=open_finance(payload)
+  for page,row in enumerate(items):
+   vm.invoke(s.get('Go'),s,[page]);buttons=self.registered_buttons(s,items)
+   self.assertEqual([i for i,_ in buttons],[page]*len(row['actions']))
+   for i,other in enumerate(items):
+    self.assertEqual(bool(s.get('scene'+str(i)).get('_visible')),i==page)
+    for j,_ in enumerate(other['actions']):
+     owner=s.get('scene'+str(i)).get('action'+str(j)).get('owner')
+     self.assertIs(owner,s if i==page else None)
+  vm.invoke(s.get('OnExitScreen'),s)
+  self.assertEqual(self.registered_buttons(s,items),[])
+  for i,row in enumerate(items):
+   for j,_ in enumerate(row['actions']):self.assertIsNone(s.get('scene'+str(i)).get('action'+str(j)).get('owner'))
+ def test_long_receipt_history_and_native_reload_stay_below_the_512_button_pool(self):
+  from datetime import date,timedelta
+  payload=view();payload.update(club=55,date=20261130,entries=[])
+  for ident in range(80):
+   home,away=(55,66) if ident%2==0 else (66,55)
+   stamp=int((date(2026,5,11)+timedelta(days=ident)).strftime('%Y%m%d'))
+   for kind in (('tv','tickets') if home==55 else ('tv',)):
+    payload['entries'].append(dict(id=f'{kind}:20260511:7:{ident}:{home}:{away}',kind=kind,date=stamp,
+     fixture=ident,home=home,away=away,home_name='Clube '+str(home),away_name='Clube '+str(away),
+     competition_asset=7,description='Liga',amount=1000,status='applied'))
+  items=ui.scenes(payload);self.assertGreater(sum(len(row['actions']) for row in items),512)
+  vm,s,_=open_finance(payload)
+  for page in (0,next(i for i,row in enumerate(items) if row['key']=='tv:all'),len(items)-1):
+   vm.invoke(s.get('Go'),s,[page]);self.assertLess(len(self.registered_buttons(s,items)),128)
+  for _ in range(2):
+   old=s;vm.invoke(old.get('OnExitScreen'),old)
+   vm,s,_=open_finance(payload,vm.global_)
+   self.assertEqual(self.registered_buttons(old,items),[])
+   self.assertLess(len(self.registered_buttons(s,items)),128)
+   self.assertEqual(vm.errors,[])
  def test_native_charts_use_block_aligned_dxt5_surfaces(self):
   with tempfile.TemporaryDirectory() as folder:
    path=Path(folder)/'finance.big';ui.build(view(),path);assets=BigFile(path)
@@ -58,7 +97,7 @@ class ClubFinanceUITests(unittest.TestCase):
     self.assertEqual((w%4,h%4),(0,0));self.assertEqual(texture[84:88],b'DXT5')
  def test_native_currency_help_and_no_financial_request_on_open(self):
   vm,s,calls=open_finance(view())
-  self.assertEqual(s.get('scene0').get('money0').get('text'),'MOEDA0 20000000')
+  self.assertEqual(s.get('scene0').get('money0').get('text'),'R$ 20.000.000')
   help_=vm.invoke(s.get('getHelpContext'),s)
   self.assertIn(('L2R2','Abas'),help_)
   self.assertFalse(any(n=='SendSystemEvent' and args[1]=='Server16SubmitBank' for n,args in calls))

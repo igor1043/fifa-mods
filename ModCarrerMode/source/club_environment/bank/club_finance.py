@@ -6,6 +6,7 @@ one entitlement per completed fixture; monthly totals never generate credits.
 from copy import deepcopy
 from datetime import date,timedelta
 from calendar import monthrange
+import math
 from loans import MAX_BUDGET,parse_date
 
 LEGACY_RULES={'tv_match_bps':75,'tv_min':10000,'tv_max':1500000,
@@ -51,20 +52,35 @@ def toggle(state,kind,value,today):
  result['last_date']=today
  return result
 
-def agreement(profile,season,today,policy):
+def league_factor(profile):
+ """Financial strength proxy from installed league peers, not a nation list."""
+ if not profile or not profile.get('league_budget'):return 1.0
+ budget=max(100_000,int(profile['league_budget']))
+ overall=max(30,min(99,int(profile.get('league_overall') or 60)))
+ prestige=max(0,min(20,int(profile.get('league_prestige') or 0)))
+ level=max(1,min(8,int(profile.get('level') or 1)))
+ return max(.25,min(2.2,math.sqrt(budget/10_000_000)*(0.55+overall*.0045)*(.7+prestige*.03)/math.sqrt(level)))
+
+def agreement(profile,season,today,policy,club_profile=None):
  budgets=[v for v in profile.get('budgets',[]) if type(v) is int and v>0]
  base=median_value(budgets) if budgets else 1_000_000
  prestige=max(1,min(20,int(profile.get('prestige') or 5)))
  level=max(1,min(8,int(profile.get('level') or 1)))
  per_match=base*policy['tv_match_bps']*(50+prestige*5)//(10000*100*level)
+ club_prestige=max(1,min(20,int((club_profile or {}).get('prestige') or prestige)))
+ factor=league_factor(club_profile)
+ per_match=int(per_match*factor*(.65+.035*club_prestige))
  per_match=max(policy['tv_min'],min(policy['tv_max'],per_match))
  return dict(id=f"{season}:{profile['root']}",root=profile['root'],asset=profile['asset'],
-  name=profile['name'],season=season,start=today,per_match=per_match,
-  base_budget=base,prestige=prestige,level=level,rules=deepcopy(policy),
+  name=profile['name'],season=season,start=today,per_match=per_match,club_profile=deepcopy(club_profile or {}),
+  base_budget=base,prestige=prestige,club_prestige=club_prestige,league_factor=round(factor,4),level=level,rules=deepcopy(policy),
   source='Simulação do mod · dados da competição e dos clubes')
 
+def economy_signature(context):
+ return list((context.get('club_profile') or {}).get(k) for k in ('league','level','league_budget','league_prestige','league_overall','prestige','base_budget'))
+
 def initial(club,today,context,policy):
- return dict(schema=2,club=club,start=today,last_date=today,season=context['season'],expanded_start=today,
+ return dict(schema=2,economy_version=3,economy_profile=economy_signature(context),club=club,start=today,last_date=today,season=context['season'],expanded_start=today,
   settings=dict.fromkeys(SWITCHES,True),settings_history=[dict(date=today,values=dict.fromkeys(SWITCHES,True))],
   baseline=[fixture_key(context['season'],m) for m in context['fixtures'] if m['played']],
   agreements={},entries=[],payroll=[dict(date=today,wage=context['coach_wage'])],rules=policy)
@@ -78,9 +94,28 @@ def commercial(context,policy):
   budget=median_value(reference) if reference else 1_000_000
  prestige=max(1,min(20,int(profile.get('prestige') or 5)))
  strength=40+prestige*3
- annual=lambda key:budget*policy[key]*strength//1_000_000
- return dict(base_budget=budget,prestige=prestige,sponsor_annual=annual('sponsor_annual_bps'),
+ factor=league_factor(profile)
+ annual=lambda key:int(budget*policy[key]*strength/1_000_000*(factor if key=='sponsor_annual_bps' else math.sqrt(factor)))
+ return dict(base_budget=budget,prestige=prestige,league_factor=round(factor,4),sponsor_annual=annual('sponsor_annual_bps'),
   staff_annual=annual('staff_annual_bps'),source='Estimativa do mod · orçamento-base e reputação do clube')
+
+def ticket_projection(capacity,prestige,policy=None,club_profile=None,*,occupancy_percent=None):
+ """Preview the same paying crowd and gross gate used by matchday posting."""
+ p=rules(policy);capacity=max(0,int(capacity or 0));prestige=max(1,min(20,int(prestige or 5)))
+ if club_profile and club_profile.get('league_budget'):
+  p['ticket_price']=max(4,min(40,round(p['ticket_price']*league_factor(club_profile)*(.65+.035*prestige))))
+ if capacity<=0:return dict(attendance=0,occupancy_bps=0,ticket_price=p['ticket_price'],gross=0,capacity=capacity)
+ if occupancy_percent is not None:
+  if type(occupancy_percent) is not int or not 0<=occupancy_percent<=100:raise ValueError('Percentual de público inválido')
+  occupancy=occupancy_percent*100;attendance=(capacity*occupancy_percent+50)//100
+ else:
+  occupancy=max(p['occupancy_min_bps'],min(p['occupancy_max_bps'],3500+prestige*200))
+  attendance=capacity*occupancy//10000
+ return dict(attendance=attendance,occupancy_bps=occupancy,ticket_price=p['ticket_price'],gross=attendance*p['ticket_price'],capacity=capacity)
+
+def ticket_operation_cost(gross,policy=None):
+ """Estimated direct matchday costs; no exchange rate or second budget debit."""
+ return max(0,int(gross))*rules(policy)['match_cost_bps']//10000
 
 def upgrade(book,today,context,policy):
  """Prospective only: never reprice paid entries, old matches or elapsed months."""
@@ -95,14 +130,32 @@ def upgrade(book,today,context,policy):
    if contract['season']==context['season'] and contract['root'] in profiles:
     revised=agreement(profiles[contract['root']],contract['season'],today,policy)
     contract['revisions']=[dict(start=today,per_match=revised['per_match'],rules=revised['rules'])]
+ signature=economy_signature(context)
+ if book.get('economy_version',0)<3 or list(book.get('economy_profile',()))!=signature:
+  start=packed(parse_date(today)+timedelta(days=1))
+  profiles={p['root']:p for p in context['competitions']}
+  for contract in book['agreements'].values():
+   if contract['season']==context['season'] and contract['root'] in profiles:
+    revised=agreement(profiles[contract['root']],contract['season'],start,policy,context.get('club_profile'))
+    contract.setdefault('revisions',[]).append(dict(start=start,per_match=revised['per_match'],rules=revised['rules'],club_profile=deepcopy(context.get('club_profile',{}))))
+  book.setdefault('commercial',{})[str(start)]=dict(start=start,**commercial(context,policy))
+  book['economy_version']=3;book['economy_profile']=signature
  book.setdefault('commercial',{})
  key=str(context['season'])
  if key not in book['commercial']:
   book['commercial'][key]=dict(start=max(book['expanded_start'],context['season']),**commercial(context,policy))
+ # Some imported agreements already use schema 2 but predate match costs.
+ # Version only the absent field from the next day; explicit SQL zero/custom
+ # rates and all historical terms/postings remain unchanged.
+ for contract in book['agreements'].values():
+  terms=match_terms(contract,today)
+  if 'match_cost_bps' in terms['rules']:continue
+  if any(r['start']>today and 'match_cost_bps' in r.get('rules',{}) for r in contract.get('revisions',[])):continue
+  contract.setdefault('revisions',[]).append(dict(start=packed(parse_date(today)+timedelta(days=1)),per_match=terms['per_match'],rules={**terms['rules'],'match_cost_bps':policy['match_cost_bps']}))
 
 def match_terms(contract,day):
  result=contract
- for row in contract.get('revisions',[]):
+ for row in sorted(contract.get('revisions',[]),key=lambda r:r['start']):
   if row['start']<=day:result={**contract,**row}
  return result
 
@@ -120,8 +173,8 @@ def apply(state,*,club,today,budget,context,policy=None):
  season=context['season'];book['season']=season
  for profile in context['competitions']:
   key=f"{season}:{profile['root']}"
-  if key not in book['agreements']:book['agreements'][key]=agreement(profile,season,today,policy)
- known={e['id'] for e in book['entries']};baseline=set(book['baseline'])
+  if key not in book['agreements']:book['agreements'][key]=agreement(profile,season,today,policy,context.get('club_profile'))
+ known={e['id'] for e in book['entries']};original=set(known);baseline=set(book['baseline'])
  proposed=[]
  for match in context['fixtures']:
   if not match['played'] or not max(book['start'],season)<=match['date']<=today or club not in (match['home'],match['away']):continue
@@ -129,14 +182,23 @@ def apply(state,*,club,today,budget,context,policy=None):
   if identity in baseline or not contract:continue
   terms=match_terms(contract,match['date'])
   categories=[('tv',terms['per_match'],{})]
-  if match['home']==club and not match.get('neutral',False) and context.get('capacity',0)>0:
-   # First version: estimated paying attendance, explicitly labelled in UI/SQL.
-   p=terms['rules'];prestige=int(context.get('club_profile',{}).get('prestige') or contract['prestige'])
-   occupation=max(p['occupancy_min_bps'],min(p['occupancy_max_bps'],3500+prestige*200))
-   public=context['capacity']*occupation//10000
-   gross=public*p['ticket_price'];cost=gross*p.get('match_cost_bps',0)//10000
-   categories.append(('tickets',gross,dict(attendance=public,occupancy_bps=occupation,ticket_price=p['ticket_price'],estimated=True,capacity=context['capacity'],gross=gross,match_cost=cost)))
-   if cost:categories.append(('match_costs',-cost,dict(gross=gross,estimated=True)))
+  if 'tickets:'+identity not in original and match['home']==club and not match.get('neutral',False) and context.get('capacity',0)>0:
+   # A captured crowd decision belongs to this fixture only. Unobserved
+   # calendar simulations carry their own pre-match reconstructed estimate.
+   p=terms['rules'];prestige=int(terms.get('club_profile',context.get('club_profile',{})).get('prestige') or contract['prestige'])
+   reading=book.get('attendance',{}).get(identity)
+   if reading and any(reading.get(k)!=match[k] for k in ('date','home','away')):reading=None
+   reading=reading or match.get('attendance')
+   percent=reading.get('percent') if reading else None
+   gate=ticket_projection((reading or {}).get('capacity') or context['capacity'],prestige,p,
+                         terms.get('club_profile',context.get('club_profile')),occupancy_percent=percent)
+   if reading:
+    gate.update(crowd_source=reading['source'],crowd_percent=percent,crowd_observed_date=reading.get('observed_date'),crowd_actual=bool(reading.get('actual')))
+    book.setdefault('attendance',{})[identity]=dict(reading,id=match['id'],root=match['root'],date=match['date'],home=match['home'],away=match['away'],capacity=gate['capacity'])
+   gross=gate['gross'];cost=gross*p.get('match_cost_bps',0)//10000
+   categories.append(('tickets',gross,dict(**gate,estimated=True,match_cost=cost)))
+   # An old posted ticket receipt must never acquire a new retroactive debit.
+   if cost and 'tickets:'+identity not in original:categories.append(('match_costs',-cost,dict(gross=gross,estimated=True)))
   for kind,amount,detail in categories:
    key=kind+':'+identity
    if key not in known:
@@ -196,20 +258,43 @@ def apply(state,*,club,today,budget,context,policy=None):
  result['last_date']=today
  return result,budget,events
 
-def monthly(state):
+def monthly(state,*,settlement=False):
  """Cash totals are derived, never another payment trigger."""
  result={}
  def add(day,kind,amount):
   row=result.setdefault(day//100,dict(month=day//100,tv=0,tickets=0,coach=0,sponsor=0,staff=0,match_costs=0,loans=0,loan_credit=0,interest=0))
   row[kind]+=amount
  for e in state.get('finance',{}).get('entries',[]):
-  if e['status']=='applied':add(e['paid_date'],e['kind'],e['amount'])
+  if e['status']=='applied':add(e['paid_date'] if settlement else e['date'],e['kind'],e['amount'])
  for contract in state['contracts']:
   add(contract['date'],'loan_credit',contract['principal'])
   for p in contract['payments'][:contract['paid']]:
-   add(p['paid_date'],'loans',-p['amount']);add(p['paid_date'],'interest',-p['interest'])
+   add(p['paid_date'] if settlement else p['date'],'loans',-p['amount']);add(p['paid_date'] if settlement else p['date'],'interest',-p['interest'])
  for row in result.values():
   row['income']=row['tv']+row['tickets']+row['sponsor'];row['expenses']=-row['coach']-row['staff']-row['match_costs']-row['loans']
   row['cash_result']=row['income']+row['loan_credit']-row['expenses']
   row['operating_result']=row['income']+row['coach']+row['staff']+row['match_costs']+row['interest']
  return sorted(result.values(),key=lambda r:r['month'],reverse=True)
+
+
+def cash_delta(events):
+ """Signed native-budget effect of a journal batch, excluding unpaid arrears."""
+ result=0
+ for e in events:
+  if e['event'] in ('credit','finance'):result+=e['amount']
+  elif e['event'] in ('installment','manual_installment'):result-=e['amount']
+ return result
+
+
+def record_attendance(state,reading,today):
+ """Capture the next fixture without moving money or editing paid history."""
+ book=state.get('finance')
+ if not book or not reading or reading['date']<today or state['club'] not in (reading['home'],reading['away']):return state,False
+ if type(reading.get('percent')) is not int or not 0<=reading['percent']<=100:raise ValueError('Percentual de público inválido')
+ identity=fixture_key(book['season'],reading)
+ if any(e['id']=='tickets:'+identity for e in book['entries']):return state,False
+ previous=book.get('attendance',{}).get(identity)
+ if previous and previous.get('actual') and not reading.get('actual'):return state,False
+ if previous==reading:return state,False
+ result=deepcopy(state);result['finance'].setdefault('attendance',{})[identity]=dict(reading)
+ return result,True

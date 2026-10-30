@@ -26,7 +26,17 @@ struct Profile{
  std::string get(const std::string&key)const{auto i=values.find(key);return i==values.end()?"—":i->second;}
  int value(const std::string&key)const{return number(get(key));}
 };
-inline bool readStats(const std::vector<std::string>&v,int at,Stats&out){for(int i=0;i<7;++i){out[i]=number(v[at+i],-1,1000000,-2);if(out[i]<-1)return false;}bool unknown=std::all_of(out.begin(),out.end(),[](int n){return n==-1;});return unknown||(std::all_of(out.begin(),out.end(),[](int n){return n>=0;})&&out[1]+out[2]+out[3]==out[0]);}
+inline bool readStats(const std::vector<std::string>&v,int at,Stats&out){for(int i=0;i<7;++i){out[i]=number(v[at+i],-1,1000000,-2);if(out[i]<-1)return false;}bool unknown=std::all_of(out.begin(),out.end(),[](int n){return n==-1;});return unknown||(out[0]>=0&&out[1]>=0&&out[2]>=0&&out[3]>=0&&out[6]>=0&&out[1]+out[2]+out[3]==out[0]);}
+inline bool venueTotals(const Stats&t,const Stats&a,const Stats&b){
+ if(t[0]<0)return a[0]<0&&b[0]<0;
+ for(int i=0;i<7;++i){
+  // Simulated leagues retain W/D/L without individual scores. Unknown goals
+  // are valid; they must never discard a known, internally consistent record.
+  if(i==4||i==5){if(t[i]>=0&&(a[i]<0||b[i]<0||a[i]+b[i]!=t[i]))return false;}
+  else if(a[i]<0||b[i]<0||a[i]+b[i]!=t[i])return false;
+ }
+ return true;
+}
 inline bool parse(std::istream&in,int club,Profile&out){
  Profile p;std::string line;if(!std::getline(in,line)||line.size()>400)return false;auto h=fields(line);if(h.size()!=3||h[0]!="S16COACH1"||number(h[1],1,499999)!=club||h[2].empty())return false;p.club=club;p.name=h[2];std::set<int> players;
  while(std::getline(in,line)){
@@ -40,10 +50,10 @@ inline bool parse(std::istream&in,int club,Profile&out){
   else return false;
  }
  if(p.get("name")=="—"||p.stats.size()!=3||(!p.starters.empty()&&p.starters.size()!=11))return false;
- const auto&t=p.stats.at("total"),&a=p.stats.at("home"),&b=p.stats.at("away");if(t[0]>=0)for(int i=0;i<7;++i)if(a[i]<0||b[i]<0||a[i]+b[i]!=t[i])return false;
+ const auto&t=p.stats.at("total"),&a=p.stats.at("home"),&b=p.stats.at("away");if(!venueTotals(t,a,b))return false;
  if(p.coachStats.empty())for(const auto*key:{"total","home","away"})p.coachStats[key]=Stats{-1,-1,-1,-1,-1,-1,-1};
  if(p.coachStats.size()!=3)return false;
- const auto&ct=p.coachStats.at("total"),&ca=p.coachStats.at("home"),&cb=p.coachStats.at("away");if(ct[0]>=0)for(int i=0;i<7;++i)if(ca[i]<0||cb[i]<0||ca[i]+cb[i]!=ct[i])return false;
+ const auto&ct=p.coachStats.at("total"),&ca=p.coachStats.at("home"),&cb=p.coachStats.at("away");if(!venueTotals(ct,ca,cb))return false;
  out=std::move(p);return true;
 }
 }

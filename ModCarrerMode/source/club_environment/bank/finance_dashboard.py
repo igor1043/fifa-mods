@@ -39,7 +39,7 @@ def summary(view,shell,money):
  # Charts, income composition and the two native budget cards.
  card('evolutionCard',100,414,926,241);image('monthlyIcon',art.glyph('budget',28,BLUE),120,426,28,28);s.text(159,426,600,29,'Evolução mensal',25,INK)
  s.action(843,426,160,30,'Ver mês a mês','monthly',WHITE,BLUE,17)
- s.text(122,457,510,24,'Receitas e despesas adicionais realizadas · '+str(m['year']),18,MUTED)
+ s.text(122,457,510,24,'Receitas e despesas por mês de origem · '+str(m['year']),18,MUTED)
  for x,color,label in ((742,art.GREEN,'Receitas'),(870,art.RED,'Despesas')):
   s.nodes.append(dict(type='dot',x=x,y=462,w=9,h=9,color=color));s.text(x+14,455,100,24,label,17,MUTED)
  observed=(view.get('date') or 0)//100%100
@@ -79,6 +79,7 @@ def summary(view,shell,money):
   s.text(x+17,718,30,22,'#',16,MUTED);s.text(x+72,718,180,22,'DESCRIÇÃO',16,MUTED);s.text(x+252,718,140,22,'VALOR',16,MUTED,1);s.text(x+448,718,78,22,'% TOTAL',16,MUTED,1);s.rect(x+16,742,w-32,1,'#dce6ee')
   for j,(label,value,kind) in enumerate(entries):
    yy=747+j*25
+   if x==100:s.action(x+14,yy,w-28,25,'',{'tv':'tv','ticket':'tickets','sponsor':'sponsors'}[kind],WHITE,BLUE,17)
    s.text(x+17,yy,24,27,str(j+1),18,MUTED);image('category'+str(x)+str(j),art.glyph(kind,22),x+43,yy+1,22,22)
    s.text(x+72,yy,176,25,label,17,INK);money(s,x+252,yy,140,25,value,17,INK)
    percent=round(value*100/total) if total else 0;image('share'+str(x)+str(j),art.progress(percent/100,tint,width=70,height=9),x+404,yy+8,70,9)

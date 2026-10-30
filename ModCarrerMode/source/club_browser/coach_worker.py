@@ -18,7 +18,9 @@ def refresh_key(game):
 def generate(game,folder,req,memory,exporter,projection_cache):
  saved,context=observe(memory,game);stamp=(saved['size'],saved['mtime_ns'])
  profile=competition_session(memory,True);snapshot=season_current(game,memory,saved,profile)
- data=project(game,Path(saved['path']),req['club'],projection_cache,snapshot)
+ from career_results import live_leagues
+ live=live_leagues(game,saved,profile,snapshot['date']) if snapshot else None
+ data=project(game,Path(saved['path']),req['club'],projection_cache,snapshot,live)
  market=read_market_profile(game,saved,profile,snapshot['date'],req['club'],data['save_hash']) if snapshot and data.get('save_hash') else None
  attach_market(data,market,snapshot,game)
  def current():

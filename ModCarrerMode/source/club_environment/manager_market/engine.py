@@ -5,10 +5,12 @@ from pathlib import Path
 import hashlib,json,sqlite3,uuid,zlib
 
 DEFAULTS=dict(max_dismissals_year=3,min_tenure_days=60,min_tenure_games=8,review_gap_days=7,
- pressure_threshold=32,max_dismissal_bps=2500,resignation_bps=4,poach_bps=800,dismissal_slope_bps=90,
+ pressure_threshold=30,max_dismissal_bps=3000,resignation_bps=4,poach_bps=800,dismissal_slope_bps=100,
  position_weight=50,form_weight=25,points_weight=20,relegation_weight=15,cup_weight=18,
  contract_months=24,compensation_months=3,renewal_months=12,enabled=1,
- retirement_age=80,minimum_free_coaches=60,regens_enabled=1,market_policy_version=2)
+ retirement_age=80,minimum_free_coaches=60,regens_enabled=1,market_policy_version=3,
+ same_nationality_bonus=1.15,domestic_nationality_bonus=.4,free_coach_bonus=.6,
+ quality_drop=1.5,elite_quality_drop=1,quality_exception_bps=1000)
 SCHEMA='''
 PRAGMA foreign_keys=ON;
 CREATE TABLE IF NOT EXISTS branches(id TEXT PRIMARY KEY,career TEXT NOT NULL,start_date INT NOT NULL,game_date INT NOT NULL,season INT NOT NULL,user_club INT NOT NULL,seed TEXT NOT NULL,kind TEXT NOT NULL);
@@ -45,6 +47,15 @@ def after_months(value,n):
  from calendar import monthrange
  return y*10000+(m+1)*100+min(d.day,monthrange(y,m+1)[1])
 def draw(seed,*parts):return int.from_bytes(hashlib.sha256(('|'.join(map(str,(seed,*parts)))).encode()).digest()[:8],'big')%10000
+
+def nationalities(value):
+ from catalog_meta import key,TRANSLATIONS,ALIASES
+ out=set()
+ for part in str(value or '').replace(' / ',';').split(';'):
+  name=part.strip();name=ALIASES.get(key(name),name);name=TRANSLATIONS.get(name,name)
+  if name.startswith('Brasil '):name='Brasil'
+  if name:out.add(key(name))
+ return out
 def score(rows):
  out=dict(games=0,wins=0,draws=0,losses=0,gf=0,ga=0)
  for gf,ga in rows:
@@ -134,11 +145,15 @@ class Market:
  def policy(self):return dict(DEFAULTS,**{r['key']:r['value'] for r in self.rows('market_rules')})
  def upgrade_policy(self):
   existing={r['key']:r['value'] for r in self.rows('market_rules')}
-  if existing.get('market_policy_version',1)>=2:return
-  for key,old,new in (('pressure_threshold',36,32),('max_dismissal_bps',1500,2500)):
-   if existing.get(key)==old:self.db.execute('UPDATE market_rules SET value=? WHERE branch=? AND key=?',(new,self.branch,key))
-  for key in ('dismissal_slope_bps','market_policy_version'):
-   self.db.execute('INSERT OR REPLACE INTO market_rules VALUES(?,?,?)',(self.branch,key,DEFAULTS[key]))
+  version=existing.get('market_policy_version',1)
+  if version>=3:return
+  # Migrate only shipped defaults; preserve values customized for a career.
+  for key,old in (('pressure_threshold',(36,32)),('max_dismissal_bps',(1500,2500)),('dismissal_slope_bps',(90,))):
+   if key not in existing or existing[key] in old:
+    self.db.execute('INSERT OR REPLACE INTO market_rules VALUES(?,?,?)',(self.branch,key,DEFAULTS[key]))
+  for key in ('same_nationality_bonus','domestic_nationality_bonus','free_coach_bonus','quality_drop','elite_quality_drop','quality_exception_bps'):
+   self.db.execute('INSERT OR IGNORE INTO market_rules VALUES(?,?,?)',(self.branch,key,DEFAULTS[key]))
+  self.db.execute('INSERT OR REPLACE INTO market_rules VALUES(?,?,?)',(self.branch,'market_policy_version',3))
  def import_new_coaches(self):
   present={c['coach_id']:c for c in self.rows('coaches')};db=sqlite3.connect(self.catalog);db.row_factory=sqlite3.Row
   try:
@@ -255,23 +270,47 @@ class Market:
   return pressure,r['rank'],er,'; '.join(reasons) or 'Desempenho dentro da expectativa'
  def hire(self,club,today,seed):
   if club['club_id']==self.info()['user_club']:return False
-  p=self.policy();employed={a['coach_id']:a for a in self.rows('appointments','end_date IS NULL')};candidates=[]
+  p=self.policy();appointments=self.rows('appointments');employed={a['coach_id']:a for a in appointments if a['end_date'] is None};candidates=[]
+  coaches={c['coach_id']:c for c in self.rows('coaches')};clubs={c['club_id']:c for c in self.rows('clubs')}
+  prior=max((a for a in appointments if a['club_id']==club['club_id'] and a['end_date'] is not None and a['end_date']<=today),key=lambda a:(a['end_date'],a['start_date']),default=None)
+  predecessor=coaches.get(prior['coach_id'],{}) if prior else {}
+  preferred=nationalities(predecessor.get('nationality')) or nationalities(club['country']);domestic=nationalities(club['country'])
+  target=max(club['reputation'],predecessor.get('reputation',club['reputation'])-.25)
+  drop=p['elite_quality_drop'] if club['reputation']>=7.5 else p['quality_drop']
+  exception=draw(seed,'quality_exception',club['club_id'],today)<p['quality_exception_bps']
+  exits={};evidence={}
+  for m in self.rows('movements',"kind IN ('dismissal','resignation')"):
+   exits[m['coach_id']]=max(exits.get(m['coach_id'],0),m['game_date'])
+  for r in sorted(self.rows('results'),key=lambda r:(r['game_date'],r['match_key'])):
+   for ident,gf,ga in ((r['home_coach'],r['hg'],r['ag']),(r['away_coach'],r['ag'],r['hg'])):
+    if ident:evidence.setdefault(ident,[]).append((gf,ga))
   for c in self.rows('coaches','eligible=1'):
    current=employed.get(c['coach_id']);poach=False
    if current:
-    source=self.one('clubs','club_id',current['club_id'])
+    source=clubs.get(current['club_id'])
     if current['club_id']==self.info()['user_club'] or elapsed(current['start_date'],today)<90 or not source or club['reputation']<source['reputation']+1.5:continue
-    if self.stats(c['coach_id'],current['club_id'])['total']['percentage']<58:continue
+    if score(evidence.get(c['coach_id'],[])[-10:])['percentage']<58:continue
     if draw(seed,'poach',club['club_id'],c['coach_id'],today)>=p['poach_bps']:continue
     poach=True
-   last=self.rows('movements','coach_id=? AND kind IN (\'dismissal\',\'resignation\')',(c['coach_id'],))
-   if last and elapsed(max(x['game_date'] for x in last),today)<14:continue
+   if c['coach_id'] in exits and elapsed(exits[c['coach_id']],today)<14:continue
    salary=self.wage(c,club)
    if salary*12>max(120000,club['budget']*.3+300000):continue
-   stats=self.stats(c['coach_id'])['total'];fit=10-abs(c['reputation']-club['reputation'])*2+min(2,stats['games']/50)*(stats['percentage']-45)/20
-   if c['nationality']==club['country']:fit+=.8
-   fit+=draw(seed,'fit',today,club['club_id'],c['coach_id'])/10000
+   recent=score(evidence.get(c['coach_id'],[])[-10:]);reliability=min(1,recent['games']/10)
+   fit=10-abs(c['reputation']-target)*2.2+reliability*max(-1.5,min(1.5,(recent['percentage']-45)/20))
+   nationality=nationalities(c['nationality'])
+   if nationality&preferred:fit+=p['same_nationality_bonus']
+   if nationality&domestic:fit+=p['domestic_nationality_bonus']
+   if not current:fit+=p['free_coach_bonus']
+   fit+=draw(seed,'fit',today,club['club_id'],c['coach_id'])/20000
    candidates.append((fit,c,current if poach else None))
+  if candidates:
+   qualified=[r for r in candidates if r[1]['reputation']>=target-drop]
+   if exception:
+    qualified += [(fit-.8,c,a) for fit,c,a in candidates if target-drop-1<=c['reputation']<target-drop]
+   if not qualified:
+    best_available=max(r[1]['reputation'] for r in candidates)
+    qualified=[r for r in candidates if r[1]['reputation']>=best_available-.5] if best_available>=target-drop-1 else []
+   candidates=qualified
   if not candidates:
    # Promote an internal interim when the external market has no affordable
    # eligible person. A club still has one coach, without duplicating a person.
@@ -280,7 +319,13 @@ class Market:
     self.add('coaches',dict(coach_id=ident,name='Interino do '+club['name'],nationality=club['country'],birth_date=f'{today//10000-40}-01-01',reputation=max(1,min(4,club['reputation']-2)),salary=1000,style='Comissão técnica',image='minifaces/NOTFOUND_DEFAULT.png',eligible=1,fictional=1));coach=self.one('coaches','coach_id',ident)
    self.appoint(coach,club,today,'interim_appointed');salary=max(1000,min(30000,max(club['budget'],40000)//120))
    self.db.execute("UPDATE appointments SET monthly_wage=?,origin='Interino promovido da comissão técnica' WHERE branch=? AND coach_id=? AND end_date IS NULL",(salary,self.branch,ident));self.db.execute('UPDATE coaches SET salary=? WHERE branch=? AND coach_id=?',(salary,self.branch,ident));self.db.execute('UPDATE movements SET new_salary=? WHERE branch=? AND id=?',(salary,self.branch,self.active(coach=ident)['id']));return True
-  _,coach,current=max(candidates,key=lambda x:x[0])
+  best=max(r[0] for r in candidates);shortlist=sorted((r for r in candidates if r[0]>=best-1.2),key=lambda r:r[1]['coach_id'])
+  weights=[(1.3+fit-best)**2 for fit,_,_ in shortlist];pick=draw(seed,'hire',club['club_id'],today)/10000*sum(weights)
+  selected=shortlist[-1]
+  for row,weight in zip(shortlist,weights):
+   pick-=weight
+   if pick<0:selected=row;break
+  _,coach,current=selected
   if current:self.leave(current,today,'poached','Contratado por clube de maior reputação',to_club=club['club_id'])
   self.appoint(coach,club,today,'hired');return True
  def review_global(self,context,p):

@@ -7,7 +7,44 @@ import copy,io,math,re,struct
 import numpy as np
 from PIL import Image,ImageDraw,ImageFont
 from native_assets import decode
-from rx3 import Rx3,TEXTURE
+from rx3 import Rx3,TEXTURE,NAME
+
+class NumberTextures:
+ """Texture-only RX3b reader; do not broaden the geometry RX3 parser."""
+ def __init__(self,raw):
+  if len(raw)<16 or raw[:4]!=b'RX3b' or len(raw)>1024*1024*1024:raise ValueError('Arquivo de números inválido')
+  count=struct.unpack_from('>I',raw,12)[0]
+  if not 0<count<=20000 or 16+count*16>len(raw):raise ValueError('Diretório de números inválido')
+  self._names=[];self._textures=[]
+  for i in range(count):
+   typ,offset,size,_=struct.unpack_from('>4I',raw,16+i*16)
+   if offset<16+count*16 or size<4 or offset+size>len(raw):raise ValueError('Seção de números inválida')
+   data=raw[offset:offset+size]
+   if typ==TEXTURE:
+    if len(data)<32:raise ValueError('Cabeçalho de número incompleto')
+    # Only metadata changes byte order. Native pixels keep their channel
+    # layout and compression, including files authored as RX3b on PC.
+    header=bytearray(data[:32]);struct.pack_into('<I',header,0,struct.unpack_from('>I',data)[0])
+    struct.pack_into('<4H',header,8,*struct.unpack_from('>4H',data,8))
+    struct.pack_into('<4I',header,16,*struct.unpack_from('>4I',data,16))
+    self._textures.append(bytes(header)+data[32:])
+   elif typ==NAME:
+    if len(data)<16:raise ValueError('Tabela de nomes incompleta')
+    n=struct.unpack_from('>I',data,4)[0];at=16
+    if n>30000:raise ValueError('Tabela de nomes muito grande')
+    for _ in range(n):
+     if at+8>len(data):raise ValueError('Nome de número incompleto')
+     entry,length=struct.unpack_from('>II',data,at);at+=8
+     if not 0<length<=4096 or at+length>len(data):raise ValueError('Nome de número inválido')
+     self._names.append((entry,data[at:at+length].split(b'\0',1)[0].decode('utf8')));at+=length
+ def names(self):return self._names
+ def get(self,kind):return self._textures if kind==TEXTURE else []
+
+def number_rx3(raw):
+ if raw[:8] in (b'chunkzip',b'chunkref') or raw[:2]==b'\x10\xfb':
+  from containers import unpack
+  raw=unpack(raw)
+ return NumberTextures(raw) if raw[:4]==b'RX3b' else Rx3(raw)
 
 def hotspots(rx):
  sections=rx.get(0xf55b1a1a)
@@ -35,12 +72,34 @@ def stamp(name,font_bytes,color,rect):
  ratio=abs((rect[2]-rect[0])/(rect[3]-rect[1]));height=128;width=max(4,min(4096,2**math.ceil(math.log2(ratio*height))));out=Image.new('RGBA',(width,height))
  scaled=min(width,max(1,round(glyph.width/glyph.height/ratio*width)));glyph=glyph.resize((scaled,height),Image.Resampling.LANCZOS);out.alpha_composite(glyph,((width-scaled)//2,0));return out
 
+def texture_layout(rx,name):
+ """Read a native number mip, including the uncompressed FIFA formats.
+
+ RX3 format 3 is A8R8G8B8 (BGRA bytes), whereas generated actor format 3
+ is canonical RGBA. Row padding and lower mips are not part of the decal.
+ """
+ names=[n for typ,n in rx.names() if typ==TEXTURE];entries=rx.get(TEXTURE)
+ if len(names)!=len(entries) or names.count(name)!=1:raise ValueError('Nome de textura de número inválido')
+ raw=entries[names.index(name)]
+ if len(raw)<32:raise ValueError('Cabeçalho de número incompleto')
+ kind=raw[5];w,h=struct.unpack_from('<HH',raw,8)
+ if kind not in (0,1,2,3,4,5) or not 0<w<=4096 or not 0<h<=4096:raise ValueError('Formato de número não suportado')
+ row_bytes=((w+3)//4)*(8 if kind==0 else 16) if kind<3 else w*{3:4,4:1,5:2}[kind]
+ rows=(h+3)//4 if kind<3 else h
+ pitch,stored_rows,stored,_=struct.unpack_from('<4I',raw,16)
+ if pitch<row_bytes or stored_rows<rows or stored<pitch*(rows-1)+row_bytes or 32+stored>len(raw):
+  raise ValueError('Textura de número incompleta')
+ return raw,w,h,kind,row_bytes,rows,pitch
+
 def texture_record(rx,name):
- names=[n for typ,n in rx.names() if typ==TEXTURE];raw=rx.get(TEXTURE)[names.index(name)];kind=raw[5];w,h=struct.unpack_from('<HH',raw,8)
- if kind not in (0,1,2) or not 0<w<=4096 or not 0<h<=4096:raise ValueError('Textura de número incompatível')
- size=((w+3)//4)*((h+3)//4)*(8 if kind==0 else 16)
- if 32+size>len(raw):raise ValueError('Textura de número incompleta')
- return (w,h,kind,raw[32:32+size])
+ raw,w,h,kind,row_bytes,rows,pitch=texture_layout(rx,name)
+ pixels=raw[32:32+row_bytes*rows] if pitch==row_bytes else b''.join(raw[32+y*pitch:32+y*pitch+row_bytes] for y in range(rows))
+ if kind<3:return w,h,kind,pixels
+ if kind==3:image=Image.frombytes('RGBA',(w,h),pixels,'raw','BGRA')
+ elif kind==4:image=Image.frombytes('L',(w,h),pixels).convert('RGBA')
+ else:
+  la=Image.frombytes('LA',(w,h),pixels);l,a=la.split();image=Image.merge('RGBA',(l,l,l,a))
+ return w,h,3,image.tobytes()
 
 def surface(shirt,rect,texture,label):
  """A skinned decal on the original UVs, leaving the jersey texture intact."""
@@ -87,12 +146,16 @@ def personalize(rig,player,read_asset):
   try:
    blob=read_asset(path);ImageFont.truetype(io.BytesIO(blob),32);font=blob;font_path=path;break
   except (FileNotFoundError,OSError):continue
- digit_rx=None;digit_names={};number_path=None
+ digit_rx=None;digit_names={};number_path=None;number_errors=[]
  for path in number_candidates(club,typ,league,assignment['default_league'],base['font'],base['color']):
   try:
-   rx=Rx3(read_asset(path));names={int(m[1]):n for t,n in rx.names() if t==TEXTURE and (m:=re.search(r'_([0-9])(?:\..*)?$',n))}
-   if len(names)==10:digit_rx=rx;digit_names=names;number_path=path;break
-  except (FileNotFoundError,ValueError):continue
+   rx=number_rx3(read_asset(path));names={int(m[1]):n for t,n in rx.names() if t==TEXTURE and (m:=re.search(r'_([0-9])(?:\..*)?$',n))}
+   if len(names)==10:
+    for name in names.values():texture_layout(rx,name)
+    digit_rx=rx;digit_names=names;number_path=path;break
+  except FileNotFoundError:continue
+  except (ValueError,IndexError,struct.error,OSError) as error:
+   number_errors.append(dict(path=path,error=str(error)));continue
  printed=[];out=dict(rig,textures=list(rig['textures']),parts=list(rig['parts']));shirt=next(p for p in rig['parts'] if '/jersey_' in p['asset'].replace('\\','/').lower() and p['texture']>=0)
  def add(image,rect,label):
   texture=len(out['textures']);part=surface(shirt,rect,texture,label);out['textures'].append(image);out['parts'].append(part);printed.append(label)
@@ -104,4 +167,4 @@ def personalize(rig,player,read_asset):
  if digit_rx and number and rect:
   l,t,r,b=rect;mid=(l+r)/2;q=(r-l)/4;cells=[(mid-q,t,mid+q,b)] if len(number)==1 else [(l,t,mid,b),(mid,t,r,b)]
   for digit,cell in zip(number,cells):add(texture_record(digit_rx,digit_names[int(digit)]),cell,'number_'+digit)
- return out,dict(applied=bool(printed),name='name' in printed,number=any(p.startswith('number_') for p in printed),font=font_path,numbers=number_path,kit_type=typ,source='separate skinned decals; original jersey and native digit pixels unchanged')
+ return out,dict(applied=bool(printed),name='name' in printed,number=any(p.startswith('number_') for p in printed),font=font_path,numbers=number_path,number_fallbacks=number_errors[:8],kit_type=typ,source='separate skinned decals; original jersey and native digit pixels unchanged')

@@ -1,6 +1,6 @@
 import json,tempfile,unittest
 from pathlib import Path
-from loans import BANKS,OFFERED_BANKS,empty,borrow,advance,presentation,quote
+from loans import BANKS,OFFERED_BANKS,AMOUNTS,empty,borrow,advance,presentation,quote
 from loan_notifications import schedule_reminders,dispatch,payment_notice
 from test_finance_live_ui import open_screen,text
 from club_identity import club_name
@@ -14,7 +14,7 @@ class StatementTests(unittest.TestCase):
   state,budget,_=advance(self.state,club=1629,today=20260202,budget=self.budget)
   view=presentation(state,20260202,budget,ready=True,nonce='SCROLL',club_name='GrÃªmio')
   vm,screen,_=open_screen(view);screen.set('page',3);screen.set('focus',0);vm.invoke(screen.get('Refresh'),screen)
-  self.assertIn('EMPR',text(screen,'title'));self.assertEqual(text(screen,'subtitle'),'1/2 empréstimos em 2026')
+  self.assertIn('EMPR',text(screen,'title'));self.assertEqual(text(screen,'subtitle'),'1/4 empréstimos em 2026')
   self.assertEqual(screen.get('cell1_3').get('textColor'),0x26744a)
   for _ in range(23):vm.invoke(screen.get('MoveFocus'),screen,[1])
   self.assertEqual(screen.get('focus'),23);self.assertEqual(screen.get('statementOffset'),18)
@@ -94,7 +94,7 @@ class StatementTests(unittest.TestCase):
    self.assertEqual(screen.get('bank'),ORDER[index]);self.assertIn(BANKS[ORDER[index]]['name'],text(screen,'bankHeading'))
    vm.invoke(screen.get('MoveFocus'),screen,[1])
   self.assertEqual(screen.get('focus'),N)
-  vm.invoke(screen.get('Shift'),screen,[1]);self.assertEqual(screen.get('amountIndex'),1)
+  vm.invoke(screen.get('Shift'),screen,[1]);self.assertEqual(AMOUNTS[screen.get('amountIndex')],2_000_000)
   vm.invoke(screen.get('MoveFocus'),screen,[1]);vm.invoke(screen.get('Shift'),screen,[1]);self.assertEqual(screen.get('termIndex'),2)
   vm.invoke(screen.get('MoveFocus'),screen,[1]);vm.invoke(screen.get('Select'),screen)
   self.assertEqual(screen.get('page'),2);self.assertIsNone(vm.global_.get('Server16BankRequestV2'))

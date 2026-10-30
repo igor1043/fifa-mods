@@ -24,7 +24,7 @@ class LoanScreenRecoveryTests(unittest.TestCase):
         view = presentation(state, 20260511, 64_399_270, ready=True,
             nonce='RECOVERY', currency=0, wage_budget=190_000)
         vm, screen, calls = open_screen(view)
-        self.assertIn('1 de 2', text(screen, 'overviewState'))
+        self.assertIn('1 de 4', text(screen, 'overviewState'))
         self.assertIn('17/03/2026', text(screen, 'overviewLine1'))
         self.assertIsNone(vm.global_.get('Server16BankRequestV2'))
         actions = Actions(AptFile(BigFile(ui.b.HERE /
@@ -37,16 +37,18 @@ class LoanScreenRecoveryTests(unittest.TestCase):
     def test_two_long_contracts_retain_localized_individual_statements(self):
         state = empty(1629, 20260102)
         budget = 80_000_000
+        # These contracts were already valid under the old admission policy.
         for index, bank in enumerate((10, 12)):
-            state, budget, _ = borrow(state, request_id='long-'+str(index),
-                club=1629, today=20260102, budget=budget, bank=bank,
-                amount=50_000_000, months=48)
+            with patch('loans.borrowing_date',return_value=0):
+                state, budget, _ = borrow(state, request_id='long-'+str(index),
+                    club=1629, today=20260102, budget=budget, bank=bank,
+                    amount=50_000_000, months=48)
         view = presentation(state, 20260511, budget, ready=True,
             nonce='TWO_CONTRACTS', currency=2, wage_budget=100_000)
         vm, screen, _ = open_screen(view)
-        self.assertIn('2 de 2', text(screen, 'overviewState'))
+        self.assertIn('2 de 4', text(screen, 'overviewState'))
         self.assertEqual(len(screen.get('loanContracts')), 2)
-        self.assertFalse(view['can_borrow'])
+        self.assertTrue(view['can_borrow'])
         self.assertIsNone(vm.global_.get('Server16BankRequestV2'))
 
     def test_ui_failure_does_not_stop_skipped_due_dates_or_native_save_snapshot(self):
@@ -93,6 +95,7 @@ class LoanScreenRecoveryTests(unittest.TestCase):
                 live['budget'] = budget
 
             b.publish = publish
+            b.ui_stable=lambda *args:True
             import bank_ui_r57
             with patch.object(bridge, 'STATE', root), patch.object(bridge, 'log'), \
                     patch('club_identity.club_name', return_value='Clube'), \

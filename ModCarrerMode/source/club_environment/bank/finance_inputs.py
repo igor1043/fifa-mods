@@ -46,7 +46,9 @@ class FinanceInputs:
    if len(f)<10 or not ident or f[5]<=0 or f[6]<=0 or f[5]==f[6]:continue
    old=fixtures.get(f[0]);stage=old['stage'] if old and (old['home'],old['away'],old['root'])==(f[5],f[6],ident[0]) else f[2]
    fixtures[f[0]]=dict(id=f[0],root=ident[0],asset=ident[1],date=f[3],home=f[5],away=f[6],
-    played=f[9]==1 and 0<=f[7]<100 and 0<=f[8]<100,stage=stage)
+    played=f[9]==1 and 0<=f[7]<100 and 0<=f[8]<100,stage=stage,
+    homeScore=f[7] if f[9] else None,awayScore=f[8] if f[9] else None,
+    stageKind=formats.get(stage,{}).get('kind',0),round=f[10] if len(f)>10 else 0)
    if club in f[5:7]:roots[ident[0]]=ident[1]
   calendar=rows('career_calendar',['currdate','startdate'])
   if len(calendar)!=1:raise ValueError('Calendário financeiro ambíguo')
@@ -55,10 +57,10 @@ class FinanceInputs:
   # immutable metadata only. Never reuse another club's manager remuneration.
   managers=[r for r in rows('career_managerinfo',['userid','clubteamid','wage']) if r['userid']==userid and r['clubteamid']==club]
   wage=managers[0]['wage'] if len(managers)==1 and 0<=managers[0]['wage']<100_000_000 else None
-  teams={r['teamid']:r for r in rows('teams',['teamid','teamname','transferbudget','domesticprestige'])}
-  original={r['teamid']:r for r in rows('teams',['teamid','teamname','transferbudget','domesticprestige'],True)}
+  teams={r['teamid']:r for r in rows('teams',['teamid','teamname','transferbudget','domesticprestige','overallrating','internationalprestige'])}
+  original={r['teamid']:r for r in rows('teams',['teamid','teamname','transferbudget','domesticprestige','overallrating','internationalprestige'],True)}
   leagues={r['leagueid']:r for r in rows('leagues',['leagueid','leaguename','level'],True)}
-  links=rows('leagueteamlinks',['teamid','leagueid'])
+  links=rows('leagueteamlinks',['teamid','leagueid','secondarytable'])
   labels={k:r['leaguename'] for k,r in leagues.items()}
   try:
    for line in (game/'ModCarrerMode/data/club_browser/catalog.tsv').read_text(encoding='utf-8-sig').splitlines():
@@ -94,6 +96,12 @@ class FinanceInputs:
   stadium_links=[r['stadiumid'] for r in rows('teamstadiumlinks',['teamid','stadiumid']) if r['teamid']==club]
   stadium=[r for r in rows('stadiums',['stadiumid','name','capacity']) if len(set(stadium_links))==1 and r['stadiumid']==stadium_links[0]]
   capacity=stadium[0]['capacity'] if len(stadium)==1 else 0
+  try:
+   preview=game/'ModCarrerMode/source/club_environment/preview'
+   if str(preview) not in sys.path:sys.path.insert(0,str(preview))
+   from preview_details import club_stadium_fallback
+   capacity=club_stadium_fallback(club,game).get('capacity') or capacity
+  except (ImportError,OSError,ValueError):pass
   preferences=[r for r in rows('career_managerpref',['managerprefid','startofseasontransferbudget']) if r['managerprefid']==userid]
   members={r['playerid'] for r in rows('teamplayerlinks',['teamid','playerid']) if r['teamid']==club}
   contracts=[r for r in rows('career_playercontract',['teamid','playerid','wage']) if r['teamid']==club and r['playerid'] in members]
@@ -102,7 +110,29 @@ class FinanceInputs:
    coach_wage=wage,capacity=capacity,competitions=profiles,fixtures=own,player_weekly=payroll,
    budget_initial=preferences[0]['startofseasontransferbudget'] if len(preferences)==1 else None)
   club_reference=original.get(club,teams.get(club,{}))
-  result['club_profile']=dict(base_budget=club_reference.get('transferbudget',0),prestige=club_reference.get('domesticprestige',5))
+  # Current save membership is authoritative after promotion/relegation.
+  memberships=sorted((r for r in links if r['teamid']==club and r['leagueid'] in leagues),key=lambda r:(bool(r.get('secondarytable')),r['leagueid']))
+  league=leagues.get(memberships[0]['leagueid'],{}) if memberships else {}
+  league_id=league.get('leagueid',0)
+  peers=[original.get(r['teamid'],teams.get(r['teamid'],{})) for r in links if r['leagueid']==league_id]
+  result['club_profile']=dict(club=club,base_budget=club_reference.get('transferbudget',0),
+   prestige=teams.get(club,{}).get('domesticprestige') or club_reference.get('domesticprestige',0),overall=teams.get(club,{}).get('overallrating') or club_reference.get('overallrating',0),
+   international=teams.get(club,{}).get('internationalprestige') or club_reference.get('internationalprestige',0),level=league.get('level'),league=league_id,
+   league_budget=median_value([int(r['transferbudget']) for r in peers if r.get('transferbudget',0)>0]) if peers else 0,
+   league_prestige=median_value([int(r.get('internationalprestige') or 0) for r in peers]) if peers else 0,
+   league_overall=median_value([int(r.get('overallrating') or 0) for r in peers]) if peers else 0,
+   player_weekly=payroll)
+  # Every simulated fixture is reconstructed at its own date, with only the
+  # results preceding it. Today's crowd.ini percentage is never backfilled.
+  from match_attendance import config,reconstruct
+  crowd=config(game)
+  rival_rows=rows('rivals',['teamid1','teamid2'],True)
+  rivals=[(r['teamid1'],r['teamid2']) for r in rival_rows]
+  for fixture in own:
+   fixture['season']=season
+   fixture['attendance']=(dict(percent=crowd['static'],source='crowd_manual',actual=False)
+     if not crowd['automatic'] and 0<=crowd['static']<=100 else
+     reconstruct(fixture,club,list(fixtures.values()),teams,league.get('level') or 1,weights=crowd['weights'],rivals=rivals))
   # Optional views never gate the financial clock. Cache save-backed roster
   # metadata independently from the frequently published live fixture snapshot.
   detail_signature=signature[:3]

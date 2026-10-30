@@ -34,7 +34,7 @@ def debts(contracts,banks):
  result=[]
  for c in contracts:
   remaining=c['payments'][c['paid']:];bank=c['bank']
-  result.append(dict(id=c['id'],bank=banks[bank]['name'],principal=c['principal'],date=c['date'],
+  result.append(dict(id=c['id'],bank=banks[bank]['name'],bank_id=banks[bank]['id'],principal=c['principal'],date=c['date'],
    paid=c['paid'],total=len(c['payments']),balance=sum(p['amount'] for p in remaining),
    next_date=remaining[0]['date'] if remaining else None,
    next_amount=remaining[0]['amount'] if remaining else 0))

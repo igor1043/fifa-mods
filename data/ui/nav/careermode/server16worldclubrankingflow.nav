@@ -1,0 +1,93 @@
+{
+  "name": "Server16WorldClubRankingFlow",
+  "initial": {
+    "targets": [
+      "Ranking"
+    ]
+  },
+  "states": [
+    {
+      "name": "Ranking",
+      "onEnter": [
+        [
+          "executeCMAction",
+          [
+            "EnterCalendar"
+          ]
+        ],
+        [
+          "loadScreenController",
+          [
+            "Calendar"
+          ]
+        ],
+        [
+          "loadView",
+          [
+            "screen",
+            "game/screens/career/server16/WorldClubRanking"
+          ]
+        ],
+        [
+          "loadView",
+          [
+            "background",
+            "FIFA",
+            "BOOTFLOW"
+          ]
+        ]
+      ],
+      "onExit": [
+        [
+          "unloadView",
+          [
+            "screen",
+            "game/screens/career/server16/WorldClubRanking"
+          ]
+        ],
+        [
+          "unloadScreenController",
+          [
+            "Calendar"
+          ]
+        ],
+        [
+          "unloadView",
+          [
+            "background"
+          ]
+        ]
+      ],
+      "transitions": [
+        {
+          "event": "Back",
+          "targets": [
+            "Back"
+          ],
+          "actions": [
+            [
+              "executeCMAction",
+              [
+                "ReturnToHubFromCalendar"
+              ]
+            ]
+          ]
+        },
+        {
+          "event": "back",
+          "targets": [
+            "Back"
+          ],
+          "actions": [
+            [
+              "executeCMAction",
+              [
+                "ReturnToHubFromCalendar"
+              ]
+            ]
+          ]
+        }
+      ]
+    }
+  ]
+}

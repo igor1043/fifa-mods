@@ -1,6 +1,15 @@
 #include <cassert>
 #include <iostream>
 #include "render.cpp"
+static unsigned char* frameScene=nullptr;
+static bool expectCamera=false;
+static void* __fastcall engineFrameProbe(){
+ assert((clubscene::camera.scene!=0)==expectCamera);
+ if(expectCamera){bool changed=false;for(unsigned i=0;i<64;++i)changed|=frameScene[0x40+i]!=0;assert(changed);}
+ // Stop after the original callback so this isolated test never invokes a
+ // native FIFA function. Only its private scene allocation is modified.
+ clubscene::stopping=true;return (void*)0x1234;
+}
 int main(){
  _set_error_mode(_OUT_TO_STDERR);using namespace clubscene;auto fake=(unsigned char*)VirtualAlloc(nullptr,0x4b00000,MEM_COMMIT|MEM_RESERVE,PAGE_READWRITE);assert(fake);base=(uintptr_t)fake;
  unsigned char nodes[4][512]{};const char*name="game/screens/career/server16/ClubBrowser";auto store=[](void*p,uintptr_t v){memcpy(p,&v,8);};store(fake+0x3809030,(uintptr_t)nodes[0]);store(nodes[0]+232,(uintptr_t)nodes[1]);store(nodes[1]+192,(uintptr_t)nodes[2]);store(nodes[2]+136,(uintptr_t)nodes[3]);store(nodes[3]+472,(uintptr_t)name);
@@ -12,6 +21,16 @@ int main(){
  Assets a;a.sequence=12;a.club=a.career=1043;a.hash=std::string(64,'a');a.pages=1;loading=std::make_shared<const Assets>(a);readySequence=requestSequence=12;requested=active=true;drawObject=object;displayedClub=1043;phase=3;
  careerReader=[](){if(!active||drawObject.load()!=object||displayedClub!=1043){std::cerr<<"FAIL published draw was hidden during an unchanged native frame\n";std::exit(1);}return 1043;};
  for(int i=0;i<2000;++i){tick();assert(active&&drawObject==object&&displayedClub==1043);camera.restore();}
+ // XI must borrow the camera before the original engine callback just as
+ // the stable roster view does, and restore it before an inactive callback.
+ frameScene=scene;prior=(uintptr_t)&engineFrameProbe;
+ for(bool rosterMode:{false,true}){
+  rosterCamera=rosterMode;singleView=rosterMode;requested=true;expectCamera=true;
+  for(int i=0;i<180;++i){stopping=false;assert(frame()==(void*)0x1234);camera.restore();}
+ }
+ stopping=false;rosterCamera=false;singleView=false;requested=true;camera.apply();
+ requested=false;expectCamera=false;assert(frame()==(void*)0x1234);assert(!camera.scene);
+ stopping=false;requested=true;prior=0;
  careerReader=[](){return 1043;};rosterCamera=true;singleView=true;playerAngle=.7f;playerZoom=1.6f;playerPan=.1f;playerHeight=185;camera.apply();unsigned char fixed[64];memcpy(fixed,scene+0x40,64);camera.restore();requested=false;tick();assert(camera.scene&&memcmp(scene+0x40,fixed,64)==0);camera.restore();auto loaded=loading;loading.reset();tick();assert(camera.scene&&memcmp(scene+0x40,fixed,64)==0);camera.restore();loading=loaded;rosterCamera=false;singleView=false;
  careerReader=[](){return 1043;};requested=false;tick();assert(!active&&!drawObject&&!displayedClub);camera.restore();requested=true;tick();assert(active&&drawObject==object);camera.restore();
  // Reapplying the borrowed camera must not overwrite the restoration baseline.
@@ -19,5 +38,10 @@ int main(){
  *(int*)(scene+0x3c)=8;tick();assert(!active&&!drawObject);*(int*)(scene+0x3c)=13;tick();assert(active);camera.restore();
  careerReader=[](){return 1629;};tick();assert(!active&&!drawObject);careerReader=[](){return 1043;};tick();assert(active);camera.restore();
  store(nodes[3]+472,(uintptr_t)"game/screens/fluxHub/FluxHub");tick();assert(!active&&!drawObject&&!displayedClub);
- loading.reset();object=base=0;VirtualFree(fake,0,MEM_RELEASE);std::cout<<"PASS native scene publication: stable throughout 2000 unchanged frames; hide on exit, unavailable scene, career change and explicit back\n";return 0;
+ // A static XI (singleView=false) must arm the very same persistent-buffer
+ // path as the stable player. A missing test device is counted after the gate.
+ singleView=false;requested=true;clubanim::activate(std::make_shared<clubanim::Clip>());publishDraw(true);assert(clubanim::visible);
+ auto unavailable=clubanim::drawUnavailable.load();animateBeforeNativeDraw();assert(clubanim::drawUnavailable==unavailable+1);
+ hideDraw();assert(!clubanim::visible);clubanim::activate({});
+ loading.reset();object=base=0;VirtualFree(fake,0,MEM_RELEASE);std::cout<<"PASS native scene publication: stable throughout 2000 unchanged frames; static XI shares player preparation; hide on exit, unavailable scene, career change and explicit back\n";return 0;
 }

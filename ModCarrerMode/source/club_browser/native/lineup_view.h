@@ -4,12 +4,14 @@
 #include <filesystem>
 #include <string>
 #include <vector>
+#include <future>
 #include "../../club_environment/room/native/room_helper_process_r61.h"
 #include "graphics.h"
 namespace clublineup {
 namespace fs=std::filesystem;
 struct View{
  fs::path folder,gameRoot;uint64_t sequence=0,lastPoll=0,retryAt=0;unsigned bootRetries=0;int club=0,career=0,player=0;std::string status="loading",message,kind;std::map<std::string,std::string> lastValues;HANDLE job=nullptr,child=nullptr;
+ std::future<std::shared_ptr<clubanim::Clip>> staticClip;clubscene::Assets staticAssets;std::array<int,96>staticPages{};
  void configure(const fs::path& game){gameRoot=game;folder=game/L"ModCarrerMode/runtime/club_browser"/std::to_wstring(GetCurrentProcessId());std::error_code error;fs::create_directories(folder,error);}
  bool running()const{return child&&WaitForSingleObject(child,0)==WAIT_TIMEOUT;}
  void launchLog(const char* event,DWORD error=0){std::ofstream out(folder/L"launcher.log",std::ios::app);out<<GetTickCount64()<<" "<<event<<" win32="<<error<<"\n";}
@@ -52,6 +54,12 @@ struct View{
   if(!MoveFileExW(temp.c_str(),target.c_str(),MOVEFILE_REPLACE_EXISTING|MOVEFILE_WRITE_THROUGH)){status="error";message="Não foi possível enviar o pedido de visualização.";return false;}return true;
  }
  void poll(ID3D11Device* device){
+  if(staticClip.valid()&&staticClip.wait_for(std::chrono::milliseconds(0))==std::future_status::ready){
+   auto clip=staticClip.get();if(kind.empty()&&staticAssets.sequence==sequence){
+    if(!clip){status="error";message="Geometria estável dos titulares indisponível.";return;}
+    staticAssets.animation=std::move(clip);clubscene::submit(staticAssets,staticPages);status="ready";return;
+   }
+  }
   const bool refresh=kind=="coach"&&status=="ready";
   if((status!="loading"&&!refresh)||GetTickCount64()-lastPoll<(refresh?250:50))return;lastPoll=GetTickCount64();
   if(retryAt){
@@ -67,16 +75,21 @@ struct View{
    if(exit==DWORD(-1)&&bootRetries<2){++bootRetries;launchLog("BOOTLOADER_RETRY",bootRetries);stop();retryAt=lastPoll+500*bootRetries;return;}
    status="error";message="O auxiliar dos titulares encerrou. Selecione Atualizar para tentar novamente; consulte worker.log.";return;
   }
-  if(!refresh&&lastPoll-sequence>140000){status="error";message="A renderização demorou mais que o esperado. Selecione novamente para tentar de novo.";return;}std::error_code error;auto file=folder/L"status.tsv";auto size=fs::file_size(file,error);if(error||size>4096)return;
+  if(!refresh&&lastPoll>=sequence&&lastPoll-sequence>140000){status="error";message="A renderização demorou mais que o esperado. Selecione novamente para tentar de novo.";return;}std::error_code error;auto file=folder/L"status.tsv";auto size=fs::file_size(file,error);if(error||size>4096)return;
   std::ifstream input(file,std::ios::binary);std::map<std::string,std::string> values;std::string line;while(std::getline(input,line)){auto equal=line.find('=');if(equal!=std::string::npos)values.emplace(line.substr(0,equal),line.substr(equal+1));}
   try{if(values["schema"]!="1"||std::stoul(values["pid"])!=GetCurrentProcessId()||std::stoull(values["seq"])!=sequence||std::stoi(values["club"])!=club)return;}catch(...){return;}
-  if(values["status"]=="error"){if(kind=="competitions")lastValues=values;status="error";message=values["message"].substr(0,250);return;}
+  if(values["status"]=="error"){if(kind=="competitions"||kind=="rankings")lastValues=values;status="error";message=values["message"].substr(0,250);return;}
   if(values["status"]!="ready")return;
   if(!kind.empty()){if(values["kind"]!=kind||(kind=="player"&&values["player"]!=std::to_string(player)))return;lastValues=values;status="ready";return;}
   if(values["players"]!="11")return;
   clubscene::Assets assets;assets.sequence=sequence;assets.club=club;assets.career=career;assets.hash=values["hash"];std::array<int,clubscene::slots> bindings{};
   try{assets.pages=std::stoi(values["pages"]);std::istringstream in(values["bindings"]);std::string field;for(auto& b:bindings){if(!std::getline(in,field,','))return;b=std::stoi(field);if(b<0||b>=assets.pages)return;}if(std::getline(in,field,','))return;}catch(...){return;}
   if(values["renderer"]!="native"||!clubscene::validAssets(assets))return;
+  if(values["stable_stream"]=="1"){
+   staticAssets=assets;staticPages=bindings;status="preparing";
+   auto path=gameRoot/L"data/sceneassets/server16_club_xi"/std::to_wstring(GetCurrentProcessId())/assets.hash/L"animation.bin";
+   staticClip=std::async(std::launch::async,[path](){return clubanim::load(path,0);});return;
+  }
   clubscene::submit(assets,bindings);status="ready";
  }
 };

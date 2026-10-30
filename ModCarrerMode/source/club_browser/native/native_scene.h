@@ -11,7 +11,7 @@
 namespace clubscene {
 constexpr int slots=96,opaqueSlots=64,maxTextures=96;
 struct Assets {uint64_t sequence=0;int club=0,career=0,pages=0,player=0;bool single=false;std::string hash;std::shared_ptr<clubanim::Clip> animation;};
-std::atomic<bool> singleView{false},rosterCamera{false},roomView{false};std::atomic<float> playerAngle{0},playerZoom{1},playerPan{0},playerHeight{180};
+std::atomic<bool> singleView{false},rosterCamera{false},roomView{false},mascotCamera{false};std::atomic<float> playerAngle{0},playerZoom{1},playerPan{0},playerHeight{180};
 std::mutex jobsMutex;std::shared_ptr<const Assets> pending;
 std::atomic<bool> requested{false},installed{false},stopping{false},active{false};
 std::atomic<unsigned> phase{0},fault{0},draws{0},returns{0};
@@ -29,7 +29,7 @@ inline void log(const char* value){std::ofstream f(folder/L"engine.log",std::ios
 // Keep a ready draw published throughout an unchanged frame. Clearing it at
 // frame entry can omit only one pass of a concurrently submitted native mesh.
 inline void hideDraw(){clubanim::setVisible(false);active=false;drawObject=0;displayedClub=0;}
-inline void publishDraw(bool show){if(!show){hideDraw();return;}clubanim::setVisible(singleView&&requested);drawObject=object;displayedClub=loading?loading->club:0;active=true;}
+inline void publishDraw(bool show){if(!show){hideDraw();return;}clubanim::setVisible(requested);drawObject=object;displayedClub=loading?loading->club:0;active=true;}
 inline bool page(){auto p=get<uintptr_t>(base+0x3809030);for(unsigned off:{232u,192u,136u,472u})p=get<uintptr_t>(p+off);char n[128]{};return read(p,n,127)&&(clubs::isPage(n)||(careerReader&&clubs::roomRosterMode.visible(n,careerReader())));}
 inline bool validAssets(const Assets& a){return a.sequence&&a.club>0&&a.club<500000&&a.career>0&&a.pages>=1&&a.pages<=maxTextures&&a.hash.size()==64&&a.hash.find_first_not_of("0123456789abcdef")==std::string::npos;}
 inline void intent(bool show,uint64_t sequence){requestSequence=sequence;requested=show;}
@@ -44,7 +44,7 @@ inline bool execute(const char* text){auto lua=get<uintptr_t>(base+0x3613fd0);if
 inline bool validObject(){return object&&get<uintptr_t>(object)==(uintptr_t)vtable&&get<uintptr_t>(get<uintptr_t>(object+0x30)+8)==object&&get<unsigned>(get<uintptr_t>(object+0x20)+0x38)==1;}
 inline void visibility(bool visible){if(!validObject())return;float cs=1,sn=0;alignas(16)float m[16]={cs,0,-sn,0,0,1,0,0,sn,0,cs,0,0,0,0,1};auto origin=clubs::rosterOrigin(roomView.load());m[12]=origin.x;m[13]=origin.y;m[14]=origin.z;((void(__fastcall*)(void*,int,const float*,bool))(base+0x4ad80b0))((void*)object,0,m,visible);alignas(16)float off[4]{};((void(__fastcall*)(void*,int,const float*))(base+0x43c9960))((void*)object,0,off);}
 inline bool loaded(){if(!validObject())return false;auto impl=get<uintptr_t>(object+0x20);if(get<unsigned>(impl+0x18)!=1)return false;auto composite=get<uintptr_t>(get<uintptr_t>(impl+0x20));if(!composite)return false;if(!get<unsigned char>(composite+0x10))((int(__fastcall*)(void*))(base+0x4add100))((void*)composite);return ((bool(__fastcall*)(void*))(base+0x4ad7d80))((void*)object);}
-inline void animateBeforeNativeDraw(){if(!singleView||!clubanim::enabled)return;auto device=get<uintptr_t>(base+0x36140b0),native=get<uintptr_t>(device+0x758);auto context=(ID3D11DeviceContext*)get<uintptr_t>(native+0x3520);if(!context){++clubanim::drawUnavailable;return;}clubanim::prepareNativeDraw(context,GetTickCount64());}
+inline void animateBeforeNativeDraw(){if(!clubanim::enabled||!std::atomic_load(&clubanim::activeClip))return;auto device=get<uintptr_t>(base+0x36140b0),native=get<uintptr_t>(device+0x758);auto context=(ID3D11DeviceContext*)get<uintptr_t>(native+0x3520);if(!context){++clubanim::drawUnavailable;return;}clubanim::prepareNativeDraw(context,GetTickCount64());}
 #include "roster_indoor_native.h"
 inline void __fastcall draw(void* self,int pass){++draws;if(stopping||!active||!requested||requestSequence!=readySequence||!page()||self!=(void*)drawObject.load())return;drawThread=GetCurrentThreadId();if(pass>=0&&pass<8)++passCounts[pass];__try{if(pass==1)animateBeforeNativeDraw();if(pass==1&&roomView&&singleView)nativeIndoorDraw(self);else ((void(__fastcall*)(void*,int))(base+0x43c8f20))(self,pass);++returns;}__except(EXCEPTION_EXECUTE_HANDLER){active=false;fault=GetExceptionCode();phase=9;}}
 inline std::string objectName(const Assets& a){return "server16_native_club_xi_v5_"+std::to_string(a.sequence);}
@@ -81,7 +81,7 @@ struct Camera {
  uintptr_t scene=0;unsigned char original[0x84]{},written[0x84]{};
  void restore(){if(scene&&scene==get<uintptr_t>(base+0x3517c10))for(auto r:std::array<std::array<unsigned,2>,4>{{{{0,64}},{{0x48,8}},{{0x70,1}},{{0x7c,8}}}}){unsigned char current[64]{};if(read(scene+0x40+r[0],current,r[1])&&!memcmp(current,written+r[0],r[1]))write(scene+0x40+r[0],original+r[0],r[1]);}scene=0;}
  void apply(){if(!sceneAvailable())return;auto s=get<uintptr_t>(base+0x3517c10);float x=get<float>(s+0x88),y=get<float>(s+0x8c);
-  float zoom=(std::max)(playerZoom.load(),clubs::rosterMinimumZoom(roomView.load())),angle=playerAngle.load(),height=playerHeight.load(),side=-114/zoom,range=height*1.78f/zoom;float focus=height*(.52f+playerPan.load());float sa=std::sin(angle),ca=std::cos(angle);panorama::Pose pose=(rosterCamera||singleView)?panorama::Pose{{ca*side+sa*range,focus+height*.055f,-sa*side+ca*range},{ca*side,focus,-sa*side},40}:panorama::Pose{{0,145,430},{0,96,10},44};auto origin=clubs::rosterOrigin(roomView.load());pose.eye=pose.eye+panorama::Vec{origin.x,origin.y,origin.z};pose.target=pose.target+panorama::Vec{origin.x,origin.y,origin.z};float m[16];if(!panorama::matrix(pose,m))return;if(scene!=s){restore();if(!read(s+0x40,original,sizeof original))return;scene=s;}float Y=std::tan(pose.fov*.00872664626f),X=Y*(x/y),zero=0;unsigned char off=0;write(s+0x40,m,sizeof m);write(s+0x88,&X,4);write(s+0x8c,&Y,4);write(s+0xb0,&off,1);write(s+0xbc,&zero,4);write(s+0xc0,&zero,4);read(s+0x40,written,sizeof written);
+  float zoom=(std::max)(playerZoom.load(),clubs::rosterMinimumZoom(roomView.load())),angle=playerAngle.load(),height=playerHeight.load(),side=mascotCamera?0.f:-114/zoom,range=height*1.78f/zoom;float focus=height*(.52f+playerPan.load());float sa=std::sin(angle),ca=std::cos(angle);panorama::Pose pose=(rosterCamera||singleView)?panorama::Pose{{ca*side+sa*range,focus+height*.055f,-sa*side+ca*range},{ca*side,focus,-sa*side},40}:panorama::Pose{{0,145,430},{0,96,10},44};auto origin=clubs::rosterOrigin(roomView.load());pose.eye=pose.eye+panorama::Vec{origin.x,origin.y,origin.z};pose.target=pose.target+panorama::Vec{origin.x,origin.y,origin.z};float m[16];if(!panorama::matrix(pose,m))return;if(scene!=s){restore();if(!read(s+0x40,original,sizeof original))return;scene=s;}float Y=std::tan(pose.fov*.00872664626f),X=Y*(x/y),zero=0;unsigned char off=0;write(s+0x40,m,sizeof m);write(s+0x88,&X,4);write(s+0x8c,&Y,4);write(s+0xb0,&off,1);write(s+0xbc,&zero,4);write(s+0xc0,&zero,4);read(s+0x40,written,sizeof written);
  }
 }camera;
 inline void fail(unsigned code){hideDraw();readySequence=0;phase=9;fault=code;failed=true;if(object)visibility(false);log("NATIVE_XI_DISABLED");}
@@ -109,7 +109,10 @@ inline void tick(){
 }
 inline void guardedTick(){__try{tick();}__except(EXCEPTION_EXECUTE_HANDLER){active=false;readySequence=0;phase=9;fault=GetExceptionCode();failed=true;}}
 inline void guardedRestore(){__try{camera.restore();}__except(EXCEPTION_EXECUTE_HANDLER){active=false;fault=GetExceptionCode();}}
-inline void* __fastcall frame(){if(stopping||!page()||(!rosterCamera&&!requested))guardedRestore();else if(rosterCamera)camera.apply();auto result=((void*(__fastcall*)())prior)();if(stopping)return result;try{guardedTick();}catch(...){active=false;readySequence=0;phase=9;fault=21;failed=true;}return result;}
+// Both XI and single-player views must set the camera before FIFA performs
+// visibility/culling. Applying the XI camera only after that work alternates
+// between the borrowed camera and the stadium camera across render passes.
+inline void* __fastcall frame(){if(stopping||!page()||(!rosterCamera&&!requested))guardedRestore();else camera.apply();auto result=((void*(__fastcall*)())prior)();if(stopping)return result;try{guardedTick();}catch(...){active=false;readySequence=0;phase=9;fault=21;failed=true;}return result;}
 inline bool signatures(){
  const std::pair<uintptr_t,const char*> tests[]={{0x4ad80b0,"\x4c\x8b\x51\x20\x41\x8b\x00\x4c"},{0x4ac35e0,"\x48\x89\x5c\x24\x08\x48\x89\x74"},{0x4abfba0,"\x48\x8b\x05\xe9\x44\xb5\xfe\xc3"},{0x43c8be0,"\x48\x89\x5c\x24\x08\x48\x89\x74"},{0x4ac5450,"\x53\x41\x57\x48\x83\xec\x48\x0f"},{0x4ad7eb0,"\x48\x89\x5c\x24\x08\x57\x48\x83"},{0x4ad7d80,"\x48\x8b\x49\x20\xeb\x0a\xcc\xcc"},{0x4add100,"\x55\x53\x48\x8d\xac\x24\xd8\xfd"},{0x43c9960,"\x48\x8b\x41\x30\x41\x0f\x28\x00"},{0x43c8f20,"\x48\x8b\x01\x45\x31\xc0\xff\x60"}};
  for(auto t:tests){unsigned char b[8]{};if(!read(base+t.first,b,8)||memcmp(b,t.second,8))return false;}return true;

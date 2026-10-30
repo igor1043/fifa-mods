@@ -83,15 +83,10 @@ def script(data,dictionaries,payload,head_ids):
             for side,key in [('userPitch','user'),('opponentPitch','opponent')]:a.do(R(1),'RenderPitch',T(side),model(payload[key]))
         else:
             a.set(T('userPitch'),'_visible',False);a.set(T('opponentPitch'),'_visible',False)
-        a.set(T('screenTitle'),'text','PRÓXIMA PARTIDA — ESCALAÇÕES')
-        details=payload.get('details',{})
-        date=details.get('date') or f"{payload['fixture'][3]%100:02d}/{payload['fixture'][3]//100%100:02d}/{payload['fixture'][3]//10000}"
-        time=details.get('time') or f"{payload['fixture'][4]//100:02d}:{payload['fixture'][4]%100:02d}"
-        line='   •   '.join(str(value) for value in (date,time,details.get('stadium'),details.get('location')) if value)
-        a.set(T('matchInfo'),'text',line)
+        a.set(T('screenTitle'),'text','ESCALAÇÕES')
         a.set(T('status'),'text','Provável escalação adversária. As escolhas finais podem mudar até a partida.')
         if not payload.get('available',True):
-            a.set(T('status'),'text','Não há próxima partida agendada nesta carreira.');a.set(T('matchInfo'),'text','')
+            a.set(T('status'),'text','Não há próxima partida agendada nesta carreira.')
         a.do(R(1),'InitCarousel')
         # This existing view model supplies the user's current unsaved team sheet.
         if payload.get('available',True):a.do(PATH('game','uif','UIFUtility'),'RegisterDataProvider',R(1),P(PATH('game','uif','UIFDataProviderList'),'StartingXIDP'))
@@ -194,7 +189,7 @@ def script(data,dictionaries,payload,head_ids):
     def animate(a):
         # BaseScreen.Initialize hands visibility to ScreenManager. Completing
         # Calendar's controller alone does not enter the native screen layer.
-        for child in ('userPitch','opponentPitch','lineupSummary','screenTitle','matchInfo','status','venuePage','userHistory','opponentHistory','previousPage','nextPage','pageLabel','pageDot0','pageDot1','pageDot2'):
+        for child in ('userPitch','opponentPitch','lineupSummary','screenTitle','status','venuePage','userHistory','opponentHistory','previousPage','nextPage','pageDot0','pageDot1','pageDot2'):
             a.do(M('ScreenManager'),'AddItemToAnimateIn',T(child))
         a.do(M('ScreenManager'),'BeginAnimateIn',CALL(PATH('cafe','utility','Delegate'),'Create',R(1),T('OnAnimateInComplete')))
         a.do(R(1),'OnAnimateInComplete')
@@ -281,6 +276,10 @@ def build(payload=None):
     for ident in sorted(competition_ids):
         path=competition_art(ui,ident,HERE/'runtime/art_cache')
         if path is not None:embedded('S16Competition_'+str(ident),path)
+    from preview_art import stadium_art
+    details=payload.get('details',{})
+    venue_image=stadium_art(portable.GAME,details.get('stadium_image_key'),details.get('stadium'),HERE/'runtime/art_cache')
+    if venue_image is not None:embedded('S16StadiumPreview',venue_image)
     # Native triangle strips produce smooth continuous centre/penalty arcs.
     def ring(start=0,end=2*math.pi):
         vertices=[]
@@ -317,7 +316,11 @@ def build(payload=None):
     def native_art(symbol,desired,label):
         if symbol not in image_resources:return None
         resource=image_resources[symbol]
-        return sprite([place(art_symbols[symbol],1,0,0,desired/resource['width'],desired/resource['height'],label=label)])
+        scale=desired/max(1,resource['width'])
+        # Scale by width and preserve the source aspect ratio. Scaling X and Y
+        # independently to the same target made landscape artwork square and
+        # covered the attendance and ticket-revenue panel below the photo.
+        return sprite([place(art_symbols[symbol],1,0,0,scale,scale,label=label)])
     def short_name(name):
         name=name.upper()
         if len(name)>10:
@@ -344,7 +347,7 @@ def build(payload=None):
             controls.append(place(sprite(parts),220+i,82+max(0,min(1,p['x']))*500,PLAYER_BOTTOM-rank*step,label='p'+str(i)))
         return sprite(controls)
     pitch_symbol=native_pitch(payload['user']);opponent_symbol=native_pitch(payload['opponent'])
-    controls=[place(shape_id,0,carousel.CARD_X,carousel.CARD_Y,carousel.CARD_W,carousel.CARD_H,label='outerCard',color=0xffedf0ed),place(pitch_symbol,1,carousel.PITCH_X[0],carousel.PITCH_Y,carousel.PITCH_SCALE,carousel.PITCH_SCALE,label='userPitch'),place(opponent_symbol,2,carousel.PITCH_X[1],carousel.PITCH_Y,carousel.PITCH_SCALE,carousel.PITCH_SCALE,label='opponentPitch'),text(3,226,48,1468,55,38,'screenTitle',0xffffffff),text(4,226,106,1468,30,21,'matchInfo',0xffffffff),text(5,226,860,1195,25,17,'status',0xff334b56)]
+    controls=[place(shape_id,0,carousel.CARD_X,carousel.CARD_Y,carousel.CARD_W,carousel.CARD_H,label='outerCard',color=0xffedf0ed),place(shape_id,1,carousel.CARD_X+22,carousel.CARD_Y+72,carousel.CARD_W-44,4,color=argb(ACCENT)),place(pitch_symbol,2,carousel.PITCH_X[0],carousel.PITCH_Y,carousel.PITCH_SCALE,carousel.PITCH_SCALE,label='userPitch'),place(opponent_symbol,3,carousel.PITCH_X[1],carousel.PITCH_Y,carousel.PITCH_SCALE,carousel.PITCH_SCALE,label='opponentPitch'),text(4,226,45,1468,52,38,'screenTitle',0xff334b56),text(5,226,797,1195,27,17,'status',0xff334b56)]
     controls.extend(carousel.graphics(payload,place,text,sprite,shape_id,lambda vertices:shape(tex_id,1,1,vertices),dot_shape,(round_art('left'),round_art('right')),native_art))
     ctl=append(struct.pack('<'+'Q'*len(controls),*controls));frames=append(struct.pack('<I4xQ',len(controls),ctl));struct.pack_into('<I4xQ',data,apt.characters[9].offset+32,1,frames)
     newtable=append(bytes(data[table:table+count*8])+struct.pack('<'+'Q'*len(characters),*characters));struct.pack_into('<I4xQ',data,root+56,count+len(characters),newtable)

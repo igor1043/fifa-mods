@@ -1,7 +1,7 @@
 from ui_theme import FOCUS_OUTLINE
 """Separate native FIFA APT, built in staging using the loan screen's ABI."""
 from pathlib import Path
-import io,json,struct,sys
+import io,json,struct,sys,hashlib,os
 from PIL import Image,ImageFont,ImageDraw
 from functools import lru_cache
 import build_screen as b
@@ -203,7 +203,23 @@ def script(data,dictionaries,scenes):
     a.align();registration=len(data);data.extend(dictionaries[1]);a.string(FULL);a.op(28);a.string(FULL);a.expr(2);a.expr(PATH('Object'));a.method('registerClass');a.op(23);a.op(0);a.finish()
     return start,registration
 
-def build(game,output,scenes,assets,*,script_factory=None,full_name=FULL,compression_level=9):
+def build_from_template(template,output,*,script_factory,full_name=FULL,compression_level=9):
+    """Reuse validated geometry and DDS resources; compile current data only."""
+    template=Path(template);metadata=json.loads(template.with_suffix('.json').read_text(encoding='utf8'))
+    if metadata.get('schema')!=1 or metadata.get('full_name')!=full_name:raise ValueError('Template APT incompatível')
+    raw=template.read_bytes()
+    if hashlib.sha256(raw).hexdigest()!=metadata['sha256']:raise ValueError('Template APT incompleto')
+    big=BigFile(template);data=big.entries['0'].data
+    dictionaries=[bytes.fromhex(v) for v in metadata['dictionaries']];scenes=metadata['scenes']
+    additions={key:bytes(entry.data) for key,entry in big.entries.items() if key not in ('0','1','sg1','sg2')}
+    start,registration=script_factory(data,dictionaries,scenes)
+    for at,target in zip(metadata['action_pointers'],(start,registration)):struct.pack_into('<Q',data,at,target)
+    output=Path(output);output.parent.mkdir(parents=True,exist_ok=True);b.write_big(big,output,additions,compression_level=compression_level)
+    check=AptFile(BigFile(output));decoded=Actions(check).read_all();assert not decoded.errors;assert full_name in check.exports
+    return dict(path=str(output),bytes=output.stat().st_size,scenes=len(scenes),characters=metadata['characters'],native_font_descriptor=2,help='Original FIFA HelpManager',installed=False,template_cached=True)
+
+
+def build(game,output,scenes,assets,*,script_factory=None,full_name=FULL,compression_level=9,catalogue_groups=False,texture_cache=None,template_cache=None):
     game=Path(game);output=Path(output)
     big=BigFile(game/'ModCarrerMode/source/club_environment/bank/careertype.big');apt=AptFile(big);data=apt.data
     root=Reader(big.entries['1'].data,20,8).ptr();count,table=struct.unpack_from('<I4xQ',data,root+56)
@@ -216,7 +232,7 @@ def build(game,output,scenes,assets,*,script_factory=None,full_name=FULL,compres
     def sprite(parts):
         raw=bytearray(data[apt.characters[9].offset:apt.characters[9].offset+56]);controls=append(struct.pack('<'+'Q'*len(parts),*parts))
         frame=append(struct.pack('<I4xQ',len(parts),controls));struct.pack_into('<I4xQ',raw,32,1,frame);struct.pack_into('<Q',raw,48,0);return character(raw)
-    write=texture_writer(data,append,characters,count,additions,character)
+    write=texture_writer(data,append,characters,count,additions,character,cache=texture_cache)
     white=write(Image.new('RGBA',(4,4),'white'));image_chars={}
     dot_image=Image.new('RGBA',(32,32));ImageDraw.Draw(dot_image).ellipse((0,0,31,31),fill='white');dot=write(dot_image)
     for key,path in assets.items():
@@ -233,7 +249,12 @@ def build(game,output,scenes,assets,*,script_factory=None,full_name=FULL,compres
         return place(character(raw),depth,node['x'],node['y'],name=name)
     scene_controls=[]
     for i,scene in enumerate(scenes):
-        parts=[]
+        parts=[];catalogue=[];group_index=0
+        def flush_catalogue():
+            nonlocal catalogue,group_index
+            if not catalogue:return
+            parts.append(place(sprite(catalogue),30000+group_index,0,0,name='artGroup'+str(group_index)))
+            catalogue=[];group_index+=1
         for depth,node in enumerate(scene['nodes'],1):
             if node['y']>=930:continue # Real FIFA HelpManager owns its footer.
             kind=node['type']
@@ -246,13 +267,19 @@ def build(game,output,scenes,assets,*,script_factory=None,full_name=FULL,compres
                     # Named artwork must be a MovieClip, not a shape: APT's
                     # _visible and other script properties belong to clips.
                     if node.get('name'):cid=sprite([place(cid,1,0,0)])
-                    parts.append(place(cid,depth,node['x'],node['y'],node['w']/w,node['h']/h,name=node.get('name')))
+                    grouped=catalogue_groups and node.get('name') and node['asset'].startswith(('head_','crest_','flag_','league_','competition_'))
+                    if grouped:
+                        node['native_group']='artGroup'+str(group_index)
+                        catalogue.append(place(cid,len(catalogue)+1,node['x'],node['y'],node['w']/w,node['h']/h,name=node['name'],tint=0x00ffffff))
+                        if len(catalogue)>=512:flush_catalogue()
+                    else:parts.append(place(cid,depth,node['x'],node['y'],node['w']/w,node['h']/h,name=node.get('name')))
             elif kind=='action':
                 w,h=node['w'],node['h'];border=[rect(1,0,0,w,3,FOCUS_OUTLINE),rect(2,0,h-3,w,3,FOCUS_OUTLINE),rect(3,0,0,3,h,FOCUS_OUTLINE),rect(4,w-3,0,3,h,FOCUS_OUTLINE)]
                 background=image_chars.get(node.get('background_asset'))
                 children=([place(background[0],1,0,0,w/background[1][0],h/background[1][1])] if background else [rect(1,0,0,w,h,node['color'])])+[place(sprite(border),2,0,0,name='selected')]
                 if node['text']:children.append(text(3,dict(x=12,y=max(1,(h-node['size']*1.2)/2),w=w-24,h=node['size']*1.3,text=node['text'],size=node['size'],color=node['ink'],align=2)))
                 parts.append(place(sprite(children),depth,node['x'],node['y'],name='action'+str(node['index'])))
+        flush_catalogue()
         scene_controls.append(place(sprite(parts),i+1,0,0,name='scene'+str(i)))
     if full_name==FULL:
         # Opaque only within the content card; FIFA owns the footer beneath it.
@@ -269,10 +296,19 @@ def build(game,output,scenes,assets,*,script_factory=None,full_name=FULL,compres
         at=exports+i*16;old=Reader(data,at,8).text()
         if 'CareerType' in old:struct.pack_into('<Q',data,at,append(old.replace('game.screens.career.CareerType',full_name).encode()+b'\0'))
     actions=Actions(apt).read_all();dictionaries=[bytes(data[v[0].offset:v[0].end]) for v in actions.cache.values()]
-    start,registration=(script_factory or script)(data,dictionaries,scenes)
-    for tag,target in ((apt.root_frames[0][1],start),(apt.root_frames[0][2],registration)):
+    action_pointers=[]
+    for tag in (apt.root_frames[0][1],apt.root_frames[0][2]):
         signature=struct.pack('<Q',tag[-1]);matches=[j for j in range(0,len(apt.entry.original)-7,8) if apt.entry.original[j:j+8]==signature]
-        assert len(matches)==1;struct.pack_into('<Q',data,matches[0],target)
+        assert len(matches)==1;action_pointers.append(matches[0])
+    if template_cache is not None:
+        template_cache=Path(template_cache);template_cache.parent.mkdir(parents=True,exist_ok=True)
+        temporary=template_cache.with_name(template_cache.name+'.'+str(os.getpid())+'.new')
+        b.write_big(big,temporary,additions,compression_level=1)
+        metadata=dict(schema=1,full_name=full_name,sha256=hashlib.sha256(temporary.read_bytes()).hexdigest(),scenes=scenes,characters=count+len(characters),action_pointers=action_pointers,dictionaries=[v.hex() for v in dictionaries])
+        os.replace(temporary,template_cache);manifest=template_cache.with_suffix('.json');temporary=manifest.with_name(manifest.name+'.new')
+        temporary.write_text(json.dumps(metadata,ensure_ascii=False,separators=(',',':')),encoding='utf8');os.replace(temporary,manifest)
+    start,registration=(script_factory or script)(data,dictionaries,scenes)
+    for at,target in zip(action_pointers,(start,registration)):struct.pack_into('<Q',data,at,target)
     output.parent.mkdir(parents=True,exist_ok=True);b.write_big(big,output,additions,compression_level=compression_level)
     check=AptFile(BigFile(output));decoded=Actions(check).read_all();assert not decoded.errors;assert full_name in check.exports
     return dict(path=str(output),bytes=output.stat().st_size,scenes=len(scenes),characters=count+len(characters),native_font_descriptor=2,help='Original FIFA HelpManager',installed=False)

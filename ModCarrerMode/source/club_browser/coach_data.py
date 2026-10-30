@@ -90,7 +90,22 @@ def tenure(market,snapshot,club):
  form=''.join('V' if r['gf']>r['ga'] else 'E' if r['gf']==r['ga'] else 'D' for r in sorted(values,key=lambda r:(r['date'],r['id']),reverse=True)[:5])
  return s,form
 
-def project(game,save,club,cache=None,snapshot=None):
+def apply_results(data,evidence,leagues):
+ """The team campaign includes simulated leagues with no individual scores."""
+ from career_results import club_stats
+ data['stats']=club_stats(evidence,data['club'])
+ existing={r['asset']:r for r in data['competitions']}
+ for row in evidence['summaries']:
+  if row['club']!=data['club'] or not row['games']:continue
+  old=existing.get(row['asset'],{})
+  existing[row['asset']]=dict(asset=row['asset'],name=leagues.get(row['asset'],old.get('name','Competição')),**{k:row[k] for k in KEYS},status=old.get('status','Resultados registrados'))
+ data['competitions']=list(existing.values())
+ data['fields'].update(season_start=evidence['seasonStart'],results_source='fixtures-and-validated-standings')
+ table=evidence.get('club_tables',{}).get(str(data['club']),[])
+ row=next((r for r in table if r['club']==data['club']),None)
+ if row:data['fields'].update(league_rank=row['rank'],league_points=row['points'],league_games=row['played'])
+
+def project(game,save,club,cache=None,snapshot=None,live=None):
  game=Path(game);cache=cache or ProjectionCache();raw,dbs,base=cache.load(game,save)
  def table(name,fields,base_only=False):
   matches=[db for db in dbs if name in db.tables]
@@ -163,7 +178,8 @@ def project(game,save,club,cache=None,snapshot=None):
  fields['capacity']=stadium.get('capacity') or -1
  calendar=table('career_calendar',['currdate','startdate']);fields['date']=snapshot['date'] if snapshot else calendar[0].get('currdate',0) if len(calendar)==1 else 0
  fields['season_year']=calendar[0].get('startdate',0)//10000 if len(calendar)==1 else 0
- stats,competitions,form=season(snapshot,club,leagues);fields['form']=form or '—';history=[]
+ since=calendar[0].get('startdate',0) if len(calendar)==1 else 0
+ stats,competitions,form=season(snapshot,club,leagues,lambda m:m['date']>=since);fields['form']=form or '—';history=[]
  history_fields=['teamid','season','games_played','wins','draws','losses','goals_for','goals_against','points','tableposition','leaguetrophies','domesticcuptrophies','continentalcuptrophies']
  for r in match('career_managerhistory',history_fields,'teamid',{club}):
   values=[r.get(k) for k in ('games_played','wins','draws','losses','goals_for','goals_against','points')]
@@ -171,12 +187,30 @@ def project(game,save,club,cache=None,snapshot=None):
   history.append(dict(season=(r.get('season') or 0)+1,rank=r.get('tableposition') or -1,**dict(zip(KEYS,values)),titles=sum(r.get(k) or 0 for k in ('leaguetrophies','domesticcuptrophies','continentalcuptrophies'))))
  history.sort(key=lambda r:r['season'],reverse=True)
  colors=[sum((team[0].get('teamcolor'+str(i)+ch) or 0)<<shift for ch,shift in zip('rgb',(16,8,0))) for i in (1,2,3)]
- return dict(club=club,club_name=team[0]['teamname'],fields=fields,stats=stats,coach_stats={},competitions=competitions,history=history,starters=[],save_hash=cache.save_hash,fixture=struct.pack('<8s4I',b'FFCOACH1',club,*colors))
+ data=dict(club=club,club_name=team[0]['teamname'],fields=fields,stats=stats,coach_stats={},competitions=competitions,history=history,starters=[],save_hash=cache.save_hash,fixture=struct.pack('<8s4I',b'FFCOACH1',club,*colors))
+ if snapshot:
+  from ranking_data import merge_schedule
+  from competition_formats import read_formats
+  from competition_schedule import read_schedule
+  from career_results import from_career
+  formats=read_formats(game);schedule=merge_schedule(read_schedule(raw,formats),snapshot,formats)
+  apply_results(data,from_career(game,cache,dbs,base,snapshot,schedule,live),leagues)
+ return data
 
 def attach_market(data,market,snapshot,game):
  fields=data['fields'];fields.update(coach_available=0,coach_form='—')
  if not market:return
  person=market['coach'];a=market['appointment'];start=market['start'];today=fields['date'];data['coach_stats'],form=tenure(market,snapshot,data['club'])
+ # Aggregate counters have no appointment/date per match. Only an explicitly
+ # recorded initial spell can own the entire current campaign.
+ if a.get('origin')=='Vínculo inicial desde o início da carreira' and 0<fields.get('season_start',0)>=start:
+  from copy import deepcopy
+  data['coach_stats']=deepcopy(data['stats']);form=fields.get('form','—')
+ elif data['stats'].get('games',0)>0 and data['coach_stats'].get('games')==0:
+  # A simulated league may retain team totals without any dated fixtures.
+  # Do not turn missing spell ownership into a claim of zero coach matches.
+  data['coach_stats']={}
+  fields['coach_stats_note']='Sem partidas individualizadas para confirmar esta passagem'
  from coach_portrait import portrait
  fields['portrait']=portrait(game,person['name'],person)
  from datetime import date

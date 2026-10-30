@@ -14,7 +14,7 @@ from loans import parse_date
 
 CLASS=('game','screens','career','server16','ClubFinance');FULL='.'.join(CLASS);PAGE='/'.join(CLASS)
 TABS=(('overview','Visão geral'),('receipts','Receitas'),('expenses','Despesas'),('transfers','Transferências'),('salaries','Salários'),('loans','Dívidas'),('budget','Orçamento'),('settings','Configurações'))
-ROOT_TABS={'contracts':'receipts','tickets':'receipts','statement':'budget','monthly':'overview'}
+ROOT_TABS={'contracts':'receipts','tickets':'receipts','tv':'receipts','sponsors':'receipts','statement':'budget','monthly':'overview'}
 
 def root_tab(key):return ROOT_TABS.get(key.split(':')[0],key.split(':')[0])
 R=b.reg;T=b.this;P=b.prop;EQ=b.equal;CALL=b.call;M=b.MANAGER;ION=b.ION
@@ -54,10 +54,10 @@ def scenes(view):
   if pages>1:
    s.action(100,811,155,42,'‹','contracts' if page<=1 else 'contracts:'+str(page-1));s.action(270,811,155,42,'›','contracts:'+str(page+1) if page+1<pages else key)
   packed=s.pack();packed['assets']=assets;result.append(packed)
- months=rows[:24];pages=max(1,(len(months)+6)//7)
+ months=view.get('cash_months',rows)[:24];pages=max(1,(len(months)+6)//7)
  for page in range(pages):
   key='statement' if page==0 else 'statement:'+str(page);s=shell(view,key,'budget')
-  s.text(120,310,1700,40,'EXTRATO MENSAL · MOVIMENTAÇÕES EFETIVADAS',28)
+  s.text(120,310,1700,40,'EXTRATO DE CAIXA · MÊS EM QUE OS VALORES FORAM APLICADOS',28)
   for x,w,label in ((120,150,'MÊS'),(285,230,'TV'),(530,230,'BILHETERIA'),(775,230,'PATROCÍNIO'),(1020,230,'EQUIPE'),(1265,230,'JOGOS'),(1510,290,'PARCELAS')):s.text(x,366,w,30,label,20,MUTED,0 if x==120 else 1)
   for i,row in enumerate(months[page*7:page*7+7]):
    y=410+i*53;s.rect(100,y,1720,47,WHITE if i%2==0 else LIGHT)
@@ -70,7 +70,7 @@ def scenes(view):
  import finance_art as art
  s=shell(view,'settings','settings');assets={}
  s.text(120,308,1670,42,'MODO FINANCEIRO · OPÇÕES DESTA CARREIRA E CLUBE',28)
- labels=('Sistema financeiro · chave geral','Receitas de TV por partida','Bilheteria dos jogos em casa','Salário mensal do técnico','Cobrança automática dos empréstimos','Patrocínio do clube','Comissão técnica','Custos das partidas em casa')
+ labels=('Sistema financeiro · chave geral','Receitas de TV por partida','Bilheteria dos jogos em casa','Salário mensal do técnico','Cobrança automática dos empréstimos','Patrocínio do clube','Comissão técnica','Custos de operação da bilheteria')
  descriptions=('Controla os acréscimos e débitos do sistema financeiro.',
   'Recebe o contrato da competição por partida concluída.',
   'Receita adicional calculada para jogos como mandante.',
@@ -78,7 +78,7 @@ def scenes(view):
   'Mantém as parcelas e cobra os vencimentos pelo calendário.',
   'Um contrato por clube e temporada, proporcional à reputação.',
   'Equipe de apoio estimada pelo porte do clube, descontada ao mês.',
-  'Operação e taxas estimadas, cobradas junto à renda do jogo em casa.')
+  'Percentual da renda bruta dos próximos jogos em casa; histórico preservado.')
  for i,(kind,label) in enumerate(zip(SWITCHES,labels)):
   enabled=view.get('settings',{}).get(kind,True);y=354+i*56
   s.action(100,y,1720,52,'','toggle:'+kind,WHITE,INK,25)
@@ -93,7 +93,13 @@ def scenes(view):
  packed=s.pack();packed['assets']=assets;result.append(packed)
  # Page chunks keep bounded APT work and original native help/input handling.
  for scene in result:
-  scene['back']='overview'
+  # Old ledger descriptions can predate the UTF-8 fix. Repair display strings
+  # only; queries and persisted accounting/identities remain byte-for-byte.
+  from preview_details import clean
+  for node in scene['nodes']:
+   if 'text' in node:node['text']=clean(node['text'])
+  for button in scene['actions']:button['label']=clean(button['label'])
+  scene['back']='receipts' if root_tab(scene['key'])=='receipts' and scene['key'].split(':')[0]!='receipts' else 'overview'
   buttons=scene['actions']
   scene['scrollPrevious']=next((b['target'] for b in buttons if b['label']=='‹'),scene['key'])
   scene['scrollNext']=next((b['target'] for b in buttons if b['label']=='›'),scene['key'])
@@ -111,7 +117,7 @@ def script(data,dictionaries,items,view):
   a.op(89);a.reg(2);a.op(118);a.op(93)
   a.do(M('ScreenManager'),'SetOnExitScreenCallback',CALL(b.path('cafe','utility','Delegate'),'Create',R(1),T('OnExitScreen')))
   a.do(R(1),'Initialize',FULL,None,True);a.set(R(1),'staticData',CALL(ION,'GetScreenStaticData'));a.set(R(1),'navEvents',CALL(ION,'GetEvents','Navigation'))
-  a.set(R(1),'page',0);a.set(R(1),'focus',0)
+  a.set(R(1),'page',0);a.set(R(1),'focus',0);a.set(R(1),'boundPage',-1)
   def restore(a):
    for i,s in enumerate(items):a.when(EQ(b.G('Server16FinancePageKey'),s['key']),lambda a,i=i:a.set(R(1),'page',i))
   a.when(b.G('Server16FinanceReloading'),restore)
@@ -132,9 +138,6 @@ def script(data,dictionaries,items,view):
  def bind(a):
   last=P(settings_clip,'switchOn'+str(len(SWITCHES)-1))
   a.when(('not',('bin',16,P(T('scene0'),'action0'),last)),lambda a:a.ret())
-  for i,s in enumerate(items):
-   for j,action in enumerate(s['actions']):
-    obj=P(T('scene'+str(i)),'action'+str(j));a.set(obj,'owner',R(1));a.set(obj,'index',j);a.set(obj,'onRelease',T('Click'));a.set(obj,'onRollOver',T('Over'))
   a.set(R(1),'onEnterFrame',None);a.set(R(1),'pollFrames',0)
   a.when(pending,lambda a:a.set(R(1),'onEnterFrame',T('Poll')))
   if not view.get('ready'):a.set(R(1),'onEnterFrame',T('Poll'))
@@ -147,11 +150,39 @@ def script(data,dictionaries,items,view):
   a.when(T('screenReady'),lambda a:a.ret());a.set(R(1),'screenReady',True)
   a.do(ION,'SendEvent',P(T('staticData'),'SCREEN_CONTROLLER_ID'),'SCREEN_READY','');a.do(ION,'SendSystemEvent',P(T('staticData'),'SCREEN_CONTROLLER_ID'),'DONE_LOADING','')
  a.function('OnAnimateInComplete',0,complete)
- def refresh(a):
+ def release_page(a):
   for i,s in enumerate(items):
-   clip=T('scene'+str(i));a.set(clip,'_visible',EQ(T('page'),i))
-   for j,_ in enumerate(s['actions']):a.set(P(P(clip,'action'+str(j)),'selected'),'_alpha',('bin',12,EQ(T('focus'),j),100))
-   a.when(EQ(T('page'),i),lambda a,i=i:a.do(R(1),'Money'+str(i)))
+   def release(a,i=i,s=s):
+    for j,_ in enumerate(s['actions']):
+     obj=P(T('scene'+str(i)),'action'+str(j))
+     for event in ('onRelease','onRollOver','owner'):a.set(obj,event,None)
+   a.when(EQ(T('boundPage'),i),release)
+  a.set(R(1),'boundPage',-1)
+ a.function('UnbindPage',0,release_page)
+ def bind_page(a):
+  a.when(EQ(T('boundPage'),T('page')),lambda a:a.ret())
+  a.do(R(1),'UnbindPage')
+  # AptInitParmsT::iButtonSetSize is 512 in FIFA 16. A long financial
+  # history can create hundreds of paginated controls; hidden pages must not
+  # keep mouse listeners or owner cycles registered in that native set.
+  for i,s in enumerate(items):a.set(T('scene'+str(i)),'_visible',False)
+  for i,s in enumerate(items):
+   def attach(a,i=i,s=s):
+    clip=T('scene'+str(i));a.set(clip,'_visible',True)
+    for j,_ in enumerate(s['actions']):
+     obj=P(clip,'action'+str(j));a.set(obj,'owner',R(1));a.set(obj,'index',j)
+     a.set(obj,'onRelease',T('Click'));a.set(obj,'onRollOver',T('Over'))
+   a.when(EQ(T('page'),i),attach)
+  a.set(R(1),'boundPage',T('page'))
+ a.function('BindPage',0,bind_page)
+ def refresh(a):
+  a.do(R(1),'BindPage')
+  for i,s in enumerate(items):
+   def selected(a,i=i,s=s):
+    clip=T('scene'+str(i))
+    for j,_ in enumerate(s['actions']):a.set(P(P(clip,'action'+str(j)),'selected'),'_alpha',('bin',12,EQ(T('focus'),j),100))
+    a.do(R(1),'Money'+str(i))
+   a.when(EQ(T('page'),i),selected)
   a.do(R(1),'RefreshSwitches')
   a.do(M('HelpManager'),'Update')
  a.function('Refresh',0,refresh)
@@ -164,8 +195,9 @@ def script(data,dictionaries,items,view):
  a.function('RefreshSwitches',0,switches)
  for i,s in enumerate(items):
   def values(a,i=i,s=s):
+   from career_currency import format_money
    for n in s['nodes']:
-    if 'amount' in n:a.set(P(T('scene'+str(i)),n['name']),'text',CALL(b.path('ION_Localization'),'LocalizeCurrencyWithType',n.get('compact',False),n['amount'],view.get('currency',0)))
+    if 'amount' in n:a.set(P(T('scene'+str(i)),n['name']),'text',format_money(n['amount'],view.get('currency'),n.get('compact',False),labels=view.get('currency_labels')))
   a.function('Money'+str(i),0,values)
  def go(a):
   a.set(R(1),'page',R(2));a.set(R(1),'focus',('index',focus_for_page,R(2)));a.do(R(1),'Refresh')
@@ -216,7 +248,8 @@ def script(data,dictionaries,items,view):
  def back(a):
   def leave(a):
    a.set(R(1),'leaving',True);a.do(ION,'SendEvent',P(T('staticData'),'SCREEN_CONTROLLER_ID'),P(T('navEvents'),'BACK'),'')
-  a.when(EQ(T('page'),0),leave,lambda a:a.do(R(1),'Go',0))
+  destinations=arr(keys.get(s.get('back','overview'),0) for s in items)
+  a.when(EQ(T('page'),0),leave,lambda a:a.do(R(1),'Go',('index',destinations,T('page'))))
  a.function('Back',0,back)
  def poll(a):
   a.set(R(1),'pollFrames',b.plus(T('pollFrames'),1))
@@ -233,9 +266,11 @@ def script(data,dictionaries,items,view):
  a.function('LocalEventHandler',2,key)
  a.function('getHelpContext',0,lambda a:a.ret(arr(CALL(b.path('ion','manager','HelpItem'),'CreateHelpTickerItem',code,label) for code,label in (('ADVANCE','Selecionar'),('BACK','Voltar'),('L2R2','Abas'),('RAS_UD','Rolar lista')))))
  def shutdown(a):
+  a.when(T('exiting'),lambda a:a.ret());a.set(R(1),'exiting',True)
   a.set(b.GLOBAL,'Server16FinanceReloading',('not',T('leaving')))
   a.set(b.GLOBAL,'Server16FinancePageKey',('index',arr(s['key'] for s in items),T('page')));a.set(b.GLOBAL,'Server16FinanceFocus',T('focus'))
-  a.set(R(1),'onEnterFrame',None);a.do(M('InputManager'),'DisableCurrentLocalEventHandler');a.do(M('HelpManager'),'Clear');a.do(R(1),'Shutdown')
+  a.set(R(1),'onEnterFrame',None);a.do(R(1),'UnbindPage')
+  a.do(M('InputManager'),'DisableCurrentLocalEventHandler');a.do(M('HelpManager'),'Clear');a.do(R(1),'Shutdown')
  a.function('OnExitScreen',0,shutdown);a.op(0);a.finish();a.align();registration=len(data);data.extend(dictionaries[1])
  a.string(FULL);a.op(28);a.string(FULL);a.expr(2);a.expr(b.path('Object'));a.method('registerClass');a.op(23);a.op(0);a.finish()
  return start,registration

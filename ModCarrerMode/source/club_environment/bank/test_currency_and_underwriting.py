@@ -1,26 +1,23 @@
 import json,tempfile,unittest
 from pathlib import Path
 from copy import deepcopy
+from unittest.mock import patch
 import loans as l
 import loan_notifications as mail
 import save_sidecar as sql
 from test_finance_live_ui import open_screen,text
 
 class CurrencyAndCreditTests(unittest.TestCase):
- def test_each_save_slot_uses_native_currency_in_amounts_and_composed_text(self):
+ def test_each_save_slot_uses_its_localized_prefix_without_changing_amounts(self):
   for currency,symbol in ((0,'R$'),(1,'$'),(2,'€')):
    view=l.presentation(l.empty(1043,20260111),20260111,28_000_000,ready=True,nonce='CURRENCY',currency=currency)
-   calls=[]
-   def format_native(compact,amount,slot):
-    calls.append((compact,amount,slot));self.assertEqual(slot,currency)
-    return (symbol+' '+f'{amount:,}'.replace(',','.')).encode('utf8').decode('latin1')
-   vm,screen,_=open_screen(view,currency_formatter=format_native)
+   with patch('career_currency.currency_symbol',return_value=symbol):
+    vm,screen,_=open_screen(view)
    screen.set('page',1);vm.invoke(screen.get('Refresh'),screen)
    self.assertEqual(text(screen,'summaryValue0'),symbol+' 28.000.000')
    self.assertEqual(text(screen,'summaryValue1'),'+'+symbol+' 1.000.000')
    label=screen.get('amountControl').get('label')
    self.assertEqual(label.get('text').encode('latin1').decode('utf8').strip(),symbol+' 1.000.000')
-   self.assertTrue(calls);self.assertTrue(all(compact==False for compact,_,_ in calls))
  def request(self,ident='risk',**extra):
   args=dict(request_id=ident,club=1043,today=20260111,budget=28_000_000,bank=9,amount=5_000_000,months=12,currency=2)
   args.update(extra);return l.request_loan(l.empty(1043,20260111),**args)

@@ -5,8 +5,8 @@ import sys,json,struct
 import build_screen as b
 sys.path.insert(0,str(b.HERE.parent/'career_match_preview_20261022'))
 from build_preview import Code
-from career_currency import MoneyText,native_money
-from loans import BANKS,OFFERED_BANKS,AMOUNTS,TERMS,quote,next_month,next_day,parse_date,offered,response_date as bank_response_date,response_days
+from career_currency import MoneyText,native_money,format_money
+from loans import BANKS,OFFERED_BANKS,AMOUNTS,TERMS,quote as legacy_quote,next_month,next_day,parse_date,offered as legacy_offered,response_date as bank_response_date,response_days
 class CurrencyCode(Code):
  def expr(self,value):
   return super().expr(value.expression if isinstance(value,MoneyText) else value)
@@ -16,6 +16,14 @@ ORIGINAL=b.make_script;VIEW={}
 FIELDS=(('title',130,155,1640,58,42),('subtitle',132,218,1630,42,25),('section',130,280,1640,48,32),('status',130,890,1640,40,24),('pageInfo',1040,748,690,40,24),('emptyState',150,445,1520,65,29))
 FIELDS+=tuple((f'detail{i}',960,350+i*45,780,43,25) for i in range(11))
 FIELDS+=tuple((f'cell{i}_{j}',x,348+i*47,w,43,24) for i in range(7) for j,(x,w) in enumerate(((150,220),(400,310),(750,350),(1160,530))))
+
+def quote(bank,amount,months):
+ from credit_policy import quote as credit_quote
+ return credit_quote(VIEW.get('credit'),bank,amount,months)
+
+def offered(bank,amount,months):
+ credit=VIEW.get('credit')
+ return legacy_offered(bank,amount,months) and (not credit or amount<=credit['banks'].get(str(bank),{}).get('limit',0))
 
 def label(a,name,value):a.set(T(name),'text',value)
 
@@ -62,19 +70,32 @@ def init(a):
  a.set(R(1),'_visible',True);a.set(R(1),'_alpha',100);show(a,'mcGridControl',False);a.do(R(1),'Refresh');a.set(R(1),'onEnterFrame',T('WaitButtons'))
 
 def load_plan(a):
- # Nested dispatch evaluates only one institution, amount and term. The largest
- # materialized array has 48 rows; the screen can open before any plan exists.
  for bank in range(len(BANKS)):
-  def choose_bank(a,bank=bank):
-   for ai,amount in enumerate(AMOUNTS):
-    def choose_amount(a,ai=ai,amount=amount):
-     for ti,months in enumerate(TERMS):
-      if not offered(bank,amount,months):continue
-      q=quote(bank,amount,months)
-      rows=('array',tuple(('array',(str(p['number']).zfill(2),due_date(response_date(VIEW.get('date'),bank),p['number']),b.money(p['amount']),'Prevista')) for p in q['payments']))
-      a.when(EQ(T('termIndex'),ti),lambda a,rows=rows:a.set(R(1),'simulationPlan',rows))
-    a.when(EQ(T('amountIndex'),ai),choose_amount)
-  a.when(EQ(T('bank'),bank),choose_bank)
+  a.when(EQ(T('bank'),bank),lambda a,bank=bank:a.do(R(1),'LoadBankPlan'+str(bank)))
+
+def load_bank_plan(a,bank):
+ for ai,amount in enumerate(AMOUNTS):
+  def choose_amount(a,ai=ai,amount=amount):
+   for ti,months in enumerate(TERMS):
+    if not offered(bank,amount,months):continue
+    q=quote(bank,amount,months)
+    rows=('array',tuple(('array',(str(p['number']).zfill(2),due_date(response_date(VIEW.get('date'),bank),p['number']),b.money(p['amount']),'Prevista')) for p in q['payments']))
+    a.when(EQ(T('termIndex'),ti),lambda a,rows=rows:a.set(R(1),'simulationPlan',rows))
+  a.when(EQ(T('amountIndex'),ai),choose_amount)
+
+def bank_terms(a,bank):
+ today=VIEW.get('date')
+ for ai,amount in enumerate(AMOUNTS):
+  for ti,months in enumerate(TERMS):
+   if not offered(bank,amount,months):continue
+   q=quote(bank,amount,months);cond=('bin',16,EQ(T('amountIndex'),ai),EQ(T('termIndex'),ti))
+   planned=response_date(today,bank)
+   values=['SIMULAÇÃO · '+BANKS[bank]['name'],'Saldo atual: '+b.money(VIEW.get('budget',0)),'Crédito se aprovado: +'+b.money(amount),'Saldo após aprovação: '+b.money(VIEW.get('budget',0)+amount),'Resposta prevista: '+datestr(planned),'Parcela mensal: '+b.money(q['payment']),'Primeira cobrança prevista: '+due_date(planned,1),'Última cobrança prevista: '+due_date(planned,months),'Total contratado: '+b.money(q['total']),'Juros totais: '+b.money(q['total']-amount),'Taxa simulada: '+str(q['rate_bps']/100).replace('.',',')+'% ao mês']
+   def fill(a,values=values):
+    for i,text in enumerate(values):label(a,'detail'+str(i),text)
+    days=response_days(bank)
+    a.when(EQ(T('page'),2),lambda a:a.set(P(T('row0'),'hint'),'text','Resposta em '+str(days)+(' dia da carreira' if days==1 else ' dias da carreira')))
+   a.when(cond,fill)
 
 BUTTONS=[('row'+str(i),i,'RowClick','RowOver') for i in range(5)]+[('payNext',0,'PaymentClick','PaymentOver'),('payAll',1,'PaymentClick','PaymentOver'),('ledgerBack',2,'PaymentClick','PaymentOver'),('previousStatement',-1,'PageClick',None),('nextStatement',1,'PageClick',None)]+[('tableRow'+str(i),i,'RowClick','RowOver') for i in range(6)]
 def wait(a):
@@ -126,7 +147,7 @@ def refresh(a):
  wage=VIEW.get('wage_budget');wage_text=b.money(wage) if wage is not None else 'Não informado'
  budget_text=b.money(VIEW.get('budget',0)) if VIEW.get('ready') else 'Carregando...'
  year=str(VIEW['date'])[:4] if VIEW.get('date') else 'Não disponível'
- label(a,'subtitle',f"{VIEW.get('used',0)}/2 empréstimos em {year}")
+ label(a,'subtitle',f"{VIEW.get('used',0)}/4 empréstimos em {year}")
  label(a,'status','')
  active=VIEW.get('active');application=VIEW.get('application');today=VIEW.get('date')
  expected=application['decision_date'] if application else response_date(today)
@@ -176,17 +197,7 @@ def refresh(a):
  a.when(EQ(T('page'),2),proposal)
  def terms(a):
   for bank in range(len(BANKS)):
-   for ai,amount in enumerate(AMOUNTS):
-    for ti,months in enumerate(TERMS):
-     if not offered(bank,amount,months):continue
-     q=quote(bank,amount,months);cond=('bin',16,('bin',16,EQ(T('bank'),bank),EQ(T('amountIndex'),ai)),EQ(T('termIndex'),ti))
-     planned=response_date(today,bank)
-     values=['SIMULAÇÃO · '+BANKS[bank]['name'],'Saldo atual: '+b.money(VIEW.get('budget',0)),'Crédito se aprovado: +'+b.money(amount),'Saldo após aprovação: '+b.money(VIEW.get('budget',0)+amount),'Resposta prevista: '+datestr(planned),'Parcela mensal: '+b.money(q['payment']),'Primeira cobrança prevista: '+due_date(planned,1),'Última cobrança prevista: '+due_date(planned,months),'Total contratado: '+b.money(q['total']),'Juros totais: '+b.money(q['total']-amount),'Taxa simulada: '+str(q['rate_bps']/100).replace('.',',')+'% ao mês']
-     def fill(a,values=values,bank=bank):
-      for i,text in enumerate(values):label(a,'detail'+str(i),text)
-      days=response_days(bank)
-      a.when(EQ(T('page'),2),lambda a:a.set(P(T('row0'),'hint'),'text','Resposta em '+str(days)+(' dia da carreira' if days==1 else ' dias da carreira')))
-     a.when(cond,fill)
+   a.when(EQ(T('bank'),bank),lambda a,bank=bank:a.do(R(1),'BankTerms'+str(bank)))
  a.when(('bin',17,EQ(T('page'),1),EQ(T('page'),2)),terms)
  def ledger(a):
   schedule=VIEW.get('schedule',[]);count=len(schedule)
@@ -392,13 +403,16 @@ def graphics(data,apt,template,shape,append,new_chars,controls,count,additions):
  for name,x in (('payNext',130),('payAll',680),('ledgerBack',1230)):button(name,x,815,520,60)
  button('previousStatement',130,750,240,54,'< Anterior');button('nextStatement',390,750,240,54,'Próxima >')
 
+EXTRA.extend(('LoadBankPlan'+str(bank),0,lambda a,bank=bank:load_bank_plan(a,bank)) for bank in range(len(BANKS)))
+EXTRA.extend(('BankTerms'+str(bank),0,lambda a,bank=bank:bank_terms(a,bank)) for bank in range(len(BANKS)))
+
 def build(view=None):
  global VIEW
  VIEW=dict(view if view is not None else json.loads((b.HERE/'runtime/finance_view.json').read_text(encoding='utf8')))
  try:parse_date(VIEW.get('date'))
  except (ValueError,TypeError):VIEW.update(date=None,ready=False,can_borrow=False,nonce='DISABLED',active=None,schedule=[])
  previous=b.money
- b.money=lambda amount:native_money(amount,VIEW.get('currency'),b.call,b.path)
+ b.money=lambda amount:format_money(amount,VIEW.get('currency'))
  try:
   b.Code=CurrencyCode;b.NONCE=VIEW.get('nonce','DISABLED');b.FIELDS=FIELDS;b.make_script=script;b.USE_R57=True;b.USE_R60=True;b.build()
  finally:b.money=previous

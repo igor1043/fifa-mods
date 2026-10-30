@@ -26,17 +26,16 @@ class FinanceV2UI(unittest.TestCase):
    self.assertFalse(s.get('setting'+str(at)))
    self.assertFalse(s.get('scene'+str(settings)).get('switchOn'+str(at)).get('_visible'))
  def test_every_money_field_uses_selected_native_save_currency(self):
+  from career_currency import format_money
   for currency in (0,1,2):
    v=view();v['currency']=currency
    scenes=ui.scenes(v);vm,s,calls=open_finance(v)
    for i,page in enumerate(scenes):vm.invoke(s.get('Go'),s,[i])
    currency_calls=[a for n,a in calls if n=='LocalizeCurrencyWithType']
-   self.assertTrue(currency_calls)
-   self.assertTrue(any(a[0] is True for a in currency_calls),'Chart axes must use native compact currency formatting too')
-   self.assertTrue(all(a[2]==currency for a in currency_calls))
+   self.assertFalse(currency_calls,'The financial view must not convert the stored accounting value')
    for i,page in enumerate(scenes):
     for n in page['nodes']:
-     if 'amount' in n:self.assertEqual(s.get('scene'+str(i)).get(n['name']).get('text'),f'MOEDA{currency} {n["amount"]}')
+     if 'amount' in n:self.assertEqual(s.get('scene'+str(i)).get(n['name']).get('text').encode('latin1').decode('utf8'),format_money(n['amount'],currency,n.get('compact',False),labels=v['currency_labels']))
  def test_operating_totals_include_staff_sponsor_costs_but_not_loan_principal(self):
   v=dict(date=20261123,months=[dict(month=202611,tv=100,tickets=200,sponsor=300,coach=-10,staff=-80,match_costs=-60,interest=-20,loans=-500,loan_credit=10000)])
   m=model(v);self.assertEqual((m['income'],m['expense'],m['result']),(600,170,430))
@@ -47,6 +46,6 @@ class FinanceV2UI(unittest.TestCase):
   self.assertEqual(len(toggles),len(SWITCHES))
   for a in toggles:self.assertLessEqual(a['y']+a['h'],804)
   receipts=next(s for s in scenes if s['key']=='receipts')
-  self.assertIn('tickets',[a['target'] for a in receipts['actions']])
+  self.assertTrue({'tickets','tv','sponsors'}.issubset({a['target'] for a in receipts['actions']}))
 
 if __name__=='__main__':unittest.main()

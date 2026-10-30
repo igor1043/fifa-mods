@@ -130,7 +130,7 @@ class InstallmentMailTests(unittest.TestCase):
         self.state, self.budget, _ = loan.pay(self.state,
             request_id='settle', club=1043, today=20260109, budget=self.budget, settle=True)
         self.state, self.budget, _ = loan.borrow(self.state,
-            request_id='second-loan', club=1043, today=20260110,
+            request_id='second-loan', club=1043, today=20260308,
             budget=self.budget, bank=3, amount=1_000_000, months=12)
         mail.schedule_reminders(self.folder, self.state)
         mail.schedule_reminders(self.folder, self.state)
@@ -139,11 +139,11 @@ class InstallmentMailTests(unittest.TestCase):
         self.assertEqual(len({n['id'] for n in rows}), 24)
         new = [n for n in rows if n['id'] not in old_ids]
         self.assertEqual(len(new), 12)
-        self.assertEqual(new[0]['due'], 20260209)
-        self.live['date'] = 20260207
+        self.assertEqual(new[0]['due'], 20260407)
+        self.live['date'] = 20260406
         self.send()
         self.assertFalse((self.out/'native_mail_request.tsv').exists())
-        self.live['date'] = 20260209
+        self.live['date'] = 20260407
         self.send()
         self.assertEqual(self.payload()['id'], new[0]['id'])
 

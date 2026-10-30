@@ -666,3 +666,20 @@ Atualizações dos dados não reiniciam o ator 3D.
 Temporada exibe até três cards por página, com a arte da competição por ID,
 J/V/E/D, gols pró/contra, pontos e aproveitamento por pontos conquistados.
 ↑/↓, direcional do controle e a roda do mouse sobre o painel percorrem as páginas.
+
+
+## Rankings mundiais e seleções — revisão local de 29/10
+
+Duas telas nativas claras/douradas mostram o ranking completo de clubes e de
+seleções, com foco na equipe do usuário, filtros e pontos detalhados. São dois
+novos itens na aba Temporada: no carrossel de estatísticas e em Outras ligas.
+O globo alterna clubes/seleções e audita a cobertura pela DB instalada.
+
+Método, fontes, controles e limites em `ModCarrerMode/docs/WORLD_RANKINGS_LOCAL.md`.
+A revisão fica local para teste, sem commit nem push.
+
+`career_results.py` cruza os placares com os totais nativos das classificações e
+o `leagueteamlinks` da própria carreira. O ranking e o resumo do time usam essa
+fonte compartilhada, inclusive para ligas simuladas sem calendário detalhado.
+J/V/E/D não duplicam fases/grupos nem partidas conhecidas. Gols ausentes ficam
+indisponíveis; um técnico recém-contratado não herda o retrospecto do antecessor.

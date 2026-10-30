@@ -1,5 +1,5 @@
 """Loan overview, contract history and an individual statement in native APT."""
-from loans import BANKS
+from loans import BANKS,MAX_ACTIVE,MAX_PER_YEAR
 
 # A compact native array keeps statement navigation independent from APT builds.
 ID,BANK,NAME,PRINCIPAL,TOTAL,REMAINING,PAID,MONTHS,DATE,SUBMITTED,STATUS,PAYABLE,SCHEDULE,LIST_TITLE,LIST_HINT,META=range(16)
@@ -15,8 +15,11 @@ def blocked_reason(view):
     if not view.get('ready'):return 'Aguardando os dados do clube.'
     application=view.get('application')
     if application:return 'Solicitação em análise. Aguarde a resposta do banco.'
-    if sum(c['paid']<c['months'] for c in contracts(view))>=2:return 'Limite de dois empréstimos ativos atingido.'
-    return 'Limite de duas contratações no ano atingido.'
+    if sum(c['paid']<c['months'] for c in contracts(view))>=MAX_ACTIVE:return 'Limite de quatro empréstimos ativos atingido.'
+    if view.get('next_borrow_date',0)>view.get('date',0):
+        from loans import parse_date
+        return 'Próximo pedido em '+parse_date(view['next_borrow_date']).strftime('%d/%m/%Y')+' · intervalo de dois meses.'
+    return view.get('credit_error') or 'Limite de quatro contratações no ano atingido.'
 
 def install(ui):
     u=ui;T=u.T;R=u.R;P=u.P;EQ=u.EQ;ADD=u.ADD
@@ -111,7 +114,7 @@ def install(ui):
                 remaining=sum(p['amount'] for c in active_rows for p in c['payments'][c['paid']:])
                 next_day=min(c['payments'][c['paid']]['date'] for c in active_rows)
                 next_amount=sum(c['payments'][c['paid']]['amount'] for c in active_rows if c['payments'][c['paid']]['date']==next_day)
-                u.label(a,'overviewState',str(len(active_rows))+' de 2 empréstimos ativos')
+                u.label(a,'overviewState',str(len(active_rows))+' de 4 empréstimos ativos')
                 u.label(a,'overviewLine0','Total a pagar: '+u.b.money(remaining));a.set(T('overviewLine0'),'textColor',0x26744a)
                 u.label(a,'overviewLine1','Próxima cobrança: '+u.datestr(next_day)+' · '+u.b.money(next_amount))
                 u.label(a,'overviewLine2','Escolha o contrato em Meus empréstimos.')
@@ -121,9 +124,9 @@ def install(ui):
                 u.label(a,'overviewLine2','A resposta chegará à caixa de mensagens.')
             else:
                 u.label(a,'overviewState','Nenhuma dívida ativa');a.set(T('overviewState'),'textColor',0x26744a)
-                u.label(a,'overviewLine0',str(u.VIEW.get('used',0))+' de 2 contratações utilizadas neste ano')
-                u.label(a,'overviewLine1','Cada contrato mantém seu próprio extrato de parcelas.')
-                u.label(a,'overviewLine2','Consulte o histórico em Meus empréstimos.')
+                u.label(a,'overviewLine0',str(u.VIEW.get('used',0))+' de 4 contratações utilizadas neste ano')
+                u.label(a,'overviewLine1','Intervalo mínimo de dois meses entre contratações.')
+                u.label(a,'overviewLine2',('Crédito total do clube: '+u.b.money(u.VIEW['credit']['capacity'])) if u.VIEW.get('credit') else 'Consulte o histórico em Meus empréstimos.')
         a.when(EQ(T('page'),0),home)
 
         def listing(a):
@@ -226,7 +229,7 @@ def install(ui):
             a.when(('bin',72,T('focus'),count),lambda a:(a.set(R(1),'contractIndex',T('focus')),a.set(R(1),'individualOffset',0),u.go(a,3),a.ret()))
             def new(a):
                 if u.VIEW.get('can_borrow'):u.go(a,1,0)
-                else:u.label(a,'contractLine3',('Resposta prevista: '+u.datestr(u.VIEW['application']['decision_date'])) if u.VIEW.get('application') else 'Limite de dois empréstimos ativos.' if sum(c['paid']<c['months'] for c in contracts(u.VIEW))>=2 else 'Limite de dois empréstimos no ano.')
+                else:u.label(a,'contractLine3',('Resposta prevista: '+u.datestr(u.VIEW['application']['decision_date'])) if u.VIEW.get('application') else blocked_reason(u.VIEW))
             a.when(EQ(T('focus'),count),new,lambda a:u.go(a,0,1));a.ret()
         a.when(EQ(T('page'),7),listing)
         def statement(a):

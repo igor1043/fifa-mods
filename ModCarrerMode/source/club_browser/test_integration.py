@@ -34,7 +34,7 @@ def run(game,package):
     vm.invoke(view.get('OnAnimateInComplete'),view)
     assert sum(n=='SendSystemEvent' and a[1]=='DONE_LOADING' for n,a in calls)==1
     help_=vm.invoke(view.get('getHelpContext'),view)
-    assert [x[0] for x in help_]==['ADVANCE','BACK','LAS_LR','L2R2','L1R1']
+    assert [x[0] for x in help_]==['ADVANCE','BACK','LAS_LR','L2R2','L1R1','OPTION_TOP']
     def press(code):return vm.invoke(view.get('LocalEventHandler'),view,(code,True))
     def command(name):return any(n=='SendSystemEvent' and list(a)==['Calendar','Server16ClubBrowser',name] for n,a in calls)
     press(2);assert view.get('navPage')==1 and command('open')

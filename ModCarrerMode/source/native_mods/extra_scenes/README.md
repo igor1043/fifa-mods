@@ -4,9 +4,9 @@ Renderização nativa do FIFA 16, timestamp 577DE45C. O enquadramento foi confir
 
 ## Frequência e duração
 
-- 40% de chance por parada elegível, um único sorteio por parada.
+- 50% de chance por parada elegível, um único sorteio por parada.
 - Intervalo mínimo de 10 segundos reais após terminar a tomada anterior. Não significa uma cena a cada 10 segundos: precisa existir uma nova cutscene compatível e passar pelo sorteio.
-- Pesos iguais (1:1) para técnico e mascote quando ambos estão disponíveis. Os pesos dividem a seleção entre personagens; a chance controla a frequência total.
+- Pesos 3:2 para técnico e mascote quando ambos estão disponíveis: chance nominal de 30% para o técnico e 20% para o mascote por parada elegível. O ajuste de 30/10 aumenta o técnico em dez pontos percentuais e conserva a chance nominal do mascote. Os pesos dividem a seleção entre personagens; a chance controla a frequência total. As verificações de disponibilidade e o fallback quando um personagem não pode ser enquadrado continuam valendo.
 - O personagem selecionado permanece nos fragmentos compatíveis da mesma sequência nativa, inclusive na transição para a reação `emotion`. A troca de grafo ou o antigo limite artificial de 5 segundos não interrompem mais essa tomada para mostrar o jogador reclamando.
 - O FIFA continua dono da duração e da retomada. Ao voltar à partida, entrar em replay, menu ou cena incompatível, a câmera é liberada. O mod não estica a parada além da janela nativa e respeita o usuário pulando a cena.
 

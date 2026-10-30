@@ -31,6 +31,28 @@ class FinanceV2(unittest.TestCase):
   self.assertEqual(len(s['finance']['commercial']),1)
   s,b2,again=f.apply(s,club=1043,today=20260702,budget=b,context=ctx)
   self.assertEqual(b,b2);self.assertFalse(again)
+ def test_imported_schema2_agreement_adds_missing_operation_rate_only_next_day(self):
+  s,b,_=self.apply(empty(1043,20260511),20260511)
+  contract=next(iter(s['finance']['agreements'].values()));contract['rules'].pop('match_cost_bps')
+  s,b,e=self.apply(s,20260512,budget=b)
+  contract=next(iter(s['finance']['agreements'].values()))
+  self.assertNotIn('match_cost_bps',f.match_terms(contract,20260512)['rules'])
+  self.assertEqual(f.match_terms(contract,20260513)['rules']['match_cost_bps'],4000)
+  again,_,_=self.apply(s,20260512,budget=b)
+  self.assertEqual(len(next(iter(again['finance']['agreements'].values()))['revisions']),1)
+ def test_existing_zero_cost_receipt_never_receives_a_backdated_debit(self):
+  s,b,_=self.apply(empty(1043,20260511),20260511)
+  s,b,_=self.apply(s,20260512,[match()],b)
+  s['finance']['entries']=[e for e in s['finance']['entries'] if e['kind']!='match_costs']
+  original=copy.deepcopy(s['finance']['entries'])
+  s,b2,events=self.apply(s,20260513,[match()],b)
+  self.assertEqual(b2,b);self.assertFalse(events);self.assertEqual(s['finance']['entries'],original)
+ def test_explicit_zero_and_custom_operation_rates_are_preserved(self):
+  for value in (0,2500,5500):
+   p=dict(f.DEFAULT_RULES,match_cost_bps=value)
+   s,b,_=self.apply(empty(1043,20260511),20260511,policy=p)
+   s,b,e=self.apply(s,20260512,[match()],b,policy=p)
+   self.assertEqual(sum(-r['amount'] for r in e if r['kind']=='match_costs'),sum(r['amount'] for r in e if r['kind']=='tickets')*value//10000)
  def test_strength_increases_sponsorship_and_staff_without_using_live_cash(self):
   p=f.rules();small=context();small['club_profile']=dict(base_budget=2_000_000,prestige=4)
   big=context();big['club_profile']=dict(base_budget=28_000_000,prestige=20)

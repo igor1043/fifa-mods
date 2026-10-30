@@ -2,6 +2,7 @@
 from pathlib import Path
 import io,math
 from PIL import Image,ImageDraw
+from concurrent.futures import ThreadPoolExecutor
 from layout import Scene
 from ui_theme import ACCENT
 from profile_layout import profile_scene
@@ -43,10 +44,15 @@ def prepare_assets(game,model):
  folder=Path(game)/'ModCarrerMode/data/manager_market';default=folder/'minifaces/NOTFOUND_DEFAULT.png'
  from club_portraits import colors,portrait
  palettes=colors(game);current={model['people'][r[7]]['head']:palettes.get(int(r[4].split('_')[1])) for r in model['clubRows'] if r[5]!='head_NOTFOUND_DEFAULT'}
- for p in model['people']+[dict(head='head_NOTFOUND_DEFAULT',image='minifaces/NOTFOUND_DEFAULT.png')]:
-  if p['head'] in assets:continue
+ unique={p['head']:p for p in model['people']}
+ unique['head_NOTFOUND_DEFAULT']=dict(head='head_NOTFOUND_DEFAULT',image='minifaces/NOTFOUND_DEFAULT.png')
+ def prepare_head(p):
   path=folder/p['image']
-  with Image.open(path if path.is_file() else default) as src:assets[p['head']]=portrait(src,current.get(p['head']))
+  with Image.open(path if path.is_file() else default) as src:return p['head'],portrait(src,current.get(p['head']))
+ # Only immutable artwork is parallel. SQL simulation, save ownership and
+ # publication keep their single owner in the service loop.
+ with ThreadPoolExecutor(max_workers=4,thread_name_prefix='coach-portraits') as pool:
+  assets.update(pool.map(prepare_head,unique.values()))
  def art(key,candidates,size,fallback):
   for candidate in candidates:
    try:
@@ -84,7 +90,7 @@ def prepare_assets(game,model):
 
 def shell(model,key,title):
  s=Scene(key,title);s.rect(60,90,1800,828,PAPER);s.text(96,111,1680,50,'MERCADO DE TÉCNICOS',36,INK,bold=True)
- date=str(model['date']);s.text(98,164,1700,29,model['clubName']+' · '+date[6:8]+'/'+date[4:6]+'/'+date[:4]+' · Salários em moeda da carreira' if model.get('ready') else 'Aguardando os dados da carreira aberta...',21,MUTED)
+ text(s,'careerMeta',98,164,1700,29,'',21,MUTED)
  for i,label in enumerate(TABS):
   action(s,96+i*580,203,568,44,i,size=24);image(s,'accent','tabMark'+str(i),96+i*580,203,568,44)
   s.image('nav_'+('shield','trophy','coach')[i],235+i*580,215,22,22)

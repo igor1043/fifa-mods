@@ -1,4 +1,5 @@
 import unittest
+from unittest.mock import patch
 from loans import empty,borrow,pay,advance,presentation
 from bank_design import N
 from test_finance_live_ui import open_screen,text
@@ -10,7 +11,9 @@ class LoanNavigationTests(unittest.TestCase):
  def history(self):
   state,budget,_=borrow(empty(517,20260101),request_id='old',club=517,today=20260101,budget=24_500_000,bank=3,amount=1_000_000,months=6)
   state,budget,_=pay(state,request_id='settled',club=517,today=20260102,budget=budget,settle=True)
-  state,budget,_=borrow(state,request_id='active',club=517,today=20260201,budget=budget,bank=7,amount=3_000_000,months=12)
+  # Preserve a pre-policy contract history to check old statement rendering.
+  with patch('loans.borrowing_date',return_value=0):
+   state,budget,_=borrow(state,request_id='active',club=517,today=20260201,budget=budget,bank=7,amount=3_000_000,months=12)
   state,budget,_=advance(state,club=517,today=20260301,budget=budget)
   return presentation(state,20260301,budget,ready=True,nonce='HISTORY',club_name='Botafogo',wage_budget=100_000)
  def press(self,vm,screen,method,*args):return vm.invoke(screen.get(method),screen,args)

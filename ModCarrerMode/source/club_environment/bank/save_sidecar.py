@@ -142,6 +142,7 @@ CREATE TABLE IF NOT EXISTS finance_preferences(checkpoint TEXT,club INTEGER,sett
 CREATE TABLE IF NOT EXISTS finance_agreements(checkpoint TEXT,club INTEGER,agreement_id TEXT,season INTEGER,competition_id INTEGER,name TEXT,per_match INTEGER,start_date INTEGER,payload_json TEXT,PRIMARY KEY(checkpoint,club,agreement_id));
 CREATE TABLE IF NOT EXISTS finance_entries(checkpoint TEXT,club INTEGER,event_id TEXT,kind TEXT,game_date INTEGER,applied_date INTEGER,amount INTEGER,status TEXT,payload_json TEXT,PRIMARY KEY(checkpoint,club,event_id));
 CREATE TABLE IF NOT EXISTS finance_commercial(checkpoint TEXT,club INTEGER,season INTEGER,payload_json TEXT NOT NULL,PRIMARY KEY(checkpoint,club,season));
+CREATE TABLE IF NOT EXISTS finance_attendance(checkpoint TEXT,club INTEGER,fixture_key TEXT,payload_json TEXT NOT NULL,PRIMARY KEY(checkpoint,club,fixture_key));
 '''
 
 def finance_schema(db):
@@ -181,7 +182,7 @@ def write_finance(db,checkpoint,state):
     club=state['club']
     if book['club']!=club:raise ValueError('Clube divergente nas finanças')
     db.execute('INSERT OR REPLACE INTO finance_preferences VALUES(?,?,?)',(checkpoint,club,encode(book['settings'])))
-    for table in ('finance_agreements','finance_entries','finance_commercial'):
+    for table in ('finance_agreements','finance_entries','finance_commercial','finance_attendance'):
         db.execute('DELETE FROM '+table+' WHERE checkpoint=? AND club=?',(checkpoint,club))
     for row in book['agreements'].values():
         db.execute('INSERT INTO finance_agreements VALUES(?,?,?,?,?,?,?,?,?)',
@@ -191,3 +192,21 @@ def write_finance(db,checkpoint,state):
             (checkpoint,club,row['id'],row['kind'],row['date'],row.get('paid_date'),row['amount'],row['status'],encode(row)))
     for season,row in book.get('commercial',{}).items():
         db.execute('INSERT INTO finance_commercial VALUES(?,?,?,?)',(checkpoint,club,int(season),encode(row)))
+    for key,row in book.get('attendance',{}).items():
+        db.execute('INSERT INTO finance_attendance VALUES(?,?,?,?)',(checkpoint,club,key,encode(row)))
+
+
+def credit_rules(save):
+    """Additive simulation policy in the existing sidecar, never native DATA."""
+    from credit_policy import DEFAULTS,BANK_FACTORS,rules
+    path=path_for(save);backup=path.with_name('server16_loans.before-credit-v1.sqlite3')
+    if path.exists() and not backup.exists():
+        source=sqlite3.connect(path,timeout=3);target=sqlite3.connect(backup)
+        try:source.backup(target)
+        finally:target.close();source.close()
+    with connection(save) as db:
+        db.execute('CREATE TABLE IF NOT EXISTS credit_rules(key TEXT PRIMARY KEY,value INTEGER NOT NULL)')
+        db.execute('CREATE TABLE IF NOT EXISTS credit_banks(slug TEXT PRIMARY KEY,factor_bps INTEGER NOT NULL CHECK(factor_bps BETWEEN 1000 AND 10000))')
+        db.executemany('INSERT OR IGNORE INTO credit_rules VALUES(?,?)',DEFAULTS.items())
+        db.executemany('INSERT OR IGNORE INTO credit_banks VALUES(?,?)',BANK_FACTORS.items())
+        return rules(dict(db.execute('SELECT key,value FROM credit_rules'))),dict(db.execute('SELECT slug,factor_bps FROM credit_banks'))

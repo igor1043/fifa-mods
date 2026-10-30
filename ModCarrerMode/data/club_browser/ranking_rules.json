@@ -1,0 +1,54 @@
+{
+  "schema": 1,
+  "version": 4,
+  "campaign_scale": 1.5,
+  "years": 4,
+  "excluded_clubs": [
+    111205
+  ],
+  "clubs": {
+    "seed_base": 500,
+    "overall_weight": 12,
+    "prestige_weight": 18,
+    "elo_divisor": 600,
+    "match_k": 28,
+    "title_bonus": 36,
+    "league": 1.0,
+    "cup": 0.9,
+    "supercup": 0.65,
+    "continental": 1.6,
+    "world": 2.0,
+    "friendly": 0.3,
+    "title_year_decay": 0.8,
+    "domestic_prestige_weight": 14
+  },
+  "coaches": {
+    "prior_games": 24,
+    "performance_weight": 1100,
+    "games_weight": 36,
+    "title_bonus": 40,
+    "title_cap": 5,
+    "club_overall_weight": 5,
+    "club_domestic_weight": 8,
+    "club_international_weight": 10
+  },
+  "nations": {
+    "seed_base": 800,
+    "overall_origin": 50,
+    "overall_weight": 18,
+    "prestige_weight": 8,
+    "elo_divisor": 600,
+    "friendly": 10,
+    "qualifier": 25,
+    "continental_group": 35,
+    "continental_knockout": 40,
+    "world_group": 50,
+    "world_knockout": 60
+  },
+  "sources": [
+    "https://inside.fifa.com/en/fifa-rankings/world-ranking/procedure-men",
+    "https://digitalhub.fifa.com/m/f99da4f73212220/original/edbm045h0udbwkqew35a-pdf.pdf",
+    "https://www.fifa.com/en/tournaments/mens/fifa-club-world-cup/articles/fifa-council-confirms-key-details-club-world-cup-2025"
+  ],
+  "description": "Ranking da carreira, não a tabela oficial em tempo real. Placares usam SUM/Elo; jogos simulados disponíveis somente em totais de classificação entram como componente separado de campanha, sem inventar adversários. Equipes de exibição configuradas são excluídas dos clubes. Treinadores usam jogos atribuídos no histórico do mercado, aproveitamento suavizado pela amostra e títulos confirmados."
+}

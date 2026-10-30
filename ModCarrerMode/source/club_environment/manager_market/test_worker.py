@@ -1,5 +1,6 @@
 from pathlib import Path
 import json,shutil,tempfile,unittest
+import threading
 from types import SimpleNamespace
 from unittest.mock import patch
 import test_screen  # Establish the same shipped runtime paths as the APT tests.
@@ -8,6 +9,33 @@ import worker
 from engine import Market
 
 class WorkerRecoveryTest(unittest.TestCase):
+ def test_failed_package_validation_never_becomes_a_cached_publication(self):
+  with tempfile.TemporaryDirectory() as tmp:
+   path=Path(tmp)/'ready.big';request=dict(package=path,model={})
+   def fail(game,target,model):target.write_bytes(b'invalid');raise ValueError('Invalid APT')
+   with patch.object(worker,'build',side_effect=fail):
+    with self.assertRaisesRegex(ValueError,'Invalid APT'):worker.render_package(request)
+   self.assertFalse(path.exists());self.assertEqual([],list(path.parent.glob('*.building.big')))
+ def test_background_render_does_not_block_calendar_simulation_or_publish_old_date(self):
+  with tempfile.TemporaryDirectory() as tmp:
+   game=Path(tmp);root=game/'runtime';cat=game/'ModCarrerMode/data/manager_market/catalog.sqlite3';cat.parent.mkdir(parents=True);catalog(cat)
+   snapshot=game/'ModCarrerMode/runtime/career_fce_snapshot.json';snapshot.parent.mkdir(parents=True);save=game/'saves/slot/DATA';save.parent.mkdir(parents=True);save.write_bytes(b'unchanged')
+   current=dict(context(),digest='A');observed=dict(save=dict(path=str(save),pid=10,process_created_100ns=20),profile=dict(context_address=1,club_id=3,registry_address=123,context_epoch=2),date=20260101,signature=('A',20260101))
+   entered=threading.Event();release=threading.Event()
+   def build(g,p,m):
+    entered.set()
+    if not release.wait(5):raise RuntimeError('Test renderer timed out')
+    p.parent.mkdir(parents=True,exist_ok=True);p.write_bytes(str(m['date']).encode())
+   with patch.multiple(worker,GAME=game,ROOT=root,DEST=game/'screen.big'),patch.object(worker,'Inputs') as inputs,patch.object(worker,'io_event',return_value=dict(operation='read',access_tick_ms='1')),patch.object(worker,'build',side_effect=build),patch.object(worker,'log'):
+    inputs.return_value.read.side_effect=lambda *a,**k:dict(current);service=worker.Service(background=True)
+    try:
+     snapshot.write_text(json.dumps(dict(fixtures=[],standings=[])));service.update(observed,None);self.assertTrue(entered.wait(2));self.assertFalse((game/'screen.big').exists())
+     current.update(date=20260120,fixtures=matches(5));observed.update(date=20260120,signature=('A',20260120));snapshot.write_text(json.dumps(dict(fixtures=current['fixtures'],standings=[])))
+     service.update(observed,None);self.assertEqual(5,len(service.market.rows('results')));self.assertFalse((game/'screen.big').exists())
+     release.set();service.pending[0].result(timeout=5);service.update(observed,None)
+     if service.pending:service.pending[0].result(timeout=5);service.update(observed,None)
+     self.assertEqual(b'20260120',(game/'screen.big').read_bytes());self.assertEqual(b'unchanged',save.read_bytes())
+    finally:release.set();service.close()
  def test_ui_failure_does_not_replay_already_processed_load(self):
   with tempfile.TemporaryDirectory() as tmp:
    game=Path(tmp);root=game/'runtime';cat=game/'ModCarrerMode/data/manager_market/catalog.sqlite3';cat.parent.mkdir(parents=True);catalog(cat);snapshot=game/'ModCarrerMode/runtime/career_fce_snapshot.json';snapshot.parent.mkdir(parents=True);save=game/'saves/slot/DATA';save.parent.mkdir(parents=True);save.write_bytes(b'unchanged');snapshot.write_text(json.dumps(dict(fixtures=[],standings=[])))

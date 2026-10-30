@@ -21,7 +21,7 @@ class FrozenReleaseSources(unittest.TestCase):
             modules[module]=compile(raw,module.replace('.','/')+'.py','exec',optimize=0)
         return SimpleNamespace(extract=modules.__getitem__)
 
-    def test_all_five_current_modules_match(self):
+    def test_all_current_modules_match(self):
         with tempfile.TemporaryDirectory() as folder:
             root=Path(folder);archive=self.fixture(root)
             self.assertEqual(verify.check_frozen_sources(archive,root),list(verify.FROZEN_SOURCE_MODULES))

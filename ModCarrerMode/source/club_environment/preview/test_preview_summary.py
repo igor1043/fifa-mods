@@ -61,10 +61,12 @@ class MatchSummaryTests(unittest.TestCase):
             self.assertEqual(self.native_text(center.get('stadiumName')),'Estádio do mandante')
             self.assertEqual(center.get('h2hCount0').get('text'),'3')
             self.assertEqual(center.get('form0_0').get('text'),'V')
-            self.assertIn('Rio de Janeiro, RJ',view.get('matchInfo').get('text'))
+            self.assertIsNone(view.get('matchInfo'))
+            self.assertIn('Rio de Janeiro, RJ',view.get('venuePage').get('stadiumLocation').get('text'))
             for page in (1,2,0):
                 vm.invoke(view.get('ShowPage'),view,[page])
                 self.assertEqual(center.get('_visible'),page==0)
+                self.assertEqual(view.get('venuePage').get('_visible'),page==1)
             for symbol in ('Server16LineupPitch','Server16OpponentLineupPitch'):
                 parts={p.name:p for p in apt.characters[apt.exports[symbol]].frames[0] if isinstance(p,Placement) and p.name}
                 self.assertEqual(parts['teamHeader'].matrix[4:],(screen.FIELD_X,0))

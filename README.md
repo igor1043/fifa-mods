@@ -4,15 +4,28 @@ Mais vida na carreira, nos uniformes e na apresentação das partidas do FIFA 16
 
 O FIFA Friends V12 reúne melhorias para acompanhar seu clube, personalizar a experiência e dar mais identidade a cada competição. O [Server16](https://github.com/igor1043/CG-File-Server-16---Python-Port/tree/fifa-friends) é o painel que acompanha o projeto e permite escolher os recursos antes e durante a partida.
 
-**Edição:** FIFA Friends V12 · **Atualizado em:** 29/10/2026
+**Edição:** FIFA Friends V12 · **Atualizado em:** 30/10/2026
 
 **Server16 incluído:** 0.2.19. As DLLs compiladas ficam nesta branch, organizadas em uma pasta por mod. O [índice dos módulos ativos](ModCarrerMode/mods/README.md) informa arquivos, funções e configurações.
 
 A combinação Git + ZIP é agora verificada em uma pasta vazia, sem caches do desenvolvedor, incluindo igualdade entre o módulo embutido no EXE e o fonte publicado.
 
+## Entrega — 30/10/2026
+
+Use o código desta branch e **FIFA-Friends-Assets-Complementares-20261030.zip**, completo e substituto do complemento R2. Requer a base FIFA Friends. Atualize com FIFA e Server16 fechados.
+
+- Rankings de clubes, seleções e técnicos com campanhas de todas as ligas disponíveis na carreira, prestígio e navegação revisados.
+- Finanças com bilheteria por partida, público variável, receitas brutas, custos e líquidas, moeda da carreira e reconciliação dos lançamentos com a verba real. Empréstimos seguem porte, dívida, quatro contratos e intervalo de dois meses.
+- Ver clubes inclui seleções, divisões organizadas, perfil do técnico, elenco, onze iniciais e visualização do mascote. Corrigidos números de uniformes, foco ao voltar e estabilidade dos modelos estáticos.
+- Próxima partida reúne escalações, dados do estádio e histórico; integração dos cards do Robson e novos ícones.
+- Mercado de técnicos preparado em segundo plano, com cache visual e retratos processados em paralelo. Corrigido o pacote que excedia o limite do carregador após a ampliação das fotos.
+- Server16 sincronizado com o executável instalado: recuperação do overlay, avisos de carregamento e primeira pessoa em 130°/extra-alta. O experimento de gramado permanece oculto e desligado.
+
+[Instalação, diferenças do ZIP anterior e limites de validação](ModCarrerMode/docs/RELEASE_20261030.md).
+
 ## Correção R2 — 29/10/2026
 
-**Esta é a entrega atual:** código atualizado + **FIFA-Friends-Assets-Complementares-20261029-R2.zip**. O complemento foi refeito do zero e substitui o ZIP anterior do mesmo dia; requer a base FIFA Friends instalada.
+Entrega anterior: código atualizado + **FIFA-Friends-Assets-Complementares-20261029-R2.zip**. O complemento foi refeito do zero e substitui o ZIP anterior do mesmo dia; requer a base FIFA Friends instalada.
 
 - **Server16:** novo executável com as correções de aplicação/restauração de estádio e redes. As rotinas verificam herança/acesso às pastas de assets do Server, preservando as permissões existentes e registrando falhas.
 - **Técnicos:** catálogo público e fotos ampliados, com verificação de todas as imagens referenciadas. O manifesto registra a contagem e os hashes desta entrega.

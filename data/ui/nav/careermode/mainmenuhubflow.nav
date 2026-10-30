@@ -1452,6 +1452,18 @@
               "targets": [
                 "Server16ManagerMarket"
               ]
+            },
+            {
+              "event": "Server16EnterWorldClubRanking",
+              "targets": [
+                "Server16WorldClubRanking"
+              ]
+            },
+            {
+              "event": "Server16EnterWorldNationRanking",
+              "targets": [
+                "Server16WorldNationRanking"
+              ]
             }
           ]
         },
@@ -3400,6 +3412,24 @@
           "name": "Server16ManagerMarket",
           "type": "external",
           "file": "/careerMode/server16ManagerMarketFlow.nav",
+          "outputs": {
+            "back": "MainMenuHub",
+            "Back": "MainMenuHub"
+          }
+        },
+        {
+          "name": "Server16WorldClubRanking",
+          "type": "external",
+          "file": "/careerMode/server16WorldClubRankingFlow.nav",
+          "outputs": {
+            "back": "MainMenuHub",
+            "Back": "MainMenuHub"
+          }
+        },
+        {
+          "name": "Server16WorldNationRanking",
+          "type": "external",
+          "file": "/careerMode/server16WorldNationRankingFlow.nav",
           "outputs": {
             "back": "MainMenuHub",
             "Back": "MainMenuHub"

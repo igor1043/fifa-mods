@@ -44,15 +44,15 @@ for bank in BANKS:
 BANK_DEFAULTS=tuple(dict(bank) for bank in BANKS)
 OFFERED_BANKS=tuple(range(3,len(BANKS)))
 # Append-only wire indexes keep pending V2/V3 requests compatible.
-AMOUNTS = (1_000_000, 3_000_000, 5_000_000, 10_000_000, 20_000_000, 30_000_000, 50_000_000, 75_000_000, 100_000_000)
+AMOUNTS = (1_000_000, 3_000_000, 5_000_000, 10_000_000, 20_000_000, 30_000_000, 50_000_000, 75_000_000, 100_000_000, 100_000, 250_000, 500_000, 750_000, 2_000_000, 7_500_000, 15_000_000, 125_000_000, 150_000_000)
 TERMS = (6, 12, 24, 36, 48)
-MAX_ACTIVE = 2
-MAX_PER_YEAR = 2
+MAX_ACTIVE = 4
+MAX_PER_YEAR = 4
 # Fictional game products, unrelated to real credit offers. Existing proposals
 # and contracts retain their stored quote, independent of catalog changes.
 PRODUCTS = {'bb':(50_000_000,48),'bmg':(20_000_000,36),'crefisa':(10_000_000,24),
     'sicredi':(20_000_000,36),'banrisul':(30_000_000,36),'master':(30_000_000,36),
-    'bradesco':(75_000_000,48),'itau':(100_000_000,48),'caixa':(50_000_000,48),'santander':(100_000_000,48)}
+    'bradesco':(75_000_000,48),'itau':(150_000_000,48),'caixa':(50_000_000,48),'santander':(150_000_000,48)}
 
 def product_limits(bank):
     if type(bank) is not int or not 0<=bank<len(BANKS):raise ValueError('Banco inválido')
@@ -60,7 +60,7 @@ def product_limits(bank):
 
 def amount_indices(bank):
     maximum,_=product_limits(bank)
-    return tuple(i for i,value in enumerate(AMOUNTS) if value<=maximum)
+    return tuple(sorted((i for i,value in enumerate(AMOUNTS) if value<=maximum),key=lambda i:AMOUNTS[i]))
 
 def term_indices(bank):
     _,maximum=product_limits(bank)
@@ -74,7 +74,7 @@ def quoted_rate(bank,amount,months):
     base=BANKS[bank]['rate_bps']
     if bank<3:return base # legacy prototype contracts/offers
     premium=next(extra for limit,extra in ((5_000_000,0),(10_000_000,25),(20_000_000,60),
-        (30_000_000,110),(50_000_000,170),(75_000_000,240),(100_000_000,320)) if amount<=limit)
+        (30_000_000,110),(50_000_000,170),(75_000_000,240),(100_000_000,320),(150_000_000,420)) if amount<=limit)
     return base+premium+(0 if months<=12 else 15 if months<=24 else 40 if months<=36 else 70)
 MAX_BUDGET = 2_000_000_000
 
@@ -108,12 +108,12 @@ def response_date(value,bank):
     return int((parse_date(value)+timedelta(days=response_days(bank))).strftime('%Y%m%d'))
 
 
-def quote(bank, amount, months):
+def quote(bank, amount, months, *, extra_bps=0):
     if type(bank) is not int or not 0 <= bank < len(BANKS):
         raise ValueError("Banco invalido")
     if not offered(bank,amount,months):
         raise ValueError('Valor ou prazo indisponível para este banco')
-    rate_bps=quoted_rate(bank,amount,months)
+    rate_bps=quoted_rate(bank,amount,months)+extra_bps
     rate = Decimal(rate_bps) / 10000
     with localcontext() as context:
         context.prec = 40
@@ -139,6 +139,10 @@ def empty(club, today):
     return {"schema": 1, "club": club, "last_date": today, "contracts": [], "processed": []}
 
 
+def borrowing_date(state):
+    return max((next_month(c["date"],2) for c in state["contracts"]),default=0)
+
+
 def borrow(state, *, request_id, club, today, budget, bank, amount, months, offer=None):
     """Return a proposed new state and budget; caller owns guarded publication."""
     if request_id in state["processed"]:
@@ -151,9 +155,11 @@ def borrow(state, *, request_id, club, today, budget, bank, amount, months, offe
     if not 0 <= budget <= MAX_BUDGET - amount:
         raise ValueError("O credito excede o limite de orcamento")
     if sum(c["paid"]<c["months"] for c in state["contracts"])>=MAX_ACTIVE:
-        raise ValueError('Limite de dois empréstimos ativos atingido')
+        raise ValueError('Limite de quatro empréstimos ativos atingido')
     if sum(c['date']//10000==today//10000 for c in state['contracts'])>=MAX_PER_YEAR:
-        raise ValueError('Limite de dois empréstimos no ano da carreira atingido')
+        raise ValueError('Limite de quatro empréstimos no ano da carreira atingido')
+    if today<borrowing_date(state):
+        raise ValueError("Aguarde dois meses entre contratações. Próximo pedido em "+parse_date(borrowing_date(state)).strftime("%d/%m/%Y"))
     contract = deepcopy(offer) if offer is not None else quote(bank, amount, months)
     if (contract["bank"],contract["principal"],contract["months"])!=(bank,amount,months):raise ValueError("Proposta divergente")
     contract.setdefault("bank_name",BANKS[bank]["name"])
@@ -168,7 +174,7 @@ def borrow(state, *, request_id, club, today, budget, bank, amount, months, offe
                                     "date": today, "bank": BANKS[bank]["name"]}]
 
 
-def underwriting(state,request_id,budget,bank,amount,months,roll=None):
+def underwriting(state,request_id,budget,bank,amount,months,roll=None,credit=None,today=None):
     """Freeze one draw per submitted proposal; reopening never rerolls it.
 
     Live request IDs contain the worker's random session nonce. Hashing that
@@ -181,30 +187,48 @@ def underwriting(state,request_id,budget,bank,amount,months,roll=None):
     ratio=exposure/max(1,budget)
     penalty=0 if ratio<=.25 else 400 if ratio<=.5 else 1000 if ratio<=1 else 2000 if ratio<=2 else 3500
     probability=min(6500,base+penalty+(300 if months>24 else 0))
+    if credit:
+        from credit_policy import recent_refusals
+        policy=credit['policy'];facility=max(1,credit['capacity'])
+        debt_ratio=exposure/facility
+        debt_penalty=0 if debt_ratio<=.25 else 700 if debt_ratio<=.5 else 1600 if debt_ratio<=.75 else 3000
+        arrears=any(p['date']<today for c in state['contracts'] for p in c['payments'][c['paid']:])
+        probability=min(policy['max_decline_bps'],base+penalty+debt_penalty+
+            min(2,recent_refusals(state,today))*policy['recent_refusal_bps']+
+            (policy['arrears_bps'] if arrears else 0)+(300 if months>24 else 0))
     draw=int.from_bytes(hashlib.sha256(('loan-underwriting-v1|'+request_id).encode()).digest()[:8],'big')%10000 if roll is None else roll
     if type(draw) is not int or not 0<=draw<10000:raise ValueError('Sorteio de análise inválido')
     return dict(version=1,decline_bps=probability,roll=draw,budget_at_request=budget,outstanding_at_request=outstanding)
 
-def request_loan(state, *, request_id, club, today, budget, bank, amount, months,submitted_on=None,currency=None,underwriting_roll=None):
+def request_loan(state, *, request_id, club, today, budget, bank, amount, months,submitted_on=None,currency=None,underwriting_roll=None,credit=None):
     """Register an application; it changes neither budget nor contracted debt."""
     if 'request:'+request_id in state['processed']:
         return deepcopy(state),budget,[]
     submitted=today if submitted_on is None else submitted_on
     parse_date(submitted)
     if submitted>today:raise ValueError('A data da proposta está à frente da carreira')
+    from credit_policy import retry_date
+    retry=retry_date(state,bank,today)
+    if retry>today:raise ValueError('Este banco está em carência após recusa. Próximo pedido em '+parse_date(retry).strftime('%d/%m/%Y'))
     borrow(state,request_id=request_id,club=club,today=today,budget=budget,bank=bank,amount=amount,months=months)
+    if credit is not None:
+        from credit_policy import validate
+        validate(credit,bank,amount,today)
+    from credit_policy import quote as credit_quote
+    offer=credit_quote(credit,bank,amount,months)
     result=deepcopy(state)
     result['application']=dict(id=request_id,club=club,bank=bank,principal=amount,months=months,
-                               date=submitted,decision_date=response_date(submitted,bank),response_days=response_days(bank),registered_date=today,budget_at_request=budget,status='pending',quote=quote(bank,amount,months))
-    analysis=underwriting(state,request_id,budget,bank,amount,months,underwriting_roll)
+                               date=submitted,decision_date=response_date(submitted,bank),response_days=response_days(bank),registered_date=today,budget_at_request=budget,status='pending',quote=offer)
+    analysis=underwriting(state,request_id,budget,bank,amount,months,underwriting_roll,credit,today)
     if analysis is not None:result['application']['underwriting']=analysis
+    if credit:result['application']['credit_profile']=deepcopy(credit['profile'])
     if currency in (0,1,2) and type(currency) is int:result['application']['currency']=currency
     result.setdefault('applications',[]).append(deepcopy(result['application']))
     result['processed'].append('request:'+request_id);result['last_date']=today
     return result,budget,[dict(event='application',id=request_id,date=submitted,decision_date=result['application']['decision_date'],registered_date=today)]
 
 
-def decide_loan(state, *, club, today, budget):
+def decide_loan(state, *, club, today, budget,credit=None):
     """Analyze due applications once, using the actual budget on decision day."""
     application=state.get('application')
     if not application or today<application['decision_date']:
@@ -217,6 +241,9 @@ def decide_loan(state, *, club, today, budget):
     row=next((row for row in history if row['id']==application['id']),None)
     if row is None:row=deepcopy(application);history.append(row)
     try:
+        if credit is not None:
+            from credit_policy import validate
+            validate(credit,application['bank'],application['principal'],today)
         analysis=application.get('underwriting')
         if analysis and analysis['roll']<analysis['decline_bps']:
             raise ValueError('O banco não aprovou esta proposta após a análise de risco. Nenhum valor foi creditado. Você pode solicitar a outro banco.')
@@ -305,7 +332,7 @@ def presentation(state,today,budget,**extra):
     for c in reversed(state['contracts']):
         rows=[dict(p,status='Paga' if p['number']<=c['paid'] else 'Vencida' if p['date']<=today else 'A vencer') for p in c['payments']]
         contracts.append(dict(c,schedule=rows,remaining=sum(p['amount'] for p in c['payments'][c['paid']:]),status='Ativo' if c['paid']<c['months'] else 'Quitado'))
-    return dict(club=state['club'],date=today,budget=budget,active=active,application=application,last_decision=state.get('last_decision'),used=used,can_borrow=len(active_contracts)<MAX_ACTIVE and application is None and used<MAX_PER_YEAR,schedule=schedule,contracts=contracts,active_contracts=active_contracts,active_count=len(active_contracts),total_remaining=sum(p['amount'] for c in active_contracts for p in c['payments'][c['paid']:]),**extra)
+    return dict(club=state['club'],date=today,budget=budget,active=active,application=application,last_decision=state.get('last_decision'),used=used,can_borrow=len(active_contracts)<MAX_ACTIVE and application is None and used<MAX_PER_YEAR and today>=borrowing_date(state),next_borrow_date=borrowing_date(state),schedule=schedule,contracts=contracts,active_contracts=active_contracts,active_count=len(active_contracts),total_remaining=sum(p['amount'] for c in active_contracts for p in c['payments'][c['paid']:]),**extra)
 
 
 def write_json(path, payload):

@@ -14,27 +14,29 @@ class DualLoanTests(unittest.TestCase):
     def pair(self):
         state,budget,_=l.borrow(l.empty(1043,20260108),request_id='one',club=1043,
             today=20260108,budget=28_000_000,bank=9,amount=3_000_000,months=12)
-        state,budget,_=l.borrow(state,request_id='two',club=1043,
-            today=20260110,budget=budget,bank=3,amount=5_000_000,months=24)
+        # Imported historical debts may predate the new spacing rule.
+        with patch.object(l,'borrowing_date',return_value=0):
+            state,budget,_=l.borrow(state,request_id='two',club=1043,
+                today=20260110,budget=budget,bank=3,amount=5_000_000,months=24)
         return state,budget
 
-    def test_second_active_is_allowed_third_is_blocked_and_year_limit_is_retained(self):
+    def test_historical_dual_debt_is_retained_but_new_requests_wait_two_months(self):
         state,budget=self.pair()
         self.assertEqual(len(state['contracts']),2)
         self.assertEqual(budget,36_000_000)
         self.assertEqual(l.presentation(state,20260110,budget)['active_count'],2)
         self.assertFalse(l.presentation(state,20260110,budget)['can_borrow'])
-        with self.assertRaisesRegex(ValueError,'dois empréstimos ativos'):
+        with self.assertRaisesRegex(ValueError,'dois meses'):
             l.borrow(state,request_id='third',club=1043,today=20260110,budget=budget,bank=3,amount=1_000_000,months=12)
         paid,budget,_=l.pay(state,request_id='settle-one',club=1043,today=20260110,budget=budget,settle=True,contract_id='one')
-        with self.assertRaisesRegex(ValueError,'dois empréstimos no ano'):
+        with self.assertRaisesRegex(ValueError,'dois meses'):
             l.borrow(paid,request_id='third',club=1043,today=20260110,budget=budget,bank=3,amount=1_000_000,months=12)
 
     def test_second_request_decision_is_separate_and_never_reprices_the_frozen_offer(self):
         state,budget=self.pair();state['contracts'].pop()
         state['processed'].remove('two');budget-=5_000_000
-        self.assertTrue(l.presentation(state,20260110,budget)['can_borrow'])
-        pending,_,_=l.request_loan(state,request_id='application-two',club=1043,today=20260110,
+        self.assertTrue(l.presentation(state,20260308,budget)['can_borrow'])
+        pending,_,_=l.request_loan(state,request_id='application-two',club=1043,today=20260308,
             budget=budget,bank=3,amount=20_000_000,months=36)
         frozen=deepcopy(pending['application']['quote'])
         with patch.dict(l.BANKS[3],rate_bps=700):

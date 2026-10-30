@@ -75,6 +75,14 @@ def main():
         spec=importlib.util.spec_from_file_location('server16_market_companion',market_source/'companion.py')
         companion=importlib.util.module_from_spec(spec);spec.loader.exec_module(companion)
         if companion.dispatch(portable):return
+    # Refresh membership only, without preparing any 3D player models.
+    browser_source=portable.SOURCES.parent/'club_browser'
+    if (browser_source/'world_catalog.py').is_file():
+        sys.path.insert(0,str(browser_source))
+        try:
+            from world_catalog import ensure as ensure_world_catalog
+            ensure_world_catalog(GAME)
+        except Exception as error:note('world_catalog_waiting',error=str(error))
     if '--watch' not in sys.argv:once();return
     lock=HERE/'runtime/prepare.lock';lock.parent.mkdir(parents=True,exist_ok=True)
     try:

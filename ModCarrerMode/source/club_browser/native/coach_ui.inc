@@ -56,7 +56,7 @@ void drawCoach(ID3D11DeviceContext*c){
  if(coach.tab==2)coachSeason(c,label);
  else if(coach.tab==1){
   r.label(c,label++,L"PASSAGEM ATUAL NO CLUBE",540,239,418,30,21,ink);
-  if(p.value("coach_available")==1){r.label(c,label++,L"Desde "+wide(p.get("coach_since"))+L" · "+coachNumber(p.value("coach_days"))+L" dias no cargo",540,276,418,27,17,muted);coachSummary(c,label,p.coachStats,p.get("coach_form"),L"Partidas identificadas nesta passagem do técnico");}
+  if(p.value("coach_available")==1){r.label(c,label++,L"Desde "+wide(p.get("coach_since"))+L" · "+coachNumber(p.value("coach_days"))+L" dias no cargo",540,276,418,27,17,muted);coachSummary(c,label,p.coachStats,p.get("coach_form"),p.get("coach_stats_note")=="—"?L"Partidas identificadas nesta passagem do técnico":wide(p.get("coach_stats_note")));}
   else{r.label(c,label++,L"Aguardando os dados do mercado de técnicos.",541,385,417,36,19,ink,true);r.label(c,label++,L"O resumo do time continua disponível na primeira aba.",541,430,417,31,16,muted,true);}
  }else{
   int league=p.value("league_id");if(league>0){gameImage(r.device,coachLeague,art,{"data/ui/imgAssets/careerCompetitionIcons/"+std::to_string(league)+".png","data/ui/imgAssets/league/light/l"+std::to_string(league)+".dds","data/ui/imgAssets/league/dark/l"+std::to_string(league)+".dds"});containImage(c,coachLeague,539,229,43,39);}r.label(c,label++,wide(p.get("league")),592,234,365,41,21,ink);r.label(c,label++,L"DESEMPENHO DO TIME",540,294,419,30,19,muted);coachSummary(c,label,p.stats,p.get("form"),L"Resultados do time nesta temporada da carreira");
