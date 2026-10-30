@@ -125,6 +125,10 @@ data/fifarna/lua/assets/server16_frontend_176.lua -text
 data/fifarna/lua/assets/server16_frontend_261.lua -text
 
 # Runtime release manifests validate the same bytes after Git archive/clone.
+ModCarrerMode/source/server16_py/asset_runtime.py -text whitespace=cr-at-eol
+ModCarrerMode/source/tests/test_file_tools_permissions.py -text whitespace=cr-at-eol
+ModCarrerMode/source/tests/test_portable_frozen_sources.py -text whitespace=cr-at-eol
+ModCarrerMode/docs/RELEASE_20261029_R2.md -text whitespace=cr-at-eol
 ModCarrerMode/docs/COACH_MINIFACE.md -text whitespace=cr-at-eol
 ModCarrerMode/docs/CUSTOM_UI_THEME.md -text whitespace=cr-at-eol
 ModCarrerMode/docs/SCOREBOARD_THEME.md -text whitespace=cr-at-eol

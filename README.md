@@ -10,6 +10,16 @@ O FIFA Friends V12 reúne melhorias para acompanhar seu clube, personalizar a ex
 
 A combinação Git + ZIP é agora verificada em uma pasta vazia, sem caches do desenvolvedor, incluindo igualdade entre o módulo embutido no EXE e o fonte publicado.
 
+## Correção R2 — 29/10/2026
+
+**Esta é a entrega atual:** código atualizado + **FIFA-Friends-Assets-Complementares-20261029-R2.zip**. O complemento foi refeito do zero e substitui o ZIP anterior do mesmo dia; requer a base FIFA Friends instalada.
+
+- **Server16:** novo executável com as correções de aplicação/restauração de estádio e redes. As rotinas verificam herança/acesso às pastas de assets do Server, preservando as permissões existentes e registrando falhas.
+- **Técnicos:** catálogo público e fotos ampliados, com verificação de todas as imagens referenciadas. O manifesto registra a contagem e os hashes desta entrega.
+- **Distribuição:** jogo, desenvolvimento, fontes canônicos do Server e código embarcado no executável são conferidos. Arquivos intermediários de `dist/` ficam fora do Git.
+
+[Instalação e detalhes da correção R2](ModCarrerMode/docs/RELEASE_20261029_R2.md). Com FIFA/Server fechados, atualize o código e extraia o novo ZIP na raiz do jogo. Não copie saves ou bancos pessoais.
+
 ## Entrega — 29/10/2026
 
 **Atualização conjunta: código desta branch + FIFA-Friends-Assets-Complementares-20261029.zip.** O novo ZIP é completo e substitui a sequência anterior de complementos; extraia depois de atualizar o código, com FIFA e Server fechados. Requer a base FIFA Friends instalada.

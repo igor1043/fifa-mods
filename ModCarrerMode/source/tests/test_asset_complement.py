@@ -2,6 +2,7 @@
 from pathlib import Path, PurePosixPath
 import importlib.util
 import json
+import sqlite3
 import unittest
 
 ROOT=Path(__file__).resolve().parents[3]
@@ -53,9 +54,18 @@ class AssetComplementTests(unittest.TestCase):
         sources=[row['sha256'] for name,row in self.rows.items() if name.endswith('/globalcomponents/globalcomponents.big')]
         self.assertEqual(len(sources),3)
         self.assertEqual(len(set(sources)),1)
-        self.assertEqual(sum('/manager_market/minifaces/' in name for name in self.rows),851)
+        self.assertEqual(sum('/manager_market/minifaces/' in name for name in self.rows),
+                         self.manifest['groups']['manager_minifaces'])
         self.assertFalse(any('/var_room/' in name for name in self.rows))
         self.assertTrue(any('/var_cabin/' in name for name in self.rows))
+
+    def test_public_coach_catalog_has_all_referenced_photos_in_the_complement(self):
+        path=ROOT/'ModCarrerMode/data/manager_market/catalog.sqlite3'
+        with sqlite3.connect(path.as_uri()+'?mode=ro',uri=True) as db:
+            images={row[0] for row in db.execute('select image from coaches') if row[0]}
+        for image in images:
+            self.assertNotIn('..',PurePosixPath(image).parts)
+            self.assertIn('ModCarrerMode/data/manager_market/'+image,self.rows)
 
     def test_public_packager_reads_the_complete_manifest(self):
         spec=importlib.util.spec_from_file_location('full_asset_builder',ROOT/'ModCarrerMode/tools/Build-PortablePackages.py')

@@ -14,6 +14,22 @@ def safe(name):
     if p.is_absolute() or '..' in p.parts or ':' in name or '\\' in name:raise ValueError('Unsafe archive member: '+name)
     return p
 
+FROZEN_SOURCE_MODULES=('server16_py.club_environment','server16_py.app',
+    'server16_py.asset_runtime','server16_py.file_tools','server16_py.stadium_runtime')
+
+
+def check_frozen_sources(frozen_archive,source):
+    """Reject an old executable distributed beside newer loose helper files."""
+    checked=[]
+    for module in FROZEN_SOURCE_MODULES:
+        frozen=frozen_archive.extract(module)
+        path=Path(source)/Path(*module.split('.')).with_suffix('.py')
+        expected=compile(path.read_bytes(),frozen.co_filename,'exec',optimize=0)
+        assert frozen==expected,'Server16 executable does not contain published source: '+module
+        checked.append(module)
+    return checked
+
+
 def verify(root,complement,output):
     root,complement,output=map(lambda p:Path(p).resolve(),(root,complement,output));output.mkdir(parents=True,exist_ok=True)
     commit=subprocess.check_output(['git','rev-parse','HEAD'],cwd=root,text=True).strip()
@@ -84,9 +100,7 @@ def verify(root,complement,output):
         from PyInstaller.archive.readers import CArchiveReader
         frozen_archive=CArchiveReader(str(exe)).open_embedded_archive('PYZ.pyz')
         assert 'server16_py.var_room_panel' not in frozen_archive.toc,'Rejected internal VAR panel remains embedded'
-        frozen=frozen_archive.extract('server16_py.club_environment')
-        expected_module=compile((stage/'ModCarrerMode/source/server16_py/club_environment.py').read_bytes(),frozen.co_filename,'exec',optimize=0)
-        assert frozen==expected_module,'Server16 executable does not contain the published worker source'
+        matched_modules=check_frozen_sources(frozen_archive,stage/'ModCarrerMode/source')
         run([str(exe),'--server16-selftest',str(stage/'selftest.json')],'frozen-selftest')
         run([str(exe),'--club-environment-check','--game-root',str(stage)],'first-boot')
         checked=json.loads((stage/'ModCarrerMode/runtime/club_environment/check.json').read_text(encoding='utf8'))
@@ -107,7 +121,7 @@ def verify(root,complement,output):
         report.update(github_files=len(tracked),enabled_dlls=len(enabled),asset_files=len(names),release_files_verified=len(json.loads((stage/'ModCarrerMode/source/club_environment/release-manifest.json').read_text())['files']),
                       runtime_initially_absent=True,runtime_entries=runtime_entries,server16_sha256=digest(exe),
                       frozen=json.loads((stage/'selftest.json').read_text()),pose_and_bank_check=True,
-                      frozen_worker_matches_published_source=True,
+                      frozen_worker_matches_published_source=True,frozen_source_modules_verified=matched_modules,
                       direct_worker_tests=True,invalid_stdout_cannot_abort_worker=True,exporter_failure_tests=True,room_geometry_textures_mips_and_lighting_tests=True,
                       full_asset_manifest=full_manifest.is_file(),
                       runtime_or_save_copied=False,drivers_installed=False,fifa_started=False)
