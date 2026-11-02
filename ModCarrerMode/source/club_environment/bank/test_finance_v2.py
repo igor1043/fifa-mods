@@ -17,7 +17,7 @@ class FinanceV2(unittest.TestCase):
   kinds=[e['kind'] for e in events]
   self.assertEqual(kinds.count('tv'),2);self.assertEqual(kinds.count('tickets'),1);self.assertEqual(kinds.count('match_costs'),1)
   tickets=next(e for e in events if e['kind']=='tickets');cost=next(e for e in events if e['kind']=='match_costs')
-  self.assertEqual(cost['amount'],-tickets['amount']*4000//10000)
+  self.assertEqual(cost['amount'],-tickets['amount']*6500//10000)
   view=dict(club=1043,entries=s['finance']['entries'],fixtures=[])
   rows=ticket_rows(view);self.assertEqual(len(rows),1)
   self.assertEqual(rows[0]['net'],tickets['amount']+cost['amount']);self.assertEqual(rows[0]['opponent'],567)
@@ -37,7 +37,7 @@ class FinanceV2(unittest.TestCase):
   s,b,e=self.apply(s,20260512,budget=b)
   contract=next(iter(s['finance']['agreements'].values()))
   self.assertNotIn('match_cost_bps',f.match_terms(contract,20260512)['rules'])
-  self.assertEqual(f.match_terms(contract,20260513)['rules']['match_cost_bps'],4000)
+  self.assertEqual(f.match_terms(contract,20260513)['rules']['match_cost_bps'],6500)
   again,_,_=self.apply(s,20260512,budget=b)
   self.assertEqual(len(next(iter(again['finance']['agreements'].values()))['revisions']),1)
  def test_existing_zero_cost_receipt_never_receives_a_backdated_debit(self):
@@ -58,7 +58,7 @@ class FinanceV2(unittest.TestCase):
   big=context();big['club_profile']=dict(base_budget=28_000_000,prestige=20)
   a=f.commercial(small,p);b=f.commercial(big,p)
   self.assertLess(a['sponsor_annual'],b['sponsor_annual']);self.assertLess(a['staff_annual'],b['staff_annual'])
-  self.assertEqual(b['sponsor_annual'],7_000_000);self.assertEqual(b['staff_annual'],8_400_000)
+  self.assertEqual(b['sponsor_annual'],9_100_000);self.assertEqual(b['staff_annual'],11_200_000)
  def test_season_rollover_does_not_lose_unprocessed_previous_months(self):
   s,b,_=self.apply(empty(1043,20260511),20260511)
   ctx=context(20270131,season=20270101);ctx['club_profile']=dict(base_budget=28_000_000,prestige=20)
@@ -92,7 +92,7 @@ class FinanceV2(unittest.TestCase):
   s,b,_=self.apply(empty(1043,20260511),20260511)
   for k in ('sponsor','staff','tickets'):s=f.toggle(s,k,False,20260511)
   s,b,events=self.apply(s,20260531,[match()],b)
-  self.assertEqual([e['kind'] for e in events],['tv','coach'])
+  self.assertEqual([e['kind'] for e in events],['tv','coach','facilities'])
   self.assertTrue(all(e['status']=='disabled' for e in s['finance']['entries'] if e['kind'] in ('tickets','match_costs','staff','sponsor')))
  def test_pending_expense_is_only_applied_once_when_cash_returns(self):
   s,b,_=self.apply(empty(1043,20260511),20260511)
@@ -100,7 +100,7 @@ class FinanceV2(unittest.TestCase):
   s,b,events=self.apply(s,20260531,budget=0)
   self.assertFalse(events);self.assertTrue(any(e['kind']=='staff' and e['status']=='pending' for e in s['finance']['entries']))
   s,b,events=self.apply(s,20260601,budget=5_000_000)
-  self.assertEqual({e['kind'] for e in events},{'staff','coach'})
+  self.assertEqual({e['kind'] for e in events},{'staff','coach','facilities'})
   _,same,again=self.apply(s,20260601,budget=b);self.assertEqual(same,b);self.assertFalse(again)
  def test_sql_policy_migration_retains_custom_values_and_native_save_bytes(self):
   with tempfile.TemporaryDirectory() as d:
@@ -110,7 +110,7 @@ class FinanceV2(unittest.TestCase):
     sql.finance_schema(db);db.executemany('INSERT INTO finance_rules VALUES(?,?)',f.LEGACY_RULES.items())
     db.execute("UPDATE finance_rules SET value=13 WHERE key='ticket_price'")
    policy=sql.finance_rules(p)
-   self.assertEqual(policy['ticket_price'],13);self.assertEqual(policy['tv_match_bps'],150)
+   self.assertEqual(policy['ticket_price'],13);self.assertEqual(policy['tv_match_bps'],100)
    self.assertEqual(sql.finance_rules(p),policy);self.assertEqual(p.read_bytes(),b'unchanged native save')
  def test_save_checkpoint_preserves_new_categories_and_can_restore_old_checkpoint(self):
   with tempfile.TemporaryDirectory() as d:

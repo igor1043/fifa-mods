@@ -42,7 +42,7 @@ def summaries(snapshot,schedule,memberships,links,saved_date,season,today,live=F
         count=lambda rows:sum(sum(r[k] for k in WDL) for r in rows)
         selected.extend(native if native and count(native)>=count(league) else league)
     publication['performance']=selected
-    out={};details=defaultdict(list);seen=set()
+    out={};details=defaultdict(list);seen=set();aggregate_goals={}
     for m in schedule:
         if not m.get('played') or not season<=m['date']<=today or any(type(m.get(k))!=int or not 0<=m[k]<100 for k in ('homeScore','awayScore')):continue
         identity=(m['date'],m['root'],m['id'])
@@ -54,6 +54,9 @@ def summaries(snapshot,schedule,memberships,links,saved_date,season,today,live=F
         if p['date']>today:continue
         key=p['asset'],p['club'];r=out.setdefault(key,dict(asset=p['asset'],club=p['club'],date=p['date'],sources=set(),**dict.fromkeys(WDL,0)))
         for k in WDL:r[k]+=p[k]
+        if all(k in p for k in ('hgf','hga','agf','aga')):
+            values=aggregate_goals.setdefault(key,[0]*4)
+            for i,k in enumerate(('hgf','hga','agf','aga')):values[i]+=p[k]
         r['sources'].add(p['source']);r['date']=max(r['date'],p['date'])
     # Keep detailed-only competitions too; they must not disappear in a fallback.
     for key,matches in details.items():
@@ -74,6 +77,10 @@ def summaries(snapshot,schedule,memberships,links,saved_date,season,today,live=F
                 own=[m for m in matches if m['home']==(side=='home')]
                 r[side+'GoalsFor']=sum(m['gf'] for m in own);r[side+'GoalsAgainst']=sum(m['ga'] for m in own)
         else:
+            if key in aggregate_goals:
+                hgf,hga,agf,aga=aggregate_goals[key]
+                r.update(homeGoalsFor=hgf,homeGoalsAgainst=hga,awayGoalsFor=agf,awayGoalsAgainst=aga,goalsFor=hgf+agf,goalsAgainst=hga+aga)
+                r['sources']=sorted(r['sources']);continue
             league=league_rows.get(key)
             if league and [league.get(k) for k in ('homewins','homedraws','homelosses','awaywins','awaydraws','awaylosses')]==[r[k] for k in WDL] and all(type(league.get(k))==int and league[k]>=0 for k in ('homegf','homega','awaygf','awayga')):
                 r.update(homeGoalsFor=league['homegf'],homeGoalsAgainst=league['homega'],awayGoalsFor=league['awaygf'],awayGoalsAgainst=league['awayga'])
@@ -83,6 +90,9 @@ def summaries(snapshot,schedule,memberships,links,saved_date,season,today,live=F
     return publication
 
 def from_career(game,cache,dbs,base,snapshot,schedule,live=None):
+    if getattr(cache,'signature',None) and not snapshot.get('derived_slots'):
+        from derived_campaigns import augment
+        snapshot=augment(game,cache.signature[0][0],cache.raw,snapshot,snapshot['date'],snapshot.get('pid'),snapshot.get('processCreated100ns'),snapshot.get('fceContextEpoch'))
     def rows(name,fields):
         db=next((d for d in dbs if name in d.tables),None)
         return cache.table(db,name,fields) if db else []  # Never use stock league results as a career fallback.

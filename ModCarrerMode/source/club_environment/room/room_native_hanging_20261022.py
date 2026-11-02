@@ -9,7 +9,7 @@ import room_scene_native_assets_20261022 as scene
 from rx3 import Rx3,TEXTURE,read_model
 R=scene.ROOT;LIVE=scene.LIVE
 TEMPLATE=portable.ROOM/"assets/texture_template.rx3"
-VERSION='r50'
+VERSION='r71'
 
 def texture_package(image,path,name):
  """Same RX3/DXT5/mipmap directory contract as the working entrance package."""
@@ -71,8 +71,9 @@ def hanger(shirt,ids):
   for a,b in ((tri[:,0],tri[:,1]),(tri[:,1],tri[:,2]),(tri[:,2],tri[:,0])):
    dx=b[:,0]-a[:,0];good=(np.abs(dx)>1e-6)&(x>=np.minimum(a[:,0],b[:,0]))&(x<=np.maximum(a[:,0],b[:,0]))
    ys.extend((a[good,1]+(x-a[good,0])/dx[good]*(b[good,1]-a[good,1])).tolist())
-  return max(ys)-1.2
- apex,left,right=top(0),top(-19),top(19);z=surface(points,ids,0,apex-2);z=42 if z is None else z-1.7
+  return max(ys)-3.6
+ apex=min(top(0),187.0);left,right=min(top(-19),apex-6),min(top(19),apex-6)
+ z=surface(points,ids,0,apex-2);z=42 if z is None else z-1.7
  rows=[];indices=[]
  def tube(a,b,r,metal=False,sides=12):
   a,b=np.array(a),np.array(b);direction=b-a;direction/=np.linalg.norm(direction);axis=np.array([1.,0,0]) if abs(direction[0])<.8 else np.array([0.,0,1]);u=np.cross(direction,axis);u/=np.linalg.norm(u);v=np.cross(direction,u);start=len(rows)
@@ -81,7 +82,22 @@ def hanger(shirt,ids):
     n=u*math.cos(i*2*math.pi/sides)+v*math.sin(i*2*math.pi/sides);rows.append((p+n*r,(.75 if metal else .25,.5),n))
   for i in range(sides):
    j=(i+1)%sides;indices.extend(start+k for k in (i,j,sides+j,i,sides+j,sides+i))
- tube([-19,left,z],[0,apex,z],.65);tube([0,apex,z],[19,right,z],.65);tube([-19,left,z],[19,right,z],.65)
+ # Seat every black arm inside the actual cloth volume. Sampling both
+ # cloth surfaces avoids a fixed Z plane protruding through either shoulder.
+ def inside_z(x,y):
+  vv=points[ids.reshape(-1,3)];aa,bb,cc=vv[:,0],vv[:,1],vv[:,2]
+  den=(bb[:,1]-cc[:,1])*(aa[:,0]-cc[:,0])+(cc[:,0]-bb[:,0])*(aa[:,1]-cc[:,1])
+  safe=np.abs(den)>1e-7
+  A=np.divide((bb[:,1]-cc[:,1])*(x-cc[:,0])+(cc[:,0]-bb[:,0])*(y-cc[:,1]),den,out=np.zeros_like(den),where=safe)
+  B=np.divide((cc[:,1]-aa[:,1])*(x-cc[:,0])+(aa[:,0]-cc[:,0])*(y-cc[:,1]),den,out=np.zeros_like(den),where=safe);C=1-A-B
+  good=safe&(A>=-1e-4)&(B>=-1e-4)&(C>=-1e-4)
+  depth=(A*aa[:,2]+B*bb[:,2]+C*cc[:,2])[good]
+  return float((depth.min()+depth.max())*.5) if len(depth) else z
+ for a,b in [((-19,left),(0,apex)),((0,apex),(19,right)),((-19,min(left,right)-1),(19,min(left,right)-1))]:
+  for t in range(24):
+   x0,y0=np.array(a)+(np.array(b)-a)*t/24;x1,y1=np.array(a)+(np.array(b)-a)*(t+1)/24
+   tube([x0,y0,inside_z(x0,y0)],[x1,y1,inside_z(x1,y1)],.42,sides=8)
+ z=inside_z(0,apex)
  tube([0,apex,z],[0,206,z],.55,True);tube([0,206,z],[0,211.05,32],.55,True)
  for i in range(28):
   a=-math.pi/2+i*math.pi*1.58/28;b=-math.pi/2+(i+1)*math.pi*1.58/28

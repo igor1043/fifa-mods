@@ -24,7 +24,7 @@ class PresentationTest(unittest.TestCase):
  def test_no_visual_back_buttons_and_selected_tabs_have_gold_artwork(self):
   model=test_screen.NativeScreenTest.model;assets={'head_NOTFOUND_DEFAULT':Image.new('RGBA',(64,64)),'card':Image.new('RGBA',(8,8)),**{'stars_'+str(n):stars(n) for n in range(11)}};scenes=scenes_for(model,assets)
   self.assertFalse(any(n.get('target')=='60' for s in scenes for n in s['actions']))
-  tabs=[n for n in scenes[1]['nodes'] if n.get('name','').startswith('profileMark')];self.assertEqual(4,len(tabs));self.assertTrue(all(n['asset']=='profile_tab_on' for n in tabs));self.assertEqual(128,assets['profile_icon_trophy'].width)
+  tabs=[n for n in scenes[1]['nodes'] if n.get('name','').startswith('profileMark')];self.assertEqual(5,len(tabs));self.assertTrue(all(n['asset']=='profile_tab_on' for n in tabs));self.assertEqual(128,assets['profile_icon_trophy'].width)
   self.assertFalse(any('CLUBES NESTA LIGA'==n.get('text') for n in scenes[0]['nodes']))
  def test_portrait_corners_use_actual_palette_and_do_not_modify_source(self):
   source=Image.new('RGBA',(128,128));before=source.tobytes();one=portrait(source,('#ef1133','#131313'));two=portrait(source,('#0099cc','#ffffff'))

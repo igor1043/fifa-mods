@@ -9,6 +9,9 @@ import os,runpy,subprocess,sys
 FLAG='SERVER16_TRANSFER_MARKET_WORKER'
 
 def dispatch(portable):
+    if os.environ.get('SERVER16_MANAGER_PROGRESS_WORKER')=='1':
+        source=portable.SOURCES/'manager_market';sys.path.insert(0,str(source))
+        runpy.run_path(str(source/'progress_worker.py'),run_name='__main__');return True
     if os.environ.get('SERVER16_MANAGER_MARKET_WORKER')=='1':
         source=portable.SOURCES/'manager_market'
         sys.path.insert(0,str(source))

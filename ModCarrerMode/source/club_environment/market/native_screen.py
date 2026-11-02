@@ -203,7 +203,7 @@ def script(data,dictionaries,scenes):
     a.align();registration=len(data);data.extend(dictionaries[1]);a.string(FULL);a.op(28);a.string(FULL);a.expr(2);a.expr(PATH('Object'));a.method('registerClass');a.op(23);a.op(0);a.finish()
     return start,registration
 
-def build_from_template(template,output,*,script_factory,full_name=FULL,compression_level=9):
+def build_from_template(template,output,*,script_factory,full_name=FULL,compression_level=9,data_only=False):
     """Reuse validated geometry and DDS resources; compile current data only."""
     template=Path(template);metadata=json.loads(template.with_suffix('.json').read_text(encoding='utf8'))
     if metadata.get('schema')!=1 or metadata.get('full_name')!=full_name:raise ValueError('Template APT incompatível')
@@ -212,10 +212,19 @@ def build_from_template(template,output,*,script_factory,full_name=FULL,compress
     big=BigFile(template);data=big.entries['0'].data
     dictionaries=[bytes.fromhex(v) for v in metadata['dictionaries']];scenes=metadata['scenes']
     additions={key:bytes(entry.data) for key,entry in big.entries.items() if key not in ('0','1','sg1','sg2')}
+    original=bytes(data) if data_only else None
     start,registration=script_factory(data,dictionaries,scenes)
+    if data_only:
+        # Geometry/DDS were validated by build() and are hash-verified above.
+        # A data refresh may only append code, never rewrite that geometry.
+        if data[:len(original)]!=original or min(start,registration)<len(original):raise ValueError('Atualização alterou a geometria APT')
+        from types import SimpleNamespace
+        decoded=Actions(SimpleNamespace(big=big,data=data,width=8,entry=big.entries['0']))
+        for offset in (start,registration):decoded.decode(offset)
     for at,target in zip(metadata['action_pointers'],(start,registration)):struct.pack_into('<Q',data,at,target)
     output=Path(output);output.parent.mkdir(parents=True,exist_ok=True);b.write_big(big,output,additions,compression_level=compression_level)
-    check=AptFile(BigFile(output));decoded=Actions(check).read_all();assert not decoded.errors;assert full_name in check.exports
+    if not data_only:
+        check=AptFile(BigFile(output));decoded=Actions(check).read_all();assert not decoded.errors;assert full_name in check.exports
     return dict(path=str(output),bytes=output.stat().st_size,scenes=len(scenes),characters=metadata['characters'],native_font_descriptor=2,help='Original FIFA HelpManager',installed=False,template_cached=True)
 
 

@@ -256,6 +256,7 @@ class Bridge:
         from finance_inputs import FinanceInputs
         self.finance_reader=FinanceInputs(GAME);self.finance_next=0.;self.finance_ack=0
         self.finance_signature=None;self.finance_error=None;self.finance_context=None;self.finance_result=None
+        self.reset_finance_presentation()
         if self.apply:
             self.write_handle=m.kernel32.OpenProcess(0x438,False,process.pid)
             if not self.write_handle:raise OSError('FIFA nao permite aplicar o orcamento')
@@ -593,7 +594,13 @@ class Bridge:
             if portable_state:
                 self.state=portable_state['state'];write_json(snapshot,dict(saved,state=self.state));write_json(STATE/self.scope/'notifications.json',portable_state['notifications'])
             if not snapshot.exists():raise RuntimeError('Save desconhecido carregado; teste suspenso sem inferir parcelas')
-            self.state=json.loads(snapshot.read_text(encoding='utf8'))['state'];log('known_save_snapshot',hash=saved['hash'],date=saved['date']);return
+            self.state=json.loads(snapshot.read_text(encoding='utf8'))['state']
+            self.nonce=f'B57_{self.process.pid}_{self.club}_{secrets.token_hex(6)}'
+            self.last_sequence=0;self.view_signature=None;self.ui_signature=None
+            if getattr(self,'request_reader',None):
+                self.request_reader.close();self.request_reader=RequestReader(self.process,self.memory.base_module,self.nonce)
+            self.reset_finance_presentation()
+            log('known_save_snapshot',hash=saved['hash'],date=saved['date']);return
         if record.get('operation')!='write':raise RuntimeError('Mudanca de save sem registro nativo de leitura/gravacao')
         self.persist_sidecar(saved,record)
         if snapshot.exists():
@@ -726,7 +733,18 @@ class Bridge:
         if state!=self.state or budget!=live['budget']:self.publish(live,state,budget,events,'club_finance')
         self.publish_club_finance(self.live())
 
+    def reset_finance_presentation(self):
+        self.finance_context=None;self.finance_signature=None;self.finance_next=0.
+        self.finance_error=None;self.finance_result=None;self.finance_ack=0
+        from finance_presentation import invalidate
+        invalidate(GAME,STATE);self._finance_waiting=True
+
     def publish_club_finance(self,live):
+        if self.finance_context is None or self.finance_error:
+            if not getattr(self,'_finance_waiting',False):
+                from finance_presentation import invalidate
+                invalidate(GAME,STATE);self._finance_waiting=True;self.finance_signature=None
+            return
         book=self.state.get('finance',{});context=self.finance_context or {}
         current=book.get('season');wage=context.get('coach_wage')
         view=dict(last_cash_change=getattr(self,'last_cash_change',None),ready=bool(book) and not self.finance_error,club=self.club,club_name=context.get('club_name','Clube'),
@@ -738,10 +756,13 @@ class Bridge:
             wage_margin=self.memory.read_uint32(self.context_address+0x2a8) if self.live_wage_valid else self.saved_wage_budget)
         from finance_people import debts
         view.update(players=context.get('players',[]),transfers=context.get('transfers',[]),
+            native_finance=context.get('native_finance',{}),
             player_error=context.get('player_error'),transfer_error=context.get('transfer_error'),
             debts=debts(self.state['contracts'],BANKS),
             entries=book.get('entries',[]),coach_weekly=wage,commercial=book.get('commercial',{}),
             fixtures=context.get('fixtures',[]),rules=book.get('rules',dict(club_finance.DEFAULT_RULES)))
+        from finance_history import years as finance_years
+        view['annual_history']=finance_years(self.state)
         if self.finance_error:view['message']=self.finance_error
         signature=fingerprint(json.dumps(view,ensure_ascii=False,sort_keys=True).encode())
         try:
@@ -759,7 +780,7 @@ class Bridge:
                 finance_ui.build(view,temporary)
                 self.validate_finance_publication_context(live)
                 temporary.replace(target)
-                write_json(STATE/'club_finance_view.json',view);self.finance_signature=signature
+                write_json(STATE/'club_finance_view.json',view);self.finance_signature=signature;self._finance_waiting=False
             # Calendar ignores custom SendSystemEvent navigation. Use the same
             # scoped UI-owner readiness queue as the market/preview screens.
             # Refresh the timestamp even when the package did not change.

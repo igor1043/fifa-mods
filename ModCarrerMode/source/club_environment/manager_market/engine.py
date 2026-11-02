@@ -3,14 +3,18 @@ from contextlib import contextmanager
 from datetime import date, timedelta
 from pathlib import Path
 import hashlib,json,sqlite3,uuid,zlib
+try:from .hiring_fit import DEFAULTS as HIRING_DEFAULTS,offer as hiring_offer
+except ImportError:from hiring_fit import DEFAULTS as HIRING_DEFAULTS,offer as hiring_offer
 
 DEFAULTS=dict(max_dismissals_year=3,min_tenure_days=60,min_tenure_games=8,review_gap_days=7,
- pressure_threshold=30,max_dismissal_bps=3000,resignation_bps=4,poach_bps=800,dismissal_slope_bps=100,
+ pressure_threshold=22,max_dismissal_bps=5500,resignation_bps=4,poach_bps=800,dismissal_slope_bps=175,
  position_weight=50,form_weight=25,points_weight=20,relegation_weight=15,cup_weight=18,
- contract_months=24,compensation_months=3,renewal_months=12,enabled=1,
- retirement_age=80,minimum_free_coaches=60,regens_enabled=1,market_policy_version=3,
+ short_contract_bps=2500,nonrenewal_bps=1500,contract_months=24,compensation_months=3,renewal_months=12,enabled=1,
+ retirement_age=80,minimum_free_coaches=60,regens_enabled=1,market_policy_version=6,expectation_shortfall_weight=110,
+ brazil_pressure_offset=3,brazil_dismissal_multiplier=1.3,brazil_min_tenure_days=45,brazil_min_tenure_games=6,
  same_nationality_bonus=1.15,domestic_nationality_bonus=.4,free_coach_bonus=.6,
- quality_drop=1.5,elite_quality_drop=1,quality_exception_bps=1000)
+ rehire_dismissed_bps=500,recent_rehire_bps=100,recent_rehire_days=180,
+ quality_drop=1.5,elite_quality_drop=1,quality_exception_bps=1000,**HIRING_DEFAULTS)
 SCHEMA='''
 PRAGMA foreign_keys=ON;
 CREATE TABLE IF NOT EXISTS branches(id TEXT PRIMARY KEY,career TEXT NOT NULL,start_date INT NOT NULL,game_date INT NOT NULL,season INT NOT NULL,user_club INT NOT NULL,seed TEXT NOT NULL,kind TEXT NOT NULL);
@@ -24,6 +28,8 @@ CREATE TABLE IF NOT EXISTS movements(branch TEXT,id TEXT,game_date INT,coach_id 
 CREATE TABLE IF NOT EXISTS results(branch TEXT,match_key TEXT,season INT,root INT,competition_id INT,stage INT,game_date INT,home INT,away INT,hg INT,ag INT,home_coach TEXT,away_coach TEXT,home_appointment TEXT,away_appointment TEXT,PRIMARY KEY(branch,match_key));
 CREATE INDEX IF NOT EXISTS result_home_coach ON results(branch,home_coach);
 CREATE INDEX IF NOT EXISTS result_away_coach ON results(branch,away_coach);
+CREATE INDEX IF NOT EXISTS result_home_date ON results(branch,home,game_date);
+CREATE INDEX IF NOT EXISTS result_away_date ON results(branch,away,game_date);
 CREATE TABLE IF NOT EXISTS honours(branch TEXT,coach_id TEXT,club_id INT,season INT,competition_id INT,root INT,game_date INT,name TEXT,PRIMARY KEY(branch,season,root,club_id));
 CREATE TABLE IF NOT EXISTS reviews(branch TEXT,club_id INT,game_date INT,pressure REAL,position INT,expected_position INT,reason TEXT,decision TEXT,PRIMARY KEY(branch,club_id,game_date));
 CREATE TABLE IF NOT EXISTS cup_exits(branch TEXT,root INT,club_id INT,game_date INT,prestige INT,PRIMARY KEY(branch,root,club_id,game_date));
@@ -32,16 +38,37 @@ CREATE TABLE IF NOT EXISTS market_rules(branch TEXT,key TEXT,value REAL,PRIMARY 
 CREATE TABLE IF NOT EXISTS salary_events(branch TEXT,id TEXT,coach_id TEXT,club_id INT,game_date INT,amount INT,kind TEXT,PRIMARY KEY(branch,id));
 CREATE TABLE IF NOT EXISTS progress(branch TEXT,club_id INT,last_review INT,PRIMARY KEY(branch,club_id));
 CREATE TABLE IF NOT EXISTS performance_evidence(branch TEXT,season INT,competition_key TEXT,club_id INT,game_date INT,hw INT,hd INT,hl INT,aw INT,ad INT,al INT,source TEXT,PRIMARY KEY(branch,season,competition_key,club_id));
+CREATE TABLE IF NOT EXISTS appointment_campaigns(branch TEXT,appointment TEXT,season INT,competition_key TEXT,root INT,asset INT,game_date INT,baseline TEXT,counters TEXT,source TEXT,PRIMARY KEY(branch,appointment,season,competition_key));
 CREATE TABLE IF NOT EXISTS appointment_baselines(branch TEXT,appointment TEXT,season INT,competition_key TEXT,played INT,PRIMARY KEY(branch,appointment,season,competition_key));
+CREATE TABLE IF NOT EXISTS annual_campaigns(branch TEXT,appointment TEXT,year INT,competition_key TEXT,root INT,asset INT,game_date INT,baseline TEXT,counters TEXT,source TEXT,PRIMARY KEY(branch,appointment,year,competition_key));
 CREATE TABLE IF NOT EXISTS session_states(pid INT,created INT,context INT,epoch INT,captured_ms INT,branch TEXT,game_date INT,state_hash TEXT,state BLOB,PRIMARY KEY(pid,created,context,captured_ms));
 CREATE TABLE IF NOT EXISTS save_receipts(event_id TEXT PRIMARY KEY,save_hash TEXT,branch TEXT,game_date INT,pid INT,created INT,write_ms INT,source TEXT);
 PRAGMA user_version=4;
 '''
-TABLES=('coaches','clubs','appointments','movements','results','honours','reviews','cup_exits','competition_policies','market_rules','salary_events','progress','performance_evidence','appointment_baselines')
+TABLES=('coaches','clubs','appointments','movements','results','honours','reviews','cup_exits','competition_policies','market_rules','salary_events','progress','performance_evidence','appointment_baselines','appointment_campaigns','annual_campaigns')
 
 def day(value):return date(value//10000,value//100%100,value%100)
 def packed(d):return d.year*10000+d.month*100+d.day
+
+def result_key(m):
+ period=m['date']//10000*10000+m['season']%10000
+ return f"{period}:{m['root']}:{m['id']}:{m['home']}:{m['away']}"
 def elapsed(a,b):return (day(b)-day(a)).days
+
+def rehire_allowed(seed,coach,club,today,dismissed,policy):
+ if not dismissed:return True
+ chance=policy['recent_rehire_bps'] if elapsed(dismissed,today)<policy['recent_rehire_days'] else policy['rehire_dismissed_bps']
+ return draw(seed,'rehire_dismissed',coach,club,today)<chance
+
+def dismissal_policy(club,policy):
+ brazil=bool(nationalities(club.get('country'))&nationalities('Brasil'))
+ days=policy['brazil_min_tenure_days'] if brazil and policy['min_tenure_days']==DEFAULTS['min_tenure_days'] else policy['min_tenure_days']
+ games=policy['brazil_min_tenure_games'] if brazil and policy['min_tenure_games']==DEFAULTS['min_tenure_games'] else policy['min_tenure_games']
+ return dict(days=days,games=games,threshold=policy['pressure_threshold']-(policy['brazil_pressure_offset'] if brazil else 0),multiplier=policy['brazil_dismissal_multiplier'] if brazil else 1)
+
+def dismissal_probability(club,pressure,policy):
+ regional=dismissal_policy(club,policy);factor=regional['multiplier']
+ return min(policy['max_dismissal_bps']*factor,max(0,pressure-regional['threshold'])*policy['dismissal_slope_bps']*factor)
 def after_months(value,n):
  d=day(value);m=d.year*12+d.month-1+n;y,m=divmod(m,12)
  from calendar import monthrange
@@ -93,6 +120,7 @@ class Market:
   return new
  def open_save(self,digest,path,context):
   with self.db:
+   previous=self.branch
    found=self.db.execute('SELECT branch,state FROM save_checkpoints WHERE save_hash=?',(digest,)).fetchone()
    if found:
     if found['state']:
@@ -101,6 +129,7 @@ class Market:
       if table not in TABLES:raise ValueError('Tabela desconhecida no checkpoint')
       cols=content['columns'];query='INSERT INTO '+table+' (branch,'+','.join(cols)+') VALUES('+','.join('?' for _ in range(len(cols)+1))+')';self.db.executemany(query,[(new,*r) for r in content['rows']])
     else:self.branch=self.clone(found['branch'])
+    if previous and previous!=self.branch:self.discard_session(previous)
     return 'restored'
    self.branch=uuid.uuid4().hex;today=context.get('saved_date',context['date']);career=uuid.uuid4().hex;seed_context=dict(context,date=today,club=context.get('saved_club',context['club']))
    self.db.execute('INSERT INTO branches VALUES(?,?,?,?,?,?,?,?)',(self.branch,career,today,today,context['season'],context['club'],career,'live'))
@@ -119,7 +148,20 @@ class Market:
    # to today's coach. They may still inform league position, never lifetime stats.
    self.ingest(context['fixtures'],today,baseline=True)
    self.checkpoint(digest,path)
+   if previous and previous!=self.branch:self.discard_session(previous)
   return 'created'
+ def discard_session(self,branch):
+  """Delete mutable session rows; completed save snapshots own their payload."""
+  if self.db.execute('SELECT 1 FROM save_checkpoints WHERE branch=? AND state IS NULL',(branch,)).fetchone():return False
+  for table in TABLES:self.db.execute('DELETE FROM '+table+' WHERE branch=?',(branch,))
+  self.db.execute('DELETE FROM session_states WHERE branch=?',(branch,));self.db.execute('DELETE FROM branches WHERE id=?',(branch,));return True
+ def discard_abandoned(self,keep,limit=None):
+  keep=set(keep)|{self.branch};removed=[]
+  for row in self.db.execute('SELECT id FROM branches').fetchall():
+   if row['id'] not in keep and self.discard_session(row['id']):
+    removed.append(row['id'])
+    if limit is not None and len(removed)>=limit:break
+  return removed
  def snapshot(self):
   tables={}
   for table in TABLES:
@@ -144,16 +186,18 @@ class Market:
   return next(iter(self.rows('appointments',key+'=? AND end_date IS NULL',(value,))),None)
  def policy(self):return dict(DEFAULTS,**{r['key']:r['value'] for r in self.rows('market_rules')})
  def upgrade_policy(self):
+  for key,value in HIRING_DEFAULTS.items():self.db.execute('INSERT OR IGNORE INTO market_rules VALUES(?,?,?)',(self.branch,key,value))
+  for key in ('rehire_dismissed_bps','recent_rehire_bps','recent_rehire_days','brazil_pressure_offset','brazil_dismissal_multiplier','brazil_min_tenure_days','brazil_min_tenure_games','expectation_shortfall_weight'):self.db.execute('INSERT OR IGNORE INTO market_rules VALUES(?,?,?)',(self.branch,key,DEFAULTS[key]))
   existing={r['key']:r['value'] for r in self.rows('market_rules')}
   version=existing.get('market_policy_version',1)
-  if version>=3:return
+  if version>=6:return
   # Migrate only shipped defaults; preserve values customized for a career.
-  for key,old in (('pressure_threshold',(36,32)),('max_dismissal_bps',(1500,2500)),('dismissal_slope_bps',(90,))):
+  for key,old in (('pressure_threshold',(36,32,30,26,23)),('max_dismissal_bps',(1500,2500,3000,4000,5000)),('dismissal_slope_bps',(90,100,125,150))):
    if key not in existing or existing[key] in old:
     self.db.execute('INSERT OR REPLACE INTO market_rules VALUES(?,?,?)',(self.branch,key,DEFAULTS[key]))
   for key in ('same_nationality_bonus','domestic_nationality_bonus','free_coach_bonus','quality_drop','elite_quality_drop','quality_exception_bps'):
    self.db.execute('INSERT OR IGNORE INTO market_rules VALUES(?,?,?)',(self.branch,key,DEFAULTS[key]))
-  self.db.execute('INSERT OR REPLACE INTO market_rules VALUES(?,?,?)',(self.branch,'market_policy_version',3))
+  self.db.execute('INSERT OR REPLACE INTO market_rules VALUES(?,?,?)',(self.branch,'market_policy_version',6))
  def import_new_coaches(self):
   present={c['coach_id']:c for c in self.rows('coaches')};db=sqlite3.connect(self.catalog);db.row_factory=sqlite3.Row
   try:
@@ -198,10 +242,19 @@ class Market:
    index=draw(info['seed'],'regen',today,n);club=clubs[index%len(clubs)];ident='REGEN-'+str(today)+'-'+str(n);age=30+index%13
    if self.one('coaches','coach_id',ident):continue
    self.add('coaches',dict(coach_id=ident,name=first[index%len(first)]+' '+last[(index//len(first))%len(last)],nationality=club['country'],birth_date=f'{at.year-age}-01-01',reputation=3+index%4,salary=30000+index%6*10000,style=('Equilibrado','Posse de bola','Transições rápidas','Pressão alta')[index%4],image='minifaces/NOTFOUND_DEFAULT.png',eligible=1,fictional=1))
- def appoint(self,coach,club,today,kind,initial=False,started=None):
+ def appoint(self,coach,club,today,kind,initial=False,started=None,agreed_salary=None):
   if self.active(club=club['club_id']) or self.active(coach=coach['coach_id']):raise ValueError('Nomeação duplicada')
   p=self.policy();salary=self.wage(coach,club);ident=uuid.uuid4().hex
-  self.add('appointments',dict(id=ident,coach_id=coach['coach_id'],club_id=club['club_id'],start_date=started or today,end_date=None,end_reason=None,monthly_wage=salary,contract_end=after_months(today,int(p['contract_months'])),origin='Vínculo inicial desde o início da carreira' if initial and started else 'Estimado a partir da ativação do mod' if initial else 'Mercado simulado'))
+  if agreed_salary is not None:salary=max(1000,int(agreed_salary))
+  term=after_months(today,int(p['renewal_months'] if kind=='renewal' else p['contract_months']))
+  if not initial and kind!='renewal' and draw(self.info()['seed'],'short_contract',coach['coach_id'],club['club_id'],today)<p['short_contract_bps']:
+   fixtures=getattr(self,'contract_fixtures',[])
+   candidates=[m['date'] for m in fixtures if club['club_id'] in (m['home'],m['away']) and today<m['date']<=after_months(today,12)]
+   europe='europ' in club.get('region','').lower() or club.get('country') in ('Spain','Espanha','England','Inglaterra','France','França','Germany','Alemanha','Italy','Itália','Portugal','Netherlands','Holanda','Belgium','Bélgica','Croatia','Croácia');month=6 if europe else 12
+   end=today//10000*10000+month*100+(30 if month==6 else 31)
+   if end<=today:end+=10000
+   term=max(candidates) if candidates else end
+  self.add('appointments',dict(id=ident,coach_id=coach['coach_id'],club_id=club['club_id'],start_date=min(started or today,today) if initial else started or today,end_date=None,end_reason=None,monthly_wage=salary,contract_end=term,origin='Vínculo inicial desde o início da carreira' if initial and started else 'Estimado a partir da ativação do mod' if initial else 'Mercado simulado'))
   if not initial:
    for row in self.rows('performance_evidence','club_id=?',(club['club_id'],)):
     self.add('appointment_baselines',dict(appointment=ident,season=row['season'],competition_key=row['competition_key'],played=sum(row[k] for k in ('hw','hd','hl','aw','ad','al'))))
@@ -210,6 +263,8 @@ class Market:
  def leave(self,appointment,today,kind,reason,pressure=0,to_club=None):
   if appointment['club_id']==self.info()['user_club'] and kind in ('dismissal','resignation','poached','retirement','renewed'):return False
   self.db.execute('UPDATE appointments SET end_date=?,end_reason=? WHERE branch=? AND id=?',(today,kind,self.branch,appointment['id']))
+  from appointment_campaign import retain_closed
+  retain_closed(self)
   self.add('movements',dict(id=uuid.uuid4().hex,game_date=today,coach_id=appointment['coach_id'],club_id=appointment['club_id'],from_club=appointment['club_id'],to_club=to_club,kind=kind,reason=reason,old_salary=appointment['monthly_wage'],new_salary=0,pressure=pressure))
   if kind=='dismissal':
    amount=int(appointment['monthly_wage']*self.policy()['compensation_months'])
@@ -238,7 +293,7 @@ class Market:
   known={r['match_key'] for r in self.rows('results')};added=[];start=self.info()['start_date']
   for m in sorted(fixtures,key=lambda m:(m['date'],m['id'])):
    if not m['played'] or m['date']>today or m['date']<start or m.get('hg') is None or m.get('ag') is None:continue
-   key=f"{m['season']}:{m['root']}:{m['id']}:{m['home']}:{m['away']}"
+   key=result_key(m)
    if key in known:continue
    ha=None if baseline else self.appointment_at(m['home'],m['date']);aa=None if baseline else self.appointment_at(m['away'],m['date'])
    self.add('results',dict(match_key=key,season=m['season'],root=m['root'],competition_id=m['asset'],stage=m['stage'],game_date=m['date'],home=m['home'],away=m['away'],hg=m['hg'],ag=m['ag'],home_coach=ha['coach_id'] if ha else None,away_coach=aa['coach_id'] if aa else None,home_appointment=ha['id'] if ha else None,away_appointment=aa['id'] if aa else None))
@@ -253,7 +308,7 @@ class Market:
  def table_pressure(self,club,table,today,p):
   if not table or club['club_id'] not in {r['club'] for r in table}:return None
   ranks=sorted(table,key=lambda r:r['rank']);r=next(r for r in ranks if r['club']==club['club_id']);n=len(ranks)
-  peers={c['club_id']:c for c in self.rows('clubs')};expected=sorted(ranks,key=lambda r:(-peers.get(r['club'],{}).get('reputation',4),r['club']))
+  peers=getattr(self,'review_clubs',None) or {c['club_id']:c for c in self.rows('clubs')};expected=sorted(ranks,key=lambda r:(-peers.get(r['club'],{}).get('reputation',4),r['club']))
   er=next(i+1 for i,x in enumerate(expected) if x['club']==club['club_id']);gap=max(0,(r['rank']-er)/max(1,n-1));ppg=r['points']/max(1,r['played']);target=2.25-1.35*(er-1)/max(1,n-1)
   recent=self.rows('results','(home=? OR away=?) AND game_date<=?',(club['club_id'],club['club_id'],today))
   recent=sorted(recent,key=lambda r:(r['game_date'],r['match_key']),reverse=True)[:5]
@@ -262,15 +317,22 @@ class Market:
   relegation=r['rank']>n-max(2,round(n*.15)) and er<=n*.6
   cup=any(elapsed(x['game_date'],today)<=30 and x['prestige']>=7 for x in self.rows('cup_exits','club_id=? AND game_date<=?',(club['club_id'],today)))
   pressure=gap*p['position_weight']+poor*p['form_weight']+max(0,target-ppg)/2.25*p['points_weight']+relegation*p['relegation_weight']+(p['cup_weight'] if cup and (gap>.12 or ppg<target*.8) else 0)
+  # Aggregate-only leagues have no five real scorelines to supply recent form.
+  # Compare their confirmed PPG with this club's expectation instead of giving
+  # them an implicit perfect-form bonus. A weak underdog has a lower target.
+  shortfall=max(0,1-ppg/max(.1,target))
+  evidence_weight=min(1,r['played']/8)
+  pressure=max(pressure,shortfall*p.get('expectation_shortfall_weight',110)*evidence_weight)
   reasons=[]
   if gap>.12:reasons.append(f"{r['rank']}º, expectativa de {er}º")
   if poor>.3:reasons.append('sequência recente ruim')
+  if shortfall>.25 and r['played']>=8:reasons.append(f"aproveitamento de {round(ppg/3*100)}%, abaixo da expectativa")
   if relegation:reasons.append('risco de rebaixamento')
   if cup and pressure>=p['pressure_threshold']:reasons.append('eliminação em copa de prestígio')
   return pressure,r['rank'],er,'; '.join(reasons) or 'Desempenho dentro da expectativa'
  def hire(self,club,today,seed):
   if club['club_id']==self.info()['user_club']:return False
-  p=self.policy();appointments=self.rows('appointments');employed={a['coach_id']:a for a in appointments if a['end_date'] is None};candidates=[]
+  p=self.policy();appointments=self.rows('appointments');employed={a['coach_id']:a for a in appointments if a['end_date'] is None};candidates=[];offers={}
   coaches={c['coach_id']:c for c in self.rows('coaches')};clubs={c['club_id']:c for c in self.rows('clubs')}
   prior=max((a for a in appointments if a['club_id']==club['club_id'] and a['end_date'] is not None and a['end_date']<=today),key=lambda a:(a['end_date'],a['start_date']),default=None)
   predecessor=coaches.get(prior['coach_id'],{}) if prior else {}
@@ -278,13 +340,15 @@ class Market:
   target=max(club['reputation'],predecessor.get('reputation',club['reputation'])-.25)
   drop=p['elite_quality_drop'] if club['reputation']>=7.5 else p['quality_drop']
   exception=draw(seed,'quality_exception',club['club_id'],today)<p['quality_exception_bps']
-  exits={};evidence={}
+  exits={};evidence={};dismissed_here={}
   for m in self.rows('movements',"kind IN ('dismissal','resignation')"):
    exits[m['coach_id']]=max(exits.get(m['coach_id'],0),m['game_date'])
+   if m['kind']=='dismissal' and m['club_id']==club['club_id'] and m['game_date']<=today:dismissed_here[m['coach_id']]=max(dismissed_here.get(m['coach_id'],0),m['game_date'])
   for r in sorted(self.rows('results'),key=lambda r:(r['game_date'],r['match_key'])):
    for ident,gf,ga in ((r['home_coach'],r['hg'],r['ag']),(r['away_coach'],r['ag'],r['hg'])):
     if ident:evidence.setdefault(ident,[]).append((gf,ga))
   for c in self.rows('coaches','eligible=1'):
+   if not rehire_allowed(seed,c['coach_id'],club['club_id'],today,dismissed_here.get(c['coach_id']),p):continue
    current=employed.get(c['coach_id']);poach=False
    if current:
     source=clubs.get(current['club_id'])
@@ -293,8 +357,9 @@ class Market:
     if draw(seed,'poach',club['club_id'],c['coach_id'],today)>=p['poach_bps']:continue
     poach=True
    if c['coach_id'] in exits and elapsed(exits[c['coach_id']],today)<14:continue
-   salary=self.wage(c,club)
-   if salary*12>max(120000,club['budget']*.3+300000):continue
+   salary=hiring_offer(c,club,clubs,self.wage(c,club),p)
+   if salary is None:continue
+   offers[c['coach_id']]=salary
    recent=score(evidence.get(c['coach_id'],[])[-10:]);reliability=min(1,recent['games']/10)
    fit=10-abs(c['reputation']-target)*2.2+reliability*max(-1.5,min(1.5,(recent['percentage']-45)/20))
    nationality=nationalities(c['nationality'])
@@ -327,7 +392,7 @@ class Market:
    if pick<0:selected=row;break
   _,coach,current=selected
   if current:self.leave(current,today,'poached','Contratado por clube de maior reputação',to_club=club['club_id'])
-  self.appoint(coach,club,today,'hired');return True
+  self.appoint(coach,club,today,'hired',agreed_salary=offers[coach['coach_id']]);return True
  def review_global(self,context,p):
   """Review actual aggregate progress where FIFA has not published fixtures.
 
@@ -335,6 +400,8 @@ class Market:
   New contracts get baselines, so they never inherit a predecessor's games.
   """
   today=context['date'];info=self.info();changed=set();keys=('hw','hd','hl','aw','ad','al')
+  from appointment_campaign import capture
+  capture(self,context)
   previous={(r['season'],r['competition_key'],r['club_id']):r for r in self.rows('performance_evidence')}
   active={r['club_id']:r for r in self.rows('appointments','end_date IS NULL')}
   baseline={(r['appointment'],r['season'],r['competition_key']):r['played'] for r in self.rows('appointment_baselines')}
@@ -363,16 +430,17 @@ class Market:
    if ident==context['club'] or ident==info['user_club'] or ident not in changed or not a:continue
    previous_review=self.one('progress','club_id',ident)
    if previous_review and elapsed(previous_review['last_review'],today)<p['review_gap_days']:continue
-   if elapsed(a['start_date'],today)<p['min_tenure_days']:continue
+   regional=dismissal_policy(club,p)
+   if elapsed(a['start_date'],today)<regional['days']:continue
    recorded=len(self.rows('results','game_date>=? AND ((home=? AND home_coach=?) OR (away=? AND away_coach=?))',(a['start_date'],ident,a['coach_id'],ident,a['coach_id'])))
-   if max(recorded,tenure.get(ident,0))<p['min_tenure_games']:continue
+   if max(recorded,tenure.get(ident,0))<regional['games']:continue
    lid=str(club['league_id']);table=context.get('club_tables',{}).get(str(ident),context.get('tables',{}).get(lid,[]))
    # Saved-only leagues are evaluated when that save date is observed, never
    # by pretending an old table represents the current unsaved month.
    if context.get('table_dates',{}).get(lid,today)!=today:continue
    evaluated=self.table_pressure(club,table,today,p)
    if not evaluated:continue
-   pressure,pos,expected,reason=evaluated;probability=min(p['max_dismissal_bps'],max(0,pressure-p['pressure_threshold'])*p['dismissal_slope_bps']);decision='retained'
+   pressure,pos,expected,reason=evaluated;probability=dismissal_probability(club,pressure,p);decision='retained'
    self.db.execute('INSERT OR REPLACE INTO progress VALUES(?,?,?)',(self.branch,ident,today))
    fired=self.rows('movements',"club_id=? AND kind='dismissal' AND game_date BETWEEN ? AND ?",(ident,today//10000*10000+101,today//10000*10000+1231))
    if len(fired)<min(3,p['max_dismissals_year']) and probability and draw(info['seed'],'dismiss',ident,today)<probability:
@@ -393,37 +461,44 @@ class Market:
   for c in context.get('competitions',[]):self.db.execute('INSERT OR IGNORE INTO competition_policies VALUES(?,?,?,?)',(self.branch,c['asset'],c['name'],c['prestige']))
   # Results are applied chronologically so a later appointment cannot inherit
   # earlier games after a multi-day simulation.
-  fixtures=context['fixtures'];known={r['match_key'] for r in self.rows('results')}
-  unseen=[m for m in fixtures if m['played'] and info['start_date']<=m['date']<=today and f"{m['season']}:{m['root']}:{m['id']}:{m['home']}:{m['away']}" not in known]
+  fixtures=context['fixtures'];self.contract_fixtures=fixtures;known={r['match_key'] for r in self.rows('results')}
+  unseen=[m for m in fixtures if m['played'] and info['start_date']<=m['date']<=today and result_key(m) not in known]
   dates=sorted({max(info['game_date'],m['date']) for m in unseen})
+  clubs=self.rows('clubs');self.review_clubs={c['club_id']:c for c in clubs}
+  participants={current:{t for m in unseen if max(info['game_date'],m['date'])==current for t in (m['home'],m['away'])} for current in dates}
+  employed={a['club_id'] for a in self.rows('appointments','end_date IS NULL')};vacant=set(self.review_clubs)-employed
   for current in dates:
-   self.ingest(fixtures,current)
+   self.ingest([m for m in unseen if max(info['game_date'],m['date'])==current],current)
    for x in context.get('cup_exits',[]):
     if x['date']<=current:
      cp=self.one('competition_policies','competition_id',x.get('asset',0));prestige=cp['prestige'] if cp else x['prestige']
      self.db.execute('INSERT OR IGNORE INTO cup_exits VALUES(?,?,?,?,?)',(self.branch,x['root'],x['club'],x['date'],prestige))
    if not p['enabled']:continue
-   clubs=self.rows('clubs');tables=context.get('tables',{})
-   for club in clubs:
+   tables=context.get('tables',{});daily_tables={}
+   for club in (c for c in clubs if c['club_id'] in participants[current] or c['club_id'] in vacant):
     ident=club['club_id'];a=self.active(club=ident)
     if ident==context['club']:continue
     if not a:
-     self.hire(club,current,info['seed']);continue
+     if self.hire(club,current,info['seed']):vacant.discard(ident)
+     continue
     previous=self.one('progress','club_id',ident)
     if previous and elapsed(previous['last_review'],current)<p['review_gap_days']:continue
-    if not any(max(info['game_date'],m['date'])==current and ident in (m['home'],m['away']) for m in unseen):continue
+    if ident not in participants[current]:continue
     tenure_games=len(self.rows('results','game_date>=? AND ((home=? AND home_coach=?) OR (away=? AND away_coach=?))',(a['start_date'],ident,a['coach_id'],ident,a['coach_id'])))
-    if elapsed(a['start_date'],current)<p['min_tenure_days'] or tenure_games<p['min_tenure_games']:continue
+    regional=dismissal_policy(club,p)
+    if elapsed(a['start_date'],current)<regional['days'] or tenure_games<regional['games']:continue
     # Standings reconstructed as of this day; a future table cannot leak into
     # a decision during a multi-day jump.
-    table=table_for(fixtures,club['league_id'],current,{c['club_id'] for c in clubs if c['league_id']==club['league_id']})
+    lid=club['league_id']
+    if lid not in daily_tables:daily_tables[lid]=table_for(fixtures,lid,current,{c['club_id'] for c in clubs if c['league_id']==lid})
+    table=daily_tables[lid]
     if not table:table=tables.get(str(club['league_id']),[]) if current==today else []
     evaluated=self.table_pressure(club,table,current,p)
     if not evaluated:continue
     pressure,pos,expected,reason=evaluated;decision='retained'
     self.db.execute('INSERT OR REPLACE INTO progress VALUES(?,?,?)',(self.branch,ident,current))
     fired=self.rows('movements','club_id=? AND kind=\'dismissal\' AND game_date BETWEEN ? AND ?',(ident,current//10000*10000+101,current//10000*10000+1231))
-    probability=min(p['max_dismissal_bps'],max(0,pressure-p['pressure_threshold'])*p['dismissal_slope_bps'])
+    probability=dismissal_probability(club,pressure,p)
     if len(fired)<min(3,p['max_dismissals_year']) and probability and draw(info['seed'],'dismiss',ident,current)<probability:
      self.leave(a,current,'dismissal',reason,pressure);decision='dismissal';self.hire(club,current,info['seed'])
     elif draw(info['seed'],'resign',ident,current)<p['resignation_bps']:
@@ -461,9 +536,22 @@ class Market:
   # Contract renewals change the new term only; salaries never rewrite old terms.
   for a in self.rows('appointments','end_date IS NULL AND contract_end<=?',(today,)):
    if not p['enabled'] or a['club_id']==context['club']:continue
-   coach=self.one('coaches','coach_id',a['coach_id']);club=self.one('clubs','club_id',a['club_id']);stats=self.stats(coach['coach_id'],club['club_id'])['total'];delta=max(-.5,min(.5,(stats['percentage']-45)/35)) if stats['games']>=10 else 0
+   coach=self.one('coaches','coach_id',a['coach_id']);club=self.one('clubs','club_id',a['club_id']);stats=self.stats(coach['coach_id'],club['club_id'])['total']
+   from club_profile import spell
+   campaign=spell(self.db,self.branch,club['club_id'],today)
+   if campaign and campaign.get('campaign_stats'):stats=campaign['campaign_stats']
+   delta=max(-.5,min(.5,(stats['percentage']-45)/35)) if stats['games']>=10 else 0
+   # Offer belongs to this club/contract; the expired salary ledger is immutable.
+   adjustment=max(-.15,min(.20,(stats['percentage']-50)/200)) if stats['games']>=8 else 0
+   if club['budget']<a['monthly_wage']*18:adjustment=max(-.20,adjustment-.10)
+   offered=max(1000,round(a['monthly_wage']*(1+adjustment)/100)*100)
+   refusal=min(7000,p['nonrenewal_bps']+max(0,-adjustment)*15000)
    self.db.execute('UPDATE coaches SET reputation=? WHERE branch=? AND coach_id=?',(max(1,min(10,coach['reputation']+delta)),self.branch,coach['coach_id']))
-   self.leave(a,today,'renewed','Renovação do contrato');self.appoint(self.one('coaches','coach_id',coach['coach_id']),club,today,'renewal')
+   if draw(info['seed'],'nonrenewal',a['id'],a['contract_end'])<refusal:
+    self.leave(a,today,'resignation','Treinador optou por não renovar ao término do contrato')
+    self.hire(club,today,info['seed'])
+    continue
+   self.leave(a,today,'renewed','Renovação do contrato · salário '+('maior' if offered>a['monthly_wage'] else 'menor' if offered<a['monthly_wage'] else 'mantido'));self.appoint(self.one('coaches','coach_id',coach['coach_id']),club,today,'renewal',agreed_salary=offered)
   self.db.execute('UPDATE branches SET game_date=?,season=? WHERE id=?',(today,context['season'],self.branch))
 
 def table_for(fixtures,asset,today,members):

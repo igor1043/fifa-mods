@@ -112,6 +112,8 @@ def encode(v,indices):
 
 def bake(model,clip_path,output,read_asset,material_cache=None,cancel=None,player=None):
  rig=read_rig(model);kit_report=None
+ from coach_surface import prepare as prepare_coach,manager as is_manager
+ coach=is_manager(rig);rig,coach_report=prepare_coach(rig)
  if player:
   from kit_personalization import personalize
   rig,kit_report=personalize(rig,player,read_asset)
@@ -138,6 +140,9 @@ def bake(model,clip_path,output,read_asset,material_cache=None,cancel=None,playe
  for frame,time in enumerate(np.linspace(0,anim.duration,count)):
   if cancel and cancel():raise InterruptedError('Visualização substituída por uma nova seleção.')
   vertices=initial if frame==0 else skin(rig,anim.pose(float(time)),floor)
+  if coach and frame:
+   contact=min(v['p'][:,1].min() for v in vertices)
+   for v in vertices:v['p'][:,1]-=contact
   for slot,plan,idx,n,frames in tracks:
    data=encode(np.concatenate([vertices[i] for i in plan]),idx)
    if frame==0 and data!=native[slot][16:16+len(data)]:raise ValueError('Layout de vértices diferente da geometria nativa.')
@@ -148,4 +153,5 @@ def bake(model,clip_path,output,read_asset,material_cache=None,cancel=None,playe
   for slot,plan,idx,n,frames in tracks:f.write(struct.pack('<II',slot,n));f.writelines(frames)
  report.update(player=rig['id'],animation_frames=count,animation_seconds=anim.duration,animation_bytes=target.stat().st_size)
  if kit_report:report['kit_personalization']=kit_report
+ if coach_report:report['coach_surface']=coach_report;report['coach_grounding']='per-frame minimum sole contact'
  (Path(output)/'assets.json').write_text(json.dumps(report,indent=2),encoding='utf8');return report

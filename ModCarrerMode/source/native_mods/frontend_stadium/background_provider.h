@@ -1,8 +1,10 @@
 #pragma once
+#include <cstdint>
 #include <cstring>
 
 namespace frontend_stadium {
 enum class Photograph { Original, Friends, Stadium };
+inline bool photographRefreshReady(bool pending,bool ready,int state,uint64_t settled){return !pending&&ready&&(state==0||state==12)&&settled>=500;}
 inline Photograph photographPolicy(bool menuPage,bool bootComplete,bool pending,bool ready,bool validRoute,bool transition=false){
     // The native loader temporarily clears the page name. That interval must
     // keep the cover too, rather than falling back to its profile photo.

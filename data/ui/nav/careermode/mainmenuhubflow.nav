@@ -1464,6 +1464,18 @@
               "targets": [
                 "Server16WorldNationRanking"
               ]
+            },
+            {
+              "event": "Server16EnterCareerClubTransfer",
+              "targets": [
+                "Server16CareerClubTransfer"
+              ]
+            },
+            {
+              "event": "Server16EnterCareerRetirement",
+              "targets": [
+                "Server16CareerRetirement"
+              ]
             }
           ]
         },
@@ -3430,6 +3442,24 @@
           "name": "Server16WorldNationRanking",
           "type": "external",
           "file": "/careerMode/server16WorldNationRankingFlow.nav",
+          "outputs": {
+            "back": "MainMenuHub",
+            "Back": "MainMenuHub"
+          }
+        },
+        {
+          "name": "Server16CareerClubTransfer",
+          "type": "external",
+          "file": "/careerMode/server16CareerClubTransferFlow.nav",
+          "outputs": {
+            "back": "MainMenuHub",
+            "Back": "MainMenuHub"
+          }
+        },
+        {
+          "name": "Server16CareerRetirement",
+          "type": "external",
+          "file": "/careerMode/server16CareerRetirementFlow.nav",
           "outputs": {
             "back": "MainMenuHub",
             "Back": "MainMenuHub"

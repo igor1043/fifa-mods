@@ -31,6 +31,8 @@ static void native_refresh(void *owner, int command, void *data)
 }
 static void *owner[2];
 static uintptr_t vtable[10];
+static unsigned char stadium_service[0x80],stadium_object[0x40];
+static uintptr_t stadium_commands,stadium_items[3],stadium_vtable[2];
 static DWORD WINAPI render_request(void *unused)
 {
     (void)unused;
@@ -46,6 +48,11 @@ int main(void)
     HANDLE render;
     g_module_base = VirtualAlloc(NULL, 0x4c16000, MEM_RESERVE, PAGE_NOACCESS);
     assert(g_module_base);
+    assert(VirtualAlloc(g_module_base+0x34ea000,4096,MEM_COMMIT,PAGE_READWRITE));
+    *(void **)(g_module_base+0x34ea0e8)=stadium_service;
+    *(void **)(stadium_service+0x68)=&stadium_commands;
+    stadium_commands=(uintptr_t)stadium_items;stadium_items[0]=(uintptr_t)stadium_object;
+    *(void **)stadium_object=stadium_vtable;stadium_vtable[1]=(uintptr_t)g_module_base+0x3d8e370;
     assert(VirtualAlloc(g_module_base + 0x4c15000, 4096, MEM_COMMIT, PAGE_EXECUTE_READWRITE));
     memcpy(jump + 2, &target, sizeof(target));
     memcpy(g_module_base + 0x4c15b20, jump, sizeof(jump));
@@ -65,6 +72,8 @@ int main(void)
     stable = 1; g_current_stats_provider_owner = owner;
     drain_background_refresh(); assert(!calls);
     g_current_stats_provider_owner = NULL;
+    *(int *)(stadium_object+0x30)=14;drain_background_refresh();assert(!calls&&g_background_refresh.owner);
+    *(int *)(stadium_object+0x30)=0;
     drain_background_refresh(); assert(calls == 1 && native_thread == GetCurrentThreadId());
     drain_background_refresh(); assert(calls == 1); /* Coalesced, consumed once. */
 

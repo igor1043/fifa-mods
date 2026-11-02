@@ -7,23 +7,28 @@ class Inputs:
   self.game=Path(game);sys.path.insert(0,str(self.game/'ModCarrerMode/source/club_browser'))
   from lineup_data import ProjectionCache
   self.cache=ProjectionCache()
- def read(self,observed,memory=None,offline=False,live_leagues=None):
+ def read(self,observed,memory=None,offline=False,live_leagues=None,league_only=False):
   from competition_schedule import read_schedule
   from competition_formats import read_formats
   from engine import table_for
   game=self.game;saved=observed['save'];today=observed['date'];path=Path(saved['path']);before=path.stat();raw,dbs,base=self.cache.load(game,path)
-  snapshot=json.loads((game/'ModCarrerMode/runtime/career_fce_snapshot.json').read_text(encoding='utf8'))
-  if not offline:
-   from season_stats import current
-   snapshot=current(game,memory,saved,observed['profile'])
-   if snapshot is None:raise ValueError('Aguardando resultados atuais desta carreira')
-  if Path(snapshot['savePath']).resolve()!=path.resolve() or snapshot['date']!=today:raise ValueError('Resultados de outra carreira ou data')
   def rows(name,fields):
    found=[d for d in dbs if name in d.tables];db=found[0] if found else base
    if len(found)>1:raise ValueError('Tabela ambígua: '+name)
    if name not in db.tables:return []
    available=db.tables[name]['fields'];return db.rows(name,[f for f in fields if f in available])
   calendar=rows('career_calendar',['startdate','currdate']);users=rows('career_users',['userid','clubteamid','firstname','surname']);user=users[0] if len(users)==1 else {}
+  from derived_campaigns import augment
+  if league_only:
+   if memory is None or live_leagues is None or live_leagues['date']!=today:raise ValueError('Aguardando ligas nativas da data atual')
+   # The verified owner-thread league rows are enough for daily board reviews.
+   # Keep dated scores from DATA as saved evidence; never relabel an old FCE
+   # graph, synthesize goals or wait for the full competition graph to open UI.
+   snapshot=dict(date=today,nodes=[],fixtures=[],standings=[],stats=[],source='live_league_only')
+  else:
+   from saved_competitions import read as read_saved_competitions
+   snapshot=augment(game,path,raw,read_saved_competitions(raw,calendar[0]['currdate']),today,saved.get('pid'),saved.get('process_created_100ns'),observed['profile'].get('context_epoch'))
+  if memory is not None and snapshot.get('source') not in ('save_bound_native','live_league_only'):raise ValueError('Aguardando publicação consistente da carreira em RAM')
   season=calendar[0]['startdate'];formats=read_formats(game);fixtures={m['id']:m for m in read_schedule(raw,formats)};nodes={r[0]:r for r in snapshot['nodes']}
   def root(n):
    seen=set()
@@ -56,12 +61,18 @@ class Inputs:
    clubs.append(dict(club_id=r['teamid'],name=r['teamname'],league_id=lid,league_name=definition.get('name',league_defs[lid]['leaguename']),country=country,region='Outras regiões',reputation=max(1,min(10,(r.get('domesticprestige') or 8)/2)),budget=max(0,r.get('transferbudget') or 1000000),level=league_defs[lid]['level']))
   tables={str(lid):table_for(result,lid,today,{r['club_id'] for r in clubs if r['league_id']==lid}) for lid in set(memberships.values())}
   from global_performance import project as global_projection
-  global_data=global_projection(snapshot,result,memberships,league_links,today if live_leagues is not None else calendar[0]['currdate'],season,today,'live_league' if live_leagues is not None else 'saved_league')
+  global_data=global_projection(snapshot,result,memberships,league_links,today if live_leagues else calendar[0]['currdate'],season,snapshot['date'],'live_league' if live_leagues else 'saved_league')
+  for row in global_data['performance']:
+   if row['source']=='fce':row['source']='native_view' if snapshot.get('source')=='save_bound_native' else 'saved_fce'
+  global_data['coverage'].update(live_competitions=global_data['coverage'].get('competitions',0) if snapshot.get('source') in ('save_bound_native','live_league_only') else 0,live_league_tables=len({r['leagueid'] for r in league_links}) if live_leagues else 0,live_database=live_leagues is not None,league_only=league_only)
+  global_data['coverage'].update(derived_campaigns=len(snapshot.get('derived_slots',[])),native_bound=snapshot.get('source')=='save_bound_native')
   tables.update(global_data['tables'])
   titles=[];exits=[];competition_profiles={}
+  from competition_labels import resolve as competition_label
+  comp_name=lambda asset:competition_label(game,asset,league_defs.get(asset,{}).get('leaguename',''))
   for asset in {m['asset'] for m in result}:
    participants={m[t] for m in result if m['asset']==asset for t in ('home','away')};reps=[c['reputation'] for c in clubs if c['club_id'] in participants];league_count=len({c['league_id'] for c in clubs if c['club_id'] in participants})
-   competition_profiles[asset]=dict(asset=asset,name=league_defs.get(asset,{}).get('leaguename','Competição '+str(asset)),prestige=max(1,min(10,round((sum(reps)/len(reps) if reps else 4)+(2 if league_count>1 else 0)))))
+   competition_profiles[asset]=dict(asset=asset,name=comp_name(asset),prestige=max(1,min(10,round((sum(reps)/len(reps) if reps else 4)+(2 if league_count>1 else 0)))))
   # Actual aggregate winners only. Tied aggregates without penalty evidence are
   # deliberately unresolved; titles must never be guessed from a random draw.
   ties={}
@@ -76,7 +87,7 @@ class Inputs:
    participants={m[t] for m in result if m['root']==rt for t in ('home','away')};reps=[c['reputation'] for c in clubs if c['club_id'] in participants];league_count=len({c['league_id'] for c in clubs if c['club_id'] in participants})
    prestige=max(1,min(10,round((sum(reps)/len(reps) if reps else 4)+(2 if league_count>1 else 0))))
    exits.append(dict(root=rt,asset=asset,club=lose,date=last,prestige=prestige))
-   if legs[0]['kind']==10:titles.append(dict(root=rt,asset=asset,club=win,date=last,season=season,name=league_defs.get(asset,{}).get('leaguename','Competição '+str(asset))))
+   if legs[0]['kind']==10:titles.append(dict(root=rt,asset=asset,club=win,date=last,season=season,name=comp_name(asset)))
   for lid,table in tables.items():
    matches=[m for m in result if m['asset']==int(lid)];members={r['club'] for r in table}
    if len(members)>=4 and matches and all(m['played'] and m['date']<=today for m in matches) and min((r['played'] for r in table),default=0)>=len(members)-1:

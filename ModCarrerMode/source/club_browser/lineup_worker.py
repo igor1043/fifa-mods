@@ -13,16 +13,13 @@ from character_lighting import ensure as ensure_character_lighting
 from pose_profile import signature as pose_signature
 from static_stream import prepare as prepare_static,VERSION as STATIC_STREAM_VERSION
 import portable_paths
+from preview_files import atomic,read_bytes as shared_read,publish_directory
 from server16_py.memory_access import Memory
 from server16_py.career_context import competition_session
 from server16_py.career_active_save import read_active_save
 
-def atomic(path,blob):
-    path=Path(path);path.parent.mkdir(parents=True,exist_ok=True)
-    temp=path.with_name(path.name+'.'+str(os.getpid())+'.new');temp.write_bytes(blob);os.replace(temp,path)
-
 def request(path,pid):
-    raw=path.read_bytes()
+    raw=shared_read(path)
     if len(raw)>1024:raise ValueError('Pedido inválido.')
     data=dict(line.split('=',1) for line in raw.decode('ascii').splitlines())
     result={k:int(data[k]) for k in ('schema','pid','seq','club')}
@@ -77,7 +74,7 @@ def generate(game,folder,req,memory,asset_root=None,exporter=None,projection_cac
             prepare_static(temp/'native',portable_paths.read_asset)
             timings['native_pack_ms']=round((time.perf_counter()-start)*1000,1)
             cache.parent.mkdir(parents=True,exist_ok=True)
-            os.replace(temp/'native',cache)
+            publish_directory(temp/'native',cache)
         timings['cache_hit']=False
     else:timings['cache_hit']=True
     if not (target/'assets.json').is_file():
@@ -87,7 +84,7 @@ def generate(game,folder,req,memory,asset_root=None,exporter=None,projection_cac
             for item in cache.iterdir():
                 try:os.link(item,publish_to/item.name)
                 except OSError:shutil.copy2(item,publish_to/item.name)
-            os.replace(publish_to,target)
+            publish_directory(publish_to,target)
     assets=json.loads((target/'assets.json').read_text(encoding='utf8'))
     after,latest=observe(memory,game)
     if pose_signature(game)!=pose_hash:raise ValueError('A pose mudou durante a preparação. Atualize os titulares novamente.')
@@ -108,7 +105,7 @@ def main():
     print('WORKER_START',json.dumps(dict(game=str(game),pid=args.pid,helper_pid=os.getpid(),source=__file__,frozen=bool(getattr(sys,'frozen',False))),ensure_ascii=True),flush=True)
     m=Memory();m.process_id=args.pid;m.process_handle=m.kernel32.OpenProcess(0x410,False,args.pid)
     if not m.process_handle:raise OSError('Não foi possível ler a carreira.')
-    m.base_module=m._get_base_address(process.exe());last=None;exporter=Exporter();projection_cache=ProjectionCache()
+    m.base_module=m._get_base_address(process.exe());last=None;last_wait=None;lock_retries={};exporter=Exporter();projection_cache=ProjectionCache()
     try:
         while process.is_running() and process.create_time()==created:
             req=None
@@ -122,7 +119,7 @@ def main():
                     refreshing=req.get('kind')=='coach' and last and signature[:2]==last[:2]
                     last=signature
                     if not refreshing:publish(folder,req,'loading')
-                    print('REQUEST',json.dumps(req),flush=True)
+                    if not last_wait or last_wait[0]!=req['seq']:print('REQUEST',json.dumps(req),flush=True)
                     if req.get('kind')=='mascot':
                         from mascot_worker import generate as prepare_mascot
                         completed=prepare_mascot(game,folder,req,m,projection_cache)
@@ -139,9 +136,24 @@ def main():
                         from roster_worker import generate as prepare_roster
                         completed=prepare_roster(game,folder,req,m,exporter,projection_cache)
                     else:completed=generate(game,folder,req,m,exporter=exporter,projection_cache=projection_cache)
-                    print('COMPLETE' if completed else 'SUPERSEDED',req['seq'],flush=True)
-            except InterruptedError:
-                if req:print('SUPERSEDED',req['seq'],flush=True)
+                    print('COMPLETE' if completed else 'SUPERSEDED',req['seq'],flush=True);last_wait=None
+                    if not completed:last=None
+            except InterruptedError as error:
+                last=None
+                if req:
+                    waiting=(req['seq'],str(error))
+                    if waiting!=last_wait:print('WAITING',req['seq'],str(error),flush=True)
+                    last_wait=waiting
+                time.sleep(.25)
+            except PermissionError as error:
+                key=(req['seq'],req['club']) if req else None;count=lock_retries.get(key,0)+1;lock_retries[key]=count
+                if count<=3:
+                    last=None;print('RETRY_LOCKED',key,count,repr(error),flush=True)
+                else:
+                    print('ERROR_LOCKED',repr(error),flush=True)
+                    if req:
+                        try:publish(folder,req,'error',message='Um arquivo da visualização continua em uso. Tente carregar novamente.')
+                        except PermissionError:print('STATUS_LOCKED',req['seq'],flush=True)
             except FileNotFoundError as error:
                 if req:print('MISSING_RESOURCE',repr(error),flush=True);traceback.print_exc(file=sys.stdout)
                 if req:publish(folder,req,'error',message='Um recurso necessário para os titulares não foi encontrado.')

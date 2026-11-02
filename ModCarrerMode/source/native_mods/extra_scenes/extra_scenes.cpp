@@ -7,6 +7,7 @@
 #include <cwchar>
 #include <cstring>
 #include "scene_actor_api.h"
+#include "scene_memory.h"
 #include "scene_math.h"
 #include "scene_tracking.h"
 #include "reaction_policy.h"
@@ -45,8 +46,7 @@ extern "C" {__declspec(dllexport) struct PublicStatus {
  int32_t cue=0,coachReady=0,mascotReady=0,waiting=0;
 } ExtraScenesStatus{};}
 static bool read(uintptr_t at,void* out,size_t n){
- if(at<0x10000||at>UINTPTR_MAX-n)return false;
- __try{std::memcpy(out,reinterpret_cast<void*>(at),n);return true;}__except(EXCEPTION_EXECUTE_HANDLER){return false;}
+ return sceneRead(at,out,n);
 }
 template<class T>static T get(uintptr_t at){T v{};read(at,&v,sizeof v);return v;}
 static bool swapAt(uintptr_t offset,uintptr_t expected,uintptr_t value){
@@ -162,6 +162,14 @@ static void __fastcall producerHook(void* self,double dt,void* output){
  original(self,dt,output);
  AcquireSRWLockExclusive(&gate);
  ExtraScenesEngine=(uintptr_t)self;ExtraScenesStatus.frames++;
+ const bool match=onMatchPage();
+ if(stopping||!options.enabled||!match){
+  endScene(2);identity=0;stoppage.reset();readiness[0].reset();readiness[1].reset();
+  coachPalette[0]=coachPalette[1]=-1;coachTeam=-1;
+  ExtraScenesStatus.enabled=options.enabled?1:0;ExtraScenesStatus.cue=0;
+  ExtraScenesStatus.coachReady=ExtraScenesStatus.mascotReady=0;
+  ReleaseSRWLockExclusive(&gate);return;
+ }
  const auto now=GetTickCount64(),scene=get<uintptr_t>(image+0x3517c10);
  const int phase=get<int>(scene+0x3c);const bool replay=get<unsigned char>(scene+0x39)!=0;
  const auto pool=get<uintptr_t>(get<uintptr_t>((uintptr_t)self+0x128));
@@ -170,7 +178,7 @@ static void __fastcall producerHook(void* self,double dt,void* output){
  if(char* timer=std::strrchr(name,' ')){if(timer[1]>='0'&&timer[1]<='9')*timer=0;}
  ExtraScenesStatus.phase=phase;strncpy_s(ExtraScenesStatus.camera,name,_TRUNCATE);
  ExtraScenesStatus.enabled=options.enabled?1:0;ExtraScenesStatus.reason=reserved?0:6;
- const bool match=onMatchPage();SceneActorSnapshot actors{};const bool valid=snapshot(actors);
+ SceneActorSnapshot actors{};const bool valid=snapshot(actors);
  if(valid&&match){
   const auto fresh=actorSceneIdentity(actors.renderer,actors.generation,actors.home);
   if(identity!=fresh){endScene(6);identity=fresh;stoppage.reset();readiness[0].reset();readiness[1].reset();coachPalette[0]=coachPalette[1]=-1;}
@@ -183,7 +191,11 @@ static void __fastcall producerHook(void* self,double dt,void* output){
  ExtraScenesStatus.mascotReady=readiness[1].ready(now)?1:0;
  stoppage.observe(identity,phase==15&&!replay&&match,false,now);
  if(options.preview!=lastPreview){lastPreview=options.preview;pendingPreview=options.preview!=0;}
- const auto presentation=native_muse::current((uintptr_t)self);
+ // MUSE tears down its adapter between stadiums and after a match. Only
+ // inspect it for a validated cinematic producer frame, never live play,
+ // replays, menu frames or an actor snapshot from the previous scene.
+ const auto presentation=(valid&&reserved&&!replay&&stoppedScenePhase(phase)&&nativeCutCamera(name))
+  ?native_muse::current((uintptr_t)self):native_muse::Presentation{};
  const bool safe=!stopping&&options.enabled&&valid&&
   nativeCutAllowed(phase,name,presentation.cue,reserved,match,replay);
  ExtraScenesStatus.cue=static_cast<int>(presentation.cue);

@@ -18,9 +18,10 @@ static bool generate(Assets&assets,const fs::path&game,const fs::path&fixture,co
  std::vector<ClubPlayerRow>rows;int club=0;unsigned colors[3]{};
  if(pose==402){
   struct CoachRequest{char magic[8];uint32_t club,colors[3];}input{};static_assert(sizeof input==24,"Coach request ABI");
-  std::ifstream file(fixture,std::ios::binary);file.read((char*)&input,sizeof input);if(!file||file.peek()!=std::char_traits<char>::eof()||memcmp(input.magic,"FFCOACH1",8)||!input.club||input.club>200000)throw std::runtime_error("Invalid coach request");
+  std::ifstream file(fixture,std::ios::binary);file.read((char*)&input,sizeof input);uint32_t career_model=0;bool career=!memcmp(input.magic,"FFCOACH2",8);if(career)file.read((char*)&career_model,4);
+  if(!file||file.peek()!=std::char_traits<char>::eof()||(!career&&memcmp(input.magic,"FFCOACH1",8))||!input.club||input.club>200000||(career&&(!career_model||career_model>200000)))throw std::runtime_error("Invalid coach request");
   ClubPlayerRow row{};row.team_id=club=int(input.club);row.club_colors_valid=1;for(int i=0;i<3;++i){if(input.colors[i]>0xffffff)throw std::runtime_error("Invalid coach colors");row.club_colors[i]=input.colors[i];}
-  auto coach=assets.coach(row);if(!coach.model||coach.model->parts.empty()||coach.model->team_id!=club)throw std::runtime_error("Club coach model unavailable");
+  auto coach=assets.coach(row,(int)career_model);if(!coach.model||coach.model->parts.empty()||coach.model->team_id!=club)throw std::runtime_error("Club coach model unavailable");
   Model model=*coach.model;model.player_id=100000000+club;
   std::cout<<model.diagnostic<<"\n";
   return model.skeleton?export_web_skinned_model(model,target,coach.name):export_web_model(model,target);

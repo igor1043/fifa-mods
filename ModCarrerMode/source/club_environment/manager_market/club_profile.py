@@ -21,9 +21,17 @@ def io_token(game,saved):
 def spell(db,branch,club,today):
  """Renewing a contract keeps a spell; returning after dismissal starts another."""
  appointments=[dict(r) for r in db.execute('SELECT * FROM appointments WHERE branch=? AND club_id=? ORDER BY start_date DESC',(branch,club))]
- current=[a for a in appointments if a['end_date'] is None and a['start_date']<=today]
+ # Some FIFA calendars begin before career_calendar.startdate (e.g. Jan 1
+ # versus Jan 9). Initial catalogue incumbents are already employed then;
+ # actual future hires must still remain invisible until their appointment.
+ initial_origins=('Vínculo inicial desde o início da carreira','Estimado a partir da ativação do mod')
+ current=[a for a in appointments if a['end_date'] is None and (a['start_date']<=today or a['origin'] in initial_origins)]
  if len(current)!=1:return None
  a=current[0];chain=[a];start=a['start_date']
+ if start>today:
+  branch_row=db.execute('SELECT start_date FROM branches WHERE id=?',(branch,)).fetchone()
+  start=min(today,branch_row['start_date']) if branch_row else today
+  a['start_date']=start
  while True:
   event=db.execute('SELECT kind FROM movements WHERE branch=? AND id=?',(branch,chain[-1]['id'])).fetchone()
   if not event or event['kind']!='renewal':break
@@ -33,9 +41,21 @@ def spell(db,branch,club,today):
  person=db.execute('SELECT * FROM coaches WHERE branch=? AND coach_id=?',(branch,a['coach_id'])).fetchone()
  if not person:return None
  results=[dict(r) for r in db.execute('SELECT * FROM results WHERE branch=? AND game_date BETWEEN ? AND ? AND (home=? OR away=?)',(branch,start,today,club,club))]
- initial=chain[-1]['origin'] in ('Vínculo inicial desde o início da carreira','Estimado a partir da ativação do mod')
+ initial=chain[-1]['origin'] in initial_origins
  reviews=[dict(r) for r in db.execute('SELECT * FROM reviews WHERE branch=? AND club_id=? AND game_date BETWEEN ? AND ?',(branch,club,start,today))]
- return dict(coach=dict(person),appointment=a,appointments=[r['id'] for r in chain],start=start,initial=initial,results=results,confidence=confidence_for_spell(reviews,start,today,initial))
+ campaigns=[]
+ if db.execute("SELECT 1 FROM sqlite_master WHERE type='table' AND name='appointment_campaigns'").fetchone():
+  campaigns=[dict(r) for r in db.execute('SELECT c.* FROM appointment_campaigns c JOIN appointments a ON a.branch=c.branch AND a.id=c.appointment WHERE c.branch=? AND a.club_id=?',(branch,club))]
+  try:from .evidence_ownership import complete_campaigns,without_complete
+  except ImportError:from evidence_ownership import complete_campaigns,without_complete
+  all_results=[dict(r) for r in db.execute('SELECT * FROM results WHERE branch=? AND (home=? OR away=?)',(branch,club,club))]
+  campaigns=without_complete(appointments,campaigns,complete_campaigns(appointments,all_results,campaigns))
+ try:from .career_profile import build as build_profile
+ except ImportError:from career_profile import build as build_profile
+ rich=build_profile(dict(person),chain,results,[],{club:reviews},{club:dict(name=str(club))},today,str,campaigns)
+ def public(v):return dict(games=v['games'],wins=v['wins'],draws=v['draws'],losses=v['losses'],points=v['points'],percentage=v['percentage'],goalsFor=v['gf'],goalsAgainst=v['ga'])
+ campaign_stats=public(rich['total']);campaign_stats.update(home=public(rich['home']),away=public(rich['away']))
+ return dict(campaign_stats=campaign_stats,coach=dict(person),appointment=a,appointments=[r['id'] for r in chain],start=start,initial=initial,results=results,confidence=confidence_for_spell(reviews,start,today,initial))
 
 def read(game,saved,profile,today,club,digest):
  """Never guess a branch by date, club, newest file or latest SQLite row."""

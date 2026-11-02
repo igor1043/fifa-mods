@@ -14,6 +14,10 @@ class LiveLeagueTest(unittest.TestCase):
  def test_current_native_rows_enable_global_tables_without_saving(self):
   self.write();live=read(self.path,self.observed,1010);projection=project(dict(nodes=[],standings=[]),[],{1:100,2:100,3:100},live['rows'],live['date'],20260101,20260401,'live_league')
   self.assertTrue(projection['coverage']['live_database']);self.assertEqual(1,projection['coverage']['live_league_tables']);self.assertEqual(20260401,projection['table_dates']['100']);self.assertTrue(all(r['source']=='live_league' for r in projection['performance']))
+ def test_native_row_reordering_does_not_reprocess_the_market(self):
+  self.write();first=read(self.path,self.observed,1010)
+  self.rows.reverse();self.write();again=read(self.path,self.observed,1010)
+  self.assertEqual(first['revision'],again['revision']);self.assertEqual(first['rows'],again['rows'])
  def test_other_pid_session_club_epoch_date_and_incomplete_snapshots_are_rejected(self):
   for key in ('schema','pid','process_created_100ns','epoch','club','date','complete'):
    previous=self.headers[key];self.headers[key]=previous+1;self.write()

@@ -23,6 +23,7 @@
 #include "mascot_view.h"
 #include "competitions_model.h"
 #include "competitions_layout.h"
+#include "bracket_viewport.h"
 #include "ranking_model.h"
 #include "../../server16_py/d3d_overlay/third_party/reshade/reshade_events.hpp"
 namespace fs=std::filesystem;
@@ -42,7 +43,7 @@ bool read(uintptr_t at,void* out,size_t count){SIZE_T got=0;return at>=0x10000&&
 template<class T>T get(uintptr_t at){T result{};read(at,&result,sizeof(result));return result;}
 bool readPage(char (&name)[128]){uintptr_t p=get<uintptr_t>(executable+0x3809030);for(unsigned offset:{232u,192u,136u,472u}){if(!p)return false;p=get<uintptr_t>(p+offset);}return read(p,name,127)&&memchr(name,0,128);}
 int careerClub();
-int pageKind(){char name[128]{};if(!readPage(name))return 0;if(!strcmp(name,"game/screens/career/server16/CareerCompetitions"))return 3;if(!strcmp(name,"game/screens/career/server16/WorldClubRanking"))return 4;if(!strcmp(name,"game/screens/career/server16/WorldNationRanking"))return 5;if(clubs::roomRosterMode.visible(name,careerClub()))return 2;if(!clubs::isDressingRoomPage(name))clubs::roomRosterMode.close();return clubs::isRoomPlayersPage(name)?2:clubs::isPage(name)?1:0;}
+int pageKind(){char name[128]{};if(!readPage(name))return 0;if(!strcmp(name,"game/screens/career/server16/CareerClubTransfer"))return 6;if(!strcmp(name,"game/screens/career/server16/CareerRetirement"))return 7;if(!strcmp(name,"game/screens/career/server16/CareerCompetitions"))return 3;if(!strcmp(name,"game/screens/career/server16/WorldClubRanking"))return 4;if(!strcmp(name,"game/screens/career/server16/WorldNationRanking"))return 5;if(clubs::roomRosterMode.visible(name,careerClub()))return 2;if(!clubs::isDressingRoomPage(name))clubs::roomRosterMode.close();return clubs::isRoomPlayersPage(name)?2:clubs::isPage(name)?1:0;}
 bool page(){return pageKind()!=0;}
 std::wstring wide(const std::string& value){if(value.empty())return {};int n=MultiByteToWideChar(CP_UTF8,MB_ERR_INVALID_CHARS,value.data(),int(value.size()),nullptr,0);if(!n)return L"—";std::wstring out(size_t(n),L' ');MultiByteToWideChar(CP_UTF8,MB_ERR_INVALID_CHARS,value.data(),int(value.size()),out.data(),n);return out;}
 int careerClub(){struct Record{DWORD schema,size,sequence,pid;uintptr_t service,vtable,registry;DWORD epoch,thread;};auto host=GetModuleHandleW(L"dinput8.dll");auto pointer=host?(uintptr_t)GetProcAddress(host,"Fifa16CareerContextRead"):0;Record a{},b{};if(!read(pointer,&a,sizeof(a))||a.schema!=1||a.size!=sizeof(a)||a.sequence&1||a.pid!=GetCurrentProcessId()||get<uintptr_t>(a.service)!=a.vtable)return 0;int selected=get<int>(a.service+0x14);if(selected<0||selected>7)return 0;auto context=get<uintptr_t>(a.service+0x18)+uintptr_t(selected)*0x318;int id=get<int>(context+0x1a4);if(get<int>(context+0x18c)!=1||!read(pointer,&b,sizeof(b))||memcmp(&a,&b,sizeof(a)))return 0;return id;}
@@ -89,6 +90,7 @@ void prepareClub();
 #include "roster_ui.inc"
 #include "mascot_ui.inc"
 #include "competitions_ui.inc"
+#include "career_options_ui.inc"
 #include "ranking_ui.inc"
 void drawContent(ID3D11DeviceContext* context){auto& r=renderer;const auto& c=model.club();const auto white=RGB(255,255,255),ink=RGB(52,77,90),muted=RGB(118,141,151);int label=0;
  auto text=[&](std::wstring value,float x,float y,int w,int h,int size,COLORREF color,bool centered=false){r.label(context,label++,value,x,y,w,h,size,color,centered);};
@@ -170,11 +172,15 @@ void render(IDXGISwapChain* swap){
  if(SUCCEEDED(swap->GetDesc(&sd))&&SUCCEEDED(swap->GetDevice(IID_PPV_ARGS(&dev)))&&SUCCEEDED(swap->GetBuffer(0,IID_PPV_ARGS(&back)))){DWORD pid=0;GetWindowThreadProcessId(sd.OutputWindow,&pid);D3D11_TEXTURE2D_DESC desc{};back->GetDesc(&desc);
   if(pid==GetCurrentProcessId()&&desc.Width>=320&&desc.Height>=180){gameWindow=sd.OutputWindow;attachInputWindow(sd.OutputWindow);dev->GetImmediateContext(&context);if(context&&SUCCEEDED(dev->GetDeviceRemovedReason())&&SUCCEEDED(dev->CreateRenderTargetView(back,nullptr,&target))){
    static thread_local bool comInitialized=false;if(!comInitialized){CoInitializeEx(nullptr,COINIT_MULTITHREADED);comInitialized=true;}if(!model.rows.empty()||loadCatalog()){
-    auto now=GetTickCount64();float dt=lastFrame?(std::min)(.06f,float(now-lastFrame)*.001f):0.f;lastFrame=now;if(!entered){entryKind=kind;roomEntry=kind==2;clubPage=roomEntry?ClubPage::Roster:ClubPage::Map;roster.clear();coach.clear();{std::lock_guard<std::mutex> q(commandMutex);commands.clear();}model.detailOpen=roomEntry;hubFocus=1;lineup.club=0;lineup.sequence=0;model.zoom=model.targetZoom=1.3f;int club=careerClub();model.setNational(false);if(club)model.choose(club);enteredAt=now;entered=true;if(kind==3)competitions.enter(club);if(kind==4||kind==5)rankings.enter(club,kind==5);log(kind==3?"ENTER_CAREER_COMPETITIONS":"ENTER_CLUB_BROWSER");}
+    auto now=GetTickCount64();float dt=lastFrame?(std::min)(.06f,float(now-lastFrame)*.001f):0.f;lastFrame=now;if(!entered){entryKind=kind;roomEntry=kind==2;clubPage=roomEntry?ClubPage::Roster:ClubPage::Map;roster.clear();coach.clear();{std::lock_guard<std::mutex> q(commandMutex);commands.clear();}model.detailOpen=roomEntry;hubFocus=1;lineup.club=0;lineup.sequence=0;model.zoom=model.targetZoom=1.3f;int club=careerClub();model.setNational(false);if(club)model.choose(club);enteredAt=now;entered=true;if(kind>=6)careerOptions.enter(kind);if(kind==3)competitions.enter(club);if(kind==4||kind==5)rankings.enter(club,kind==5);log(kind==3?"ENTER_CAREER_COMPETITIONS":"ENTER_CLUB_BROWSER");}
     #ifdef CLUB_BROWSER_VALIDATION
     auto command=validationClub.exchange(-1);if(command==0)model.closeDetail();else if(command>0&&model.choose(command))activateClub();
     #endif
-    if(kind==4||kind==5){
+    if(kind>=6){
+     clubscene::intent(false,0);clubscene::mascotCamera=false;clubscene::rosterCamera=false;clubscene::roomView=false;rosterMouseActive=true;
+     careerOptions.poll();careerOptions.controls(sd.OutputWindow,float(desc.Width),float(desc.Height));
+     if(renderer.init(dev,root.wstring())){clubgfx::UiPass saved(context,renderer.uiPipeline);renderer.begin(context,target,float(desc.Width),float(desc.Height));careerOptions.draw(context);saved.restore();}
+    }else if(kind==4||kind==5){
      clubscene::intent(false,0);clubscene::mascotCamera=false;clubscene::rosterCamera=false;clubscene::roomView=false;rosterMouseActive=true;
      {std::vector<std::string>pending;{std::lock_guard<std::mutex>q(commandMutex);pending.swap(commands);}for(auto&s:pending)rankings.command(s);}
      rankings.controls(sd.OutputWindow,float(desc.Width),float(desc.Height));
@@ -182,7 +188,7 @@ void render(IDXGISwapChain* swap){
     }else if(kind==3){
      clubscene::intent(false,0);clubscene::mascotCamera=false;clubscene::rosterCamera=false;clubscene::roomView=false;rosterMouseActive=true;
      {std::vector<std::string>pending;{std::lock_guard<std::mutex>q(commandMutex);pending.swap(commands);}for(auto&s:pending)competitions.command(s);}
-     competitions.controls(sd.OutputWindow,float(desc.Width),float(desc.Height));
+     competitions.dashboardControls(sd.OutputWindow,float(desc.Width),float(desc.Height));
      if(renderer.init(dev,root.wstring())){competitions.poll();clubgfx::UiPass saved(context,renderer.uiPipeline);renderer.begin(context,target,float(desc.Width),float(desc.Height));competitions.draw(context);saved.restore();}
     }else{
     if(clubPage==ClubPage::Map){static uint64_t catalogCheck=0;static fs::file_time_type catalogStamp{};if(now>=catalogCheck){catalogCheck=now+2000;std::error_code ec;auto stamp=fs::last_write_time(art.game/L"ModCarrerMode/runtime/club_browser/catalog/ready.json",ec);if(!ec&&stamp!=catalogStamp){int id=model.club().id;bool national=model.national;if(loadCatalog()){model.setNational(national);model.choose(id);catalogStamp=stamp;}}}}
@@ -218,7 +224,7 @@ extern "C" __declspec(dllexport) BOOL WINAPI Fifa16ClubBrowserCommand(const char
  if(!wire||stopped)return FALSE;char command[32]{};if(!copyClubCommand(wire,command))return FALSE;if(!memchr(command,0,sizeof(command))||std::string(command).find_first_not_of("abcdefghijklmnopqrstuvwxyz_")!=std::string::npos)return FALSE;
  if(!strcmp(command,"room_roster")||!strcmp(command,"room_close")){char name[128]{};if(!readPage(name)||!clubs::isDressingRoomPage(name))return FALSE;if(!strcmp(command,"room_roster"))return clubs::roomRosterMode.open(name,careerClub())?TRUE:FALSE;clubs::roomRosterMode.close();clubscene::intent(false,0);return TRUE;}
  if(!page())return FALSE;
- static const char*allowed[]={"mascot","focus_mascot","mascot_center","open","xi","roster","coach","focus_xi","focus_roster","focus_coach","detail","back","left","right","prev","next","refresh","sort","tab_prev","tab_next","comp_prev","comp_next","comp_stat_prev","comp_stat_next","comp_mode","comp_refresh","comp_bracket","comp_close","comp_center","rank_mode","rank_prev","rank_next","rank_top","rank_mine","rank_filter","rank_refresh","globe_mode"};bool valid=false;for(auto*a:allowed)if(!strcmp(command,a))valid=true;if(!valid)return FALSE;std::lock_guard<std::mutex>lock(commandMutex);if(commands.size()>=32)return FALSE;commands.emplace_back(command);return TRUE;
+ static const char*allowed[]={"mascot","focus_mascot","mascot_center","open","xi","roster","coach","focus_xi","focus_roster","focus_coach","detail","back","left","right","prev","next","refresh","sort","tab_prev","tab_next","comp_prev","comp_next","comp_stat_prev","comp_stat_next","comp_mode","comp_refresh","comp_bracket","comp_activate","comp_goals","comp_assists","comp_rounds","comp_focus_left","comp_focus_right","comp_close","comp_center","rank_mode","rank_prev","rank_next","rank_top","rank_mine","rank_filter","rank_refresh","globe_mode"};bool valid=false;for(auto*a:allowed)if(!strcmp(command,a))valid=true;if(!valid)return FALSE;std::lock_guard<std::mutex>lock(commandMutex);if(commands.size()>=32)return FALSE;commands.emplace_back(command);return TRUE;
 }
 extern "C" __declspec(dllexport) BOOL WINAPI Fifa16ClubBrowserRoomRosterActive(){char name[128]{};return !stopped&&readPage(name)&&clubs::roomRosterMode.visible(name,careerClub());}
 extern "C" __declspec(dllexport) unsigned WINAPI Fifa16ModGetApiVersion(){return 1;}

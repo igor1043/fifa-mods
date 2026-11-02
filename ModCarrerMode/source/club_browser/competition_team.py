@@ -90,8 +90,14 @@ def build_competition_statistics(snapshot, roots, players, display_name, team_na
                                        'appearances': sum(row['appearances'] for row in selected)})
         for values in leaders.values():
             values.sort(key=lambda row: (-row['value'], -row['appearances'], row['name'].casefold(), row['id']))
-        result[root] = {'root': root, 'statsGeneration': snapshot.get('generation'), **leaders,
-                        'teamOfCompetition': build_competition_team(root, rows, players, display_name, team_names)}
+        rated = rated_competition_players(root, rows, players, display_name, team_names)
+        keepers = [p for p in rated if 0 in p['positions']]
+        goalkeeper_candidates = [{k:v for k,v in p.items() if k != 'positions'} for p in keepers]
+        minimum = max(1, (max((p['appearances'] for p in keepers), default=0) + 1) // 2)
+        keepers = [p for p in keepers if p['appearances'] >= minimum]
+        goalkeeper = {k:v for k,v in keepers[0].items() if k != 'positions'} if keepers else None
+        result[root] = {'goalkeeper': goalkeeper, 'goalkeepers': goalkeeper_candidates, 'root': root, 'statsGeneration': snapshot.get('generation'), **leaders,
+                        'teamOfCompetition': build_competition_team(root, rows, players, display_name, team_names, rated)}
     return result
 
 
@@ -160,8 +166,8 @@ def _matching(slots, candidates):
     return result
 
 
-def build_competition_team(root, stats, players, display_name, team_names=None):
-    """Rows must belong to root. Root totals replace their child-stage totals."""
+def rated_competition_players(root, stats, players, display_name, team_names=None):
+    """Validated rating totals shared by the XI and goalkeeper highlight."""
     team_names = team_names or {}
     unique = {}
     for row in stats:
@@ -196,6 +202,11 @@ def build_competition_team(root, stats, players, display_name, team_names=None):
                            'appearances': appearances, 'minutes': sum(row.get('minutes', 0) for row in totals),
                            'ratingSum': rating, 'averageRating': round(rating / (10 * appearances), 4)})
     candidates.sort(key=lambda p: (-p['averageRating'], -p['appearances'], -p['minutes'], p['id']))
+    return candidates
+
+
+def build_competition_team(root, stats, players, display_name, team_names=None, rated=None):
+    candidates = rated if rated is not None else rated_competition_players(root, stats, players, display_name, team_names)
     best, best_score, formation = None, None, ''
     for name, slots in FORMATIONS:
         lineup = _matching(slots, candidates)

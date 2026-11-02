@@ -99,6 +99,39 @@ def pages(view,shell,money):
  from finance_dashboard import model
  from finance_ui import day
  m=model(view);result=[];months=view.get('months',[])
+ # Bounded native pages keep all categories, even zeros, readable at game size.
+ # Only the current page binds input; scrolling never re-runs finance payouts.
+ from finance_report import categories
+ report=categories(view);count=max((len(report[k])+5)//6 for k in ('revenues','expenses'))
+ for page in range(count):
+  key='overview:details' if page==0 else 'overview:details:'+str(page)
+  s=shell(view,key,'overview');assets={}
+  s.text(120,302,1650,37,'RECEITAS E DESPESAS · VISÃO COMPLETA',28)
+  for side,label,color,x in (('revenues','Principais receitas',art.GREEN,100),('expenses','Principais despesas',art.RED,968)):
+   panel(s,assets,side,x,353,852,441);s.text(x+24,368,800,37,label,28)
+   total=sum(r['value'] or 0 for r in report[side]);rows=report[side][page*6:page*6+6]
+   for i,row in enumerate(rows):
+    y=422+i*59;s.action(x+12,y,828,55,'',row['target'],WHITE,INK,22)
+    s.text(x+24,y+2,34,28,str(page*6+i+1),20,MUTED)
+    icon=art.glyph(row['key'],25);assets[side+'Icon'+str(i)]=icon;s.image(side+'Icon'+str(i),x+66,y+3,25,25)
+    s.text(x+108,y,455,29,row['label'],23)
+    s.text(x+108,y+29,465,22,row['source'],16,MUTED)
+    if row['value'] is None:s.text(x+588,y+4,240,30,'Não obtido',23,MUTED,1)
+    else:money(s,x+588,y+2,240,33,row['value'],24,color)
+    s.rect(x+24,y+55,804,1,'#e5edf4')
+  s.text(120,800,1670,28,report['note'],17,MUTED)
+  s.action(100,834,110,34,'‹','overview' if page==0 else 'overview:details',LIGHT,BLUE,22)
+  following='overview:details:'+str(page+1) if page+1<count else key
+  s.action(222,834,110,34,'›',following,LIGHT,BLUE,22)
+  s.text(400,837,1400,27,f'{page+2}/{count+1} · Analógico direito: rolar visão geral',20,MUTED,1)
+  result.append(pack(s,assets))
+ s=shell(view,'native','overview');assets={}
+ panel(s,assets,'nativeInfo',100,354,1720,440)
+ s.text(130,376,1660,45,'MOVIMENTAÇÕES NATIVAS DA CARREIRA',30)
+ s.text(130,447,1660,102,(view.get('native_finance') or {}).get('reason','Ainda não foi possível identificar o extrato de premiações e bônus deste save.'),25,MUTED)
+ s.text(130,574,1660,88,'Zero é mostrado quando o valor é conhecido e não houve movimentação. “Não obtido” indica ausência de um histórico validado.',24)
+ s.text(130,690,1660,75,'Estes valores são apenas consulta. O mod não repete pagamentos de premiações, salários ou transferências que o FIFA já processou.',24,MUTED)
+ result.append(pack(s,assets))
  observed=(view.get('date') or 0)//100%100
  count=max(1,(observed+5)//6)
  for page in range(count):
@@ -114,7 +147,7 @@ def pages(view,shell,money):
   pager(s,'monthly',page,count,observed,6);result.append(pack(s,assets))
  # Revenue and expense pages keep operating income distinct from financing.
  for root,title,fields in (('receipts','RECEITAS ADICIONAIS',(('tv','Direitos de TV'),('tickets','Bilheteria bruta'),('sponsor','Patrocínio'))),
-                            ('expenses','DESPESAS ADICIONAIS',(('coach','Técnico'),('staff','Comissão técnica'),('match_costs','Custos dos jogos'),('interest','Juros')))):
+                            ('expenses','DESPESAS ADICIONAIS',(('coach','Técnico'),('staff','Comissão técnica'),('match_costs','Custos dos jogos'),('facilities','Manutenção e estrutura'),('interest','Juros')))):
   count=max(1,(len(months)+6)//7)
   for page in range(count):
    key=root if page==0 else root+':'+str(page);s=shell(view,key,root);assets={}

@@ -78,4 +78,8 @@ int main(int argc,char**argv){
  for(int code:{-4,-5}){std::string wire="S16ROOM2|1043|0123456789abcdef|7|"+std::to_string(code)+"|ENDROOM";assert(room_command::parse(wire.c_str(),request)&&request.code==code);}
  assert(!room_command::parse("S16ROOM2|1043|0123456789abcdef|7|-6|ENDROOM",request));
  std::cout<<"PASS free camera: native movement axes, footsteps, 30/120 FPS, continuous capsule/thin furniture, real coach doorway entry/exit, solid walls/door leaf and scoped commands\n";
+ // The longer room must be reachable, with its new outer bound retained.
+ {room_free::Walk expanded;room_cinema::Tour clear;
+  assert(expanded.clear({0,165,2720},clear));
+  assert(!expanded.clear({0,165,2786},clear));}
 }

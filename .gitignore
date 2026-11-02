@@ -186,3 +186,12 @@ runtime/diagnostics/
 /data/ui/pow/components/powexperience.big
 /LEIA-ME-ROBSON-ASSETS.txt
 /ModCarrerMode/source/dist/
+# Installed career coach RX3 payloads are distributed with the game assets.
+/data/sceneassets/manager_market/
+# External release delta: source registries stay in Git, binary art stays in ZIP.
+/data/sceneassets/slc/
+/FSW/Substitutions/*.mp3
+/ModCarrerMode/data/manager_market/interface/
+/ModCarrerMode/data/club_environment/room/clubs/**/*.png
+/ModCarrerMode/data/club_environment/room/external/**/*.png
+/ModCarrerMode/data/club_environment/room/external/**/*.glb

@@ -1,59 +1,83 @@
-# Técnicos à beira do campo por carreira — análise
+# Modelos de técnicos por identidade na carreira
 
-## Ponto de integração confirmado
+A identidade 3D acompanha o vínculo ativo do mercado auxiliar. A troca vale para
+**Ver clubes → Técnico** e para os técnicos mandante/visitante à beira do campo.
 
-O jogo monta os técnicos mandante/visitante pelos tipos SLC 10 e 11 em
-`data/fifarna/lua/assets/sle.lua`. `SleUpdate` identifica o clube por
-`homeKitTeamID`/`awayKitTeamID`. `GetRMSle(idx, isModel)` monta uma lista de
-arquivos `specificmanager_<clube>_<competição>_<variante>.rx3` e seus pares de
-textura. `GetTexture` já utiliza esse resolvedor para o técnico.
+- Com modelo completo cadastrado: mostra o técnico atualmente contratado.
+- Sem modelo, inclusive técnico do usuário: o perfil continua disponível sem
+  personagem 3D; à beira do campo, o FIFA usa seu técnico genérico.
+- Fora da carreira: permanece a lista fixa de modelos por clube do jogo/mod.
+  Não se escreve em `specificmanager_<clube>` durante a simulação.
 
-O exportador da tela de técnicos usa atualmente o par original
-`data/sceneassets/slc/specificmanager_<clube>_0_0{,_textures}.rx3`.
-As contratações do mercado alteram a identidade e as estatísticas na base
-auxiliar, mas ainda não redirecionam esse par na partida. Miniface e modelo
-3D são catálogos diferentes.
+## Arquivos e instalação
 
-## Implementação proposta
+O catálogo `ModCarrerMode/data/manager_market/manager_models.json` relaciona o
+`coachId` estável ao `assetId` e aos SHA-256 dos quatro arquivos do personagem:
 
-1. Cadastrar `coach_id → modelo RX3 + texturas + rig/LODs compatíveis` em uma
-   tabela de modelos do catálogo do mod. A identidade do técnico permanece
-   estável ao trocar de clube. Os arquivos originais dos clubes permanecem
-   intactos; nenhuma cópia deve sobrescrever `specificmanager_<clube>`.
-2. O serviço de mercado publica um mapa pequeno dos vínculos ativos após o
-   commit da simulação, junto com PID, criação do processo, contexto, epoch,
-   carreira, data e revisão do checkpoint. O renderizador consome somente esse
-   mapa validado; não consulta SQLite durante o desenho.
-3. No início da partida, um wrapper de `GetRMSle` consulta o clube dos dois
-   atores de técnico. Se houver vínculo daquela carreira e modelo cadastrado,
-   resolve modelo e textura do técnico contratado. Os demais tipos SLC seguem
-   o resolvedor original. O recurso entra pelo carregador e animação do FIFA.
-4. A troca entra antes do carregamento do ator da próxima partida. Uma
-   contratação não provoca reescrita ou recriação por quadro. Uma alteração
-   durante recursos já carregados exige o ciclo nativo de descarregar/religar
-   validado, em vez de trocar ponteiros enquanto o ator está sendo desenhado.
-5. Ao sair da carreira ou carregar outro save, o mapa é descartado e a nova
-   revisão precisa ser validada. Em amistoso, nova carreira ou contexto não
-   confirmado, o resolvedor original permanece ativo.
+```
+data/sceneassets/manager_market/<assetId>/
+    model_0.rx3
+    model_0_textures.rx3
+    model_1.rx3
+    model_1_textures.rx3
+```
 
-## Ausência de modelo
+As duas variantes são fornecidas como conjunto. São cópias dos 20 técnicos
+aprovados, com sua geometria e rig originais. Minifaces não são alteradas.
+Os RX3 fazem parte da distribuição de assets, fora do Git. O código, catálogo,
+exportador `generate_lineup.exe`, `club_browser.dll` e `sle.lua` devem acompanhar
+esses assets. Reinicie o FIFA após atualizar a DLL ou o resolvedor Lua.
 
-Uma foto não permite recuperar automaticamente uma face 3D. Um técnico sem
-modelo instalado pode usar um técnico genérico do FIFA, com a limitação
-indicada no perfil. Não deve herdar a face do técnico demitido. Modelo,
-textura, rig e LODs precisam ser verificados como um conjunto; a roupa de um
-modelo específico também pode exigir adaptação às cores do novo clube.
+Para preparar novamente uma distribuição após revisar os modelos fixos:
 
-## Validações antes de habilitar
+```
+python ModCarrerMode/source/club_environment/manager_market/prepare_model_assets.py --game "CAMINHO_DO_FIFA" --output "PASTA_VAZIA_FORA_DO_JOGO"
+```
 
-- Duas carreiras com técnicos diferentes no mesmo clube; recarregar um save
-  anterior deve restaurar seu vínculo, modelo e data.
-- Novo modo carreira e amistoso devem usar os modelos padrão.
-- Contratações mandante/visitante, ida/volta à Central e segunda partida na
-  mesma sessão, sem herdar recursos da cena anterior.
-- Modelo ausente, textura ausente e rig incompatível devem usar fallback
-  definido, sem publicar o conjunto incompleto.
+O comando somente prepara uma pasta de entrega; não altera o jogo de origem.
+Extraia/copie suas pastas `data` e `ModCarrerMode` juntas na instalação de destino.
+Um técnico sem modelo próprio não pode ser recuperado a partir de sua miniface.
 
-Esta revisão implementa as melhorias de mercado e carregamento. O
-redirecionamento dos atores SLC acima continua como próximo desenvolvimento,
-conforme o pedido de análise, sem modificar a partida atual.
+## Seleção e isolamento
+
+Depois do commit da simulação, o serviço do mercado publica
+`runtime/manager_market/models_ready.tsv`. Somente vínculos ativos daquela
+branch e data entram no mapa. PID, criação do processo, contexto, epoch, clube
+controlado, calendário e o último evento nativo de leitura/escrita do save
+identificam a publicação. Não há SQLite nem alteração de save no renderizador.
+
+O perfil lê o mesmo vínculo validado, usa uma requisição `FFCOACH2` com clube
+atual e asset separado, e cancela a preparação quando a revisão muda. A troca
+ou ausência de personagem desativa o ator anterior e solicita um novo objeto,
+mesmo quando os demais dados do perfil permanecem iguais.
+
+`GetRMSle` redireciona somente os tipos SLC 10 e 11. O callback nativo lê o
+contexto de carreira ao selecionar recursos. Um mapa ausente, incompleto ou
+obsoleto em carreira confirmada usa o genérico, sem herdar a face anterior.
+Um contexto fora da carreira retorna ao resolvedor original. Assistentes,
+mascotes, fotógrafos, publicidade e props mantêm sua seleção existente.
+
+A ponte usa a cadeia de frame já existente em `club_browser.dll`, sem outro
+hook de renderização. Lua cria uma closure privada; sua função é publicada
+somente depois de validar e registrar o callback. Não são modificadas closures
+da biblioteca padrão. O módulo já permanece fixado no processo pelo carregador.
+O ABI foi conferido com uma VM Lua 5.1 x64 compilada do código oficial:
+[lstate.h](https://www.lua.org/source/5.1/lstate.h.html),
+[lobject.h](https://www.lua.org/source/5.1/lobject.h.html),
+[lstrlib.c](https://www.lua.org/source/5.1/lstrlib.c.html).
+
+A escolha acontece ao carregar os recursos da próxima partida. Não se troca um
+ator já desenhado no meio de uma partida. Na ausência de uma publicação atual,
+o comportamento conservador na carreira é o técnico genérico.
+
+## Verificação
+
+Testes cobrem mudança de identidade no mesmo clube, técnico sem modelo,
+contrato encerrado, vínculo de outra branch, arquivos ausentes/alterados,
+save/data/epoch/PID divergentes, variantes de clima e modelo/textura,
+delegação fora da carreira e preservação dos outros tipos SLC. A ponte numérica
+foi executada numa VM Lua 5.1 real, incluindo coleta de lixo e biblioteca intacta.
+
+Os 80 RX3 foram lidos estruturalmente e os 20 modelos exportados para outro
+clube comparados aos respectivos modelos fixos: malha, pesos, rig e textura
+iguais. A validação visual da nova seleção numa partida requer reiniciar o FIFA.

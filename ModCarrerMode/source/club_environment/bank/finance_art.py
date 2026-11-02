@@ -74,7 +74,7 @@ def glyph(kind,size=28,color='#163e67'):
    for x in (7,66):d.ellipse((x,24,x+21,45),fill=c);d.rounded_rectangle((x-2,50,x+24,79),7,fill=c)
  elif kind=='interest':
   d.line((29,74,68,20),fill=c,width=7);d.ellipse((15,15,40,40),outline=c,width=6);d.ellipse((56,56,81,81),outline=c,width=6)
- elif kind=='transfer':
+ elif kind in ('transfer','loan','loan_players'):
   d.line((12,30,80,30,64,14),fill=c,width=7);d.line((80,30,64,46),fill=c,width=7)
   d.line((84,65,16,65,32,49),fill=c,width=7);d.line((16,65,32,81),fill=c,width=7)
  elif kind=='budget':
@@ -86,7 +86,7 @@ def glyph(kind,size=28,color='#163e67'):
  elif kind=='sponsor':
   d.rounded_rectangle((12,20,84,77),6,outline=c,width=6);d.line((20,36,76,36),fill=c,width=5)
   d.polygon(((48,43),(52,52),(63,53),(55,61),(58,71),(48,66),(38,71),(41,61),(33,53),(44,52)),fill=c)
- elif kind=='match_costs':
+ elif kind in ('match_costs','facilities'):
   d.polygon(((14,40),(48,20),(82,40),(82,76),(14,76)),outline=c,width=5)
   for x in (28,47,66):d.rectangle((x,47,x+5,76),fill=c)
  else:

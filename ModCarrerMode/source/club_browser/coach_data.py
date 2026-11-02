@@ -176,7 +176,12 @@ def project(game,save,club,cache=None,snapshot=None,live=None):
  assigned=table('stadiumassignments',['teamid','stadiumcustomname'])
  fields['stadium']=stadium_title(club,0,lambda name:[Row(r) for r in assigned] if name=='stadiumassignments' else [],{},stadium.get('name',''),game)[0]
  fields['capacity']=stadium.get('capacity') or -1
- calendar=table('career_calendar',['currdate','startdate']);fields['date']=snapshot['date'] if snapshot else calendar[0].get('currdate',0) if len(calendar)==1 else 0
+ calendar=table('career_calendar',['currdate','startdate'])
+ from saved_competitions import read as read_saved_competitions
+ saved_snapshot=read_saved_competitions(raw,calendar[0]['currdate'])
+ from derived_campaigns import augment
+ snapshot=augment(game,save,raw,saved_snapshot,(snapshot or {}).get('date',saved_snapshot['date']),(snapshot or {}).get('pid'),(snapshot or {}).get('processCreated100ns'),(snapshot or {}).get('fceContextEpoch'))
+ fields['date']=snapshot['date'] if snapshot else calendar[0].get('currdate',0) if len(calendar)==1 else 0
  fields['season_year']=calendar[0].get('startdate',0)//10000 if len(calendar)==1 else 0
  since=calendar[0].get('startdate',0) if len(calendar)==1 else 0
  stats,competitions,form=season(snapshot,club,leagues,lambda m:m['date']>=since);fields['form']=form or '—';history=[]
@@ -203,7 +208,10 @@ def attach_market(data,market,snapshot,game):
  person=market['coach'];a=market['appointment'];start=market['start'];today=fields['date'];data['coach_stats'],form=tenure(market,snapshot,data['club'])
  # Aggregate counters have no appointment/date per match. Only an explicitly
  # recorded initial spell can own the entire current campaign.
- if a.get('origin')=='Vínculo inicial desde o início da carreira' and 0<fields.get('season_start',0)>=start:
+ if market.get('campaign_stats') is not None:
+  from copy import deepcopy
+  data['coach_stats']=deepcopy(market['campaign_stats'])
+ elif a.get('origin')=='Vínculo inicial desde o início da carreira' and 0<fields.get('season_start',0)>=start:
   from copy import deepcopy
   data['coach_stats']=deepcopy(data['stats']);form=fields.get('form','—')
  elif data['stats'].get('games',0)>0 and data['coach_stats'].get('games')==0:

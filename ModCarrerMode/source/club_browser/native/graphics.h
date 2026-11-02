@@ -10,12 +10,18 @@
 #include "game_assets.h"
 #include "ui_pipeline_state.h"
 namespace clubgfx {
+#ifdef CLUBGFX_VALIDATION_UPLOADS
+inline unsigned validationUploads=0;
+#endif
 inline std::atomic<unsigned> isolatedUiPasses{0},isolatedUiRestores{0},uiFallbackPasses{0};
 inline std::atomic<unsigned> packedConstantRestores{0},lastConstantFirst{0},lastConstantCount{0};
 template<class T>inline void release(T*& p){if(p){p->Release();p=nullptr;}}
 struct Vertex{float x,y,u,v;};
 struct Texture{ID3D11Texture2D* texture=nullptr;ID3D11ShaderResourceView* view=nullptr;int w=0,h=0;std::wstring key;void clear(){release(view);release(texture);key.clear();w=h=0;}};
 inline bool upload(ID3D11Device* dev,Texture& out,const void* data,unsigned width,unsigned height){
+#ifdef CLUBGFX_VALIDATION_UPLOADS
+ ++validationUploads;
+#endif
  if(!width||!height||width>8192||height>8192)return false;D3D11_TEXTURE2D_DESC desc{};desc.Width=width;desc.Height=height;desc.MipLevels=desc.ArraySize=desc.SampleDesc.Count=1;desc.Format=DXGI_FORMAT_B8G8R8A8_UNORM;desc.Usage=D3D11_USAGE_IMMUTABLE;desc.BindFlags=D3D11_BIND_SHADER_RESOURCE;D3D11_SUBRESOURCE_DATA init{data,width*4,0};
  Texture t;if(FAILED(dev->CreateTexture2D(&desc,&init,&t.texture)))return false;if(FAILED(dev->CreateShaderResourceView(t.texture,nullptr,&t.view))){t.clear();return false;}out.clear();out=t;out.w=width;out.h=height;return true;
 }

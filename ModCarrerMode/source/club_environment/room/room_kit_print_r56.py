@@ -113,16 +113,5 @@ def plate_lines(name,draw,width,font):
     return min(choices,key=lambda item:item[0])[1] if choices else [name]
 
 def locker_plate(name,colors,crest=None):
-    from room_dynamic_context_20261022 import ScaledDraw
-    im=Image.new('RGBA',(2048,512),(239,243,246,255));d=ScaledDraw(im,2);primary=tuple(round(v*255) for v in colors[0]);d.rectangle((0,0,22,255),fill=primary);d.line((30,251,1024,251),fill=(130,146,154),width=4)
-    left=54
-    if crest is not None:
-        crest=crest.copy();crest.thumbnail((296,368),Image.Resampling.LANCZOS);im.alpha_composite(crest,(92+(296-crest.width)//2,(512-crest.height)//2));left=220
-    name_font=ImageFont.truetype(str(portable.FONTS/'arialbd.ttf'),158);width=986-left
-    lines=plate_lines(name,d,width,name_font)
-    while max(d.textlength(line,font=name_font) for line in lines)>width and name_font.size>50:
-        name_font=name_font.font_variant(size=name_font.size-1);lines=plate_lines(name,d,width,name_font)
-    line_height=98 if len(lines)>1 else 110;y=(256-line_height*len(lines))//2
-    for line in lines:
-        d.text((left+width/2,y+line_height/2),line,font=name_font,anchor='mm',fill=(17,35,45));y+=line_height
-    return im
+    from room_interior_r71 import sign_image
+    return sign_image(name,colors,crest)

@@ -21,6 +21,21 @@ class GlobalProjectionTest(unittest.TestCase):
   p=project(dict(nodes=nodes,standings=standings),[],{1:100,2:100},links,20260301,20260101,20260401)
   self.assertEqual(20260301,p['table_dates']['100']);self.assertEqual(2,len(p['tables']['100']));self.assertEqual(0,p['coverage']['live_league_tables']);self.assertTrue(any(r['source']=='saved_league' for r in p['performance']))
 
+ def test_partial_fce_cannot_hide_complete_league(self):
+  nodes=[[1,-1,3,100,0],[2,1,5,-1,0]]
+  standings=[[i,2,i,1,0,0,0,0,0,1] for i in (1,2)]
+  links=[dict(teamid=i,leagueid=100,secondarytable=0,nummatchesplayed=3,points=9,homewins=2,homedraws=0,homelosses=0,awaywins=1,awaydraws=0,awaylosses=0) for i in (1,2,3,4)]
+  p=project(dict(nodes=nodes,standings=standings),[],{i:100 for i in (1,2,3,4)},links,20260401,20260101,20260401)
+  self.assertEqual(4,len(p['tables']['100']));self.assertTrue(all(r['played']==3 for r in p['performance']));self.assertEqual(4,len(p['performance']))
+  p=project(dict(nodes=nodes,standings=[[i,2,i,0,0,0,0,0,0,0] for i in (1,2,3,4)]),[],{i:100 for i in (1,2,3,4)},links,20260401,20260101,20260401)
+  self.assertEqual(4,len(p['performance']));self.assertTrue(all(r['played']==3 for r in p['performance']))
+
+ def test_complete_parent_campaign_is_not_replaced_by_partial_leaf(self):
+  nodes=[[1,-1,3,100,0],[2,1,4,-1,0],[3,2,5,-1,0]]
+  standings=[[1,2,1,3,0,0,2,0,0,5],[2,3,1,1,0,0,0,0,0,1]]
+  p=project(dict(nodes=nodes,standings=standings),[],{1:100,2:100},[],20260401,20260101,20260401)
+  self.assertEqual(5,sum(r['played'] for r in p['performance'] if r['club']==1))
+
 class GlobalEngineTest(unittest.TestCase):
  def setUp(self):
   self.tmp=tempfile.TemporaryDirectory();root=Path(self.tmp.name);catalog(root/'cat.sqlite3');self.m=e.Market(root/'world.sqlite3',root/'cat.sqlite3');self.m.open_save('A','DATA',context())
@@ -50,6 +65,6 @@ class GlobalEngineTest(unittest.TestCase):
   for kind in ('dismissal','resignation','poached','retirement','renewed'):self.assertFalse(self.m.leave(a,20260401,kind,'Teste'))
   self.assertFalse(self.m.hire(self.m.one('clubs','club_id',3),20260401,'seed'));self.assertEqual(a['id'],self.m.active(club=3)['id'])
  def test_old_defaults_upgrade_once_and_custom_weights_are_preserved(self):
-  self.m.db.execute("DELETE FROM market_rules WHERE branch=? AND key IN ('market_policy_version','dismissal_slope_bps')",(self.m.branch,));self.m.db.execute("UPDATE market_rules SET value=36 WHERE branch=? AND key='pressure_threshold'",(self.m.branch,));self.m.db.execute("UPDATE market_rules SET value=2100 WHERE branch=? AND key='max_dismissal_bps'",(self.m.branch,));self.m.upgrade_policy();p=self.m.policy();self.assertEqual(30,p['pressure_threshold']);self.assertEqual(2100,p['max_dismissal_bps']);self.assertEqual(100,p['dismissal_slope_bps']);self.assertEqual(3,p['market_policy_version'])
+  self.m.db.execute("DELETE FROM market_rules WHERE branch=? AND key IN ('market_policy_version','dismissal_slope_bps')",(self.m.branch,));self.m.db.execute("UPDATE market_rules SET value=36 WHERE branch=? AND key='pressure_threshold'",(self.m.branch,));self.m.db.execute("UPDATE market_rules SET value=2100 WHERE branch=? AND key='max_dismissal_bps'",(self.m.branch,));self.m.upgrade_policy();p=self.m.policy();self.assertEqual(e.DEFAULTS['pressure_threshold'],p['pressure_threshold']);self.assertEqual(2100,p['max_dismissal_bps']);self.assertEqual(e.DEFAULTS['dismissal_slope_bps'],p['dismissal_slope_bps']);self.assertEqual(e.DEFAULTS['market_policy_version'],p['market_policy_version'])
 
 if __name__=='__main__':unittest.main()

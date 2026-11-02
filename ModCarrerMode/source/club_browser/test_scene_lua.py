@@ -19,7 +19,7 @@ gRenderables={
 function ContextAddRenderable(kind,o,count,opts) assert(kind=='gameplayprops' and count==1 and not o.registered);o.registered=true;contexts=contexts+1 end
 gSportsRNA={GetTable=function() return {} end,GetInt=function() return 0 end}
 """)
-for n,file in enumerate(sys.argv[1:],1):
+for n,file in enumerate(sys.argv[1:] if __name__=='__main__' else (),1):
     lua.execute(Path(file).read_text(encoding='utf8'))
     lua.execute("""assert(S16ClubXI.ok and S16ClubXI.object.reloaded and S16ClubXI.object.registered)
 for i=1,96 do local p='xi_part_'..i;local o=S16ClubXI.object;assert(o.materials[p] and o.submeshes[p] and o.textures[p].diffuseTexture[2]=='xi_cm');assert(o.textures[p].normalMap and o.textures[p].coeffMap and o.textures[p].envDiffuseTexture and o.textures[p].envSpecTexture and o.textures[p].coverageMap);assert(o.assets.charcmn:find('neutral_v2.rx3',1,true)) end""")

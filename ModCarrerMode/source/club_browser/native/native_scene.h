@@ -112,7 +112,10 @@ inline void guardedRestore(){__try{camera.restore();}__except(EXCEPTION_EXECUTE_
 // Both XI and single-player views must set the camera before FIFA performs
 // visibility/culling. Applying the XI camera only after that work alternates
 // between the borrowed camera and the stadium camera across render passes.
-inline void* __fastcall frame(){if(stopping||!page()||(!rosterCamera&&!requested))guardedRestore();else camera.apply();auto result=((void*(__fastcall*)())prior)();if(stopping)return result;try{guardedTick();}catch(...){active=false;readySequence=0;phase=9;fault=21;failed=true;}return result;}
+}
+#include "manager_model_bridge.h"
+namespace clubscene {
+inline void* __fastcall frame(){if(stopping||!page()||(!rosterCamera&&!requested))guardedRestore();else camera.apply();auto result=((void*(__fastcall*)())prior)();if(stopping)return result;managerBridge::guardedTick();try{guardedTick();}catch(...){active=false;readySequence=0;phase=9;fault=21;failed=true;}return result;}
 inline bool signatures(){
  const std::pair<uintptr_t,const char*> tests[]={{0x4ad80b0,"\x4c\x8b\x51\x20\x41\x8b\x00\x4c"},{0x4ac35e0,"\x48\x89\x5c\x24\x08\x48\x89\x74"},{0x4abfba0,"\x48\x8b\x05\xe9\x44\xb5\xfe\xc3"},{0x43c8be0,"\x48\x89\x5c\x24\x08\x48\x89\x74"},{0x4ac5450,"\x53\x41\x57\x48\x83\xec\x48\x0f"},{0x4ad7eb0,"\x48\x89\x5c\x24\x08\x57\x48\x83"},{0x4ad7d80,"\x48\x8b\x49\x20\xeb\x0a\xcc\xcc"},{0x4add100,"\x55\x53\x48\x8d\xac\x24\xd8\xfd"},{0x43c9960,"\x48\x8b\x41\x30\x41\x0f\x28\x00"},{0x43c8f20,"\x48\x8b\x01\x45\x31\xc0\xff\x60"}};
  for(auto t:tests){unsigned char b[8]{};if(!read(base+t.first,b,8)||memcmp(b,t.second,8))return false;}return true;

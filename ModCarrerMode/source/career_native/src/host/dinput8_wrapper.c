@@ -4801,6 +4801,7 @@ BOOL WINAPI DllMain(HINSTANCE instance, DWORD reason, LPVOID reserved)
         g_self=instance; DisableThreadLibraryCalls(instance);
         initialize_paths(); fce_runtime_log_dir(g_mod_dir);
         fce_runtime_set_ready_callback(refresh_initial_competition_provider);
+        fce_runtime_set_date_callback(career_context_calendar_date);
         fce_runtime_set_ui_tick_callback(career_ui_jobs_tick);
         worker=CreateThread(NULL,0,patch_standings_provider,NULL,0,NULL);
         if(worker) CloseHandle(worker);

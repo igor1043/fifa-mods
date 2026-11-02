@@ -18,7 +18,9 @@ FROZEN_SOURCE_MODULES=('server16_py.club_environment','server16_py.app',
     'server16_py.asset_runtime','server16_py.file_tools','server16_py.stadium_runtime',
     'server16_py.d3d_injector','server16_py.first_person_runtime',
     'server16_py.grass_quality_runtime','server16_py.loading_notices',
-    'server16_py.match_hub_panel','server16_py.stadium_selector')
+    'server16_py.match_hub_panel','server16_py.stadium_selector',
+    'server16_py.native_asset_cleanup','server16_py.build_check','server16_py.career_options',
+    'server16_py.substitution_audio','server16_py.substitution_audio_settings','server16_py.substitution_events')
 
 
 def check_frozen_sources(frozen_archive,source):
@@ -33,7 +35,25 @@ def check_frozen_sources(frozen_archive,source):
     return checked
 
 
-def verify(root,complement,output):
+def extract_complements(stage,expected,tracked,archives):
+    names=set()
+    for archive in archives:
+        with zipfile.ZipFile(archive) as z:
+            members=z.namelist();assert len(members)==len(set(members))
+            assert not set(members)-set(expected),'Complement has unexpected assets'
+            assert not set(members)&tracked,'Complement duplicates the Git payload'
+            for name in members:
+                safe(name);p=stage/name;p.parent.mkdir(parents=True,exist_ok=True)
+                with z.open(name) as incoming,p.open('wb') as dest:
+                    import shutil
+                    shutil.copyfileobj(incoming,dest)
+            names.update(members)
+    assert names==set(expected),'Base plus delta has missing assets'
+    for name,row in expected.items():
+        p=stage/name;assert p.stat().st_size==row['bytes'] and digest(p)==row['sha256'],name
+    return names
+
+def verify(root,complement,output,base_zips=()):
     root,complement,output=map(lambda p:Path(p).resolve(),(root,complement,output));output.mkdir(parents=True,exist_ok=True)
     commit=subprocess.check_output(['git','rev-parse','HEAD'],cwd=root,text=True).strip()
     tracked={p.decode() for p in subprocess.check_output(['git','ls-files','-z'],cwd=root).split(b'\0') if p}
@@ -68,18 +88,11 @@ def verify(root,complement,output):
                 else:
                     assert name in external and external[name]['sha256']==row['sha256'],name
             expected=external
-        with zipfile.ZipFile(complement) as z:
-            names=z.namelist();assert len(names)==len(set(names))
-            assert set(names)==(set(expected) if full_manifest.is_file() else set(expected)|{'data/ant.cbac'}),'Complement has missing or unexpected assets'
-            assert not set(names)&tracked,'Complement duplicates the Git payload'
-            assert z.testzip() is None
-            for name in names:
-                safe(name);p=stage/name;p.parent.mkdir(parents=True,exist_ok=True)
-                with z.open(name) as incoming,p.open('wb') as dest:
-                    import shutil
-                    shutil.copyfileobj(incoming,dest)
-                if name in expected:
-                    row=expected[name];assert p.stat().st_size==row['bytes'] and digest(p)==row['sha256'],name
+        if not full_manifest.is_file():
+            with zipfile.ZipFile(complement) as z:
+                if 'data/ant.cbac' not in expected:
+                    blob=z.read('data/ant.cbac');expected['data/ant.cbac']=dict(bytes=len(blob),sha256=hashlib.sha256(blob).hexdigest())
+        names=extract_complements(stage,expected,tracked,[*map(Path,base_zips),complement])
         for row in json.loads((stage/'ModCarrerMode/source/club_environment/release-manifest.json').read_text(encoding='utf8'))['files']:
             p=stage/row['path'];assert p.stat().st_size==row['bytes'] and digest(p)==row['sha256'],row['path']
         enabled=[]
@@ -126,11 +139,11 @@ def verify(root,complement,output):
                       frozen=json.loads((stage/'selftest.json').read_text()),pose_and_bank_check=True,
                       frozen_worker_matches_published_source=True,frozen_source_modules_verified=matched_modules,
                       direct_worker_tests=True,invalid_stdout_cannot_abort_worker=True,exporter_failure_tests=True,room_geometry_textures_mips_and_lighting_tests=True,
-                      full_asset_manifest=full_manifest.is_file(),
+                      full_asset_manifest=full_manifest.is_file(),base_complements=[Path(p).name for p in base_zips],
                       runtime_or_save_copied=False,drivers_installed=False,fifa_started=False)
     (output/'clean-package.json').write_text(json.dumps(report,ensure_ascii=False,indent=2)+'\n',encoding='utf8')
     return report
 
 if __name__=='__main__':
-    p=argparse.ArgumentParser(description=__doc__);p.add_argument('--root',type=Path,default=Path(__file__).resolve().parents[2]);p.add_argument('--zip',type=Path,required=True);p.add_argument('--output',type=Path,required=True);a=p.parse_args()
-    print(json.dumps(verify(a.root,a.zip,a.output),ensure_ascii=False,indent=2))
+    p=argparse.ArgumentParser(description=__doc__);p.add_argument('--root',type=Path,default=Path(__file__).resolve().parents[2]);p.add_argument('--zip',type=Path,required=True);p.add_argument('--base-zip',type=Path,action='append',default=[]);p.add_argument('--output',type=Path,required=True);a=p.parse_args()
+    print(json.dumps(verify(a.root,a.zip,a.output,a.base_zip),ensure_ascii=False,indent=2))

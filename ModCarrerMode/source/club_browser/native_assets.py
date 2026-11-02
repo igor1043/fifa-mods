@@ -8,10 +8,11 @@ import collections, hashlib, io, json, struct, sys, os, shutil, threading
 from concurrent.futures import ThreadPoolExecutor
 import numpy as np
 from PIL import Image
+from preview_files import read_bytes as shared_read,atomic as shared_atomic,store_immutable
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]/'club_environment/vendor'))
 from rx3 import Rx3, FORMAT, VERTEX, INDEX, MESH, NAME, TEXTURE, align
 
-VERSION=4
+VERSION=5
 SLOTS=96
 OPAQUE_SLOTS=64
 # Native exporter/WebGL layout: position(0), normal(12), UV(24).
@@ -140,7 +141,7 @@ def convert(model,output,read_asset,material_cache=None,*,animated=False):
             if key not in coefficient_images:
                 coefficient_images[key]=decode(textures[coeff]).resize(size,Image.Resampling.LANCZOS).getchannel('R')
             return coefficient_images[key]
-    seed=hashlib.sha256(b'XI-material-v4\0'+tex_template)
+    seed=hashlib.sha256(b'XI-material-v5-hair-coverage\0'+tex_template)
     fingerprints=[hashlib.sha256(struct.pack('<3I',*t[:3])+t[3]).digest() for t in textures] if material_cache else []
     if material_cache:material_cache=Path(material_cache);material_cache.mkdir(parents=True,exist_ok=True)
     def cache_file(entry):
@@ -150,21 +151,23 @@ def convert(model,output,read_asset,material_cache=None,*,animated=False):
             if index>=0:key.update(fingerprints[index])
         return material_cache/(key.hexdigest()+'.rx3') if material_cache else None
     def link(source,target):
-        temp=target.with_name(target.name+f'.{os.getpid()}.{threading.get_ident()}.new')
-        try:os.link(source,temp)
-        except OSError:shutil.copy2(source,temp)
-        os.replace(temp,target)
+        # Output is a private, unpublished staging directory. Creating the
+        # final hardlink directly avoids renaming an inode FIFA has open via
+        # an older preview. Copying uses a separate inode when linking fails.
+        try:os.link(source,target)
+        except OSError:shared_atomic(target,shared_read(source))
+    def valid_cache(path):
+        try:
+            blob=shared_read(path);rx=Rx3(blob)
+            return struct.unpack_from('<I',blob,8)[0]==len(blob) and rx.names()==[(TEXTURE,'xi_cm')]
+        except (OSError,ValueError,struct.error):return False
     def prepare_texture(entry):
         (tex,coeff,color,alpha,blend,hair),i=entry
         direct=tex>=0 and coeff<0 and tuple(color)==(1.,1.,1.) and alpha==1
         size=textures[tex][:2] if tex>=0 else (4,4);target=output/f'atlas_{i}.rx3';cached=cache_file(entry) if material_cache else None
         if cached and cached.is_file():
             # Validate the immutable cached object before the engine can see it.
-            blob=cached.read_bytes()
-            try:
-                rx=Rx3(blob);valid=struct.unpack_from('<I',blob,8)[0]==len(blob) and rx.names()==[(TEXTURE,'xi_cm')]
-            except (ValueError,struct.error):valid=False
-            if valid:link(cached,target);return i,direct,size
+            if valid_cache(cached):link(cached,target);return i,direct,size
         if direct:
             blob=original_texture(textures[tex],tex_template,'xi_cm');size=textures[tex][:2]
         else:
@@ -175,13 +178,23 @@ def convert(model,output,read_asset,material_cache=None,*,animated=False):
             lut=[min(255,max(0,int(value*scale))) for scale in color for value in range(256)]+list(range(256))
             im=im.point(lut)
             if coeff>=0:
-                mask=[value if 21<=value<166 else 0 for value in range(256)] if blend else [255 if value>=166 else 0 for value in range(256)]
-                im.putalpha(coverage(coeff,im.size).point(mask))
+                if hair:
+                    # The native player shader handles alphaA and alphaB in
+                    # two passes. A generic prop cannot emulate that by
+                    # discarding all soft texels from alphaA and all dense
+                    # texels from a DIFFERENT alphaB mesh. Custom heads often
+                    # have just one mesh. Keep the source coefficient opacity
+                    # continuously on every original hair part instead.
+                    im.putalpha(coverage(coeff,im.size))
+                else:
+                    mask=[value if 21<=value<166 else 0 for value in range(256)] if blend else [255 if value>=166 else 0 for value in range(256)]
+                    im.putalpha(coverage(coeff,im.size).point(mask))
             elif blend:im.putalpha(im.getchannel('A').point(np.clip(np.arange(256,dtype='f4')*alpha,0,255).astype('u1').tolist()))
             else:im.putalpha(255)
             blob=texture(im,tex_template,'xi_cm');size=im.size
-        if cached:
-            temp=cached.with_name(cached.name+f'.{os.getpid()}.{threading.get_ident()}.new');temp.write_bytes(blob);os.replace(temp,cached);link(cached,target)
+        # Different material slots may share a fingerprint. Never replace
+        # that cached inode after a published FIFA asset links to it.
+        if cached and store_immutable(cached,blob) and valid_cache(cached):link(cached,target)
         else:target.write_bytes(blob)
         return i,direct,size
     # Pillow's native encoders release the GIL. Keep fan-out bounded; FIFA APIs

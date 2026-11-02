@@ -1,0 +1,37 @@
+SOM DE SUBSTITUIÇÃO POR CLUBE
+
+Uma faixa por clube: <ID>.mp3. Os arquivos originais recebidos foram mantidos
+sem conversão; somente as cópias instaladas receberam os IDs do patch.
+
+Volume padrão: 20%.
+Server16 → Áudio → Editar chants → Som de substituição.
+O controle permite ajustar de 0% a 100% e ativar/desativar o recurso.
+As alterações são salvas automaticamente e aplicadas durante a execução,
+inclusive em uma faixa que já esteja tocando.
+
+Configuração: ModCarrerMode/config/substitution_audio.ini
+  enabled=true
+  volume=0.20
+
+O áudio original do FIFA é preservado. Clube sem MP3 não recebe som adicional.
+O som toca somente para o mandante. O visitante não toca, mesmo tendo MP3.
+Uma sequência de trocas do
+mesmo clube não empilha o som. Menus explícitos pausam a faixa; nova partida
+ou saída do jogo encerra a reprodução.
+
+ARQUIVOS INSTALADOS
+1035.mp3 = AtleticoMG
+517.mp3 = Botafogo
+111059.mp3 = Ceará
+1041.mp3 = Corinthians
+568.mp3 = Cruzeiro
+1043.mp3 = Flamengo
+567.mp3 = Fluminense
+111052.mp3 = Fortaleza
+1629.mp3 = Grêmio
+1048.mp3 = Internacional
+383.mp3 = Palmeiras
+1053.mp3 = Santos
+598.mp3 = São Paulo
+111057.mp3 = SportRecife
+569.mp3 = Vasco

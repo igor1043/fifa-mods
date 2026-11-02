@@ -29,4 +29,22 @@ class ClubProfileTest(unittest.TestCase):
   with self.m.db:self.m.leave(self.m.active(club=1),20260120,'dismissal','Teste');self.m.appoint(coach,club,20260120,'hired')
   data=spell(self.m.db,self.m.branch,1,20260120);self.assertEqual(20260120,data['start']);self.assertEqual(1,len(data['appointments']));self.assertNotIn(original,data['appointments'])
 
+ def test_legacy_initial_calendar_date_does_not_wait_forever(self):
+  with self.m.db:self.m.db.execute('UPDATE appointments SET start_date=20260109 WHERE branch=? AND club_id=1',(self.m.branch,))
+  before=self.m.db.total_changes
+  data=spell(self.m.db,self.m.branch,1,20260101)
+  self.assertEqual('Treinador 1',data['coach']['name']);self.assertEqual(20260101,data['start'])
+  self.assertEqual(before,self.m.db.total_changes)
+
+ def test_future_market_hire_is_not_an_initial_incumbent(self):
+  with self.m.db:self.m.db.execute("UPDATE appointments SET start_date=20260109,origin='Mercado simulado' WHERE branch=? AND club_id=1",(self.m.branch,))
+  self.assertIsNone(spell(self.m.db,self.m.branch,1,20260101))
+
+ def test_new_initial_appointment_cannot_start_after_current_date(self):
+  coach=self.m.one('coaches','coach_id','1');club=self.m.one('clubs','club_id',1)
+  with self.m.db:
+   self.m.leave(self.m.active(club=1),20260101,'dismissal','test')
+   self.m.appoint(coach,club,20260101,'initial',initial=True,started=20260109)
+  self.assertEqual(20260101,self.m.active(club=1)['start_date'])
+
 if __name__=='__main__':unittest.main()

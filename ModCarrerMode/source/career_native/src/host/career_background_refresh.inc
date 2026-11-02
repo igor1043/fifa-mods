@@ -13,6 +13,23 @@ typedef struct CareerBackgroundRefresh {
 static SRWLOCK g_background_refresh_lock = SRWLOCK_INIT;
 static CareerBackgroundRefresh g_background_refresh;
 
+static int background_refresh_loader_idle(void)
+{
+    uintptr_t service=0,commands=0,items=0;unsigned i;
+    if(!read_card_scope((uintptr_t)g_module_base+0x34ea0e8,&service,sizeof(service))||!service
+        ||!read_card_scope(service+0x68,&commands,sizeof(commands))||!commands
+        ||!read_card_scope(commands,&items,sizeof(items))||!items)return 0;
+    for(i=0;i<3;++i) {
+        uintptr_t object=0,vtable=0,method=0;int state=-1;
+        if(read_card_scope(items+i*8,&object,sizeof(object))&&object
+            &&read_card_scope(object,&vtable,sizeof(vtable))&&vtable
+            &&read_card_scope(vtable+8,&method,sizeof(method))
+            &&method==(uintptr_t)g_module_base+0x3d8e370
+            &&read_card_scope(object+0x30,&state,sizeof(state)))return state==0||state==12;
+    }
+    return 0;
+}
+
 static uintptr_t background_room_view(void)
 {
     static const unsigned offsets[]={232,192,136};
@@ -90,6 +107,11 @@ static void drain_background_refresh(void)
         || GetTickCount64() < g_stats_refresh_schedule.entered_at + 80) {
         ReleaseSRWLockExclusive(&g_background_refresh_lock);
         return;
+    }
+    /* Read again at delivery: a native background load can have begun after
+     * the plugin queued this request. Do not create a second provider. */
+    if(!background_refresh_loader_idle()) {
+        ReleaseSRWLockExclusive(&g_background_refresh_lock);return;
     }
     memset(&g_background_refresh, 0, sizeof(g_background_refresh));
     ReleaseSRWLockExclusive(&g_background_refresh_lock);

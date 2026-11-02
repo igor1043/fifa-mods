@@ -32,11 +32,27 @@ class HiringPolicyTest(unittest.TestCase):
   for i in range(10):
    self.m.add('results',dict(match_key=str(i),season=20260101,root=100,competition_id=100,stage=1,game_date=20260101+i,home=1,away=2,hg=3,ag=0,home_coach='4',away_coach='5',home_appointment=None,away_appointment=None))
   self.assertEqual('4',self.choose())
+ def test_elite_free_coach_never_goes_to_low_prestige_even_when_rich(self):
+  self.m.leave(self.m.active(club=2),20260120,'dismissal','Teste')
+  self.m.db.execute('UPDATE clubs SET budget=200000000 WHERE branch=? AND club_id=2',(self.m.branch,))
+  self.m.hire(self.m.one('clubs','club_id',2),20260120,'seed')
+  self.assertTrue(self.m.active(club=2)['coach_id'].startswith('INTERIM-'))
+ def test_no_cheap_repricing_of_elite_salary_to_fit_a_club_budget(self):
+  self.m.db.execute("UPDATE coaches SET salary=1200000 WHERE branch=? AND coach_id IN ('4','5')",(self.m.branch,))
+  self.m.db.execute('UPDATE clubs SET budget=15000000 WHERE branch=? AND club_id=1',(self.m.branch,))
+  self.assertTrue(self.choose().startswith('INTERIM-'))
+ def test_weak_league_blocks_elite_coach_even_with_a_high_prestige_rich_club(self):
+  for i in range(10,30):
+   self.m.add('clubs',dict(club_id=i,name=str(i),league_id=100,league_name='Liga',country='Brasil',region='',reputation=1,budget=100000,level=1))
+  self.assertTrue(self.choose().startswith('INTERIM-'))
+ def test_compatible_offer_retains_at_least_eighty_percent_of_last_salary(self):
+  self.m.db.execute("UPDATE coaches SET salary=500000 WHERE branch=? AND coach_id IN ('4','5')",(self.m.branch,))
+  self.choose();self.assertGreaterEqual(self.m.active(club=1)['monthly_wage'],400000)
  def test_version_two_defaults_upgrade_without_overwriting_custom_chance(self):
   for key,value in (('market_policy_version',2),('pressure_threshold',32),('max_dismissal_bps',2100),('dismissal_slope_bps',90)):
    self.m.db.execute('UPDATE market_rules SET value=? WHERE branch=? AND key=?',(value,self.m.branch,key))
   self.m.upgrade_policy();policy=self.m.policy()
-  self.assertEqual(30,policy['pressure_threshold']);self.assertEqual(2100,policy['max_dismissal_bps']);self.assertEqual(100,policy['dismissal_slope_bps']);self.assertEqual(3,policy['market_policy_version'])
+  self.assertEqual(e.DEFAULTS['pressure_threshold'],policy['pressure_threshold']);self.assertEqual(2100,policy['max_dismissal_bps']);self.assertEqual(e.DEFAULTS['dismissal_slope_bps'],policy['dismissal_slope_bps']);self.assertEqual(e.DEFAULTS['market_policy_version'],policy['market_policy_version'])
   self.assertEqual((60,8,7,3),tuple(policy[k] for k in ('min_tenure_days','min_tenure_games','review_gap_days','max_dismissals_year')))
 
 if __name__=='__main__':unittest.main()

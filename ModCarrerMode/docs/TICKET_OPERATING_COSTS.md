@@ -1,5 +1,9 @@
 # Bilheteria: renda bruta, operação e renda líquida
 
+> Revisão de 02/11/2026: a calibração de dificuldade passou a 65% prospectivos.
+> A referência abaixo documenta o modelo anterior de 40%; 65% não é apresentado
+> como média oficial. Ver [calibração atual](FINANCE_BALANCE_20261102.md).
+
 ## Referência e regra da simulação
 
 O [relatório financeiro oficial do Flamengo de março de 2026](https://images.flamengo.com.br/public/arquivos/transparencia/19/1777579037016.pdf),

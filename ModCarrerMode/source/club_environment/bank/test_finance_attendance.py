@@ -21,7 +21,7 @@ class MatchAttendanceTests(unittest.TestCase):
   self.assertEqual([e['amount'] for e in receipts],[120000,240000])
   self.assertEqual([e['crowd_percent'] for e in receipts],[30,60])
   self.assertEqual(budget-self.budget,finance.cash_delta(events))
-  self.assertEqual(sum(-e['amount'] for e in events if e['kind']=='match_costs'),144000)
+  self.assertEqual(sum(-e['amount'] for e in events if e['kind']=='match_costs'),234000)
   again,same,events=step(state,20260520,budget,games)
   self.assertEqual(same,budget);self.assertFalse(events);self.assertEqual(state,again)
  def test_observed_crowd_overrides_estimate_and_never_reprices_receipt(self):

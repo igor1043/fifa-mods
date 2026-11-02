@@ -1,5 +1,9 @@
 # Finanças do clube — revisão local, 29/10/2026
 
+> Calibração atual: [02/11/2026](../../../docs/FINANCE_BALANCE_20261102.md).
+> As taxas abaixo documentam o histórico da versão 2; novos períodos usam a
+> versão econômica 4, com revisão prospectiva e manutenção/estrutura.
+
 Tela APT nativa. Mantém os cards claros e o tema central #B9A274. Gráficos
 mantêm 2× a resolução de exibição; ícones, anéis, switches e barras mantêm
 3×. O empacotador apenas acrescenta padding BC3 de quatro pixels, sem

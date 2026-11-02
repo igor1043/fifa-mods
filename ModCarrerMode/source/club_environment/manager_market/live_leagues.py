@@ -24,5 +24,6 @@ def read(path,observed,now_ms):
  if any(headers.get(k)!=v for k,v in expected.items()):raise ValueError('Aguardando ligas da sessão e data atuais')
  if not 0<=now_ms-headers.get('captured_ms',0)<=12000:raise ValueError('Aguardando nova leitura das ligas em RAM')
  if not 0<len(rows)<=8192:raise ValueError('Quantidade inválida de clubes nas ligas')
+ rows.sort(key=lambda r:(r['leagueid'],r['teamid'],r['secondarytable']))
  revision=hashlib.sha256(json.dumps(rows,sort_keys=True,separators=(',',':')).encode()).hexdigest()
  return dict(rows=rows,revision=revision,date=observed['date'],captured_ms=headers['captured_ms'])

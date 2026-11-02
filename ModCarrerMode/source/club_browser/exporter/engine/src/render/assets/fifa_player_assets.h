@@ -140,7 +140,7 @@ public:
     std::vector<KitThumbnail> kit_thumbnails(int team_id);
     void clear_portrait_cache(){portraits_.clear();checked_portraits_.clear();}
     int kit_collar(int team_id,int kit_type);
-    CoachAsset coach(const ClubPlayerRow &club);
+    CoachAsset coach(const ClubPlayerRow &club,int career_model=0);
     Model trophy(int trophy_id);
     Model load(const ClubPlayerRow &row);
 };

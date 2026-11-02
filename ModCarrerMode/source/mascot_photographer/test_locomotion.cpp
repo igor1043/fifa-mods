@@ -40,10 +40,26 @@ static int check_pose_library(const float* frames,const float* times,unsigned in
         if(fabsf(fminf(feet[0][1],feet[1][1])-mascotFootMarkers.floor)>.01f)return 2;
         mascot_blend_local_pose(pose,0,1.0f/30);mascot_orient_pose(pose,.5f);
         if(!mascot_pose_upright(pose))return 3;
+        if(fabsf(mascot_wrap_heading(mascot_body_heading(pose)-.5f))>.001f)return 63;
     }
     return 0;
 }
 int wmain(int argc,wchar_t** argv) {
+    // Test the actual palette transformation, not just the navigation yaw.
+    for(float heading:{0.0f,3.14159265f,1.57079633f,-1.57079633f}) {
+        float palette[31][16]{};
+        for(auto& bone:palette)bone[0]=bone[5]=bone[10]=bone[15]=1;
+        mascot_orient_pose(palette,heading);
+        const float forwardX=palette[0][8],forwardZ=palette[0][10];
+        if(forwardX*sinf(heading)+forwardZ*cosf(heading)<.99999f)return 60;
+    }
+    for(float x:{-5850.0f,5850.0f})for(float z:{-3150.0f,0.0f,3150.0f}) {
+        float palette[31][16]{};
+        for(auto& bone:palette)bone[0]=bone[5]=bone[10]=bone[15]=1;
+        mascot_orient_pose(palette,mascot_pitch_heading(x,z));
+        if(palette[0][8]*(-x)+palette[0][10]*(-z)<.99999f*sqrtf(x*x+z*z))return 61;
+    }
+    printf("PASS visual forward follows both route directions and faces the pitch at both goals\n");
     if(argc<2)return 1;
     std::vector<int> clubs;
     for(int i=2;i<argc;++i) {
@@ -119,6 +135,20 @@ int wmain(int argc,wchar_t** argv) {
         if(bindDifference<.001f && maxUncorrectedError>.002f)return 47;
         printf("PASS club=%d actual RX3/captured renderer bind compensation: six goal clips, actor rotation and lift; uncompensated error=%.3f\n",club,maxUncorrectedError);
         printf("PASS club=%d replay palette: six goal clips retain asset orientation, yaw and lift\n",club);
+        // Every actual walk frame must face the route after retarget and
+        // renderer inverse-bind compensation, even if its local body turns.
+        for(unsigned int frame=0;frame<mascotWalkFrameCount;++frame)for(float heading:{0.f,1.57079633f,3.14159265f,-1.57079633f}) {
+            float pose[31][16],palette[31][16],gpu[31][16];
+            mascot_retarget_baked_pose(mascotWalkFrames[frame],pose);
+            mascot_orient_pose(pose,heading,true);
+            if(!mascot_skin_palette(skinBinding,pose,palette))return 62;
+            for(unsigned bone=0;bone<31;++bone)mascot_skin_multiply(palette[bone],rendererInverse[bone],gpu[bone]);
+            float body[31][16];
+            for(unsigned bone=0;bone<31;++bone)mascot_skin_multiply(gpu[bone],skinBinding.modelBind[bone],body[bone]);
+            const float error=mascot_wrap_heading(mascot_body_heading(body)-heading);
+            if(fabsf(error)>.0001f)return 63;
+        }
+        printf("PASS club=%d all_walk_frames_face_travel=1 real_asset_bind=1 renderer_compensated=1\n",club);
         mascot_load_foot_markers(club);if(!mascotFootMarkersReady)return 4;
         if(check_pose_library(&mascotIdleFrames[0][0],mascotIdleTimes,mascotIdleFrameCount,mascotIdleDuration) ||
            check_pose_library(&mascotCheerFrames[0][0],mascotCheerTimes,mascotCheerFrameCount,mascotCheerDuration) ||

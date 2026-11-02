@@ -1,5 +1,6 @@
 // Additional, isolated native GameplayProp objects. No game objects are reused
 // by index and no native game asset is modified or distributed by this module.
+#include "room_medical_paging.h"
 struct NativeRoomComponent {
  std::string key,type,model,submesh,texture,textureName;
  int medicalPage=-1,medicalPages=0,medicalBank=0;
@@ -45,7 +46,7 @@ void launchNativeAssetHelper(){
 std::string luaString(const std::string&text){std::string s="'";for(char c:text){if(c=='\\'||c=='\'')s+='\\';s+=c;}return s+"'";}
 void componentVisibility(NativeRoomComponent&c,bool visible){
  if(!c.object||c.failed)return;
- if(c.medicalPages>0)visible=visible&&c.medicalPage==static_cast<int>(((GetTickCount64()/12000)*2+c.medicalBank)%c.medicalPages);
+ if(c.medicalPages>0)visible=visible&&c.medicalPage==room_medical::page(GetTickCount64(),c.medicalPages,c.medicalBank,c.model.find("medical_room_r77.rx3")!=std::string::npos);
  alignas(16)auto overlay=c.overlay;
  for(size_t i=0;i<c.matrices.size();++i){
   alignas(16) auto matrix=c.matrices[i];matrix[12]+=roomOriginX-100000.f;

@@ -9,10 +9,11 @@ from profile_layout import profile_scene
 from profile_art import pitch,formation,panel,glyph
 TABS=('Clubes e ligas','Movimentações','Livres no mercado');MAIN=(0,3,4)
 PAGE_SIZE=6
+MOVE_TOP=438;MOVE_HEIGHT=400
 INK='#173449';MUTED='#718797';PAPER='#f2f6f8';LIGHT='#e6edf2';GREEN='#078e47';RED='#cf3546'
 def club_xy(i):return 490+i%2*666,318+i//2*188
 def free_xy(i):return 96+i%2*870,318+i//2*188
-def move_xy(i):return 96+i//4*870,402+i%4*112
+def move_xy(i):return 96+i//4*870,MOVE_TOP+i%4*102
 def text(s,name,x,y,w,h,value='',size=22,color=INK):s.text(x,y,w,h,value,size,color);s.nodes[-1]['name']=name
 def image(s,key,name,x,y,w,h):s.image(key,x,y,w,h);s.nodes[-1]['name']=name
 def action(s,x,y,w,h,code,label='',fill=LIGHT,size=22):s.action(x,y,w,h,label,str(code),fill,INK,size)
@@ -42,13 +43,12 @@ def prepare_assets(game,model):
  import portable_paths as portable
  assets={'stars_'+str(i):stars(i) for i in range(11)};assets['accent']=Image.new('RGBA',(4,4),ACCENT)
  folder=Path(game)/'ModCarrerMode/data/manager_market';default=folder/'minifaces/NOTFOUND_DEFAULT.png'
- from club_portraits import colors,portrait
- palettes=colors(game);current={model['people'][r[7]]['head']:palettes.get(int(r[4].split('_')[1])) for r in model['clubRows'] if r[5]!='head_NOTFOUND_DEFAULT'}
+ from club_portraits import portrait
  unique={p['head']:p for p in model['people']}
  unique['head_NOTFOUND_DEFAULT']=dict(head='head_NOTFOUND_DEFAULT',image='minifaces/NOTFOUND_DEFAULT.png')
  def prepare_head(p):
   path=folder/p['image']
-  with Image.open(path if path.is_file() else default) as src:return p['head'],portrait(src,current.get(p['head']))
+  with Image.open(path if path.is_file() else default) as src:return p['head'],portrait(src)
  # Only immutable artwork is parallel. SQL simulation, save ownership and
  # publication keep their single owner in the service loop.
  with ThreadPoolExecutor(max_workers=4,thread_name_prefix='coach-portraits') as pool:
@@ -66,10 +66,12 @@ def prepare_assets(game,model):
   ident=key.split('_')[1];art(key,[f'data/ui/imgAssets/crest/{kind}/l{ident}.dds' for kind in ('light','dark')],(128,128),shield)
  for l in model['leagues']:
   ident=l['id'];art(l['image'],[f'data/ui/imgAssets/careerCompetitionIcons/{ident}.png',f'data/ui/imgAssets/league/light/l{ident}.dds',f'data/ui/imgAssets/league/dark/l{ident}.dds'],(128,128),shield)
- for ident in {t['competition'] for p in model['people'] for t in p.get('career',{}).get('titles',[])}:art('competition_'+str(ident),[f'data/ui/imgAssets/careerCompetitionIcons/{ident}.png',f'data/ui/imgAssets/league/light/l{ident}.dds',f'data/ui/imgAssets/league/dark/l{ident}.dds'],(128,128),shield)
+ from asset_cache import competition_ids
+ for ident in sorted(competition_ids(game,model)):art('competition_'+str(ident),[f'data/ui/imgAssets/careerCompetitionIcons/{ident}.png',f'data/ui/imgAssets/league/light/l{ident}.dds',f'data/ui/imgAssets/league/dark/l{ident}.dds'],(128,128),shield)
  assets['track']=Image.new('RGBA',(4,4),'#dbe5eb')
  generic=Image.new('RGBA',(64,40));d=ImageDraw.Draw(generic);d.rounded_rectangle((1,1,62,38),5,fill='#dbe3e9');d.ellipse((22,10,42,30),outline='#8c9eaa',width=2);d.line((23,20,41,20),fill='#8c9eaa',width=2)
- flags={p.get('flag','flag_0') for p in model['people']}|{c['flag'] for c in model.get('countries',[])}|{'flag_0'}
+ from asset_cache import flag_keys
+ flags=flag_keys(game,model)
  for key in flags:
   if key=='flag_uk':
    im=Image.new('RGBA',(64,40),'#173d76');d=ImageDraw.Draw(im);d.line((0,0,64,40),fill='white',width=10);d.line((0,40,64,0),fill='white',width=10);d.line((0,0,64,40),fill='#c83246',width=4);d.line((0,40,64,0),fill='#c83246',width=4);d.rectangle((25,0,38,40),fill='white');d.rectangle((0,13,64,26),fill='white');d.rectangle((28,0,35,40),fill='#c83246');d.rectangle((0,16,64,23),fill='#c83246');assets[key]=im
@@ -81,11 +83,6 @@ def prepare_assets(game,model):
  assets['coin']=coin
  for name in ('coach','shield','trophy'):assets['nav_'+name]=glyph(name)
  assets['nav_left']=glyph('chevron');assets['nav_right']=assets['nav_left'].transpose(Image.Transpose.FLIP_LEFT_RIGHT)
- for person in model['people']:
-  value=person.get('formation','')
-  if formation(value):
-   key='profile_pitch_'+value.replace('-','_').replace('–','_')
-   if key not in assets:assets[key]=pitch(value)
  return assets
 
 def shell(model,key,title):
@@ -98,7 +95,8 @@ def shell(model,key,title):
  return s
 
 def row_images(s,assets,prefix,rows,model,*,head=80,crest=96,slots=8,rating_height=24):
- used={r[c] for r in rows for c in (4,5)};flags={model['people'][r[7]].get('flag','flag_0') for r in rows}|{'flag_0'}
+ # Hires change the data, not the reusable portrait/crest template.
+ used={key for key in assets if key.startswith(('head_','crest_'))};flags={key for key in assets if key.startswith('flag_')}
  for key in assets:
   if key in used and key.startswith('head_') and key!='head_NOTFOUND_DEFAULT':image(s,key,prefix+key,0,0,head,head)
   if key in used and key.startswith('crest_'):image(s,key,prefix+key,0,0,crest,crest)
@@ -121,7 +119,12 @@ def scenes_for(model,assets):
   s.image('coin',x+174,y+140,22,22);text(s,'amount'+str(i),x+205,y+137,155,29,'',22);s.text(x+362,y+143,60,22,'/ mês',16,MUTED)
   s.rect(x+527,y+128,110,38,LIGHT);s.text(x+538,y+139,100,23,'Ver perfil ›',16,INK)
   text(s,'nationality'+str(i),x+208,y+55,293,25,'',18,MUTED);text(s,'tenure'+str(i),x+174,y+113,327,23,'',15,MUTED)
- action(s,490,885,70,30,50,'‹');action(s,1756,885,60,30,51,'›');text(s,'pageText',579,889,1150,28,'',18,MUTED);text(s,'empty',520,560,1200,80,'',25,MUTED)
+ for key,color in (('pageDotOff','#cad6df'),('pageDotOn',ACCENT)):
+  dot=Image.new('RGBA',(16,16));ImageDraw.Draw(dot).ellipse((1,1,14,14),fill=color);assets[key]=dot
+ for index in range(16):
+  action(s,1096+index*19,887,19,23,100+index);s.nodes[-1]['background_asset']='profile_clear'
+  image(s,'pageDotOff','pageDotOff'+str(index),1100+index*19,892,11,11);image(s,'pageDotOn','pageDotOn'+str(index),1100+index*19,892,11,11)
+ text(s,'pageText',490,889,595,28,'',18,MUTED);text(s,'empty',520,560,1200,80,'',25,MUTED)
  row_images(s,assets,'c_',model['clubRows'],model,head=152,crest=64,slots=PAGE_SIZE)
  for key in assets:
   if key.startswith('flag_'):image(s,key,'country_'+key,151,365,48,30)
@@ -134,20 +137,26 @@ def scenes_for(model,assets):
  loading=Scene('loading','Carregando o mercado');loading.rect(60,90,1800,828,PAPER);loading.text(100,125,1680,64,'MERCADO DE TÉCNICOS',39,INK);loading.text(100,360,1680,52,'Carregando o mercado desta carreira...',30,INK);text(loading,'progress',100,426,1660,44,'Preparando os dados...',24,MUTED)
 
  moves=shell(model,'movements','Demissões e contratações')
- moves.text(96,278,670,35,'DEMISSÕES E CONTRATAÇÕES',26,INK,bold=True)
- action(moves,1052,277,60,39,32,'«');action(moves,1124,277,60,39,30,'‹');text(moves,'monthName',1204,282,450,34,'',25);action(moves,1674,277,60,39,31,'›');action(moves,1746,277,60,39,33,'»')
+ moves.text(96,278,650,35,'DEMISSÕES E CONTRATAÇÕES',26,INK,bold=True)
+ action(moves,1124,277,60,39,30,'‹');text(moves,'monthName',1204,282,450,34,'',25);action(moves,1674,277,60,39,31,'›')
+ for x,label,name,left,right in ((96,'PAÍS / REGIÃO','movementCountry',24,25),(966,'LIGA','movementLeague',22,23)):
+  moves.image('card',x,324,816,62);moves.text(x+76,331,650,18,label,13,MUTED)
+  action(moves,x+12,337,40,38,left,'‹');text(moves,name,x+76,351,650,29,'',21);action(moves,x+764,337,40,38,right,'›')
  for panel,(title,color,prefix,label) in enumerate((('CONTRATAÇÕES',GREEN,'h_','contratações'),('DEMISSÕES',RED,'d_','demissões'))):
-  x=96+panel*870;moves.rect(x,338,5,507,color);moves.text(x+22,351,540,38,title,27,color,bold=True);text(moves,prefix+'count',x+620,357,205,28,'',19,color)
+  x=96+panel*870;moves.rect(x,398,5,440,color);moves.text(x+22,400,540,31,title,25,color,bold=True);text(moves,prefix+'count',x+620,405,205,28,'',19,color)
   for j in range(4):
-   i=panel*4+j;_,y=move_xy(i);card(moves,x+15,y,831,104,40+i);text(moves,'club'+str(i),x+103,y+20,171,34,'',20);text(moves,'coach'+str(i),x+374,y+14,290,30,'',22)
-   text(moves,'nationality'+str(i),x+407,y+45,259,25,'',17,MUTED);text(moves,'date'+str(i),x+374,y+75,290,24,'',16,MUTED)
+   i=panel*4+j;_,y=move_xy(i);card(moves,x+15,y,831,94,40+i);text(moves,'club'+str(i),x+103,y+15,171,34,'',20);text(moves,'coach'+str(i),x+374,y+10,290,30,'',22)
+   text(moves,'nationality'+str(i),x+407,y+39,259,25,'',17,MUTED);text(moves,'date'+str(i),x+374,y+65,290,24,'',16,MUTED)
    moves.rect(x+674,y+31,151,35,'#e6f5ed' if panel==0 else '#fbecef');text(moves,'status'+str(i),x+684,y+39,134,26,'',17,color)
-  text(moves,prefix+'empty',x+50,559,745,65,'',24,MUTED);action(moves,x+19,865,55,36,52+panel*2,'‹');action(moves,x+789,865,55,36,53+panel*2,'›');text(moves,prefix+'page',x+94,872,675,27,'',17,MUTED)
+  text(moves,prefix+'empty',x+50,559,745,65,'',24,MUTED);text(moves,prefix+'page',x+94,872,675,27,'',17,MUTED)
+  action(moves,x+837,MOVE_TOP,28,MOVE_HEIGHT,200+panel);moves.nodes[-1]['background_asset']='profile_clear'
+  image(moves,'track',prefix+'scrollTrack',x+847,MOVE_TOP,8,MOVE_HEIGHT);image(moves,'accent',prefix+'scrollThumb',x+847,MOVE_TOP,8,MOVE_HEIGHT)
   row_images(moves,assets,prefix,model['hireRows' if panel==0 else 'moveRows'],model,head=76,crest=72,slots=4)
 
  free=shell(model,'free','Livres no mercado');free.text(96,278,570,33,'TÉCNICOS LIVRES NO MERCADO',24,INK,bold=True)
- action(free,735,276,42,34,34,'‹');text(free,'ageValue',792,283,265,26,'',18);action(free,1061,276,42,34,35,'›')
- action(free,1150,276,42,34,36,'‹');text(free,'natValue',1207,283,536,26,'',18);action(free,1763,276,42,34,37,'›')
+ action(free,1150,276,42,34,36,'‹');text(free,'natValue',1245,283,498,26,'',18);action(free,1763,276,42,34,37,'›')
+ for key in assets:
+  if key.startswith('flag_'):image(free,key,'filter_'+key,1200,279,34,23)
  for i in range(PAGE_SIZE):
   x,y=free_xy(i);card(free,x,y,858,180,40+i);text(free,'coach'+str(i),x+170,y+17,470,35,'',26)
   free.rect(x+665,y+17,175,35,'#e7f6ef');text(free,'status'+str(i),x+679,y+26,157,25,'',16,GREEN)
@@ -155,10 +164,10 @@ def scenes_for(model,assets):
   free.rect(x+170,y+131,230,32,'#eef3f6');text(free,'style'+str(i),x+182,y+139,206,25,'',18,INK)
   free.rect(x+416,y+131,218,32,'#eef3f6');text(free,'formation'+str(i),x+428,y+139,194,25,'',17,MUTED)
   free.rect(x+653,y+127,187,40,LIGHT);free.text(x+697,y+140,143,27,'Ver perfil  ›',19,INK);text(free,'age'+str(i),x+459,y+94,180,27,'',18,MUTED)
- action(free,96,885,65,30,50,'‹');action(free,1752,885,65,30,51,'›');text(free,'pageText',180,889,1540,27,'',18,MUTED);text(free,'empty',120,548,1640,80,'',26,MUTED)
+ text(free,'pageText',180,889,1540,27,'',18,MUTED);text(free,'empty',120,548,1640,80,'',26,MUTED)
  row_images(free,assets,'f_',model['freeRows'],model,head=128,crest=72,slots=PAGE_SIZE)
  # Hide the whole empty card, including its salary/status decoration.
- for scene,bounds in ((s,[(*club_xy(i),654,180) for i in range(PAGE_SIZE)]),(moves,[(move_xy(i)[0]+15,move_xy(i)[1],831,104) for i in range(8)]),(free,[(*free_xy(i),858,180) for i in range(PAGE_SIZE)])):
+ for scene,bounds in ((s,[(*club_xy(i),654,180) for i in range(PAGE_SIZE)]),(moves,[(move_xy(i)[0]+15,move_xy(i)[1],831,94) for i in range(8)]),(free,[(*free_xy(i),858,180) for i in range(PAGE_SIZE)])):
   for j,node in enumerate(scene.nodes):
    if node['type']=='action' or node['x']==0 or node.get('name'):continue
    for slot,(x,y,w,h) in enumerate(bounds):

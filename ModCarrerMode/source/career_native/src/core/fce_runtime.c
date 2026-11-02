@@ -40,6 +40,8 @@ static TwoFn original_post,original_send,original_load;
 static ReadyFn original_ready;
 static FceRuntimeReadyCallback ready_callback;
 static FceRuntimeUiTickCallback ui_tick_callback;
+static FceRuntimeDateCallback date_callback;
+void fce_runtime_set_date_callback(FceRuntimeDateCallback callback) { date_callback=callback; }
 
 static int parse_log_mode(const char *dir) {
     char path[MAX_PATH], text[512];
@@ -115,7 +117,7 @@ static void report(const char *event,int result,const FceModel *m,ULONGLONG elap
     /* Normal snapshots are intentionally silent in production. Keep only a
      * rejected capture visible so a broken career context remains diagnosable
      * without the per-second append/open/close cost of the polling loop. */
-    if(!fce_runtime_log_verbose() && strcmp(event,"snapshot_rejected")!=0)
+    if(!fce_runtime_log_verbose() && strcmp(event,"snapshot_rejected")!=0 && strcmp(event,"derived_standings_rejected")!=0)
         return;
     if(!log_path[0]) return;
     f=fopen(log_path,"ab"); if(!f) return;
@@ -158,6 +160,7 @@ static int copy_table(void *manager,size_t offset,FceRawTable *t) {
     if(size) memcpy((void *)t->bytes,source,size);
     return 1;
 }
+#include "derived_standings.inc"
 /* Executes on the thread which owns FCE::Update. Readers never walk the
  * process heap, saved DATA, old snapshots, or screen-local stat containers. */
 static void capture(void *iface) {
@@ -188,6 +191,12 @@ static void capture(void *iface) {
                 date=fce_date_pack(*(int *)(*first+0x3c),*(int *)(*first+0x40),*(int *)(*first+0x44));
                 break;
             }
+        }
+        /* Type 5 is the match simulator, not the career CalendarManager.
+         * Its +0x3c fields can remain -1 throughout a loaded career. */
+        if(date_callback) {
+            int calendar_date=date_callback();
+            if(fce_date_valid(calendar_date))date=calendar_date;
         }
         stage="copy_competitions"; if(!copy_table(manager,0x48,t)) __leave;
         stage="copy_standings"; if(!copy_table(manager,0x80,t+1)) __leave;
@@ -311,6 +320,7 @@ static void update_hook(void *self) {
     if(InterlockedExchange(&requested,0)) {
         InterlockedExchange(&dirty,0); capture(self);
     }
+    derived_tick(self);
     if(ui_tick_callback) ui_tick_callback();
 }
 static void post_hook(void *self,void *request) {

@@ -15,10 +15,10 @@ class SaveSyncTest(unittest.TestCase):
  def tearDown(self):self.m.close();self.tmp.cleanup()
  def event(self,tick=200,name='save',**overrides):
   row=dict(pid=10,process_created_100ns=20,access_tick_ms=tick,operation='write',complete_file=1,save_type='SaveType_Career',path=str(self.save),size_bytes=self.save.stat().st_size,payload_crc32=self.crc,context='1e',epoch=2);row.update(overrides);(self.events/(name+'.tsv')).write_text(''.join(str(k)+'='+str(v)+'\n' for k,v in row.items()))
- def bind(self):
+ def bind(self,current=None):
   def rows(name,fields):return [{'currdate':self.saved_date}] if name=='career_calendar' else [{'clubteamid':self.saved_club}]
   fake=SimpleNamespace(tables={'career_calendar':{},'career_users':{}},rows=rows)
-  with patch('lineup_data.databases',return_value=[fake]),self.m.db:return bind_pending(self.m,self.root)
+  with patch('lineup_data.databases',return_value=[fake]),self.m.db:return bind_pending(self.m,self.root,current=current)
  def capture(self,tick=100,**overrides):
   with self.m.db:
    self.m.advance(context(overrides.pop('date',20260120),matches(5)));self.m.capture_session(10,20,30,overrides.pop('epoch',2),tick)
@@ -30,6 +30,13 @@ class SaveSyncTest(unittest.TestCase):
   self.capture();self.event();self.bind();self.m.leave(self.m.active(club=1),20260120,'dismissal','Teste');self.m.hire(self.m.one('clubs','club_id',1),20260120,'seed')
   with self.m.db:self.m.capture_session(10,20,30,2,300)
   coach=self.m.active(club=1)['coach_id'];self.event(400,'repeat');self.assertEqual(1,len(self.bind()));self.m.open_save(self.digest,self.save,context(20260120));self.assertEqual(coach,self.m.active(club=1)['coach_id']);self.assertEqual(1,len(self.m.rows('movements',"kind='dismissal'")))
+ def test_calendar_jump_save_waits_for_catchup_and_restores_exact_history(self):
+  self.capture(date=20260110);self.event();self.assertEqual([],self.bind())
+  self.capture(300,date=20260120);self.m.leave(self.m.active(club=1),20260120,'dismissal','Teste');self.m.hire(self.m.one('clubs','club_id',1),20260120,'seed')
+  current=dict(pid=10,created=20,context=30,epoch=2,date=20260120,club=3,digest=self.digest,io=['write','200',str(self.save)],branch=self.m.branch)
+  coach=self.m.active(club=1)['coach_id'];before=self.save.read_bytes()
+  self.assertEqual([],self.bind(dict(current,epoch=9)));self.assertEqual(1,len(self.bind(current)))
+  self.m.open_save(self.digest,self.save,context(20260120));self.assertEqual(coach,self.m.active(club=1)['coach_id']);self.assertEqual(5,len(self.m.rows('results')));self.assertEqual(before,self.save.read_bytes())
  def test_loading_older_save_discards_future_without_changing_checkpoint(self):
   self.capture();self.event();self.bind();self.capture(300,date=20260220);self.assertEqual([],self.bind());self.m.open_save(self.digest,self.save,context(20260120));self.assertEqual(20260120,self.m.info()['game_date']);self.assertEqual(5,len(self.m.rows('results')))
  def test_different_pid_epoch_context_crc_or_club_is_not_bound(self):

@@ -32,10 +32,15 @@ class LoadingTest(unittest.TestCase):
    native_screen.build(GAME,root/'first.big',scenes,assets,script_factory=script_factory(model,assets),full_name=FULL,catalogue_groups=True,template_cache=template)
    changed=copy.deepcopy(model);changed['date']=20260202;changed['clubName']='Clube atual';changed['people'][changed['clubRows'][0][7]]['overview'][0]=42
    with patch.object(native_screen,'texture_writer',side_effect=AssertionError('Template re-encoded geometry')):
-    result=native_screen.build_from_template(template,root/'new.big',script_factory=script_factory(changed,{}),full_name=FULL)
+    result=native_screen.build_from_template(template,root/'new.big',script_factory=script_factory(changed,{}),full_name=FULL,data_only=True)
    self.assertTrue(result['template_cached']);vm,state,_,_=open_native(root/'new.big',full=FULL);load_data(vm,state)
    self.assertIn('02/02/2026',state.get('scene0').get('careerMeta').get('text'));self.assertIn('Clube atual',state.get('scene0').get('careerMeta').get('text'))
    vm.invoke(state.get('Command'),state,(40,));self.assertEqual('42',str(state.get('scene1').get('metric0').get('text')));self.assertEqual([],vm.errors)
+   old=BigFile(root/'first.big');new=BigFile(root/'new.big')
+   self.assertEqual({k:bytes(v.data) for k,v in old.entries.items() if k!='0'}, {k:bytes(v.data) for k,v in new.entries.items() if k!='0'})
+   def bad_script(data,dictionaries,scenes):
+    data[0]=0;return len(data),len(data)
+   with self.assertRaisesRegex(ValueError,'geometria'):native_screen.build_from_template(template,root/'bad-script.big',script_factory=bad_script,full_name=FULL,data_only=True)
    template.write_bytes(b'broken')
    with self.assertRaisesRegex(ValueError,'incompleto'):native_screen.build_from_template(template,root/'bad.big',script_factory=script_factory(changed,{}),full_name=FULL)
  def test_large_art_catalogue_uses_bounded_frames_and_resolves_original_names(self):

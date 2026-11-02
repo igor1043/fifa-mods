@@ -84,6 +84,9 @@ def board(context,read_asset,page,portraits=None):
     return im.resize((2048,2048),Image.Resampling.LANCZOS)
 
 def prepare(context,read_asset,add,identity):
+    if (LIVE/'medical_room_r77.rx3').is_file() and (LIVE/'medical_room_r77.json').is_file():
+        from room_medical_r77 import prepare as modern_medical
+        return modern_medical(context,read_asset,add,identity)
     spec=json.loads((ROOT/'runtime/medical_room_r57.json').read_text(encoding='utf8'));prefix='data/sceneassets/server16_dressing_room_20261022/';club=context['club'];medical=context['medical']
     portraits={p['player']:player_portrait(read_asset,p['player']) for p in medical['players']}
     medical['portraits']={str(pid):path or 'silhouette' for pid,(_,path) in portraits.items()}
@@ -96,10 +99,10 @@ def prepare(context,read_asset,add,identity):
             for page in range(medical['pages']):
                 tag=hashlib.sha256(json.dumps([club,context['date'],medical,page,56],sort_keys=True,ensure_ascii=False).encode()).hexdigest()[:16];name=f'medical_board_{club}_{tag}_r56.rx3';path=LIVE/name
                 if not path.exists():texture_package(board(context,read_asset,page,portraits),path,'medical_cm')
-                add(f'medical_{material}_{page}',prefix+'medical_room_r57.rx3',prefix+name,'medical_cm',identity,submesh=sub,page=page,pages=medical['pages'],bank=bank)
+                add(f'medical_{material}_{page}',prefix+('medical_room_r75.rx3' if (LIVE/'medical_room_r75.rx3').is_file() else 'medical_room_r72.rx3' if (LIVE/'medical_room_r72.rx3').is_file() else 'medical_room_r71.rx3' if (LIVE/'medical_room_r71.rx3').is_file() else 'medical_room_r57.rx3'),prefix+name,'medical_cm',identity,submesh=sub,page=page,pages=medical['pages'],bank=bank)
             continue
         if material in ('floor','ceiling'):
-            texture=prefix+('floor_textures_r44.rx3' if material=='floor' else 'ceiling_r49.rx3');texname='floor_cm' if material=='floor' else 'ceiling_cm'
+            texture=prefix+('floor_textures_r44.rx3' if material=='floor' else ('ceiling_r72.rx3' if (LIVE/'ceiling_r72.rx3').is_file() else 'ceiling_r71.rx3' if (LIVE/'ceiling_r71.rx3').is_file() else 'ceiling_r49.rx3'));texname='floor_cm' if material=='floor' else 'ceiling_cm'
         elif material=='crest':texture=f'data/ui/imgassets/crest/light/l{club}.dds';texname=''
         elif material=='shadow':texture=prefix+'contact_shadow_r51.rx3';texname='shadow_cm'
         elif material=='brand' or material.startswith('door_sign'):
@@ -108,7 +111,9 @@ def prepare(context,read_asset,add,identity):
                 paste(im,crest,(25,10,665,588));d.text((730,57),'DEPARTAMENTO',font=font(96,True),fill='white');d.text((730,190),'MÉDICO',font=font(136,True),fill='white')
                 club_text,club_font=fit_text(d,context['club_name'],1230,58,True);d.text((734,365),club_text,font=club_font,fill='white');d.rectangle((730,454,1950,467),fill=palette['primary']);d.text((730,505),'AVALIAÇÃO  ·  RECUPERAÇÃO  ·  DESEMPENHO',font=font(28),fill=(216,224,228))
             else:
-                paste(im,crest,(25,20,250,245));title='DEPARTAMENTO MÉDICO' if material.endswith('medical') else 'SALA DO TREINADOR';d.text((320,39),title,font=font(84,True),fill='white');d.text((324,158),context['club_name'],font=font(56),fill=(226,234,239));d.rectangle((0,276,2048,287),fill=palette['primary'])
+                from room_interior_r71 import club_sign
+                title='DEPARTAMENTO MÉDICO' if material.endswith('medical') else 'COMISSÃO TÉCNICA'
+                im=club_sign(context,title,'medical' if material.endswith('medical') else 'coach',crest)
             im=im.resize((2048,1024 if material=='brand' else 512),Image.Resampling.LANCZOS)
             tag=hashlib.sha256(im.tobytes()).hexdigest()[:12];name=f'medical_brand_{club}_{tag}.rx3';path=LIVE/name
             if not path.exists():texture_package(im,path,'medical_cm')
@@ -121,4 +126,4 @@ def prepare(context,read_asset,add,identity):
             tag=hashlib.sha256(pixels.tobytes()).hexdigest()[:12];name=f'medical_{material}_{tag}.rx3';path=LIVE/name
             if not path.exists():texture_package(Image.fromarray(pixels),path,'medical_cm')
             texture=prefix+name;texname='medical_cm'
-        add('medical_'+material,prefix+'medical_room_r57.rx3',texture,texname,identity,alpha,submesh=sub)
+        add('medical_'+material,prefix+('medical_room_r75.rx3' if (LIVE/'medical_room_r75.rx3').is_file() else 'medical_room_r72.rx3' if (LIVE/'medical_room_r72.rx3').is_file() else 'medical_room_r71.rx3' if (LIVE/'medical_room_r71.rx3').is_file() else 'medical_room_r57.rx3'),texture,texname,identity,alpha,submesh=sub)

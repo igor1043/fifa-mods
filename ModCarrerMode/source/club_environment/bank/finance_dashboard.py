@@ -8,13 +8,14 @@ def model(view):
  series=[]
  for month in range(1,13):
   row=rows.get(month,{});income=sum(row.get(k,0) for k in ('tv','tickets','sponsor'))
-  expense=-sum(row.get(k,0) for k in ('coach','staff','match_costs','interest'))
+  expense=-sum(row.get(k,0) for k in ('coach','staff','facilities','match_costs','interest'))
   series.append((income,expense,income-expense))
  tv=sum(r.get('tv',0) for r in rows.values());tickets=sum(r.get('tickets',0) for r in rows.values())
  coach=-sum(r.get('coach',0) for r in rows.values());interest=-sum(r.get('interest',0) for r in rows.values())
  sponsor=sum(r.get('sponsor',0) for r in rows.values());staff=-sum(r.get('staff',0) for r in rows.values());costs=-sum(r.get('match_costs',0) for r in rows.values())
+ facilities=-sum(r.get('facilities',0) for r in rows.values())
  return dict(year=year,series=series,tv=tv,tickets=tickets,coach=coach,interest=interest,sponsor=sponsor,staff=staff,match_costs=costs,
-  income=tv+tickets+sponsor,expense=coach+interest+staff+costs,result=tv+tickets+sponsor-coach-interest-staff-costs)
+  facilities=facilities,income=tv+tickets+sponsor,expense=coach+interest+staff+costs+facilities,result=tv+tickets+sponsor-coach-interest-staff-costs-facilities)
 
 def budget_metrics(view):
  initial=view.get('budget_initial');current=view.get('budget');payroll=view.get('player_weekly');margin=view.get('wage_margin')
@@ -30,7 +31,7 @@ def summary(view,shell,money):
  for i,(label,value,kind,note,values) in enumerate((
   ('Orçamento disponível',view.get('budget',0),'wallet','Verba de transferências validada',[]),
   ('Receitas extras',m['income'],'income','TV, bilheteria e patrocínio',[r[0] for r in m['series']]),
-  ('Despesas extras',m['expense'],'expense','Equipe, jogos e juros',[r[1] for r in m['series']]),
+  ('Despesas extras',m['expense'],'expense','Equipe, jogos, estrutura e juros',[r[1] for r in m['series']]),
   ('Resultado do ano',m['result'],'result','Receitas menos despesas extras',[r[2] for r in m['series']]))):
   x=100+i*432;card('kpi'+str(i),x,294,418,106);image('icon'+kind,art.icon(kind),x+18,309,34,34)
   s.text(x+67,307,328,27,label,23,INK);money(s,x+67,334,330,38,value,31,'#173951',0)
@@ -72,17 +73,23 @@ def summary(view,shell,money):
    s.text(xx,y+68,99,20,label,15,MUTED)
    if value is not None:money(s,xx,y+88,99,23,value,15,art.GREEN if j==2 else INK,0)
    else:s.text(xx,y+88,99,22,'—',17,MUTED)
- # Simulated commercial/staff categories have their own configurable ledger.
- for x,w,title,entries,total,tint in ((100,548,'Principais receitas',(('Direitos de TV',m['tv'],'tv'),('Bilheteria bruta',m['tickets'],'ticket'),('Patrocínio',m['sponsor'],'sponsor')),m['income'],art.GREEN),
-    (662,548,'Principais despesas',(('Salário do técnico',m['coach'],'coach'),('Comissão técnica',m['staff'],'staff'),('Custos dos jogos',m['match_costs'],'match_costs'),('Juros',m['interest'],'interest')),m['expense'],art.RED)):
+ from finance_report import categories
+ report=categories(view)
+ for x,w,title,rows,target,tint in ((100,548,'Principais receitas',report['revenues'],'overview:details',art.GREEN),
+    (662,548,'Principais despesas',report['expenses'],'overview:details',art.RED)):
+  entries=[(r['label'],r['value'],r['key']) for r in rows[:4]]
+  total=sum(r['value'] or 0 for r in rows)
   card('table'+str(x),x,669,w,185);image('tableIcon'+str(x),art.icon('income' if tint==art.GREEN else 'expense',28),x+17,682,28,28);s.text(x+56,681,w-76,30,title,25,INK)
+  s.action(x+w-139,685,118,25,'Ver todas',target,WHITE,BLUE,15)
   s.text(x+17,718,30,22,'#',16,MUTED);s.text(x+72,718,180,22,'DESCRIÇÃO',16,MUTED);s.text(x+252,718,140,22,'VALOR',16,MUTED,1);s.text(x+448,718,78,22,'% TOTAL',16,MUTED,1);s.rect(x+16,742,w-32,1,'#dce6ee')
   for j,(label,value,kind) in enumerate(entries):
    yy=747+j*25
-   if x==100:s.action(x+14,yy,w-28,25,'',{'tv':'tv','ticket':'tickets','sponsor':'sponsors'}[kind],WHITE,BLUE,17)
+   s.action(x+14,yy,w-28,25,'',rows[j]['target'],WHITE,BLUE,17)
    s.text(x+17,yy,24,27,str(j+1),18,MUTED);image('category'+str(x)+str(j),art.glyph(kind,22),x+43,yy+1,22,22)
-   s.text(x+72,yy,176,25,label,17,INK);money(s,x+252,yy,140,25,value,17,INK)
-   percent=round(value*100/total) if total else 0;image('share'+str(x)+str(j),art.progress(percent/100,tint,width=70,height=9),x+404,yy+8,70,9)
+   s.text(x+72,yy,176,25,label,17,INK)
+   if value is not None:money(s,x+252,yy,140,25,value,17,INK)
+   else:s.text(x+252,yy,140,25,'Não obtido',17,MUTED,1)
+   percent=round((value or 0)*100/total) if total else 0;image('share'+str(x)+str(j),art.progress(percent/100,tint,width=70,height=9),x+404,yy+8,70,9)
    s.text(x+481,yy,45,26,str(percent)+'%',17,MUTED,1)
    if j<len(entries)-1:s.rect(x+16,yy+24,w-32,1,'#e5edf4')
  from finance_pages import picture

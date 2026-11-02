@@ -2,11 +2,24 @@
 #include <cmath>
 #include <iostream>
 #include "competitions_layout.h"
+#include "bracket_viewport.h"
 int main(){
  using namespace clubcomp;assert(leadersArea.w>=350&&pitchArea.w<440);assert(tableArea.x+tableArea.w<leadersArea.x&&leadersArea.x+leadersArea.w<pitchArea.x);assert(pitchArea.x+pitchArea.w<=1540);assert(fieldArea.x>pitchArea.x&&fieldArea.x+fieldArea.w<pitchArea.x+pitchArea.w);
  const int formations[][11]={{0,3,4,6,7,13,14,15,23,25,27},{0,3,4,6,7,12,13,15,16,24,26},{0,3,4,6,7,9,11,17,18,19,25},{0,4,5,6,12,13,14,15,16,24,26},{0,2,4,5,6,8,13,14,15,24,26}};
  for(auto&slots:formations){std::vector<Player>players;for(int slot:slots){Player p;p.slot=slot;players.push_back(p);}auto positions=placeCompetitionXI(players);assert(positions.size()==11);std::vector<bool>seen(11);for(auto&p:positions){assert(p.player<11&&!seen[p.player]);seen[p.player]=true;assert(p.y>=fieldArea.y&&p.y+pitchBundleHeight<=fieldArea.y+fieldArea.h-6);assert(p.x-p.width/2>=fieldArea.x&&p.x+p.width/2<=fieldArea.x+fieldArea.w);}for(size_t i=0;i<positions.size();++i)for(size_t j=i+1;j<positions.size();++j){auto&a=positions[i];auto&b=positions[j];bool horizontal=std::abs(a.x-b.x)>=(a.width+b.width)/2;bool vertical=std::abs(a.y-b.y)>=pitchBundleHeight;assert(horizontal||vertical);}}
  // Removing or adding a leader field must not break the installed protocol.
  for(bool optional:{false,true}){std::istringstream file(std::string("H\t1\t123\t11\t20260101\tClube\nC\t1\t7\tLiga\tleague\tEm disputa\t1\t40\nS\t1\tgoals\t99\t11\tJogador\tClube\t8\t15")+(optional?"\tCentroavante\n":"\n"));Data d;assert(parse(file,123,11,d));assert(d.competitions[0].leaders[0][0].position==(optional?"Centroavante":""));}
- std::cout<<"PASS layout: wider leaders, narrower pitch, all XI labels inside field, no player overlap in five formations; old/new leaderboard protocol\n";
+ Competition comp;comp.leaders[0].resize(22);comp.leaders[1].resize(8);comp.matchdays.resize(4);comp.matchdays[0].matches.resize(14);DashboardNavigation nav;int tableScroll=0;
+ nav.moveFocus(1);nav.scroll(1,20,tableScroll,comp);assert(nav.leaders[0]==1&&nav.leaders[1]==0&&tableScroll==0);nav.moveFocus(1);nav.scroll(1,20,tableScroll,comp);assert(nav.leaders[1]==1);nav.moveFocus(1);nav.scroll(100,20,tableScroll,comp);assert(nav.detail==490&&nav.leaders[0]==1);nav.scroll(-100,20,tableScroll,comp);assert(nav.detail==0);nav.moveFocus(1);nav.scroll(100,24,tableScroll,comp);assert(nav.focus==0&&tableScroll==4);
+ nav.rounds=true;nav.scroll(100,0,tableScroll,comp);assert(nav.matchScroll==2);nav.stepRound(-1,comp);assert(nav.matchday==3&&nav.matchScroll==0);nav.stepRound(1,comp);assert(nav.matchday==0);nav.reset();assert(nav.focus==0&&!nav.rounds&&!nav.detail&&!nav.leaders[0]&&!nav.leaders[1]);
+ std::string header="H\t1\t123\t11\t20260731\tClube\nC\t1\t7\tLiga\tleague\tEm disputa\t1\t40\nD\t1\t0\t7\tRodada 7\t1\n";
+ std::string result="M\t1\t0\t3\t20260701\t19:00\t11\t22\tCasa\tFora\t2\t1\t1\n";
+ {std::istringstream file(header+result+"A\t1\tcoach\t202607\t1\t0\t11\tTécnico\tminifaces/coach.png\t3 pts · 1 jogo\tPrévia\tClube\n");Data d;assert(parse(file,123,11,d));assert(d.competitions[0].matchdays[0].matches[0].h==2&&d.competitions[0].awards[1].available);}
+ for(auto suffix:{"M\t1\t0\t3\t20260801\t19:00\t11\t22\tCasa\tFora\t2\t1\t1\n","M\t1\t0\t3\t20260701\t19:00\t11\t11\tCasa\tFora\t2\t1\t1\n","A\t1\tcoach\t202607\t1\t0\t11\tTécnico\tminifaces/../bad.png\t3 pts\tPrévia\tClube\n"}){std::istringstream file(header+suffix);Data d;assert(!parse(file,123,11,d));}
+ nav.openList(0);nav.scroll(100,0,tableScroll,comp);assert(nav.listSelected==21&&nav.listScroll==10);nav.openList(1);assert(nav.listSelected==0&&nav.listScroll==0&&nav.fullList==1);nav.fullList=-1;nav.pageLeader(0,-100,comp);assert(nav.leaders[0]>=0&&nav.leaders[0]<3);
+ assert(medalColor(1)!=medalColor(2)&&medalColor(2)!=medalColor(3)&&medalColor(3)!=medalColor(4));
+ BracketCamera camera;assert(camera.axis(5000)==0&&camera.axis(-5000)==0&&camera.axis(32767)==1&&camera.axis(-32767)==-1);camera.focus(80,30,.8f,true);float anchorX=camera.targetX+(1050-800)/camera.targetZoom,anchorY=camera.targetY+(510-434)/camera.targetZoom;camera.zoomAt(.5f,1050,510);assert(std::abs(anchorX-(camera.targetX+(1050-800)/camera.targetZoom))<.001f&&std::abs(anchorY-(camera.targetY+(510-434)/camera.targetZoom))<.001f);
+ BracketScene scene;scene.x0=-5000;scene.x1=5000;scene.y0=-5000;scene.y1=5000;camera.focus(0,0,1,true);camera.pan(1,0,1);assert(camera.targetX==650);camera.tick(.05f,scene);assert(camera.x>0&&camera.x<camera.targetX);camera.drag(20,0);assert(camera.x==camera.targetX);camera.zoomAt(100);assert(camera.targetZoom==2.5f);camera.zoomAt(-100);assert(camera.targetZoom==.16f);
+ {std::istringstream file("H\t1\t123\t11\t20260731\tClube\nC\t1\t7\tCopa\tcup\tEm disputa\t-1\t-1\nP\t1\tknockout-first\n");Data d;assert(parse(file,123,11,d));assert(d.competitions[0].knockoutFirst);}
+ std::cout<<"PASS competitions layout: five formations; protocol; independent card focus and bounded scrolling; matchdays; medals; malformed data rejected\n";
 }

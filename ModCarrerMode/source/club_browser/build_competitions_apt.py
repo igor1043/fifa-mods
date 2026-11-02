@@ -15,12 +15,12 @@ def script(data,dictionaries,scenes):
   a.op(89);a.reg(2);a.op(118);a.op(93)
   a.do(M('ScreenManager'),'SetOnExitScreenCallback',CALL(PATH('cafe','utility','Delegate'),'Create',R(1),T('OnExitScreen')))
   a.do(R(1),'Initialize',FULL,None,True);a.set(R(1),'staticData',CALL(ION,'GetScreenStaticData'));a.set(R(1),'navEvents',CALL(ION,'GetEvents','Navigation'))
-  a.set(R(1),'_visible',True);a.set(R(1),'_alpha',100);a.set(R(1),'expanded',False);a.set(R(1),'onEnterFrame',T('Ready'));a.do(R(1),'Ready')
+  a.set(R(1),'_visible',True);a.set(R(1),'_alpha',100);a.set(R(1),'expanded',False);a.set(R(1),'rounds',False);a.set(R(1),'onEnterFrame',T('Ready'));a.do(R(1),'Ready')
  a.function(CLASS[-1],0,ctor,True);a.expr(PATH(*CLASS));a.expr(PATH('ion','screen','BaseScreen'));a.op(105)
  def ready(a):
   def bind(a):
    a.set(R(1),'bound',True);a.set(T('scene0'),'_visible',True);a.set(R(1),'onEnterFrame',T('Tick'))
-   for i,handler in ((0,None),(1,'OpenBracket'),(2,'CloseBracket')):
+   for i,handler in ((0,None),(1,'OpenRounds'),(2,'CloseBracket'),(3,'OpenBracket'),(4,'OpenGoals'),(5,'OpenAssists')):
     button=P(T('scene0'),'action'+str(i));a.set(button,'_alpha',0);a.set(button,'owner',R(1))
     if handler:a.set(button,'onRelease',T('Mouse'+handler))
    a.set(P(T('scene0'),'action2'),'_visible',False)
@@ -40,27 +40,41 @@ def script(data,dictionaries,scenes):
   a.set(R(1),'helpDelay',90);a.do(R(1),'RefreshHelp')
  a.function('OnAnimateInComplete',0,complete)
  def opened(a):
-  a.set(R(1),'expanded',True);a.set(P(T('scene0'),'action1'),'_visible',False);a.set(P(T('scene0'),'action2'),'_visible',True)
+  a.set(R(1),'expanded',True);a.set(R(1),'rounds',False);a.set(P(T('scene0'),'action1'),'_visible',False);a.set(P(T('scene0'),'action3'),'_visible',False);a.set(P(T('scene0'),'action4'),'_visible',False);a.set(P(T('scene0'),'action5'),'_visible',False);a.set(P(T('scene0'),'action2'),'_visible',True)
   a.do(ION,'SendSystemEvent',P(T('staticData'),'SCREEN_CONTROLLER_ID'),'Server16ClubBrowser','comp_bracket');a.do(R(1),'RefreshHelp')
  a.function('OpenBracket',0,opened)
+ for name,command in (('OpenSelected','comp_activate'),('OpenGoals','comp_goals'),('OpenAssists','comp_assists')):
+  def detail(a,command=command):
+   a.set(R(1),'expanded',True);a.set(R(1),'rounds',False)
+   for i in (1,3,4,5):a.set(P(T('scene0'),'action'+str(i)),'_visible',False)
+   a.set(P(T('scene0'),'action2'),'_visible',True);a.do(ION,'SendSystemEvent',P(T('staticData'),'SCREEN_CONTROLLER_ID'),'Server16ClubBrowser',command);a.do(R(1),'RefreshHelp')
+  a.function(name,0,detail)
+ def rounds(a):
+  a.set(R(1),'rounds',True);a.set(R(1),'expanded',False);a.set(P(T('scene0'),'action1'),'_visible',False);a.set(P(T('scene0'),'action3'),'_visible',False);a.set(P(T('scene0'),'action4'),'_visible',False);a.set(P(T('scene0'),'action5'),'_visible',False);a.set(P(T('scene0'),'action2'),'_visible',True)
+  a.do(ION,'SendSystemEvent',P(T('staticData'),'SCREEN_CONTROLLER_ID'),'Server16ClubBrowser','comp_rounds');a.do(R(1),'RefreshHelp')
+ a.function('OpenRounds',0,rounds)
  def closed(a):
-  a.set(R(1),'expanded',False);a.set(P(T('scene0'),'action1'),'_visible',True);a.set(P(T('scene0'),'action2'),'_visible',False)
+  a.set(R(1),'expanded',False);a.set(R(1),'rounds',False);a.set(P(T('scene0'),'action1'),'_visible',True);a.set(P(T('scene0'),'action3'),'_visible',True);a.set(P(T('scene0'),'action4'),'_visible',True);a.set(P(T('scene0'),'action5'),'_visible',True);a.set(P(T('scene0'),'action2'),'_visible',False)
   a.do(ION,'SendSystemEvent',P(T('staticData'),'SCREEN_CONTROLLER_ID'),'Server16ClubBrowser','comp_close');a.do(R(1),'RefreshHelp')
  a.function('CloseBracket',0,closed)
- for target in ('OpenBracket','CloseBracket'):a.function('Mouse'+target,0,lambda a,target=target:a.do(P(R(1),'owner'),target))
+ for target in ('OpenBracket','CloseBracket','OpenRounds','OpenGoals','OpenAssists'):a.function('Mouse'+target,0,lambda a,target=target:a.do(P(R(1),'owner'),target))
  def event(a):
-  a.when(b.equal(R(2),P(M('InputCodes'),'BACK')),lambda a:(a.when(T('expanded'),lambda a:(a.do(R(1),'CloseBracket'),a.ret(True))),a.do(ION,'SendEvent',P(T('staticData'),'SCREEN_CONTROLLER_ID'),P(T('navEvents'),'BACK'),''),a.ret(True)))
+  a.when(b.equal(R(2),P(M('InputCodes'),'BACK')),lambda a:(a.when(('bin',17,T('expanded'),T('rounds')),lambda a:(a.do(R(1),'CloseBracket'),a.ret(True))),a.do(ION,'SendEvent',P(T('staticData'),'SCREEN_CONTROLLER_ID'),P(T('navEvents'),'BACK'),''),a.ret(True)))
+  a.when(b.equal(R(2),P(M('InputCodes'),'OPTION_LEFT')),lambda a:(a.when(('not',T('expanded')),lambda a:a.do(R(1),'OpenRounds')),a.ret(True)))
+  a.when(T('rounds'),lambda a:a.ret(True))
   for code in ('ADVANCE','PRIMARY_SELECT'):
-   a.when(b.equal(R(2),P(M('InputCodes'),code)),lambda a:(a.when(T('expanded'),lambda a:a.do(ION,'SendSystemEvent',P(T('staticData'),'SCREEN_CONTROLLER_ID'),'Server16ClubBrowser','comp_center'),lambda a:a.do(R(1),'OpenBracket')),a.ret(True)))
+   a.when(b.equal(R(2),P(M('InputCodes'),code)),lambda a:(a.when(T('expanded'),lambda a:a.do(ION,'SendSystemEvent',P(T('staticData'),'SCREEN_CONTROLLER_ID'),'Server16ClubBrowser','comp_center'),lambda a:a.do(R(1),'OpenSelected')),a.ret(True)))
   a.when(b.equal(R(2),P(M('InputCodes'),'OPTION_TOP')),lambda a:a.do(ION,'SendSystemEvent',P(T('staticData'),'SCREEN_CONTROLLER_ID'),'Server16ClubBrowser','comp_mode'))
   # DirectInput/XInput edges are read once by the native screen for navigation.
   # Swallow the underlying Calendar events, avoiding double changes of tab.
   a.ret(True)
  a.function('LocalEventHandler',2,event)
  def help(a):
-  expanded=[('BACK','Voltar'),('LAS_LR','Movimentar'),('L1R1','Zoom'),('ADVANCE','Centralizar')]
+  expanded=[('BACK','Voltar'),('ADVANCE','Ajustar'),('RAS_LR','Fases')]
   a.when(T('expanded'),lambda a:a.ret(('array',tuple(CALL(PATH('ion','manager','HelpItem'),'CreateHelpTickerItem',key,label) for key,label in expanded))))
-  values=[('ADVANCE','Ampliar'),('BACK','Voltar'),('L2R2','Competições'),('LAS_UD','Tabela'),('LAS_LR','Grupos / fases'),('L1R1','Estatísticas'),('OPTION_TOP','Grupos / chaves'),('RAS_UD','Ranking')]
+  rounds=[('BACK','Voltar'),('L2R2','Rodadas'),('LAS_UD','Jogos'),('RAS_UD','Rolar lista')]
+  a.when(T('rounds'),lambda a:a.ret(('array',tuple(CALL(PATH('ion','manager','HelpItem'),'CreateHelpTickerItem',key,label) for key,label in rounds))))
+  values=[('ADVANCE','Selecionar'),('BACK','Voltar'),('OPTION_LEFT','Rodadas / chaveamento'),('L1R1','Competições'),('L2R2','Foco'),('LAS_UD','Selecionar card'),('OPTION_TOP','Grupos / chaves'),('RAS_UD','Carrossel / destaques')]
   a.ret(('array',tuple(CALL(PATH('ion','manager','HelpItem'),'CreateHelpTickerItem',key,label) for key,label in values)))
  a.function('getHelpContext',0,help)
  def shutdown(a):
@@ -68,5 +82,5 @@ def script(data,dictionaries,scenes):
  a.function('OnExitScreen',0,shutdown);a.op(0);a.finish();a.align();registration=len(data);data.extend(dictionaries[1]);a.string(FULL);a.op(28);a.string(FULL);a.expr(2);a.expr(PATH('Object'));a.method('registerClass');a.op(23);a.op(0);a.finish();return start,registration
 
 def build(game,output):
- nodes=[dict(type='action',index=i,x=x,y=y,w=w,h=h,color='#ffffff',ink='#ffffff',text='',size=1) for i,(x,y,w,h) in enumerate(((0,0,1,1),(600,198,228,38),(1764,42,78,66)))]
+ nodes=[dict(type='action',index=i,x=x,y=y,w=w,h=h,color='#ffffff',ink='#ffffff',text='',size=1) for i,(x,y,w,h) in enumerate(((0,0,1,1),(600,198,228,38),(1764,42,78,66),(126,198,455,38),(908,186,422,326),(908,576,422,326)))]
  return native.build(game,output,[dict(key='competitions',nodes=nodes,actions=[dict(target='leave') for _ in nodes])],{},script_factory=script,full_name=FULL)

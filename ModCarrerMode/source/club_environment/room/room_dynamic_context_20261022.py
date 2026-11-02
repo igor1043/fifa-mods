@@ -114,6 +114,9 @@ def draw_board(c,read_asset):
 
 def write_tour(context,roster,frame,rotation,generation):
  data=json.loads((ROOT/'runtime/room_roles_r62.json').read_text(encoding='utf8'));focus=[]
+ layout_path=LIVE/('room_layout_r77.json' if (LIVE/'room_layout_r77.json').is_file() else 'room_layout_r76.json' if (LIVE/'room_layout_r76.json').is_file() else 'room_layout_r75.json' if (LIVE/'room_layout_r75.json').is_file() else 'room_layout_r72.json')
+ expanded=json.loads(layout_path.read_text(encoding='utf8')) if layout_path.is_file() else None
+ if expanded:data=expanded['room']
  for p in context['focus']:
   origin,yaw=frame(p['locker']);r=rotation(yaw);eye=origin+r@np.array([0,187,285]);target=origin+r@np.array([0,165,54]);eye[0]=max(-575,min(575,eye[0]));focus.append([p['number'],*eye.tolist(),*target.tolist()])
  # The renderer consumes look-at targets from scene/locker anchors, not club names.
@@ -132,8 +135,13 @@ def write_tour(context,roster,frame,rotation,generation):
  for i in order:
   if i>=len(roster):continue
   origin,yaw=frame(i);r=rotation(yaw);eye=origin+r@np.array([0,187,225]);eye[0]=max(-575,min(575,eye[0]));target=origin+r@np.array([0,165,54]);shirts.append([roster[i]['number'],*eye.tolist(),*target.tolist()])
- medical=json.loads((ROOT/'runtime/medical_room_r57.json').read_text(encoding='utf8'));navigation=medical['navigation'];extra=[s['pose'] for s in medical['scenes']]
- obstacles=solid_obstacles(data['obstacles']+medical['obstacles']);lines=[f'S16TOUR 5 {context["pid"]} {context["club"]} {generation} {len(focus)} {len(obstacles)} {len(path)} {len(details)} {len(shirts)} {len(navigation)} {len(extra)}']
+ medical=expanded['medical'] if expanded else json.loads((ROOT/'runtime/medical_room_r57.json').read_text(encoding='utf8'));navigation=medical['navigation'];extra=[s['pose'] for s in medical['scenes']]
+ obstacles_data=data['obstacles']+medical['obstacles']
+ interior=LIVE/('interior_r78.json' if (LIVE/'interior_r78.json').is_file() else 'interior_r75.json' if (LIVE/'interior_r75.json').is_file() else 'interior_r72.json' if (LIVE/'interior_r72.json').is_file() else 'interior_r71.json')
+ if interior.is_file():
+  extra_obstacles=json.loads(interior.read_text(encoding='utf8'))['obstacles']
+  obstacles_data=[p for p in obstacles_data if not p['name'].startswith('Hidratação /')]+extra_obstacles
+ obstacles=solid_obstacles(obstacles_data);lines=[f'S16TOUR 5 {context["pid"]} {context["club"]} {generation} {len(focus)} {len(obstacles)} {len(path)} {len(details)} {len(shirts)} {len(navigation)} {len(extra)}']
  lines+=[' '.join(map(str,p)) for p in focus]
  lines+=[' '.join(map(str,p['lo']+p['hi'])) for p in obstacles]
  lines+=[' '.join(map(str,p)) for p in path+details+shirts+navigation+extra]

@@ -4,11 +4,58 @@ Mais vida na carreira, nos uniformes e na apresentação das partidas do FIFA 16
 
 O FIFA Friends V12 reúne melhorias para acompanhar seu clube, personalizar a experiência e dar mais identidade a cada competição. O [Server16](https://github.com/igor1043/CG-File-Server-16---Python-Port/tree/fifa-friends) é o painel que acompanha o projeto e permite escolher os recursos antes e durante a partida.
 
-**Edição:** FIFA Friends V12 · **Atualizado em:** 30/10/2026
+**Edição:** FIFA Friends V12 · **Atualizado em:** 02/11/2026
 
 **Server16 incluído:** 0.2.19. As DLLs compiladas ficam nesta branch, organizadas em uma pasta por mod. O [índice dos módulos ativos](ModCarrerMode/mods/README.md) informa arquivos, funções e configurações.
 
 A combinação Git + ZIP é agora verificada em uma pasta vazia, sem caches do desenvolvedor, incluindo igualdade entre o módulo embutido no EXE e o fonte publicado.
+
+## Entrega — 02/11/2026
+
+Atualização conjunta das branches do FIFA Friends e Server16. Acompanha o
+**FIFA-Friends-Assets-Delta-20261102-sobre-20261030.zip**, somente com assets novos
+ou alterados; mantenha o complemento completo de 30/10 já instalado.
+
+- Técnicos: modelos 3D por identidade, campanhas em tempo real de todas as ligas,
+  vínculos corretos, histórico anual, contratações e filtros revistos.
+- Mercado: contratos em background e catálogo visual preparado no complemento,
+  evitando reconstruir todas as fotos durante a abertura; progresso sem reinícios
+  periódicos e entrega da tela pronta antes de atualizações complementares.
+- Vestiário: interior ampliado, murais, sala do treinador, departamento médico,
+  hidratação e câmeras/colisões revisadas.
+- Competições, próxima partida e finanças com fontes atuais da carreira,
+  relatórios/histórico e layouts revisados. Server16 sincronizado com opções
+  da carreira, anúncios de substituição e recuperação de recursos de estádio.
+
+[Instalação, changelog e limites de validação](ModCarrerMode/docs/RELEASE_20261102.md).
+
+## Técnicos 3D e mercado da carreira — 01/11/2026
+
+Revisão local de 02/11: leitura dinâmica das competições da sessão, recuperação
+de campanhas não salvas e contratações compatíveis com prestígio, liga e salário.
+Veja [diagnóstico, regras e validação](ModCarrerMode/docs/LIVE_CAREER_CORE_20261102.md).
+Os ajustes da ordem das fases e dos destaques das copas estão instalados localmente.
+O [histórico anual de técnicos e finanças](ModCarrerMode/docs/YEAR_HISTORY_20261102.md)
+preserva os vínculos, as campanhas anteriores e os lançamentos entre os anos.
+O [refinamento do mercado e da persistência](ModCarrerMode/docs/MANAGER_POLISH_PERSISTENCE_20261102.md)
+inclui filtros separados de país/liga, arraste das barras, títulos localizados,
+nacionalidade principal e observações intermediárias durante o calendário.
+Esta revisão integra a entrega de 02/11/2026 descrita acima.
+
+Na carreira, o modelo 3D de **Ver clubes → Técnico** e dos técnicos à beira do
+campo acompanha o treinador atualmente contratado. Se ele não tem modelo
+instalado, o perfil fica sem personagem e a partida usa o técnico genérico.
+Partidas fora da carreira preservam os modelos fixos por clube.
+
+Os 20 personagens próprios da carreira ficam em
+`data/sceneassets/manager_market/<assetId>/`, com modelo e texturas das duas
+variantes; o catálogo é
+`ModCarrerMode/data/manager_market/manager_models.json`. Os RX3 são distribuídos
+como assets externos ao Git. Atualize também `club_browser.dll`, o exportador,
+os fontes auxiliares e `data/fifarna/lua/assets/sle.lua`, com o FIFA fechado,
+e reinicie o jogo. Minifaces e modelos fixos por clube são preservados.
+
+[Instalação, geração dos assets e funcionamento](ModCarrerMode/source/club_environment/manager_market/SIDELINE_MODELS.md).
 
 ## Entrega — 30/10/2026
 

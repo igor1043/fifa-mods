@@ -5,18 +5,24 @@ from pathlib import Path
 import runtime as r
 
 def main():
- last_error=None;last_disabled=None
+ last_error=None;last_disabled=None;finance_disabled=False
  while any((p.info.get('name') or '').lower()=='fifa16.exe' for p in r.psutil.process_iter(['name'])):
   bridge=None;attached=False
   try:
-   bridge=r.Bridge.__new__(r.Bridge);r.Bridge.__init__(bridge,apply=True);attached=True
+   bridge=r.Bridge.__new__(r.Bridge);r.Bridge.__init__(bridge,apply=True);attached=True;finance_disabled=False
    while bridge.process.is_running():
     bridge.tick()
     # Financial/calendar events keep the same cadence outside the Loans screen.
     time.sleep(.12)
   except Exception as error:
    message=str(error)
+   if message.startswith('Ja existe uma ponte de emprestimos'):return
    if message!=last_error:r.log('waiting_for_financial_context',error=message);last_error=message
+   if not finance_disabled:
+    try:
+     from finance_presentation import invalidate
+     invalidate(r.GAME,r.STATE);finance_disabled=True
+    except Exception as screen_error:r.log('finance_wait_screen_pending',error=str(screen_error))
    if not attached:
     view={'club':0,'budget':0,'date':None,'used':0,'can_borrow':False,'schedule':[],'active':None,'ready':False,'nonce':'DISABLED','error':message}
     signature=hashlib.sha256(json.dumps(view,sort_keys=True).encode()).hexdigest()

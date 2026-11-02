@@ -17,7 +17,11 @@ class FinanceInputs:
       or snapshot.get('date')!=live['date'] or not same_path
       or (created is not None and snapshot.get('processCreated100ns')!=created)):
    raise ValueError('Aguardando dados atuais das competições desta carreira')
-  signature=(save.stat().st_mtime_ns,save.stat().st_size,live['club'],live['date'],snapshot.get('generation'),
+  if 'context_epoch' in live:
+   from career_publication import read
+   snapshot=read(game,dict(path=str(save),pid=pid,process_created_100ns=created),live['date'],epoch=live['context_epoch'],club=live['club'])
+   if snapshot is None:raise ValueError('Aguardando a publicação da carreira recarregada')
+  signature=(save.stat().st_mtime_ns,save.stat().st_size,live['club'],live['date'],live.get('context_epoch'),snapshot.get('generation'),
     tuple(tuple(f) for f in snapshot['fixtures']))
   if signature==self.last_signature:return self.last
   if self.cache is None:
@@ -122,6 +126,9 @@ class FinanceInputs:
    league_prestige=median_value([int(r.get('internationalprestige') or 0) for r in peers]) if peers else 0,
    league_overall=median_value([int(r.get('overallrating') or 0) for r in peers]) if peers else 0,
    player_weekly=payroll)
+  from finance_competitions import profiles as economic_profiles,enrich
+  economics=economic_profiles(game)
+  result['competitions']=[enrich(profile,economics,league_id) for profile in profiles]
   # Every simulated fixture is reconstructed at its own date, with only the
   # results preceding it. Today's crowd.ini percentage is never backfilled.
   from match_attendance import config,reconstruct
@@ -135,7 +142,7 @@ class FinanceInputs:
      reconstruct(fixture,club,list(fixtures.values()),teams,league.get('level') or 1,weights=crowd['weights'],rivals=rivals))
   # Optional views never gate the financial clock. Cache save-backed roster
   # metadata independently from the frequently published live fixture snapshot.
-  detail_signature=signature[:3]
+  detail_signature=signature[:3]+(live.get('context_epoch'),)
   if detail_signature!=self.details_signature:
    self.details=dict(players=[],transfers=[],player_error=None,transfer_error=None)
    from finance_people import payroll_rows,club_transfers
@@ -156,5 +163,7 @@ class FinanceInputs:
    except (OSError,ValueError,KeyError,ImportError) as error:self.details['transfer_error']=str(error)
    self.details_signature=detail_signature
   result.update(self.details)
+  from finance_report import native_view
+  result['native_finance']=native_view(rows,club=club,season=season,today=live['date'])
   self.last_signature=signature;self.last=result
   return result

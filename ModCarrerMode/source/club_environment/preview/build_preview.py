@@ -320,7 +320,8 @@ def build(payload=None):
         # Scale by width and preserve the source aspect ratio. Scaling X and Y
         # independently to the same target made landscape artwork square and
         # covered the attendance and ticket-revenue panel below the photo.
-        return sprite([place(art_symbols[symbol],1,0,0,scale,scale,label=label)])
+        sy=404/max(1,resource['height']) if symbol=='S16StadiumPreview' else scale
+        return sprite([place(art_symbols[symbol],1,0,0,scale,sy,label=label)])
     def short_name(name):
         name=name.upper()
         if len(name)>10:

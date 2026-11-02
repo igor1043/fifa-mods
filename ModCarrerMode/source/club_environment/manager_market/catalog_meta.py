@@ -36,7 +36,7 @@ class Labels:
    if key(name) in self.aliases:self.aliases[alias]=self.aliases[key(name)]
  def nationality(self,value):
   names=[];flags=[]
-  for part in str(value or '').split(';'):
+  for part in str(value or '').replace(' / ',';').split(';'):
    part=part.strip()
    if not part:continue
    if key(part) in ('reino unido','united kingdom'):
@@ -46,7 +46,9 @@ class Labels:
    if part.startswith('Brasil '):part='Brasil'
    row=self.aliases.get(key(part));label=row['name'] if row else TRANSLATIONS.get(part,part)
    if label not in names:names.append(label);flags.append('flag_'+str(row['nation_id']) if row else 'flag_0')
-  return (' / '.join(names) or 'Não informada',flags[0] if flags else 'flag_0')
+  # The catalogue may retain several source countries. Display/filter by the
+  # primary registered nationality, not a concatenation of those countries.
+  return (names[0] if names else 'Não informada',flags[0] if flags else 'flag_0')
  def country(self,value):
   row=self.aliases.get(key(value))
   return (row['name'],row['nation_id']) if row else (TRANSLATIONS.get(value,value) or 'Outros países',0)

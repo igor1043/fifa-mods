@@ -124,11 +124,15 @@ def stadium_art(game,venue_key,venue_name,cache):
     """Embed the same real photo used by Central, with block-aligned DDS size."""
     source=stadium_source(game,venue_key,venue_name)
     if source is None:return None
-    _,raw=source;stamp=hashlib.sha256(raw+b'|next-match-stadium-v2-1052x404').hexdigest()[:20]
+    _,raw=source;stamp=hashlib.sha256(raw+b'|next-match-stadium-v3-pot-2048x1024').hexdigest()[:20]
     target=Path(cache)/f'stadium_{stamp}.dds'
     if target.exists():return target
     image=Image.open(io.BytesIO(raw)).convert('RGB')
-    image=ImageOps.fit(image,(1052,404),method=Image.Resampling.LANCZOS,centering=(.5,.42)).convert('RGBA')
+    # FIFA's APT texture path is unreliable for this large non-power-of-two
+    # DXT surface. Keep the displayed crop separate from its GPU dimensions;
+    # the placement maps the whole POT texture back into the 1050x404 photo.
+    image=ImageOps.fit(image,(1050,404),method=Image.Resampling.LANCZOS,centering=(.5,.42))
+    image=image.resize((2048,1024),Image.Resampling.LANCZOS).convert('RGBA')
     output=io.BytesIO();image.save(output,format='DDS',pixel_format='DXT5')
     dds=bytearray(output.getvalue());struct.pack_into('<I',dds,20,len(dds)-128);struct.pack_into('<I',dds,88,0)
     target.parent.mkdir(parents=True,exist_ok=True);target.write_bytes(dds)

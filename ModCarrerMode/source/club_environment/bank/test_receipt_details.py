@@ -24,7 +24,7 @@ class ReceiptDetails(unittest.TestCase):
   v=self.receipts();before=copy.deepcopy(v);rows=ticket_rows(v)
   row=next(r for r in rows if r['gross']==111)
   self.assertEqual((row['cost'],row['net']),(0,111))
-  self.assertEqual((row['display_cost'],row['display_net']),(44,67))
+  self.assertEqual((row['display_cost'],row['display_net']),(72,39))
   self.assertTrue(row['cost_estimated']);self.assertIn('não debitada',row['cost_note']);self.assertEqual(v,before)
  def test_actual_disabled_and_pending_costs_are_distinct_from_missing_history(self):
   for status in ('applied','pending','disabled'):

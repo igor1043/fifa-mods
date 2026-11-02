@@ -5,18 +5,14 @@ import json,struct
 
 def current(game,memory,saved,profile):
  try:
-  path=Path(game)/'ModCarrerMode/runtime/career_fce_snapshot.json'
-  if path.stat().st_size>32*1024*1024:return None
-  s=json.loads(path.read_text(encoding='utf8'))
-  if s.get('schema')!=3 or s.get('pid')!=memory.process_id or s.get('club')!=profile['club_id']:return None
-  if s.get('processCreated100ns')!=saved['process_created_100ns'] or Path(s['savePath']).resolve()!=Path(saved['path']).resolve() or s.get('saveSize')!=saved['size'] or s.get('saveWriteTime100ns')!=saved['mtime_ns']//100+116444736000000000:return None
   code=memory.read_process_memory(memory.base_module+0x44563f0,24)
   if code[7:9]!=b'\xc7\x01':return None
   index=struct.unpack_from('<I',code,9)[0]
   if not 0<=index<256:return None
   calendar=memory.read_int64(memory.read_int64(profile['registry_address']+index*32+24));d,m,y=struct.unpack('<3i',memory.read_process_memory(calendar+0x34,12));today=y*10000+m*100+d
   datetime.strptime(str(today),'%Y%m%d')
-  return s if s.get('date')==today else None
+  from career_publication import read
+  return read(game,dict(saved,pid=memory.process_id),today,epoch=profile.get('context_epoch'),club=profile['club_id'])
  except (OSError,ValueError,KeyError,TypeError,struct.error):return None
 
 def totals(snapshot,club):

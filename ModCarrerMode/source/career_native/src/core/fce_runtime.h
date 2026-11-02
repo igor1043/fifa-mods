@@ -2,8 +2,17 @@
 #define FIFA16_FCE_RUNTIME_H
 #include "fce_model.h"
 typedef struct FceLiveSnapshot FceLiveSnapshot;
+/* Owned results of FIFA's foreign-league standings-view calculation. */
+typedef struct {
+    FceStanding standing;
+    unsigned home_gf,home_ga,away_gf,away_ga;
+} FceDerivedStanding;
+unsigned long fce_runtime_derived_revision(void);
+size_t fce_runtime_derived_copy(FceDerivedStanding *,size_t,int date);
 typedef void (*FceRuntimeReadyCallback)(unsigned long generation);
 typedef void (*FceRuntimeUiTickCallback)(void);
+typedef int (*FceRuntimeDateCallback)(void);
+void fce_runtime_set_date_callback(FceRuntimeDateCallback callback);
 typedef enum FceRuntimeLogMode {
     FCE_RUNTIME_LOG_PRODUCTION = 0,
     FCE_RUNTIME_LOG_DEVELOPMENT = 1,

@@ -1,7 +1,10 @@
 from pathlib import Path
-import unittest,xml.etree.ElementTree as ET
+import unittest,xml.etree.ElementTree as ET,importlib.util
 import test_screen
-import package
+# Other mod suites also contain package.py. Resolve this integration test's
+# own module explicitly so discovery order cannot select another mod.
+_spec=importlib.util.spec_from_file_location('manager_market_package_test',Path(__file__).with_name('package.py'))
+package=importlib.util.module_from_spec(_spec);_spec.loader.exec_module(package)
 
 class PackageTest(unittest.TestCase):
  def test_card_and_navigation_preserve_existing_entries_and_are_idempotent(self):

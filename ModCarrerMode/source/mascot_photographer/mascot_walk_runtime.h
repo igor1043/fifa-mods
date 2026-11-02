@@ -176,10 +176,23 @@ static void mascot_blend_local_pose(float pose[31][16],int kind,float dt) {
     }
     memcpy(s.lastLocal,pose,sizeof(s.lastLocal));
 }
-static void mascot_orient_pose(float pose[31][16],float yaw) {
+static float mascot_body_heading(const float pose[31][16]) {
+    // RightUpLeg (3) -> LeftUpLeg (7) is the body's left axis. Its cross
+    // with world-up gives the visible forward axis, independent of the
+    // head bone's differently authored axes and the current clip's yaw.
+    const float leftX=pose[7][12]-pose[3][12],leftZ=pose[7][14]-pose[3][14];
+    if(!isfinite(leftX)||!isfinite(leftZ)||leftX*leftX+leftZ*leftZ<.001f)return 0;
+    return atan2f(-leftZ,leftX);
+}
+static void mascot_orient_pose(float pose[31][16],float yaw,bool alignBody=true) {
     // Apply actor heading once, in the private palette. Native actor yaw is
     // zero, so draw preparation cannot overwrite or double this rotation.
-    const float cosine=cosf(yaw),sine=sinf(yaw);
+    // The converted model faces +Z, as verified by its skinned mesh. The
+    // previous fixed half-turn reversed it. While travelling, compensate
+    // the blended pose's body yaw too, so a clip cannot turn it sideways.
+    const float localHeading=alignBody?mascot_body_heading(pose):mascot_body_heading(mascotBindPose);
+    const float modelYaw=mascot_wrap_heading(yaw-localHeading);
+    const float cosine=cosf(modelYaw),sine=sinf(modelYaw);
     for(unsigned int bone=0;bone<31;++bone)for(unsigned int column=0;column<4;++column) {
         const unsigned int k=column*4;const float x=pose[bone][k],z=pose[bone][k+2];
         pose[bone][k]=cosine*x+sine*z;pose[bone][k+2]=-sine*x+cosine*z;

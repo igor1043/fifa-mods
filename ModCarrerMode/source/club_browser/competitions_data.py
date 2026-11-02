@@ -7,6 +7,9 @@ from competition_rules import read_rules
 from competition_cups import build_cup
 from competition_formats import read_formats
 from competition_bracket import build as build_bracket
+from competition_insights import build as build_insights
+from competition_rounds import build_rounds
+from competition_monthly import project as monthly_awards
 import csv
 import json
 
@@ -83,6 +86,7 @@ def project(game,save,snapshot,cache=None):
  names.update({r['nameid']:r['name'] for r in rows('dcplayernames',['nameid','name']) if r['nameid'] in wanted})
  def display(p):return names.get(p.get('commonnameid')) or ' '.join(filter(None,[names.get(p.get('firstnameid')),names.get(p.get('lastnameid'))])) or 'Jogador'
  stats=build_competition_statistics(snapshot,roots,players,display,teams)
+ awards=monthly_awards(GAME,save,snapshot,roots,players,display,teams,cache.save_hash)
  group_members={}
  for row in snapshot['standings']:
   if len(row)==10 and row[2]>0:group_members.setdefault(row[1],set()).add(row[2])
@@ -125,6 +129,10 @@ def project(game,save,snapshot,cache=None):
   serialized=[dict(**m,homeName=teams.get(m['home'],'Mandante'),awayName=teams.get(m['away'],'Visitante')) for m in fixtures]
   entry=dict(root=ident,asset=asset,name=league_names.get(asset,'Competição da carreira'),format='league' if is_league else 'cup',status=status,statusLabel=label,table=table if is_league else [],groups=[dict(id=key,name='Grupo '+chr(65+i),rows=g) for i,(key,g) in enumerate(own_groups)] if not is_league else [],fixtures=serialized,ownFixtures=[m for m in serialized if club in (m['home'],m['away'])],clubRank=club_row['rank'] if club_row and is_league else None,clubPoints=club_row['points'] if club_row else None,stageKind=stage['stageKind'] if stage else 0)
   entry.update(stats.get(ident,{}));entry['legend']=legend;entry['rulesSource']='CompData instalado · faixas do grupo selecionado'
+  entry['matchdays']=build_rounds(serialized,today,is_league);entry['monthlyAwards']=awards.get(ident,{})
+  entry['insights']=build_insights(serialized,today,stats.get(ident,{}),teams,cup=not is_league)
+  from competition_campaign import knockout_first
+  entry['knockoutFirst']=not is_league and knockout_first(serialized,today)
   if not is_league:
    entry.update(build_cup(nodes,ident,groups,serialized,club,today,lambda key:read_rules(GAME,asset,key,league_names),formats))
    entry['bracket']=build_bracket(entry['rounds'],formats,advancement)

@@ -10,7 +10,7 @@ import hashlib,json,zlib
 def record(path):
  return dict(line.split('=',1) for line in Path(path).read_text(encoding='utf-8-sig').splitlines() if '=' in line)
 
-def bind_pending(market,game):
+def bind_pending(market,game,current=None):
  folder=Path(game)/'ModCarrerMode/runtime/manager_market/save_events';bound=[]
  if not folder.is_dir():return bound
  for path in sorted(folder.glob('*.tsv')):
@@ -27,18 +27,29 @@ def bind_pending(market,game):
    # Process identity plus a monotonic timestamp joins an actual write to its
    # committed SQL world, including when the helper was busy drawing the UI.
    candidate=market.db.execute('SELECT * FROM session_states WHERE pid=? AND created=? AND context=? AND epoch=? AND captured_ms<=? ORDER BY captured_ms DESC LIMIT 1',(pid,created,context,epoch,tick)).fetchone()
-   if not candidate:continue
    from lineup_data import databases
    dbs=databases(raw,Path(game));calendars=[d for d in dbs if 'career_calendar' in d.tables];users=[d for d in dbs if 'career_users' in d.tables]
    if len(calendars)!=1 or len(users)!=1:continue
    dates=calendars[0].rows('career_calendar',['currdate']);clubs=users[0].rows('career_users',['clubteamid'])
-   state=json.loads(zlib.decompress(candidate['state']));info=state['info']
-   if len(dates)!=1 or len(clubs)!=1 or info['game_date']>dates[0]['currdate'] or info['user_club']!=clubs[0]['clubteamid']:continue
+   if len(dates)!=1 or len(clubs)!=1:continue
    digest=hashlib.sha256(raw).hexdigest()
+   payload=candidate['state'] if candidate else None
+   state=json.loads(zlib.decompress(payload)) if payload else None
+   info=state['info'] if state else {}
+   if info.get('game_date')!=dates[0]['currdate'] or info.get('user_club')!=clubs[0]['clubteamid']:
+    # The calendar may advance faster than the Python worker. An older SQL
+    # world must not be permanently attached to a newly completed native save.
+    # Catch up first, then join only the still-current exact write receipt.
+    expected=dict(pid=pid,created=created,context=context,epoch=epoch,
+                  date=dates[0]['currdate'],club=clubs[0]['clubteamid'],digest=digest)
+    if not current or any(current.get(k)!=v for k,v in expected.items()):continue
+    if current.get('io')!=['write',str(tick),str(save)] or current.get('branch')!=market.branch:continue
+    payload=market.snapshot();state=json.loads(zlib.decompress(payload));info=state['info']
+    if info['game_date']!=dates[0]['currdate'] or info['user_club']!=clubs[0]['clubteamid']:continue
    # A real repeated save can have identical DATA bytes while SQL changed.
    # The newer explicit write wins; ordinary loads never overwrite snapshots.
    newer=market.db.execute('SELECT 1 FROM save_receipts WHERE save_hash=? AND created=? AND write_ms>?',(digest,created,tick)).fetchone()
-   if not newer:market.checkpoint(digest,save,replace=True,state=candidate['state'])
+   if not newer:market.checkpoint(digest,save,replace=True,state=payload)
    market.db.execute('INSERT INTO save_receipts VALUES(?,?,?,?,?,?,?,?)',(ident,digest,info['id'],info['game_date'],pid,created,tick,'native_write'))
    bound.append(dict(event=ident,digest=digest,branch=info['id'],date=info['game_date'],path=str(save)))
   except (OSError,ValueError,KeyError,TypeError,UnicodeError):continue

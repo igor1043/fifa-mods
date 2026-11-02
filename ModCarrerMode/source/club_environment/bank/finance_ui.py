@@ -14,7 +14,7 @@ from loans import parse_date
 
 CLASS=('game','screens','career','server16','ClubFinance');FULL='.'.join(CLASS);PAGE='/'.join(CLASS)
 TABS=(('overview','Visão geral'),('receipts','Receitas'),('expenses','Despesas'),('transfers','Transferências'),('salaries','Salários'),('loans','Dívidas'),('budget','Orçamento'),('settings','Configurações'))
-ROOT_TABS={'contracts':'receipts','tickets':'receipts','tv':'receipts','sponsors':'receipts','statement':'budget','monthly':'overview'}
+ROOT_TABS={'contracts':'receipts','tickets':'receipts','tv':'receipts','sponsors':'receipts','statement':'budget','monthly':'overview','history':'overview','year':'overview'}
 
 def root_tab(key):return ROOT_TABS.get(key.split(':')[0],key.split(':')[0])
 R=b.reg;T=b.this;P=b.prop;EQ=b.equal;CALL=b.call;M=b.MANAGER;ION=b.ION
@@ -29,8 +29,9 @@ def money(s,x,y,w,h,value,size=27,color=BLUE,align=1,compact=False):
 def shell(view,key,tab):
  s=Scene(key,'Finanças do clube');s.rect(60,90,1800,828,PAPER)
  s.text(100,120,1720,58,'FINANÇAS DO CLUBE',40)
- s.text(102,182,1720,34,f"{view.get('club_name','Clube')} · {day(view.get('date'))} · Acompanhamento desde {day(view.get('start'))}",23,MUTED)
+ s.text(102,182,1420,34,f"{view.get('club_name','Clube')} · {day(view.get('date'))} · Acompanhamento desde {day(view.get('start'))}",23,MUTED)
  for i,(target,label) in enumerate(TABS):s.action(100+i*216,234,208,50,label,target,ACCENT if target==tab else LIGHT,ACCENT_TEXT if target==tab else INK,22)
+ if key=='overview':s.action(1560,178,255,38,'Histórico anual','history',LIGHT,INK,20)
  s.text(100,876,1715,30,view.get('message','Receitas adicionais do mod · Valores aplicados à verba de transferências.'),19,MUTED)
  return s
 
@@ -42,14 +43,17 @@ def scenes(view):
  for page in range(pages):
   key='contracts' if page==0 else 'contracts:'+str(page);s=shell(view,key,'receipts');assets={}
   s.text(120,310,1320,40,'TV · CONTRATO POR COMPETIÇÃO',28)
-  s.text(1450,315,350,35,'VALOR POR PARTIDA',21,MUTED,1)
+  s.text(1260,315,540,35,'COTA BASE · CASA / FORA',21,MUTED,1)
   for i,c in enumerate(contracts[page*6:page*6+6]):
    y=367+i*72;s.rect(100,y,1720,65,WHITE)
    from finance_pages import picture
-   from club_finance import match_terms
+   from club_finance import match_terms,tv_payment
    picture(s,assets,'crest',view.get('club',0),119,y+9,42,46);picture(s,assets,'competition',c['asset'],175,y+7,46,49)
-   s.text(240,y+4,1090,33,c['name'],25);s.text(240,y+37,1090,24,'Vigência: temporada da carreira · Somente partidas efetivamente disputadas',18,MUTED)
-   money(s,1400,y+15,400,36,match_terms(c,view.get('date') or 0)['per_match'],27)
+   terms=match_terms(c,view.get('date') or 0);club=view.get('club',0)
+   home,_=tv_payment(terms,dict(home=club,stageKind=0),club)
+   away,_=tv_payment(terms,dict(home=-1,stageKind=0),club)
+   s.text(240,y+4,940,33,c['name'],25);s.text(240,y+37,940,24,'Simulação por jogo concluído · Mata-mata pode variar por fase',18,MUTED)
+   money(s,1210,y+15,280,36,home,25);money(s,1510,y+15,290,36,away,25)
   if not contracts:s.text(120,390,1600,55,'Os contratos aparecem ao confirmar as competições da carreira.',25,MUTED)
   if pages>1:
    s.action(100,811,155,42,'‹','contracts' if page<=1 else 'contracts:'+str(page-1));s.action(270,811,155,42,'›','contracts:'+str(page+1) if page+1<pages else key)
@@ -62,7 +66,7 @@ def scenes(view):
   for i,row in enumerate(months[page*7:page*7+7]):
    y=410+i*53;s.rect(100,y,1720,47,WHITE if i%2==0 else LIGHT)
    text=str(row['month']);s.text(120,y+6,150,34,text[4:]+'/'+text[:4],22)
-   for x,w,value in ((285,230,row.get('tv',0)),(530,230,row.get('tickets',0)),(775,230,row.get('sponsor',0)),(1020,230,row.get('coach',0)+row.get('staff',0)),(1265,230,row.get('match_costs',0)),(1510,290,row.get('loans',0))):money(s,x,y+6,w,35,value,22)
+   for x,w,value in ((285,230,row.get('tv',0)),(530,230,row.get('tickets',0)),(775,230,row.get('sponsor',0)),(1020,230,row.get('coach',0)+row.get('staff',0)+row.get('facilities',0)),(1265,230,row.get('match_costs',0)),(1510,290,row.get('loans',0))):money(s,x,y+6,w,35,value,22)
   if not months:s.text(120,450,1640,65,'Ainda não há lançamentos. Acompanhe após disputar jogos e avançar o calendário.',25,MUTED)
   if pages>1:
    s.action(100,811,155,42,'‹','statement' if page<=1 else 'statement:'+str(page-1));s.action(270,811,155,42,'›','statement:'+str(page+1) if page+1<pages else key)
@@ -70,7 +74,7 @@ def scenes(view):
  import finance_art as art
  s=shell(view,'settings','settings');assets={}
  s.text(120,308,1670,42,'MODO FINANCEIRO · OPÇÕES DESTA CARREIRA E CLUBE',28)
- labels=('Sistema financeiro · chave geral','Receitas de TV por partida','Bilheteria dos jogos em casa','Salário mensal do técnico','Cobrança automática dos empréstimos','Patrocínio do clube','Comissão técnica','Custos de operação da bilheteria')
+ labels=('Sistema financeiro · chave geral','Receitas de TV por partida','Bilheteria dos jogos em casa','Salário mensal do técnico','Cobrança automática dos empréstimos','Patrocínio do clube','Comissão técnica','Custos de operação da bilheteria','Manutenção e estrutura do clube')
  descriptions=('Controla os acréscimos e débitos do sistema financeiro.',
   'Recebe o contrato da competição por partida concluída.',
   'Receita adicional calculada para jogos como mandante.',
@@ -78,12 +82,13 @@ def scenes(view):
   'Mantém as parcelas e cobra os vencimentos pelo calendário.',
   'Um contrato por clube e temporada, proporcional à reputação.',
   'Equipe de apoio estimada pelo porte do clube, descontada ao mês.',
-  'Percentual da renda bruta dos próximos jogos em casa; histórico preservado.')
+  'Percentual da renda bruta dos próximos jogos em casa; histórico preservado.',
+  'Manutenção do CT e administração; estimativa mensal proporcional ao porte do clube.')
  for i,(kind,label) in enumerate(zip(SWITCHES,labels)):
-  enabled=view.get('settings',{}).get(kind,True);y=354+i*56
-  s.action(100,y,1720,52,'','toggle:'+kind,WHITE,INK,25)
+  enabled=view.get('settings',{}).get(kind,True);y=354+i*49
+  s.action(100,y,1720,46,'','toggle:'+kind,WHITE,INK,25)
   s.actions[-1].update(setting=i,value=not enabled)
-  s.text(125,y+3,1270,27,label,23);s.text(125,y+29,1270,21,descriptions[i],17,MUTED)
+  s.text(125,y+1,1270,25,label,22);s.text(125,y+25,1270,20,descriptions[i],16,MUTED)
   s.text(1420,y+12,230,30,'Ativado' if enabled else 'Desativado',22,BLUE if enabled else MUTED,1);s.nodes[-1]['name']='switchState'+str(i)
   for state in (False,True):
    asset='switch'+str(int(state));assets[asset]=art.switch(state)
@@ -91,6 +96,8 @@ def scenes(view):
  s.text(120,809,1670,24,'A chave geral bloqueia novos créditos e débitos. Desativar mantém o histórico e as dívidas existentes.',18,MUTED)
  s.text(120,840,1670,28,'',20,BLUE);s.nodes[-1]['name']='settingsFeedback'
  packed=s.pack();packed['assets']=assets;result.append(packed)
+ from finance_history_ui import pages as annual_pages
+ result+=annual_pages(view,shell,money)
  # Page chunks keep bounded APT work and original native help/input handling.
  for scene in result:
   # Old ledger descriptions can predate the UTF-8 fix. Repair display strings
@@ -99,10 +106,15 @@ def scenes(view):
   for node in scene['nodes']:
    if 'text' in node:node['text']=clean(node['text'])
   for button in scene['actions']:button['label']=clean(button['label'])
-  scene['back']='receipts' if root_tab(scene['key'])=='receipts' and scene['key'].split(':')[0]!='receipts' else 'overview'
+  scene['back']='history' if scene['key'].startswith('year:') else 'receipts' if root_tab(scene['key'])=='receipts' and scene['key'].split(':')[0]!='receipts' else 'overview'
   buttons=scene['actions']
   scene['scrollPrevious']=next((b['target'] for b in buttons if b['label']=='‹'),scene['key'])
   scene['scrollNext']=next((b['target'] for b in buttons if b['label']=='›'),scene['key'])
+ # The right stick scrolls through the overview's complete income/expense cards.
+ overview_pages=[s for s in result if s['key']=='overview' or s['key'].startswith('overview:')]
+ for i,scene in enumerate(overview_pages):
+  scene['scrollPrevious']=overview_pages[max(0,i-1)]['key']
+  scene['scrollNext']=overview_pages[min(len(overview_pages)-1,i+1)]['key']
  return result
 
 def script(data,dictionaries,items,view):

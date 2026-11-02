@@ -194,5 +194,14 @@ int main(){
     assert(panorama.state==before);
     for(const auto visible:panorama.visible)assert(visible==0);
     assert(!frontend_stadium::panoramaVisibility(123,16,panorama,read));
+    assert(frontend_stadium::sameCareerRoute(true,8,8));
+    assert(!frontend_stadium::sameCareerRoute(true,2,8));
+    assert(!frontend_stadium::sameCareerRoute(true,8,0));
+    assert(frontend_stadium::sameCareerRoute(false,0,0));
+    assert(!frontend_stadium::photographRefreshReady(true,true,0,1000));
+    assert(!frontend_stadium::photographRefreshReady(false,false,0,1000));
+    assert(!frontend_stadium::photographRefreshReady(false,true,14,1000));
+    assert(!frontend_stadium::photographRefreshReady(false,true,12,499));
+    assert(frontend_stadium::photographRefreshReady(false,true,0,500));
     return 0;
 }

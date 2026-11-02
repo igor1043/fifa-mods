@@ -216,3 +216,19 @@ O argumento `--tools` aponta para o bundle local `mascot_rig_adjuster`, que cont
 A compensação e a gravação/leitura das poses do replay foram testadas com os 63 pacotes locais e a matriz capturada do renderizador. As conversões novas passaram na validação offline e aguardam confirmação visual no FIFA. Os pacotes abrangem os 20 clubes da Série A, os 20 da Série B e 19 da Série C cadastrados no banco instalado, mais Brasil, Paulista de Jundiaí, Jabaquara e Fifa Friends Team. O usuário confirmou os mascotes anteriores no jogo local. A rotação relatada no replay de Flamengo/Cruzeiro não foi reproduzida na auditoria dos modelos ou na reconstrução das poses; sua causa na cena ainda precisa ser verificada no jogo. Consulte `ModCarrerMode/logs/mascot_goal_line.log` e o registro `installed version=30` para identificar o build interno; o caminho ativo não tem sufixo de versão.
 
 Revisão 30: a atualização Lua confirma sua conclusão antes de mover o ator e pode tentar novamente após uma falha temporária, mesmo sem trocar de partida. Os wrappers do mascote são instalados uma vez por contexto, preservando os módulos carregados depois. O estado da seleção tem proteção contra reentrada com liberação em finally. Logs incluem processo e thread. Consulte `../common/README.md` para testes e limites da hipótese de concorrência.
+
+
+### Atualização dos 20 técnicos — 01/11/2026
+
+O lote `MANANGER BR` usa os clubes definidos no CSV fornecido, sem substituir
+minifaces. `Build-NativeManagerFromFbx.py` adapta rigs de 43 ossos ao bind nativo
+de 31 ossos e completa skins ausentes ou incompletas. O perfil opcional
+`reviewGarment` uniformiza a transição da roupa entre quadril e tronco;
+`sealSkinSeams` iguala os pesos de vértices coincidentes para evitar costuras
+abertas nas poses. `shoulderSmoothingPasses` permite revisar axilas problemáticas.
+Os perfis estão em `profiles/native_managers_serie_a_20261101.json`.
+
+Veja [a documentação dos técnicos e do isolamento do mercado](../../docs/TECNICOS_SERIE_A_20261101.md).
+O catálogo por identidade não ativa substituição de ator na partida; o mercado
+continua separado do modelo padrão usado fora da carreira. As prévias são
+ensaios offline; a conferência visual em partida continua necessária.

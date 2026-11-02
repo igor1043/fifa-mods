@@ -58,6 +58,7 @@ class ClubFinanceTests(unittest.TestCase):
  def test_pending_salary_waits_for_balance_and_is_not_marked_paid(self):
   disabled=f.toggle(self.state,'sponsor',False,20260511)
   disabled=f.toggle(disabled,'staff',False,20260511)
+  disabled=f.toggle(disabled,'facilities',False,20260511)
   s,b,e=step(disabled,20260531,0)
   self.assertEqual(b,0);self.assertFalse(e);self.assertEqual(s['finance']['entries'][0]['status'],'pending')
   s,b,e=step(s,20260601,1_000_000);self.assertEqual(len(e),1);self.assertEqual(e[0]['paid_date'],20260601)

@@ -926,10 +926,12 @@ int Assets::kit_collar(int team,int kit) {
     }
     resolved_collars_[key]=c;return c;
 }
-CoachAsset Assets::coach(const ClubPlayerRow&club) {
+CoachAsset Assets::coach(const ClubPlayerRow&club,int career_model) {
     CoachAsset out;if(club.team_id<=0||club.team_id>200000)return out;
+    if(career_model<0||career_model>200000)return out;
     std::vector<uint8_t>names;
-    if(!file_range(career_paths::read(root_+"/ModCarrerMode","data\\catalogs","club_manager_fallback.tsv"),0,0,names))return out;
+    if(career_model)out.name="Career manager "+std::to_string(career_model);
+    else if(!file_range(career_paths::read(root_+"/ModCarrerMode","data\\catalogs","club_manager_fallback.tsv"),0,0,names))return out;
     std::istringstream lines(std::string(names.begin(),names.end()));std::string line;
     while(std::getline(lines,line)){char*end=nullptr;long id=strtol(line.c_str(),&end,10);
         if(id!=club.team_id||end==line.c_str()||*end!='|')continue;
@@ -941,7 +943,7 @@ CoachAsset Assets::coach(const ClubPlayerRow&club) {
      * another-club fallback. The SLC has its own skin/bone palette, not the
      * player's 400 bones. Use its verified compact embedded rig; unsupported
      * SLC layouts keep their original static mesh without re-rigging. */
-    std::string base="data/sceneassets/slc/specificmanager_"+std::to_string(club.team_id)+"_0_0";
+    std::string base=career_model?"data/sceneassets/manager_market/"+std::to_string(career_model)+"/model_0":"data/sceneassets/slc/specificmanager_"+std::to_string(club.team_id)+"_0_0";
     std::vector<uint8_t>raw;std::vector<Part>parts;Texture diffuse;Skeleton coach_rig;
     if(!read(base+".rx3",raw)||!read_mesh(raw,parts))return out;
     bool rig_ok=read_coach_skeleton(raw,coach_rig);

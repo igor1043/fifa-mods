@@ -19,4 +19,12 @@ cl /nologo /O2 /W3 /EHsc /std:c++17 /utf-8 /MT "%MASCOT_SOURCE%\test_mascot_view
 if errorlevel 1 exit /b 1
 test_mascot_view.exe
 if errorlevel 1 exit /b 1
+cl /nologo /O2 /W3 /EHsc /std:c++17 /utf-8 /MT "%MASCOT_SOURCE%\test_manager_model_scope.cpp" /Fe:test_manager_model_scope.exe
+if errorlevel 1 exit /b 1
+test_manager_model_scope.exe
+if errorlevel 1 exit /b 1
+cl /nologo /O2 /W3 /EHsc /std:c++17 /utf-8 /MT "%MASCOT_SOURCE%\test_coach_model_identity.cpp" miniz_tinfl.obj /Fe:test_coach_model_identity.exe /link user32.lib gdi32.lib ole32.lib d3d11.lib d3dcompiler.lib dxgi.lib psapi.lib windowscodecs.lib bcrypt.lib
+if errorlevel 1 exit /b 1
+test_coach_model_identity.exe
+if errorlevel 1 exit /b 1
 popd

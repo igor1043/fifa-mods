@@ -155,10 +155,11 @@ def finance_schema(db):
     db.execute("INSERT OR IGNORE INTO finance_meta VALUES('schema',1)")
 
 def finance_rules(save):
-    from club_finance import DEFAULT_RULES,LEGACY_RULES,rules
+    from club_finance import DEFAULT_RULES,LEGACY_RULES,PREVIOUS_RULES,rules
     path=path_for(save);backup=path.with_name('server16_loans.before-finance-v1.sqlite3')
     backup_v2=path.with_name('server16_loans.before-finance-v2.sqlite3')
-    backups=[p for p in (backup,backup_v2) if path.exists() and not p.exists()]
+    backup_v4=path.with_name('server16_loans.before-finance-v4.sqlite3')
+    backups=[p for p in (backup,backup_v2,backup_v4) if path.exists() and not p.exists()]
     for backup in backups:
         # SQLite backup includes a consistent database even with WAL enabled.
         source=sqlite3.connect(path,timeout=3);target=sqlite3.connect(backup)
@@ -170,8 +171,12 @@ def finance_rules(save):
             # Update only untouched prototype defaults. SQL customizations and
             # all saved agreements/entries remain intact; apply() versions them.
             for key,old in LEGACY_RULES.items():
-                db.execute('UPDATE finance_rules SET value=? WHERE key=? AND value=?',(DEFAULT_RULES[key],key,old))
+                db.execute('UPDATE finance_rules SET value=? WHERE key=? AND value=?',(PREVIOUS_RULES[key],key,old))
             db.execute("INSERT INTO finance_meta VALUES('calibration_v2',2)")
+        if not db.execute("SELECT 1 FROM finance_meta WHERE key='calibration_v4'").fetchone():
+            for key,old in PREVIOUS_RULES.items():
+                db.execute('UPDATE finance_rules SET value=? WHERE key=? AND value=?',(DEFAULT_RULES[key],key,old))
+            db.execute("INSERT INTO finance_meta VALUES('calibration_v4',4)")
         db.executemany('INSERT OR IGNORE INTO finance_rules VALUES(?,?)',DEFAULT_RULES.items())
         return rules(dict(db.execute('SELECT key,value FROM finance_rules')))
 
@@ -182,7 +187,8 @@ def write_finance(db,checkpoint,state):
     club=state['club']
     if book['club']!=club:raise ValueError('Clube divergente nas finanças')
     db.execute('INSERT OR REPLACE INTO finance_preferences VALUES(?,?,?)',(checkpoint,club,encode(book['settings'])))
-    for table in ('finance_agreements','finance_entries','finance_commercial','finance_attendance'):
+    db.execute('CREATE TABLE IF NOT EXISTS finance_years(checkpoint TEXT,club INTEGER,year INTEGER,payload_json TEXT NOT NULL,PRIMARY KEY(checkpoint,club,year))')
+    for table in ('finance_agreements','finance_entries','finance_commercial','finance_attendance','finance_years'):
         db.execute('DELETE FROM '+table+' WHERE checkpoint=? AND club=?',(checkpoint,club))
     for row in book['agreements'].values():
         db.execute('INSERT INTO finance_agreements VALUES(?,?,?,?,?,?,?,?,?)',
@@ -194,6 +200,8 @@ def write_finance(db,checkpoint,state):
         db.execute('INSERT INTO finance_commercial VALUES(?,?,?,?)',(checkpoint,club,int(season),encode(row)))
     for key,row in book.get('attendance',{}).items():
         db.execute('INSERT INTO finance_attendance VALUES(?,?,?,?)',(checkpoint,club,key,encode(row)))
+    for year,row in book.get('years',{}).items():
+        db.execute('INSERT INTO finance_years VALUES(?,?,?,?)',(checkpoint,club,int(year),encode(row)))
 
 
 def credit_rules(save):

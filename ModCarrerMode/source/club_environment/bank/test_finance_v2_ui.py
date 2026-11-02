@@ -16,7 +16,7 @@ class FinanceV2UI(unittest.TestCase):
   self.assertFalse(any(n=='SendSystemEvent' and a[1]=='Server16SubmitBank' for n,a in calls))
  def test_all_new_switches_use_original_wire_indexes_and_immediate_visual_state(self):
   self.assertEqual(SWITCHES[4],'loans')
-  for kind in ('sponsor','staff','match_costs'):
+  for kind in ('sponsor','staff','match_costs','facilities'):
    v=view();vm,s,calls=open_finance(v)
    settings=next(i for i,p in enumerate(ui.scenes(v)) if p['key']=='settings')
    vm.invoke(s.get('Go'),s,[settings]);at=SWITCHES.index(kind);s.set('focus',len(ui.TABS)+at)

@@ -17,9 +17,259 @@
       "sha256": "4435f70808925092d885a38ab979f5fcfc13d0e7b57c06958668e37151419b21"
     },
     {
+      "path": "ModCarrerMode/data/club_environment/room/clubs/1035/mural.png",
+      "sha256": "f18c418e33dbdba15b6cfb458d64ddb5de3a9da26087826111352a197423964a",
+      "bytes": 2761956
+    },
+    {
+      "path": "ModCarrerMode/data/club_environment/room/clubs/1039/mural.png",
+      "sha256": "13732ad8b6bd1044df9492520fa8bfed6c28c6fb5d1fe29f62cc02da111d1aa3",
+      "bytes": 2816657
+    },
+    {
+      "path": "ModCarrerMode/data/club_environment/room/clubs/1041/mural.png",
+      "sha256": "34bd21711d9302e510605756cc8b4514f66ba6aac1f61aedf27573b40d040965",
+      "bytes": 3001609
+    },
+    {
+      "path": "ModCarrerMode/data/club_environment/room/clubs/1043/hydration.png",
+      "bytes": 2509513,
+      "sha256": "09e20e8ab82fc8165742b6a77dd48915ce1e65fb864dd473fb3217bbf41dbe1c"
+    },
+    {
+      "path": "ModCarrerMode/data/club_environment/room/clubs/1043/mural.png",
+      "sha256": "78c2f2a3cbe95cbe74ea256f15ebb9f08a5e270956654936f0525b5083f1527d",
+      "bytes": 2536812
+    },
+    {
+      "path": "ModCarrerMode/data/club_environment/room/clubs/1048/mural.png",
+      "sha256": "f8989222b4ac583a1dec134075cebf72b679575fe6c4ec7e0bfade0026e1de45",
+      "bytes": 2923052
+    },
+    {
+      "path": "ModCarrerMode/data/club_environment/room/clubs/1053/mural.png",
+      "sha256": "ec95e1ddf60506038b7f514e388ffac232ddab63d18a5699a8a46caa1fb5e164",
+      "bytes": 2853979
+    },
+    {
+      "path": "ModCarrerMode/data/club_environment/room/clubs/111041/mural.png",
+      "sha256": "91879e292a50c4c8d5f7899f6aa0d049184d6d9fe0db5d6b2b055208127e56d1",
+      "bytes": 2952275
+    },
+    {
+      "path": "ModCarrerMode/data/club_environment/room/clubs/111042/mural.png",
+      "sha256": "7a82c5193147f009e5f3cafa0c003a5f488c1c21b73571b29c84b45434df79df",
+      "bytes": 2770926
+    },
+    {
+      "path": "ModCarrerMode/data/club_environment/room/clubs/111043/mural.png",
+      "sha256": "50f26401cd37391bfbf7485a8d7953a69ab48070eb232418de2cb8b33f0e6d81",
+      "bytes": 2973444
+    },
+    {
+      "path": "ModCarrerMode/data/club_environment/room/clubs/111044/mural.png",
+      "sha256": "e16b008c3941a79ddebd1257e90a7907ec55839afb8b66073abb2192353a2686",
+      "bytes": 2896963
+    },
+    {
+      "path": "ModCarrerMode/data/club_environment/room/clubs/111046/mural.png",
+      "sha256": "93f42118f1807681264843e0f4418485944fd09d781b81776dd0379a8669092c",
+      "bytes": 2776519
+    },
+    {
+      "path": "ModCarrerMode/data/club_environment/room/clubs/111050/mural.png",
+      "sha256": "6a97015e7598271f7e7cfeb9260a8eb148d6e5017694ac852d7252d3d5c5d05e",
+      "bytes": 3033879
+    },
+    {
+      "path": "ModCarrerMode/data/club_environment/room/clubs/111052/mural.png",
+      "sha256": "058228b030db13d8ba62b2106a65918dd18b02aed42d534cbfbd1533acc1714b",
+      "bytes": 2932744
+    },
+    {
+      "path": "ModCarrerMode/data/club_environment/room/clubs/111057/mural.png",
+      "sha256": "ceb9c0004da972e2b61f9871606c9f3f0055188b666604ceb213d63a13fd1fe9",
+      "bytes": 2783008
+    },
+    {
+      "path": "ModCarrerMode/data/club_environment/room/clubs/111059/mural.png",
+      "sha256": "ccebb6a95f591a25e62331f26380d8902a4c680de960e7f2b34104bc6b4fcf4e",
+      "bytes": 2774513
+    },
+    {
+      "path": "ModCarrerMode/data/club_environment/room/clubs/111976/mural.png",
+      "sha256": "d284ac58e54a467badce8167b0f1e41adec8f1e6c1063faaf000e0ad4419e5a6",
+      "bytes": 2949997
+    },
+    {
+      "path": "ModCarrerMode/data/club_environment/room/clubs/112001/mural.png",
+      "sha256": "dca6d2e0627f47461eb420e5ebb259489044367be9b47e5bcd7f9d4fdf02f459",
+      "bytes": 2568501
+    },
+    {
+      "path": "ModCarrerMode/data/club_environment/room/clubs/112119/mural.png",
+      "sha256": "8cb185ef0f74792e61f18d5665604ba05e01be1db9203341ee333fed01acb7c7",
+      "bytes": 2612027
+    },
+    {
+      "path": "ModCarrerMode/data/club_environment/room/clubs/112476/mural.png",
+      "sha256": "02c638687ede8f9fc44bce031dd717cbaf5ef30878c5490fdc4cc780c484de92",
+      "bytes": 2880063
+    },
+    {
+      "path": "ModCarrerMode/data/club_environment/room/clubs/113116/mural.png",
+      "sha256": "ccaed3760d1579247d5b0959d77131593b5648161cf74e6f7325da5458639805",
+      "bytes": 3040905
+    },
+    {
+      "path": "ModCarrerMode/data/club_environment/room/clubs/113163/mural.png",
+      "sha256": "23193049573385d9f50838c1bda7fecd8261400a4f5c674ae1068250e6007b0a",
+      "bytes": 2833073
+    },
+    {
+      "path": "ModCarrerMode/data/club_environment/room/clubs/120005/mural.png",
+      "sha256": "c20410b8b0bb0776818d9d2231cf02eb5155dc48af714cb58b81cb5654b6da66",
+      "bytes": 2837043
+    },
+    {
+      "path": "ModCarrerMode/data/club_environment/room/clubs/120006/mural.png",
+      "sha256": "3541a3a1d24c968f478c1f342dbcc053783231bd4d500182f4d894cd4b78dba1",
+      "bytes": 2934798
+    },
+    {
+      "path": "ModCarrerMode/data/club_environment/room/clubs/120016/mural.png",
+      "sha256": "234dcd1746b0bff02fc7f1098b642ab88e8d3db4d7cd047771ed0cf529ba30a4",
+      "bytes": 2793727
+    },
+    {
+      "path": "ModCarrerMode/data/club_environment/room/clubs/123921/mural.png",
+      "sha256": "030790c3856b54b28f728714e12e0d6aac9ffd61e472430374d315923bff112a",
+      "bytes": 3006187
+    },
+    {
+      "path": "ModCarrerMode/data/club_environment/room/clubs/130021/mural.png",
+      "sha256": "13bbaed1db4f7aff47f6e8b4bc83c9c66734de6168b46c6e4273c27a0d96f54a",
+      "bytes": 2910557
+    },
+    {
+      "path": "ModCarrerMode/data/club_environment/room/clubs/130026/mural.png",
+      "sha256": "085a88d8b296fdd248db1b510a3b0e48634819c3856f3e238cc59c67f339506b",
+      "bytes": 3016214
+    },
+    {
+      "path": "ModCarrerMode/data/club_environment/room/clubs/130028/mural.png",
+      "sha256": "15058dcf57501257d761eac4688c34788588bbd28fda0ccbad330092442fa695",
+      "bytes": 2688490
+    },
+    {
+      "path": "ModCarrerMode/data/club_environment/room/clubs/130045/mural.png",
+      "sha256": "dbfbc1417d72aef93ce154ab644f55e735188ffcf2391d17c6b56b10d034e101",
+      "bytes": 2816259
+    },
+    {
+      "path": "ModCarrerMode/data/club_environment/room/clubs/130046/mural.png",
+      "sha256": "e5a972187ae240ca5488233902a1d483d8185024f8bd5523bfab3cfce6f306e4",
+      "bytes": 2792199
+    },
+    {
+      "path": "ModCarrerMode/data/club_environment/room/clubs/130388/mural.png",
+      "sha256": "a171653a6b93579464a1fd6c76b81efd604575d629b1c696d72c0d897ca0d0ff",
+      "bytes": 2987578
+    },
+    {
+      "path": "ModCarrerMode/data/club_environment/room/clubs/1598/mural.png",
+      "sha256": "6723a730498ea301aac4f4f69731e62d919c3cc1ea9663c581d31e389a907e11",
+      "bytes": 2997175
+    },
+    {
+      "path": "ModCarrerMode/data/club_environment/room/clubs/1629/mural.png",
+      "sha256": "a646624ca10791628dacf447699fd485b33f22196fc01e474354f2897f349b0c",
+      "bytes": 2856266
+    },
+    {
+      "path": "ModCarrerMode/data/club_environment/room/clubs/1719/mural.png",
+      "sha256": "f4cf99698a4d285afcf02bbc3d77d9364e2fd9ebb977094af6bf31ab7fe3db64",
+      "bytes": 2630573
+    },
+    {
+      "path": "ModCarrerMode/data/club_environment/room/clubs/383/mural.png",
+      "sha256": "79cb9b8aec2d627ca303c4de3cd2c695a123c79f056c770e5fcfb628c0afcc9f",
+      "bytes": 2997002
+    },
+    {
+      "path": "ModCarrerMode/data/club_environment/room/clubs/517/mural.png",
+      "sha256": "de8a733d178028a2075fddf4e976282a4369c15ed249b103c707265a9a30bb61",
+      "bytes": 2970546
+    },
+    {
+      "path": "ModCarrerMode/data/club_environment/room/clubs/567/mural.png",
+      "sha256": "36ceecc9cec1ca044a340648936dbfdb0e4f142439d66e5197d34e9edcb60b67",
+      "bytes": 2762525
+    },
+    {
+      "path": "ModCarrerMode/data/club_environment/room/clubs/568/mural.png",
+      "sha256": "d838598b76639496e2274765ecd43a2049b97de9ecf655ea09db43ed25b3f2ea",
+      "bytes": 2901717
+    },
+    {
+      "path": "ModCarrerMode/data/club_environment/room/clubs/569/mural.png",
+      "sha256": "fa37e9bc8992c8536336cd58d7aa9744df7c649011e34b9a3aa1d774d27d1db7",
+      "bytes": 2935123
+    },
+    {
+      "path": "ModCarrerMode/data/club_environment/room/clubs/598/mural.png",
+      "sha256": "fad8b07bda8c860db0649457e404977df05e66482c5858f00b1641540500f26d",
+      "bytes": 2747834
+    },
+    {
+      "path": "ModCarrerMode/data/club_environment/room/clubs/README.md",
+      "sha256": "b52d95d0bd78e54355926f9413da3d2df817ac4ab662a7fa7bba8ea6c902037f",
+      "bytes": 452
+    },
+    {
+      "path": "ModCarrerMode/data/club_environment/room/clubs/serie-a-b.json",
+      "sha256": "dc978d676701cf4b4e01ef7e8f1e48f451ba4b4aaf4129ce2f0468f5f27dbe6e",
+      "bytes": 16332
+    },
+    {
+      "path": "ModCarrerMode/data/club_environment/room/external/grab3d-water-cooler/LICENSE.txt",
+      "sha256": "01908a56d6cada52704b20c5094c2aa16c9d8be6f124349c986764067abfd921",
+      "bytes": 760
+    },
+    {
+      "path": "ModCarrerMode/data/club_environment/room/external/grab3d-water-cooler/SOURCE.txt",
+      "sha256": "10ee7564167a78220e82043ce3314d779db7e126b98c8b4d7f75650210453fca",
+      "bytes": 221
+    },
+    {
+      "path": "ModCarrerMode/data/club_environment/room/external/grab3d-water-cooler/manifest.json",
+      "sha256": "36a1f9a6451416d303272011109572e947258d18c8f7892766a5bdfd342e9a12",
+      "bytes": 1442
+    },
+    {
+      "path": "ModCarrerMode/data/club_environment/room/external/grab3d-water-cooler/water-cooler.glb",
+      "sha256": "8f48f85aa4d88c50d836ed96fc2657bcf8bda49b0aa43794671aeabed548c853",
+      "bytes": 675304
+    },
+    {
+      "path": "ModCarrerMode/data/club_environment/room/runtime/medical_room_r57.json",
+      "sha256": "df67eecef1667e95e268a9b619e885017fdd033502a1657c6b96f38dc1b3b99d",
+      "bytes": 6063
+    },
+    {
       "path": "ModCarrerMode/data/club_environment/room/runtime/prop_102.rx3",
       "bytes": 76912,
       "sha256": "9a9a8fe6908c2a2f7459568544d2461b509d340e3f249cbd2b291ac8bb71b688"
+    },
+    {
+      "path": "ModCarrerMode/data/club_environment/room/runtime/room_roles_r62.json",
+      "sha256": "105578917a1bc947b609bb8eef70c730ee2dd1b470bde6bfa401a078830690e5",
+      "bytes": 225006
+    },
+    {
+      "path": "ModCarrerMode/data/club_environment/room/secondary-wall.json",
+      "sha256": "1fe51298e810b3c4093dd8e4aae270fa44dfc99197251c6939098875d8f7c802",
+      "bytes": 261
     },
     {
       "path": "data/sceneassets/server16_dressing_room_20261022/ceiling_r49.rx3",
@@ -27,9 +277,39 @@
       "sha256": "e2429e32afd1bf06f341617892beeeed68318c2c347b7c04be8d3e01c0459391"
     },
     {
+      "path": "data/sceneassets/server16_dressing_room_20261022/ceiling_r71.rx3",
+      "sha256": "74f4a0406b254c3b4b4c18a501434a2cc7113709946fc073bc39c0979403fa73",
+      "bytes": 349872
+    },
+    {
+      "path": "data/sceneassets/server16_dressing_room_20261022/ceiling_r72.rx3",
+      "sha256": "74f4a0406b254c3b4b4c18a501434a2cc7113709946fc073bc39c0979403fa73",
+      "bytes": 349872
+    },
+    {
+      "path": "data/sceneassets/server16_dressing_room_20261022/coach_room_r76.json",
+      "sha256": "285a98698f06d32d8869a4034dc03c83ecaa1a4ed11d9a2c3ff89afc1ab9ea9e",
+      "bytes": 2679
+    },
+    {
+      "path": "data/sceneassets/server16_dressing_room_20261022/coach_room_r76.rx3",
+      "sha256": "08280bb80d2b3d5b611832828d70ae912d8fb6eb134e72055c5cb0969ac691d0",
+      "bytes": 450992
+    },
+    {
       "path": "data/sceneassets/server16_dressing_room_20261022/contact_shadow_r51.rx3",
       "bytes": 22160,
       "sha256": "9266871347e1205f96ec224d8af6e6e21e90b34d013e945b5829aed89bce5417"
+    },
+    {
+      "path": "data/sceneassets/server16_dressing_room_20261022/cooler_body_r72.rx3",
+      "sha256": "e4d8c046d7fd33b0648a3eb45c13a1bcb04a26dbb766a4dbddbe0b79e0103d53",
+      "bytes": 5592784
+    },
+    {
+      "path": "data/sceneassets/server16_dressing_room_20261022/cooler_glass_r72.rx3",
+      "sha256": "a6a6a2ea9819ed2b68819ac5c8a7d69f075476b83f8ca2b6fc5aa2189e6a44bb",
+      "bytes": 336
     },
     {
       "path": "data/sceneassets/server16_dressing_room_20261022/crest_surfaces_r62.rx3",
@@ -37,9 +317,49 @@
       "sha256": "5df3f688d72f949a7d8648a8ee1d7720c6685900794e957b96ac5a367b7259ce"
     },
     {
+      "path": "data/sceneassets/server16_dressing_room_20261022/crest_surfaces_r72.rx3",
+      "sha256": "9947f7727b000a99be63e210afceedba65bc9a7f13a9caf6a89cda89da3ecb9f",
+      "bytes": 8464
+    },
+    {
+      "path": "data/sceneassets/server16_dressing_room_20261022/crest_surfaces_r75.rx3",
+      "sha256": "9785964ec85c44ca7cec3119b76e468471d72987bd180a88786aa19e90a4f448",
+      "bytes": 8464
+    },
+    {
+      "path": "data/sceneassets/server16_dressing_room_20261022/crest_surfaces_r76.rx3",
+      "sha256": "eee3755ddf50b55585732b397620dd53ce2fb036d9e53802a2a4599ae8b7d67c",
+      "bytes": 7600
+    },
+    {
+      "path": "data/sceneassets/server16_dressing_room_20261022/crest_surfaces_r77.rx3",
+      "sha256": "eee3755ddf50b55585732b397620dd53ce2fb036d9e53802a2a4599ae8b7d67c",
+      "bytes": 7600
+    },
+    {
       "path": "data/sceneassets/server16_dressing_room_20261022/floor_shadows_r56.rx3",
       "bytes": 1696,
       "sha256": "911cee858f32cf4c072db8f6744af17fd9951d318f4a7214ee1f3e192f3fd163"
+    },
+    {
+      "path": "data/sceneassets/server16_dressing_room_20261022/floor_shadows_r72.rx3",
+      "sha256": "51099d2cd3e6939f39af006555fee2a33237779a597ddb1ad986269ec5e1838d",
+      "bytes": 1696
+    },
+    {
+      "path": "data/sceneassets/server16_dressing_room_20261022/floor_shadows_r75.rx3",
+      "sha256": "f26ebae551f39820fa5d740bc266b8773111411e646ff99ba868a12740a05b12",
+      "bytes": 1696
+    },
+    {
+      "path": "data/sceneassets/server16_dressing_room_20261022/floor_shadows_r76.rx3",
+      "sha256": "2790e3aaabb142e00fc0745cd26c296ae086e99471841c613128632dd41af292",
+      "bytes": 2144
+    },
+    {
+      "path": "data/sceneassets/server16_dressing_room_20261022/floor_shadows_r77.rx3",
+      "sha256": "5e413204ef02e88365ec697d1c51c5c4b01314b678a0bd7ff0a57ede03eb757e",
+      "bytes": 2464
     },
     {
       "path": "data/sceneassets/server16_dressing_room_20261022/floor_shadows_texture_r56.rx3",
@@ -57,6 +377,86 @@
       "sha256": "4435f70808925092d885a38ab979f5fcfc13d0e7b57c06958668e37151419b21"
     },
     {
+      "path": "data/sceneassets/server16_dressing_room_20261022/hanging_hardware_r71.rx3",
+      "sha256": "4435f70808925092d885a38ab979f5fcfc13d0e7b57c06958668e37151419b21",
+      "bytes": 448
+    },
+    {
+      "path": "data/sceneassets/server16_dressing_room_20261022/interior_r71.json",
+      "sha256": "8baaa951a3d1179b3cad70ec14ef7f586b38f0705f0c32e1f40285c41ac65f5d",
+      "bytes": 2954
+    },
+    {
+      "path": "data/sceneassets/server16_dressing_room_20261022/interior_r71.rx3",
+      "sha256": "1b7f849122f6b3b5e838d10737e80e76fa15ca0b894974c66487c94dc2a22fb6",
+      "bytes": 208336
+    },
+    {
+      "path": "data/sceneassets/server16_dressing_room_20261022/interior_r72.json",
+      "sha256": "1800da0f07eecd31f56326e5db3cc132569b0e5a2c79d754436fad1f14061f04",
+      "bytes": 2950
+    },
+    {
+      "path": "data/sceneassets/server16_dressing_room_20261022/interior_r72.rx3",
+      "sha256": "3cbe9d05f245a9a3c29bead31420d55c6ea113c04fcc93da468e7b04b1dcc54a",
+      "bytes": 502064
+    },
+    {
+      "path": "data/sceneassets/server16_dressing_room_20261022/interior_r73.rx3",
+      "sha256": "f59ad6b3fd10191f3ba5a90e57932a0bc7d5511b77b902392e02b2c65e4e7c19",
+      "bytes": 502064
+    },
+    {
+      "path": "data/sceneassets/server16_dressing_room_20261022/interior_r74.json",
+      "sha256": "626a94d5f561bfc24185565a41fdf8fea238ba925927942d8d9a699bdb57a3ff",
+      "bytes": 3116
+    },
+    {
+      "path": "data/sceneassets/server16_dressing_room_20261022/interior_r74.rx3",
+      "sha256": "54abb26c284f8131bb3bd59f85e307efe6cd109e7d44399a7a640d2e898bcf3f",
+      "bytes": 504592
+    },
+    {
+      "path": "data/sceneassets/server16_dressing_room_20261022/interior_r75.json",
+      "sha256": "97ee811c0432e2d8f8b865bc8796e9efda905161d4746a8487941faca775b353",
+      "bytes": 4099
+    },
+    {
+      "path": "data/sceneassets/server16_dressing_room_20261022/interior_r75.rx3",
+      "sha256": "49ba06a9b121a7be8155b7d642fd518b9f4a00a34c649187aa3de0498b2de616",
+      "bytes": 557728
+    },
+    {
+      "path": "data/sceneassets/server16_dressing_room_20261022/interior_r76.json",
+      "sha256": "7106fb5416557d4c8d68e3113d4a3981b6a17b6107f094fe06d4179d2497560d",
+      "bytes": 4099
+    },
+    {
+      "path": "data/sceneassets/server16_dressing_room_20261022/interior_r76.rx3",
+      "sha256": "e392c25e83a804f67a2410edb9b4c712a5e7be8fdd586146e358fb6354c5f107",
+      "bytes": 582272
+    },
+    {
+      "path": "data/sceneassets/server16_dressing_room_20261022/interior_r77.json",
+      "sha256": "c85c9ecb1b9a2601c0d8cfec4dd96b97a7336930a3e87253045925371e1e5cb3",
+      "bytes": 4099
+    },
+    {
+      "path": "data/sceneassets/server16_dressing_room_20261022/interior_r77.rx3",
+      "sha256": "61196ae0e254bc496b0d395323a5ff362b2dbb05651a7450b57071b52e0dd860",
+      "bytes": 612752
+    },
+    {
+      "path": "data/sceneassets/server16_dressing_room_20261022/interior_r78.json",
+      "bytes": 4670,
+      "sha256": "b4475640d29a1b43fb87e07d2771fb02bd4104b952acc38f3fd3b7bc37384503"
+    },
+    {
+      "path": "data/sceneassets/server16_dressing_room_20261022/interior_r78.rx3",
+      "bytes": 841856,
+      "sha256": "e8bbcf88beefdbfbdc42cddaf8a1a6d1d5414e6011fcd86db0ea4d173416ae45"
+    },
+    {
       "path": "data/sceneassets/server16_dressing_room_20261022/loading_error_r56.rx3",
       "bytes": 2796592,
       "sha256": "0418118ae5e10bd198c96a3871b358af745fad8bcfb99d069bc5744079875375"
@@ -70,6 +470,11 @@
       "path": "data/sceneassets/server16_dressing_room_20261022/loading_slate_texture_r56.rx3",
       "bytes": 2796592,
       "sha256": "6e15964a43ac6be1bec22958d23813e4053c1ca4285541e49abe2d5746dc78cc"
+    },
+    {
+      "path": "data/sceneassets/server16_dressing_room_20261022/locker_support_r68.rx3",
+      "sha256": "18291b1a9477506588aa7ce186a0995cdc51c5d09d3cf4500570f3a2c2c7e610",
+      "bytes": 3600
     },
     {
       "path": "data/sceneassets/server16_dressing_room_20261022/medical_bottle_025ef487ecf6.rx3",
@@ -112,6 +517,31 @@
       "sha256": "31f0a730f17499d44c6b4c366f58a35f5d48955ebedebc16d666d042913807af"
     },
     {
+      "path": "data/sceneassets/server16_dressing_room_20261022/medical_room_r71.rx3",
+      "sha256": "b0694ccc8dc0eadceaf11bba6aa7b635f92bbb170eedc08b747d603dea01825b",
+      "bytes": 202896
+    },
+    {
+      "path": "data/sceneassets/server16_dressing_room_20261022/medical_room_r72.rx3",
+      "sha256": "a285d4ef474b295d26e591012daf9dddccde1e95a37387c350dcc790c839a6df",
+      "bytes": 202896
+    },
+    {
+      "path": "data/sceneassets/server16_dressing_room_20261022/medical_room_r75.rx3",
+      "sha256": "a2f0296f858523be03a7a9dbddbaa3eeba17751b8e75d013c6247df5e9f2fe5e",
+      "bytes": 202896
+    },
+    {
+      "path": "data/sceneassets/server16_dressing_room_20261022/medical_room_r77.json",
+      "sha256": "f53df1f3cfbbd2c102017dba66b8e3ce25f767d4adb16e44ab8ed3ad4d6a4af3",
+      "bytes": 6019
+    },
+    {
+      "path": "data/sceneassets/server16_dressing_room_20261022/medical_room_r77.rx3",
+      "sha256": "7727b9f6a4893dfa023885fd8006e71e2bd37d1a684013da9af0caa2f3fe0f4e",
+      "bytes": 472528
+    },
+    {
       "path": "data/sceneassets/server16_dressing_room_20261022/medical_rubber_55bdb84412c9.rx3",
       "bytes": 22160,
       "sha256": "30a2b304a98d403e8eb886aa2e8b22d80f21b656267ad38cb808287daf0b493d"
@@ -132,9 +562,19 @@
       "sha256": "2ff0012dc7282b8dee497d84f96945f7eaced5062358595e236f065013367ef0"
     },
     {
+      "path": "data/sceneassets/server16_dressing_room_20261022/native_hanging_0_r71.rx3",
+      "sha256": "91c470bdbc6a70eb62c1c141e190303e1f5aa8e165c4e6a2f9dc285109549b70",
+      "bytes": 261728
+    },
+    {
       "path": "data/sceneassets/server16_dressing_room_20261022/native_hanging_2_r50.rx3",
       "bytes": 229040,
       "sha256": "9477a3a765d16ad1ede3d1bf255aea30202f21b625313996c258a964a66a0139"
+    },
+    {
+      "path": "data/sceneassets/server16_dressing_room_20261022/native_hanging_2_r71.rx3",
+      "sha256": "794c042753ec3142a682705149d4432340f76496d23f2344b63ab7fc90268a6d",
+      "bytes": 257120
     },
     {
       "path": "data/sceneassets/server16_dressing_room_20261022/print_surface.rx3",
@@ -142,9 +582,54 @@
       "sha256": "a3e2643f2cbf28ae9045124bd82187d90c1ad32e50d68d285fb3ae9d281a1a79"
     },
     {
+      "path": "data/sceneassets/server16_dressing_room_20261022/room_layout_r72.json",
+      "sha256": "3ce8fe30afd4c336e3bef3bd313d50d37d48b14e573ffb2332b788652681cbdc",
+      "bytes": 257098
+    },
+    {
+      "path": "data/sceneassets/server16_dressing_room_20261022/room_layout_r75.json",
+      "sha256": "1393146dd65460707051615332741550cf5e3f7d3010b8b817ba4beb455c30d1",
+      "bytes": 257096
+    },
+    {
+      "path": "data/sceneassets/server16_dressing_room_20261022/room_layout_r76.json",
+      "sha256": "e12ba9a4194c3aa79f79d9918b000fb528bcedede681d03e18da659cb5e8d51e",
+      "bytes": 255042
+    },
+    {
+      "path": "data/sceneassets/server16_dressing_room_20261022/room_layout_r77.json",
+      "sha256": "8b2a49c1d81b243b6f647412d73deae07fa503c9d2e424c3181e14dc67d022dc",
+      "bytes": 257368
+    },
+    {
       "path": "data/sceneassets/server16_dressing_room_20261022/room_roles_r62.rx3",
       "bytes": 6740752,
       "sha256": "bcbde7a10a6d4d6fd4d36b2a86245936c7f4109f4e4377a17ad94b5cd3022dee"
+    },
+    {
+      "path": "data/sceneassets/server16_dressing_room_20261022/room_roles_r71.rx3",
+      "sha256": "720009d862b8f59eec238ebf80cd617bffc5684e06c3653744f095d0c236272c",
+      "bytes": 6022080
+    },
+    {
+      "path": "data/sceneassets/server16_dressing_room_20261022/room_roles_r72.rx3",
+      "sha256": "bb265f2f2c3676f4e2457c06d75440b271481188621c86b36431f737da9a0173",
+      "bytes": 6029856
+    },
+    {
+      "path": "data/sceneassets/server16_dressing_room_20261022/room_roles_r75.rx3",
+      "sha256": "9be0291df527596fc10a057c58b0eb058b64ee79423b632a9fc5693fb675e465",
+      "bytes": 6033728
+    },
+    {
+      "path": "data/sceneassets/server16_dressing_room_20261022/room_roles_r76.rx3",
+      "sha256": "0598604ac74edb5a38389f74be8efea1629bfea88364517cb14d19228550475f",
+      "bytes": 5100000
+    },
+    {
+      "path": "data/sceneassets/server16_dressing_room_20261022/room_roles_r77.rx3",
+      "sha256": "1bbf9808fa6056ca87d96a33224d0a475bc078b1f395c5a175ffd4d18bd42ede",
+      "bytes": 5100336
     },
     {
       "path": "data/sceneassets/server16_dressing_room_20261022/room_white_r49.rx3",
@@ -157,15 +642,76 @@
       "sha256": "5a2e16e124b339d405a21885ef21ef9eec5ba4fdf2bb753df48e76c5621b81f9"
     },
     {
+      "path": "data/sceneassets/server16_dressing_room_20261022/scenery_r71.rx3",
+      "sha256": "616ceccc2c6c90f9313f3942cca12eb562f308d47100e2911fc6e06bce931de0",
+      "bytes": 94960
+    },
+    {
+      "path": "data/sceneassets/server16_dressing_room_20261022/scenery_r72.rx3",
+      "sha256": "e4a71beeb3e799f1c01706c7a94899306405a88cae883d87670d93b2527db8eb",
+      "bytes": 94960
+    },
+    {
+      "path": "data/sceneassets/server16_dressing_room_20261022/scenery_r75.rx3",
+      "sha256": "3eda45446f6b3d2fd05b47b575753291b3842fc35581f15588687219f44512f1",
+      "bytes": 94960
+    },
+    {
+      "path": "data/sceneassets/server16_dressing_room_20261022/scenery_r76.rx3",
+      "sha256": "526050d90712ddd1e7cc193fa1061e7a6f5748fddf1a8745494fdc942decbd21",
+      "bytes": 46816
+    },
+    {
+      "path": "data/sceneassets/server16_dressing_room_20261022/scenery_r77.rx3",
+      "sha256": "1f59390855d6df8d62b8fc14bff2f5523f751956ab3507dcb02ee7909e4d98b0",
+      "bytes": 46816
+    },
+    {
       "path": "data/sceneassets/server16_dressing_room_20261022/scenery_textures_0_r62.rx3",
       "bytes": 5592768,
       "sha256": "1d7017b30ed1ff23b96e7945f3f29bc48653ea9c67afdc4e77af3b10740c8de5"
     },
     {
+      "path": "data/sceneassets/server16_dressing_room_20261022/scenery_textures_0_r71.rx3",
+      "sha256": "e989fe8e913a088aec372ca9d008dac57842d1089e3c351cc55203d2a472ad3f",
+      "bytes": 5592768
+    },
+    {
+      "path": "data/sceneassets/server16_dressing_room_20261022/scenery_textures_0_r72.rx3",
+      "sha256": "e989fe8e913a088aec372ca9d008dac57842d1089e3c351cc55203d2a472ad3f",
+      "bytes": 5592768
+    },
+    {
       "path": "data/sceneassets/server16_dressing_room_20261022/scenery_textures_1_r62.rx3",
       "bytes": 5592768,
       "sha256": "de1c970063e492635ac88afb5709894b1eda9c6694938f8e72a1cbe0e0f0a012"
+    },
+    {
+      "path": "data/sceneassets/server16_dressing_room_20261022/scenery_textures_1_r71.rx3",
+      "sha256": "59642df22457ef5c51984f9fde1517f3aef334453318d050711e9977758b2e2f",
+      "bytes": 5592768
+    },
+    {
+      "path": "data/sceneassets/server16_dressing_room_20261022/scenery_textures_1_r72.rx3",
+      "sha256": "59642df22457ef5c51984f9fde1517f3aef334453318d050711e9977758b2e2f",
+      "bytes": 5592768
+    },
+    {
+      "path": "data/sceneassets/server16_dressing_room_20261022/water_cooler_r72.rx3",
+      "sha256": "0edfdd905e5fa574d54194c82238745a887b389ae99e977f234a78c2c1b3a768",
+      "bytes": 244000
+    },
+    {
+      "path": "data/sceneassets/server16_dressing_room_20261022/water_cooler_r75.rx3",
+      "sha256": "df69fa505b7ba1b1a6cbfbacbf388f3b1bb549488b9de0938247e3b01339f5ec",
+      "bytes": 244000
+    },
+    {
+      "path": "data/sceneassets/server16_dressing_room_20261022/water_cooler_r78.rx3",
+      "bytes": 244000,
+      "sha256": "9b130aa0a36a7b549a0778bea729f7978d2e77599499e5466715bf772c978336"
     }
   ],
-  "room_revision": 62
+  "room_revision": 62,
+  "local_revision": "20261102-hydration-r78"
 }
