@@ -37,7 +37,9 @@ def render_package(request):
  if not cached:
   # Failed validation must never leave an apparently reusable cache entry.
   temporary=path.with_name(path.stem+'.building.big')
-  try:build(GAME,temporary,request['model']);os.replace(temporary,path)
+  try:
+   result=build(GAME,temporary,request['model']);os.replace(temporary,path)
+   if isinstance(result,dict):log('visual_prepared',**{k:result[k] for k in ('bytes','template_cached','reused_blocks','seconds') if k in result})
   finally:temporary.unlink(missing_ok=True)
  return cached,time.perf_counter()-started
 def log(event,**values):

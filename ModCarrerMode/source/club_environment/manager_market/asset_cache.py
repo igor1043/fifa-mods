@@ -4,7 +4,7 @@ PNG/JSON only, never pickle. A changed portrait, loose logo, archive, database,
 theme or generator invalidates the cache. No club/coach career stats live here.
 """
 from pathlib import Path
-import hashlib,io,json,os,zipfile,sqlite3,csv
+import hashlib,io,json,os,zipfile,sqlite3,csv,re
 from contextlib import closing
 from PIL import Image
 
@@ -26,7 +26,14 @@ def competition_ids(game,model):
   except sqlite3.Error:pass
  try:
   for row in csv.reader((game/'dlc/dlc_FootballCompEng/dlc/FootballCompEng/data/compdata/compobj.txt').read_text(encoding='utf-8-sig').splitlines()):
-   if len(row)>=3 and row[1]=='3' and row[2].startswith('C') and row[2][1:].isdigit():ids.add(int(row[2][1:]))
+   if len(row)>=3 and row[1]=='3':
+    if row[2].startswith('C') and row[2][1:].isdigit():ids.add(int(row[2][1:]))
+    # Native honours can retain the localized trophy identity (e.g. 1009)
+    # while the installed competition uses C100. Include both before a cup
+    # is won; a new title must not invalidate every portrait in the market.
+    if len(row)>3:
+     label=re.fullmatch(r'(?:Trophy|League)Name(?:_Abbr\d+)?_(\d+)',row[3])
+     if label:ids.add(int(label[1]))
  except OSError:pass
  return ids
 

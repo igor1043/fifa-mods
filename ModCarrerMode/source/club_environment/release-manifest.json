@@ -128,8 +128,8 @@
     },
     {
       "path": "ModCarrerMode/data/catalogs/asset_complement.json",
-      "bytes": 657484,
-      "sha256": "9e4b615b654ca0578650d7f67a0e41ab70f576e2a9fe5ff8188f7457891ed173"
+      "bytes": 657468,
+      "sha256": "f38218b6d7142ad77fc6a2952d477e65b8b9872694c6d5c5fa396e45abdef837"
     },
     {
       "path": "ModCarrerMode/data/catalogs/presentation_assets.json",
@@ -628,18 +628,18 @@
     },
     {
       "path": "ModCarrerMode/data/manager_market/interface/catalogue.big",
-      "bytes": 29677611,
-      "sha256": "49d090ed6ede2230a814e2f16592cb94352967521cbd3961c0687a4414003e13"
+      "bytes": 29679291,
+      "sha256": "ee7f9f6b84c90282f47dd90db786c6fdf7dce5a55ca89991026cf8a3f44b91aa"
     },
     {
       "path": "ModCarrerMode/data/manager_market/interface/catalogue.json",
-      "bytes": 3570622,
-      "sha256": "78209eb80656f668736f15262156485a879e4db6d5cffc96ac7d2511c93e5d03"
+      "bytes": 3571030,
+      "sha256": "fbece09538ac3eff429872b022d397dbdcd64e9f54fc7df8c401fd658ee93c14"
     },
     {
       "path": "ModCarrerMode/data/manager_market/interface/recipe.json",
       "bytes": 209,
-      "sha256": "014f05a9aad9fa091caa815b806973913bcc5e9df001e3b0f5bd9c2a770f077f"
+      "sha256": "6935cf5ade22198c94fee3ee60ced36219667cff67151388248defd6cf220813"
     },
     {
       "path": "ModCarrerMode/data/manager_market/manager_models.json",
@@ -8377,6 +8377,11 @@
       "sha256": "e78e7a75b090ac5fdd779134034e6cdea5ef8d11c6bb054bb1f99c6647ae0b38"
     },
     {
+      "path": "ModCarrerMode/docs/MANAGER_VISUAL_FAST_20261102.md",
+      "bytes": 2219,
+      "sha256": "9dea9474f6fe6dd245b4b3ac995dd516554d4c593a75b317d84c8bab015a55c1"
+    },
+    {
       "path": "ModCarrerMode/docs/MASCOTE_E_RECURSOS_20261101.md",
       "bytes": 3694,
       "sha256": "286e1d529781a8ab572c39ea0b744ca7165f083519f68cfe97625f8391915576"
@@ -10308,8 +10313,8 @@
     },
     {
       "path": "ModCarrerMode/source/club_environment/manager_market/asset_cache.py",
-      "bytes": 4594,
-      "sha256": "dc1bf206110223f352a349d26c139224d512b11a0de9ed9b76bed4001010aab2"
+      "bytes": 4958,
+      "sha256": "98eedbf739ff1cf0d8862eebed7d0193f8bc86b48f8f8a6bee718df617800a77"
     },
     {
       "path": "ModCarrerMode/source/club_environment/manager_market/board_confidence.py",
@@ -10468,8 +10473,13 @@
     },
     {
       "path": "ModCarrerMode/source/club_environment/manager_market/screen.py",
-      "bytes": 37586,
-      "sha256": "d4c297649816094aa99e4004098413675e5db547578b5e1186e1d854e32d92f8"
+      "bytes": 38493,
+      "sha256": "ec299739a145d70629f68ea5b7cb3a6d58d469aa1a84109157b0be1b2398330d"
+    },
+    {
+      "path": "ModCarrerMode/source/club_environment/manager_market/template_renderer.py",
+      "bytes": 4304,
+      "sha256": "e154e8f17cbd70bfa2b4aa2f1647cecebe35ef5fc734d06b9f2b40a84bd5d286"
     },
     {
       "path": "ModCarrerMode/source/club_environment/manager_market/test_annual_history.py",
@@ -10563,8 +10573,8 @@
     },
     {
       "path": "ModCarrerMode/source/club_environment/manager_market/test_prepared_catalogue.py",
-      "bytes": 2561,
-      "sha256": "ec49524f037a7386b436cdc9f8dba6b3f9dc73500ad42f661aa2e85faa7dc3d9"
+      "bytes": 3153,
+      "sha256": "d0f64f6dd37fe174729998bd0dd1e9f4e842164efcad661352d2f29ef1f73db3"
     },
     {
       "path": "ModCarrerMode/source/club_environment/manager_market/test_presentation.py",
@@ -10597,6 +10607,11 @@
       "sha256": "c5af381439ac8153989e4ace34f04998de3255f3bff31acb5b53af2ace186ea9"
     },
     {
+      "path": "ModCarrerMode/source/club_environment/manager_market/test_template_renderer.py",
+      "bytes": 3328,
+      "sha256": "7a4db8bfb457fd35add3b8881cdeaee8805e97f55db6f8a10f2d30562ec3e1f0"
+    },
+    {
       "path": "ModCarrerMode/source/club_environment/manager_market/test_worker.py",
       "bytes": 13495,
       "sha256": "39e828b2f2b9d8e90f19533f30a94651e8c552dca8a915630f4eb619de7b09c6"
@@ -10613,8 +10628,8 @@
     },
     {
       "path": "ModCarrerMode/source/club_environment/manager_market/worker.py",
-      "bytes": 23739,
-      "sha256": "59f095c2afa5ddf172aee44f3d87338d749aad2f18fa214b6cb26c422ed45b0f"
+      "bytes": 23897,
+      "sha256": "1bc38c0cd288cd519f39dab74c90decfff3dee5d843df1d48f8a80d85a21284b"
     },
     {
       "path": "ModCarrerMode/source/club_environment/market/README.md",
@@ -11668,8 +11683,8 @@
     },
     {
       "path": "README.md",
-      "bytes": 37550,
-      "sha256": "ab0ffbc76cfe391ac40a692de544e76c154359bb3afa412426d4b47001fe10f7"
+      "bytes": 37980,
+      "sha256": "5768f34850aefe7b037a13ad620e8149ab73b2664333c534f3c92f497583e5ea"
     },
     {
       "path": "ScoreBoardGBD/XXX - EI Maxx CN/game/globalcomponents/globalcomponents.big",
@@ -16278,8 +16293,8 @@
     },
     {
       "path": "data/ui/game/screens/career/server16/managermarket.big",
-      "bytes": 149322,
-      "sha256": "80bd957789931f949cdd860fe111b27bd08d558eef14f91e7f5e50c33f910eee"
+      "bytes": 494480,
+      "sha256": "5911e1228b9427a21beb27ab756c57d2247c18b50cab6157a3ff965665ca11e8"
     },
     {
       "path": "data/ui/game/screens/career/server16/markethubbootstrap.big",
@@ -17662,5 +17677,6 @@
   "live_career_revision": "2026-11-02 / evolving live graph / scoped saves / future coach eligibility",
   "cups_revision": "2026-11-02 / phase ordering and campaign sample",
   "annual_history_revision": "2026-11-02 / calendar-year archives / same-save checkpoints",
-  "manager_market_local_review": "20261102-polish-sampled-calendar-save-discard"
+  "manager_market_local_review": "20261102-polish-sampled-calendar-save-discard",
+  "manager_visual_revision": "20261102-R2 / stable trophy identities / reusable compressed art / compact typed records"
 }

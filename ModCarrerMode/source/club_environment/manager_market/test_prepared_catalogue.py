@@ -28,5 +28,12 @@ class PreparedCatalogueTest(unittest.TestCase):
     self.assertEqual(folder/'catalogue.big',prepared_catalogue.template(game,self.model(),'g','revision'))
     self.assertIsNone(prepared_catalogue.template(game,self.model(),'other code','revision'))
    with patch.object(prepared_catalogue,'fingerprint',return_value='other art'):self.assertIsNone(prepared_catalogue.template(game,self.model(),'g','revision'))
+ def test_native_trophy_alias_is_cached_before_the_first_title(self):
+  with tempfile.TemporaryDirectory() as tmp:
+   game=Path(tmp);folder=game/'dlc/dlc_FootballCompEng/dlc/FootballCompEng/data/compdata';folder.mkdir(parents=True)
+   (folder/'compobj.txt').write_text('1407,3,C100,TrophyName_Abbr15_1009,1384\n')
+   model=self.model();changed=copy.deepcopy(model);changed['people'][0]['career']['titles']=[dict(competition=1009)]
+   self.assertEqual({100,1009},asset_cache.competition_ids(game,model))
+   self.assertEqual(asset_cache.revision(game,model),asset_cache.revision(game,changed))
 
 if __name__=='__main__':unittest.main()

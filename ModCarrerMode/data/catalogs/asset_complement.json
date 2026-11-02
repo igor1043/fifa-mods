@@ -1,7 +1,7 @@
 {
   "schema": 1,
-  "release": "FIFA Friends V12 / 2026-11-02",
-  "purpose": "External assets; cumulative index with an incremental ZIP over the 30 October full complement.",
+  "release": "FIFA Friends V12 / 2026-11-02 R2",
+  "purpose": "Cumulative assets: 30 October base + 02 November delta + manager visual R2.",
   "groups": {
     "robson_layout": 296,
     "substitution_audio": 15,
@@ -462,20 +462,20 @@
     },
     {
       "path": "ModCarrerMode/data/manager_market/interface/catalogue.big",
-      "bytes": 29677611,
-      "sha256": "49d090ed6ede2230a814e2f16592cb94352967521cbd3961c0687a4414003e13",
+      "bytes": 29679291,
+      "sha256": "ee7f9f6b84c90282f47dd90db786c6fdf7dce5a55ca89991026cf8a3f44b91aa",
       "group": "manager_interface"
     },
     {
       "path": "ModCarrerMode/data/manager_market/interface/catalogue.json",
-      "bytes": 3570622,
-      "sha256": "78209eb80656f668736f15262156485a879e4db6d5cffc96ac7d2511c93e5d03",
+      "bytes": 3571030,
+      "sha256": "fbece09538ac3eff429872b022d397dbdcd64e9f54fc7df8c401fd658ee93c14",
       "group": "manager_interface"
     },
     {
       "path": "ModCarrerMode/data/manager_market/interface/recipe.json",
       "bytes": 209,
-      "sha256": "014f05a9aad9fa091caa815b806973913bcc5e9df001e3b0f5bd9c2a770f077f",
+      "sha256": "6935cf5ade22198c94fee3ee60ced36219667cff67151388248defd6cf220813",
       "group": "manager_interface"
     },
     {

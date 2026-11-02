@@ -8,6 +8,12 @@ O FIFA Friends V12 reúne melhorias para acompanhar seu clube, personalizar a ex
 
 **Server16 incluído:** 0.2.19. As DLLs compiladas ficam nesta branch, organizadas em uma pasta por mod. O [índice dos módulos ativos](ModCarrerMode/mods/README.md) informa arquivos, funções e configurações.
 
+**Revisão R2 de 02/11 — mercado de técnicos:** corrigida a reconstrução de imagens
+provocada pelos IDs alternativos de títulos. A tela reutiliza os blocos gráficos
+comprimidos e compila registros compactos da carreira. Requer também o pequeno
+complemento `FIFA-Friends-Assets-Delta-Mercado-Tecnicos-20261102-R2.zip` sobre os
+anteriores. [Medições e detalhes](ModCarrerMode/docs/MANAGER_VISUAL_FAST_20261102.md).
+
 A combinação Git + ZIP é agora verificada em uma pasta vazia, sem caches do desenvolvedor, incluindo igualdade entre o módulo embutido no EXE e o fonte publicado.
 
 ## Entrega — 02/11/2026

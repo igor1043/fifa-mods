@@ -528,3 +528,9 @@ ModCarrerMode/source/mascot_photographer/mascot_native_animation.h -text whitesp
 
 # Keep archive downloads byte-identical to the native release inputs.
 ModCarrerMode/source/career_native/src/host/dinput8_wrapper.def -text whitespace=cr-at-eol
+
+ModCarrerMode/docs/MANAGER_VISUAL_FAST_20261102.md -text whitespace=cr-at-eol
+
+ModCarrerMode/source/club_environment/manager_market/template_renderer.py -text whitespace=cr-at-eol
+
+ModCarrerMode/source/club_environment/manager_market/test_template_renderer.py -text whitespace=cr-at-eol

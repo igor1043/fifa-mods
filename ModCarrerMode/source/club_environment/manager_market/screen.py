@@ -8,19 +8,21 @@ import native_screen as native
 import manager_layout
 import profile_layout
 import profile_controller,profile_art
-import asset_cache,club_portraits,prepared_catalogue
+import asset_cache,club_portraits,prepared_catalogue,template_renderer
 from manager_layout import assets_for,scenes_for,stars,TABS,MAIN,club_xy,free_xy,move_xy,PAGE_SIZE,MOVE_TOP,MOVE_HEIGHT
 
 CLASS=('game','screens','career','server16','ManagerMarket');FULL='.'.join(CLASS)
-UI_SIGNATURE=hashlib.sha256(Path(__file__).read_bytes()+b''.join(Path(m.__file__).read_bytes() for m in (manager_layout,profile_layout,profile_controller,profile_art,asset_cache,club_portraits,prepared_catalogue,native,b,bank_art))).hexdigest()
+UI_SIGNATURE=hashlib.sha256(Path(__file__).read_bytes()+b''.join(Path(m.__file__).read_bytes() for m in (manager_layout,profile_layout,profile_controller,profile_art,asset_cache,club_portraits,prepared_catalogue,template_renderer,native,b,bank_art))).hexdigest()
 GEOMETRY_SIGNATURE=hashlib.sha256(b''.join(Path(m.__file__).read_bytes() for m in (manager_layout,profile_layout,profile_art,native,b,bank_art))).hexdigest()
 R=b.reg;T=b.this;P=b.prop;EQ=b.equal;CALL=b.call;PATH=b.path;M=b.MANAGER;ION=b.ION
 def arr(v):return ('array',tuple(v))
 
-def packed_array(values):
+def packed_array(values,schemas):
  values=list(values)
- if not values or any(type(v) not in (str,int,float) or '\x1f' in str(v) for v in values):return arr(values)
- return CALL(R(1),'DecodeFields','\x1f'.join(('s' if isinstance(v,str) else 'n')+str(v) for v in values))
+ if not values or any(not (type(v) in (str,int,float) or v==arr([])) or '\x1c' in str(v) for v in values):return arr(values)
+ schema=tuple('a' if v==arr([]) else 's' if type(v) is str else 'i' if type(v) is int else 'n' for v in values)
+ index=schemas.setdefault(schema,len(schemas))
+ return CALL(R(1),'ReadRecord'+str(index),'\x1c'.join('' if v==arr([]) else str(v) for v in values))
 
 def profile_payload(person):
  # Store data as strings in the APT constant pool, not 2,000 generated
@@ -86,18 +88,31 @@ def script_factory(model,assets):
     a.expr(target);a.expr(col);a.expr(CALL(R(1),'DecodeRows' if nested else 'DecodeFields',ix(T('profileParts'),part)));a.op(79)
    a.expr(T('profileLoaded'));a.expr(T('person'));a.expr(True);a.op(79)
   a.function('EnsureProfile',0,ensure_profile)
+  schemas={}
   for batch_index,batch in enumerate(batches):
    def append_batch(a,batch=batch):
     for kind,key,value in batch:
      if kind=='hide':a.set(P(T(key),value),'_visible',False)
      elif kind=='reset':a.set(R(1),key,arr([]))
-     elif kind=='profile':a.do(T('people'),'push',arr([value['name'],*value['details'],arr([]),arr([]),value['head'],value['reputation'],value['nationality'],value.get('flag','flag_0'),value['age'],value.get('style','Equilibrado'),value.get('formation','Não informada') if value.get('formation')!='Não informada' else 'Formação pendente',value.get('freeDays',''),f"{int(value['salary']):,}".replace(',','.'),value.get('secondaryStyle',''),native.fit(value['name'],470,26),native.fit(value['nationality'],293,18),native.fit(value['nationality'],445,19),native.fit(value['nationality'],259,17),arr([]),arr([]),arr([]),arr([]),arr([]),profile_payload(value)]))
+     elif kind=='profile':a.do(T('people'),'push',packed_array([value['name'],*value['details'],arr([]),arr([]),value['head'],value['reputation'],value['nationality'],value.get('flag','flag_0'),value['age'],value.get('style','Equilibrado'),value.get('formation','Não informada') if value.get('formation')!='Não informada' else 'Formação pendente',value.get('freeDays',''),f"{int(value['salary']):,}".replace(',','.'),value.get('secondaryStyle',''),native.fit(value['name'],470,26),native.fit(value['nationality'],293,18),native.fit(value['nationality'],445,19),native.fit(value['nationality'],259,17),arr([]),arr([]),arr([]),arr([]),arr([]),profile_payload(value)],schemas))
      elif kind=='value' and key in ('loadingSpells','loadingAwards'):a.do(T(key),'push',arr(value))
      else:
       if kind=='row' and key in ('clubs','moves','hires'):
        value=list(value);value[0]=native.fit(value[0],128 if key=='clubs' else 171,17 if key=='clubs' else 20);value[1]=native.fit(value[1],327 if key=='clubs' else 270,24 if key=='clubs' else 21)
-      a.do(T(key),'push',arr(value) if kind=='row' else value)
+      a.do(T(key),'push',packed_array(value,schemas) if kind=='row' else value)
    a.function('DataBatch'+str(batch_index),0,append_batch)
+  # Split strings in the native VM; convert only the schema's numeric fields.
+  # This avoids emitting a full AVM expression for every field of 2,000 coaches
+  # without replacing it with a costly interpreted loop for every string.
+  for schema,index in schemas.items():
+   def read_record(a,schema=schema):
+    a.set(R(1),'recordFields',CALL(R(2),'split','\x1c'))
+    for column,kind in enumerate(schema):
+     if kind=='s':continue
+     a.expr(T('recordFields'));a.expr(column)
+     a.expr(arr([]) if kind=='a' else floor(mul(ix(T('recordFields'),column),1)) if kind=='i' else mul(ix(T('recordFields'),column),1));a.op(79)
+    a.ret(T('recordFields'))
+   a.function('ReadRecord'+str(index),1,read_record)
   def data_frame(a):
    a.when(('not',P(T('scene1'),'profileCaption')),lambda a:a.ret())
    for i in (0,1,3,4):a.set(T('scene'+str(i)),'_visible',False)
@@ -368,11 +383,11 @@ def build(game,path,model):
  token=hashlib.sha256((GEOMETRY_SIGNATURE+revision).encode()+json.dumps(keys,sort_keys=True).encode()).hexdigest()
  template=root/'native_templates'/('template_'+token+'.big')
  if template.is_file() and template.with_suffix('.json').is_file():
-  try:return native.build_from_template(template,path,script_factory=script_factory(model,{}),full_name=FULL,compression_level=1,data_only=True)
+  try:return template_renderer.build(template,path,script_factory=script_factory(model,{}),full_name=FULL)
   except (OSError,ValueError,KeyError,AssertionError):pass
  prepared=prepared_catalogue.template(game,model,GEOMETRY_SIGNATURE,revision)
  if prepared:
-  try:return native.build_from_template(prepared,path,script_factory=script_factory(model,{}),full_name=FULL,compression_level=1,data_only=True)
+  try:return template_renderer.build(prepared,path,script_factory=script_factory(model,{}),full_name=FULL)
   except (OSError,ValueError,KeyError,AssertionError):pass
  assets=assets_for(game,model)
  # The largest portrait placement is 202 design pixels. Store heads at the
