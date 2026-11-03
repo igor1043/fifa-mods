@@ -8,6 +8,12 @@ O FIFA Friends V12 reúne melhorias para acompanhar seu clube, personalizar a ex
 
 **Server16 incluído:** 0.2.19. As DLLs compiladas ficam nesta branch, organizadas em uma pasta por mod. O [índice dos módulos ativos](ModCarrerMode/mods/README.md) informa arquivos, funções e configurações.
 
+**Revisão R3 de 02/11 — mercado de técnicos:** salvamento confirmado pelo FIFA
+vinculado ao checkpoint SQL, preservando os técnicos na recarga e descartando o
+avanço não salvo. Cálculo do calendário otimizado, montagem visual em processo
+separado e correção do seletor de países que pulava opções. Mantém o complemento
+R2 existente; não exige outro ZIP. [Regras, medições e testes](ModCarrerMode/docs/MANAGER_SAVE_BACKGROUND_20261102.md).
+
 **Revisão R2 de 02/11 — mercado de técnicos:** corrigida a reconstrução de imagens
 provocada pelos IDs alternativos de títulos. A tela reutiliza os blocos gráficos
 comprimidos e compila registros compactos da carreira. Requer também o pequeno

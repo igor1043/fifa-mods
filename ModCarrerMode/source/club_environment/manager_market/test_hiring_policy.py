@@ -19,6 +19,10 @@ class HiringPolicyTest(unittest.TestCase):
  def test_predecessor_nationality_accepts_translations_and_dual_nationality(self):
   self.m.db.execute("UPDATE coaches SET nationality=CASE WHEN coach_id='4' THEN 'Brazil;Italy' ELSE 'Italy' END WHERE branch=? AND coach_id IN ('4','5')",(self.m.branch,))
   self.assertEqual('4',self.choose());self.assertEqual(e.nationalities('Brazil'),e.nationalities('Brasil RS'))
+ def test_league_attraction_is_calculated_once_per_offer_round(self):
+  import hiring_fit
+  with patch.object(hiring_fit,'league_attraction',wraps=hiring_fit.league_attraction) as attraction:
+   self.choose();self.assertEqual(1,attraction.call_count)
  def test_foreign_predecessor_gets_a_small_preference_over_host_country(self):
   self.m.db.execute("UPDATE coaches SET nationality='Italy' WHERE branch=? AND coach_id IN ('1','4')",(self.m.branch,))
   self.assertEqual('4',self.choose())
@@ -53,6 +57,6 @@ class HiringPolicyTest(unittest.TestCase):
    self.m.db.execute('UPDATE market_rules SET value=? WHERE branch=? AND key=?',(value,self.m.branch,key))
   self.m.upgrade_policy();policy=self.m.policy()
   self.assertEqual(e.DEFAULTS['pressure_threshold'],policy['pressure_threshold']);self.assertEqual(2100,policy['max_dismissal_bps']);self.assertEqual(e.DEFAULTS['dismissal_slope_bps'],policy['dismissal_slope_bps']);self.assertEqual(e.DEFAULTS['market_policy_version'],policy['market_policy_version'])
-  self.assertEqual((60,8,7,3),tuple(policy[k] for k in ('min_tenure_days','min_tenure_games','review_gap_days','max_dismissals_year')))
+  self.assertEqual((60,8,5,3),tuple(policy[k] for k in ('min_tenure_days','min_tenure_games','review_gap_days','max_dismissals_year')))
 
 if __name__=='__main__':unittest.main()

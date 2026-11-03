@@ -307,8 +307,14 @@ def script_factory(model,assets):
   a.function('StartScroll',1,lambda a:(a.set(R(1),'dragScroll',R(2)),a.do(R(1),'DragScroll')))
   a.function('ScrollPress',0,lambda a:a.do(P(R(1),'owner'),'StartScroll',sub(P(R(1),'code'),199)))
   a.function('ScrollRelease',0,lambda a:a.set(P(R(1),'owner'),'dragScroll',0))
-  a.function('ScrollFrame',0,lambda a:a.when(lt(0,T('dragScroll')),lambda a:a.do(R(1),'DragScroll')))
+  def scroll_frame(a):
+   a.when(lt(0,T('mouseSelectFrames')),lambda a:a.set(R(1),'mouseSelectFrames',sub(T('mouseSelectFrames'),1)))
+   a.when(lt(0,T('dragScroll')),lambda a:a.do(R(1),'DragScroll'))
+  a.function('ScrollFrame',0,scroll_frame)
   def mouse_down(a):
+   # FIFA can also forward the same mouse click as ADVANCE on release.
+   # The screen-local hit test already dispatched it; swallow only that echo.
+   a.set(R(1),'mouseSelectFrames',4)
    for mode,x,y,height,condition in ((1,945,MOVE_TOP,MOVE_HEIGHT,both(('not',T('profile')),EQ(T('tab'),1))),(2,1815,MOVE_TOP,MOVE_HEIGHT,both(('not',T('profile')),EQ(T('tab'),1))),(3,1824,315,530,both(T('profile'),either(either(EQ(T('profileTab'),1),EQ(T('profileTab'),2)),EQ(T('profileTab'),4))))):
     inside=both(both(lt(x-12,T('_xmouse')),lt(T('_xmouse'),x+14)),both(lt(y-5,T('_ymouse')),lt(T('_ymouse'),y+height+5)))
     a.when(both(condition,inside),lambda a,mode=mode:(a.set(R(1),'dragScroll',mode),a.do(R(1),'DragScroll'),a.ret()))
@@ -347,7 +353,7 @@ def script_factory(model,assets):
    for key in ('BACK','ADVANCE','PRIMARY_SELECT','UP','DOWN','LAS_UP','LAS_DOWN','LEFT','RIGHT','LAS_LEFT','LAS_RIGHT','RAS_LEFT','RAS_RIGHT','RAS_UP','RAS_DOWN','OPTION_LEFT','OPTION_TOP','L1','R1','L2','R2'):
     def handle(a,key=key):
      if key=='BACK':a.do(R(1),'Command',60)
-     elif key in ('ADVANCE','PRIMARY_SELECT'):a.when(('not',T('profile')),lambda a:a.do(R(1),'Command',T('focus')))
+     elif key in ('ADVANCE','PRIMARY_SELECT'):a.when(lt(0,T('mouseSelectFrames')),lambda a:a.ret(True));a.when(('not',T('profile')),lambda a:a.do(R(1),'Command',T('focus')))
      elif key in ('UP','LAS_UP','DOWN','LAS_DOWN'):a.do(R(1),'Move',2 if key in ('UP','LAS_UP') else 3)
      elif key in ('OPTION_LEFT','OPTION_TOP'):a.when(('not',T('profile')),lambda a:a.when(EQ(T('tab'),1),lambda a:a.do(R(1),'Command',add(52 if key=='OPTION_LEFT' else 53,mul(2,lt(43,T('focus'))))),lambda a:a.do(R(1),'Command',50 if key=='OPTION_LEFT' else 51)))
      elif key.startswith('RAS_'):a.when(T('profile'),lambda a:a.do(R(1),'Command',70 if key in ('RAS_LEFT','RAS_UP') else 71),lambda a:a.when(EQ(T('tab'),1),lambda a:a.do(R(1),'Command',add(52 if key in ('RAS_LEFT','RAS_UP') else 53,mul(2,lt(43,T('focus'))))),lambda a:a.do(R(1),'Command',50 if key in ('RAS_LEFT','RAS_UP') else 51)))

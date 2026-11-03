@@ -46,6 +46,15 @@ class NativeScreenTest(unittest.TestCase):
   self.assertEqual(2100,len(state.get('people')));self.assertEqual(2100,len(state.get('clubs')));self.assertLessEqual(metrics['peak_stack'],128)
  def test_lists_tabs_and_immediate_age_nationality_filters(self):
   vm,s,calls=self.open();self.assertEqual(3,len(s.get('filtered')));vm.invoke(s.get('Command'),s,(2,));self.assertGreater(len(s.get('filtered')),0);before=s.get('age');vm.invoke(s.get('Command'),s,(35,));self.assertNotEqual(before,s.get('age'));self.assertEqual(0,len(s.get('filtered')));vm.invoke(s.get('Command'),s,(37,));self.assertEqual(1,s.get('nation'))
+ def test_one_mouse_click_and_native_select_echo_advance_exactly_one_country(self):
+  vm,s,_=self.open();s.set('countries',[[name,'flag_0'] for name in ('Brasil','Dinamarca','Espanha','França')]);s.set('leagues',[[i,name,name,1,'league_1',name] for i,name in enumerate(('Brasil','Dinamarca','Espanha','França'))]);s.set('country',0);s.set('league',0)
+  vm.invoke(s.get('Refresh'),s);s.set('_xmouse',430);s.set('_ymouse',380);s.set('focus',11)
+  for expected in (1,2,3,0):
+   vm.invoke(s.get('onMouseDown'),s);vm.invoke(s.get('onMouseUp'),s)
+   vm.invoke(s.get('LocalEventHandler'),s,(2,None));vm.invoke(s.get('LocalEventHandler'),s,(7,None))
+   self.assertEqual(expected,s.get('country'));self.assertEqual(expected,s.get('league'))
+  for _ in range(4):vm.invoke(s.get('ScrollFrame'),s)
+  vm.invoke(s.get('LocalEventHandler'),s,(2,None));self.assertEqual(1,s.get('country'));self.assertEqual([],vm.errors)
  def test_open_profile_back_and_native_exit(self):
   vm,s,calls=self.open();vm.invoke(s.get('Command'),s,(40,));self.assertTrue(s.get('profile'));vm.invoke(s.get('Command'),s,(60,));self.assertFalse(s.get('profile'));vm.invoke(s.get('Command'),s,(60,));self.assertTrue(any(n=='SendEvent' and 'Back' in args for n,args in calls))
  def test_mouse_clicks_cards_through_art_and_ignores_hidden_scenes(self):

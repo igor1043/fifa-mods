@@ -16,8 +16,8 @@ def league_attraction(club, clubs):
     return max(1,value-max(0,club.get('level',1)-1)*.75)
 
 
-def offer(coach, club, clubs, proposed, policy):
-    rep=float(coach['reputation']);attraction=league_attraction(club,clubs)
+def offer(coach, club, clubs, proposed, policy, *, attraction=None):
+    rep=float(coach['reputation']);attraction=league_attraction(club,clubs) if attraction is None else attraction
     if rep>club['reputation']+policy['max_coach_club_gap']:
         return None
     if rep>attraction+policy['max_coach_league_gap']:

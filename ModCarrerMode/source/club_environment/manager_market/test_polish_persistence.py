@@ -37,6 +37,18 @@ class PersistenceAndPolish(unittest.TestCase):
   sampler.retain(observed,token,dict(date=20260301,rows=[{'played':8}]));sampler.retain(observed,token,dict(date=20260401,rows=[{'played':12}]))
   rows=sampler.drain(observed,token,20260101);self.assertEqual([20260301,20260401],[r['date'] for r in rows]);self.assertEqual([],sampler.drain(observed,token,20260101))
   sampler.retain(observed,token,dict(date=20261201,rows=[]));self.assertEqual([],sampler.drain(observed,('read','2','DATA'),20260101))
+ def test_saving_during_calendar_catchup_preserves_intermediate_dates(self):
+  sampler=Sampler(None,None,None,None,None,None,None,None,None);observed=dict(date=20260501,save=dict(pid=1,process_created_100ns=2,path='DATA'),profile=dict(context_address=3,context_epoch=4,club_id=5))
+  sampler.retain(observed,('read','1','DATA'),dict(date=20260301,rows=[{'played':8}]))
+  self.assertEqual([20260301],[r['date'] for r in sampler.drain(observed,('write','2','DATA'),20260101)])
+  sampler.retain(observed,('read','1','DATA'),dict(date=20260401,rows=[{'played':12}]))
+  sampler.retain(observed,('write','2','DATA'),dict(date=20260501,rows=[{'played':16}]))
+  self.assertEqual([20260401,20260501],[r['date'] for r in sampler.drain(observed,('write','2','DATA'),20260101)])
+ def test_reload_same_file_after_save_starts_a_separate_calendar_timeline(self):
+  sampler=Sampler(None,None,None,None,None,None,None,None,None);observed=dict(date=20260501,save=dict(pid=1,process_created_100ns=2,path='DATA'),profile=dict(context_address=3,context_epoch=4,club_id=5))
+  sampler.retain(observed,('write','2','DATA'),dict(date=20260401,rows=[{'played':12}]))
+  sampler.retain(observed,('read','3','DATA'),dict(date=20260501,rows=[{'played':16}]))
+  self.assertEqual([20260501],[r['date'] for r in sampler.drain(observed,('read','3','DATA'),20260101)])
  def test_replay_uses_the_real_observation_dates_without_inventing_matches(self):
   c=context(20261201);c['clubs']=[dict(club_id=1,league_id=100)]
   sample=dict(date=20260401,rows=[])

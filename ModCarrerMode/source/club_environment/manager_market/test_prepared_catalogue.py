@@ -35,5 +35,15 @@ class PreparedCatalogueTest(unittest.TestCase):
    model=self.model();changed=copy.deepcopy(model);changed['people'][0]['career']['titles']=[dict(competition=1009)]
    self.assertEqual({100,1009},asset_cache.competition_ids(game,model))
    self.assertEqual(asset_cache.revision(game,model),asset_cache.revision(game,changed))
+ def test_subset_of_clubs_keeps_the_full_verified_artwork_pool(self):
+  import json
+  with tempfile.TemporaryDirectory() as tmp:
+   game=Path(tmp);root=game/'ModCarrerMode/data/manager_market/interface';root.mkdir(parents=True)
+   model=self.model();model['clubRows']=[['','','','','crest_1']]
+   metadata=dict(scenes=[dict(nodes=[dict(type='image',asset=key) for key in ('head_face','head_NOTFOUND_DEFAULT','crest_1','crest_2')])])
+   (root/'catalogue.json').write_text(json.dumps(metadata));(root/'recipe.json').write_text(json.dumps(dict(schema=1,geometry='g',sources='full-pool')))
+   def fingerprint(game,basis,revision):
+    return 'full-pool' if {r[4] for r in basis['clubRows']}=={'crest_1','crest_2'} else 'subset'
+   with patch.object(prepared_catalogue,'fingerprint',side_effect=fingerprint):self.assertEqual(root/'catalogue.big',prepared_catalogue.template(game,model,'g','revision'))
 
 if __name__=='__main__':unittest.main()

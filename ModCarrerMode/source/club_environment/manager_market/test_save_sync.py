@@ -55,4 +55,22 @@ class SaveSyncTest(unittest.TestCase):
    for receipt in receipts:worker.log('save_checkpoint_bound',receipt_id=receipt['event'],**{k:v for k,v in receipt.items() if k!='event'})
   value=json.loads((self.root/'logs/service.log').read_text(encoding='utf8'));self.assertEqual('save_checkpoint_bound',value['event']);self.assertEqual('save',value['receipt_id']);self.assertEqual(1,self.m.db.execute('SELECT count(*) FROM save_receipts').fetchone()[0]);self.m.open_save(self.digest,self.save,context(20260120));self.assertEqual(5,len(self.m.rows('results')))
 
+ def test_write_during_engine_work_uses_observation_time_not_commit_time(self):
+  with self.m.db:
+   self.m.advance(context(20260120,matches(5)))
+   self.m.leave(self.m.active(club=1),20260120,'dismissal','Teste');self.m.hire(self.m.one('clubs','club_id',1),20260120,'seed')
+   self.m.capture_session(10,20,30,2,300,observed_ms=150)
+  coach=self.m.active(club=1)['coach_id'];self.event(200)
+  self.assertEqual(1,len(self.bind()));self.m.open_save(self.digest,self.save,context(20260120));self.assertEqual(coach,self.m.active(club=1)['coach_id'])
+ def test_snapshot_journal_survives_branch_discard_until_receipt_is_bound(self):
+  self.capture();old=self.m.branch;self.event()
+  self.m.open_save('another','OTHER',context());self.assertIsNone(self.m.db.execute('SELECT id FROM branches WHERE id=?',(old,)).fetchone())
+  self.assertEqual(1,len(self.bind()));self.m.open_save(self.digest,self.save,context(20260120));self.assertEqual(5,len(self.m.rows('results')))
+ def test_state_first_observed_after_write_cannot_be_attached_to_saved_past(self):
+  self.capture(300);self.event(200);self.assertEqual([],self.bind())
+ def test_unrelated_old_receipts_do_not_decode_native_saves_on_each_poll(self):
+  self.event()
+  with patch('lineup_data.databases',side_effect=AssertionError('No owned snapshot; native decode is unnecessary')):
+   self.assertEqual([],bind_pending(self.m,self.root))
+
 if __name__=='__main__':unittest.main()

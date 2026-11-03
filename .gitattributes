@@ -534,3 +534,4 @@ ModCarrerMode/docs/MANAGER_VISUAL_FAST_20261102.md -text whitespace=cr-at-eol
 ModCarrerMode/source/club_environment/manager_market/template_renderer.py -text whitespace=cr-at-eol
 
 ModCarrerMode/source/club_environment/manager_market/test_template_renderer.py -text whitespace=cr-at-eol
+ModCarrerMode/docs/MANAGER_SAVE_BACKGROUND_20261102.md -text whitespace=cr-at-eol

@@ -41,12 +41,31 @@ def fingerprint(game,model,revision):
  return value
 
 def template(game,model,geometry,revision):
+ if model.get('ready') is False:return None
  root=Path(game)/'ModCarrerMode/data/manager_market/interface';path=root/'catalogue.big'
  try:
   recipe=json.loads((root/'recipe.json').read_bytes())
-  if recipe.get('schema')==1 and recipe.get('geometry')==geometry and recipe.get('sources')==fingerprint(game,model,revision):return path
+  if recipe.get('schema')!=1 or recipe.get('geometry')!=geometry:return None
+  # A promoted/relegated club or another save can use a subset of the already
+  # prepared art. Validate that complete installed pool, not the membership of
+  # today's view, before rebuilding thousands of unchanged images.
+  try:basis=artwork_basis(model,json.loads(path.with_suffix('.json').read_bytes()))
+  except OSError:basis=None
+  if basis is not None:
+   if recipe.get('sources')==fingerprint(game,basis,asset_cache.revision(game,basis)):return path
+  elif recipe.get('sources')==fingerprint(game,model,revision):return path
  except (OSError,ValueError,KeyError):pass
  return None
+
+def artwork_basis(model,metadata):
+ pool={n['asset'] for s in metadata['scenes'] for n in s['nodes'] if n['type']=='image'}
+ heads={p['head']:p for p in model['people']}
+ required=set(heads)|{r[4] for group in ('clubRows','moveRows','hireRows') for r in model[group]}
+ required|={r[1] for p in model['people'] for r in p.get('spellCards',[])}|{r[3] for p in model['people'] for r in p.get('titleCards',[])}
+ if not required<=pool:return None
+ people=[dict(head=key,image=heads.get(key,{}).get('image','minifaces/'+key[5:]+'.png'),career=dict(titles=[]),flag='flag_0') for key in pool if key.startswith('head_')]
+ leagues=[dict(id=l['id'],name=l['name'],country=l['country'],level=l['level'],image=l['image']) for l in model['leagues']]
+ return dict(model,people=people,clubRows=[['','','','',key] for key in pool if key.startswith('crest_')],moveRows=[],hireRows=[],leagues=leagues)
 
 def export(game,model,geometry,revision,built,destination):
  root=Path(destination);root.mkdir(parents=True,exist_ok=True)

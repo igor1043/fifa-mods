@@ -5,20 +5,22 @@ from collections import defaultdict
 KEYS=('hw','hd','hl','aw','ad','al')
 INITIAL=('Vínculo inicial desde o início da carreira','Estimado a partir da ativação do mod')
 
-def retain_closed(market,context=None):
+def retain_closed(market,context=None,appointment=None):
  """Recover only evidence already observed on/before a closed initial spell.
 
  A late current total cannot be backdated. Equality with the handover vector
  is required before enriching the preserved counts with current goal totals.
  """
- appointments=market.rows('appointments','end_date IS NOT NULL')
+ appointments=[appointment] if appointment is not None else market.rows('appointments','end_date IS NOT NULL')
+ appointments=[a for a in appointments if a['origin'] in INITIAL]
+ if not appointments:return
+ club=appointment['club_id'] if appointment is not None else None
  previous=defaultdict(list)
- for r in market.rows('performance_evidence'):previous[r['club_id']].append(r)
- campaigns=market.rows('appointment_campaigns');stored={(r['appointment'],r['season'],r['competition_key']) for r in campaigns}
+ for r in market.rows('performance_evidence','club_id=?' if club is not None else '',(club,) if club is not None else ()):previous[r['club_id']].append(r)
+ campaigns=market.rows('appointment_campaigns','appointment=?' if appointment is not None else '',(appointment['id'],) if appointment is not None else ());stored={(r['appointment'],r['season'],r['competition_key']) for r in campaigns}
  assets={(r['season'],r['competition_key']):r['asset'] for r in reversed(campaigns)}
  current={(r['season'],r['key'],r['club']):r for r in (context or {}).get('performance',[])}
  for a in appointments:
-  if a['origin'] not in INITIAL:continue
   for r in previous[a['club_id']]:
    if r['game_date']>a['end_date'] or r['game_date']<a['start_date']:continue
    key=(a['id'],r['season'],r['competition_key'])
@@ -29,6 +31,9 @@ def retain_closed(market,context=None):
    elif parts[0]=='db':asset=int(parts[1])
    else:
     asset=assets.get((r['season'],r['competition_key']))
+    if asset is None and appointment is not None:
+     known=market.db.execute('SELECT asset FROM appointment_campaigns WHERE branch=? AND season=? AND competition_key=? LIMIT 1',(market.branch,r['season'],r['competition_key'])).fetchone()
+     if known:asset=known[0]
     if asset is None:continue
    values=[r[k] for k in KEYS]
    if candidate and values==[candidate[k] for k in KEYS] and all(k in candidate for k in ('hgf','hga','agf','aga')):values.extend(candidate[k] for k in ('hgf','hga','agf','aga'))

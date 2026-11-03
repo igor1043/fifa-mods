@@ -64,9 +64,9 @@ def protected_branches(market):
  return keep
 
 class Service:
- def __init__(self,background=False):
+ def __init__(self,background=False,render_executor=None):
   self.inputs=Inputs(GAME);self.market=None;self.last_io=None;self.last_signature=None;self.digest=None;self.context=None;self.owner=None;self.publication=None
-  self.executor=ThreadPoolExecutor(max_workers=1,thread_name_prefix='manager-presentation') if background else None
+  self.executor=render_executor if render_executor is not None else ThreadPoolExecutor(max_workers=1,thread_name_prefix='manager-presentation') if background else None
   self.pending=None;self.latest_request=None;self.published_key=None;self.presentation_scope=None;self.model_revision=None;self.model_cache=None;self.render_retry=0;self.load_serial=0
   self.progress=None
  def stage(self,index):
@@ -200,6 +200,7 @@ class Service:
   options=dict(live_leagues=live_leagues)
   if league_only:options['league_only']=True
   context=self.inputs.read(observed,memory,**options);path=Path(saved['path']);db_path=path.parent.parent/'server16_manager_market.sqlite3';digest=context['digest'];owner=(saved['pid'],saved['process_created_100ns'],observed['profile']['context_address'])
+  observed_ms=prepared_views.ticks()
   self.stage(2)
   fresh=self.market is None or self.market.path!=db_path
   if fresh:
@@ -224,7 +225,7 @@ class Service:
     if removed:log('discarded_abandoned_sessions',count=len(removed))
    native_bound=self.market.db.execute('SELECT 1 FROM save_receipts WHERE save_hash=? AND pid=? AND created=? AND write_ms=?',(digest,saved['pid'],saved['process_created_100ns'],int(io.get('access_tick_ms',0)))).fetchone()
    if io.get('operation')=='write' and token!=self.last_io and not native_bound and 'payload_crc32' not in io:self.market.checkpoint(digest,path,replace=True)
-   state_revision=self.market.capture_session(saved['pid'],saved['process_created_100ns'],observed['profile']['context_address'],observed['profile'].get('context_epoch',0),prepared_views.ticks())
+   state_revision=self.market.capture_session(saved['pid'],saved['process_created_100ns'],observed['profile']['context_address'],observed['profile'].get('context_epoch',0),prepared_views.ticks(),observed_ms=observed_ms)
    receipts.extend(bind_pending(self.market,GAME,current=dict(pid=saved['pid'],created=saved['process_created_100ns'],context=observed['profile']['context_address'],epoch=observed['profile'].get('context_epoch',0),date=context['date'],club=context['club'],digest=digest,io=list(token),branch=self.market.branch)))
   # Simulation/persistence commits before rendering. A failed or stale UI build
   # must not replay this load and restore an earlier market on the next poll.
@@ -294,7 +295,8 @@ def main():
   memory.close();return
  service=None;error=None;progress_child=None
  try:
-  service=Service(background=True)
+  from presentation_process import PresentationExecutor
+  service=Service(background=True,render_executor=PresentationExecutor(GAME,process.pid))
   from loading_progress import Progress
   service.progress=Progress(ROOT/'progress.json')
   environment=dict(os.environ)
@@ -314,7 +316,7 @@ def main():
    except Exception as exc:
     message=str(exc)
     if message!=error:log('waiting',error=message);error=message
-   time.sleep(2)
+   time.sleep(.5)
  except psutil.NoSuchProcess:pass
  except Exception as exc:log('failed',error=str(exc),traceback=traceback.format_exc())
  finally:

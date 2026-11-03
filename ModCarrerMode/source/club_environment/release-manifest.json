@@ -8377,6 +8377,11 @@
       "sha256": "e78e7a75b090ac5fdd779134034e6cdea5ef8d11c6bb054bb1f99c6647ae0b38"
     },
     {
+      "path": "ModCarrerMode/docs/MANAGER_SAVE_BACKGROUND_20261102.md",
+      "bytes": 5830,
+      "sha256": "f82cd9b660550fea55e69f1fd4d6c824b2154ca969cd73046bff5e4d244b6275"
+    },
+    {
       "path": "ModCarrerMode/docs/MANAGER_VISUAL_FAST_20261102.md",
       "bytes": 2219,
       "sha256": "9dea9474f6fe6dd245b4b3ac995dd516554d4c593a75b317d84c8bab015a55c1"
@@ -10308,8 +10313,8 @@
     },
     {
       "path": "ModCarrerMode/source/club_environment/manager_market/appointment_campaign.py",
-      "bytes": 8276,
-      "sha256": "0b8ab0965c3c18c7b1a50380c1ac84b2ac87aea7d4cad71a3b46399bea5d19f1"
+      "bytes": 8915,
+      "sha256": "2a28a7032cc331d2bdbb90b2ebb9b73d621bacedc09ece6aad202ad9601911e2"
     },
     {
       "path": "ModCarrerMode/source/club_environment/manager_market/asset_cache.py",
@@ -10353,8 +10358,8 @@
     },
     {
       "path": "ModCarrerMode/source/club_environment/manager_market/engine.py",
-      "bytes": 48625,
-      "sha256": "cdbfc314a89b739130003e32e5d0f5c96d2d521bcc0526a781731c1367d319a1"
+      "bytes": 49957,
+      "sha256": "913c4b523963ff6eada825ab4461c0f6989fa78992b22b675645f441c9d25642"
     },
     {
       "path": "ModCarrerMode/source/club_environment/manager_market/evidence_ownership.py",
@@ -10368,8 +10373,8 @@
     },
     {
       "path": "ModCarrerMode/source/club_environment/manager_market/hiring_fit.py",
-      "bytes": 1347,
-      "sha256": "0baba85796379adc239cb231c3bae2801871903df6b56a77091ca4a9141c8223"
+      "bytes": 1405,
+      "sha256": "a527f0a978cca154c8e8e2473f2102b463995b5ac342c3a5e43c2c77636102b3"
     },
     {
       "path": "ModCarrerMode/source/club_environment/manager_market/import_catalog.py",
@@ -10393,8 +10398,8 @@
     },
     {
       "path": "ModCarrerMode/source/club_environment/manager_market/live_sampler.py",
-      "bytes": 3021,
-      "sha256": "981d4dca28613de76bb19002a2159012f02e405f025b49b155745a09eb2bbb54"
+      "bytes": 3422,
+      "sha256": "41aa56c3c041e39ea3503d61a58867e163843fc0a7628721045c3d2827c274e4"
     },
     {
       "path": "ModCarrerMode/source/club_environment/manager_market/loading_progress.py",
@@ -10443,8 +10448,13 @@
     },
     {
       "path": "ModCarrerMode/source/club_environment/manager_market/prepared_catalogue.py",
-      "bytes": 3054,
-      "sha256": "7522f4703f103917d54ae419bb561426b71b7b576f428cd79ab1c42697cbdcb9"
+      "bytes": 4454,
+      "sha256": "3196103a4d6f65898c3dcf637e6d972b2a8913491a40bf7da7c14860a8e30384"
+    },
+    {
+      "path": "ModCarrerMode/source/club_environment/manager_market/presentation_process.py",
+      "bytes": 4014,
+      "sha256": "2d4839074b065879f3987f5cd090b71bc518b211c1e172382a8c40f021e54378"
     },
     {
       "path": "ModCarrerMode/source/club_environment/manager_market/profile_art.py",
@@ -10468,13 +10478,13 @@
     },
     {
       "path": "ModCarrerMode/source/club_environment/manager_market/save_sync.py",
-      "bytes": 4146,
-      "sha256": "456a5f46b8c9a9ae58df8e461d068bfbf0c562a9567e95a8e0fe32499dc3ec48"
+      "bytes": 4645,
+      "sha256": "f23621f9ddbf75bd403b62ca56f73a672e554813f794f2378c8b63410792e26a"
     },
     {
       "path": "ModCarrerMode/source/club_environment/manager_market/screen.py",
-      "bytes": 38493,
-      "sha256": "ec299739a145d70629f68ea5b7cb3a6d58d469aa1a84109157b0be1b2398330d"
+      "bytes": 38884,
+      "sha256": "cb06a7c118da27c2de27fbdd4ae5c708be42fa96f3d5b0c4cdfa52c7545d93d4"
     },
     {
       "path": "ModCarrerMode/source/club_environment/manager_market/template_renderer.py",
@@ -10533,8 +10543,8 @@
     },
     {
       "path": "ModCarrerMode/source/club_environment/manager_market/test_hiring_policy.py",
-      "bytes": 4727,
-      "sha256": "b558f7aa05a738e6c1e4c94a45a160a42e23e6afe6adc0206a56c5530186205d"
+      "bytes": 4982,
+      "sha256": "3f81c6a84f35c24d31c509a387d2c35162362454803e304ba5251d83e1cbcfb7"
     },
     {
       "path": "ModCarrerMode/source/club_environment/manager_market/test_live_inputs.py",
@@ -10568,18 +10578,23 @@
     },
     {
       "path": "ModCarrerMode/source/club_environment/manager_market/test_polish_persistence.py",
-      "bytes": 5424,
-      "sha256": "f9a5e5f448d3e844bd2263ccfa80a3ae5bf4c2d4a4fb6350a6dd86f4003e6481"
+      "bytes": 6769,
+      "sha256": "3380bcdd4bd1dc9dabf2c1b121a08e22203977759d53dbb39adadc49271e5cad"
     },
     {
       "path": "ModCarrerMode/source/club_environment/manager_market/test_prepared_catalogue.py",
-      "bytes": 3153,
-      "sha256": "d0f64f6dd37fe174729998bd0dd1e9f4e842164efcad661352d2f29ef1f73db3"
+      "bytes": 4050,
+      "sha256": "1d4f49609af0cae1ccdece66177dd43df167fbb8bb1de5d377f244c98db2fcf6"
     },
     {
       "path": "ModCarrerMode/source/club_environment/manager_market/test_presentation.py",
       "bytes": 3660,
       "sha256": "787f8a55489ea0a196ba8eaabb7a625af4763b4abb458a37e09eedf45274b582"
+    },
+    {
+      "path": "ModCarrerMode/source/club_environment/manager_market/test_presentation_process.py",
+      "bytes": 1859,
+      "sha256": "776188c764a898daa571d0cf6cac4d593f42285b90436eedcfe87826cc063fa9"
     },
     {
       "path": "ModCarrerMode/source/club_environment/manager_market/test_progress.py",
@@ -10598,13 +10613,13 @@
     },
     {
       "path": "ModCarrerMode/source/club_environment/manager_market/test_save_sync.py",
-      "bytes": 6455,
-      "sha256": "0b62131a52d56b92057310fbe2c3d06dcaa4bcc1949cb398f0c194d17b07d184"
+      "bytes": 7836,
+      "sha256": "3c4872a46c37b1b26483fc7e14c034b1091e0772a63c4661fe6a53c33341ce05"
     },
     {
       "path": "ModCarrerMode/source/club_environment/manager_market/test_screen.py",
-      "bytes": 19281,
-      "sha256": "c5af381439ac8153989e4ace34f04998de3255f3bff31acb5b53af2ace186ea9"
+      "bytes": 20197,
+      "sha256": "04b2314e1f5ac755ad254359e61c10f00d3674a794c8b9884f7115a216a991b1"
     },
     {
       "path": "ModCarrerMode/source/club_environment/manager_market/test_template_renderer.py",
@@ -10628,8 +10643,8 @@
     },
     {
       "path": "ModCarrerMode/source/club_environment/manager_market/worker.py",
-      "bytes": 23897,
-      "sha256": "1bc38c0cd288cd519f39dab74c90decfff3dee5d843df1d48f8a80d85a21284b"
+      "bytes": 24143,
+      "sha256": "190077416d556c574c6204bc3075e76977433c311066dc0d9b16441eb8b42307"
     },
     {
       "path": "ModCarrerMode/source/club_environment/market/README.md",
@@ -10643,8 +10658,8 @@
     },
     {
       "path": "ModCarrerMode/source/club_environment/market/companion.py",
-      "bytes": 2717,
-      "sha256": "74ad67cdb7c759887e7ade82a92bc0fbf8e092b5696b97e060e4a3d34ed8177b"
+      "bytes": 2930,
+      "sha256": "aca7b7b6b10bd822c8c439171449fa56ce7a31e4c74f23546ed1ee82f5eab08a"
     },
     {
       "path": "ModCarrerMode/source/club_environment/market/fifa_db.py",

@@ -19,6 +19,11 @@ def bind_pending(market,game,current=None):
    if event.get('operation')!='write' or event.get('complete_file')!='1' or event.get('save_type')!='SaveType_Career':continue
    ident=path.stem
    if market.db.execute('SELECT 1 FROM save_receipts WHERE event_id=?',(ident,)).fetchone():continue
+   candidate=market.db.execute('SELECT s.* FROM session_states s LEFT JOIN session_observations o ON o.pid=s.pid AND o.created=s.created AND o.context=s.context AND o.captured_ms=s.captured_ms WHERE s.pid=? AND s.created=? AND s.context=? AND s.epoch=? AND COALESCE(o.observed_ms,s.captured_ms)<=? ORDER BY s.game_date DESC,s.captured_ms DESC LIMIT 1',(pid,created,context,epoch,tick)).fetchone()
+   owner=dict(pid=pid,created=created,context=context,epoch=epoch)
+   # An unrelated old receipt cannot bind a SQL world. Do not repeatedly
+   # reopen and decode its complete FIFA save on every background poll.
+   if candidate is None and (not current or any(current.get(k)!=v for k,v in owner.items())):continue
    save=Path(event['path']);before=save.stat()
    if save.name.upper()!='DATA' or not (save.parent/'INDEX').is_file() or before.st_size!=size:continue
    raw=save.read_bytes()
@@ -26,7 +31,6 @@ def bind_pending(market,game,current=None):
    if int.from_bytes(raw[132:136],'little')!=crc or zlib.crc32(raw[160:])!=crc:continue
    # Process identity plus a monotonic timestamp joins an actual write to its
    # committed SQL world, including when the helper was busy drawing the UI.
-   candidate=market.db.execute('SELECT * FROM session_states WHERE pid=? AND created=? AND context=? AND epoch=? AND captured_ms<=? ORDER BY captured_ms DESC LIMIT 1',(pid,created,context,epoch,tick)).fetchone()
    from lineup_data import databases
    dbs=databases(raw,Path(game));calendars=[d for d in dbs if 'career_calendar' in d.tables];users=[d for d in dbs if 'career_users' in d.tables]
    if len(calendars)!=1 or len(users)!=1:continue

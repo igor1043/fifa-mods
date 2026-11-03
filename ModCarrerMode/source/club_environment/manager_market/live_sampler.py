@@ -7,6 +7,12 @@ def scope(observed,token):
  s=observed['save'];p=observed['profile']
  return s['pid'],s['process_created_100ns'],p['context_address'],p.get('context_epoch',0),p['club_id'],str(s['path']).casefold(),tuple(token)
 
+def same_session(previous,current):
+ # A completed write belongs to the current loaded career. Preserve the
+ # intervening dated observations until the engine has caught up to that
+ # save. A new read (even the same file/date) always starts a fresh timeline.
+ return previous==current or bool(previous and previous[:-1]==current[:-1] and current[-1][0]=='write')
+
 class Sampler:
  def __init__(self,process,game,root,observe,attach,io_event,read,publish,ticks):
   self.process=process;self.game=game;self.root=root;self.observe=observe;self.attach=attach;self.io=io_event;self.read=read;self.publish=publish;self.ticks=ticks
@@ -16,7 +22,8 @@ class Sampler:
  def retain(self,observed,token,live):
   owner=scope(observed,token)
   with self.lock:
-   if owner!=self.owner:self.samples.clear();self.owner=owner
+   if not same_session(self.owner,owner):self.samples.clear()
+   self.owner=owner
    signature=live.get('revision')
    old=self.samples.get(live['date'])
    if old and signature is not None and old['revision']==signature:return
@@ -24,7 +31,7 @@ class Sampler:
    while len(self.samples)>512:self.samples.popitem(last=False)
  def drain(self,observed,token,after):
   with self.lock:
-   if self.owner!=scope(observed,token):return []
+   if not same_session(self.owner,scope(observed,token)):return []
    dates=sorted(d for d in self.samples if d<=observed['date']);result=[dict(date=d,rows=json.loads(zlib.decompress(self.samples[d]['payload']))) for d in dates if d>after]
    for d in dates:self.samples.pop(d,None)
    return result
@@ -39,7 +46,7 @@ class Sampler:
       self.publish(self.root/'read_request.tsv',s,observed['profile'],observed['date'],'0'*64)
       live=self.read(self.root/'live_leagues.tsv',observed,self.ticks());self.retain(observed,token,live)
     except (OSError,ValueError,KeyError,RuntimeError):pass
-    self.stop.wait(.5)
+    self.stop.wait(.2)
   except (OSError,RuntimeError):pass
   finally:
    if memory:memory.close()
