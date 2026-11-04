@@ -13473,8 +13473,8 @@
     },
     {
       "path": "ModCarrerMode/source/tests/test_portable_asset_delta.py",
-      "bytes": 2224,
-      "sha256": "74552c77c443c8f4c1233cbd39be427324613953b8ca47c97498e4f33ddf4d55"
+      "bytes": 2972,
+      "sha256": "47813cd782aa62eb43ad0b778bdc21b9b2cd6348e09c01840acae0d6b5651aa5"
     },
     {
       "path": "ModCarrerMode/source/tests/test_portable_frozen_sources.py",
@@ -13548,8 +13548,8 @@
     },
     {
       "path": "ModCarrerMode/tools/Verify-PortablePackage.py",
-      "bytes": 11154,
-      "sha256": "2464ea713536984c466930dca6323aa678f35462957e312603c82f4e07e5efee"
+      "bytes": 12374,
+      "sha256": "400b68f0e2f1b03a4741e0d9712d5e95f1f5a377ca64b3ca7c591283f6f6d127"
     },
     {
       "path": "ModCarrerMode/tools/club_browser/generate_lineup.exe",
