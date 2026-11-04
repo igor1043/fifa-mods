@@ -27,10 +27,16 @@ def visual_data(profile):
 
 def project(market,user_confidence=None):
  labels=Labels(market.catalog)
+ import json
+ overrides_path=market.catalog.parent/'portrait_overrides.json'
+ overrides=json.loads(overrides_path.read_text(encoding='utf-8')) if overrides_path.is_file() else {}
  info=market.info();today=info['game_date'];people=market.rows('coaches');clubs={r['club_id']:r for r in market.rows('clubs')};appointments=market.rows('appointments');active={r['club_id']:r for r in appointments if r['end_date'] is None};occupied={a['coach_id'] for a in active.values()}
  history={};games={};home={};away={};clubgames={};passages={};coach_results={}
  for a in appointments:history.setdefault(a['coach_id'],[]).append(a)
  results=market.rows('results');campaigns=market.rows('appointment_campaigns');annual=market.rows('annual_campaigns')
+ for person in people:
+  relative=overrides.get(person['coach_id'],'');path=market.catalog.parent/relative
+  if relative and path.is_file() and path.resolve().is_relative_to((market.catalog.parent/'minifaces').resolve()):person['image']=relative
  from evidence_ownership import complete_campaigns,without_complete
  complete=complete_campaigns(appointments,results,campaigns)
  campaigns=without_complete(appointments,campaigns,complete);annual=without_complete(appointments,annual,complete)
@@ -77,7 +83,9 @@ def project(market,user_confidence=None):
   history_years=annual_profile(history.get(ident,[]),coach_results.get(ident,[]),annual_by_person.get(ident,[]),clubs,today)
   rich['years']=history_years;profiles[-1]['yearCards']=annual_cards(history_years,today)
  def row_for(club,a):
-  i=indices[a['coach_id']];p=profiles[i];tenure=str(max(0,elapsed(a['start_date'],today)))+' dias · desde '+stamp(a['start_date'])
+  i=indices[a['coach_id']];p=profiles[i]
+  spell=next((s for s in p['career']['spells'] if s['current'] and s['clubId']==club['club_id']),None)
+  since=spell['start'] if spell else a['start_date'];tenure=str(max(0,elapsed(since,today)))+' dias · desde '+stamp(since)
   return [club['name'],p['name'],tenure,money(a['monthly_wage'])+' / mês','crest_'+str(club['club_id']),p['head'],p['reputation'],i,club['league_id']]
  clubrows=[row_for(c,active[c['club_id']]) for c in sorted(clubs.values(),key=lambda c:alphabetical(c['name'])) if c['club_id'] in active]
  free=[]
@@ -86,9 +94,11 @@ def project(market,user_confidence=None):
   visits=sorted(history.get(p['id'],[]),key=lambda x:x['start_date'],reverse=True);last=clubs.get(visits[0]['club_id'],{}).get('name','Sem clube registrado') if visits else 'Primeiro projeto no mercado'
   free.append([p['name'],p['nationality']+' · '+(str(p['age'])+' anos' if p['age']>=0 else 'Idade pendente'),last,money(p['salary'])+' / mês','',p['head'],p['reputation'],i,0,p['age'],p['nationality'],p['eligible']])
  moves=[]
- for e in sorted(market.rows('movements','kind=\'dismissal\''),key=lambda e:(e['game_date'],e['club_id'],e['coach_id']),reverse=True):
+ for e in sorted(market.rows('movements',"kind IN ('dismissal','resignation','retirement','poached')"),key=lambda e:(e['game_date'],e['club_id'],e['coach_id']),reverse=True):
   if e['coach_id'] not in indices:continue
-  i=indices[e['coach_id']];p=profiles[i];c=clubs.get(e['club_id'],{});moves.append([c.get('name','Clube'),p['name'],stamp(e['game_date'])+' · '+e['reason'],'Demissão','crest_'+str(e['club_id']),p['head'],p['reputation'],i,c.get('league_id',0),e['game_date'],stamp(e['game_date']),labels.country(c.get('country',''))[0]])
+  status={'dismissal':'Demitido','resignation':'Pediu demissão','retirement':'Aposentou','poached':'Transferido'}[e['kind']]
+  if e['kind']=='resignation' and 'não renovar' in e['reason'].casefold():status='Não renovou'
+  i=indices[e['coach_id']];p=profiles[i];c=clubs.get(e['club_id'],{});moves.append([c.get('name','Clube'),p['name'],stamp(e['game_date'])+' · '+e['reason'],status,'crest_'+str(e['club_id']),p['head'],p['reputation'],i,c.get('league_id',0),e['game_date'],stamp(e['game_date']),labels.country(c.get('country',''))[0]])
  hires=[]
  poached={(e['coach_id'],e['to_club'],e['game_date']):e['from_club'] for e in market.rows('movements',"kind='poached'")}
  for e in sorted(market.rows('movements',"kind IN ('hired','interim_appointed')"),key=lambda e:(e['game_date'],e['club_id'],e['coach_id']),reverse=True):
@@ -106,5 +116,5 @@ def project(market,user_confidence=None):
  countries=[dict(name=name,id=nid,flag='flag_'+str(nid)) for name,nid in countries];mine=clubs.get(info['user_club'],{});mine_l=mine.get('league_id',0);mine_country=leagues[next((i for i,l in enumerate(leagues) if l['id']==mine_l),0)]['country'] if leagues else ''
  initial_country=next((i for i,c in enumerate(countries) if c['name']==mine_country),0)
  start=min([info['start_date'],today]+[a['start_date'] for a in appointments]);first=(start//10000)*12+(start//100%100)-1;last=(today//10000)*12+(today//100%100)-1
- months=[[0,'Todo o histórico']]+[[y*100+m+1,MONTHS[m]+' '+str(y)] for n in range(first,last+1) for y,m in [divmod(n,12)]]
- return dict(date=today,start=start,ready=True,club=info['user_club'],clubName=mine.get('name','Carreira'),people=profiles,clubRows=clubrows,freeRows=free,moveRows=moves,hireRows=hires,leagues=leagues,countries=countries,months=months,nationalities=['Todas']+sorted({p['nationality'] for p in profiles if p['nationality']!='Não informada'},key=alphabetical),initialLeague=mine_l,initialCountry=initial_country,initialMonth=0)
+ months=[[y*100+m+1,MONTHS[m]] for n in range(first,last+1) for y,m in [divmod(n,12)]]
+ return dict(date=today,start=start,ready=True,club=info['user_club'],clubName=mine.get('name','Carreira'),people=profiles,clubRows=clubrows,freeRows=free,moveRows=moves,hireRows=hires,leagues=leagues,countries=countries,months=months,nationalities=['Todas']+sorted({p['nationality'] for p in profiles if p['nationality']!='Não informada'},key=alphabetical),initialLeague=mine_l,initialCountry=initial_country,initialMonth=max(0,len(months)-1))

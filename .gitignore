@@ -195,3 +195,15 @@ runtime/diagnostics/
 /ModCarrerMode/data/club_environment/room/clubs/**/*.png
 /ModCarrerMode/data/club_environment/room/external/**/*.png
 /ModCarrerMode/data/club_environment/room/external/**/*.glb
+
+# Official V3: sources/configuration in Git, artwork in the asset complement.
+/local-review/
+*.new-*
+*.loaded-*
+*.ready
+/ModCarrerMode/source/club_environment/preview/base_name_cache.json
+/ModCarrerMode/data/club_environment/current_dressing_room/**/*.png
+/ModCarrerMode/data/club_environment/current_dressing_room/**/*.dds
+/data/sceneassets/server16_dressing_room_v3/**/*.rx3
+/data/sceneassets/server16_dressing_room_v3/**/*.dds
+/ModCarrerMode/data/club_environment/room/v3-settings/

@@ -51,6 +51,19 @@ def build(game,base=None):
         if r['leagueid'] in leagues:links[r['teamid']].append(r)
     # ROW clubs have a native, more specific association than the ROW league.
     row_nations={r['teamid']:r['nationid'] for r in base.rows('rowteamnationlinks',['teamid','nationid'])} if 'rowteamnationlinks' in base.tables else {}
+    # Expanded clubs often leave team summary ratings at zero. Derive missing
+    # summaries from their real squad, grouped by the player's primary role.
+    players={r['playerid']:r for r in (base.rows('players',['playerid','overallrating','preferredposition1']) if 'players' in base.tables else [])}
+    squad=defaultdict(list)
+    for r in base.rows('teamplayerlinks',['teamid','playerid']):
+        player=players.get(r['playerid'])
+        if player and 1<=player['overallrating']<=99:squad[r['teamid']].append(player)
+    def rating(ident,group):
+        positions={'attack':set(range(20,28)),'midfield':set(range(10,20)),'defense':set(range(1,10))}
+        roster=squad[ident];values=sorted((r['overallrating'] for r in roster if group=='overall' or r['preferredposition1'] in positions[group]),reverse=True)
+        if not values:values=sorted((r['overallrating'] for r in roster if r['preferredposition1']!=0),reverse=True)
+        values=values[:11 if group=='overall' else 4]
+        return round(sum(values)/len(values)) if values else 0
     result=[];excluded=[];covered=Counter()
     for team in base.rows('teams',FIELDS):
         ident=team['teamid'];hint=hints.get(ident);is_national=ident in national
@@ -60,7 +73,9 @@ def build(game,base=None):
         old_league=int(hint[5]) if hint else 0
         link=next((r for r in candidates if r['leagueid']==old_league),candidates[0] if candidates else None)
         league=leagues.get(link['leagueid'],{}) if link else {}
-        nation=national.get(ident) if is_national else int(hint[2]) if hint else row_nations.get(ident,league.get('countryid',0))
+        nation=national.get(ident) if is_national else row_nations.get(ident) or league.get('countryid') or (int(hint[2]) if hint else 0)
+        if nation not in nations and not is_national:
+            excluded.append(dict(id=ident,name=team['teamname'],reason='Liga interna sem país nem associação nacional'));continue
         country=nations.get(nation,{})
         geography=geo.get(country.get('isocountrycode',''),{})
         lat,lon=float(team.get('latitude') or 0),float(team.get('longitude') or 0)
@@ -71,15 +86,15 @@ def build(game,base=None):
         scope=league_scope(league,nation,label)
         row=dict(id=ident,name=(country.get('nationname') if is_national else hint[10] if hint else team['teamname']) or team['teamname'],
             kind='nations' if is_national else 'clubs',nation=nation or 0,
-            country=confed if is_national else int(hint[0]) if hint else nation or 0,
-            countryName=CONFEDERATIONS.get(confed,'Outras regiões') if is_national else hint[1] if hint else country.get('nationname','Outros países'),
+            country=confed if is_national else nation or 0,
+            countryName=CONFEDERATIONS.get(confed,'Outras regiões') if is_national else hint[1] if hint and int(hint[2])==nation else country.get('nationname','Outros países'),
             world=int(hint[3]) if hint else geography.get('world',0),
             league=10000+confed if is_national else league.get('leagueid',9999),
             leagueName='Seleções nacionais' if is_national else league_label(league,label,scope),leagueScope='national' if is_national else scope,
             level=1 if is_national else max(1,int(league.get('level') or 1)),
             city=country.get('nationname','') if is_national else hint[11] if hint else '',lat=lat,lon=lon,confederation=confed,
-            attack=team.get('attackrating') or 0,midfield=team.get('midfieldrating') or 0,
-            defense=team.get('defenserating') or 0,overall=team.get('overallrating') or 0,
+            attack=team.get('attackrating') or rating(ident,'attack'),midfield=team.get('midfieldrating') or rating(ident,'midfield'),
+            defense=team.get('defenserating') or rating(ident,'defense'),overall=team.get('overallrating') or rating(ident,'overall'),
             international=team.get('internationalprestige') or 0,domestic=team.get('domesticprestige') or 0)
         result.append(row)
         if link:covered[link['leagueid']]+=1

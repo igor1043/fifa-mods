@@ -1,0 +1,154 @@
+{
+  "schema": 3,
+  "description": "Um único módulo de cabine é replicado pelos jogadores do elenco; cores e artes são perfis de dados por clube.",
+  "module": {
+    "id": "locker_bay_v3",
+    "width_cm": 90,
+    "height_cm": 287,
+    "depth_cm": 84,
+    "parts": [
+      "back_panel",
+      "side_dividers",
+      "hanger_rail",
+      "shelf",
+      "bench",
+      "cushion"
+    ]
+  },
+  "room_structure": {
+    "preserve_existing_shell": true,
+    "front_wall": "centered_next_match_board",
+    "locker_bays": "repeatable_modules_on_side_walls",
+    "keep_central_aisle_clear": true,
+    "protected_doorways": [
+      {
+        "id": "coach_room",
+        "wall": "left",
+        "kind": "service_door",
+        "keep_clear": true
+      },
+      {
+        "id": "medical_department",
+        "wall": "right",
+        "kind": "service_door",
+        "keep_clear": true
+      },
+      {
+        "id": "exit_rear_left",
+        "wall": "rear_left",
+        "kind": "exit",
+        "keep_clear": true
+      },
+      {
+        "id": "exit_rear_right",
+        "wall": "rear_right",
+        "kind": "exit",
+        "keep_clear": true
+      }
+    ],
+    "side_capacity": 13,
+    "current_name": "Current Dressing Room"
+  },
+  "layout": {
+    "center": {
+      "z": -592,
+      "rows": [
+        {
+          "count": 6,
+          "start_x": -630,
+          "spacing": 90
+        },
+        {
+          "count": 6,
+          "start_x": 180,
+          "spacing": 90
+        }
+      ]
+    },
+    "sides": {
+      "left_x": -832,
+      "right_x": 832,
+      "start_z": -390,
+      "spacing_z": 90,
+      "odd_extra_side": "right",
+      "capacity_per_side": 13
+    }
+  },
+  "visual": {
+    "finishes": {
+      "light": {
+        "niche": "#F3F4F2",
+        "panel": "#FFFFFF"
+      },
+      "dark": {
+        "niche": "#171719",
+        "panel": "#28292C"
+      }
+    },
+    "fallback": {
+      "finish": "light",
+      "niche": "#F3F4F2",
+      "panel": "#FFFFFF",
+      "cushion": "#DDE2E6",
+      "floor": "neutral_tile",
+      "banner_mode": "generated_from_club_colors"
+    },
+    "clubs": {
+      "1043": {
+        "preset": "custom",
+        "finish": "dark",
+        "niche": "#171719",
+        "cushion": "#B71320",
+        "panel": "#28292C",
+        "banner": {
+          "mode": "custom_text",
+          "lines": [
+            "O MAIS QUERIDO DO BRASIL",
+            "ISSO AQUI É FLAMENGO",
+            "UMA VEZ FLAMENGO, SEMPRE FLAMENGO",
+            "SOMOS TODOS MENGÃO"
+          ],
+          "base": "#111113",
+          "accent": "#D71928"
+        },
+        "ceiling_crest": true,
+        "floor": "dark_neutral_tile"
+      },
+      "598": {
+        "preset": "custom",
+        "finish": "light",
+        "niche": "#F6F6F3",
+        "cushion": "#D51D2A",
+        "panel": "#FFFFFF",
+        "banner": {
+          "mode": "custom_text",
+          "lines": [
+            "DENTRE OS GRANDES, É O PRIMEIRO"
+          ],
+          "base": "#C91522",
+          "accent": "#FFFFFF"
+        },
+        "ceiling_crest": true,
+        "floor": "light_neutral_tile"
+      },
+      "383": {
+        "preset": "custom",
+        "finish": "dark",
+        "niche": "#143D2E",
+        "cushion": "#0C8B56",
+        "panel": "#174734",
+        "banner": {
+          "mode": "custom_text",
+          "lines": [
+            "A HISTÓRIA COMEÇOU EM 1914",
+            "MAIS QUE UM CLUBE, UMA PAIXÃO"
+          ],
+          "base": "#0C573C",
+          "accent": "#E8E0C8"
+        },
+        "ceiling_crest": true,
+        "floor": "stone_tile"
+      }
+    }
+  }
+}

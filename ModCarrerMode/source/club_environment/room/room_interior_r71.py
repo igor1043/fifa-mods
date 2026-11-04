@@ -13,7 +13,7 @@ from room_visual_r68 import VERT, box, join, packed, read_mesh, replace_mesh
 from room_native_hanging_20261022 import texture_package
 
 REVISION = 71
-PREFIX = 'data/sceneassets/server16_dressing_room_20261022/'
+PREFIX = 'data/sceneassets/server16_dressing_room_v3/shared/'
 ART = 'ModCarrerMode/data/club_environment/room/clubs'
 _art_hashes = {}
 
@@ -85,8 +85,8 @@ def graphic(colors, size=(2048, 512)):
 
 
 def mural_source(game, club):
-    root=Path(game)/ART/str(int(club));path=root/'mural.png'
-    return path if path.is_file() else None
+    from room_club_art import source
+    return source(game,club,'wall_mural')
 
 
 def make_mural(context, crest, game=None):
@@ -106,8 +106,9 @@ def make_mural(context, crest, game=None):
 
 
 def club_sign(context, title, symbol, crest=None, game=None):
-    path=Path(game or portable.GAME)/ART/str(context['club'])/f'sign_{symbol}.png'
-    if path.is_file():
+    from room_club_art import source
+    path=source(game or portable.GAME,context['club'],'sign_'+symbol)
+    if path:
         with Image.open(path) as source:
             if source.width*source.height>16_000_000:raise ValueError('Sign too large')
             return ImageOps.fit(source.convert('RGBA'),(2048,512),method=Image.Resampling.LANCZOS)
@@ -115,9 +116,9 @@ def club_sign(context, title, symbol, crest=None, game=None):
 
 
 def art_stamp(game, club):
-    root=Path(game)/ART/str(int(club));digest=hashlib.sha256()
-    for name in ('mural.png','hydration.png','sign_medical.png','sign_coach.png','sign_water.png','sign_exit.png'):
-        path=root/name
+    from room_club_art import paths
+    digest=hashlib.sha256()
+    for name,path in paths(game,club):
         if path.is_file():
             stat=path.stat();key=(stat.st_size,stat.st_mtime_ns)
             cached=_art_hashes.get(path)

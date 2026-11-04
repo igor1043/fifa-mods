@@ -17,8 +17,8 @@ FRIDGE_BOTTLES=18
 
 
 def source(game,club):
-    p=Path(game)/prior.ART/str(int(club))/'hydration.png'
-    return p if p.is_file() else None
+    from room_club_art import source as club_source
+    return club_source(game,club,'hydration_wall')
 
 
 def backdrop(game,club):

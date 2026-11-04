@@ -10,7 +10,10 @@ from room_native_hanging_20261022 import prepare_geometry,hardware_texture,textu
 from room_dynamic_context_20261022 import make_context,write_tour,clean
 from room_native_kit_rules_r46 import rules,number_candidates,name_candidates
 from kit_selection import current_kits
+import room_v3
+import copy,threading
 ROOT=portable.ROOM;GAME=portable.GAME
+_base_components=None;_base_report=None;_generation=0
 CACHE=ROOT/'runtime/native_source_geometry';CACHE.mkdir(exist_ok=True)
 EXTRACT=None
 sys.path.insert(0,str(portable.PREVIEW))
@@ -40,6 +43,7 @@ def bounds(path):
  p=np.ndarray((n,3),dtype='<f2' if half else '<f4',buffer=vb,offset=16+off,strides=(stride,2 if half else 4)).astype(np.float32)
  return p.min(axis=0),p.max(axis=0),next(n.removesuffix('.FxRenderableSimple') for t,n in rx.names() if t==MESH)
 def frame(i):
+ if room_v3.enabled(GAME):return room_v3.frame(i,GAME)
  if i<12:return np.array([-630+i*90 if i<6 else 180+(i-6)*90,0,-592],dtype=float),0
  q=i-12;left=q%2==0;return np.array([-732 if left else 732,0,-410+(q//2)*102],dtype=float),math.pi/2 if left else -math.pi/2
 def rotation(y):return np.array([[math.cos(y),0,math.sin(y)],[0,1,0],[-math.sin(y),0,math.cos(y)]])
@@ -50,6 +54,7 @@ def placed(i,lo,hi,center,height,width,hang):
  t=origin+r@np.array(center)-orient@anchor;t+=np.array([100000,1000,0])
  m=np.eye(4);m[:3,:3]=orient;m[:3,3]=t;return m.T.reshape(-1).tolist()
 def quad(i,center,width,height):
+ if room_v3.enabled(GAME) and tuple(center)==(0,272,72):center=(0,282,room_v3.DEPTH+.5)
  origin,yaw=frame(i);r=rotation(yaw);m=np.eye(4);m[:3,:3]=r@np.diag([width,height,1]);m[:3,3]=origin+r@np.array(center)+[100000,1000,0];return m.T.reshape(-1).tolist()
 def locker_matrix(i):
  origin,yaw=frame(i);m=np.eye(4);m[:3,:3]=rotation(yaw);m[:3,3]=origin+[100000,1000,0];return m.T.reshape(-1).tolist()
@@ -62,7 +67,7 @@ def career():
  order=[]
  for r in rows('teamsheets'):
   if r.value('teamid')==club and r.value('isfavourite')==1:order=[r.value('playerid'+str(i)) for i in range(11)];break
- order=roster_order(players,links,order)
+ order=roster_order(players,links,order,limit=room_v3.CAPACITY if room_v3.enabled(GAME) else 35)
  cache=json.loads((portable.PREVIEW/'base_name_cache.json').read_text(encoding='utf8'));names={int(k):v for k,v in cache.get('names',{}).items()}
  wanted={players[pid].value(k) for pid in links if pid in players for k in ('commonnameid','playerjerseynameid','lastnameid') if k in players[pid].fields}
  own=ROOT/'runtime/native_roster_names.json';own_cache=json.loads(own.read_text(encoding='utf8')) if own.exists() else {};names.update({int(k):v for k,v in own_cache.items()})
@@ -119,6 +124,7 @@ def career():
  context['kit_rules']['evaluated_lua_assignments']=apply_live(context,info)
  return snap,roster,info,context
 def prepare():
+ global _base_components,_base_report
  began=time.perf_counter();snap,roster,kits,context=career();read_ms=round((time.perf_counter()-began)*1000);club=snap['club'];print_sources=[];components={};native_refs=set();hanging={k:prepare_geometry(k,read_asset) for k in {2 if p['goalkeeper'] else 0 for p in roster}};hardware=hardware_texture()
  from room_kit_print_r56 import name_model,number_models,name_stamp,locker_plate
  native_names={};native_numbers={};print_warnings=[]
@@ -129,9 +135,17 @@ def prepare():
   try:native_numbers[typ]=number_models(club,typ,kit_rx)
   except ValueError as error:native_numbers[typ]={};print_warnings.append(f'kit {typ} number: {error}')
  def add(key,model,texture,texname,matrix,alpha=False,submesh=None,overlay=(0,0,0,0),page=-1,pages=0,bank=0):
+  if room_v3.enabled(GAME) and key in ('floor_shadows','table_shadows'):return
+  model=room_v3.model_path(model,GAME)
+  if room_v3.enabled(GAME) and key.startswith('role_board_'):
+   from room_image_panels import next_match_board
+   model,texture,texname,submesh=next_match_board(GAME,context,read_asset,model,submesh)
+  if room_v3.empty_component(model,submesh,GAME):return
+  if room_v3.enabled(GAME) and key.startswith('role_floor_'):texture=room_v3.floor_texture(context,GAME);texname='v3_cm'
+  if room_v3.enabled(GAME) and key.startswith('role_ceiling_'):texture=room_v3.ceiling_texture(GAME);texname='v3_cm'
   if key not in components:
    if submesh is None:submesh=bounds(model)[2]
-   components[key]=dict(key=key,model=model,texture=texture,texname=texname,alpha=alpha,submesh=submesh,overlay=overlay,page=page,pages=pages,bank=bank,matrices=[]);native_refs.update(x for x in (model,texture) if not x.startswith('data/sceneassets/server16_dressing_room_20261022'))
+   components[key]=dict(key=key,model=model,texture=texture,texname=texname,alpha=alpha,submesh=submesh,overlay=overlay,page=page,pages=pages,bank=bank,matrices=[]);native_refs.update(x for x in (model,texture) if not x.startswith('data/sceneassets/server16_dressing_room_v3/shared'))
   components[key]['matrices'].append(matrix)
  club_badge=Image.open(__import__('io').BytesIO(read_asset(f'data/ui/imgassets/crest/light/l{club}.dds'))).convert('RGBA')
  for i,p in enumerate(roster):
@@ -139,13 +153,14 @@ def prepare():
   kit=f'data/sceneassets/kit/kit_{club}_{typ}_0.rx3';native_refs.add(jersey);model=hanging[typ];pose=locker_matrix(i)
   add('jersey_'+str(typ),model,kit,'jersey_cm',pose,submesh='room_part_1')
   add('hanger_'+str(typ),model,hardware,'hardware_cm',pose,submesh='room_part_2')
-  support='data/sceneassets/server16_dressing_room_20261022/locker_support_r68.rx3'
+  support='data/sceneassets/server16_dressing_room_v3/shared/locker_support_r68.rx3'
   if (GAME/support).is_file():add('hanger_support_'+str(typ),support,hardware,'hardware_cm',pose,submesh='room_part_1')
   shoe=f'data/sceneassets/shoe/shoe_{p["shoe"]}.rx3'
   try:lo,hi,sub=bounds(shoe)
   except FileNotFoundError:shoe='data/sceneassets/shoe/shoe_15.rx3';lo,hi,sub=bounds(shoe)
   shoe_tex=f'data/sceneassets/shoe/shoe_{p["shoe"]}_{p["design"]}_textures.rx3;data/sceneassets/shoe/shoe_15_0_textures.rx3'
-  add('shoe_'+str(p['shoe'])+'_'+str(p['design']),shoe,shoe_tex,'shoe_cm',placed(i,lo,hi,[0,19,77],14,52,False),submesh=sub)
+  shoe_depth=77*room_v3.DEPTH/98 if room_v3.enabled(GAME) else 77
+  add('shoe_'+str(p['shoe'])+'_'+str(p['design']),shoe,shoe_tex,'shoe_cm',placed(i,lo,hi,[0,19,shoe_depth],14,52,False),submesh=sub)
   info=kits[typ];font=info['font'];color=info['color']
   candidates=number_candidates(club,typ,context['league'],context['kit_rules']['default_league'],font,color)
   number_path=None;digits={}
@@ -167,15 +182,15 @@ def prepare():
   im=name_stamp(p['name'],font_bytes,info['name_color'],name_rect) if font_bytes and name_surface else None
   if im is not None:
    tag=hashlib.sha256(im.tobytes()+str((im.size,info,name_rect,'native_print_r61')).encode()).hexdigest()[:10]
-   dest=GAME/f'data/sceneassets/server16_dressing_room_20261022/live_name_{club}_{p["id"]}_{tag}.rx3'
+   dest=GAME/f'data/sceneassets/server16_dressing_room_v3/shared/live_name_{club}_{p["id"]}_{tag}.rx3'
    if not dest.exists():texture_package(im,dest,'name_cm')
-   relative='data/sceneassets/server16_dressing_room_20261022/'+dest.name
+   relative='data/sceneassets/server16_dressing_room_v3/shared/'+dest.name
    add('name_'+str(i),name_surface,relative,'name_cm',pose,True,'room_part_1')
-  plate=locker_plate(p['name'],context['colors'],club_badge);tag=hashlib.sha256(plate.tobytes()).hexdigest()[:12];dest=GAME/f'data/sceneassets/server16_dressing_room_20261022/locker_plate_{club}_{p["id"]}_{tag}_r56.rx3'
+  plate=locker_plate(p['name'],context['colors'],club_badge);tag=hashlib.sha256(plate.tobytes()).hexdigest()[:12];dest=GAME/f'data/sceneassets/server16_dressing_room_v3/shared/locker_plate_{club}_{p["id"]}_{tag}_r56.rx3'
   if not dest.exists():texture_package(plate,dest,'plate_cm')
-  add('plate_'+str(i),'data/sceneassets/server16_dressing_room_20261022/print_surface.rx3','data/sceneassets/server16_dressing_room_20261022/'+dest.name,'plate_cm',quad(i,[0,272,72],78,20),False,'room_part_1')
+  add('plate_'+str(i),'data/sceneassets/server16_dressing_room_v3/shared/print_surface.rx3','data/sceneassets/server16_dressing_room_v3/shared/'+dest.name,'plate_cm',quad(i,[0,272,72],78,20),False,'room_part_1')
  crest=np.eye(4);crest[0,3]=100000
- add('club_crest','data/sceneassets/server16_dressing_room_20261022/'+('crest_surfaces_r77.rx3' if (GAME/'data/sceneassets/server16_dressing_room_20261022/crest_surfaces_r77.rx3').is_file() else 'crest_surfaces_r76.rx3' if (GAME/'data/sceneassets/server16_dressing_room_20261022/crest_surfaces_r76.rx3').is_file() else 'crest_surfaces_r75.rx3' if (GAME/'data/sceneassets/server16_dressing_room_20261022/crest_surfaces_r75.rx3').is_file() else 'crest_surfaces_r72.rx3' if (GAME/'data/sceneassets/server16_dressing_room_20261022/crest_surfaces_r72.rx3').is_file() else 'crest_surfaces_r62.rx3'),f'data/ui/imgassets/crest/light/l{club}.dds','',crest.T.reshape(-1).tolist(),True,'room_part_1')
+ add('club_crest','data/sceneassets/server16_dressing_room_v3/shared/'+('crest_surfaces_r77.rx3' if (GAME/'data/sceneassets/server16_dressing_room_v3/shared/crest_surfaces_r77.rx3').is_file() else 'crest_surfaces_r76.rx3' if (GAME/'data/sceneassets/server16_dressing_room_v3/shared/crest_surfaces_r76.rx3').is_file() else 'crest_surfaces_r75.rx3' if (GAME/'data/sceneassets/server16_dressing_room_v3/shared/crest_surfaces_r75.rx3').is_file() else 'crest_surfaces_r72.rx3' if (GAME/'data/sceneassets/server16_dressing_room_v3/shared/crest_surfaces_r72.rx3').is_file() else 'crest_surfaces_r62.rx3'),f'data/ui/imgassets/crest/light/l{club}.dds','',crest.T.reshape(-1).tolist(),True,'room_part_1')
  ball='data/sceneassets/ball/ball_23.rx3';lo,hi,sub=bounds(ball);scale=22/max(hi-lo);mid=(lo+hi)/2
  for layer in range(2):
   for x in range(3):
@@ -185,7 +200,7 @@ def prepare():
  for center,yaw in (([-244,1011,263],1.8),([-317,1011,263],-.6),([514,1150,1590],.9)):
   r=rotation(yaw);m=np.eye(4);m[:3,:3]=r*scale;m[:3,3]=np.array(center)+[100000,0,0]-r@(mid*scale);add('balls',ball,'data/sceneassets/ball/ball_23_textures.rx3','ball_cm',m.T.reshape(-1).tolist(),False,sub)
  roles=json.loads((ROOT/'runtime/room_roles_r62.json').read_text(encoding='utf8'))
- matrix=np.eye(4);matrix[0,3]=100000;identity=matrix.T.reshape(-1).tolist();prefix='data/sceneassets/server16_dressing_room_20261022/'
+ matrix=np.eye(4);matrix[0,3]=100000;identity=matrix.T.reshape(-1).tolist();prefix='data/sceneassets/server16_dressing_room_v3/shared/'
  for i,role in enumerate(roles['roles']):
   name=role['role'];overlay=(0,0,0,0)
   if name in ('primary','secondary'):
@@ -200,10 +215,10 @@ def prepare():
   elif name=='ceiling':texture=prefix+('ceiling_r72.rx3' if (GAME/(prefix+'ceiling_r72.rx3')).is_file() else 'ceiling_r71.rx3' if (GAME/(prefix+'ceiling_r71.rx3')).is_file() else 'ceiling_r68.rx3' if (GAME/(prefix+'ceiling_r68.rx3')).is_file() else 'ceiling_r49.rx3');texname='ceiling_cm'
   elif name=='board':texture=context['board_texture'];texname='board_cm'
   else:raise ValueError('Unknown role '+name)
-  role_model='room_roles_r77.rx3' if (GAME/'data/sceneassets/server16_dressing_room_20261022/room_roles_r77.rx3').is_file() else 'room_roles_r76.rx3' if (GAME/'data/sceneassets/server16_dressing_room_20261022/room_roles_r76.rx3').is_file() else 'room_roles_r75.rx3' if (GAME/(prefix+'room_roles_r75.rx3')).is_file() else 'room_roles_r72.rx3' if (GAME/(prefix+'room_roles_r72.rx3')).is_file() else 'room_roles_r71.rx3' if (GAME/(prefix+'room_roles_r71.rx3')).is_file() else 'room_roles_r68.rx3' if (GAME/(prefix+'room_roles_r68.rx3')).is_file() else 'room_roles_r62.rx3'
+  role_model='room_roles_r77.rx3' if (GAME/'data/sceneassets/server16_dressing_room_v3/shared/room_roles_r77.rx3').is_file() else 'room_roles_r76.rx3' if (GAME/'data/sceneassets/server16_dressing_room_v3/shared/room_roles_r76.rx3').is_file() else 'room_roles_r75.rx3' if (GAME/(prefix+'room_roles_r75.rx3')).is_file() else 'room_roles_r72.rx3' if (GAME/(prefix+'room_roles_r72.rx3')).is_file() else 'room_roles_r71.rx3' if (GAME/(prefix+'room_roles_r71.rx3')).is_file() else 'room_roles_r68.rx3' if (GAME/(prefix+'room_roles_r68.rx3')).is_file() else 'room_roles_r62.rx3'
   add('role_'+name+'_'+str(i),prefix+role_model,texture,texname,identity,submesh=role['submesh'],overlay=overlay)
- add('floor_shadows',prefix+('floor_shadows_r77.rx3' if (GAME/'data/sceneassets/server16_dressing_room_20261022/floor_shadows_r77.rx3').is_file() else 'floor_shadows_r76.rx3' if (GAME/'data/sceneassets/server16_dressing_room_20261022/floor_shadows_r76.rx3').is_file() else 'floor_shadows_r75.rx3' if (GAME/(prefix+'floor_shadows_r75.rx3')).is_file() else 'floor_shadows_r72.rx3' if (GAME/(prefix+'floor_shadows_r72.rx3')).is_file() else 'floor_shadows_r56.rx3'),prefix+'floor_shadows_texture_r56.rx3','shadow_cm',identity,True,'room_part_1')
- add('table_shadows',prefix+('floor_shadows_r77.rx3' if (GAME/'data/sceneassets/server16_dressing_room_20261022/floor_shadows_r77.rx3').is_file() else 'floor_shadows_r76.rx3' if (GAME/'data/sceneassets/server16_dressing_room_20261022/floor_shadows_r76.rx3').is_file() else 'floor_shadows_r75.rx3' if (GAME/(prefix+'floor_shadows_r75.rx3')).is_file() else 'floor_shadows_r72.rx3' if (GAME/(prefix+'floor_shadows_r72.rx3')).is_file() else 'floor_shadows_r56.rx3'),prefix+'contact_shadow_r51.rx3','shadow_cm',identity,True,'room_part_2')
+ add('floor_shadows',prefix+('floor_shadows_r77.rx3' if (GAME/'data/sceneassets/server16_dressing_room_v3/shared/floor_shadows_r77.rx3').is_file() else 'floor_shadows_r76.rx3' if (GAME/'data/sceneassets/server16_dressing_room_v3/shared/floor_shadows_r76.rx3').is_file() else 'floor_shadows_r75.rx3' if (GAME/(prefix+'floor_shadows_r75.rx3')).is_file() else 'floor_shadows_r72.rx3' if (GAME/(prefix+'floor_shadows_r72.rx3')).is_file() else 'floor_shadows_r56.rx3'),prefix+'floor_shadows_texture_r56.rx3','shadow_cm',identity,True,'room_part_1')
+ add('table_shadows',prefix+('floor_shadows_r77.rx3' if (GAME/'data/sceneassets/server16_dressing_room_v3/shared/floor_shadows_r77.rx3').is_file() else 'floor_shadows_r76.rx3' if (GAME/'data/sceneassets/server16_dressing_room_v3/shared/floor_shadows_r76.rx3').is_file() else 'floor_shadows_r75.rx3' if (GAME/(prefix+'floor_shadows_r75.rx3')).is_file() else 'floor_shadows_r72.rx3' if (GAME/(prefix+'floor_shadows_r72.rx3')).is_file() else 'floor_shadows_r56.rx3'),prefix+'contact_shadow_r51.rx3','shadow_cm',identity,True,'room_part_2')
  assert 0<len(components)<=256,'Native room component group limit exceeded'
  from room_medical_r53 import prepare as prepare_medical
  prepare_medical(context,read_asset,add,identity)
@@ -216,23 +231,66 @@ def prepare():
  if (GAME/(prefix+'coach_room_r76.json')).is_file():
   from room_coach_r76 import prepare as prepare_coach
   prepare_coach(context,read_asset,add,identity)
+ if room_v3.enabled(GAME):
+  _base_components=copy.deepcopy(components)
+  room_v3.prepare(context,GAME,add,identity)
  assert len(components)<=256,'Native room component group limit exceeded'
  context['scene_catalog']=scene_catalog(context,roster)
  prepare_header(context)
- generation=int(time.time());write_tour(context,roster,frame,rotation,generation)
- config=f'S16NATIVE 3 {snap["pid"]} {club} {generation} {len(components)}\n'
+ report={'preparation_ms':round((time.perf_counter()-began)*1000),'career_read_ms':read_ms,'pid':snap['pid'],'club':club,'save':snap['savePath'],'roster':roster,'kit_prints':kits,'print_sources':print_sources,'print_warnings':print_warnings,'context':context,'component_groups':len(components),'instances':sum(len(c['matrices']) for c in components.values()),'native_references':sorted(native_refs),'native_assets_packaged':False}
+ publish_components(components,report)
+ _base_report=copy.deepcopy(report)
+ print(json.dumps({k:report[k] for k in ('pid','club','component_groups','instances','native_assets_packaged')}))
+
+def publish_components(components,report):
+ global _generation
+ _generation=max(_generation+1,int(time.monotonic()*1000))&0xffffffff
+ generation=_generation
+ context=report['context'];club=report['club']
+ write_tour(context,report['roster'],frame,rotation,generation)
+ config=f'S16NATIVE 3 {report["pid"]} {club} {generation} {len(components)}\n'
  for c in components.values():
   assert 1<=len(c['matrices'])<=64
   config+=' '.join(json.dumps(str(c[k]),ensure_ascii=True) for k in ('key','model','submesh','texture','texname'))+f' {int(c["alpha"])} {len(c["matrices"])} {c["page"]} {c["pages"]} {c["bank"]} '+ ' '.join(format(v,'.7g') for v in c['overlay'])+'\n'
   config+='\n'.join(' '.join(format(float(x),'.9g') for x in m) for m in c['matrices'])+'\n'
  target=ROOT/'runtime/native_components_v2.txt';tmp=target.with_suffix('.tmp');tmp.write_text(config);os.replace(tmp,target)
- report={'preparation_ms':round((time.perf_counter()-began)*1000),'career_read_ms':read_ms,'pid':snap['pid'],'club':club,'save':snap['savePath'],'roster':roster,'kit_prints':kits,'print_sources':print_sources,'print_warnings':print_warnings,'context':context,'component_groups':len(components),'instances':sum(len(c['matrices']) for c in components.values()),'native_references':sorted(native_refs),'native_assets_packaged':False}
- (ROOT/'runtime/native_components_manifest_r46.json').write_text(json.dumps(report,ensure_ascii=False,indent=2),encoding='utf8');print(json.dumps({k:report[k] for k in ('pid','club','component_groups','instances','native_assets_packaged')}))
+ (ROOT/'runtime/native_components_manifest_r46.json').write_text(json.dumps(report,ensure_ascii=False,indent=2),encoding='utf8')
+
+def refresh_appearance():
+ """Reuse the validated career projection and every unchanged native prop."""
+ if _base_components is None or _base_report is None:return False
+ began=time.perf_counter();components=copy.deepcopy(_base_components);report=copy.deepcopy(_base_report);context=report['context']
+ for key,c in components.items():
+  if key.startswith('role_floor_'):c['texture']=room_v3.floor_texture(context,GAME);c['texname']='v3_cm'
+ def add(key,model,texture,texname,matrix,alpha=False,submesh=None,overlay=(0,0,0,0),page=-1,pages=0,bank=0):
+  if room_v3.empty_component(model,submesh,GAME):return
+  if key not in components:components[key]=dict(key=key,model=model,texture=texture,texname=texname,alpha=alpha,submesh=submesh,overlay=overlay,page=page,pages=pages,bank=bank,matrices=[])
+  components[key]['matrices'].append(matrix)
+ identity=np.eye(4);identity[0,3]=100000
+ # Rebuild wall/sign textures from the same club catalog when switching
+ # Default/Custom, without reading the career or recreating its projection.
+ components={key:value for key,value in components.items() if not key.startswith('interior_')}
+ def art_add(key,model,texture,texname,matrix,alpha=False,submesh=None,**unused):
+  if not key.startswith('interior_'):return
+  model=room_v3.model_path(model,GAME)
+  if room_v3.empty_component(model,submesh,GAME):return
+  if key not in components:components[key]=dict(key=key,model=model,texture=texture,texname=texname,alpha=alpha,submesh=submesh,overlay=(0,0,0,0),page=-1,pages=0,bank=0,matrices=[])
+  components[key]['matrices'].append(matrix)
+ __import__('room_interior_r72').prepare(context,read_asset,art_add,identity.T.reshape(-1).tolist())
+ room_v3.prepare(context,GAME,add,identity.T.reshape(-1).tolist())
+ assert len(components)<=256
+ report.update(appearance_refresh_ms=round((time.perf_counter()-began)*1000),component_groups=len(components),instances=sum(len(c['matrices']) for c in components.values()),native_references=sorted({v for c in components.values() for v in (c['model'],c['texture'])}))
+ # The current APT updates its labels itself. Publish the next-entry package
+ # without unloading/reloading that view or resetting the free camera.
+ prepare_header(context)
+ publish_components(components,report)
+ (ROOT/'runtime/appearance_timing.json').write_text(json.dumps({'pid':report['pid'],'club':report['club'],'milliseconds':report['appearance_refresh_ms']}))
+ return True
 def prepare_header(context):
  import build_dressing_card_20261022 as ui
  target=GAME/ui.BIG;state=ROOT/'runtime/room_header.json'
  previous=json.loads(state.read_text(encoding='utf8')) if state.exists() else {}
- catalog_hash=hashlib.sha256(json.dumps(context['scene_catalog'],sort_keys=True).encode()).hexdigest()
+ catalog_hash=hashlib.sha256(json.dumps({'scenes':context['scene_catalog'],'settings':context.get('room_settings',[])},sort_keys=True).encode()).hexdigest()
  if previous.get('revision')==ui.HEADER_REVISION and previous.get('pid')==context['pid'] and previous.get('club')==context['club'] and previous.get('name')==context['club_name'] and previous.get('catalog_hash')==catalog_hash and target.exists():return
  path=ui.screen(context,read_asset);temp=target.with_name(target.name+'.s16-new');temp.write_bytes(path.read_bytes());temp.replace(target)
 
@@ -277,17 +335,27 @@ def watch():
   kernel.CloseHandle(mutex);print('Native room helper already running for this FIFA session');return
  # Commands use the native ION event bridge; no private-heap polling thread.
  marker=ROOT/'runtime/native_asset_helper_r46.pid';marker.write_text(f'{pid} {os.getpid()}\n')
+ changed=threading.Event()
+ if room_v3.enabled(GAME):__import__('room_appearance').start_service(GAME,pid,changed.set)
  logfile=ROOT/'runtime/native_asset_helper_r46.log';logfile.write_text(f'Native room asset helper session game_pid={pid}\n');last=None
  while psutil.pid_exists(pid):
   try:
    snap=json.loads((GAME/'ModCarrerMode/runtime/career_fce_snapshot.json').read_text());stamp=(snap.get('pid'),snap.get('club'),snap.get('savePath'),snap.get('saveWriteTime100ns'),calendar_stamp(pid),__import__('room_interior_r71').art_stamp(GAME,snap.get('club',0)),__import__('room_secondary_wall_r75').config_stamp(GAME),tuple(tuple(r[:11]) for r in snap.get('fixtures',[]) if snap.get('club') in r[5:7]),(ROOT/'runtime/medical_native_capture.tsv').stat().st_mtime_ns if (ROOT/'runtime/medical_native_capture.tsv').exists() else 0)
    if snap.get('pid')==pid and stamp!=last:
-    prepare();last=stamp
+    prepare();last=stamp;appearance_stamp=room_v3.stamp(GAME,snap.get('club',0));changed.clear()
     with logfile.open('a') as f:f.write(f'PREPARED club={snap["club"]} native game assets, no save writes\n')
+   elif room_v3.enabled(GAME) and room_v3.stamp(GAME,snap.get('club',0))!=appearance_stamp:
+    refresh_appearance();appearance_stamp=room_v3.stamp(GAME,snap.get('club',0))
    publish_room_ready(pid)
   except Exception as e:
    with logfile.open('a') as f:f.write(type(e).__name__+': '+str(e)+'\n')
-  time.sleep(2)
+  if changed.wait(2):
+   time.sleep(.06);changed.clear()
+   try:
+    refresh_appearance()
+    appearance_stamp=room_v3.stamp(GAME,snap.get('club',0))
+   except Exception as e:
+    with logfile.open('a') as f:f.write('APPEARANCE '+type(e).__name__+': '+str(e)+'\n')
  with logfile.open('a') as f:f.write('SESSION_END\n')
 if __name__=='__main__':
  if '--watch' in sys.argv:watch()

@@ -26,7 +26,7 @@ for i=1,96 do local p='xi_part_'..i;local o=S16ClubXI.object;assert(o.materials[
     assert lua.eval('contexts')==n and lua.eval('reloads')==n
     lua.execute("""local o=S16ClubXI.object
 if o.assets.room_contact_color then
- assert(o.assets.room_contact_color=='data/sceneassets/server16_dressing_room_20261022/contact_shadow_r51.rx3')
+ assert(o.assets.room_contact_color=='data/sceneassets/server16_dressing_room_v3/shared/contact_shadow_r51.rx3')
  for i=1,2 do local p='xi_floor_contact_'..i;assert(o.materials[p] and o.submeshes[p]==p and o.textures[p].diffuseTexture[2]=='shadow_cm') end
 else assert(not o.materials.xi_floor_contact_1 and not o.materials.xi_floor_contact_2) end""")
 print('PASS Lua 5.1: isolated objects, immutable aliases, native prop shaders, neutral lighting, one reload and scene registration per object')

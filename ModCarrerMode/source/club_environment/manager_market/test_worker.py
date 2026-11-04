@@ -9,7 +9,7 @@ import worker
 from engine import Market
 
 class WorkerRecoveryTest(unittest.TestCase):
- def test_live_leagues_advance_in_background_while_full_career_graph_is_pending(self):
+ def test_calendar_archive_advances_while_full_visual_graph_is_pending(self):
   import career_publication
   with tempfile.TemporaryDirectory() as tmp:
    game=Path(tmp);root=game/'runtime';root.mkdir();(root/'waiting.big').write_bytes(b'waiting-for-all-leagues')
@@ -17,12 +17,13 @@ class WorkerRecoveryTest(unittest.TestCase):
    snapshot=game/'ModCarrerMode/runtime/career_fce_snapshot.json';snapshot.parent.mkdir(parents=True);snapshot.write_text('{}')
    save=game/'saves/slot/DATA';save.parent.mkdir(parents=True);save.write_bytes(b'unchanged')
    observed=dict(save=dict(path=str(save),pid=10,process_created_100ns=20),profile=dict(context_address=1,club_id=3,registry_address=123,context_epoch=2),date=20260101,signature=('A',20260101))
+   day=root/'league_days/10-20-2-1/20260101.campaign.json';day.parent.mkdir(parents=True);day.write_text(json.dumps(dict(schema=1,complete=1,pid=10,created=20,epoch=2,context=1,registry=123,club=3,date=20260101,nodes=[],standings=[],fixtures=[])))
    def build(g,p,m):p.parent.mkdir(parents=True,exist_ok=True);p.write_bytes(b'complete-career')
    with patch.multiple(worker,GAME=game,ROOT=root,DEST=game/'screen.big'),patch.object(worker,'Inputs') as inputs,patch.object(worker,'io_event',return_value=dict(operation='read',access_tick_ms='1')),patch.object(worker,'observe',return_value=observed),patch.object(worker,'build',side_effect=build),patch.object(worker,'log'),patch.object(worker,'read_live_leagues',return_value=dict(rows=[],revision='current')),patch.object(career_publication,'read',return_value=None) as ready:
     inputs.return_value.read.return_value=dict(context(),digest='A');service=worker.Service()
     try:
      service.update(observed,object());self.assertIsNotNone(service.market)
-     self.assertTrue(inputs.return_value.read.call_args.kwargs['league_only']);self.assertEqual(b'waiting-for-all-leagues',(game/'screen.big').read_bytes());self.assertIsNone(service.latest_request)
+     self.assertTrue(inputs.return_value.read.call_args.kwargs['league_only']);self.assertEqual(20260101,inputs.return_value.read.call_args.kwargs['calendar_snapshot']['date']);self.assertIsNone(service.latest_request)
      ready.return_value=dict(fixtures=[],standings=[]);service.update(observed,object());self.assertIsNotNone(service.market);self.assertEqual(b'complete-career',(game/'screen.big').read_bytes());self.assertEqual(b'unchanged',save.read_bytes())
     finally:service.close()
  def test_missing_current_live_data_does_not_process_old_or_foreign_career(self):

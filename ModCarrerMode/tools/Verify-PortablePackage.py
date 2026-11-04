@@ -35,25 +35,28 @@ def check_frozen_sources(frozen_archive,source):
     return checked
 
 
-def extract_complements(stage,expected,tracked,archives):
-    names=set()
+def extract_complements(stage,expected,tracked,archives,retired=(),seeded=()):
+    retired=set(retired)
+    names=set(seeded)
     for archive in archives:
         with zipfile.ZipFile(archive) as z:
             members=z.namelist();assert len(members)==len(set(members))
-            assert not set(members)-set(expected),'Complement has unexpected assets'
+            assert not set(members)-set(expected)-retired,'Complement has unexpected assets'
             assert not set(members)&tracked,'Complement duplicates the Git payload'
             for name in members:
-                safe(name);p=stage/name;p.parent.mkdir(parents=True,exist_ok=True)
+                safe(name)
+                if name in retired:continue
+                p=stage/name;p.parent.mkdir(parents=True,exist_ok=True)
                 with z.open(name) as incoming,p.open('wb') as dest:
                     import shutil
                     shutil.copyfileobj(incoming,dest)
-            names.update(members)
+            names.update(set(members)-retired)
     assert names==set(expected),'Base plus delta has missing assets'
     for name,row in expected.items():
         p=stage/name;assert p.stat().st_size==row['bytes'] and digest(p)==row['sha256'],name
     return names
 
-def verify(root,complement,output,base_zips=()):
+def verify(root,complement,output,base_zips=(),base_directory=None,base_manifest=None):
     root,complement,output=map(lambda p:Path(p).resolve(),(root,complement,output));output.mkdir(parents=True,exist_ok=True)
     commit=subprocess.check_output(['git','rev-parse','HEAD'],cwd=root,text=True).strip()
     tracked={p.decode() for p in subprocess.check_output(['git','ls-files','-z'],cwd=root).split(b'\0') if p}
@@ -65,7 +68,7 @@ def verify(root,complement,output,base_zips=()):
         with zipfile.ZipFile(archive) as z:
             for name in z.namelist():safe(name)
             z.extractall(stage)
-        expected={}
+        expected={};retired=set()
         for rel in ('ModCarrerMode/source/club_environment/assets-manifest.json','ModCarrerMode/data/club_browser/assets-manifest.json','ModCarrerMode/data/catalogs/presentation_assets.json'):
             for row in json.loads((stage/rel).read_text(encoding='utf8'))['files']:
                 safe(row['path']);assert row['path'] not in expected;expected[row['path']]=row
@@ -78,7 +81,7 @@ def verify(root,complement,output,base_zips=()):
         if full_manifest.is_file():
             complete=json.loads(full_manifest.read_text(encoding='utf8'))
             assert complete['schema']==1
-            external={row['path']:row for row in complete['files']}
+            external={row['path']:row for row in complete['files']};retired=set(complete.get('retired_assets',[]))
             assert len(external)==len(complete['files'])
             # Older module manifests may reference a small animation already
             # versioned with its code. Every external dependency must be present.
@@ -92,7 +95,23 @@ def verify(root,complement,output,base_zips=()):
             with zipfile.ZipFile(complement) as z:
                 if 'data/ant.cbac' not in expected:
                     blob=z.read('data/ant.cbac');expected['data/ant.cbac']=dict(bytes=len(blob),sha256=hashlib.sha256(blob).hexdigest())
-        names=extract_complements(stage,expected,tracked,[*map(Path,base_zips),complement])
+        seeded=set()
+        if bool(base_directory)!=bool(base_manifest):raise ValueError('Use --base-directory with --base-manifest')
+        if base_directory:
+            old={r['path']:r for r in json.loads(Path(base_manifest).read_text(encoding='utf-8'))['files']}
+            with zipfile.ZipFile(complement) as z:incoming=set(z.namelist())
+            for name,row in expected.items():
+                if name in incoming or old.get(name,{}).get('sha256')!=row['sha256']:continue
+                safe(name);source=Path(base_directory)/name;dest=stage/name
+                assert source.is_file() and digest(source)==old[name]['sha256'],name
+                dest.parent.mkdir(parents=True,exist_ok=True)
+                try:os.link(source,dest)
+                except OSError:
+                    import shutil
+                    shutil.copy2(source,dest)
+                seeded.add(name)
+            report['base_manifest_sha256']=digest(Path(base_manifest));report['unchanged_base_files_verified']=len(seeded)
+        names=extract_complements(stage,expected,tracked,[*map(Path,base_zips),complement],retired,seeded)
         for row in json.loads((stage/'ModCarrerMode/source/club_environment/release-manifest.json').read_text(encoding='utf8'))['files']:
             p=stage/row['path'];assert p.stat().st_size==row['bytes'] and digest(p)==row['sha256'],row['path']
         enabled=[]
@@ -145,5 +164,5 @@ def verify(root,complement,output,base_zips=()):
     return report
 
 if __name__=='__main__':
-    p=argparse.ArgumentParser(description=__doc__);p.add_argument('--root',type=Path,default=Path(__file__).resolve().parents[2]);p.add_argument('--zip',type=Path,required=True);p.add_argument('--base-zip',type=Path,action='append',default=[]);p.add_argument('--output',type=Path,required=True);a=p.parse_args()
-    print(json.dumps(verify(a.root,a.zip,a.output,a.base_zip),ensure_ascii=False,indent=2))
+    p=argparse.ArgumentParser(description=__doc__);p.add_argument('--root',type=Path,default=Path(__file__).resolve().parents[2]);p.add_argument('--zip',type=Path,required=True);p.add_argument('--base-zip',type=Path,action='append',default=[]);p.add_argument('--base-directory',type=Path);p.add_argument('--base-manifest',type=Path);p.add_argument('--output',type=Path,required=True);a=p.parse_args()
+    print(json.dumps(verify(a.root,a.zip,a.output,a.base_zip,a.base_directory,a.base_manifest),ensure_ascii=False,indent=2))

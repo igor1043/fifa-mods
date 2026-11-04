@@ -7,7 +7,7 @@ class Inputs:
   self.game=Path(game);sys.path.insert(0,str(self.game/'ModCarrerMode/source/club_browser'))
   from lineup_data import ProjectionCache
   self.cache=ProjectionCache()
- def read(self,observed,memory=None,offline=False,live_leagues=None,league_only=False):
+ def read(self,observed,memory=None,offline=False,live_leagues=None,league_only=False,calendar_snapshot=None):
   from competition_schedule import read_schedule
   from competition_formats import read_formats
   from engine import table_for
@@ -19,7 +19,10 @@ class Inputs:
    available=db.tables[name]['fields'];return db.rows(name,[f for f in fields if f in available])
   calendar=rows('career_calendar',['startdate','currdate']);users=rows('career_users',['userid','clubteamid','firstname','surname']);user=users[0] if len(users)==1 else {}
   from derived_campaigns import augment
-  if league_only:
+  if calendar_snapshot is not None:
+   if calendar_snapshot.get('date')!=today:raise ValueError('Campanha de outra data')
+   snapshot=dict(calendar_snapshot,source='live_calendar')
+  elif league_only:
    if memory is None or live_leagues is None or live_leagues['date']!=today:raise ValueError('Aguardando ligas nativas da data atual')
    # The verified owner-thread league rows are enough for daily board reviews.
    # Keep dated scores from DATA as saved evidence; never relabel an old FCE
@@ -28,7 +31,7 @@ class Inputs:
   else:
    from saved_competitions import read as read_saved_competitions
    snapshot=augment(game,path,raw,read_saved_competitions(raw,calendar[0]['currdate']),today,saved.get('pid'),saved.get('process_created_100ns'),observed['profile'].get('context_epoch'))
-  if memory is not None and snapshot.get('source') not in ('save_bound_native','live_league_only'):raise ValueError('Aguardando publicação consistente da carreira em RAM')
+  if memory is not None and snapshot.get('source') not in ('save_bound_native','live_league_only','live_calendar'):raise ValueError('Aguardando publicação consistente da carreira em RAM')
   season=calendar[0]['startdate'];formats=read_formats(game);fixtures={m['id']:m for m in read_schedule(raw,formats)};nodes={r[0]:r for r in snapshot['nodes']}
   def root(n):
    seen=set()
@@ -63,7 +66,7 @@ class Inputs:
   from global_performance import project as global_projection
   global_data=global_projection(snapshot,result,memberships,league_links,today if live_leagues else calendar[0]['currdate'],season,snapshot['date'],'live_league' if live_leagues else 'saved_league')
   for row in global_data['performance']:
-   if row['source']=='fce':row['source']='native_view' if snapshot.get('source')=='save_bound_native' else 'saved_fce'
+   if row['source']=='fce':row['source']='native_view' if snapshot.get('source') in ('save_bound_native','live_calendar') else 'saved_fce'
   global_data['coverage'].update(live_competitions=global_data['coverage'].get('competitions',0) if snapshot.get('source') in ('save_bound_native','live_league_only') else 0,live_league_tables=len({r['leagueid'] for r in league_links}) if live_leagues else 0,live_database=live_leagues is not None,league_only=league_only)
   global_data['coverage'].update(derived_campaigns=len(snapshot.get('derived_slots',[])),native_bound=snapshot.get('source')=='save_bound_native')
   tables.update(global_data['tables'])

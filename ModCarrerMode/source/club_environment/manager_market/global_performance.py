@@ -18,13 +18,18 @@ def project(snapshot,fixtures,memberships,links,saved_date,season,today,league_s
   rt=root(r[1])
   if not rt or rt[3]<=0:continue
   all_rows.append((r,rt));by_club[r[2]].add(r[1])
- retained=[]
- for r,rt in sorted(all_rows,key=lambda pair:len(ancestry(pair[0][1])),reverse=True):
-  children=[pair for pair in retained if pair[0][2]==r[2] and pair[1][0]==rt[0] and r[1] in ancestry(pair[0][1])[1:]]
+ # Parent/child overlap is local to one club and one competition root.
+ # Scanning every retained row for every standing made each calendar day
+ # quadratic across thousands of unrelated clubs/competitions.
+ retained_by_club=defaultdict(list)
+ for order,(r,rt) in enumerate(sorted(all_rows,key=lambda pair:len(ancestry(pair[0][1])),reverse=True)):
+  identity=(r[2],rt[0]);retained=retained_by_club[identity]
+  children=[pair for pair in retained if r[1] in ancestry(pair[0][1])[1:]]
   if children:
    if r[9]<=sum(pair[0][9] for pair in children):continue
-   retained=[pair for pair in retained if pair not in children]
-  retained.append((r,rt))
+   retained_by_club[identity]=retained=[pair for pair in retained if pair not in children]
+  retained.append((r,rt,order))
+ retained=[(r,rt) for r,rt,_ in sorted((pair for pairs in retained_by_club.values() for pair in pairs),key=lambda p:p[2])]
  performance=[];groups=defaultdict(list);seen=set()
  for r,rt in retained:
   ident=(rt[0],r[1],r[2])
@@ -33,11 +38,17 @@ def project(snapshot,fixtures,memberships,links,saved_date,season,today,league_s
   row['played']=r[9];performance.append(row);groups[(rt[3],r[1])].append(row)
   goals=snapshot.get('standingGoals',{}).get(str(r[0]))
   if goals is not None and len(goals)==4 and all(type(v)==int and v>=0 for v in goals):row.update(zip(('hgf','hga','agf','aga'),goals))
- tables={};dates={};club_tables={}
+ tables={};dates={};club_tables={};members_by_league=defaultdict(set);links_by_league=defaultdict(list);groups_by_asset=defaultdict(list);fixtures_by_asset=defaultdict(list)
+ for club,lid in memberships.items():members_by_league[lid].add(club)
+ for row in links:
+  if row.get('secondarytable')==0:links_by_league[row.get('leagueid')].append(row)
+ for (asset,_),rows in groups.items():groups_by_asset[asset].append(rows)
+ for match in fixtures:
+  if match['played'] and match['date']<=today:fixtures_by_asset[match['asset']].append(match)
  for lid in set(memberships.values()):
-  members={t for t,l in memberships.items() if l==lid};options=[rs for (asset,_),rs in groups.items() if asset==lid and len({r['club'] for r in rs}&members)>=min(2,len(members)) and any(r['played'] for r in rs)]
+  members=members_by_league[lid];options=[rs for rs in groups_by_asset[lid] if len({r['club'] for r in rs}&members)>=min(2,len(members)) and any(r['played'] for r in rs)]
   represented={r['club'] for rs in options for r in rs}&members
-  league_rows=[r for r in links if r.get('secondarytable')==0 and r.get('leagueid')==lid and r.get('teamid') in members]
+  league_rows=[r for r in links_by_league[lid] if r.get('teamid') in members]
   native_played=sum(r.get('nummatchesplayed',0) for r in league_rows)
   fce_played=sum(r['played'] for rs in options for r in rs if r['club'] in members)
   # A partial FCE publication must not hide a complete league table.
@@ -47,11 +58,13 @@ def project(snapshot,fixtures,memberships,links,saved_date,season,today,league_s
    # Ignore empty setup groups. Multi-group leagues retain each club's group;
    # group A's rank must not be compared with every team in groups B..H.
    options.sort(key=lambda rs:(len({r['club'] for r in rs}&members),sum(r['played'] for r in rs)),reverse=True)
-   detailed=[m for m in fixtures if m['asset']==lid and m['played'] and m['date']<=today]
+   detailed=defaultdict(list)
+   for match in fixtures_by_asset[lid]:
+    detailed[match['home']].append(match);detailed[match['away']].append(match)
    for chosen in options:
     table=[dict(club=r['club'],played=r['played'],points=(r['hw']+r['aw'])*3+r['hd']+r['ad'],wins=r['hw']+r['aw'],gf=r.get('hgf',0)+r.get('agf',0),ga=r.get('hga',0)+r.get('aga',0)) for r in chosen if r['club'] in members]
     for row in table:
-     own=[m for m in detailed if row['club'] in (m['home'],m['away'])]
+     own=detailed[row['club']]
      if len(own)==row['played']:
       row['gf']=sum(m['hg'] if row['club']==m['home'] else m['ag'] for m in own);row['ga']=sum(m['ag'] if row['club']==m['home'] else m['hg'] for m in own)
     table=rank(table);tables.setdefault(str(lid),table);dates[str(lid)]=today
@@ -60,10 +73,12 @@ def project(snapshot,fixtures,memberships,links,saved_date,season,today,league_s
    # FIFA simulates some leagues only in leagueteamlinks, without fixtures.
    # This evidence retains the save's date; it is never labelled as live RAM.
    table=[]
-   for r in links:
-    if r.get('secondarytable')!=0 or r.get('leagueid')!=lid or r.get('teamid') not in members:continue
+   for r in league_rows:
     values=[r.get(k) for k in ('homewins','homedraws','homelosses','awaywins','awaydraws','awaylosses')]
-    if any(type(v)!=int or not 0<=v<=255 for v in values) or sum(values)!=r.get('nummatchesplayed'):continue
+    if any(type(v)!=int or not 0<=v<=255 for v in values):continue
+    # Expanded leagues can retain a zero summary field while their six W/D/L
+    # counters and points are current. Require both football totals to agree.
+    if r.get('nummatchesplayed') not in (0,sum(values)):continue
     hw,hd,hl,aw,ad,al=values;count=sum(values)
     if r.get('points')!=3*(hw+aw)+hd+ad:continue
     performance.append(dict(key='db:'+str(lid),root=0,asset=lid,group=lid,club=r['teamid'],date=saved_date,season=season,source=league_source,played=count,**dict(zip(WDL,values))))

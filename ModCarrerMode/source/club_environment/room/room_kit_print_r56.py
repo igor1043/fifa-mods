@@ -64,7 +64,7 @@ def print_model(club,typ,rect,part):
     tag=hashlib.sha256(struct.pack('<4f',*rect)).hexdigest()[:12];name=f'native_{part}_surface_{club}_{typ}_{tag}_r61.rx3';path=LIVE/name
     shirt,ids,_=source_shirt(typ)
     if not path.exists():precise_prop_file([native_name_surface(shirt,ids,rect)],ROOT/'assets'/name)
-    return 'data/sceneassets/server16_dressing_room_20261022/'+name,list(rect)
+    return 'data/sceneassets/server16_dressing_room_v3/shared/'+name,list(rect)
 
 def name_model(club,typ,kit_rx):
     return print_model(club,typ,kit_hotspots(kit_rx).get('jersey',{}).get('name'),'name')

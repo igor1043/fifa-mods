@@ -1,0 +1,56 @@
+{
+  "schema": 1,
+  "name": "Mirassol",
+  "collection": "serie-a-original",
+  "concept": "Voo amarelo-verde",
+  "assets": {
+    "cabinet": "locker-frame.png",
+    "backing": "locker-backing.png",
+    "feature_wall": "feature-wall.png",
+    "fascia": "locker-backing.png",
+    "corner": "corner-panel.png",
+    "fascia_back_left": "fascia-back-left.png",
+    "fascia_back_right": "fascia-back-right.png",
+    "fascia_left": "fascia-left.png",
+    "fascia_right": "fascia-right.png",
+    "wall_mural": "wall-mural.png"
+  },
+  "defaults": {
+    "style": "custom",
+    "finish": "light",
+    "backs": "custom",
+    "trim": "primary",
+    "floor": "rubber",
+    "logo": "floor"
+  },
+  "theme": {
+    "banner": {
+      "base": "#07562F",
+      "accent": "#FDDE02",
+      "panels": [
+        {
+          "mode": "image",
+          "asset_key": "fascia_back_left"
+        },
+        {
+          "mode": "image",
+          "asset_key": "fascia_back_right"
+        },
+        {
+          "mode": "image",
+          "asset_key": "fascia_left"
+        },
+        {
+          "mode": "image",
+          "asset_key": "fascia_right"
+        }
+      ]
+    }
+  },
+  "artwork": {
+    "tool": "image_gen built-in",
+    "original_copy": true
+  },
+  "surface_layout_revision": 4,
+  "surface_image_revision": 7
+}

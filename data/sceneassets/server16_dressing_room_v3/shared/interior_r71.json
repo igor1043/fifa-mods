@@ -1,0 +1,213 @@
+{
+  "revision": 71,
+  "bindings": [
+    {
+      "material": "charcoal",
+      "submesh": "room_part_1"
+    },
+    {
+      "material": "metal",
+      "submesh": "room_part_2"
+    },
+    {
+      "material": "primary",
+      "submesh": "room_part_3"
+    },
+    {
+      "material": "signs",
+      "submesh": "room_part_4"
+    },
+    {
+      "material": "graphic",
+      "submesh": "room_part_5"
+    },
+    {
+      "material": "mural",
+      "submesh": "room_part_6"
+    },
+    {
+      "material": "crest",
+      "submesh": "room_part_7"
+    },
+    {
+      "material": "seam",
+      "submesh": "room_part_8"
+    },
+    {
+      "material": "glass",
+      "submesh": "room_part_9"
+    },
+    {
+      "material": "light",
+      "submesh": "room_part_10"
+    },
+    {
+      "material": "bottle",
+      "submesh": "room_part_11"
+    },
+    {
+      "material": "secondary",
+      "submesh": "room_part_12"
+    },
+    {
+      "material": "towel",
+      "submesh": "room_part_13"
+    }
+  ],
+  "lights": [
+    [
+      -450,
+      -390
+    ],
+    [
+      30,
+      -390
+    ],
+    [
+      450,
+      -390
+    ],
+    [
+      -450,
+      -30
+    ],
+    [
+      30,
+      -30
+    ],
+    [
+      450,
+      -30
+    ],
+    [
+      -450,
+      330
+    ],
+    [
+      30,
+      330
+    ],
+    [
+      450,
+      330
+    ],
+    [
+      -450,
+      690
+    ],
+    [
+      30,
+      690
+    ],
+    [
+      450,
+      690
+    ],
+    [
+      30,
+      1050
+    ],
+    [
+      450,
+      1050
+    ],
+    [
+      30,
+      1410
+    ],
+    [
+      450,
+      1410
+    ],
+    [
+      30,
+      1650
+    ],
+    [
+      450,
+      1650
+    ]
+  ],
+  "removed_triangles": {
+    "0": 1581,
+    "1": 576,
+    "2": 0,
+    "4": 2480,
+    "5": 180,
+    "6": 2352,
+    "7": 0,
+    "8": 0,
+    "9": 420,
+    "10": 24,
+    "11": 24,
+    "12": 0,
+    "13": 672,
+    "14": 960,
+    "15": 240,
+    "16": 0,
+    "17": 0,
+    "18": 2,
+    "19": 0,
+    "20": 0,
+    "21": 0,
+    "22": 2,
+    "23": 0,
+    "24": 0,
+    "25": 0,
+    "26": 0,
+    "27": 0,
+    "28": 2,
+    "29": 0,
+    "30": 0,
+    "31": 0,
+    "32": 0,
+    "33": 0,
+    "34": 0,
+    "35": 0,
+    "36": 0,
+    "37": 0,
+    "38": 0,
+    "39": 0,
+    "40": 300,
+    "41": 2100,
+    "42": 300,
+    "43": 12,
+    "44": 12,
+    "45": 96,
+    "46": 204,
+    "47": 288,
+    "48": 420,
+    "49": 300,
+    "50": 0,
+    "51": 0
+  },
+  "layout_changed": false,
+  "obstacles": [
+    {
+      "name": "Hidratação / bancada r71",
+      "lo": [
+        320,
+        0,
+        879
+      ],
+      "hi": [
+        622,
+        93,
+        941
+      ]
+    },
+    {
+      "name": "Hidratação / refrigerador r71",
+      "lo": [
+        630,
+        0,
+        884
+      ],
+      "hi": [
+        710,
+        240,
+        941
+      ]
+    }
+  ]
+}

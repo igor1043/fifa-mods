@@ -39,6 +39,8 @@ def build(person,appointments,results,honours,reviews,clubs,today,stamp,campaign
  try:from .appointment_campaign import overlay,recalc
  except ImportError:from appointment_campaign import overlay,recalc
  overlay(spells,appointments,results,campaigns)
+ for spell,a in zip(spells,merged):
+  spell['confidence']=for_spell(reviews.get(a['club_id'],[]),a['start_date'],a['end_date'] or today,a['origin'] in ('Vínculo inicial desde o início da carreira','Estimado a partir da ativação do mod'),spell['total'])
  totals={}
  for name in ('total','home','away'):
   out={k:sum(v[name][k] for v in spells) for k in ('games','wins','draws','losses','gf','ga','points')};recalc(out);totals[name]=out

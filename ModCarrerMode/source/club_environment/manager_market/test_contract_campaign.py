@@ -12,6 +12,15 @@ class ContractCampaignTest(unittest.TestCase):
  def profile(self,coach):return next(p for p in project(self.m)['people'] if p['id']==coach)
  def advance(self,c):
   with self.m.db:self.m.advance(c)
+ def test_renewal_keeps_club_arrival_date_in_market_card(self):
+  self.m.db.execute("UPDATE market_rules SET value=0 WHERE branch=? AND key='enabled'",(self.m.branch,))
+  self.m.leave(self.m.active(club=1),20261118,'dismissal','Teste')
+  coach=self.m.one('coaches','coach_id','4');club=self.m.one('clubs','club_id',1)
+  self.m.appoint(coach,club,20261118,'hired');self.m.leave(self.m.active(club=1),20261202,'renewed','Renovação')
+  self.m.appoint(coach,club,20261202,'renewal');self.advance(context(20261203))
+  model=project(self.m);row=next(r for r in model['clubRows'] if r[0]=='Clube 1');profile=next(p for p in model['people'] if p['id']=='4')
+  self.assertEqual('15 dias · desde 18/11/2026',row[2]);self.assertEqual(20261202,profile['contract']['start'])
+  self.assertEqual(20261118,profile['career']['spells'][0]['start'])
  def test_aggregate_profile_and_new_contract_does_not_inherit(self):
   c=context(20260401);c['performance']=[native(1,20260401,10)]
   self.m.db.execute("UPDATE market_rules SET value=0 WHERE branch=? AND key='enabled'",(self.m.branch,));self.advance(c)

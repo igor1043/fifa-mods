@@ -1,6 +1,7 @@
 // Additional, isolated native GameplayProp objects. No game objects are reused
 // by index and no native game asset is modified or distributed by this module.
 #include "room_medical_paging.h"
+#include "room_sign_material.h"
 struct NativeRoomComponent {
  std::string key,type,model,submesh,texture,textureName;
  int medicalPage=-1,medicalPages=0,medicalBank=0;
@@ -120,9 +121,9 @@ bool createComponent(NativeRoomComponent&c){
  componentVisibility(c,false);((void(__fastcall*)(void*,const char*,int))(image+0x4ac5450))((void*)c.object,c.type.c_str(),0);
  const auto model=luaString(c.model),texture=luaString(c.texture),type=luaString(c.type);
  std::string script="do local gr=gRenderables;local o=gr:Find("+type+",0);local ok,err=pcall(function() local lod=0;local part="+luaString(c.alpha?"prop_alpha":"prop_plastic")+";";
- script+="gr:AddAsset(o,lod,'shader','data/fifarna/shader.big');gr:AddAsset(o,lod,part,"+model+");gr:AddAsset(o,lod,'color',"+texture+");gr:AddAsset(o,lod,'aux','data/sceneassets/prop/prop_102_textures.rx3');";
+ script+="gr:AddAsset(o,lod,'shader','data/fifarna/shader.big');gr:AddAsset(o,lod,part,"+model+");gr:AddAsset(o,lod,'color',"+texture+");gr:AddAsset(o,lod,'aux',"+luaString(roomComponentAuxTexture(c.key))+");";
  script+="local state=gSportsRNA:GetTable('wvState');local env=gSportsRNA:GetInt(state,'wvAttribEnvLighting');gr:AddAsset(o,lod,'charcmn','data/sceneassets/charactercmn/charactercmn_'..env..'.rx3');";
- script+="gr:AddAsset(o,lod,'coverage','data/sceneassets/server16_dressing_room_20261022/room_white_r49.rx3');";
+ script+="gr:AddAsset(o,lod,'coverage','data/sceneassets/server16_dressing_room_v3/shared/room_white_r49.rx3');";
  script+="gr:CreateMaterialFromAttribulator(o,lod,part,'prop_material',"+luaString(c.alpha?"prop_alpha":"prop_plastic")+");gr:SetSubMesh(o,lod,part,"+luaString(c.submesh)+");";
  script+="gr:SetTexture(o,lod,part,'textures','diffuseTexture','color',"+luaString(c.textureName)+");gr:SetTexture(o,lod,part,'textures','normalMap','aux','_nm');gr:SetTexture(o,lod,part,'textures','coeffMap','aux','_coeff');";
  script+="gr:SetTexture(o,lod,part,'textures','envDiffuseTexture','charcmn','envd_');gr:SetTexture(o,lod,part,'textures','envSpecTexture','charcmn','envs_');gr:SetTexture(o,lod,part,'textures','coverageMap','coverage','white_cm');gr:SetDBInt(o,'server16_room_revision',1);gr:Reload(o,1);ContextAddRenderable('gameplayprops',o,1,{}) end);if not ok then S16RoomComponentError=tostring(err) end end";
@@ -150,7 +151,7 @@ bool roomComponentsFailed(){for(auto&c:components)if(c->failed)return true;retur
 void showComponents(bool visible){for(auto&c:components)componentVisibility(*c,visible);}
 void pollSlate(bool show,bool error){
  for(int i=0;i<2;++i){auto&c=i?errorSlate:loadingSlate;
-  if(!c.attempted){c.key=i?"loading_error":"loading_slate";c.type=i?"server16_room_error_r60":"server16_room_loading_r60";c.model="data/sceneassets/server16_dressing_room_20261022/loading_slate_r56.rx3";c.submesh="room_part_1";c.texture=i?"data/sceneassets/server16_dressing_room_20261022/loading_error_r56.rx3":"data/sceneassets/server16_dressing_room_20261022/loading_slate_texture_r56.rx3";c.textureName="slate_cm";c.matrices.push_back({1,0,0,0,0,1,0,0,0,0,1,0,100000,0,0,1});if(!createComponent(c))c.failed=true;}
+  if(!c.attempted){c.key=i?"loading_error":"loading_slate";c.type=i?"server16_room_error_r60":"server16_room_loading_r60";c.model="data/sceneassets/server16_dressing_room_v3/shared/loading_slate_r56.rx3";c.submesh="room_part_1";c.texture=i?"data/sceneassets/server16_dressing_room_v3/shared/loading_error_r56.rx3":"data/sceneassets/server16_dressing_room_v3/shared/loading_slate_texture_r56.rx3";c.textureName="slate_cm";c.matrices.push_back({1,0,0,0,0,1,0,0,0,0,1,0,100000,0,0,1});if(!createComponent(c))c.failed=true;}
   if(c.object&&!c.failed&&!c.loaded&&componentReady(c.object))c.loaded=true;
   componentVisibility(c,show&&(i?error:!error));
  }

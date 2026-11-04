@@ -1,12 +1,23 @@
 # FIFA Friends V12
 
+## Entrega — 04/11/2026
+
+Vestiário V3 oficial, mercado de técnicos com acompanhamento diário e navegação revisados, clubes/seleções e Server16 0.2.20. O ZIP incremental de assets é `FIFA-Friends-Assets-Delta-20261104-sobre-20261102-R2.zip`, sobre a entrega de 02/11 R2. V1/V2 ficam em backup e não acompanham o pacote.
+[Instalação, mudanças e validação](ModCarrerMode/docs/RELEASE_20261104.md).
+
+## Server16 0.2.20 — logs por sessão (04/11/2026)
+
+Limpeza automática dos logs do Server e dos mods ao abrir, botão **Limpar logs**
+e limites durante a execução. Saves, bancos e assets são preservados.
+[Detalhes e limites](ModCarrerMode/docs/SERVER16_LOGS_20261104.md).
+
 Mais vida na carreira, nos uniformes e na apresentação das partidas do FIFA 16.
 
 O FIFA Friends V12 reúne melhorias para acompanhar seu clube, personalizar a experiência e dar mais identidade a cada competição. O [Server16](https://github.com/igor1043/CG-File-Server-16---Python-Port/tree/fifa-friends) é o painel que acompanha o projeto e permite escolher os recursos antes e durante a partida.
 
-**Edição:** FIFA Friends V12 · **Atualizado em:** 02/11/2026
+**Edição:** FIFA Friends V12 · **Atualizado em:** 04/11/2026
 
-**Server16 incluído:** 0.2.19. As DLLs compiladas ficam nesta branch, organizadas em uma pasta por mod. O [índice dos módulos ativos](ModCarrerMode/mods/README.md) informa arquivos, funções e configurações.
+**Server16 incluído:** 0.2.20. As DLLs compiladas ficam nesta branch, organizadas em uma pasta por mod. O [índice dos módulos ativos](ModCarrerMode/mods/README.md) informa arquivos, funções e configurações.
 
 **Revisão R3 de 02/11 — mercado de técnicos:** salvamento confirmado pelo FIFA
 vinculado ao checkpoint SQL, preservando os técnicos na recarga e descartando o

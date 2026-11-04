@@ -10,7 +10,7 @@ import numpy as np
 from PIL import Image
 from rx3 import Rx3,FORMAT,VERTEX,INDEX,MESH,NAME,TEXTURE,align,sized
 ROOT=portable.ROOM
-GAME=portable.GAME;LIVE=GAME/'data/sceneassets/server16_dressing_room_20261022'
+GAME=portable.GAME;LIVE=GAME/'data/sceneassets/server16_dressing_room_v3/shared'
 SOURCE=portable.ROOM/"assets/room.scene"
 EXTRACT=None
 DTYPE=np.dtype({'names':['p','uv','n'],'formats':[('<f4',3),('<f4',2),('<f4',3)],'offsets':[0,12,44],'itemsize':56})

@@ -34,7 +34,8 @@ uint64_t roomLoadBegan=0;
 std::atomic<unsigned>phase{0},fault{0},frames{0},draws{0},submissions{0};
 std::atomic<unsigned>roomSceneState{0};
 fs::path game,folder,logfile;uint64_t requestedAt=0;
-bool registered=false,creationAttempted=false,codeValidated=false,prepareAttempted=false;
+bool roomV3=false;
+bool registered=false,engineShadowRegistered=false,engineShadowContextsRegistered=false,creationAttempted=false,codeValidated=false,prepareAttempted=false;
 bool nativeCodeReady(){
  const unsigned char signature[]={0x4c,0x8b,0x51,0x20,0x41,0x8b,0x00,0x4c,0x63,0xda};unsigned char actual[10]{};
  __try{memcpy(actual,(void*)(image+0x4ad80b0),sizeof actual);return !memcmp(actual,signature,sizeof actual);}__except(EXCEPTION_EXECUTE_HANDLER){return false;}
@@ -104,6 +105,17 @@ bool captureRoomSceneCommand(const char*argument){
  std::ifstream scope(folder/L"runtime/room_control_scope.txt");std::string magic,nonce;unsigned version=0,pid=0,club=0;
  if(scope>>magic>>version>>pid>>club>>nonce && magic=="S16ROOMSCOPE"&&version==1&&pid==GetCurrentProcessId()
     &&club==request.club&&club==validCareerClub&&nonce==request.nonce&&roomCommandReceipt.accepts(request)){
+  if(roomV3&&request.code>=122&&request.code<=127){
+   const char*keys[]={"backs","backs","floor","floor","finish","finish"};
+   const char*values[]={"plain","message","light","dark","light","dark"};
+   try {
+    const auto settings=game/L"ModCarrerMode/data/club_environment/room/v3-settings";fs::create_directories(settings);
+    const auto target=settings/(std::to_string(club)+"_"+keys[request.code-122]+".txt");const auto temporary=fs::path(target.wstring()+L".tmp");
+    std::ofstream out(temporary);out<<values[request.code-122]<<"\n";out.close();
+    if(out&&MoveFileExW(temporary.c_str(),target.c_str(),MOVEFILE_REPLACE_EXISTING)){roomCommandReceipt.commit(request);accepted=true;log("V3_ROOM_FINISH_SAVED: scoped to current club");}
+   }catch(...){log("V3_ROOM_FINISH_SAVE_FAILED");}
+   ReleaseSRWLockExclusive(&roomCommandLock);return accepted;
+  }
   const auto target=folder/L"runtime/room_camera_command.txt",temporary=folder/L"runtime/room_camera_command.txt.direct-new";
   std::ofstream output(temporary,std::ios::binary|std::ios::trunc);
   if(output){output<<"S16ROOM 1 "<<pid<<" "<<club<<" "<<nonce<<" "<<request.sequence<<" "<<request.code<<"\n";output.close();
@@ -116,6 +128,10 @@ bool captureRoomSceneCommand(const char*argument){
 }
 void __fastcall draw(void*self,int pass){
  ++draws;if(stopping||!active||!ready||!page()||self!=(void*)object)return;
+ // V3 scenery is managed with the other content-addressed components so it
+ // can be replaced on a room re-entry, without stale native asset caching.
+ if(roomV3)return;
+ if(pass==2)++flatShadowPasses;if(pass==4)++selfShadowPasses;
  if(!submissions.load())log("FIRST_NATIVE_DRAW_BEGIN: forwarding GameplayProp native context");
  __try {if(indoorEnabled&&pass==1)nativeIndoorDraw(self);else ((void(__fastcall*)(void*,int))originalDraw)(self,pass);++submissions;}
  __except(EXCEPTION_EXECUTE_HANDLER){fault=GetExceptionCode();active=false;phase=9;log("NATIVE_DRAW_EXCEPTION_DISABLED");}
@@ -130,7 +146,7 @@ if not S16NativeDressingRoom then
   assert(gr and type(ContextAddRenderable)=='function','native renderer unavailable')
   s.object=gr:Find('server16_native_dressing_room_r60',0)
   assert(s.object,'native GameplayProp creation failed')
-  local root='data/sceneassets/server16_dressing_room_20261022/'
+  local root='data/sceneassets/server16_dressing_room_v3/shared/'
   gr:AddAsset(s.object,0,'shader','data/fifarna/shader.big')
   gr:AddAsset(s.object,0,'textures','data/sceneassets/prop/prop_102_textures.rx3')
  end)
@@ -140,7 +156,7 @@ if S16NativeDressingRoom and not S16NativeDressingRoom.bound then
  local s=S16NativeDressingRoom
  local ok,err=pcall(function()
   local gr=gRenderables;local o=s.object;local lod=0
-  local root='data/sceneassets/server16_dressing_room_20261022/'
+  local root='data/sceneassets/server16_dressing_room_v3/shared/'
   local state=gSportsRNA:GetTable('wvState')
   local env=gSportsRNA:GetInt(state,'wvAttribEnvLighting')
   gr:AddAsset(o,lod,'charcmn','data/sceneassets/charactercmn/charactercmn_'..env..'.rx3')
@@ -195,14 +211,33 @@ void poll(){
   allocatedNative=(uintptr_t)((void*(__fastcall*)(void*,void*,const char*,int,int,int))(image+0x43c8be0))(storage,allocator,"server16_native_dressing_room_r60",0,1,1);
   if(!allocatedNative||get<uintptr_t>(allocatedNative)!=image+0x2210dc0){fault=11;phase=9;log("NATIVE_FACTORY_ALLOCATION_REJECTED");return;}
   ((void(__fastcall*)(void*,const char*,int))(image+0x4ac5450))((void*)allocatedNative,"server16_native_dressing_room_r60",0);
-  if(!execute(createScript)){fault=1;phase=9;return;}}
+  std::string sceneScript=createScript;
+  if(roomV3){const std::string oldModel="root..'scenery_r77.rx3'";const auto at=sceneScript.find(oldModel);if(at==std::string::npos){fault=1;phase=9;return;}sceneScript.replace(at,oldModel.size(),"'data/sceneassets/server16_dressing_room_v3/scenery.rx3'");}
+  if(!execute(sceneScript.c_str())){fault=1;phase=9;return;}}
  if(!object&&!fault){auto ok=roomField("ok");if(ok.type==1&&!ok.value){fault=2;phase=9;log("NATIVE_ASSET_REQUEST_REJECTED");return;}guardObject();}
  if(!object&&!fault&&GetTickCount64()-requestedAt>45000){fault=3;phase=9;log("NATIVE_OBJECT_TIMEOUT_NO_RETRY");}
  if(object&&!fault){
   if(!registered){
-   const char script[]="local s=S16NativeDressingRoom;local ok,err=pcall(function() ContextAddRenderable('gameplayprops',s.object,1,{}) end);s.registered=ok;s.error=tostring(err);s.stage=ok and 'registered_loading' or 'failed'";
+   const char script[]=R"lua(local s=S16NativeDressingRoom;local gr=gRenderables;local shadowOk,shadowErr=pcall(function()
+    local flatGlobal=gr:Find('flatshadow',0);local selfGlobal=gr:Find('selfshadowpo',0)
+    local flat=gr:Create('flatshadow',1);local selfshadow=gr:Create('selfshadowpo',1)
+    assert(flat and selfshadow and flat~=flatGlobal and selfshadow~=selfGlobal,'private FIFA shadow renderers unavailable')
+    s.flat_shadow=flat;s.self_shadow=selfshadow
+    gr:AddSubObject(flat,s.object,2);gr:AddSubObject(selfshadow,s.object,4)
+   end)
+   s.engine_shadow_registered=shadowOk;s.engine_shadow_error=tostring(shadowErr)
+   local flatQueued,flatQueueErr=false,'shadow renderer unavailable';local selfQueued,selfQueueErr=false,'shadow renderer unavailable'
+   if shadowOk then
+    flatQueued,flatQueueErr=pcall(function() ContextAddRenderable('gameplayprops',s.flat_shadow,0,{}) end)
+    selfQueued,selfQueueErr=pcall(function() ContextAddRenderable('gameplayprops',s.self_shadow,0,{}) end)
+   end
+   s.engine_shadow_contexts_registered=flatQueued and selfQueued
+   s.engine_shadow_context_error=tostring(flatQueueErr)..'; '..tostring(selfQueueErr)
+   local ok,err=pcall(function() ContextAddRenderable('gameplayprops',s.object,1,{}) end)
+   s.registered=ok;s.error=tostring(err);s.stage=ok and 'registered_loading' or 'failed'
+   )lua";
    if(!execute(script)||roomField("registered").type!=1||!roomField("registered").value){fault=7;phase=9;log("NATIVE_CONTEXT_REGISTRATION_REJECTED");return;}
-   registered=true;log("NATIVE_CONTEXT_REGISTERED_LOADING");
+   registered=true;engineShadowRegistered=roomField("engine_shadow_registered").type==1&&roomField("engine_shadow_registered").value;engineShadowContextsRegistered=roomField("engine_shadow_contexts_registered").type==1&&roomField("engine_shadow_contexts_registered").value;log(engineShadowContextsRegistered?"NATIVE_SHADOW_RENDERERS_QUEUED_IN_ROOM_CONTEXT":engineShadowRegistered?"NATIVE_SHADOW_GROUPS_LINKED_CONTEXT_QUEUE_FAILED":"NATIVE_SHADOW_GROUPS_UNAVAILABLE");
   }
   if(!prepareAttempted){prepareAttempted=true;log("NATIVE_PREPARE_BEGIN");((void(__fastcall*)(void*,bool))(image+0x4ad7e50))((void*)object,true);log("NATIVE_PREPARE_RETURNED");}
   if(!ready&&loaded()){
@@ -237,12 +272,12 @@ bool install(){
  if(!relay){for(uintptr_t step=0x10000;step<0x70000000&&!relay;step+=0x10000)relay=VirtualAlloc((void*)(image+step),4096,MEM_COMMIT|MEM_RESERVE,PAGE_READWRITE);if(!relay)return false;unsigned char jump[14]={0xff,0x25,0,0,0,0};auto target=(uintptr_t)&frame;memcpy(jump+6,&target,8);memcpy(relay,jump,14);DWORD old;if(!VirtualProtect(relay,4096,PAGE_EXECUTE_READ,&old))return false;FlushInstructionCache(GetCurrentProcess(),relay,4096);}
  oursCall=LONG(intptr_t(relay)-intptr_t(image+0x3a19f84));return exchange(beforeCall,oursCall);
 }
-void status(){std::ofstream f(folder/L"runtime/native_status.json.tmp");f<<"{\"pid\":"<<GetCurrentProcessId()<<",\"installed\":"<<(installed?"true":"false")<<",\"scene_state\":"<<roomSceneState<<",\"active\":"<<(active?"true":"false")<<",\"ready\":"<<(ready?"true":"false")<<",\"loading\":"<<(roomLoading?"true":"false")<<",\"components_ready\":"<<(componentsReadyStatus?"true":"false")<<",\"phase\":"<<phase<<",\"error\":"<<fault<<",\"frames\":"<<frames<<",\"native_draw_callbacks\":"<<draws<<",\"native_draw_returns\":"<<submissions<<",\"object\":"<<object<<",\"indoor_uploads\":"<<indoorUploads<<",\"indoor_failures\":"<<indoorFailures<<",\"return_background_refreshes\":"<<roomReturnRefreshes<<",\"return_background_hook\":"<<(roomPhotoInstalled?"true":"false")<<",\"roster_camera\":"<<(roomRosterCameraOwned()?"true":"false")<<",\"free_camera\":"<<(camera.walk.active?"true":"false")<<",\"camera_automatic\":"<<(camera.director.automatic?"true":"false")<<",\"camera_selected\":"<<camera.director.selected<<",\"camera_paused\":"<<(camera.director.paused?"true":"false")<<",\"camera_command_sequence\":"<<camera.controlSequence<<",\"stadium_reloads\":0,\"renderer\":\"FIFA native GameplayProp\",\"webview\":false}\n";f.close();MoveFileExW((folder/L"runtime/native_status.json.tmp").c_str(),(folder/L"runtime/native_status.json").c_str(),MOVEFILE_REPLACE_EXISTING);}
+void status(){std::ofstream f(folder/L"runtime/native_status.json.tmp");f<<"{\"pid\":"<<GetCurrentProcessId()<<",\"installed\":"<<(installed?"true":"false")<<",\"scene_state\":"<<roomSceneState<<",\"active\":"<<(active?"true":"false")<<",\"ready\":"<<(ready?"true":"false")<<",\"loading\":"<<(roomLoading?"true":"false")<<",\"components_ready\":"<<(componentsReadyStatus?"true":"false")<<",\"phase\":"<<phase<<",\"error\":"<<fault<<",\"frames\":"<<frames<<",\"native_draw_callbacks\":"<<draws<<",\"native_draw_returns\":"<<submissions<<",\"flat_shadow_passes\":"<<flatShadowPasses<<",\"self_shadow_passes\":"<<selfShadowPasses<<",\"engine_shadow_registered\":"<<(engineShadowRegistered?"true":"false")<<",\"engine_shadow_contexts_registered\":"<<(engineShadowContextsRegistered?"true":"false")<<",\"object\":"<<object<<",\"indoor_uploads\":"<<indoorUploads<<",\"indoor_failures\":"<<indoorFailures<<",\"spot_power\":"<<indoorSpotPower.load()<<",\"spotlighted_draws\":"<<spotlightedDraws<<",\"return_background_refreshes\":"<<roomReturnRefreshes<<",\"return_background_hook\":"<<(roomPhotoInstalled?"true":"false")<<",\"roster_camera\":"<<(roomRosterCameraOwned()?"true":"false")<<",\"free_camera\":"<<(camera.walk.active?"true":"false")<<",\"camera_automatic\":"<<(camera.director.automatic?"true":"false")<<",\"camera_selected\":"<<camera.director.selected<<",\"camera_paused\":"<<(camera.director.paused?"true":"false")<<",\"camera_command_sequence\":"<<camera.controlSequence<<",\"stadium_reloads\":0,\"renderer\":\"FIFA native GameplayProp\",\"webview\":false}\n";f.close();MoveFileExW((folder/L"runtime/native_status.json.tmp").c_str(),(folder/L"runtime/native_status.json").c_str(),MOVEFILE_REPLACE_EXISTING);}
 DWORD WINAPI worker(void*){
  const auto began=GetTickCount64();log("WAIT_NATIVE_CODE: delayed signature validation after executable unpack");
  while(!stopping){
   holdDrawing=fs::exists(folder/L"runtime/HOLD_NATIVE_DRAW");validCareerClub=snapshotClub();
-  {std::ifstream f(folder/L"runtime/indoor_ambient.txt");float value=0;if(f>>value&&std::isfinite(value)&&value>=.2f&&value<=1.2f)indoorAmbient=value;}
+  {std::ifstream f(folder/L"runtime/indoor_ambient.txt");float value=0,power=indoorSpotPower.load();if(f>>value&&std::isfinite(value)&&value>=.2f&&value<=1.2f)indoorAmbient=value;if(f>>power&&std::isfinite(power)&&power>=0.f&&power<=2.5f)indoorSpotPower=power;}
   launchNativeAssetHelper();
   if(!codeValidated&&!fault){if(nativeCodeReady()){codeValidated=true;phase=0;log("NATIVE_CODE_VALIDATED");}else if(GetTickCount64()-began>120000){fault=10;phase=9;log("NATIVE_CODE_NOT_READY_DISABLED");}}
   if(codeValidated&&!installed&&!fault){if(install()){installed=true;log("READY: separate native room scene");}}
@@ -265,8 +300,16 @@ extern "C" __declspec(dllexport) BOOL WINAPI Fifa16ModStart(const char*){
  HMODULE self=nullptr;GetModuleHandleExW(GET_MODULE_HANDLE_EX_FLAG_FROM_ADDRESS|GET_MODULE_HANDLE_EX_FLAG_PIN,(LPCWSTR)&Fifa16ModStart,&self);wchar_t path[1024]{};GetModuleFileNameW(nullptr,path,1024);game=fs::path(path).parent_path();folder=game/L"ModCarrerMode/runtime/club_environment/room";logfile=folder/L"runtime/native_room.log";
  try{fs::create_directories(folder/L"runtime");}catch(...){started=false;return FALSE;}
  {std::ofstream f(logfile);f<<"Native dressing room session pid="<<GetCurrentProcessId()<<"\n";}
+ {std::ifstream selected(game/L"ModCarrerMode/data/club_environment/room/active-version.txt");int version=2;selected>>version;roomV3=version==3;}
+ if(roomV3){
+  for(const auto*name:{L"scenery.rx3",L"room_roles.rx3",L"crest_surfaces.rx3",L"locker_bay.rx3",L"fascia.rx3",L"crests.rx3",L"manifest.json"}){
+   const auto target=game/L"data/sceneassets/server16_dressing_room_v3"/name;
+   if(!fs::is_regular_file(target)||fs::file_size(target)<128){log("MISSING_V3_ASSET: incomplete room installation");started=false;return FALSE;}
+  }
+  log("DRESSING_ROOM_V3_DEFAULT: V2 assets preserved for rollback");
+ }
  for(const auto*name:{L"scenery_r77.rx3",L"scenery_textures_0_r72.rx3",L"scenery_textures_1_r72.rx3",L"room_roles_r77.rx3",L"medical_room_r77.rx3",L"interior_r77.rx3",L"coach_room_r76.rx3",L"ceiling_r72.rx3",L"water_cooler_r75.rx3",L"cooler_body_r72.rx3",L"cooler_glass_r72.rx3",L"room_white_r49.rx3",L"floor_textures_r44.rx3"}){
-  const auto target=game/L"data/sceneassets/server16_dressing_room_20261022"/name;
+  const auto target=game/L"data/sceneassets/server16_dressing_room_v3/shared"/name;
   if(!fs::is_regular_file(target)||fs::file_size(target)<128){log("MISSING_INSTALLED_ROOM_ASSET: native scene disabled before asset request");started=false;return FALSE;}
  }
  HANDLE thread=CreateThread(nullptr,0,worker,nullptr,0,nullptr);if(!thread){started=false;return FALSE;}CloseHandle(thread);return TRUE;

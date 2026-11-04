@@ -1,0 +1,10 @@
+{
+  "description": "Cores opcionais da parede secundaria, banco e armarios. Sem entrada para o ID, usa as duas cores do clube no jogo.",
+  "clubs": {
+    "243": {
+      "name": "Real Madrid",
+      "primary": "#FFFFFF",
+      "secondary": "#B9A274"
+    }
+  }
+}

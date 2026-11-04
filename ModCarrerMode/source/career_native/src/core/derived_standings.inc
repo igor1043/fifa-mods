@@ -15,6 +15,9 @@ _Static_assert(sizeof(DerivedNativeVector)==56,"FCE native standings vector ABI"
 #define DERIVED_GATHER(c,s,v) ((void (*)(void *,int,DerivedNativeVector *))(module+0x32290))(c,s,v)
 #define DERIVED_CALCULATE(w,s,d,v) ((void (*)(void *,int,int,DerivedNativeVector *))(module+0x40ce0))(w,s,d,v)
 #endif
+#ifndef DERIVED_INTERFACE_READY
+#define DERIVED_INTERFACE_READY(i) ((i) && *(void ***)(i)==(void **)(module+0x94360) && *((unsigned char *)(i)+0x30))
+#endif
 static SRWLOCK derived_lock=SRWLOCK_INIT;
 static FceDerivedStanding *derived_rows;
 static size_t derived_count,derived_capacity,derived_cursor,derived_jobs_count;
@@ -102,20 +105,24 @@ static void derived_free_vector(DerivedNativeVector *v) {
     }
     memset(v,0,sizeof(*v));
 }
-static void derived_tick(void *iface) {
+static void derived_step(void *iface,unsigned long long *batch_key,int *key_ready) {
     FceLiveSnapshot *snapshot;const FceModel *m;
     unsigned char *hub,*connector,*manager,*list,**first,**last;
     void *clock=NULL;void *wrapper[3];FceRawTable competitions={0};
     unsigned long long key;size_t i,j,n;int stage,any_played=0,failed=0;
     LONG epoch=InterlockedCompareExchange(&generation,0,0);
     DerivedNativeVector vector={0};ULONGLONG started=GetTickCount64();
-    if(started<derived_next || !fce_runtime_is_stable())return;
-    derived_next=started+250;
-    snapshot=fce_runtime_cached_acquire();if(!snapshot)return;m=&snapshot->model;
-    key=derived_signature(m);
+    snapshot=fce_runtime_calendar_acquire();
+    if(!snapshot && fce_runtime_is_stable())snapshot=fce_runtime_cached_acquire();
+    if(!snapshot)return;m=&snapshot->model;
+    if(date_callback && date_callback()!=m->date){fce_runtime_release(snapshot);return;}
+    /* Immutable owner-thread snapshot: hash once for this complete batch. */
+    if(!*key_ready){*batch_key=derived_signature(m);*key_ready=1;}
+    key=*batch_key;
     if(derived_epoch==epoch && derived_date==m->date && derived_key==key &&
        (derived_complete||derived_disabled)){fce_runtime_release(snapshot);return;}
     __try {
+        if(!DERIVED_INTERFACE_READY(iface))__leave;
         hub=*(unsigned char **)((unsigned char *)iface+0x18);
         connector=*(unsigned char **)(hub+0x28);manager=*(unsigned char **)(connector+0x18);
         list=*(unsigned char **)(hub+0x20);first=*(unsigned char ***)(list+8);last=*(unsigned char ***)(list+0x10);
@@ -190,7 +197,28 @@ static void derived_tick(void *iface) {
         AcquireSRWLockExclusive(&derived_lock);derived_disabled=1;derived_count=0;ReleaseSRWLockExclusive(&derived_lock);
         report("derived_standings_rejected",0,m,GetTickCount64()-started);
     }
-    /* One phase per owner tick; no all-leagues loop inside a UI provider. */
-    derived_next=GetTickCount64()+100;
+    /* Allocation, calculation and release stay on the verified FCE owner. */
     fce_runtime_release(snapshot);
+}
+
+/* Finish the bounded phase set before returning to the calendar owner.
+ * Splitting 145 phases into eight-phase frames starved fast daily advances:
+ * the following day invalidated the unfinished previous day's campaign.
+ * Native calculation/allocation/release remain on the verified owner thread.
+ * No mutable pointers or partial results are published to worker threads. */
+static void derived_tick(void *iface) {
+    ULONGLONG tick=GetTickCount64();unsigned count;int key_ready=0;
+    unsigned long long key=0;
+    int observed=date_callback?date_callback():derived_date;
+    if(tick<derived_next && observed==derived_date)return;
+    for(count=0;count<=6000;++count) {
+        size_t previous=derived_cursor;LONG revision=derived_revision;
+        derived_step(iface,&key,&key_ready);
+        if(derived_complete || derived_disabled || (previous==derived_cursor && revision==derived_revision))break;
+    }
+    if(count && log_path[0]) {
+        FILE *file=fopen(log_path,"ab");
+        if(file){fprintf(file,"event=derived_standings_batch date=%d phases=%llu complete=%d elapsed_ms=%llu\n",derived_date,(unsigned long long)derived_cursor,derived_complete,(unsigned long long)(GetTickCount64()-tick));fclose(file);}
+    }
+    derived_next=GetTickCount64()+16;
 }

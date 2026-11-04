@@ -26,12 +26,11 @@ class InteriorTests(unittest.TestCase):
                 self.assertTrue(np.isfinite(v['uv']).all())
 
     def test_black_seat_seams_removed_without_removing_seat_geometry(self):
-        old=Rx3((portable.GAME/PREFIX/'room_roles_r68.rx3').read_bytes())
         new=Rx3((self.stage/'room_roles_r71.rx3').read_bytes())
         def seams(rx):
             v,idx=read_mesh(rx,9);p=v['p'][idx.reshape(-1,3)]
             return int(((np.ptp(p[:,:,1],axis=1)<1.1)&np.all((p[:,:,1]>1058)&(p[:,:,1]<1060),axis=1)).sum())
-        self.assertEqual(seams(old),35*12);self.assertEqual(seams(new),0)
+        self.assertEqual(seams(new),0)
         # Main seat/cushion role retains the low seating vertices.
         v,_=read_mesh(new,1);self.assertGreater(int(((v['p'][:,1]>1040)&(v['p'][:,1]<1100)).sum()),100)
 

@@ -1,5 +1,5 @@
 {
-  "release": "FIFA Friends V12 / Server16 / 2026-11-02",
+  "release": "FIFA Friends V12 / Server16 / 2026-11-04",
   "files": [
     {
       "path": "FSW/ScoreBoard/globalcomponents/globalcomponents.big",
@@ -88,8 +88,8 @@
     },
     {
       "path": "LEIA-ME-ROBSON-ASSETS.txt",
-      "bytes": 2206,
-      "sha256": "e0ad93289011f9ee1eda6c8f4eaec7d3ea5d2cb7018f1228d84796f913ce86ac"
+      "bytes": 1188,
+      "sha256": "2e3270ed5d7720899ca2a08de711831d6e4af145ae35b5971599da729a06cbe6"
     },
     {
       "path": "ModCarrerMode/config/extra_scenes.ini",
@@ -128,8 +128,8 @@
     },
     {
       "path": "ModCarrerMode/data/catalogs/asset_complement.json",
-      "bytes": 657468,
-      "sha256": "f38218b6d7142ad77fc6a2952d477e65b8b9872694c6d5c5fa396e45abdef837"
+      "bytes": 611733,
+      "sha256": "8e444a6a37c846b75c629953b985c4c62d0a18bb826b9ed6c9660c824da0c98a"
     },
     {
       "path": "ModCarrerMode/data/catalogs/presentation_assets.json",
@@ -337,6 +337,1266 @@
       "sha256": "12aedd6c10070df2be54b712feeb0035d74ecb5dcdeef0953f0744b79c0b39b3"
     },
     {
+      "path": "ModCarrerMode/data/club_environment/current_dressing_room/README.md",
+      "bytes": 6057,
+      "sha256": "e67c4caf7ea8d139d9b2403b6d6080d278b630f49b89ad994c0f4f3695e647b6"
+    },
+    {
+      "path": "ModCarrerMode/data/club_environment/current_dressing_room/SERIE-A.md",
+      "bytes": 3143,
+      "sha256": "3d873a69745f415a198aeedd52e984b147079564c2ed2d28d509af6d6a06c4b9"
+    },
+    {
+      "path": "ModCarrerMode/data/club_environment/current_dressing_room/custom/1035/corner-panel.png",
+      "bytes": 18045,
+      "sha256": "3de1e2a7c48f118c51908209971c86d20f1d78a0c4bfc91cab16ee52c2c98080"
+    },
+    {
+      "path": "ModCarrerMode/data/club_environment/current_dressing_room/custom/1035/fascia-back-left.png",
+      "bytes": 122237,
+      "sha256": "9a33156fd847b482d8530591e90d854490c4413de117f69ac10a9231b8907692"
+    },
+    {
+      "path": "ModCarrerMode/data/club_environment/current_dressing_room/custom/1035/fascia-back-right.png",
+      "bytes": 104117,
+      "sha256": "0bab6205c00dc8bff0444238d2d83ce29ebbe26f678f297712a1010e095a4fef"
+    },
+    {
+      "path": "ModCarrerMode/data/club_environment/current_dressing_room/custom/1035/fascia-left.png",
+      "bytes": 182108,
+      "sha256": "8814fd6ce01092db84624158e0b18dae08529f0cfb66e1bebe973b6dc848fd7a"
+    },
+    {
+      "path": "ModCarrerMode/data/club_environment/current_dressing_room/custom/1035/fascia-right.png",
+      "bytes": 159352,
+      "sha256": "418586a30696477f226ecae8aa0843bc6a00159c5a38c258d3111f7254cde4a4"
+    },
+    {
+      "path": "ModCarrerMode/data/club_environment/current_dressing_room/custom/1035/feature-wall.png",
+      "bytes": 2824913,
+      "sha256": "ee819c82c36e9b5a1b35d487deb83963fe0e36e0b537f794f203cfd3f23b773b"
+    },
+    {
+      "path": "ModCarrerMode/data/club_environment/current_dressing_room/custom/1035/locker-backing.png",
+      "bytes": 2470488,
+      "sha256": "efc71be753c4bcb867bea3aaea487e632f581845a728b80b8c4936430da72dae"
+    },
+    {
+      "path": "ModCarrerMode/data/club_environment/current_dressing_room/custom/1035/locker-frame.png",
+      "bytes": 627198,
+      "sha256": "0087931ee2ae05a01179bd7af655f33f7bf928ecf1e08113acebbfb36c89b728"
+    },
+    {
+      "path": "ModCarrerMode/data/club_environment/current_dressing_room/custom/1035/profile.json",
+      "bytes": 1288,
+      "sha256": "1d292f02e0d1e69e3f447cdf2b5e94f994d649abc635e5fa083887b559d3b62f"
+    },
+    {
+      "path": "ModCarrerMode/data/club_environment/current_dressing_room/custom/1035/wall-mural.png",
+      "bytes": 2761956,
+      "sha256": "f18c418e33dbdba15b6cfb458d64ddb5de3a9da26087826111352a197423964a"
+    },
+    {
+      "path": "ModCarrerMode/data/club_environment/current_dressing_room/custom/1039/corner-panel.png",
+      "bytes": 17126,
+      "sha256": "e41afb3f38e459bdf55dffe2631bf09dd49d7484dd40e262a6bf6d45033d2813"
+    },
+    {
+      "path": "ModCarrerMode/data/club_environment/current_dressing_room/custom/1039/fascia-back-left.png",
+      "bytes": 109658,
+      "sha256": "36d59759adf728007cfe40b9bad76169af304ea16f4970dff6b7d4fe30133612"
+    },
+    {
+      "path": "ModCarrerMode/data/club_environment/current_dressing_room/custom/1039/fascia-back-right.png",
+      "bytes": 119434,
+      "sha256": "525342adfad0f2d64d8471a724d7136087a5495c2f4e0243eed8dbebf7dec8b7"
+    },
+    {
+      "path": "ModCarrerMode/data/club_environment/current_dressing_room/custom/1039/fascia-left.png",
+      "bytes": 86720,
+      "sha256": "0c4b0db13e3e88a4c11fbf8ad20abc12b95011b334047a2602e33cede569f620"
+    },
+    {
+      "path": "ModCarrerMode/data/club_environment/current_dressing_room/custom/1039/fascia-right.png",
+      "bytes": 101365,
+      "sha256": "68b2e84e50f335a48b38c07893a4d13d0029acb38eae93a508b09e2cae31b533"
+    },
+    {
+      "path": "ModCarrerMode/data/club_environment/current_dressing_room/custom/1039/feature-wall.png",
+      "bytes": 2217467,
+      "sha256": "a82ecb58fd9bfea4e6b08937377dc839da4afa8ee43d13e717117b00c0c3176d"
+    },
+    {
+      "path": "ModCarrerMode/data/club_environment/current_dressing_room/custom/1039/locker-backing.png",
+      "bytes": 1863641,
+      "sha256": "2433c4afbb93eda05d2d4c05b9a44af5efc91a2a29c32669cf35e1d47cf849c4"
+    },
+    {
+      "path": "ModCarrerMode/data/club_environment/current_dressing_room/custom/1039/locker-frame.png",
+      "bytes": 627288,
+      "sha256": "15cca05b6969fa1d8c79511d8f582a1bb75e3f6a19fd3ff012235c73cf275828"
+    },
+    {
+      "path": "ModCarrerMode/data/club_environment/current_dressing_room/custom/1039/profile.json",
+      "bytes": 1291,
+      "sha256": "ad99155473b35e74942b2985b1fd7e8c383119af50e4db37cad07419e86aa3c2"
+    },
+    {
+      "path": "ModCarrerMode/data/club_environment/current_dressing_room/custom/1039/wall-mural.png",
+      "bytes": 2816657,
+      "sha256": "13732ad8b6bd1044df9492520fa8bfed6c28c6fb5d1fe29f62cc02da111d1aa3"
+    },
+    {
+      "path": "ModCarrerMode/data/club_environment/current_dressing_room/custom/1041/corner-panel.png",
+      "bytes": 18950,
+      "sha256": "2780e452adbc1bab73156f9caa2c1fb835b0b6d5ebf04f8124e6c4b413a2a417"
+    },
+    {
+      "path": "ModCarrerMode/data/club_environment/current_dressing_room/custom/1041/fascia-back-left.png",
+      "bytes": 96535,
+      "sha256": "45842561691495cd4ca0c8f5bfccf813948d7b950229df5f0068d60cd22e00b1"
+    },
+    {
+      "path": "ModCarrerMode/data/club_environment/current_dressing_room/custom/1041/fascia-back-right.png",
+      "bytes": 133948,
+      "sha256": "581320e72ded73ec42e2ccdfa72c50c79764622c1d64764ea084886724a02de6"
+    },
+    {
+      "path": "ModCarrerMode/data/club_environment/current_dressing_room/custom/1041/fascia-left.png",
+      "bytes": 124843,
+      "sha256": "59bff15d77985a87c40472041979bc79ff86b157aa2d6e00954df21106927f4e"
+    },
+    {
+      "path": "ModCarrerMode/data/club_environment/current_dressing_room/custom/1041/fascia-right.png",
+      "bytes": 181272,
+      "sha256": "826dfe53b826909e2889382eec2068fe9ebaf9ceb44628ae4a03e81d7f92cc76"
+    },
+    {
+      "path": "ModCarrerMode/data/club_environment/current_dressing_room/custom/1041/feature-wall.png",
+      "bytes": 2942820,
+      "sha256": "cab434352074bbc3cc03f1076ab07622b9e5443c3d39b872172324eda4b66c67"
+    },
+    {
+      "path": "ModCarrerMode/data/club_environment/current_dressing_room/custom/1041/locker-backing.png",
+      "bytes": 2524955,
+      "sha256": "f8c4468ffe739471a40c4dea11a2b6805a816d9b9ed95b73fc11e1b1cc66a045"
+    },
+    {
+      "path": "ModCarrerMode/data/club_environment/current_dressing_room/custom/1041/locker-frame.png",
+      "bytes": 626879,
+      "sha256": "b91ef64587a5c55e45027b2c69da5794ea713e841b22973aa8d84fa12e40dc13"
+    },
+    {
+      "path": "ModCarrerMode/data/club_environment/current_dressing_room/custom/1041/profile.json",
+      "bytes": 1289,
+      "sha256": "8f66c0a8042d8cd8af9cc4394674ecd02b1870d3ef54cd1ce299eaa13ec8b13c"
+    },
+    {
+      "path": "ModCarrerMode/data/club_environment/current_dressing_room/custom/1041/wall-mural.png",
+      "bytes": 3001609,
+      "sha256": "34bd21711d9302e510605756cc8b4514f66ba6aac1f61aedf27573b40d040965"
+    },
+    {
+      "path": "ModCarrerMode/data/club_environment/current_dressing_room/custom/1043/corner-panel.png",
+      "bytes": 16746,
+      "sha256": "959f886c71b798d4300890a4e49c81b2c9c4cfd37005bd3568304b53487b3d9b"
+    },
+    {
+      "path": "ModCarrerMode/data/club_environment/current_dressing_room/custom/1043/fascia-back-left.png",
+      "bytes": 116672,
+      "sha256": "815ee08e2c469dc9b0cef2216f147582f92c9b0eaa10b4e2e4844ca311a47804"
+    },
+    {
+      "path": "ModCarrerMode/data/club_environment/current_dressing_room/custom/1043/fascia-back-right.png",
+      "bytes": 107071,
+      "sha256": "4057b077e8202a6f0a61d626a530bfedb42bd8f6c57a5cbdeadfed28fc6aeaba"
+    },
+    {
+      "path": "ModCarrerMode/data/club_environment/current_dressing_room/custom/1043/fascia-left.png",
+      "bytes": 166061,
+      "sha256": "e5de4f075ef63f01dc0bc316e7d3909a97a9798ca4840236ceff69be5a48ed7e"
+    },
+    {
+      "path": "ModCarrerMode/data/club_environment/current_dressing_room/custom/1043/fascia-right.png",
+      "bytes": 149486,
+      "sha256": "c22bbfd7da1a782407fa884b29a4247f58b9a8bfc7386a585be744c2cce214a5"
+    },
+    {
+      "path": "ModCarrerMode/data/club_environment/current_dressing_room/custom/1043/feature-wall.png",
+      "bytes": 2583524,
+      "sha256": "d1aaae45139b811784824ac01fc61713e0d326b60971adc65c2f83c2b368914b"
+    },
+    {
+      "path": "ModCarrerMode/data/club_environment/current_dressing_room/custom/1043/hydration-wall.png",
+      "bytes": 2509513,
+      "sha256": "09e20e8ab82fc8165742b6a77dd48915ce1e65fb864dd473fb3217bbf41dbe1c"
+    },
+    {
+      "path": "ModCarrerMode/data/club_environment/current_dressing_room/custom/1043/locker-backing.png",
+      "bytes": 2188233,
+      "sha256": "9f5c72981b66631f1e90a32f27333467c3bc97cadc627c35e2a0e390d302e714"
+    },
+    {
+      "path": "ModCarrerMode/data/club_environment/current_dressing_room/custom/1043/locker-frame.png",
+      "bytes": 627397,
+      "sha256": "cc46f070178b37c228af02cf6c18f34983e2dbe7a51dba1027be8b06c1d3769b"
+    },
+    {
+      "path": "ModCarrerMode/data/club_environment/current_dressing_room/custom/1043/profile.json",
+      "bytes": 1297,
+      "sha256": "aa19bde0fa786f2efdbcfbd0e52f9ce14dabc4a9a7402b7078771b5b784fe431"
+    },
+    {
+      "path": "ModCarrerMode/data/club_environment/current_dressing_room/custom/1043/wall-mural.png",
+      "bytes": 2536812,
+      "sha256": "78c2f2a3cbe95cbe74ea256f15ebb9f08a5e270956654936f0525b5083f1527d"
+    },
+    {
+      "path": "ModCarrerMode/data/club_environment/current_dressing_room/custom/1048/corner-panel.png",
+      "bytes": 19865,
+      "sha256": "95dd37227ff57eab795129bb90652b195126f32c297476ba1def0ec1d900aaeb"
+    },
+    {
+      "path": "ModCarrerMode/data/club_environment/current_dressing_room/custom/1048/fascia-back-left.png",
+      "bytes": 120918,
+      "sha256": "e293716ffe5481ddccd9d86db451f877c9d54cb4257039f50e8db86999ec5e64"
+    },
+    {
+      "path": "ModCarrerMode/data/club_environment/current_dressing_room/custom/1048/fascia-back-right.png",
+      "bytes": 138270,
+      "sha256": "ace72cf2f7e9c114c9cb7b09cf96117eab33df32f0e756327d81478b65c53d20"
+    },
+    {
+      "path": "ModCarrerMode/data/club_environment/current_dressing_room/custom/1048/fascia-left.png",
+      "bytes": 99841,
+      "sha256": "a1c112c7d52becee5b0b83f1ba485de1e7a276fc691286b54520db1fa5fceeb7"
+    },
+    {
+      "path": "ModCarrerMode/data/club_environment/current_dressing_room/custom/1048/fascia-right.png",
+      "bytes": 165791,
+      "sha256": "02106f191f0b7e68a019ac15a249637336a94e6e6418eb942e4e9d39007f6503"
+    },
+    {
+      "path": "ModCarrerMode/data/club_environment/current_dressing_room/custom/1048/feature-wall.png",
+      "bytes": 2454754,
+      "sha256": "8db4bb122050f32750d16528346ca91070aa59c5171d21a8992068cd85c8d621"
+    },
+    {
+      "path": "ModCarrerMode/data/club_environment/current_dressing_room/custom/1048/locker-backing.png",
+      "bytes": 2161545,
+      "sha256": "cea2a6f86c0474eae013a114617a62736e51347eafa95f41ce5431c8658343f7"
+    },
+    {
+      "path": "ModCarrerMode/data/club_environment/current_dressing_room/custom/1048/locker-frame.png",
+      "bytes": 627605,
+      "sha256": "b3c862b875f770a4f00e43f1b718bd083b812963dbad8953bd77687a4d271cff"
+    },
+    {
+      "path": "ModCarrerMode/data/club_environment/current_dressing_room/custom/1048/profile.json",
+      "bytes": 1293,
+      "sha256": "87cf57f8477086da6d86f692b5fd5c77622a1ea2f56b82211d2d5f00b309a4e5"
+    },
+    {
+      "path": "ModCarrerMode/data/club_environment/current_dressing_room/custom/1048/wall-mural.png",
+      "bytes": 2923052,
+      "sha256": "f8989222b4ac583a1dec134075cebf72b679575fe6c4ec7e0bfade0026e1de45"
+    },
+    {
+      "path": "ModCarrerMode/data/club_environment/current_dressing_room/custom/1053/corner-panel.png",
+      "bytes": 15859,
+      "sha256": "c0df1076d20b2d82feec4429e30432d0dea8ab47a45af915188823a7ad94c56b"
+    },
+    {
+      "path": "ModCarrerMode/data/club_environment/current_dressing_room/custom/1053/fascia-back-left.png",
+      "bytes": 87387,
+      "sha256": "c4ac695d60df3fa08b119679cae79a10e12b49f701b88a9af1efcab8f59b8e08"
+    },
+    {
+      "path": "ModCarrerMode/data/club_environment/current_dressing_room/custom/1053/fascia-back-right.png",
+      "bytes": 119089,
+      "sha256": "a3a36a16ddbdcaf6954390b02e55a44383cda110a7946ff357e55e4e1f8284c8"
+    },
+    {
+      "path": "ModCarrerMode/data/club_environment/current_dressing_room/custom/1053/fascia-left.png",
+      "bytes": 102891,
+      "sha256": "9735f5f69f085852eb4b90bf88580091b7b1cd510f810f89f6798cf10b162a3d"
+    },
+    {
+      "path": "ModCarrerMode/data/club_environment/current_dressing_room/custom/1053/fascia-right.png",
+      "bytes": 160955,
+      "sha256": "02441325de0ad591cad0700199af5ce554c1b3e7fcb6c03176dbbcdfb366d1c6"
+    },
+    {
+      "path": "ModCarrerMode/data/club_environment/current_dressing_room/custom/1053/feature-wall.png",
+      "bytes": 2155870,
+      "sha256": "6e41b2424e7ce9bbb05f93ade9625c6c38389be99bcc377f484f05a37d42472a"
+    },
+    {
+      "path": "ModCarrerMode/data/club_environment/current_dressing_room/custom/1053/locker-backing.png",
+      "bytes": 1831181,
+      "sha256": "e5810dd98b089d7330438b897ee3e31e236c2ed9c0eb41a883482f6a1cb059f5"
+    },
+    {
+      "path": "ModCarrerMode/data/club_environment/current_dressing_room/custom/1053/locker-frame.png",
+      "bytes": 627234,
+      "sha256": "51f73923750e57c87c256879a342bc6f2fd84ede39c690fd56127e53a7e15793"
+    },
+    {
+      "path": "ModCarrerMode/data/club_environment/current_dressing_room/custom/1053/profile.json",
+      "bytes": 1282,
+      "sha256": "fe824553bf20d57fd7d0fbd9163a42f71aa7a86b862a4f7d0377a456414f8184"
+    },
+    {
+      "path": "ModCarrerMode/data/club_environment/current_dressing_room/custom/1053/wall-mural.png",
+      "bytes": 2853979,
+      "sha256": "ec95e1ddf60506038b7f514e388ffac232ddab63d18a5699a8a46caa1fb5e164"
+    },
+    {
+      "path": "ModCarrerMode/data/club_environment/current_dressing_room/custom/111041/profile.json",
+      "bytes": 95,
+      "sha256": "e8f0a69c505196157977d89cda25ef6ab72dc36594319589cabed996ba6b7782"
+    },
+    {
+      "path": "ModCarrerMode/data/club_environment/current_dressing_room/custom/111041/wall-mural.png",
+      "bytes": 2952275,
+      "sha256": "91879e292a50c4c8d5f7899f6aa0d049184d6d9fe0db5d6b2b055208127e56d1"
+    },
+    {
+      "path": "ModCarrerMode/data/club_environment/current_dressing_room/custom/111042/profile.json",
+      "bytes": 92,
+      "sha256": "29fa515b75e3bd3edddf3c9770a17a7cd40cf003e1d1bf375bd4dd0d1d7d0c3b"
+    },
+    {
+      "path": "ModCarrerMode/data/club_environment/current_dressing_room/custom/111042/wall-mural.png",
+      "bytes": 2770926,
+      "sha256": "7a82c5193147f009e5f3cafa0c003a5f488c1c21b73571b29c84b45434df79df"
+    },
+    {
+      "path": "ModCarrerMode/data/club_environment/current_dressing_room/custom/111043/profile.json",
+      "bytes": 97,
+      "sha256": "25de7b7a67f40c81a0324912d35c0aed06018a582be6f53b47f11ddbd39186ab"
+    },
+    {
+      "path": "ModCarrerMode/data/club_environment/current_dressing_room/custom/111043/wall-mural.png",
+      "bytes": 2973444,
+      "sha256": "50f26401cd37391bfbf7485a8d7953a69ab48070eb232418de2cb8b33f0e6d81"
+    },
+    {
+      "path": "ModCarrerMode/data/club_environment/current_dressing_room/custom/111044/corner-panel.png",
+      "bytes": 19738,
+      "sha256": "ac5281a7e9a3933711aab1cc64c8a9a6c5670b46eb2c4c50730f4cd6ed10fcc7"
+    },
+    {
+      "path": "ModCarrerMode/data/club_environment/current_dressing_room/custom/111044/fascia-back-left.png",
+      "bytes": 106304,
+      "sha256": "6049e39dd7c58778105fd4941bdb06e2ca5ed0ded861c939f5406dba4106519b"
+    },
+    {
+      "path": "ModCarrerMode/data/club_environment/current_dressing_room/custom/111044/fascia-back-right.png",
+      "bytes": 129881,
+      "sha256": "666c3a36307dd0bdb5ff5a3536a14b0945a7e32f0a816098ee96a3328c86b417"
+    },
+    {
+      "path": "ModCarrerMode/data/club_environment/current_dressing_room/custom/111044/fascia-left.png",
+      "bytes": 187685,
+      "sha256": "5bbd78850e6125cbf23f1dfd37ff81c08e3f1d11c735ca0a9d597ef92806f480"
+    },
+    {
+      "path": "ModCarrerMode/data/club_environment/current_dressing_room/custom/111044/fascia-right.png",
+      "bytes": 124630,
+      "sha256": "d03c88410cc1ec764ab751850df4a36002efe72b4adcc4433f4a61e5c2538f22"
+    },
+    {
+      "path": "ModCarrerMode/data/club_environment/current_dressing_room/custom/111044/feature-wall.png",
+      "bytes": 3247636,
+      "sha256": "10b904ca12936b6a1036febed6b3caea2cad5bb1098ba6252b8c9745a514424a"
+    },
+    {
+      "path": "ModCarrerMode/data/club_environment/current_dressing_room/custom/111044/locker-backing.png",
+      "bytes": 2707771,
+      "sha256": "ac314882e8f0a40f30dd0d6f6f4934d5b33d3cb0ad457e6c5d5291ddfec30216"
+    },
+    {
+      "path": "ModCarrerMode/data/club_environment/current_dressing_room/custom/111044/locker-frame.png",
+      "bytes": 627408,
+      "sha256": "251bd4b0dfd59bc1d6fc8473e13172697c2565b99c4c6766d7eb4ec1e4f122e9"
+    },
+    {
+      "path": "ModCarrerMode/data/club_environment/current_dressing_room/custom/111044/profile.json",
+      "bytes": 1299,
+      "sha256": "23c028fadba78d8f3267674a6456c6d356269428ece45d7fc079d52bc51ddc3d"
+    },
+    {
+      "path": "ModCarrerMode/data/club_environment/current_dressing_room/custom/111044/wall-mural.png",
+      "bytes": 2896963,
+      "sha256": "e16b008c3941a79ddebd1257e90a7907ec55839afb8b66073abb2192353a2686"
+    },
+    {
+      "path": "ModCarrerMode/data/club_environment/current_dressing_room/custom/111046/profile.json",
+      "bytes": 95,
+      "sha256": "4563d87521c4890e16abf99517874a250f56ab8db99597c8d28f5f9c68fa8415"
+    },
+    {
+      "path": "ModCarrerMode/data/club_environment/current_dressing_room/custom/111046/wall-mural.png",
+      "bytes": 2776519,
+      "sha256": "93f42118f1807681264843e0f4418485944fd09d781b81776dd0379a8669092c"
+    },
+    {
+      "path": "ModCarrerMode/data/club_environment/current_dressing_room/custom/111050/profile.json",
+      "bytes": 94,
+      "sha256": "de2289efb46322703951b13fe9f71456d3ee7ec168c8c6ad4047b81d4fd19d66"
+    },
+    {
+      "path": "ModCarrerMode/data/club_environment/current_dressing_room/custom/111050/wall-mural.png",
+      "bytes": 3033879,
+      "sha256": "6a97015e7598271f7e7cfeb9260a8eb148d6e5017694ac852d7252d3d5c5d05e"
+    },
+    {
+      "path": "ModCarrerMode/data/club_environment/current_dressing_room/custom/111052/profile.json",
+      "bytes": 95,
+      "sha256": "6df84f780b0d0965e959625e741d3c685c5f57ddc0d637f4043c426293b109d2"
+    },
+    {
+      "path": "ModCarrerMode/data/club_environment/current_dressing_room/custom/111052/wall-mural.png",
+      "bytes": 2932744,
+      "sha256": "058228b030db13d8ba62b2106a65918dd18b02aed42d534cbfbd1533acc1714b"
+    },
+    {
+      "path": "ModCarrerMode/data/club_environment/current_dressing_room/custom/111057/profile.json",
+      "bytes": 98,
+      "sha256": "f9690e0d333fc5a41d94b1321c98ac03a04d05aeeef242f6558883a56f7bb643"
+    },
+    {
+      "path": "ModCarrerMode/data/club_environment/current_dressing_room/custom/111057/wall-mural.png",
+      "bytes": 2783008,
+      "sha256": "ceb9c0004da972e2b61f9871606c9f3f0055188b666604ceb213d63a13fd1fe9"
+    },
+    {
+      "path": "ModCarrerMode/data/club_environment/current_dressing_room/custom/111059/profile.json",
+      "bytes": 92,
+      "sha256": "92f8462afdf07bf9d207156b4bee7cf97a69278bf34fbd08bbad7fa530d3ed9f"
+    },
+    {
+      "path": "ModCarrerMode/data/club_environment/current_dressing_room/custom/111059/wall-mural.png",
+      "bytes": 2774513,
+      "sha256": "ccebb6a95f591a25e62331f26380d8902a4c680de960e7f2b34104bc6b4fcf4e"
+    },
+    {
+      "path": "ModCarrerMode/data/club_environment/current_dressing_room/custom/111976/profile.json",
+      "bytes": 91,
+      "sha256": "3b9b18ab4884aced85765a51dd0824cd9b6934bc161460bc46933fd9c7050e5e"
+    },
+    {
+      "path": "ModCarrerMode/data/club_environment/current_dressing_room/custom/111976/wall-mural.png",
+      "bytes": 2949997,
+      "sha256": "d284ac58e54a467badce8167b0f1e41adec8f1e6c1063faaf000e0ad4419e5a6"
+    },
+    {
+      "path": "ModCarrerMode/data/club_environment/current_dressing_room/custom/112001/profile.json",
+      "bytes": 97,
+      "sha256": "fd3536ebca93675abf2a5cd14dea1c84e02d4499ead377f2ce4a3fd5f73dab0b"
+    },
+    {
+      "path": "ModCarrerMode/data/club_environment/current_dressing_room/custom/112001/wall-mural.png",
+      "bytes": 2568501,
+      "sha256": "dca6d2e0627f47461eb420e5ebb259489044367be9b47e5bcd7f9d4fdf02f459"
+    },
+    {
+      "path": "ModCarrerMode/data/club_environment/current_dressing_room/custom/112119/profile.json",
+      "bytes": 98,
+      "sha256": "ec1c8f6b87e695449f1059378b3cd7bb0b65be96510d16f42b37f9b24f332ff1"
+    },
+    {
+      "path": "ModCarrerMode/data/club_environment/current_dressing_room/custom/112119/wall-mural.png",
+      "bytes": 2612027,
+      "sha256": "8cb185ef0f74792e61f18d5665604ba05e01be1db9203341ee333fed01acb7c7"
+    },
+    {
+      "path": "ModCarrerMode/data/club_environment/current_dressing_room/custom/112476/corner-panel.png",
+      "bytes": 21228,
+      "sha256": "574b0645e2b958d814e3642d896cd1a6725221144d14737c535ab815f46c8b40"
+    },
+    {
+      "path": "ModCarrerMode/data/club_environment/current_dressing_room/custom/112476/fascia-back-left.png",
+      "bytes": 116864,
+      "sha256": "10521a83fc67339a82abdd8c055de44605c976c7982483994ec35005892966a7"
+    },
+    {
+      "path": "ModCarrerMode/data/club_environment/current_dressing_room/custom/112476/fascia-back-right.png",
+      "bytes": 133737,
+      "sha256": "38cf60ed76d62f3f1504535c8961347a215cfe39d6cce501098f01a622f3c0ac"
+    },
+    {
+      "path": "ModCarrerMode/data/club_environment/current_dressing_room/custom/112476/fascia-left.png",
+      "bytes": 95453,
+      "sha256": "5007c0c8750dbc8dc0da05c70c7c9cb19104faa8eaa8c50b6b535ba44732bc6f"
+    },
+    {
+      "path": "ModCarrerMode/data/club_environment/current_dressing_room/custom/112476/fascia-right.png",
+      "bytes": 163748,
+      "sha256": "564a51b58c52c1a693e2b549e26a8e256ceba887c88dfcba6e001124086326c9"
+    },
+    {
+      "path": "ModCarrerMode/data/club_environment/current_dressing_room/custom/112476/feature-wall.png",
+      "bytes": 2116691,
+      "sha256": "0360114fd1ff2396c9665c2ba38787ecc812ec0dd4b9826a4793f507db1a145f"
+    },
+    {
+      "path": "ModCarrerMode/data/club_environment/current_dressing_room/custom/112476/locker-backing.png",
+      "bytes": 1838833,
+      "sha256": "9fc849e02504b27f8e4d7b3dc47f2e258015176928e952115e7c6060dbfd28a8"
+    },
+    {
+      "path": "ModCarrerMode/data/club_environment/current_dressing_room/custom/112476/locker-frame.png",
+      "bytes": 628711,
+      "sha256": "392bb50deb2c37c5a1c6cd2d3cc2543ad5daa19ba513f42a9f134d9a31d3163c"
+    },
+    {
+      "path": "ModCarrerMode/data/club_environment/current_dressing_room/custom/112476/profile.json",
+      "bytes": 1303,
+      "sha256": "c9d9032e6ee6360db949f724b50866dfa752ed7dde22f7712a91d7bfcaacc98a"
+    },
+    {
+      "path": "ModCarrerMode/data/club_environment/current_dressing_room/custom/112476/wall-mural.png",
+      "bytes": 2880063,
+      "sha256": "02c638687ede8f9fc44bce031dd717cbaf5ef30878c5490fdc4cc780c484de92"
+    },
+    {
+      "path": "ModCarrerMode/data/club_environment/current_dressing_room/custom/113116/profile.json",
+      "bytes": 98,
+      "sha256": "0518222bf4279690ee9c01aa406ed26e80f1c7b8ee7104ee997d9e4cb9058c6e"
+    },
+    {
+      "path": "ModCarrerMode/data/club_environment/current_dressing_room/custom/113116/wall-mural.png",
+      "bytes": 3040905,
+      "sha256": "ccaed3760d1579247d5b0959d77131593b5648161cf74e6f7325da5458639805"
+    },
+    {
+      "path": "ModCarrerMode/data/club_environment/current_dressing_room/custom/113163/corner-panel.png",
+      "bytes": 20065,
+      "sha256": "8a4df08f29b7535b42081cb5df9cade7e028911e496469c33141aaa9af82e9ce"
+    },
+    {
+      "path": "ModCarrerMode/data/club_environment/current_dressing_room/custom/113163/fascia-back-left.png",
+      "bytes": 78717,
+      "sha256": "83ad0cd3e771f5afbc9ed972c4225c2089df635d49d411c1298588a0adbe9878"
+    },
+    {
+      "path": "ModCarrerMode/data/club_environment/current_dressing_room/custom/113163/fascia-back-right.png",
+      "bytes": 123705,
+      "sha256": "d21f093ebcd5e4080b018854812360240bae128b34d5135a7ce669ea05699677"
+    },
+    {
+      "path": "ModCarrerMode/data/club_environment/current_dressing_room/custom/113163/fascia-left.png",
+      "bytes": 190633,
+      "sha256": "bee0134ee29f6e8b288df54c469048600f037df78aa2f70ed85d4966b3e319a3"
+    },
+    {
+      "path": "ModCarrerMode/data/club_environment/current_dressing_room/custom/113163/fascia-right.png",
+      "bytes": 93369,
+      "sha256": "fd76a3f899ee3369022fb37b0be081f67abc33838775e34293b63208e51dfa2d"
+    },
+    {
+      "path": "ModCarrerMode/data/club_environment/current_dressing_room/custom/113163/feature-wall.png",
+      "bytes": 2040699,
+      "sha256": "1287723dc91d5660b391af40e3a1aecaabfb1305356060251f192a90323d79e3"
+    },
+    {
+      "path": "ModCarrerMode/data/club_environment/current_dressing_room/custom/113163/locker-backing.png",
+      "bytes": 1788397,
+      "sha256": "453f418f16d6c09254ae68278b088b8681d1f7c17ebf9c9b7fe222c363117b3a"
+    },
+    {
+      "path": "ModCarrerMode/data/club_environment/current_dressing_room/custom/113163/locker-frame.png",
+      "bytes": 628506,
+      "sha256": "dbc92a9d888273b46e4556621f33d2cd8bbaae2fc0cbb1f20f18a6c419e0138e"
+    },
+    {
+      "path": "ModCarrerMode/data/club_environment/current_dressing_room/custom/113163/profile.json",
+      "bytes": 1290,
+      "sha256": "047c2c588e247f8b8c1a95e75d15c80af597f52f8ff4368c2cb14eace1000b15"
+    },
+    {
+      "path": "ModCarrerMode/data/club_environment/current_dressing_room/custom/113163/wall-mural.png",
+      "bytes": 2833073,
+      "sha256": "23193049573385d9f50838c1bda7fecd8261400a4f5c674ae1068250e6007b0a"
+    },
+    {
+      "path": "ModCarrerMode/data/club_environment/current_dressing_room/custom/120005/profile.json",
+      "bytes": 89,
+      "sha256": "e8ec0ecbb94c472e8887195aca9e390e617be815f31b0a3e987961e9e5b096c5"
+    },
+    {
+      "path": "ModCarrerMode/data/club_environment/current_dressing_room/custom/120005/wall-mural.png",
+      "bytes": 2837043,
+      "sha256": "c20410b8b0bb0776818d9d2231cf02eb5155dc48af714cb58b81cb5654b6da66"
+    },
+    {
+      "path": "ModCarrerMode/data/club_environment/current_dressing_room/custom/120006/profile.json",
+      "bytes": 93,
+      "sha256": "bfa1d1bf8401227beb04755d1aa08a7ad10ed4fa09873cf00d67509a8315a4bf"
+    },
+    {
+      "path": "ModCarrerMode/data/club_environment/current_dressing_room/custom/120006/wall-mural.png",
+      "bytes": 2934798,
+      "sha256": "3541a3a1d24c968f478c1f342dbcc053783231bd4d500182f4d894cd4b78dba1"
+    },
+    {
+      "path": "ModCarrerMode/data/club_environment/current_dressing_room/custom/120016/profile.json",
+      "bytes": 95,
+      "sha256": "d3aa5910374a644488db929e7f848e610cef5da7f69743c27de00055cadfd384"
+    },
+    {
+      "path": "ModCarrerMode/data/club_environment/current_dressing_room/custom/120016/wall-mural.png",
+      "bytes": 2793727,
+      "sha256": "234dcd1746b0bff02fc7f1098b642ab88e8d3db4d7cd047771ed0cf529ba30a4"
+    },
+    {
+      "path": "ModCarrerMode/data/club_environment/current_dressing_room/custom/123921/corner-panel.png",
+      "bytes": 21238,
+      "sha256": "e82e9763f5e7e67bf8becd4ebd8afa8138d4dff533b97c220ec38d3d0b79bada"
+    },
+    {
+      "path": "ModCarrerMode/data/club_environment/current_dressing_room/custom/123921/fascia-back-left.png",
+      "bytes": 131275,
+      "sha256": "2c96fd0d79285b1c0a5cb52812aa8c03e5f8488876d2c124f34c51e5c2d76a5e"
+    },
+    {
+      "path": "ModCarrerMode/data/club_environment/current_dressing_room/custom/123921/fascia-back-right.png",
+      "bytes": 94842,
+      "sha256": "16e3600e562c4a3dd9184936d6d0db874fbe3e67a819fc8299e5e811db81df59"
+    },
+    {
+      "path": "ModCarrerMode/data/club_environment/current_dressing_room/custom/123921/fascia-left.png",
+      "bytes": 122599,
+      "sha256": "710e6b9f1d7db421f51171b3470fc6c8f69268ef47dc5049644e68e01bc5590f"
+    },
+    {
+      "path": "ModCarrerMode/data/club_environment/current_dressing_room/custom/123921/fascia-right.png",
+      "bytes": 195076,
+      "sha256": "54cd89f792c72a2afde85e87528f3814f8aa22c6c87f32d57f7e9f7af86651ce"
+    },
+    {
+      "path": "ModCarrerMode/data/club_environment/current_dressing_room/custom/123921/feature-wall.png",
+      "bytes": 2548351,
+      "sha256": "001a7ccf7a8dcb2cf33015084e1b457a3213847f67466d7585285abeeaa75a3e"
+    },
+    {
+      "path": "ModCarrerMode/data/club_environment/current_dressing_room/custom/123921/locker-backing.png",
+      "bytes": 2232862,
+      "sha256": "c790bce2b45243586a22c577940a61a88a49593d56fdb03c2b5dd6b1dc0bf376"
+    },
+    {
+      "path": "ModCarrerMode/data/club_environment/current_dressing_room/custom/123921/locker-frame.png",
+      "bytes": 627204,
+      "sha256": "4ac6f840ffe3382c3b5cc3c2ef2094a747e62d865d376825d445f67fe9fa7cfa"
+    },
+    {
+      "path": "ModCarrerMode/data/club_environment/current_dressing_room/custom/123921/profile.json",
+      "bytes": 1294,
+      "sha256": "ef7812bc4b12ff3ce1d297fdec9a820dd9003a5ffafc3fbce2b583e8d40cb04a"
+    },
+    {
+      "path": "ModCarrerMode/data/club_environment/current_dressing_room/custom/123921/wall-mural.png",
+      "bytes": 3006187,
+      "sha256": "030790c3856b54b28f728714e12e0d6aac9ffd61e472430374d315923bff112a"
+    },
+    {
+      "path": "ModCarrerMode/data/club_environment/current_dressing_room/custom/130021/profile.json",
+      "bytes": 94,
+      "sha256": "e4f997d470fb9bfdcd4cf4fa86204ecbf892ef5da1a99905e274f60861db25b2"
+    },
+    {
+      "path": "ModCarrerMode/data/club_environment/current_dressing_room/custom/130021/wall-mural.png",
+      "bytes": 2910557,
+      "sha256": "13bbaed1db4f7aff47f6e8b4bc83c9c66734de6168b46c6e4273c27a0d96f54a"
+    },
+    {
+      "path": "ModCarrerMode/data/club_environment/current_dressing_room/custom/130026/corner-panel.png",
+      "bytes": 13126,
+      "sha256": "d9b004c4221177f461b2853d771f1b6584886001703620998f7d97b8e6b80e77"
+    },
+    {
+      "path": "ModCarrerMode/data/club_environment/current_dressing_room/custom/130026/fascia-back-left.png",
+      "bytes": 85236,
+      "sha256": "75de9c967d47fe17a35679cea1eff7ff34d326c9149931796fe3b18887b583de"
+    },
+    {
+      "path": "ModCarrerMode/data/club_environment/current_dressing_room/custom/130026/fascia-back-right.png",
+      "bytes": 117645,
+      "sha256": "3a30ce4ba99274ef20b247f7fac7b8174247fe1adc17da8214a8e29ed8326e1a"
+    },
+    {
+      "path": "ModCarrerMode/data/club_environment/current_dressing_room/custom/130026/fascia-left.png",
+      "bytes": 100270,
+      "sha256": "965e107422382e4d311078226e662d577370f77d3ca41f6f35bd6fcbbfea8cc7"
+    },
+    {
+      "path": "ModCarrerMode/data/club_environment/current_dressing_room/custom/130026/fascia-right.png",
+      "bytes": 182249,
+      "sha256": "9feaa3d35f47439cd7a698efe9010ae6099b23ca3a8a31a579e007e5e99a0d5a"
+    },
+    {
+      "path": "ModCarrerMode/data/club_environment/current_dressing_room/custom/130026/feature-wall.png",
+      "bytes": 2225619,
+      "sha256": "4571791c36cd32c80174b921253cc1855724e54e8aa8705c5da358fac64d9540"
+    },
+    {
+      "path": "ModCarrerMode/data/club_environment/current_dressing_room/custom/130026/locker-backing.png",
+      "bytes": 1871290,
+      "sha256": "e0e58571947866ce6c51aabcaa4fd6696646e28dca0ae2d18867e9a7f0acbeb6"
+    },
+    {
+      "path": "ModCarrerMode/data/club_environment/current_dressing_room/custom/130026/locker-frame.png",
+      "bytes": 628834,
+      "sha256": "dbf670ed9a803513ae9bb16a4925d4f6e63005cd14d00a83ca568b266c1b6417"
+    },
+    {
+      "path": "ModCarrerMode/data/club_environment/current_dressing_room/custom/130026/profile.json",
+      "bytes": 1280,
+      "sha256": "d77923109f4c3e44da23515f8627ed2dfbf0252a0226f889d5b0f477cc7c20a5"
+    },
+    {
+      "path": "ModCarrerMode/data/club_environment/current_dressing_room/custom/130026/wall-mural.png",
+      "bytes": 3016214,
+      "sha256": "085a88d8b296fdd248db1b510a3b0e48634819c3856f3e238cc59c67f339506b"
+    },
+    {
+      "path": "ModCarrerMode/data/club_environment/current_dressing_room/custom/130028/profile.json",
+      "bytes": 97,
+      "sha256": "98f2b8bcc1c041effa1ca944b5461d9cda2da99dec93d6d0863c8291a2a8f191"
+    },
+    {
+      "path": "ModCarrerMode/data/club_environment/current_dressing_room/custom/130028/wall-mural.png",
+      "bytes": 2688490,
+      "sha256": "15058dcf57501257d761eac4688c34788588bbd28fda0ccbad330092442fa695"
+    },
+    {
+      "path": "ModCarrerMode/data/club_environment/current_dressing_room/custom/130045/profile.json",
+      "bytes": 107,
+      "sha256": "2fe9430fb63b141cef8c8aca35161e2b959cd533f0e48b360a24c78092d6d4c3"
+    },
+    {
+      "path": "ModCarrerMode/data/club_environment/current_dressing_room/custom/130045/wall-mural.png",
+      "bytes": 2816259,
+      "sha256": "dbfbc1417d72aef93ce154ab644f55e735188ffcf2391d17c6b56b10d034e101"
+    },
+    {
+      "path": "ModCarrerMode/data/club_environment/current_dressing_room/custom/130046/profile.json",
+      "bytes": 99,
+      "sha256": "b36f241b11bc913f6e5fbd90851870299f29ee6c3fbe6b5dada85df1d3d6e82d"
+    },
+    {
+      "path": "ModCarrerMode/data/club_environment/current_dressing_room/custom/130046/wall-mural.png",
+      "bytes": 2792199,
+      "sha256": "e5a972187ae240ca5488233902a1d483d8185024f8bd5523bfab3cfce6f306e4"
+    },
+    {
+      "path": "ModCarrerMode/data/club_environment/current_dressing_room/custom/130388/profile.json",
+      "bytes": 101,
+      "sha256": "ad1e0494e934c7670f6076caf134dd140ee2ac846949235b3dd6af657108901f"
+    },
+    {
+      "path": "ModCarrerMode/data/club_environment/current_dressing_room/custom/130388/wall-mural.png",
+      "bytes": 2987578,
+      "sha256": "a171653a6b93579464a1fd6c76b81efd604575d629b1c696d72c0d897ca0d0ff"
+    },
+    {
+      "path": "ModCarrerMode/data/club_environment/current_dressing_room/custom/1598/corner-panel.png",
+      "bytes": 12973,
+      "sha256": "189f9808e2018b0e3e9a4b829cc4d8da85d7ee075126d0e66e50d7a11b99e6ab"
+    },
+    {
+      "path": "ModCarrerMode/data/club_environment/current_dressing_room/custom/1598/fascia-back-left.png",
+      "bytes": 118790,
+      "sha256": "9092efd2b381ddfbe7ca79b9e7956ced514253702fec316b7a763d4484748944"
+    },
+    {
+      "path": "ModCarrerMode/data/club_environment/current_dressing_room/custom/1598/fascia-back-right.png",
+      "bytes": 87396,
+      "sha256": "51170013575a6b50ee2d10f5bf2ca6bab3a9004a98cd356be203b2c6a2b2034a"
+    },
+    {
+      "path": "ModCarrerMode/data/club_environment/current_dressing_room/custom/1598/fascia-left.png",
+      "bytes": 146883,
+      "sha256": "fa7efe420285ee14b25c6be1e8a99f2a462e41660c281eb951f83e8cf0d88c5a"
+    },
+    {
+      "path": "ModCarrerMode/data/club_environment/current_dressing_room/custom/1598/fascia-right.png",
+      "bytes": 166843,
+      "sha256": "236898d752d5d90dae779e1f5e7e19433edaf1ef963f75fce56dea04a91690b5"
+    },
+    {
+      "path": "ModCarrerMode/data/club_environment/current_dressing_room/custom/1598/feature-wall.png",
+      "bytes": 2356822,
+      "sha256": "5b9117fae7841b67a089becdcdc830985a6aa30fb0338c127a2f0bc7da0a1d6c"
+    },
+    {
+      "path": "ModCarrerMode/data/club_environment/current_dressing_room/custom/1598/locker-backing.png",
+      "bytes": 2015308,
+      "sha256": "7da570971ad5fead4dc1bec8a6e67eedf9076149bf78dbb3277cedfe9d690612"
+    },
+    {
+      "path": "ModCarrerMode/data/club_environment/current_dressing_room/custom/1598/locker-frame.png",
+      "bytes": 628917,
+      "sha256": "350bf31d80163d55cc406c43cca871eeda2f166a0e04acf0e33a27d84566930f"
+    },
+    {
+      "path": "ModCarrerMode/data/club_environment/current_dressing_room/custom/1598/profile.json",
+      "bytes": 1283,
+      "sha256": "41445b6dd8102c2ca2dcfe245cae54e2a68de8ef2b7f498684ff70da91bb4a51"
+    },
+    {
+      "path": "ModCarrerMode/data/club_environment/current_dressing_room/custom/1598/wall-mural.png",
+      "bytes": 2997175,
+      "sha256": "6723a730498ea301aac4f4f69731e62d919c3cc1ea9663c581d31e389a907e11"
+    },
+    {
+      "path": "ModCarrerMode/data/club_environment/current_dressing_room/custom/1629/corner-panel.png",
+      "bytes": 16085,
+      "sha256": "ce1f594b2de055af1fb322ebd2d15908bbfabbc65f98152be953a4cfe173950a"
+    },
+    {
+      "path": "ModCarrerMode/data/club_environment/current_dressing_room/custom/1629/fascia-back-left.png",
+      "bytes": 121831,
+      "sha256": "28d8d21f5b19aec817b2146d5af7ed9ac3a595bba69bb770f20a9548e28be207"
+    },
+    {
+      "path": "ModCarrerMode/data/club_environment/current_dressing_room/custom/1629/fascia-back-right.png",
+      "bytes": 113295,
+      "sha256": "dfbd1fde31ecf456f367d39a1fc9c98a9418ee33b4f120affaf128ac13047679"
+    },
+    {
+      "path": "ModCarrerMode/data/club_environment/current_dressing_room/custom/1629/fascia-left.png",
+      "bytes": 94162,
+      "sha256": "c67b3fb564cb62f649c2fe0aaa267bb134cf3ee615f7f8270deac96b3dcf8274"
+    },
+    {
+      "path": "ModCarrerMode/data/club_environment/current_dressing_room/custom/1629/fascia-right.png",
+      "bytes": 197401,
+      "sha256": "81fd619c83756c33cd5861d5d7068b5b96b9178b9e4e542eded0e73eb0968f3e"
+    },
+    {
+      "path": "ModCarrerMode/data/club_environment/current_dressing_room/custom/1629/feature-wall.png",
+      "bytes": 2026528,
+      "sha256": "a7f5aa170e696222ca6c76880a1ac17752c7f06daefff82859486bbe6520779d"
+    },
+    {
+      "path": "ModCarrerMode/data/club_environment/current_dressing_room/custom/1629/locker-backing.png",
+      "bytes": 1776025,
+      "sha256": "dfb9c83dd596ea1bb4f9c6861313a79041d08684197a249e80401381648b2821"
+    },
+    {
+      "path": "ModCarrerMode/data/club_environment/current_dressing_room/custom/1629/locker-frame.png",
+      "bytes": 629000,
+      "sha256": "aae7c02c506b97415384ed17c747ab7d26fcf5f1b17e8f848c84df46d8bb99a9"
+    },
+    {
+      "path": "ModCarrerMode/data/club_environment/current_dressing_room/custom/1629/profile.json",
+      "bytes": 1283,
+      "sha256": "a2c35540b3fee44d51c7e12a013e50265460a8ad0936d9b6fc2040cb1839736d"
+    },
+    {
+      "path": "ModCarrerMode/data/club_environment/current_dressing_room/custom/1629/wall-mural.png",
+      "bytes": 2856266,
+      "sha256": "a646624ca10791628dacf447699fd485b33f22196fc01e474354f2897f349b0c"
+    },
+    {
+      "path": "ModCarrerMode/data/club_environment/current_dressing_room/custom/1719/corner-panel.png",
+      "bytes": 17160,
+      "sha256": "e4ad2edf9fe5bd34f1a01469e1ad1e707d0730f96d95ec71c666e79724c5ed30"
+    },
+    {
+      "path": "ModCarrerMode/data/club_environment/current_dressing_room/custom/1719/fascia-back-left.png",
+      "bytes": 122619,
+      "sha256": "4613fc46fff537a0fee7aadb53914d3f892a9ecb3d13cfba02983770fbd42a7c"
+    },
+    {
+      "path": "ModCarrerMode/data/club_environment/current_dressing_room/custom/1719/fascia-back-right.png",
+      "bytes": 123690,
+      "sha256": "2890c37e35f13965d5cb9f44e4f5e254b77d697d8689f787865f78a5d65d3142"
+    },
+    {
+      "path": "ModCarrerMode/data/club_environment/current_dressing_room/custom/1719/fascia-left.png",
+      "bytes": 104287,
+      "sha256": "4fd31c1e3efb566021bcae2d24dd1b00dd3e8029f51d657d2b657c5aeef9339f"
+    },
+    {
+      "path": "ModCarrerMode/data/club_environment/current_dressing_room/custom/1719/fascia-right.png",
+      "bytes": 136957,
+      "sha256": "1962e6a60865ca45857cc3cc8cc9e9a13a161698f9ef3c622bf99ccb32a2cc1d"
+    },
+    {
+      "path": "ModCarrerMode/data/club_environment/current_dressing_room/custom/1719/feature-wall.png",
+      "bytes": 2358388,
+      "sha256": "6f7acafc9154ed4a004507fcf7776e7a93d58aaf253f663b0c20a9a1c6b21960"
+    },
+    {
+      "path": "ModCarrerMode/data/club_environment/current_dressing_room/custom/1719/locker-backing.png",
+      "bytes": 2062482,
+      "sha256": "3f28d5fda1b825d534120bf594503dbdc143ec7338ff6eab75bd368bfff5ba0f"
+    },
+    {
+      "path": "ModCarrerMode/data/club_environment/current_dressing_room/custom/1719/locker-frame.png",
+      "bytes": 627917,
+      "sha256": "f8a5a21ea4fe4764152907dd73a3ff9b772232a5e294335cb0b74a11dde71853"
+    },
+    {
+      "path": "ModCarrerMode/data/club_environment/current_dressing_room/custom/1719/profile.json",
+      "bytes": 1289,
+      "sha256": "ec01f9296a661f5d3a657fc0a2ee993aaa3560b6f14f65abb08582f76f70485e"
+    },
+    {
+      "path": "ModCarrerMode/data/club_environment/current_dressing_room/custom/1719/wall-mural.png",
+      "bytes": 2630573,
+      "sha256": "f4cf99698a4d285afcf02bbc3d77d9364e2fd9ebb977094af6bf31ab7fe3db64"
+    },
+    {
+      "path": "ModCarrerMode/data/club_environment/current_dressing_room/custom/383/corner-panel.png",
+      "bytes": 18826,
+      "sha256": "f42b29661e1d591128976eb61ce2961f4812c3d76d7484ea564b1c8e02c10225"
+    },
+    {
+      "path": "ModCarrerMode/data/club_environment/current_dressing_room/custom/383/fascia-back-left.png",
+      "bytes": 94726,
+      "sha256": "d35fbf763fcfa9e570b8b570370c769353605b759db4d36d1171531ecd12dcde"
+    },
+    {
+      "path": "ModCarrerMode/data/club_environment/current_dressing_room/custom/383/fascia-back-right.png",
+      "bytes": 129849,
+      "sha256": "423d965832d31015dd54f953910d23cfea06ee1f30fecd0e4c76c1cdd9dde9ff"
+    },
+    {
+      "path": "ModCarrerMode/data/club_environment/current_dressing_room/custom/383/fascia-left.png",
+      "bytes": 115608,
+      "sha256": "57ce724e247a710edc7aa0a48ac5de23b172e57848eba6a94a846e19b989d196"
+    },
+    {
+      "path": "ModCarrerMode/data/club_environment/current_dressing_room/custom/383/fascia-right.png",
+      "bytes": 174376,
+      "sha256": "802353ded91ec1afa5372d4e2a85740d2edcca31fce4b7b6be8a8b9f10838ced"
+    },
+    {
+      "path": "ModCarrerMode/data/club_environment/current_dressing_room/custom/383/feature-wall.png",
+      "bytes": 2692315,
+      "sha256": "798757b55540d62f7eddcb088eac90eb6a2938ef1688d19ca5258fa1e0f44908"
+    },
+    {
+      "path": "ModCarrerMode/data/club_environment/current_dressing_room/custom/383/locker-backing.png",
+      "bytes": 2334875,
+      "sha256": "c1be54149a1cca6dcacd18e5010e46eb84b11e96dc25025ea2e79281b54e5f9d"
+    },
+    {
+      "path": "ModCarrerMode/data/club_environment/current_dressing_room/custom/383/locker-frame.png",
+      "bytes": 628839,
+      "sha256": "01e282ce4f5c78476644c6970a61105436b1854790a13772aba46a7bbfbb86fd"
+    },
+    {
+      "path": "ModCarrerMode/data/club_environment/current_dressing_room/custom/383/profile.json",
+      "bytes": 1298,
+      "sha256": "ba104a6ec05a3ad9f963deff2bd70f0032cef89c160306efff5903012c22a509"
+    },
+    {
+      "path": "ModCarrerMode/data/club_environment/current_dressing_room/custom/383/wall-mural.png",
+      "bytes": 2997002,
+      "sha256": "79cb9b8aec2d627ca303c4de3cd2c695a123c79f056c770e5fcfb628c0afcc9f"
+    },
+    {
+      "path": "ModCarrerMode/data/club_environment/current_dressing_room/custom/517/corner-panel.png",
+      "bytes": 15526,
+      "sha256": "8f3bf2bb5360951afeb20c7e03dfd472e15bd21b478cab0f1421a9e16dc3ceaa"
+    },
+    {
+      "path": "ModCarrerMode/data/club_environment/current_dressing_room/custom/517/fascia-back-left.png",
+      "bytes": 68041,
+      "sha256": "b8af277e080a00e7393ad3d44baa2f47831de026eeeac885b1183c2575cb8ac8"
+    },
+    {
+      "path": "ModCarrerMode/data/club_environment/current_dressing_room/custom/517/fascia-back-right.png",
+      "bytes": 102690,
+      "sha256": "748af6f505f69c30431fc6b64076d4f3b96775bcd01959ea5d05f64b2f331917"
+    },
+    {
+      "path": "ModCarrerMode/data/club_environment/current_dressing_room/custom/517/fascia-left.png",
+      "bytes": 81351,
+      "sha256": "a65ca23066c4c8411efc0d70648e482dc2a737230471d42be2229eb2fc19dec8"
+    },
+    {
+      "path": "ModCarrerMode/data/club_environment/current_dressing_room/custom/517/fascia-right.png",
+      "bytes": 183381,
+      "sha256": "774ac51420bb1ebc14b63807f839b1d00a2e08bc7bc047ec2b821cf9ad8ef8d4"
+    },
+    {
+      "path": "ModCarrerMode/data/club_environment/current_dressing_room/custom/517/feature-wall.png",
+      "bytes": 1678831,
+      "sha256": "8a3e21558bf4d6769f1bcb606eddda35c58ec2a9e8eb150b8fc96edbdc429383"
+    },
+    {
+      "path": "ModCarrerMode/data/club_environment/current_dressing_room/custom/517/locker-backing.png",
+      "bytes": 1444143,
+      "sha256": "d507c8832c55a603f4b67f7b4e3fc46cfed2142a385eb66c26f901dbaa2d1ec4"
+    },
+    {
+      "path": "ModCarrerMode/data/club_environment/current_dressing_room/custom/517/locker-frame.png",
+      "bytes": 626609,
+      "sha256": "65729f6c0eaf2f32dc76fd80ba79e22df07950df787f00d4a39648626f232102"
+    },
+    {
+      "path": "ModCarrerMode/data/club_environment/current_dressing_room/custom/517/profile.json",
+      "bytes": 1286,
+      "sha256": "b0ac04e20bfba2feff6e2832240ec3be0da56ec3a517174beb4f82cf7b19e6bc"
+    },
+    {
+      "path": "ModCarrerMode/data/club_environment/current_dressing_room/custom/517/wall-mural.png",
+      "bytes": 2970546,
+      "sha256": "de8a733d178028a2075fddf4e976282a4369c15ed249b103c707265a9a30bb61"
+    },
+    {
+      "path": "ModCarrerMode/data/club_environment/current_dressing_room/custom/567/corner-panel.png",
+      "bytes": 15185,
+      "sha256": "614d2645052e53a053680f5570257dfb389c2c4b44f6692310436f50f5dc66b5"
+    },
+    {
+      "path": "ModCarrerMode/data/club_environment/current_dressing_room/custom/567/fascia-back-left.png",
+      "bytes": 131752,
+      "sha256": "7fcbfc39e2b82551d48bf7cd8926f1955e9e56666946e96bbb1c71a4677ca45e"
+    },
+    {
+      "path": "ModCarrerMode/data/club_environment/current_dressing_room/custom/567/fascia-back-right.png",
+      "bytes": 132444,
+      "sha256": "2cb7c3edec79df701b8a1aa5b5936ec87584829ec1474de2f503912f81dc6817"
+    },
+    {
+      "path": "ModCarrerMode/data/club_environment/current_dressing_room/custom/567/fascia-left.png",
+      "bytes": 111947,
+      "sha256": "052a98e851040fe063612623a467d9653b47b0bdd24e30d0b1f92ee7ef8e6775"
+    },
+    {
+      "path": "ModCarrerMode/data/club_environment/current_dressing_room/custom/567/fascia-right.png",
+      "bytes": 181705,
+      "sha256": "ab22faf74bf6ebd552c0a9d75f7ae4c0c23232b84498ad5e8bd114ee4cbec4e7"
+    },
+    {
+      "path": "ModCarrerMode/data/club_environment/current_dressing_room/custom/567/feature-wall.png",
+      "bytes": 2537156,
+      "sha256": "5cb83677c0d590ab6b5233bdecc242375de9d1ef14a32fdbf90d93865177150f"
+    },
+    {
+      "path": "ModCarrerMode/data/club_environment/current_dressing_room/custom/567/locker-backing.png",
+      "bytes": 2213646,
+      "sha256": "a6bc892f2c942bd14bbab58d83284e4a7f2b6bbde7663806cbbb5ab2b9f0899c"
+    },
+    {
+      "path": "ModCarrerMode/data/club_environment/current_dressing_room/custom/567/locker-frame.png",
+      "bytes": 629276,
+      "sha256": "3b2b6d2e47f7cc5c7234895992e137598b347990fc535f056fbe3f70a3d2333c"
+    },
+    {
+      "path": "ModCarrerMode/data/club_environment/current_dressing_room/custom/567/profile.json",
+      "bytes": 1289,
+      "sha256": "710561998231c88c71149f1b1949672b4d07e40192236b23e5f015ed2409713a"
+    },
+    {
+      "path": "ModCarrerMode/data/club_environment/current_dressing_room/custom/567/wall-mural.png",
+      "bytes": 2762525,
+      "sha256": "36ceecc9cec1ca044a340648936dbfdb0e4f142439d66e5197d34e9edcb60b67"
+    },
+    {
+      "path": "ModCarrerMode/data/club_environment/current_dressing_room/custom/568/corner-panel.png",
+      "bytes": 15751,
+      "sha256": "a07ddad10ec5c028edeb07fac4dcac1adad1662c5aace9fae102e51f66e140ad"
+    },
+    {
+      "path": "ModCarrerMode/data/club_environment/current_dressing_room/custom/568/fascia-back-left.png",
+      "bytes": 93214,
+      "sha256": "20f4398c4947f05adab0cdf9d1246c0e348ab8debdf141047807c4739ea4f298"
+    },
+    {
+      "path": "ModCarrerMode/data/club_environment/current_dressing_room/custom/568/fascia-back-right.png",
+      "bytes": 128253,
+      "sha256": "6eb3606cea3848702fe23623c662b184015040fabfba176e1e5e9551b2eb217b"
+    },
+    {
+      "path": "ModCarrerMode/data/club_environment/current_dressing_room/custom/568/fascia-left.png",
+      "bytes": 109637,
+      "sha256": "0ce299636a6ce1730ce4f0123bfd4872f9af6d7e70e4889d48160a59bd2ab6a6"
+    },
+    {
+      "path": "ModCarrerMode/data/club_environment/current_dressing_room/custom/568/fascia-right.png",
+      "bytes": 160945,
+      "sha256": "a9076d62ee1e93c04b4e70fee41b3e3922e9e1fa4731d302a14c3b956b616eba"
+    },
+    {
+      "path": "ModCarrerMode/data/club_environment/current_dressing_room/custom/568/feature-wall.png",
+      "bytes": 2445971,
+      "sha256": "92c2b4df4362954478aee6fe9136380b6e0c17d1991303dd8e1d8801a94870b5"
+    },
+    {
+      "path": "ModCarrerMode/data/club_environment/current_dressing_room/custom/568/locker-backing.png",
+      "bytes": 2114370,
+      "sha256": "60362f4c34c6ccfc3959d285981bb5884b2f72bfd838095b6bad83f63a4d9fcb"
+    },
+    {
+      "path": "ModCarrerMode/data/club_environment/current_dressing_room/custom/568/locker-frame.png",
+      "bytes": 628951,
+      "sha256": "df0f909bb5a0c444f1d55f0307d8838f508b544762f2a242bc4cd94ed789891d"
+    },
+    {
+      "path": "ModCarrerMode/data/club_environment/current_dressing_room/custom/568/profile.json",
+      "bytes": 1284,
+      "sha256": "81642fe2b4653c745c4c3afe306f47db6705a7b9b980208b4f158a94c7b1d0f4"
+    },
+    {
+      "path": "ModCarrerMode/data/club_environment/current_dressing_room/custom/568/wall-mural.png",
+      "bytes": 2901717,
+      "sha256": "d838598b76639496e2274765ecd43a2049b97de9ecf655ea09db43ed25b3f2ea"
+    },
+    {
+      "path": "ModCarrerMode/data/club_environment/current_dressing_room/custom/569/corner-panel.png",
+      "bytes": 21890,
+      "sha256": "c9e6dfcf098212e767920c025aa6a8a5f3d261752666ddadd761eba1ec6bf959"
+    },
+    {
+      "path": "ModCarrerMode/data/club_environment/current_dressing_room/custom/569/fascia-back-left.png",
+      "bytes": 119772,
+      "sha256": "f8a580e90683ea22e0638e2a98a9c0c0509a5b193cc660b4b8a96f8c05c63482"
+    },
+    {
+      "path": "ModCarrerMode/data/club_environment/current_dressing_room/custom/569/fascia-back-right.png",
+      "bytes": 109575,
+      "sha256": "9cadf0859758fc2e8c9cb1d8373a53de83b625d6c11e66d15c4ba6a66fe7c9fe"
+    },
+    {
+      "path": "ModCarrerMode/data/club_environment/current_dressing_room/custom/569/fascia-left.png",
+      "bytes": 105625,
+      "sha256": "b1aeaf047a432de444555ba341f3468c7bc232af0890d33423b7c4e236087824"
+    },
+    {
+      "path": "ModCarrerMode/data/club_environment/current_dressing_room/custom/569/fascia-right.png",
+      "bytes": 171458,
+      "sha256": "41094c33293309d29a56489cb7018f0e97730c87bc90ae912d51ba8f3250522e"
+    },
+    {
+      "path": "ModCarrerMode/data/club_environment/current_dressing_room/custom/569/feature-wall.png",
+      "bytes": 2372802,
+      "sha256": "0e13d7970c8471753645f35c70aa50cb1cf5c0ff11b13072d8138fc15d104ab0"
+    },
+    {
+      "path": "ModCarrerMode/data/club_environment/current_dressing_room/custom/569/locker-backing.png",
+      "bytes": 2038763,
+      "sha256": "166ef07b5dbb360f3ae00e71bec298de1bdfe7a7ba9a95aea715350c72ff25e6"
+    },
+    {
+      "path": "ModCarrerMode/data/club_environment/current_dressing_room/custom/569/locker-frame.png",
+      "bytes": 627156,
+      "sha256": "146c3f4d72dd183286d46c433263f57249cad78b265cb7f37a9704ff5416dc9a"
+    },
+    {
+      "path": "ModCarrerMode/data/club_environment/current_dressing_room/custom/569/profile.json",
+      "bytes": 1291,
+      "sha256": "d0bbbe68fa3ac3f19df001a13044dd5f903a97f7dd1a2571c0aa186965dbc860"
+    },
+    {
+      "path": "ModCarrerMode/data/club_environment/current_dressing_room/custom/569/wall-mural.png",
+      "bytes": 2935123,
+      "sha256": "fa37e9bc8992c8536336cd58d7aa9744df7c649011e34b9a3aa1d774d27d1db7"
+    },
+    {
+      "path": "ModCarrerMode/data/club_environment/current_dressing_room/custom/598/corner-panel.png",
+      "bytes": 17904,
+      "sha256": "b4d7d94686e96cfcecda84bab1e814ebb57cf33ec6c806e65116651dd63feb1f"
+    },
+    {
+      "path": "ModCarrerMode/data/club_environment/current_dressing_room/custom/598/fascia-back-left.png",
+      "bytes": 119100,
+      "sha256": "bd6b714676ec570a0c305be515a016c7caadee36ec8362a6c4dfa8f33884f8e6"
+    },
+    {
+      "path": "ModCarrerMode/data/club_environment/current_dressing_room/custom/598/fascia-back-right.png",
+      "bytes": 124289,
+      "sha256": "e6859a14e2ad1412f40853144129da452a7e47d15acb9c2436784b815671b72b"
+    },
+    {
+      "path": "ModCarrerMode/data/club_environment/current_dressing_room/custom/598/fascia-left.png",
+      "bytes": 99190,
+      "sha256": "d7438ed363675d08c491ce10cc0692c8f951a58365c1dc3c6cd79d630f92ad9a"
+    },
+    {
+      "path": "ModCarrerMode/data/club_environment/current_dressing_room/custom/598/fascia-right.png",
+      "bytes": 191282,
+      "sha256": "7433515cefd81fcd5b9839a4444d29c41609b95ce74e094f212982632a34d047"
+    },
+    {
+      "path": "ModCarrerMode/data/club_environment/current_dressing_room/custom/598/feature-wall.png",
+      "bytes": 2304270,
+      "sha256": "0d3d77424d4bbd3df19247c9e43ea4addf13033fa60267c6f082e53d2e31c60f"
+    },
+    {
+      "path": "ModCarrerMode/data/club_environment/current_dressing_room/custom/598/locker-backing.png",
+      "bytes": 2037009,
+      "sha256": "b46a7b23ff19ff990e9771a5c4e79f534dab9ee2af09188c7c1894a0046fe834"
+    },
+    {
+      "path": "ModCarrerMode/data/club_environment/current_dressing_room/custom/598/locker-frame.png",
+      "bytes": 627382,
+      "sha256": "fa1771ab3ca0dc940cb09b36d1fa5af763b5a104b33d7a3f8807a349d877a7ce"
+    },
+    {
+      "path": "ModCarrerMode/data/club_environment/current_dressing_room/custom/598/profile.json",
+      "bytes": 1295,
+      "sha256": "51c57570b43c72358e59f3f16df2ff2784247d8cb5c48303a1d1cb8bb0a75ebf"
+    },
+    {
+      "path": "ModCarrerMode/data/club_environment/current_dressing_room/custom/598/wall-mural.png",
+      "bytes": 2747834,
+      "sha256": "fad8b07bda8c860db0649457e404977df05e66482c5858f00b1641540500f26d"
+    },
+    {
+      "path": "ModCarrerMode/data/club_environment/current_dressing_room/custom/profile.example.json",
+      "bytes": 1005,
+      "sha256": "9d871276546c19d8a41577a1ddc181ba003513c997077f9161228857f0cb479f"
+    },
+    {
+      "path": "ModCarrerMode/data/club_environment/current_dressing_room/generic/lettering.json",
+      "bytes": 831964,
+      "sha256": "c2310f516dc9992491149f0f1ec758f540f2dbf9e370486c1dbb0b44cd65911e"
+    },
+    {
+      "path": "ModCarrerMode/data/club_environment/current_dressing_room/generic/materials/ash_black.png",
+      "bytes": 1490825,
+      "sha256": "1cbf20e7d511fe8dfd75234043d5dc7b371a5d684b696a9254182c436d78277b"
+    },
+    {
+      "path": "ModCarrerMode/data/club_environment/current_dressing_room/generic/materials/floor_dark.png",
+      "bytes": 140406,
+      "sha256": "a3311e314d97d0f07298fbae0cb6c67bef3a1e13a939a2dd80d9e13377d9317e"
+    },
+    {
+      "path": "ModCarrerMode/data/club_environment/current_dressing_room/generic/materials/floor_light.png",
+      "bytes": 143128,
+      "sha256": "640c9c9bb655660f6bbe87898edada1e9872f9970387176838b63337487c9d73"
+    },
+    {
+      "path": "ModCarrerMode/data/club_environment/current_dressing_room/generic/materials/floor_rubber.png",
+      "bytes": 145761,
+      "sha256": "fe2d814c0d1a71fd56f7162d5290980c6ab07b547881ba0fc1f8f04b6de175a3"
+    },
+    {
+      "path": "ModCarrerMode/data/club_environment/current_dressing_room/generic/materials/floor_stone.png",
+      "bytes": 143261,
+      "sha256": "7935e5d4ddec8904d88a9dcf136f99de7328b88c0533a5ee8dc46d93d7b0061b"
+    },
+    {
+      "path": "ModCarrerMode/data/club_environment/current_dressing_room/generic/materials/oak_light.png",
+      "bytes": 1696358,
+      "sha256": "c13a3a0de6e2a17e0937f0f54aa5a051a0bf874caf6af9e78fa3058f593eb31b"
+    },
+    {
+      "path": "ModCarrerMode/data/club_environment/current_dressing_room/generic/materials/walnut.png",
+      "bytes": 1628141,
+      "sha256": "fd3e76138e9061edbb53348740fdb8ba890f32e89733e9509a47c2891bc49e5c"
+    },
+    {
       "path": "ModCarrerMode/data/club_environment/room/assets/jersey_pose_0.npz",
       "bytes": 109746,
       "sha256": "0168dac59af2473b556d95139ed4a1fd0cd9aa84413b264ae10fd0b2b53c0395"
@@ -350,211 +1610,6 @@
       "path": "ModCarrerMode/data/club_environment/room/assets/texture_template.rx3",
       "bytes": 448,
       "sha256": "4435f70808925092d885a38ab979f5fcfc13d0e7b57c06958668e37151419b21"
-    },
-    {
-      "path": "ModCarrerMode/data/club_environment/room/clubs/1035/mural.png",
-      "bytes": 2761956,
-      "sha256": "f18c418e33dbdba15b6cfb458d64ddb5de3a9da26087826111352a197423964a"
-    },
-    {
-      "path": "ModCarrerMode/data/club_environment/room/clubs/1039/mural.png",
-      "bytes": 2816657,
-      "sha256": "13732ad8b6bd1044df9492520fa8bfed6c28c6fb5d1fe29f62cc02da111d1aa3"
-    },
-    {
-      "path": "ModCarrerMode/data/club_environment/room/clubs/1041/mural.png",
-      "bytes": 3001609,
-      "sha256": "34bd21711d9302e510605756cc8b4514f66ba6aac1f61aedf27573b40d040965"
-    },
-    {
-      "path": "ModCarrerMode/data/club_environment/room/clubs/1043/hydration.png",
-      "bytes": 2509513,
-      "sha256": "09e20e8ab82fc8165742b6a77dd48915ce1e65fb864dd473fb3217bbf41dbe1c"
-    },
-    {
-      "path": "ModCarrerMode/data/club_environment/room/clubs/1043/mural.png",
-      "bytes": 2536812,
-      "sha256": "78c2f2a3cbe95cbe74ea256f15ebb9f08a5e270956654936f0525b5083f1527d"
-    },
-    {
-      "path": "ModCarrerMode/data/club_environment/room/clubs/1048/mural.png",
-      "bytes": 2923052,
-      "sha256": "f8989222b4ac583a1dec134075cebf72b679575fe6c4ec7e0bfade0026e1de45"
-    },
-    {
-      "path": "ModCarrerMode/data/club_environment/room/clubs/1053/mural.png",
-      "bytes": 2853979,
-      "sha256": "ec95e1ddf60506038b7f514e388ffac232ddab63d18a5699a8a46caa1fb5e164"
-    },
-    {
-      "path": "ModCarrerMode/data/club_environment/room/clubs/111041/mural.png",
-      "bytes": 2952275,
-      "sha256": "91879e292a50c4c8d5f7899f6aa0d049184d6d9fe0db5d6b2b055208127e56d1"
-    },
-    {
-      "path": "ModCarrerMode/data/club_environment/room/clubs/111042/mural.png",
-      "bytes": 2770926,
-      "sha256": "7a82c5193147f009e5f3cafa0c003a5f488c1c21b73571b29c84b45434df79df"
-    },
-    {
-      "path": "ModCarrerMode/data/club_environment/room/clubs/111043/mural.png",
-      "bytes": 2973444,
-      "sha256": "50f26401cd37391bfbf7485a8d7953a69ab48070eb232418de2cb8b33f0e6d81"
-    },
-    {
-      "path": "ModCarrerMode/data/club_environment/room/clubs/111044/mural.png",
-      "bytes": 2896963,
-      "sha256": "e16b008c3941a79ddebd1257e90a7907ec55839afb8b66073abb2192353a2686"
-    },
-    {
-      "path": "ModCarrerMode/data/club_environment/room/clubs/111046/mural.png",
-      "bytes": 2776519,
-      "sha256": "93f42118f1807681264843e0f4418485944fd09d781b81776dd0379a8669092c"
-    },
-    {
-      "path": "ModCarrerMode/data/club_environment/room/clubs/111050/mural.png",
-      "bytes": 3033879,
-      "sha256": "6a97015e7598271f7e7cfeb9260a8eb148d6e5017694ac852d7252d3d5c5d05e"
-    },
-    {
-      "path": "ModCarrerMode/data/club_environment/room/clubs/111052/mural.png",
-      "bytes": 2932744,
-      "sha256": "058228b030db13d8ba62b2106a65918dd18b02aed42d534cbfbd1533acc1714b"
-    },
-    {
-      "path": "ModCarrerMode/data/club_environment/room/clubs/111057/mural.png",
-      "bytes": 2783008,
-      "sha256": "ceb9c0004da972e2b61f9871606c9f3f0055188b666604ceb213d63a13fd1fe9"
-    },
-    {
-      "path": "ModCarrerMode/data/club_environment/room/clubs/111059/mural.png",
-      "bytes": 2774513,
-      "sha256": "ccebb6a95f591a25e62331f26380d8902a4c680de960e7f2b34104bc6b4fcf4e"
-    },
-    {
-      "path": "ModCarrerMode/data/club_environment/room/clubs/111976/mural.png",
-      "bytes": 2949997,
-      "sha256": "d284ac58e54a467badce8167b0f1e41adec8f1e6c1063faaf000e0ad4419e5a6"
-    },
-    {
-      "path": "ModCarrerMode/data/club_environment/room/clubs/112001/mural.png",
-      "bytes": 2568501,
-      "sha256": "dca6d2e0627f47461eb420e5ebb259489044367be9b47e5bcd7f9d4fdf02f459"
-    },
-    {
-      "path": "ModCarrerMode/data/club_environment/room/clubs/112119/mural.png",
-      "bytes": 2612027,
-      "sha256": "8cb185ef0f74792e61f18d5665604ba05e01be1db9203341ee333fed01acb7c7"
-    },
-    {
-      "path": "ModCarrerMode/data/club_environment/room/clubs/112476/mural.png",
-      "bytes": 2880063,
-      "sha256": "02c638687ede8f9fc44bce031dd717cbaf5ef30878c5490fdc4cc780c484de92"
-    },
-    {
-      "path": "ModCarrerMode/data/club_environment/room/clubs/113116/mural.png",
-      "bytes": 3040905,
-      "sha256": "ccaed3760d1579247d5b0959d77131593b5648161cf74e6f7325da5458639805"
-    },
-    {
-      "path": "ModCarrerMode/data/club_environment/room/clubs/113163/mural.png",
-      "bytes": 2833073,
-      "sha256": "23193049573385d9f50838c1bda7fecd8261400a4f5c674ae1068250e6007b0a"
-    },
-    {
-      "path": "ModCarrerMode/data/club_environment/room/clubs/120005/mural.png",
-      "bytes": 2837043,
-      "sha256": "c20410b8b0bb0776818d9d2231cf02eb5155dc48af714cb58b81cb5654b6da66"
-    },
-    {
-      "path": "ModCarrerMode/data/club_environment/room/clubs/120006/mural.png",
-      "bytes": 2934798,
-      "sha256": "3541a3a1d24c968f478c1f342dbcc053783231bd4d500182f4d894cd4b78dba1"
-    },
-    {
-      "path": "ModCarrerMode/data/club_environment/room/clubs/120016/mural.png",
-      "bytes": 2793727,
-      "sha256": "234dcd1746b0bff02fc7f1098b642ab88e8d3db4d7cd047771ed0cf529ba30a4"
-    },
-    {
-      "path": "ModCarrerMode/data/club_environment/room/clubs/123921/mural.png",
-      "bytes": 3006187,
-      "sha256": "030790c3856b54b28f728714e12e0d6aac9ffd61e472430374d315923bff112a"
-    },
-    {
-      "path": "ModCarrerMode/data/club_environment/room/clubs/130021/mural.png",
-      "bytes": 2910557,
-      "sha256": "13bbaed1db4f7aff47f6e8b4bc83c9c66734de6168b46c6e4273c27a0d96f54a"
-    },
-    {
-      "path": "ModCarrerMode/data/club_environment/room/clubs/130026/mural.png",
-      "bytes": 3016214,
-      "sha256": "085a88d8b296fdd248db1b510a3b0e48634819c3856f3e238cc59c67f339506b"
-    },
-    {
-      "path": "ModCarrerMode/data/club_environment/room/clubs/130028/mural.png",
-      "bytes": 2688490,
-      "sha256": "15058dcf57501257d761eac4688c34788588bbd28fda0ccbad330092442fa695"
-    },
-    {
-      "path": "ModCarrerMode/data/club_environment/room/clubs/130045/mural.png",
-      "bytes": 2816259,
-      "sha256": "dbfbc1417d72aef93ce154ab644f55e735188ffcf2391d17c6b56b10d034e101"
-    },
-    {
-      "path": "ModCarrerMode/data/club_environment/room/clubs/130046/mural.png",
-      "bytes": 2792199,
-      "sha256": "e5a972187ae240ca5488233902a1d483d8185024f8bd5523bfab3cfce6f306e4"
-    },
-    {
-      "path": "ModCarrerMode/data/club_environment/room/clubs/130388/mural.png",
-      "bytes": 2987578,
-      "sha256": "a171653a6b93579464a1fd6c76b81efd604575d629b1c696d72c0d897ca0d0ff"
-    },
-    {
-      "path": "ModCarrerMode/data/club_environment/room/clubs/1598/mural.png",
-      "bytes": 2997175,
-      "sha256": "6723a730498ea301aac4f4f69731e62d919c3cc1ea9663c581d31e389a907e11"
-    },
-    {
-      "path": "ModCarrerMode/data/club_environment/room/clubs/1629/mural.png",
-      "bytes": 2856266,
-      "sha256": "a646624ca10791628dacf447699fd485b33f22196fc01e474354f2897f349b0c"
-    },
-    {
-      "path": "ModCarrerMode/data/club_environment/room/clubs/1719/mural.png",
-      "bytes": 2630573,
-      "sha256": "f4cf99698a4d285afcf02bbc3d77d9364e2fd9ebb977094af6bf31ab7fe3db64"
-    },
-    {
-      "path": "ModCarrerMode/data/club_environment/room/clubs/383/mural.png",
-      "bytes": 2997002,
-      "sha256": "79cb9b8aec2d627ca303c4de3cd2c695a123c79f056c770e5fcfb628c0afcc9f"
-    },
-    {
-      "path": "ModCarrerMode/data/club_environment/room/clubs/517/mural.png",
-      "bytes": 2970546,
-      "sha256": "de8a733d178028a2075fddf4e976282a4369c15ed249b103c707265a9a30bb61"
-    },
-    {
-      "path": "ModCarrerMode/data/club_environment/room/clubs/567/mural.png",
-      "bytes": 2762525,
-      "sha256": "36ceecc9cec1ca044a340648936dbfdb0e4f142439d66e5197d34e9edcb60b67"
-    },
-    {
-      "path": "ModCarrerMode/data/club_environment/room/clubs/568/mural.png",
-      "bytes": 2901717,
-      "sha256": "d838598b76639496e2274765ecd43a2049b97de9ecf655ea09db43ed25b3f2ea"
-    },
-    {
-      "path": "ModCarrerMode/data/club_environment/room/clubs/569/mural.png",
-      "bytes": 2935123,
-      "sha256": "fa37e9bc8992c8536336cd58d7aa9744df7c649011e34b9a3aa1d774d27d1db7"
-    },
-    {
-      "path": "ModCarrerMode/data/club_environment/room/clubs/598/mural.png",
-      "bytes": 2747834,
-      "sha256": "fad8b07bda8c860db0649457e404977df05e66482c5858f00b1641540500f26d"
     },
     {
       "path": "ModCarrerMode/data/club_environment/room/clubs/README.md",
@@ -588,8 +1643,8 @@
     },
     {
       "path": "ModCarrerMode/data/club_environment/room/runtime/indoor_ambient.txt",
-      "bytes": 5,
-      "sha256": "8bfff71593ac080bc549dd1ea35b773f3f0cdb57de78d5de26df86edd7b968fd"
+      "bytes": 11,
+      "sha256": "a575a95cc6d549cce131d6a3c423d45a1a0501b095ae04901afe700e8dbdaba8"
     },
     {
       "path": "ModCarrerMode/data/club_environment/room/runtime/medical_room_r57.json",
@@ -624,22 +1679,22 @@
     {
       "path": "ModCarrerMode/data/manager_market/catalog.sqlite3",
       "bytes": 876544,
-      "sha256": "ad5b4dc3193f10a1cec32a37f61a43f0d7dba1b67df2a82b216cbd4c42df4393"
+      "sha256": "42260d2137f5f415682f37538a6dc0482e47e35a6fad931c8ea51bf4788e2cb2"
     },
     {
       "path": "ModCarrerMode/data/manager_market/interface/catalogue.big",
-      "bytes": 29679291,
-      "sha256": "ee7f9f6b84c90282f47dd90db786c6fdf7dce5a55ca89991026cf8a3f44b91aa"
+      "bytes": 29685371,
+      "sha256": "e8bb221267226957edaffec66a9d1e3f081b42166507d68bf2e868df106e29d2"
     },
     {
       "path": "ModCarrerMode/data/manager_market/interface/catalogue.json",
-      "bytes": 3571030,
-      "sha256": "fbece09538ac3eff429872b022d397dbdcd64e9f54fc7df8c401fd658ee93c14"
+      "bytes": 3588617,
+      "sha256": "95f85129442a4f526919867fc3f273bf50257214b368a326b848400d0ee3dc5b"
     },
     {
       "path": "ModCarrerMode/data/manager_market/interface/recipe.json",
       "bytes": 209,
-      "sha256": "6935cf5ade22198c94fee3ee60ced36219667cff67151388248defd6cf220813"
+      "sha256": "7adfea5e7bc2c276785c3c05c449fb0ab433cda17231bc0449b79fcc23d3e62f"
     },
     {
       "path": "ModCarrerMode/data/manager_market/manager_models.json",
@@ -8559,12 +9614,12 @@
     {
       "path": "ModCarrerMode/mods/club_browser/club_browser.dll",
       "bytes": 1163776,
-      "sha256": "617bb690d132c1db7fbb8a0ba6f01a0779a435490c4facc1392b915a34dac3f3"
+      "sha256": "dd614fe34addd071d6f0c84d095c30cf783e346dd15e05668c9aa00d3321c6c7"
     },
     {
       "path": "ModCarrerMode/mods/club_environment/native_dressing_room.dll",
-      "bytes": 482816,
-      "sha256": "8a79a46c7a8ce155219e234401d24a8ccab6310b359842015202915f8346b565"
+      "bytes": 496640,
+      "sha256": "d47676a2e1d8965d829da2cfa3197f793c294648e30499936dc612951ef56fb0"
     },
     {
       "path": "ModCarrerMode/mods/enabled.txt",
@@ -8627,6 +9682,31 @@
       "sha256": "442f7ee74b25813e476faa59b1207ea6bc8406db73a270746b7bd28bc9e17a37"
     },
     {
+      "path": "ModCarrerMode/source/career_jobs_runtime/build.cmd",
+      "bytes": 643,
+      "sha256": "1f08b606964cf8244d3de6750a1c3625c708a1c514daedfaa250217f15ad2f89"
+    },
+    {
+      "path": "ModCarrerMode/source/career_jobs_runtime/career_jobs_runtime.c",
+      "bytes": 16691,
+      "sha256": "c77fdd0125211dc13077af6dff51350135e1fc928ebe0df448d4a2541bf6dda3"
+    },
+    {
+      "path": "ModCarrerMode/source/career_jobs_runtime/protocol.h",
+      "bytes": 891,
+      "sha256": "8f34bd122115632e00295217d1407d02b4f2fdf8f842a024ad4647e2d6f36149"
+    },
+    {
+      "path": "ModCarrerMode/source/career_jobs_runtime/test.cmd",
+      "bytes": 577,
+      "sha256": "04de70c1a617ffec9afe00ac31d94f7abf1d3b6a3fbe1b04f6885077ae82cac9"
+    },
+    {
+      "path": "ModCarrerMode/source/career_jobs_runtime/test_runtime.c",
+      "bytes": 6406,
+      "sha256": "f12862668180b1be78091278911bcc7a6d21898003d5b0b725dbe7d69b052fb2"
+    },
+    {
       "path": "ModCarrerMode/source/career_native/scripts/tests/test_career_calendar_clock.cmd",
       "bytes": 438,
       "sha256": "61d7a5f0c1603a661c36c4de88dc4b7e5882b0c3dbef223678172ed51b4d76c8"
@@ -8638,18 +9718,18 @@
     },
     {
       "path": "ModCarrerMode/source/career_native/src/core/derived_standings.inc",
-      "bytes": 11633,
-      "sha256": "cb262ca91f3c04b335a06eaa46ba0ae3a74f7157d94f317cffa36071b5a88159"
+      "bytes": 13560,
+      "sha256": "b96b4ca6745c3646ceb5021555db321d506c0fb1fdee8201cf20743b52ff2121"
     },
     {
       "path": "ModCarrerMode/source/career_native/src/core/fce_runtime.c",
-      "bytes": 23231,
-      "sha256": "66b437e782d2700b8d60ca6dbf6b7f1e6de45e7b396c23a4f841e8160936435e"
+      "bytes": 23810,
+      "sha256": "dcc69318958245def6f440c576022c449c5850053f114e9adbe7f0564801550a"
     },
     {
       "path": "ModCarrerMode/source/career_native/src/core/fce_runtime.h",
-      "bytes": 2781,
-      "sha256": "73ee4ed43236aa911efb7d79b4f5190fd03c9fb1603b96d38b13fb994879979d"
+      "bytes": 2977,
+      "sha256": "29d15bf13dbe17224d74017744b611399d918dc72d9757a35a7b49343e8b325c"
     },
     {
       "path": "ModCarrerMode/source/career_native/src/host/active_save_probe.inc",
@@ -8673,8 +9753,8 @@
     },
     {
       "path": "ModCarrerMode/source/career_native/src/host/career_manager_read.inc",
-      "bytes": 3153,
-      "sha256": "b5792636ec4eb74a9b4f6918e24213827bbabda0d5d082d0fb7f999ecb5d539c"
+      "bytes": 6553,
+      "sha256": "af83c47e62e081d371686a00db1b776f3b2fc10778f92b5b9f3b78e88e3bbb85"
     },
     {
       "path": "ModCarrerMode/source/career_native/src/host/career_prepared_views.inc",
@@ -8683,8 +9763,8 @@
     },
     {
       "path": "ModCarrerMode/source/career_native/src/host/career_ui_jobs.inc",
-      "bytes": 2486,
-      "sha256": "c4b0c8002b896748066a6057794188aea87ee0c31668529da99c13cac10bb5f9"
+      "bytes": 2516,
+      "sha256": "a1d3b32876ce6faa213b16301959b46099915346e5d79d405e3eadc5077f3c68"
     },
     {
       "path": "ModCarrerMode/source/career_native/src/host/dinput8_wrapper.c",
@@ -8693,8 +9773,8 @@
     },
     {
       "path": "ModCarrerMode/source/career_native/src/host/dinput8_wrapper.def",
-      "bytes": 782,
-      "sha256": "48ae04cba62544a8db51e619720af246e6f21c60f4fdc4fb181362fbdccf6cca"
+      "bytes": 783,
+      "sha256": "50fdaf4eadf619359801fed573ea483219161e67e10208e40570fc216d5867e1"
     },
     {
       "path": "ModCarrerMode/source/career_native/src/host/native_cards.inc",
@@ -8703,8 +9783,8 @@
     },
     {
       "path": "ModCarrerMode/source/career_native/tests/core/test_derived_standings.c",
-      "bytes": 4047,
-      "sha256": "eea2b04b1c2c0f354335e57ac9568385c6580cb53fae5c9ce395f8b56b9da7c4"
+      "bytes": 5566,
+      "sha256": "3982054fd8077e10c3e56132f617ecfe31aed1b8f0ffca6a4e162591600ae1de"
     },
     {
       "path": "ModCarrerMode/source/career_native/tests/providers/test_active_career_save.c",
@@ -8723,8 +9803,8 @@
     },
     {
       "path": "ModCarrerMode/source/career_native/tests/providers/test_career_market_read.c",
-      "bytes": 8760,
-      "sha256": "316b63810d4514c11f4e48b185766400c4f2e8babf73e29e14866990f0bf63fb"
+      "bytes": 10386,
+      "sha256": "19ee7612b6d8ec0d2eb6f840672b2c2bdc84ef16f0d1c45c8c09c2689af37a05"
     },
     {
       "path": "ModCarrerMode/source/career_native/tests/providers/test_career_ui_jobs.c",
@@ -8743,13 +9823,13 @@
     },
     {
       "path": "ModCarrerMode/source/club_browser/build_apt.py",
-      "bytes": 12437,
-      "sha256": "b4ce5ecd6801388ba440a1d6bec10424a3402a0d38b3ee7c164ec645f3417718"
+      "bytes": 12440,
+      "sha256": "f9544358b74270c89a7f16f79be6aa5423bccc3d6e7ca18ca80c6aa8d2dffc43"
     },
     {
       "path": "ModCarrerMode/source/club_browser/build_career_options.py",
-      "bytes": 7473,
-      "sha256": "572360add620c098db0bcc579d0cbf2e1e1bd734a46de69c129fa4ee1a31daed"
+      "bytes": 8322,
+      "sha256": "6fb8d08b48666188d8bc22db424f3fd7f5dd9705a635c313f2e89c8ca0e7b3db"
     },
     {
       "path": "ModCarrerMode/source/club_browser/build_competitions_apt.py",
@@ -9508,8 +10588,8 @@
     },
     {
       "path": "ModCarrerMode/source/club_browser/native/model.h",
-      "bytes": 5026,
-      "sha256": "a99b7c6ce754133e435c688bb50d7182f22b276c25c1f200ce90eb43f03bf488"
+      "bytes": 5072,
+      "sha256": "e64449594a2e0fd156613d847854040dbfdb09a9ac7a4607dab57bd7e473cb6b"
     },
     {
       "path": "ModCarrerMode/source/club_browser/native/native_animation.h",
@@ -9533,8 +10613,8 @@
     },
     {
       "path": "ModCarrerMode/source/club_browser/native/render.cpp",
-      "bytes": 38390,
-      "sha256": "3635d914e895e26a5c4ac521a61a6d1bdf68662b51f49b408962dc509564f452"
+      "bytes": 38378,
+      "sha256": "db9a33ff6ff4c32a974c44f70805a257d36c684360520235872f397afec915a8"
     },
     {
       "path": "ModCarrerMode/source/club_browser/native/room_roster_mode.h",
@@ -9763,8 +10843,8 @@
     },
     {
       "path": "ModCarrerMode/source/club_browser/test_career_options_navigation.py",
-      "bytes": 1994,
-      "sha256": "43f71e4b824110b010f5a9dbaf837a39d931009f7ab0a6ac509b5ce392f606d2"
+      "bytes": 2911,
+      "sha256": "a8f3758bdf3c76949259323715e9f8bb4f00d0c6f13b2e442af93ba0eec39be4"
     },
     {
       "path": "ModCarrerMode/source/club_browser/test_career_publication.py",
@@ -9933,8 +11013,8 @@
     },
     {
       "path": "ModCarrerMode/source/club_browser/test_scene_lua.py",
-      "bytes": 3166,
-      "sha256": "cfe6581a20f296be36f78cb7c888fcc682d3d06a5f9852116668f6236cc27015"
+      "bytes": 3167,
+      "sha256": "e3d610ca136164945faedcc5c4724a9f6ea1dd28dcd6e8eaec8bd1eeb42ab5c7"
     },
     {
       "path": "ModCarrerMode/source/club_browser/test_season_stats.py",
@@ -9953,8 +11033,8 @@
     },
     {
       "path": "ModCarrerMode/source/club_browser/world_catalog.py",
-      "bytes": 8254,
-      "sha256": "8e4bfd3f85cc428eea746a9d24caf7102f68b68d42ebe71e8497e48fbea19bd1"
+      "bytes": 9721,
+      "sha256": "3b7406ac91887e47643dee478c1f9ce584a9e937d645ec1444e90a1bfc5b547b"
     },
     {
       "path": "ModCarrerMode/source/club_environment/CAREER_DATA.md",
@@ -9968,8 +11048,8 @@
     },
     {
       "path": "ModCarrerMode/source/club_environment/assets-manifest.json",
-      "bytes": 29853,
-      "sha256": "fa7a180e107ad952a821a7b6e0358c14d912401ab1c95d59af66aab26ccce3a8"
+      "bytes": 84208,
+      "sha256": "5bd1e053e320001ace75833e1a2c5a2f174d266de2a620efd4c4d00cf3fc5c18"
     },
     {
       "path": "ModCarrerMode/source/club_environment/bank/BANK_TERMS.md",
@@ -10102,6 +11182,11 @@
       "sha256": "b2a0f0a7327422748737b967d82510ef7ca56770fd5b6683ffecdff89bf39c0c"
     },
     {
+      "path": "ModCarrerMode/source/club_environment/bank/finance_package.py",
+      "bytes": 3527,
+      "sha256": "3408d469f22c8c333f0947c1df9f9b90c344cbaffb3db7047ea1e32553bc1b4d"
+    },
+    {
       "path": "ModCarrerMode/source/club_environment/bank/finance_pages.py",
       "bytes": 24075,
       "sha256": "18a9de79a4c098ce2e42bad3e2bd8bfc5312f0f89dd2aa18074fdf577e430a69"
@@ -10152,6 +11237,11 @@
       "sha256": "46eeebc0e1ac13322de5c601bb25727ef7a7ae321d69cc8765471be37cc4e7fa"
     },
     {
+      "path": "ModCarrerMode/source/club_environment/bank/screen_metadata.json",
+      "bytes": 9154,
+      "sha256": "69d6ba4c06484a7f90ddb2fe0a25615479159c6579ab7f3e54d922a29623082a"
+    },
+    {
       "path": "ModCarrerMode/source/club_environment/bank/test_club_finance.py",
       "bytes": 8306,
       "sha256": "4a23cdceee38eaff7b664760c614084289f5a7f326adae7cb601857d9b0d906b"
@@ -10165,6 +11255,11 @@
       "path": "ModCarrerMode/source/club_environment/bank/test_club_finance_ui.py",
       "bytes": 14123,
       "sha256": "93cd6eb8336c997fd91c96f326c537b65d9ee6d52bbdc1e071200dabea01ad57"
+    },
+    {
+      "path": "ModCarrerMode/source/club_environment/bank/test_club_switch.py",
+      "bytes": 5910,
+      "sha256": "bb52ab286fc9855c94c5586c628367af3616329c19a190ec3c393a9ec9cb708d"
     },
     {
       "path": "ModCarrerMode/source/club_environment/bank/test_credit_policy.py",
@@ -10212,6 +11307,11 @@
       "sha256": "53f5c83fc1f1354224e0a7f565efcbabda77fda2e15ff2426b97daf3c99dd7d0"
     },
     {
+      "path": "ModCarrerMode/source/club_environment/bank/test_finance_people.py",
+      "bytes": 1960,
+      "sha256": "dc39de6fe3af86bf16a22dd70e57d40ac03e181aa49d355af4d06f11fca57c91"
+    },
+    {
       "path": "ModCarrerMode/source/club_environment/bank/test_finance_presentation.py",
       "bytes": 2215,
       "sha256": "d59ff696f343566f5f2e2d2bac88d3b4e7ed11d3cb99041ae38cb7c598ab2036"
@@ -10247,14 +11347,39 @@
       "sha256": "b63b0c9cace2eaef5de5b13ca261cf03df5a25510e8ff8ba3c335e24330ade0b"
     },
     {
+      "path": "ModCarrerMode/source/club_environment/bank/test_loan_applications.py",
+      "bytes": 8101,
+      "sha256": "1389e4c9a6f964a9ae9e5cd399c3664e46745141ef06e95a225b42ae610908e5"
+    },
+    {
       "path": "ModCarrerMode/source/club_environment/bank/test_loan_background.py",
       "bytes": 6659,
       "sha256": "32270a28a9fc533cdd8be826bebede4c721c45b39d4b863bb40a75c28f7820db"
     },
     {
+      "path": "ModCarrerMode/source/club_environment/bank/test_loan_confirmation.py",
+      "bytes": 3829,
+      "sha256": "f3eb27390c8cbf3c546d34fa5d1561738bf762488ea36399f80b124c58e8b5a0"
+    },
+    {
+      "path": "ModCarrerMode/source/club_environment/bank/test_loan_dates_delivery.py",
+      "bytes": 8508,
+      "sha256": "ae9439f046b98f20ace4e604941c7cc05c8bb06d86a9a40162856341b57eac43"
+    },
+    {
+      "path": "ModCarrerMode/source/club_environment/bank/test_loan_direct_input.py",
+      "bytes": 2953,
+      "sha256": "55b551efdb1bb5f9b048fdabfb1aaaa1a80595e9764957a6aa92c67fa7c0e20a"
+    },
+    {
       "path": "ModCarrerMode/source/club_environment/bank/test_loan_navigation.py",
       "bytes": 8290,
       "sha256": "f84680b1c4406117bb9537e0b76ad1228f693599c14b51b2df6d0e504f6c7704"
+    },
+    {
+      "path": "ModCarrerMode/source/club_environment/bank/test_loan_notifications.py",
+      "bytes": 3636,
+      "sha256": "57105d1bfc704e1e1c1bc64a629a2cf30b187d3062568330b3f1f39e9d4745d8"
     },
     {
       "path": "ModCarrerMode/source/club_environment/bank/test_loan_reminders.py",
@@ -10265,6 +11390,11 @@
       "path": "ModCarrerMode/source/club_environment/bank/test_loan_save_as.py",
       "bytes": 4443,
       "sha256": "e6531b3e5c1c0b49177e423ec3bd887007f7f8b1b900844e9fd11327b1011244"
+    },
+    {
+      "path": "ModCarrerMode/source/club_environment/bank/test_loan_startup.py",
+      "bytes": 2916,
+      "sha256": "52ebcb87fd2d9333b0ffb4fc0fe86a50123e687177ee73d2799a8f008348d472"
     },
     {
       "path": "ModCarrerMode/source/club_environment/bank/test_loan_statement.py",
@@ -10280,6 +11410,11 @@
       "path": "ModCarrerMode/source/club_environment/bank/test_receipt_details.py",
       "bytes": 3592,
       "sha256": "9b7388284b8ec14f768d3d989fdd12569cc36545ba27c40d14ac1a5414ea9131"
+    },
+    {
+      "path": "ModCarrerMode/source/club_environment/bank/test_save_sidecar.py",
+      "bytes": 5100,
+      "sha256": "cc45d57374a5bcfb1d90db0184c2e0a6872ba6484ef4604bc01d5f01a7fe13b6"
     },
     {
       "path": "ModCarrerMode/source/club_environment/bank/watch_r57.py",
@@ -10308,13 +11443,13 @@
     },
     {
       "path": "ModCarrerMode/source/club_environment/manager_market/annual_campaigns.py",
-      "bytes": 6234,
-      "sha256": "461be0370e9d1033578e920314de5dcc672f191fde0c8c8b0217c4f688c8274a"
+      "bytes": 7038,
+      "sha256": "7fdd6f9a4d90ee7eddfa7c02654c2c65a7c62329cf9f3e4c67d5db98f8cde721"
     },
     {
       "path": "ModCarrerMode/source/club_environment/manager_market/appointment_campaign.py",
-      "bytes": 8915,
-      "sha256": "2a28a7032cc331d2bdbb90b2ebb9b73d621bacedc09ece6aad202ad9601911e2"
+      "bytes": 11128,
+      "sha256": "6757e1381a84042005f92fcd3f3053aa240271dcc1863f1f137e9027b66118c3"
     },
     {
       "path": "ModCarrerMode/source/club_environment/manager_market/asset_cache.py",
@@ -10323,8 +11458,8 @@
     },
     {
       "path": "ModCarrerMode/source/club_environment/manager_market/board_confidence.py",
-      "bytes": 887,
-      "sha256": "e15da456c8926f4912394cb4d89acdd71844fcb63b9ccbb2fed6dfe538312324"
+      "bytes": 893,
+      "sha256": "6222945bc10841aec69f6ab742ad1846af94a9e30aeb49ba3fd4adfc5121e16b"
     },
     {
       "path": "ModCarrerMode/source/club_environment/manager_market/campaign_recovery.py",
@@ -10333,8 +11468,8 @@
     },
     {
       "path": "ModCarrerMode/source/club_environment/manager_market/career_profile.py",
-      "bytes": 4238,
-      "sha256": "9691d058b40eb96accf04c1f53c419586ad541875883727717d7996ee83a28a6"
+      "bytes": 4497,
+      "sha256": "55fe8ac12c3737df35e3ece2509384de77031ed3f3c0fe9c3742cf9c13fcc50a"
     },
     {
       "path": "ModCarrerMode/source/club_environment/manager_market/catalog_meta.py",
@@ -10358,8 +11493,8 @@
     },
     {
       "path": "ModCarrerMode/source/club_environment/manager_market/engine.py",
-      "bytes": 49957,
-      "sha256": "913c4b523963ff6eada825ab4461c0f6989fa78992b22b675645f441c9d25642"
+      "bytes": 52887,
+      "sha256": "5859db3f1913ac025176b62fa989524a30fcb9a6dd77a2f87906a31723f2ecee"
     },
     {
       "path": "ModCarrerMode/source/club_environment/manager_market/evidence_ownership.py",
@@ -10368,8 +11503,8 @@
     },
     {
       "path": "ModCarrerMode/source/club_environment/manager_market/global_performance.py",
-      "bytes": 6303,
-      "sha256": "e0f077df9f48f8bdc42c99aeab2dd73b12dc1302d72d4eaee9746bd3acdd50c0"
+      "bytes": 7260,
+      "sha256": "0c0cbf77d03957fca5709a4b11867b45ae2cd94e2da04e6fb9c7943b41401c00"
     },
     {
       "path": "ModCarrerMode/source/club_environment/manager_market/hiring_fit.py",
@@ -10378,13 +11513,13 @@
     },
     {
       "path": "ModCarrerMode/source/club_environment/manager_market/import_catalog.py",
-      "bytes": 7373,
-      "sha256": "6d3d281ba2ab21c328adda88e67d02f2998b9cc563997a02ecb75c19a413b527"
+      "bytes": 7941,
+      "sha256": "ea92f9345cda7f342f32f62fa64b06e13de7284692c0a948b2811f756128f597"
     },
     {
       "path": "ModCarrerMode/source/club_environment/manager_market/inputs.py",
-      "bytes": 9472,
-      "sha256": "7a68f13c2e9820d0e70e19829a39d26141acd4e9d8b1c4ab0dcbd87552058fbe"
+      "bytes": 9717,
+      "sha256": "2c23589b61c9c02e819e3f9898883d21fcd60ee7be4e7b30401f1f6bf2f5c035"
     },
     {
       "path": "ModCarrerMode/source/club_environment/manager_market/install.py",
@@ -10393,13 +11528,13 @@
     },
     {
       "path": "ModCarrerMode/source/club_environment/manager_market/live_leagues.py",
-      "bytes": 2084,
-      "sha256": "57077c358db6b7772c0ca3734756455deb5e6c801cf48a4dc60e834fee8c9329"
+      "bytes": 3580,
+      "sha256": "9dfa13722010ee22b1a06573bd0617bbd63f57b0e191c82c1d90e2a3b4b01188"
     },
     {
       "path": "ModCarrerMode/source/club_environment/manager_market/live_sampler.py",
-      "bytes": 3422,
-      "sha256": "41aa56c3c041e39ea3503d61a58867e163843fc0a7628721045c3d2827c274e4"
+      "bytes": 8638,
+      "sha256": "92fcfb489d0df34c38aae74657d364aa5c480e26358bee7311d288b4abea428c"
     },
     {
       "path": "ModCarrerMode/source/club_environment/manager_market/loading_progress.py",
@@ -10408,8 +11543,8 @@
     },
     {
       "path": "ModCarrerMode/source/club_environment/manager_market/manager_layout.py",
-      "bytes": 13617,
-      "sha256": "8d8d696b8572ef7580f66e21222ca9cc5d58a4227825f09404466ceddc49e7e6"
+      "bytes": 14496,
+      "sha256": "ab1a3389f3702e3c66265ee76e544cde836a8c9d0ac7b9d41217349c1c942c8a"
     },
     {
       "path": "ModCarrerMode/source/club_environment/manager_market/manager_models.lua",
@@ -10417,9 +11552,14 @@
       "sha256": "f8ba5f01479751f7c9ffa64af3e43a8d802019718d0378ebd67778158658d3ee"
     },
     {
+      "path": "ModCarrerMode/source/club_environment/manager_market/market_footer.py",
+      "bytes": 1199,
+      "sha256": "6b7fa382eaf3fe409317b6f713368ea272d88bea3a836ad746dbeb42092eb3ef"
+    },
+    {
       "path": "ModCarrerMode/source/club_environment/manager_market/model.py",
-      "bytes": 14472,
-      "sha256": "3be31715efbb87706d2316ea320a02778c5c9488946e1dec37bf17d00f5b6836"
+      "bytes": 15283,
+      "sha256": "68b47ff6def9dd1f129b98ebfad98d678c8a1e3087006ab5b3623452ba7b68e4"
     },
     {
       "path": "ModCarrerMode/source/club_environment/manager_market/model_assets.py",
@@ -10477,14 +11617,19 @@
       "sha256": "65d86b78441f748a69bfe307e4fce07a5b028f6c2963306d58bc595558700fbf"
     },
     {
+      "path": "ModCarrerMode/source/club_environment/manager_market/read_batch.py",
+      "bytes": 2823,
+      "sha256": "f81bb7002fea6c8f36ce1cf3af5ccfb2ce3c0d0ab26c148c902bd293cd4d2fc4"
+    },
+    {
       "path": "ModCarrerMode/source/club_environment/manager_market/save_sync.py",
       "bytes": 4645,
       "sha256": "f23621f9ddbf75bd403b62ca56f73a672e554813f794f2378c8b63410792e26a"
     },
     {
       "path": "ModCarrerMode/source/club_environment/manager_market/screen.py",
-      "bytes": 38884,
-      "sha256": "cb06a7c118da27c2de27fbdd4ae5c708be42fa96f3d5b0c4cdfa52c7545d93d4"
+      "bytes": 43910,
+      "sha256": "c82a8a551a133fe70e0be712af30a78be6d42d8bf4f891a3dd7903faa71c21fa"
     },
     {
       "path": "ModCarrerMode/source/club_environment/manager_market/template_renderer.py",
@@ -10507,14 +11652,19 @@
       "sha256": "2c835e24dc6c4b28b44c479cc615665ca9937d7292f02a39fd0f15f540ef697c"
     },
     {
+      "path": "ModCarrerMode/source/club_environment/manager_market/test_campaign_protection.py",
+      "bytes": 811,
+      "sha256": "02ddfe7a5817c0b6dc675a09b772b731c7310a4921707b9cd291bdf54be754df"
+    },
+    {
       "path": "ModCarrerMode/source/club_environment/manager_market/test_campaign_recovery.py",
       "bytes": 1663,
       "sha256": "e7084fbb20fe75b9d342d5a185ad8a0c7f8eb36805e6a50bd9394fd39ad6d759"
     },
     {
       "path": "ModCarrerMode/source/club_environment/manager_market/test_career_profile.py",
-      "bytes": 3076,
-      "sha256": "555629f0adde7c6a96b8ed63f130e137c665bef7725ca1b7e1d92ea78874176b"
+      "bytes": 3680,
+      "sha256": "f0017319b146ba9a5f5c7d8b36fc2090764cac14234a5858c319135898a33b76"
     },
     {
       "path": "ModCarrerMode/source/club_environment/manager_market/test_catalog_meta.py",
@@ -10528,8 +11678,13 @@
     },
     {
       "path": "ModCarrerMode/source/club_environment/manager_market/test_contract_campaign.py",
-      "bytes": 7534,
-      "sha256": "a362f8a2ad454e1c7ff246803da97c905ce143d32e7a6e0cf8c11bc70c76056f"
+      "bytes": 8377,
+      "sha256": "90af2bb541fb8f50501d60796e682c2594ecab78d94f7ba53a20d37b758dc5e2"
+    },
+    {
+      "path": "ModCarrerMode/source/club_environment/manager_market/test_daily_market.py",
+      "bytes": 8837,
+      "sha256": "5fe40c848454f9ba301b9e95450b75f79cf49776df5ca2741a56f88a1ecdf4a0"
     },
     {
       "path": "ModCarrerMode/source/club_environment/manager_market/test_engine.py",
@@ -10538,8 +11693,8 @@
     },
     {
       "path": "ModCarrerMode/source/club_environment/manager_market/test_global_performance.py",
-      "bytes": 7084,
-      "sha256": "cedf2aa3e0d2d230e1b0188515898fc1865a75960e2946e2d9a9029339010fc1"
+      "bytes": 7385,
+      "sha256": "9226a687999c60e514240dd8b59e280eec28a69610b52d3aaa11ba98f6e4ec1e"
     },
     {
       "path": "ModCarrerMode/source/club_environment/manager_market/test_hiring_policy.py",
@@ -10567,6 +11722,11 @@
       "sha256": "ee4615f338b7938f96d0ed24577f52e1cc9895e50a1dfd0cc9fe223f0f43f274"
     },
     {
+      "path": "ModCarrerMode/source/club_environment/manager_market/test_market_polish.py",
+      "bytes": 5079,
+      "sha256": "31415db4d00fd9babb276fb2d142c8166b18aebeb66594b8a7e27776cd32a9a4"
+    },
+    {
       "path": "ModCarrerMode/source/club_environment/manager_market/test_model_assets.py",
       "bytes": 3857,
       "sha256": "102529f7722939e078e74acf8635368283abf28a40455cb47951cede47423e31"
@@ -10578,8 +11738,8 @@
     },
     {
       "path": "ModCarrerMode/source/club_environment/manager_market/test_polish_persistence.py",
-      "bytes": 6769,
-      "sha256": "3380bcdd4bd1dc9dabf2c1b121a08e22203977759d53dbb39adadc49271e5cad"
+      "bytes": 6914,
+      "sha256": "80f7eb2efafd207be988f325309f8a453a8a7e08db035d80268be3e25dab71af"
     },
     {
       "path": "ModCarrerMode/source/club_environment/manager_market/test_prepared_catalogue.py",
@@ -10602,6 +11762,11 @@
       "sha256": "5925ffe4eac31c1ff52ae79245c41bb9dfe1d778dd27352e87ddb9affc874265"
     },
     {
+      "path": "ModCarrerMode/source/club_environment/manager_market/test_read_batch.py",
+      "bytes": 2349,
+      "sha256": "88523962a5a248a7ee219854f62bbd758fd78af78082c83a40b4d8c1d575bd94"
+    },
+    {
       "path": "ModCarrerMode/source/club_environment/manager_market/test_rehire_rarity.py",
       "bytes": 1111,
       "sha256": "cc0d6f3862c2b3bd26ddc172210a21a411ceda0c056d8a4e821652cb55813cac"
@@ -10618,8 +11783,8 @@
     },
     {
       "path": "ModCarrerMode/source/club_environment/manager_market/test_screen.py",
-      "bytes": 20197,
-      "sha256": "04b2314e1f5ac755ad254359e61c10f00d3674a794c8b9884f7115a216a991b1"
+      "bytes": 21307,
+      "sha256": "716adb8bec95db77ae54bad1c7b724be5e1c58186712759ecbdacfa031540479"
     },
     {
       "path": "ModCarrerMode/source/club_environment/manager_market/test_template_renderer.py",
@@ -10628,8 +11793,8 @@
     },
     {
       "path": "ModCarrerMode/source/club_environment/manager_market/test_worker.py",
-      "bytes": 13495,
-      "sha256": "39e828b2f2b9d8e90f19533f30a94651e8c552dca8a915630f4eb619de7b09c6"
+      "bytes": 13754,
+      "sha256": "a83b418f54ff6fdfbba0ef7d5f574f98477a4f5f050c7ba0272df5a4d5374c5a"
     },
     {
       "path": "ModCarrerMode/source/club_environment/manager_market/test_world_expectations.py",
@@ -10643,8 +11808,8 @@
     },
     {
       "path": "ModCarrerMode/source/club_environment/manager_market/worker.py",
-      "bytes": 24143,
-      "sha256": "190077416d556c574c6204bc3075e76977433c311066dc0d9b16441eb8b42307"
+      "bytes": 25450,
+      "sha256": "75fb849147050b703d4e53994ed3d24eb8a2edd41919c0370bc6317933ed2f75"
     },
     {
       "path": "ModCarrerMode/source/club_environment/market/README.md",
@@ -10772,6 +11937,11 @@
       "sha256": "393894face2c7cf4e91e59d124b6d02e08e74d489c1e3fce8ce89d4a02c0324c"
     },
     {
+      "path": "ModCarrerMode/source/club_environment/preview/image_resources.json",
+      "bytes": 14338,
+      "sha256": "c98916ed71db2da86767ce7460bbae463841af59eaf46618f4a4401951b32c35"
+    },
+    {
       "path": "ModCarrerMode/source/club_environment/preview/lineup_selection.py",
       "bytes": 2793,
       "sha256": "4a3bac8a0f78720f369a32ec0d52140ea2fd860a1b63ff8d6a5e5e34097c137a"
@@ -10817,6 +11987,11 @@
       "sha256": "c5f4b8bb6f40352bf0d7efba427643877b74198c264fe81ed466cd587a7f1fa5"
     },
     {
+      "path": "ModCarrerMode/source/club_environment/preview/test_preview_details.py",
+      "bytes": 2761,
+      "sha256": "21334f05ac0fa5daa8b502a314a68afb63898bc99b15d0dc1137f87c506baca9"
+    },
+    {
       "path": "ModCarrerMode/source/club_environment/preview/test_preview_input.py",
       "bytes": 2125,
       "sha256": "017699c2da564f4deea46c15ce40db5c5bfad3fbe89b5994dfaa5e6adf097483"
@@ -10847,14 +12022,24 @@
       "sha256": "ad5b37048c4b4d8cfd8a20a196cf722dcedfcad4b14330a8b39c49ae88d59709"
     },
     {
+      "path": "ModCarrerMode/source/club_environment/room/CAMERA_LIVRE_R68.md",
+      "bytes": 3381,
+      "sha256": "e0a1b28b8580b5e2c5db9d94f911070b80ddfdc737ba864b2308b2ae78f2d910"
+    },
+    {
       "path": "ModCarrerMode/source/club_environment/room/build_dressing_card_20261022.py",
-      "bytes": 11999,
-      "sha256": "ff58673634d33f72689841b8b6e7f39f2ed597ab9fb272768e41a8f84bb8e646"
+      "bytes": 12154,
+      "sha256": "89f541f01079f432a1dbeee69254c4bb3e41f7233a3159d2d79080f8d63bed58"
     },
     {
       "path": "ModCarrerMode/source/club_environment/room/build_room_scenery_r62.py",
       "bytes": 7218,
       "sha256": "69020fae96be1b39a3b21fe3f76ec6b50bda982fe4fc0dd89f69a31c7f9d797a"
+    },
+    {
+      "path": "ModCarrerMode/source/club_environment/room/locker_system_v3.py",
+      "bytes": 7145,
+      "sha256": "1506eb386adc26f472417d2b9f9951e5176a12289f63c5799f8b1f29cb711437"
     },
     {
       "path": "ModCarrerMode/source/club_environment/room/native/build.cmd",
@@ -10868,13 +12053,18 @@
     },
     {
       "path": "ModCarrerMode/source/club_environment/room/native/native_dressing_room_20261022.cpp",
-      "bytes": 24995,
-      "sha256": "8e4e51100d298075ad511ad53db90b3c9a2d9710af739857d5fd0ea9403c4c87"
+      "bytes": 29113,
+      "sha256": "5b0f93a7c327d74e374d5f5e04d984a3295f47c8eabe7b215a4a6f41c654fcc4"
     },
     {
       "path": "ModCarrerMode/source/club_environment/room/native/room_background_r52.h",
       "bytes": 5080,
       "sha256": "8e938072e87d3eea50ae50d86fa5dff9cbc9d1e381c0f8ed53e82780fc6d007c"
+    },
+    {
+      "path": "ModCarrerMode/source/club_environment/room/native/room_camera_projection.h",
+      "bytes": 1613,
+      "sha256": "6ad53b02789ba7b8377999bb4a858937e296a3af1ceb75d70c0578b9c3931686"
     },
     {
       "path": "ModCarrerMode/source/club_environment/room/native/room_cinema_r51.h",
@@ -10888,13 +12078,18 @@
     },
     {
       "path": "ModCarrerMode/source/club_environment/room/native/room_components_native_r46.h",
-      "bytes": 14414,
-      "sha256": "37013dcb589a2808675a760f1849cc7c31c54618b319cbf62787234cbf8233de"
+      "bytes": 14451,
+      "sha256": "941bd829a553c96e91b64aaa2239bb1873beff0fc14d04e6988bf7f015345365"
     },
     {
       "path": "ModCarrerMode/source/club_environment/room/native/room_free_camera.h",
       "bytes": 3543,
       "sha256": "c58d9f78d451f2dbd0e126203edaa59f6ba4bee9f9c7eb77ae7846c27c2626bc"
+    },
+    {
+      "path": "ModCarrerMode/source/club_environment/room/native/room_free_input.h",
+      "bytes": 1816,
+      "sha256": "51650b27ed54b530451a069c3aadac456dc54bd495008a436847a605bbeaa8ae"
     },
     {
       "path": "ModCarrerMode/source/club_environment/room/native/room_helper_process_r61.h",
@@ -10903,8 +12098,8 @@
     },
     {
       "path": "ModCarrerMode/source/club_environment/room/native/room_lighting_r46.h",
-      "bytes": 4399,
-      "sha256": "7cb11a4a3241aab8ffa5f6123b639a881c3624dbb92a841fa7e8b4ecb1746c80"
+      "bytes": 4537,
+      "sha256": "92575ac1bfd788a9e82b6742a437b091a96f7323193a84e2eacbc06ed961c155"
     },
     {
       "path": "ModCarrerMode/source/club_environment/room/native/room_medical_capture_r53.h",
@@ -10922,6 +12117,26 @@
       "sha256": "15aa7435f68d16d708d4fb4e79c5ec7c03ca1e572db645e1c23e4b5f9674f447"
     },
     {
+      "path": "ModCarrerMode/source/club_environment/room/native/room_sign_material.h",
+      "bytes": 413,
+      "sha256": "f82428e685745e34955d42a91cd398cfd6145ed8ade5453df7cf095afed009c3"
+    },
+    {
+      "path": "ModCarrerMode/source/club_environment/room/native/room_spotlight_r79.h",
+      "bytes": 3376,
+      "sha256": "d026afc5685dd8106d378b21f69ad5e3f2c8b727398d04ada7873fd00ee57aac"
+    },
+    {
+      "path": "ModCarrerMode/source/club_environment/room/native/test_room_background.cpp",
+      "bytes": 2873,
+      "sha256": "4471b0d227eed71b9ef2c7ca04867ab7cb844222bb7ea50452255eed87d4bf6f"
+    },
+    {
+      "path": "ModCarrerMode/source/club_environment/room/native/test_room_camera_projection.cpp",
+      "bytes": 1952,
+      "sha256": "a7a8657220351330f3099223a798601493b812cd567ea38cbd14aeb3bd7d24d1"
+    },
+    {
       "path": "ModCarrerMode/source/club_environment/room/native/test_room_direct_input.cpp",
       "bytes": 2438,
       "sha256": "56108914bb1852425bc6075be30f55fa50bd0e60bcfdeddffc3570b2317fc862"
@@ -10932,14 +12147,54 @@
       "sha256": "7fb8f80f739ef1ee96418db59a116c8ffb1d714dbbb3b9d13630efcd8474aa28"
     },
     {
+      "path": "ModCarrerMode/source/club_environment/room/native/test_room_helper_process_r61.cpp",
+      "bytes": 2586,
+      "sha256": "acf29a096a2a557e1e5e24dc43e312a3fee097f270bbd5ba64285a7e99ffd76a"
+    },
+    {
+      "path": "ModCarrerMode/source/club_environment/room/native/test_room_medical_startup.cmd",
+      "bytes": 584,
+      "sha256": "e1782f13666061b5f6eab0148b5835a97076b79b5717c799a748b47ab04c6c3d"
+    },
+    {
+      "path": "ModCarrerMode/source/club_environment/room/native/test_room_medical_startup.cpp",
+      "bytes": 3408,
+      "sha256": "8c6cac573061c4ac1b00488c1ad01a9ae135211fc09cd8868e2fdb559000dcc3"
+    },
+    {
       "path": "ModCarrerMode/source/club_environment/room/native/test_room_scene_command.cpp",
       "bytes": 1543,
       "sha256": "f9f2e038e057556a582b53c37a02bc415c3bbfac8a7fb201011163e9c4cfd156"
     },
     {
+      "path": "ModCarrerMode/source/club_environment/room/native/test_room_scene_state.cpp",
+      "bytes": 1381,
+      "sha256": "f1e7ab08b1d12a0f7041a6a00921ae01cf7410be3e968efea4501be07b9270d8"
+    },
+    {
+      "path": "ModCarrerMode/source/club_environment/room/native/test_room_sign_material.cpp",
+      "bytes": 697,
+      "sha256": "9fb48acf55799aff5ff8852cb1003f90df4a2c534496cf52fb756fa4064ec0d1"
+    },
+    {
+      "path": "ModCarrerMode/source/club_environment/room/native/test_room_spotlight_r79.cpp",
+      "bytes": 1025,
+      "sha256": "942184d20769fcf25ac6b74541a27d1f0dbffcf77c0e1e3f1d967305a7a34d34"
+    },
+    {
       "path": "ModCarrerMode/source/club_environment/room/prepare_native_room_components_r46_20261022.py",
-      "bytes": 26002,
-      "sha256": "f8935c0a7fe036633c33bb008485072b5a5db8829a3f786b7a9c8085f2007fff"
+      "bytes": 30572,
+      "sha256": "161bfd2729252120be849426843432c0a3d8394c678d1f95ad00d96008eb8dd6"
+    },
+    {
+      "path": "ModCarrerMode/source/club_environment/room/room_appearance.py",
+      "bytes": 9724,
+      "sha256": "24a7918fab4bd28624d802c546cb994861817fa7704ee6b099ba8708619fec17"
+    },
+    {
+      "path": "ModCarrerMode/source/club_environment/room/room_club_art.py",
+      "bytes": 1025,
+      "sha256": "b5f36d4a324c6591ed9c518c295c1b078e47501107568e5d17b6d96ed46add3a"
     },
     {
       "path": "ModCarrerMode/source/club_environment/room/room_coach_art_r76.py",
@@ -10962,14 +12217,24 @@
       "sha256": "a90c9c08b4336be27a081e16359f46a55252a81bb26d83c662566f060edd3aac"
     },
     {
+      "path": "ModCarrerMode/source/club_environment/room/room_collision_r70.py",
+      "bytes": 632,
+      "sha256": "6c3b8b2908ba6ddf5eea2b505cd384ba5446f3fea0ca9f14436fec9a965bd29f"
+    },
+    {
       "path": "ModCarrerMode/source/club_environment/room/room_control_bridge_r52.py",
       "bytes": 6307,
       "sha256": "59bf037168e62bbc69a4f7a4911196d09d065975bf5306889becbc82df43f523"
     },
     {
       "path": "ModCarrerMode/source/club_environment/room/room_dynamic_context_20261022.py",
-      "bytes": 11540,
-      "sha256": "f50fc0e02cb2fe326bb9da64c9753776f62fe4544dde069f29c21863ec31837e"
+      "bytes": 11783,
+      "sha256": "bcae289d52c50360d11bfc936e18595d1d234861f66265c3b74b56443d208828"
+    },
+    {
+      "path": "ModCarrerMode/source/club_environment/room/room_fascia.py",
+      "bytes": 5770,
+      "sha256": "bc27de9345d6ac3b2d8441f1c9b03877530bd73e16702b9cc00cf9fb038efd5f"
     },
     {
       "path": "ModCarrerMode/source/club_environment/room/room_geometry_clip_r54.py",
@@ -10983,13 +12248,18 @@
     },
     {
       "path": "ModCarrerMode/source/club_environment/room/room_hydration_r78.py",
-      "bytes": 11091,
-      "sha256": "cc547766c4169a9bc4082d3a439e0a2b236a7358b9bae673d3ae3b251832af59"
+      "bytes": 11098,
+      "sha256": "aca724e587c826895f503eaaaae966d3d2ae9d6532f539745a39653cc6f3f4d7"
+    },
+    {
+      "path": "ModCarrerMode/source/club_environment/room/room_image_panels.py",
+      "bytes": 5367,
+      "sha256": "cfdf84c5298f475f5db7098ce40d15c38afada8c616bc53e3d034e993cb9299a"
     },
     {
       "path": "ModCarrerMode/source/club_environment/room/room_interior_r71.py",
-      "bytes": 19525,
-      "sha256": "e287e7b7cd947f7866a9f73802db3464bf08d72562751a523a185a76150812d3"
+      "bytes": 19415,
+      "sha256": "fe19d0c5baa7ebfcde36e7a22fc5fe81b9ffff65822e7a897a67d8248e1cfe82"
     },
     {
       "path": "ModCarrerMode/source/club_environment/room/room_interior_r72.py",
@@ -11003,8 +12273,8 @@
     },
     {
       "path": "ModCarrerMode/source/club_environment/room/room_kit_print_r56.py",
-      "bytes": 6087,
-      "sha256": "e480be84c2b6bf26049cde57f5921fb6173f147bff2cd1b2f27fdae4069611cc"
+      "bytes": 6088,
+      "sha256": "7894e9cef6d5da52ece546ad4a94ddc0bedc771de1aae458ddf89856d0e7bede"
     },
     {
       "path": "ModCarrerMode/source/club_environment/room/room_live_kit_rules_r56.py",
@@ -11023,8 +12293,8 @@
     },
     {
       "path": "ModCarrerMode/source/club_environment/room/room_medical_r53.py",
-      "bytes": 11071,
-      "sha256": "0f39bde2441f71c9c78eff8ecbd4a619111cd8b0d8a0d968fdaea389684f2544"
+      "bytes": 11073,
+      "sha256": "a954a64aa3cf6b4d5d0411b97ab70a94b03fe9716b65c9d044d66041933a1d6e"
     },
     {
       "path": "ModCarrerMode/source/club_environment/room/room_medical_r77.py",
@@ -11033,13 +12303,18 @@
     },
     {
       "path": "ModCarrerMode/source/club_environment/room/room_native_hanging_20261022.py",
-      "bytes": 7187,
-      "sha256": "ec1f9b8e5dd464d8bae83a9034eeb6074f74a6400801dc0b64c7a15f67ab27f1"
+      "bytes": 7220,
+      "sha256": "20fb1246ce361428ee50497aa5c532eb0576d2cc1282f9b937901553f598459d"
     },
     {
       "path": "ModCarrerMode/source/club_environment/room/room_native_kit_rules_r46.py",
       "bytes": 3354,
       "sha256": "2a13ad5e79418f88bcc14e0f9b34d21687f1c5e385e5998ad523b8adfe864cea"
+    },
+    {
+      "path": "ModCarrerMode/source/club_environment/room/room_native_signage.py",
+      "bytes": 3411,
+      "sha256": "2db980431102e7321753c82701b5c767c40dab81598950006eb17de74843aa34"
     },
     {
       "path": "ModCarrerMode/source/club_environment/room/room_precise_mesh_r49.py",
@@ -11053,23 +12328,48 @@
     },
     {
       "path": "ModCarrerMode/source/club_environment/room/room_roster_r52.py",
-      "bytes": 1799,
-      "sha256": "04f4926b40db431cdbf369044669ea69d3c546b30533fa596368fc1938f8ce60"
+      "bytes": 1801,
+      "sha256": "4672007d96596b981b230df934d669ee68f6510d76c4bb8a1631cbe6560f6487"
     },
     {
       "path": "ModCarrerMode/source/club_environment/room/room_scene_native_assets_20261022.py",
-      "bytes": 7444,
-      "sha256": "3085910e63b8caa96da62ae474b4e21a648507804feb70ed11ee41cc6da379a4"
+      "bytes": 7445,
+      "sha256": "c72525e1c2b6c372ec892a3e38840e2b256407c722644b3d588f88aa4b6d0bae"
     },
     {
       "path": "ModCarrerMode/source/club_environment/room/room_scene_ui_r52.py",
-      "bytes": 19166,
-      "sha256": "37ef8d0d7ee5a13e52464ae91db7caacd4f2f46230d5b658709bbfb4f26d5d4f"
+      "bytes": 30018,
+      "sha256": "16062d5fe01a40bc1a0f03f93420b06f99bc2636091c0e03ce97cadb995010a2"
     },
     {
       "path": "ModCarrerMode/source/club_environment/room/room_secondary_wall_r75.py",
       "bytes": 9038,
       "sha256": "6ff6c88ba10e1c938b0ee4ae8d6ac6d45036835cea6f0ada6a34053ae4fb6de6"
+    },
+    {
+      "path": "ModCarrerMode/source/club_environment/room/room_sign_material.py",
+      "bytes": 1296,
+      "sha256": "feaec1b36447757be307ff189fa01bb91a36aef30b10160c08c3e489c9c9dda1"
+    },
+    {
+      "path": "ModCarrerMode/source/club_environment/room/room_surface_art.py",
+      "bytes": 3666,
+      "sha256": "c514c3e62226cd5ff57942c7681cb3f5f0ff178f1b478a8ad40f8969be503c7f"
+    },
+    {
+      "path": "ModCarrerMode/source/club_environment/room/room_texture_tools.py",
+      "bytes": 1073,
+      "sha256": "0c55936614bb798098cbfe6176d1dbe66560ba9a46e800f6924f2bca6cbe86f2"
+    },
+    {
+      "path": "ModCarrerMode/source/club_environment/room/room_v3.py",
+      "bytes": 37845,
+      "sha256": "35fc56e20e089c4559823cddcb9f670a9ac930d606014653429ea21d26754db2"
+    },
+    {
+      "path": "ModCarrerMode/source/club_environment/room/room_visual_r68.py",
+      "bytes": 5799,
+      "sha256": "af4bf73fe0b697378ffaf3ad40005c872f4c74be767a73d8fe6008fe1165e66d"
     },
     {
       "path": "ModCarrerMode/source/club_environment/room/test_coach_room_r76.py",
@@ -11078,8 +12378,13 @@
     },
     {
       "path": "ModCarrerMode/source/club_environment/room/test_hydration_r78.py",
-      "bytes": 4634,
-      "sha256": "6b3ffa5bf1ba1ca918080abebbd2da7bcecb8aa032194dba35032911ba0c351c"
+      "bytes": 4644,
+      "sha256": "ede4faaefcad9b60f9ba4d81ba1a1cf4ff177cb1602baae4464b0822ca38553a"
+    },
+    {
+      "path": "ModCarrerMode/source/club_environment/room/test_kit_print_r61.py",
+      "bytes": 2761,
+      "sha256": "a258112c8748ebdcd353cc727850a1ca049a7f1c178f8e581456cdf973a8d1f5"
     },
     {
       "path": "ModCarrerMode/source/club_environment/room/test_medical_room_r77.py",
@@ -11087,9 +12392,39 @@
       "sha256": "20fd3943d11e096219cf9b9ed7fbe3f9d9193edf46ed68fa1ef582288c1ae5bb"
     },
     {
+      "path": "ModCarrerMode/source/club_environment/room/test_native_signage.py",
+      "bytes": 2737,
+      "sha256": "36052d82342bcab4882f485d457cf9ac37d088c84bf274f9ebd15d13fcb84429"
+    },
+    {
+      "path": "ModCarrerMode/source/club_environment/room/test_room_camera_r52.cpp",
+      "bytes": 3547,
+      "sha256": "392639b35afd8436209c78123785d9bfc655ca8d935586434df5d6327a8bc44c"
+    },
+    {
+      "path": "ModCarrerMode/source/club_environment/room/test_room_club_art.py",
+      "bytes": 3774,
+      "sha256": "09de5aea310ee3001775569d2e6951a414bdb047b1f335aa82cb5caa2c4079e6"
+    },
+    {
+      "path": "ModCarrerMode/source/club_environment/room/test_room_collision_r70.py",
+      "bytes": 1361,
+      "sha256": "39d2ed66c46f9dabcfdd778a29d48814421bee6407e0548c8272d9ce4a91ffc0"
+    },
+    {
+      "path": "ModCarrerMode/source/club_environment/room/test_room_commands.py",
+      "bytes": 1936,
+      "sha256": "3187ebbd6e24eecee7e6e822c34ca56b2284e247769bd2ad200001dfcacc6d38"
+    },
+    {
+      "path": "ModCarrerMode/source/club_environment/room/test_room_image_panels.py",
+      "bytes": 6151,
+      "sha256": "c643bcae2f1a43c941c47b7de5712681de417b3720321006c861ab480fcf686c"
+    },
+    {
       "path": "ModCarrerMode/source/club_environment/room/test_room_interior_r71.py",
-      "bytes": 5241,
-      "sha256": "aeef8b506f56fc38946dfb1c854645eb19868252f4b4e4f66f48863c3a39dac3"
+      "bytes": 5222,
+      "sha256": "07ab96d14245381639a03bf8fde13abeb07c1011ca712e4612a9412956fcb84e"
     },
     {
       "path": "ModCarrerMode/source/club_environment/room/test_room_interior_r72.py",
@@ -11097,14 +12432,44 @@
       "sha256": "ea1f634686d3f8edfc72b29ee9127fd5d1e98f848762a43976b8cde2187fcb00"
     },
     {
+      "path": "ModCarrerMode/source/club_environment/room/test_room_material_install_r59.py",
+      "bytes": 2030,
+      "sha256": "c50534298cebc192be067e3c0a27fc3acaaf3c0e9e99a5f95518a438a1a521a5"
+    },
+    {
+      "path": "ModCarrerMode/source/club_environment/room/test_room_personalization.py",
+      "bytes": 8701,
+      "sha256": "6db42c29d40bbe2c7194c0f05bc39ef0c0bcb072307fbd3033117ee90639f6e9"
+    },
+    {
       "path": "ModCarrerMode/source/club_environment/room/test_room_ready.py",
       "bytes": 2547,
       "sha256": "f44e79ddb210db3b6f21a84b67dbe24db4e93fce84e0d7d93848b9f401aa79f4"
     },
     {
+      "path": "ModCarrerMode/source/club_environment/room/test_room_safety_r53.py",
+      "bytes": 1620,
+      "sha256": "10033562e6281210b212a04f574c14456211d4e989914c5d123baf59ed722f56"
+    },
+    {
+      "path": "ModCarrerMode/source/club_environment/room/test_room_sign_material.py",
+      "bytes": 1885,
+      "sha256": "b848f998c2f7f51d724ebf04f395248021d56834af17d4488007540b9b822fe4"
+    },
+    {
       "path": "ModCarrerMode/source/club_environment/room/test_room_visual_r62.py",
       "bytes": 14312,
       "sha256": "2fa8a17c9bd5d67cac1fd891c02709eb1aa18f44d33b3de86e18afb1c72dae9f"
+    },
+    {
+      "path": "ModCarrerMode/source/club_environment/room/test_room_visual_r68.py",
+      "bytes": 1868,
+      "sha256": "f4ed1c06cc03cde012a6b0b2f135924555ed153800a681a422faa08217fc048d"
+    },
+    {
+      "path": "ModCarrerMode/source/club_environment/test_release.py",
+      "bytes": 1130,
+      "sha256": "4a7cf5104c0b99743a962c67241d669708834216c81c08f23684e9c3ce54658d"
     },
     {
       "path": "ModCarrerMode/source/club_environment/test_ui_theme.py",
@@ -11157,14 +12522,64 @@
       "sha256": "1c12713c78abc12f2f4b7cd9e9f4dc9133c1b69c8ed80cba4d6cae6ecc1c73ce"
     },
     {
+      "path": "ModCarrerMode/source/common/README.md",
+      "bytes": 4117,
+      "sha256": "6776dbf9ed076b344dde3e7bfadc74013d97d6acb04439bbc7f77a019ec396ae"
+    },
+    {
+      "path": "ModCarrerMode/source/common/competition_identity.h",
+      "bytes": 4870,
+      "sha256": "12f8415ba9a32413f3478805e8355a0d0188b892846ccbc029ead2a8bd66841a"
+    },
+    {
       "path": "ModCarrerMode/source/common/custom_ui_theme.h",
       "bytes": 2214,
       "sha256": "a3e9d80a731ab2444019b1db5989b9db2fd54fd2c4527ef01981cab70c57703b"
     },
     {
+      "path": "ModCarrerMode/source/common/live_competition.h",
+      "bytes": 4093,
+      "sha256": "97553f6e7f1ae64db66a6ff9bea4ef38474e52d7788c436fa5f239e6efb1a7ba"
+    },
+    {
+      "path": "ModCarrerMode/source/common/preload_status.h",
+      "bytes": 3540,
+      "sha256": "1f3562873b874cbdae8ec7a1d37051c9da872a2c96ff0b940427f3cc74a1cd38"
+    },
+    {
       "path": "ModCarrerMode/source/common/scene_camera_lease.h",
       "bytes": 2150,
       "sha256": "fc4863abc6728bfa3bf2879d2ea9d04a651c0b03caadcd6335fbc2b64454d8e9"
+    },
+    {
+      "path": "ModCarrerMode/source/common/scene_lua.h",
+      "bytes": 2846,
+      "sha256": "9ad81b365caff77d18644a23da0c47c556fadf9f2825d8c23fee7181389f6202"
+    },
+    {
+      "path": "ModCarrerMode/source/common/scene_resource_cycle.h",
+      "bytes": 707,
+      "sha256": "a5952d476dc99721bdd77d2873ed99c29b5900571b6acab9f2e1dd1c784f74d7"
+    },
+    {
+      "path": "ModCarrerMode/source/common/scene_startup.h",
+      "bytes": 2009,
+      "sha256": "5718f10792c874531ad23ea473691e5804b79e0782b5c146b35df2fcf1ca55ce"
+    },
+    {
+      "path": "ModCarrerMode/source/common/scene_startup_recovery.h",
+      "bytes": 1636,
+      "sha256": "60bd7b7cbf4caeae94926b1c13c529bb134e846d565c787bc0a278eca5feb41b"
+    },
+    {
+      "path": "ModCarrerMode/source/common/test_competition_identity.c",
+      "bytes": 1375,
+      "sha256": "aa9b7f5a61095e8cc7db7c5cdb9ac6828fd03fe1ebeefbff09f32e0cfd686085"
+    },
+    {
+      "path": "ModCarrerMode/source/common/test_competition_identity.cmd",
+      "bytes": 410,
+      "sha256": "2bc66c50c713ca2442e7b7c1a20ed6290e4362fd267d1ccfd94357f01818e2c9"
     },
     {
       "path": "ModCarrerMode/source/common/test_custom_ui_theme.cmd",
@@ -11175,6 +12590,36 @@
       "path": "ModCarrerMode/source/common/test_custom_ui_theme.cpp",
       "bytes": 1007,
       "sha256": "622b1619248f46204199ef6f00bf6177bb4d0e7dedf0f10fbd32a1dad09f73a6"
+    },
+    {
+      "path": "ModCarrerMode/source/common/test_live_competition.cpp",
+      "bytes": 3860,
+      "sha256": "66f3e5d4dc7461a0de1f46f46cb3c365a66bb97e7dee1edaa06157e999a29c96"
+    },
+    {
+      "path": "ModCarrerMode/source/common/test_preload_status.cpp",
+      "bytes": 3324,
+      "sha256": "141b3d630592c1e888f0c96f6762b8a77270478cf5b254f6eeeeb5a556c97b79"
+    },
+    {
+      "path": "ModCarrerMode/source/common/test_scene_lua.cpp",
+      "bytes": 2918,
+      "sha256": "6c64377819355ffb041db075c0111528780299aedddcc9b4d848c14e9707f8fd"
+    },
+    {
+      "path": "ModCarrerMode/source/common/test_scene_scripts.py",
+      "bytes": 8193,
+      "sha256": "fab212f798adebf4f26f9f13edf8adaf840f5145f097c1e57511f5c07a06510b"
+    },
+    {
+      "path": "ModCarrerMode/source/common/test_scene_startup.cpp",
+      "bytes": 4827,
+      "sha256": "2ed264d146df01af293a8005da7f6341894b2c0bc915bb392b00dfcee808aa4d"
+    },
+    {
+      "path": "ModCarrerMode/source/common/verify.cmd",
+      "bytes": 599,
+      "sha256": "625b07def9c2c9efab599a20a48a03aabdd181000cd872f28626092528d84e83"
     },
     {
       "path": "ModCarrerMode/source/docs/SERVER_AUDIO_STADIUM_20261025.md",
@@ -11354,12 +12799,12 @@
     {
       "path": "ModCarrerMode/source/server16_py/__init__.py",
       "bytes": 237,
-      "sha256": "269abecba8c810c08921df11d963e3a5cb81baabaccefc785a8261262cf27216"
+      "sha256": "b9a324e8a1206da2f4fc5b44b057cb61c3b9e061369745d871bd044b45745e0b"
     },
     {
       "path": "ModCarrerMode/source/server16_py/app.py",
-      "bytes": 204523,
-      "sha256": "addb4d38d031d4e602f8278ff425e5d75be71be690384631a4b584cba4503aae"
+      "bytes": 206779,
+      "sha256": "f41142d41772dfdc06df0c92b8648825a65ce141e05c4448ef5dc32c8f219686"
     },
     {
       "path": "ModCarrerMode/source/server16_py/asset_runtime.py",
@@ -11367,9 +12812,54 @@
       "sha256": "b013cd92e70dd72c5942e214fe7b272fee3d820483414a824557d553235a3cf5"
     },
     {
+      "path": "ModCarrerMode/source/server16_py/assignment_runtime.py",
+      "bytes": 10596,
+      "sha256": "dc483c9feadf85c8c0617259671c8df67e634fc5cc799b3fb87af040779f12ab"
+    },
+    {
+      "path": "ModCarrerMode/source/server16_py/audio_profiles.py",
+      "bytes": 9348,
+      "sha256": "115fda9082b441790a69268ad31d53a924fae344c0d11290f8e0f1ecbbc79248"
+    },
+    {
+      "path": "ModCarrerMode/source/server16_py/bh_worker.py",
+      "bytes": 2893,
+      "sha256": "2e8e49e5909f9dee3c2f23c9ff277229276e4a777b5a33119a07b70391917cf1"
+    },
+    {
       "path": "ModCarrerMode/source/server16_py/build_check.py",
-      "bytes": 2201,
-      "sha256": "ece474d7c17b5fe83b5b5408cb8e1d7777b887af5a10e696bfedca9d9f95d659"
+      "bytes": 2228,
+      "sha256": "d4530333010bcf53c6f2ba92bd4a59c605b25aebce4faa392f583adfc82b8fee"
+    },
+    {
+      "path": "ModCarrerMode/source/server16_py/camera_runtime.py",
+      "bytes": 4716,
+      "sha256": "b62a3f5fd98faf904a7f9e48bddf29dddbbcf599175f8eba3b84193945e1e776"
+    },
+    {
+      "path": "ModCarrerMode/source/server16_py/career_active_save.py",
+      "bytes": 3114,
+      "sha256": "dd2c622533446d1521340d067144d731ea311115462b35a63462903acdbbe350"
+    },
+    {
+      "path": "ModCarrerMode/source/server16_py/career_artwork.py",
+      "bytes": 2877,
+      "sha256": "0f8e22c06bb1d975f5b4a890a8b6b6d07b50c53054ee0a7a3b92e163eda1f400"
+    },
+    {
+      "path": "ModCarrerMode/source/server16_py/career_context.py",
+      "bytes": 9748,
+      "sha256": "ab93f5eef0ae8393fb935be38a5e16fd1f55313fbff09b934df06315a617e479"
+    },
+    {
+      "path": "ModCarrerMode/source/server16_py/career_feedback.py",
+      "bytes": 6602,
+      "sha256": "4dcf7d9fd46d4bf960c3485d1e7569df0303f423a8bfe074934b3e832d02e06a"
+    },
+    {
+      "path": "ModCarrerMode/source/server16_py/career_jobs_runtime.py",
+      "bytes": 6829,
+      "sha256": "da6e7d472ce86b6ce141b03b4442b4122b46f2018b324d94a9b074b41c6623a2"
     },
     {
       "path": "ModCarrerMode/source/server16_py/career_options.py",
@@ -11377,9 +12867,39 @@
       "sha256": "22b68dc7b01708df70832964716f3d9c0023e381377e97dd3b54f70ff4044479"
     },
     {
+      "path": "ModCarrerMode/source/server16_py/career_panel.py",
+      "bytes": 26903,
+      "sha256": "fb7177cc64281d79ee2b140c76990c86b532a29648c5bd012ae25be579c59840"
+    },
+    {
+      "path": "ModCarrerMode/source/server16_py/career_read.py",
+      "bytes": 5907,
+      "sha256": "c6c62ad9d3f4e140c1ec28afc46b8071f2025e891a4debe5ff40fe1a0bd04492"
+    },
+    {
+      "path": "ModCarrerMode/source/server16_py/career_save_worker.py",
+      "bytes": 28571,
+      "sha256": "c9feee4e1278b859d580c2a6e4c420c44f974094d07e05b3fcd20b9b026b59cc"
+    },
+    {
+      "path": "ModCarrerMode/source/server16_py/career_service.py",
+      "bytes": 34930,
+      "sha256": "932013032cd29a6f1d149032609852896c0a0e67ea022bff8005c513e68dce11"
+    },
+    {
+      "path": "ModCarrerMode/source/server16_py/career_transfer_catalog.py",
+      "bytes": 2113,
+      "sha256": "be997fcca8a9041fa93c97a7b3f3e58b0903ff09d63767b45fba27fa8b50f12a"
+    },
+    {
       "path": "ModCarrerMode/source/server16_py/chants_runtime.py",
       "bytes": 48904,
       "sha256": "06003814cfca31e0c9a84044df3e13476a60b9f7200d7b653bd9ce48a9293e3d"
+    },
+    {
+      "path": "ModCarrerMode/source/server16_py/cloth_motion_switch.py",
+      "bytes": 4691,
+      "sha256": "f8a2928862eb7d74953ded4e947b58b6df0ab5a7df8c31ec2a621c69e8b1a381"
     },
     {
       "path": "ModCarrerMode/source/server16_py/club_environment.py",
@@ -11387,9 +12907,29 @@
       "sha256": "5a8f65cefcf50fa9b29039a7088cc0a0770a886378ae7b4c916df48f01330be4"
     },
     {
+      "path": "ModCarrerMode/source/server16_py/competition_catalog.py",
+      "bytes": 3861,
+      "sha256": "33635482c34258157891cbf8c4bdd9dc473afde194cf64cfd530758b895bedb5"
+    },
+    {
+      "path": "ModCarrerMode/source/server16_py/competition_icons.py",
+      "bytes": 8819,
+      "sha256": "a270c08ebaa7ead15aadb6f2504b9c544638042404889106060ab1b10ea1b525"
+    },
+    {
+      "path": "ModCarrerMode/source/server16_py/crowd_control.py",
+      "bytes": 3431,
+      "sha256": "ff7097d440e003e763dbcc8c47948a2319450a42ca6e2c9cb184ea8cdae34112"
+    },
+    {
       "path": "ModCarrerMode/source/server16_py/d3d_injector.py",
       "bytes": 13691,
       "sha256": "6b0f57744dad7c775770454e949b47ca21f068fe7b6f37498da671312ba8693b"
+    },
+    {
+      "path": "ModCarrerMode/source/server16_py/d3d_overlay/cgfs16_inject.cpp",
+      "bytes": 4354,
+      "sha256": "cf89a6ca31721ef1a3fadb79ab84d473d4218839e84b195fc418d025ed143d19"
     },
     {
       "path": "ModCarrerMode/source/server16_py/d3d_overlay/cgfs16_overlay.cpp",
@@ -11397,14 +12937,114 @@
       "sha256": "757ae27c9679b399f4c901c313466d73c55d98f07f66511c0128b682919e98bd"
     },
     {
+      "path": "ModCarrerMode/source/server16_py/d3d_overlay/crowd_bridge.cpp",
+      "bytes": 12076,
+      "sha256": "e29ad2535f68dea81b9b147e89e737b827d7b4405966465c633144edd05f5d8d"
+    },
+    {
+      "path": "ModCarrerMode/source/server16_py/d3d_overlay/crowd_bridge.h",
+      "bytes": 314,
+      "sha256": "705b79289a577de7ba43da0c9db154b4a0e569ae8dfe62e2fefeabc1665d78f2"
+    },
+    {
+      "path": "ModCarrerMode/source/server16_py/d3d_overlay/mod_overlay_screens.h",
+      "bytes": 175,
+      "sha256": "6975c964408488d1105859530b18dcb4857d7f69aeba02be4519ec35a02ef991"
+    },
+    {
+      "path": "ModCarrerMode/source/server16_py/d3d_overlay/mod_xinput_gate.cpp",
+      "bytes": 12039,
+      "sha256": "ac720c047986101d7e7240e1c2d87c007eb8087c2e71a24592eed63e35ebeb03"
+    },
+    {
+      "path": "ModCarrerMode/source/server16_py/d3d_overlay/mod_xinput_gate.h",
+      "bytes": 345,
+      "sha256": "b9b218611fc0ba5af9b182dbc52d0f1cd1ba3fdf59728ee79498a90b93e67192"
+    },
+    {
+      "path": "ModCarrerMode/source/server16_py/d3d_overlay/ranking_input_gate.cpp",
+      "bytes": 17700,
+      "sha256": "09a3683d6bbc2fcf1bca4f9fbd23130d6f1d6b0266a70c00ad10defa0010a196"
+    },
+    {
+      "path": "ModCarrerMode/source/server16_py/d3d_overlay/ranking_input_gate.h",
+      "bytes": 400,
+      "sha256": "b1db0edee0f60a9eafb2c246d42d69926a11e54611e8f9e047e59f97e1978f97"
+    },
+    {
+      "path": "ModCarrerMode/source/server16_py/d3d_overlay/selector_layout.h",
+      "bytes": 3395,
+      "sha256": "45bb94091d6c1f9462272d84c89b4c83e077b5f42ebf633528acfe1b6be890f8"
+    },
+    {
+      "path": "ModCarrerMode/source/server16_py/d3d_overlay/stadium_selector_bridge.cpp",
+      "bytes": 18424,
+      "sha256": "b674016e70a5cd6d7e16ad8b4ddd05054817cc5b1adc1f8645178dfed331c81e"
+    },
+    {
+      "path": "ModCarrerMode/source/server16_py/d3d_overlay/stadium_selector_bridge.h",
+      "bytes": 542,
+      "sha256": "10455b9ec3a32746c42b65ce6a1fbce420e5b03379b25b24fad2f21e1c25c3be"
+    },
+    {
+      "path": "ModCarrerMode/source/server16_py/d3d_overlay/third_party/reshade/LICENSE.md",
+      "bytes": 1481,
+      "sha256": "237ded5b8344f820113efab1e65e91e1f159d9202c5b4856606a0590d3ffdab0"
+    },
+    {
+      "path": "ModCarrerMode/source/server16_py/d3d_overlay/third_party/reshade/README.md",
+      "bytes": 147,
+      "sha256": "fa728d0914f7e41367b7b0847e937ca1e2c866d4eae0b13f3e1f90475aab6cd6"
+    },
+    {
       "path": "ModCarrerMode/source/server16_py/d3d_overlay/ui_pipeline_state.h",
       "bytes": 2102,
       "sha256": "20e606ec42775d60f916f07a389a80e6dc7c140308188a132bb5700a2e30f57f"
     },
     {
+      "path": "ModCarrerMode/source/server16_py/db_patcher.py",
+      "bytes": 5528,
+      "sha256": "36c90634ef3f5a97a1925353f378b271d863d511920a3f3c1190db15dd94ea32"
+    },
+    {
+      "path": "ModCarrerMode/source/server16_py/db_worker.py",
+      "bytes": 4718,
+      "sha256": "3b41d290969adf012ffa273eaa4816db2bf23c404d6cf937af7c36b8804e008f"
+    },
+    {
+      "path": "ModCarrerMode/source/server16_py/dialogs.py",
+      "bytes": 40257,
+      "sha256": "67d927d366630296f7435974b582619c83fe5f6189aed424deeb3888e62b7dee"
+    },
+    {
+      "path": "ModCarrerMode/source/server16_py/discord_rpc_runtime.py",
+      "bytes": 25915,
+      "sha256": "b6c55a2b14e1420cb996b7980efc9c041615cfa52a141ab2c1808304c9190296"
+    },
+    {
+      "path": "ModCarrerMode/source/server16_py/entrance_friendly.py",
+      "bytes": 2548,
+      "sha256": "6418d42ce44014fd03d74408a2ca33c048980a0b8317ce71879dcfeb1cea5d2f"
+    },
+    {
+      "path": "ModCarrerMode/source/server16_py/entrance_props_runtime.py",
+      "bytes": 6903,
+      "sha256": "2bb8b672b8c00d75aa4614319a914e8898ee77a25b767991b1f3ffa174a2bfe9"
+    },
+    {
+      "path": "ModCarrerMode/source/server16_py/entrance_runtime.py",
+      "bytes": 26606,
+      "sha256": "f7be2ac4a4dd55a856317c615cb1b193591446e83f3d1f3472221aa1b9826801"
+    },
+    {
       "path": "ModCarrerMode/source/server16_py/extra_scenes_panel.py",
       "bytes": 9799,
       "sha256": "da5d7a24b591ed537f56454fa46aa070a4611bef84897b23702a7f568439f595"
+    },
+    {
+      "path": "ModCarrerMode/source/server16_py/fifa_db.py",
+      "bytes": 6165,
+      "sha256": "4eb5f026c02df89139cfcc634e3b7105182c04c994296f2f7f8ae013abd2b1a7"
     },
     {
       "path": "ModCarrerMode/source/server16_py/file_tools.py",
@@ -11417,9 +13057,49 @@
       "sha256": "56cf8ae3e80e810131c11c806570dd5409ec26d5732b09f56a3ba95262e0ce31"
     },
     {
+      "path": "ModCarrerMode/source/server16_py/frontend_stadium.py",
+      "bytes": 11320,
+      "sha256": "f4b65c3c702166ea127da966c285c13473f5e4748c0dbc0491a51998d3f90758"
+    },
+    {
+      "path": "ModCarrerMode/source/server16_py/frontend_stadium_panel.py",
+      "bytes": 4353,
+      "sha256": "f7956eb2ce5a73082f3c6ca31638f68f6e03936455af7d2a2caf85b560c9e16e"
+    },
+    {
+      "path": "ModCarrerMode/source/server16_py/frontend_stadium_selection.py",
+      "bytes": 3387,
+      "sha256": "efda6cdd3adb74e64c88bfd414828df27a712f29d2516800d2ddc6da4e67f8f1"
+    },
+    {
+      "path": "ModCarrerMode/source/server16_py/gamepad_bridge_runtime.py",
+      "bytes": 86752,
+      "sha256": "5c3f64082d378da15c29b520cabab906d6a819c3c95b44ed2eece77cb7369020"
+    },
+    {
+      "path": "ModCarrerMode/source/server16_py/gamepad_mapping.py",
+      "bytes": 4179,
+      "sha256": "7e432bd671c5864e2e26a97cde9449e659d17dbf19bbc3977c5a39f8872bb70f"
+    },
+    {
+      "path": "ModCarrerMode/source/server16_py/gamepad_panel.py",
+      "bytes": 14962,
+      "sha256": "17ce285629f0b622c39a00706ea5f0074c414e351453d8dcd26e81b853160f5f"
+    },
+    {
+      "path": "ModCarrerMode/source/server16_py/gamepad_runtime.py",
+      "bytes": 2567,
+      "sha256": "a7203f493f5f7a594375c8170d088ac07590c79707c68a371a45974148510c10"
+    },
+    {
       "path": "ModCarrerMode/source/server16_py/grass_quality_runtime.py",
       "bytes": 10109,
       "sha256": "dc4b1e0e315a04bd61d23df7f3c8b328d6a386351f30c66b95d539e6b1372d40"
+    },
+    {
+      "path": "ModCarrerMode/source/server16_py/hidhide_runtime.py",
+      "bytes": 43257,
+      "sha256": "fd594bb50d95116e133e8511c90f5c5f1ce2a675b9554153f78a2aed33414085"
     },
     {
       "path": "ModCarrerMode/source/server16_py/ini_file.py",
@@ -11427,9 +13107,54 @@
       "sha256": "d7edc57c6d8bbdf54166d7e13b33471f023c2465fadf60870e92037fbb94f032"
     },
     {
+      "path": "ModCarrerMode/source/server16_py/input_hints.py",
+      "bytes": 2350,
+      "sha256": "4397574c63e085f7a969e5d244139584bb3d0217256b27918b6ff96431dc74e7"
+    },
+    {
+      "path": "ModCarrerMode/source/server16_py/intro_music_runtime.py",
+      "bytes": 5314,
+      "sha256": "eed3f2919e33c6711dfcb45eade069969f1a38286e129328b8ae9dc16fa07a7d"
+    },
+    {
       "path": "ModCarrerMode/source/server16_py/loading_notices.py",
       "bytes": 3709,
       "sha256": "6e6f30dcb995c4c278f629f093a716aa5f3b84405ceba9313f2bcd753101f31e"
+    },
+    {
+      "path": "ModCarrerMode/source/server16_py/locales/en.json",
+      "bytes": 18738,
+      "sha256": "63cd5def16b1f3f2dd6013b038b27745c3aacfb62f2663c66c7c57ee9d7e890b"
+    },
+    {
+      "path": "ModCarrerMode/source/server16_py/locales/es.json",
+      "bytes": 13986,
+      "sha256": "201e09d5731ab4fc775ac2dd4599f0eecdeb4a51eb531f6783aa8050c9318ad6"
+    },
+    {
+      "path": "ModCarrerMode/source/server16_py/locales/pt.json",
+      "bytes": 16845,
+      "sha256": "81be932b7943d725949d589a9da190a66b43a7ea87fbf53d164b3879f4d951ea"
+    },
+    {
+      "path": "ModCarrerMode/source/server16_py/locales_data.py",
+      "bytes": 36224,
+      "sha256": "86bfc435e422bbb69160b2b31987d199c8811da325f7e8b2045d3d3c248fc34b"
+    },
+    {
+      "path": "ModCarrerMode/source/server16_py/localization.py",
+      "bytes": 1820,
+      "sha256": "d6a842539fb72b9ad0703a09637e9feaf4119dc006f702c9297b27cadb62f335"
+    },
+    {
+      "path": "ModCarrerMode/source/server16_py/loose_ui.py",
+      "bytes": 4088,
+      "sha256": "f674fbe37404ac16f109ebf65be5ebe68d8575ffc2f104bf3ec3256dc58890f8"
+    },
+    {
+      "path": "ModCarrerMode/source/server16_py/match_audio_panel.py",
+      "bytes": 12288,
+      "sha256": "8e239a7a3175a2ba2da4ea7b3fc084b063cc6c01a9fcc65698a86bd0891f5a16"
     },
     {
       "path": "ModCarrerMode/source/server16_py/match_hub_panel.py",
@@ -11437,9 +13162,59 @@
       "sha256": "56592467151d9037a9f59e0b9da03a7bc72e0358a64dac9f502e2a5951644f12"
     },
     {
+      "path": "ModCarrerMode/source/server16_py/match_presentation.py",
+      "bytes": 2932,
+      "sha256": "840b77b2abfa514422ee214558c4ec5f20009ed2fab478c5e2cca45398ae61b8"
+    },
+    {
+      "path": "ModCarrerMode/source/server16_py/match_settings_panel.py",
+      "bytes": 7487,
+      "sha256": "965b35b169a33c2994cf92af13a3e6302c5b66733a64a003247c5cba4ea939d8"
+    },
+    {
       "path": "ModCarrerMode/source/server16_py/match_state.py",
       "bytes": 3777,
       "sha256": "d865d57050f1672b50d26247c84bd121c1151f88d8c9d8bc290779f63831b15c"
+    },
+    {
+      "path": "ModCarrerMode/source/server16_py/match_string_patcher.py",
+      "bytes": 9087,
+      "sha256": "baa22f6185d619cf466c074662f96e5d0c803bd9079a0aeb1023abfc33a9f6b1"
+    },
+    {
+      "path": "ModCarrerMode/source/server16_py/memory_access.py",
+      "bytes": 10003,
+      "sha256": "cb18b291d05a1d93f7e587999efee8848981cdc09cbdd898a56d53a3e7e52f38"
+    },
+    {
+      "path": "ModCarrerMode/source/server16_py/narration_bank.py",
+      "bytes": 6394,
+      "sha256": "053a3f20f4b036e9939878befbf3a98b356e3c927ac031841f5e8c26273628c1"
+    },
+    {
+      "path": "ModCarrerMode/source/server16_py/narration_competitions.py",
+      "bytes": 1911,
+      "sha256": "404fe3222e15d5044fa269e9f7c0c5e4396356212c67fafe885f6f3a4e6d05d2"
+    },
+    {
+      "path": "ModCarrerMode/source/server16_py/narration_panel.py",
+      "bytes": 6457,
+      "sha256": "aef7b1e148954bd8424d3681eb6b63d813788054a54ec3353d024f7eba494e29"
+    },
+    {
+      "path": "ModCarrerMode/source/server16_py/narration_paths.py",
+      "bytes": 1525,
+      "sha256": "5e840c779473b602b21c501a8a103574b55b772c368c5068a81c3795eb589e10"
+    },
+    {
+      "path": "ModCarrerMode/source/server16_py/narration_runtime.py",
+      "bytes": 11521,
+      "sha256": "479914fc0689d49d3017985a39a4da226b690de74f7bc2cdf02e9f13b4c52c49"
+    },
+    {
+      "path": "ModCarrerMode/source/server16_py/narrator_portrait.py",
+      "bytes": 1544,
+      "sha256": "20dac428a73633085410f40678133c64604a870c61b8e08f2554f6887c62b9e6"
     },
     {
       "path": "ModCarrerMode/source/server16_py/native_asset_cleanup.py",
@@ -11447,9 +13222,39 @@
       "sha256": "ec1dd6b612157161bbd35eb937c7b932b0b1addfa18ec6bda4e9713f5061e358"
     },
     {
+      "path": "ModCarrerMode/source/server16_py/offsets.json",
+      "bytes": 1255,
+      "sha256": "6be1e8e0f27bd93ef366369431382cc0c069f9645188e2f906440fbc266b9869"
+    },
+    {
+      "path": "ModCarrerMode/source/server16_py/offsets.py",
+      "bytes": 3850,
+      "sha256": "03bc190d37f5eb9ab24f5b558f54e7604caa167da941e159fc08ab928775f617"
+    },
+    {
+      "path": "ModCarrerMode/source/server16_py/overlay_canvas.py",
+      "bytes": 2304,
+      "sha256": "8338364533956ede33f2e16de961b9ba2fac2f05a797b28777d69bb45af727b2"
+    },
+    {
+      "path": "ModCarrerMode/source/server16_py/panel_navigation.py",
+      "bytes": 1073,
+      "sha256": "22c20179af095f98a69b585ae7dbed07606bed1caac36742a2d0ffd1947f95a5"
+    },
+    {
       "path": "ModCarrerMode/source/server16_py/prematch_panel.py",
       "bytes": 12318,
       "sha256": "40689ce1a843fa05dbde498ad4ed47d7e82db3bc3a80e91f5f71baff9daa3fcc"
+    },
+    {
+      "path": "ModCarrerMode/source/server16_py/rival_chants.py",
+      "bytes": 2194,
+      "sha256": "da31392cd1e42115e928ba4b31f719c3fc6abd75b8dd2cb49e4aa881d6176b93"
+    },
+    {
+      "path": "ModCarrerMode/source/server16_py/session_logs.py",
+      "bytes": 8612,
+      "sha256": "0ce504a1cf9f9525a79490d2c272b1384ef33f97361e7aad43c59bcdd952e354"
     },
     {
       "path": "ModCarrerMode/source/server16_py/settings_editor.py",
@@ -11457,9 +13262,39 @@
       "sha256": "4b40c69a2a0d40f84fb80336020ff29667e3fe1bcff6d7c4068ca9018e82fa05"
     },
     {
+      "path": "ModCarrerMode/source/server16_py/settings_store.py",
+      "bytes": 5602,
+      "sha256": "3bfbffe7de16978fa08bcc0d5c144107f5982e988c1b3f339ea7d3ac3329d8d8"
+    },
+    {
+      "path": "ModCarrerMode/source/server16_py/shutdown.py",
+      "bytes": 2354,
+      "sha256": "48fa07e1f5b2af9ccd7de4dd8d1b5c5757c8b1ef5612bbc35f7f1a4741ca433e"
+    },
+    {
+      "path": "ModCarrerMode/source/server16_py/smoke_settings_panel.py",
+      "bytes": 6017,
+      "sha256": "4ac6bc9aafe162064eeac38581b3eeb0a7f59976970c82755f310a3d9dc74ab4"
+    },
+    {
+      "path": "ModCarrerMode/source/server16_py/splash.py",
+      "bytes": 4066,
+      "sha256": "048de6a00456e7ee08fd6463e595c2a84c1b3dab3378d5eec52b4b84be9ab419"
+    },
+    {
+      "path": "ModCarrerMode/source/server16_py/stadium_catalog.py",
+      "bytes": 7918,
+      "sha256": "e508cea6ca3e221c417533a2dd0d6204493ae271cac65c9c90f81cc4eb3d7e99"
+    },
+    {
       "path": "ModCarrerMode/source/server16_py/stadium_match_assets.py",
       "bytes": 2929,
       "sha256": "c58dc03c29cb1fafdb1a6f0bd65edf495d516345921f0351abdb940453ef3903"
+    },
+    {
+      "path": "ModCarrerMode/source/server16_py/stadium_metadata.py",
+      "bytes": 2510,
+      "sha256": "c92ad3ebc86b7664dac93fbe954f8246b5dc7b3316c6d6713358269ed4121b50"
     },
     {
       "path": "ModCarrerMode/source/server16_py/stadium_runtime.py",
@@ -11470,6 +13305,16 @@
       "path": "ModCarrerMode/source/server16_py/stadium_selector.py",
       "bytes": 48089,
       "sha256": "e73969b08c35c80b1a547e06f546d746e9a4c7b5fb0c3544d15f8aa92651b20c"
+    },
+    {
+      "path": "ModCarrerMode/source/server16_py/stadium_transaction.py",
+      "bytes": 3783,
+      "sha256": "50004344fb263cea08433e363a8ff8cfc036d987634599071d5e85e75e72725d"
+    },
+    {
+      "path": "ModCarrerMode/source/server16_py/startup_diagnostics.py",
+      "bytes": 24248,
+      "sha256": "5c2851b7706622dcf0d808fe77f08e1f04c349a7a9b1d78d58bdeb4fe7165950"
     },
     {
       "path": "ModCarrerMode/source/server16_py/substitution_audio.py",
@@ -11485,6 +13330,26 @@
       "path": "ModCarrerMode/source/server16_py/substitution_events.py",
       "bytes": 9177,
       "sha256": "6e3e7842ea573219a2677114cb59039397f58dff5068d7300a15a5a8a081ba02"
+    },
+    {
+      "path": "ModCarrerMode/source/server16_py/update_checker.py",
+      "bytes": 3548,
+      "sha256": "0e53bf2648d5f952e1f9230b503bfd59db2422e33add245edd8c978ac02aabec"
+    },
+    {
+      "path": "ModCarrerMode/source/server16_py/vigembus_uninstall.py",
+      "bytes": 13163,
+      "sha256": "88b526fd5391f1f0fabf1b7003ed2d969db99043008a8e8455e76f37c9b1ef2c"
+    },
+    {
+      "path": "ModCarrerMode/source/server16_py/win_elevation.py",
+      "bytes": 6773,
+      "sha256": "7cb7b0528006296e2418d2786970aac079cdb3a8827a80823ceea317f7ac542d"
+    },
+    {
+      "path": "ModCarrerMode/source/server16_py/windows_file_handles.py",
+      "bytes": 6028,
+      "sha256": "741ab798f3d47be8de81d373586f613e4fff1a9c19b8d7f25edc4584bfa17608"
     },
     {
       "path": "ModCarrerMode/source/tests/fixtures/career_hub_before_reorganization.xml",
@@ -11608,8 +13473,8 @@
     },
     {
       "path": "ModCarrerMode/source/tests/test_portable_asset_delta.py",
-      "bytes": 1444,
-      "sha256": "630bec94d011f37b778d2df4d7b1429b5f44393dc351535935e3d505cfe97482"
+      "bytes": 2224,
+      "sha256": "74552c77c443c8f4c1233cbd39be427324613953b8ca47c97498e4f33ddf4d55"
     },
     {
       "path": "ModCarrerMode/source/tests/test_portable_frozen_sources.py",
@@ -11683,8 +13548,8 @@
     },
     {
       "path": "ModCarrerMode/tools/Verify-PortablePackage.py",
-      "bytes": 10816,
-      "sha256": "03526d607e4400f89f9799bf5e7b366d1758f503ff2d5cd1f5017513fc02f9b9"
+      "bytes": 11154,
+      "sha256": "2464ea713536984c466930dca6323aa678f35462957e312603c82f4e07e5efee"
     },
     {
       "path": "ModCarrerMode/tools/club_browser/generate_lineup.exe",
@@ -11698,8 +13563,8 @@
     },
     {
       "path": "README.md",
-      "bytes": 37980,
-      "sha256": "5768f34850aefe7b037a13ad620e8149ab73b2664333c534f3c92f497583e5ea"
+      "bytes": 39146,
+      "sha256": "f21533324f706806c4814d5cc54ca2895d268ca67d57fa2e2266d07932f1c474"
     },
     {
       "path": "ScoreBoardGBD/XXX - EI Maxx CN/game/globalcomponents/globalcomponents.big",
@@ -11708,8 +13573,8 @@
     },
     {
       "path": "Server16Python.exe",
-      "bytes": 69139258,
-      "sha256": "48c1d1f053b1dd90f6a6e254ea1fcb2ba8e0d51e23e61823a1c5dfd5494bd01d"
+      "bytes": 67939513,
+      "sha256": "bdb9ac0265b71db03b3d7dfded2a1ff16e9ae3d8821d58323fcbbef253d6be76"
     },
     {
       "path": "bin/career_jobs_runtime.dll",
@@ -15172,442 +17037,567 @@
       "sha256": "a8025033bbd93ca59a43c75fc301b0818709292fc76bb085fa7a0ddb2f148b3d"
     },
     {
-      "path": "data/sceneassets/server16_dressing_room_20261022/ceiling_r49.rx3",
+      "path": "data/sceneassets/server16_dressing_room_v3/ceiling_details.rx3",
+      "bytes": 138640,
+      "sha256": "28d7adc6d0a2205e6f92e2d51bfacbfee9b5d9458c7eb2c658648202559a86bc"
+    },
+    {
+      "path": "data/sceneassets/server16_dressing_room_v3/ceiling_details_5d9e89477022af.rx3",
+      "bytes": 138640,
+      "sha256": "5d9e89477022af2e784dfc4972bf16e82bb302d57a072ddc249747d64e21bd2a"
+    },
+    {
+      "path": "data/sceneassets/server16_dressing_room_v3/crest_surfaces.rx3",
+      "bytes": 2400,
+      "sha256": "89d255cf1eceb1a313451a8aab0df27c944735823564c0d883b04480258042da"
+    },
+    {
+      "path": "data/sceneassets/server16_dressing_room_v3/crest_surfaces_89d255cf1eceb1.rx3",
+      "bytes": 2400,
+      "sha256": "89d255cf1eceb1a313451a8aab0df27c944735823564c0d883b04480258042da"
+    },
+    {
+      "path": "data/sceneassets/server16_dressing_room_v3/crests.rx3",
+      "bytes": 2080,
+      "sha256": "4f71da6da0cd4e96313b242292f86087a4585a19ebb496566f9e002719cb8412"
+    },
+    {
+      "path": "data/sceneassets/server16_dressing_room_v3/crests_238f4c4ced9d79.rx3",
+      "bytes": 2080,
+      "sha256": "238f4c4ced9d7994e1ab3e31ad128631c186b64347c3a53d15bfe472bf83a1ff"
+    },
+    {
+      "path": "data/sceneassets/server16_dressing_room_v3/fascia.rx3",
+      "bytes": 2336,
+      "sha256": "24a0328bc06a211affe98568728197ff707d7e71961ebc663d4013221135b547"
+    },
+    {
+      "path": "data/sceneassets/server16_dressing_room_v3/fascia_24a0328bc06a21.rx3",
+      "bytes": 2336,
+      "sha256": "24a0328bc06a211affe98568728197ff707d7e71961ebc663d4013221135b547"
+    },
+    {
+      "path": "data/sceneassets/server16_dressing_room_v3/feature_wall.rx3",
+      "bytes": 464,
+      "sha256": "6e9a59e8d7d96eab61d90582570ac6fc65de8e175fe8d2731b263bcf48b2462e"
+    },
+    {
+      "path": "data/sceneassets/server16_dressing_room_v3/feature_wall_383424509b5185.rx3",
+      "bytes": 464,
+      "sha256": "383424509b5185dab8fbe97f548b994b535200ce737dbdba55b7c0e480967238"
+    },
+    {
+      "path": "data/sceneassets/server16_dressing_room_v3/furniture_wood.rx3",
+      "bytes": 31248,
+      "sha256": "e8b75a0f6e046073d4aae8a90b846196ac92c2fec2e6a7ba5b52dc50a972876b"
+    },
+    {
+      "path": "data/sceneassets/server16_dressing_room_v3/furniture_wood_e8b75a0f6e0460.rx3",
+      "bytes": 31248,
+      "sha256": "e8b75a0f6e046073d4aae8a90b846196ac92c2fec2e6a7ba5b52dc50a972876b"
+    },
+    {
+      "path": "data/sceneassets/server16_dressing_room_v3/interior.rx3",
+      "bytes": 735712,
+      "sha256": "fb7fefde8ca3f4231784f5b2c91bd2535f1a2c4bfec3638f64037deb0291248e"
+    },
+    {
+      "path": "data/sceneassets/server16_dressing_room_v3/interior_fb7fefde8ca3f4.rx3",
+      "bytes": 735712,
+      "sha256": "fb7fefde8ca3f4231784f5b2c91bd2535f1a2c4bfec3638f64037deb0291248e"
+    },
+    {
+      "path": "data/sceneassets/server16_dressing_room_v3/joinery.rx3",
+      "bytes": 19952,
+      "sha256": "cdbdbd383dd130c2bac549aaa29dbe647a966d3bd0be3c2d1474e4a39307012d"
+    },
+    {
+      "path": "data/sceneassets/server16_dressing_room_v3/joinery_e71c06e31745b4.rx3",
+      "bytes": 19952,
+      "sha256": "e71c06e31745b409ad816fefbb6bf3f2e01a85da1e647ca4fea880149760ec9f"
+    },
+    {
+      "path": "data/sceneassets/server16_dressing_room_v3/locker_bay.rx3",
+      "bytes": 17200,
+      "sha256": "87e9b8dc7e48e7ecff54bd43be04656b1a285f9b65016e94fb3cb0d5889145d3"
+    },
+    {
+      "path": "data/sceneassets/server16_dressing_room_v3/locker_bay_87e9b8dc7e48e7.rx3",
+      "bytes": 17200,
+      "sha256": "87e9b8dc7e48e7ecff54bd43be04656b1a285f9b65016e94fb3cb0d5889145d3"
+    },
+    {
+      "path": "data/sceneassets/server16_dressing_room_v3/logo_mount.rx3",
+      "bytes": 1920,
+      "sha256": "7ed95296e3be8d76355382c40d37795a964572b0df7019107faf60a0dd0b2d4b"
+    },
+    {
+      "path": "data/sceneassets/server16_dressing_room_v3/logo_mount_a2ebc9ad5dd548.rx3",
+      "bytes": 1920,
+      "sha256": "a2ebc9ad5dd54877db3401945658f4c4695a042d5bbcedd54c35117e30030c74"
+    },
+    {
+      "path": "data/sceneassets/server16_dressing_room_v3/manifest.json",
+      "bytes": 6067,
+      "sha256": "24d5e7f871b9055153b4cd745da4aaabc30a093c319bfa8c604c3dda95220200"
+    },
+    {
+      "path": "data/sceneassets/server16_dressing_room_v3/room_roles.rx3",
+      "bytes": 972032,
+      "sha256": "29420f143c0ce90eef5fb1aff1f1cb09e8e80ac0d11bcf2ba24c7ada006ebf3d"
+    },
+    {
+      "path": "data/sceneassets/server16_dressing_room_v3/room_roles_42309461bad76f.rx3",
+      "bytes": 972032,
+      "sha256": "42309461bad76fe831ddcd0539a2b4baa88b303fbd196c47c9957ad54cc614fe"
+    },
+    {
+      "path": "data/sceneassets/server16_dressing_room_v3/scenery.rx3",
+      "bytes": 21760,
+      "sha256": "c874ddac663808541196e4713eb6dcf7e7462a9340744b22b214c74425620e40"
+    },
+    {
+      "path": "data/sceneassets/server16_dressing_room_v3/scenery_c874ddac663808.rx3",
+      "bytes": 21760,
+      "sha256": "c874ddac663808541196e4713eb6dcf7e7462a9340744b22b214c74425620e40"
+    },
+    {
+      "path": "data/sceneassets/server16_dressing_room_v3/shared/ceiling_r49.rx3",
       "bytes": 349872,
       "sha256": "e2429e32afd1bf06f341617892beeeed68318c2c347b7c04be8d3e01c0459391"
     },
     {
-      "path": "data/sceneassets/server16_dressing_room_20261022/ceiling_r71.rx3",
+      "path": "data/sceneassets/server16_dressing_room_v3/shared/ceiling_r71.rx3",
       "bytes": 349872,
       "sha256": "74f4a0406b254c3b4b4c18a501434a2cc7113709946fc073bc39c0979403fa73"
     },
     {
-      "path": "data/sceneassets/server16_dressing_room_20261022/ceiling_r72.rx3",
+      "path": "data/sceneassets/server16_dressing_room_v3/shared/ceiling_r72.rx3",
       "bytes": 349872,
       "sha256": "74f4a0406b254c3b4b4c18a501434a2cc7113709946fc073bc39c0979403fa73"
     },
     {
-      "path": "data/sceneassets/server16_dressing_room_20261022/coach_room_r76.json",
+      "path": "data/sceneassets/server16_dressing_room_v3/shared/coach_room_r76.json",
       "bytes": 2679,
       "sha256": "285a98698f06d32d8869a4034dc03c83ecaa1a4ed11d9a2c3ff89afc1ab9ea9e"
     },
     {
-      "path": "data/sceneassets/server16_dressing_room_20261022/coach_room_r76.rx3",
+      "path": "data/sceneassets/server16_dressing_room_v3/shared/coach_room_r76.rx3",
       "bytes": 450992,
       "sha256": "08280bb80d2b3d5b611832828d70ae912d8fb6eb134e72055c5cb0969ac691d0"
     },
     {
-      "path": "data/sceneassets/server16_dressing_room_20261022/contact_shadow_r51.rx3",
+      "path": "data/sceneassets/server16_dressing_room_v3/shared/contact_shadow_r51.rx3",
       "bytes": 22160,
       "sha256": "9266871347e1205f96ec224d8af6e6e21e90b34d013e945b5829aed89bce5417"
     },
     {
-      "path": "data/sceneassets/server16_dressing_room_20261022/cooler_body_r72.rx3",
+      "path": "data/sceneassets/server16_dressing_room_v3/shared/cooler_body_r72.rx3",
       "bytes": 5592784,
       "sha256": "e4d8c046d7fd33b0648a3eb45c13a1bcb04a26dbb766a4dbddbe0b79e0103d53"
     },
     {
-      "path": "data/sceneassets/server16_dressing_room_20261022/cooler_glass_r72.rx3",
+      "path": "data/sceneassets/server16_dressing_room_v3/shared/cooler_glass_r72.rx3",
       "bytes": 336,
       "sha256": "a6a6a2ea9819ed2b68819ac5c8a7d69f075476b83f8ca2b6fc5aa2189e6a44bb"
     },
     {
-      "path": "data/sceneassets/server16_dressing_room_20261022/crest_surfaces_r62.rx3",
+      "path": "data/sceneassets/server16_dressing_room_v3/shared/crest_surfaces_r62.rx3",
       "bytes": 8464,
       "sha256": "5df3f688d72f949a7d8648a8ee1d7720c6685900794e957b96ac5a367b7259ce"
     },
     {
-      "path": "data/sceneassets/server16_dressing_room_20261022/crest_surfaces_r72.rx3",
+      "path": "data/sceneassets/server16_dressing_room_v3/shared/crest_surfaces_r72.rx3",
       "bytes": 8464,
       "sha256": "9947f7727b000a99be63e210afceedba65bc9a7f13a9caf6a89cda89da3ecb9f"
     },
     {
-      "path": "data/sceneassets/server16_dressing_room_20261022/crest_surfaces_r75.rx3",
+      "path": "data/sceneassets/server16_dressing_room_v3/shared/crest_surfaces_r75.rx3",
       "bytes": 8464,
       "sha256": "9785964ec85c44ca7cec3119b76e468471d72987bd180a88786aa19e90a4f448"
     },
     {
-      "path": "data/sceneassets/server16_dressing_room_20261022/crest_surfaces_r76.rx3",
+      "path": "data/sceneassets/server16_dressing_room_v3/shared/crest_surfaces_r76.rx3",
       "bytes": 7600,
       "sha256": "eee3755ddf50b55585732b397620dd53ce2fb036d9e53802a2a4599ae8b7d67c"
     },
     {
-      "path": "data/sceneassets/server16_dressing_room_20261022/crest_surfaces_r77.rx3",
+      "path": "data/sceneassets/server16_dressing_room_v3/shared/crest_surfaces_r77.rx3",
       "bytes": 7600,
       "sha256": "eee3755ddf50b55585732b397620dd53ce2fb036d9e53802a2a4599ae8b7d67c"
     },
     {
-      "path": "data/sceneassets/server16_dressing_room_20261022/floor_shadows_r56.rx3",
+      "path": "data/sceneassets/server16_dressing_room_v3/shared/floor_shadows_r56.rx3",
       "bytes": 1696,
       "sha256": "911cee858f32cf4c072db8f6744af17fd9951d318f4a7214ee1f3e192f3fd163"
     },
     {
-      "path": "data/sceneassets/server16_dressing_room_20261022/floor_shadows_r72.rx3",
+      "path": "data/sceneassets/server16_dressing_room_v3/shared/floor_shadows_r72.rx3",
       "bytes": 1696,
       "sha256": "51099d2cd3e6939f39af006555fee2a33237779a597ddb1ad986269ec5e1838d"
     },
     {
-      "path": "data/sceneassets/server16_dressing_room_20261022/floor_shadows_r75.rx3",
+      "path": "data/sceneassets/server16_dressing_room_v3/shared/floor_shadows_r75.rx3",
       "bytes": 1696,
       "sha256": "f26ebae551f39820fa5d740bc266b8773111411e646ff99ba868a12740a05b12"
     },
     {
-      "path": "data/sceneassets/server16_dressing_room_20261022/floor_shadows_r76.rx3",
+      "path": "data/sceneassets/server16_dressing_room_v3/shared/floor_shadows_r76.rx3",
       "bytes": 2144,
       "sha256": "2790e3aaabb142e00fc0745cd26c296ae086e99471841c613128632dd41af292"
     },
     {
-      "path": "data/sceneassets/server16_dressing_room_20261022/floor_shadows_r77.rx3",
+      "path": "data/sceneassets/server16_dressing_room_v3/shared/floor_shadows_r77.rx3",
       "bytes": 2464,
       "sha256": "5e413204ef02e88365ec697d1c51c5c4b01314b678a0bd7ff0a57ede03eb757e"
     },
     {
-      "path": "data/sceneassets/server16_dressing_room_20261022/floor_shadows_texture_r56.rx3",
+      "path": "data/sceneassets/server16_dressing_room_v3/shared/floor_shadows_texture_r56.rx3",
       "bytes": 5592784,
       "sha256": "916b14c9aa0c9afd1a2897a98cac2dcb8b1c8fab1688f1326bac6d16a94df6ed"
     },
     {
-      "path": "data/sceneassets/server16_dressing_room_20261022/floor_textures_r44.rx3",
+      "path": "data/sceneassets/server16_dressing_room_v3/shared/floor_textures_r44.rx3",
       "bytes": 22160,
       "sha256": "c4007f810f808ceb40e2c87fb437707f4750d2786187e5d6194ae150dc598c8c"
     },
     {
-      "path": "data/sceneassets/server16_dressing_room_20261022/hanging_hardware_r50.rx3",
+      "path": "data/sceneassets/server16_dressing_room_v3/shared/hanging_hardware_r50.rx3",
       "bytes": 448,
       "sha256": "4435f70808925092d885a38ab979f5fcfc13d0e7b57c06958668e37151419b21"
     },
     {
-      "path": "data/sceneassets/server16_dressing_room_20261022/hanging_hardware_r71.rx3",
+      "path": "data/sceneassets/server16_dressing_room_v3/shared/hanging_hardware_r71.rx3",
       "bytes": 448,
       "sha256": "4435f70808925092d885a38ab979f5fcfc13d0e7b57c06958668e37151419b21"
     },
     {
-      "path": "data/sceneassets/server16_dressing_room_20261022/interior_r71.json",
+      "path": "data/sceneassets/server16_dressing_room_v3/shared/interior_r71.json",
       "bytes": 2954,
       "sha256": "8baaa951a3d1179b3cad70ec14ef7f586b38f0705f0c32e1f40285c41ac65f5d"
     },
     {
-      "path": "data/sceneassets/server16_dressing_room_20261022/interior_r71.rx3",
+      "path": "data/sceneassets/server16_dressing_room_v3/shared/interior_r71.rx3",
       "bytes": 208336,
       "sha256": "1b7f849122f6b3b5e838d10737e80e76fa15ca0b894974c66487c94dc2a22fb6"
     },
     {
-      "path": "data/sceneassets/server16_dressing_room_20261022/interior_r72.json",
+      "path": "data/sceneassets/server16_dressing_room_v3/shared/interior_r72.json",
       "bytes": 2950,
       "sha256": "1800da0f07eecd31f56326e5db3cc132569b0e5a2c79d754436fad1f14061f04"
     },
     {
-      "path": "data/sceneassets/server16_dressing_room_20261022/interior_r72.rx3",
+      "path": "data/sceneassets/server16_dressing_room_v3/shared/interior_r72.rx3",
       "bytes": 502064,
       "sha256": "3cbe9d05f245a9a3c29bead31420d55c6ea113c04fcc93da468e7b04b1dcc54a"
     },
     {
-      "path": "data/sceneassets/server16_dressing_room_20261022/interior_r73.rx3",
+      "path": "data/sceneassets/server16_dressing_room_v3/shared/interior_r73.rx3",
       "bytes": 502064,
       "sha256": "f59ad6b3fd10191f3ba5a90e57932a0bc7d5511b77b902392e02b2c65e4e7c19"
     },
     {
-      "path": "data/sceneassets/server16_dressing_room_20261022/interior_r74.json",
+      "path": "data/sceneassets/server16_dressing_room_v3/shared/interior_r74.json",
       "bytes": 3116,
       "sha256": "626a94d5f561bfc24185565a41fdf8fea238ba925927942d8d9a699bdb57a3ff"
     },
     {
-      "path": "data/sceneassets/server16_dressing_room_20261022/interior_r74.rx3",
+      "path": "data/sceneassets/server16_dressing_room_v3/shared/interior_r74.rx3",
       "bytes": 504592,
       "sha256": "54abb26c284f8131bb3bd59f85e307efe6cd109e7d44399a7a640d2e898bcf3f"
     },
     {
-      "path": "data/sceneassets/server16_dressing_room_20261022/interior_r75.json",
+      "path": "data/sceneassets/server16_dressing_room_v3/shared/interior_r75.json",
       "bytes": 4099,
       "sha256": "97ee811c0432e2d8f8b865bc8796e9efda905161d4746a8487941faca775b353"
     },
     {
-      "path": "data/sceneassets/server16_dressing_room_20261022/interior_r75.rx3",
+      "path": "data/sceneassets/server16_dressing_room_v3/shared/interior_r75.rx3",
       "bytes": 557728,
       "sha256": "49ba06a9b121a7be8155b7d642fd518b9f4a00a34c649187aa3de0498b2de616"
     },
     {
-      "path": "data/sceneassets/server16_dressing_room_20261022/interior_r76.json",
+      "path": "data/sceneassets/server16_dressing_room_v3/shared/interior_r76.json",
       "bytes": 4099,
       "sha256": "7106fb5416557d4c8d68e3113d4a3981b6a17b6107f094fe06d4179d2497560d"
     },
     {
-      "path": "data/sceneassets/server16_dressing_room_20261022/interior_r76.rx3",
+      "path": "data/sceneassets/server16_dressing_room_v3/shared/interior_r76.rx3",
       "bytes": 582272,
       "sha256": "e392c25e83a804f67a2410edb9b4c712a5e7be8fdd586146e358fb6354c5f107"
     },
     {
-      "path": "data/sceneassets/server16_dressing_room_20261022/interior_r77.json",
+      "path": "data/sceneassets/server16_dressing_room_v3/shared/interior_r77.json",
       "bytes": 4099,
       "sha256": "c85c9ecb1b9a2601c0d8cfec4dd96b97a7336930a3e87253045925371e1e5cb3"
     },
     {
-      "path": "data/sceneassets/server16_dressing_room_20261022/interior_r77.rx3",
+      "path": "data/sceneassets/server16_dressing_room_v3/shared/interior_r77.rx3",
       "bytes": 612752,
       "sha256": "61196ae0e254bc496b0d395323a5ff362b2dbb05651a7450b57071b52e0dd860"
     },
     {
-      "path": "data/sceneassets/server16_dressing_room_20261022/interior_r78.json",
+      "path": "data/sceneassets/server16_dressing_room_v3/shared/interior_r78.json",
       "bytes": 4670,
       "sha256": "b4475640d29a1b43fb87e07d2771fb02bd4104b952acc38f3fd3b7bc37384503"
     },
     {
-      "path": "data/sceneassets/server16_dressing_room_20261022/interior_r78.rx3",
+      "path": "data/sceneassets/server16_dressing_room_v3/shared/interior_r78.rx3",
       "bytes": 841856,
       "sha256": "e8bbcf88beefdbfbdc42cddaf8a1a6d1d5414e6011fcd86db0ea4d173416ae45"
     },
     {
-      "path": "data/sceneassets/server16_dressing_room_20261022/loading_error_r56.rx3",
+      "path": "data/sceneassets/server16_dressing_room_v3/shared/loading_error_r56.rx3",
       "bytes": 2796592,
       "sha256": "0418118ae5e10bd198c96a3871b358af745fad8bcfb99d069bc5744079875375"
     },
     {
-      "path": "data/sceneassets/server16_dressing_room_20261022/loading_slate_r56.rx3",
+      "path": "data/sceneassets/server16_dressing_room_v3/shared/loading_slate_r56.rx3",
       "bytes": 464,
       "sha256": "48672410d357df988a5d148a598e15fbb93bae609e04a28af6cc214ca183396e"
     },
     {
-      "path": "data/sceneassets/server16_dressing_room_20261022/loading_slate_texture_r56.rx3",
+      "path": "data/sceneassets/server16_dressing_room_v3/shared/loading_slate_texture_r56.rx3",
       "bytes": 2796592,
       "sha256": "6e15964a43ac6be1bec22958d23813e4053c1ca4285541e49abe2d5746dc78cc"
     },
     {
-      "path": "data/sceneassets/server16_dressing_room_20261022/locker_support_r68.rx3",
+      "path": "data/sceneassets/server16_dressing_room_v3/shared/locker_support_r68.rx3",
       "bytes": 3600,
       "sha256": "18291b1a9477506588aa7ce186a0995cdc51c5d09d3cf4500570f3a2c2c7e610"
     },
     {
-      "path": "data/sceneassets/server16_dressing_room_20261022/medical_bottle_025ef487ecf6.rx3",
+      "path": "data/sceneassets/server16_dressing_room_v3/shared/medical_bottle_025ef487ecf6.rx3",
       "bytes": 22160,
       "sha256": "89c2e8e26b21d588cd717b7b8d1607d4491a7589f0cfb897d1696a43eed6b3bd"
     },
     {
-      "path": "data/sceneassets/server16_dressing_room_20261022/medical_cabinet_47f33d71b580.rx3",
+      "path": "data/sceneassets/server16_dressing_room_v3/shared/medical_cabinet_47f33d71b580.rx3",
       "bytes": 22160,
       "sha256": "588bd4a9df54c5a38d72c6a72be27e48d7844d6fd4a8f64dab675b3ce1f0fa85"
     },
     {
-      "path": "data/sceneassets/server16_dressing_room_20261022/medical_charcoal_3b929168e199.rx3",
+      "path": "data/sceneassets/server16_dressing_room_v3/shared/medical_charcoal_3b929168e199.rx3",
       "bytes": 22160,
       "sha256": "58f78229b3943612d3f04fab3813bbd0857880305b8987f7ce3cbd741a77e398"
     },
     {
-      "path": "data/sceneassets/server16_dressing_room_20261022/medical_glass_fa8de5ddcf1b.rx3",
+      "path": "data/sceneassets/server16_dressing_room_v3/shared/medical_glass_fa8de5ddcf1b.rx3",
       "bytes": 22160,
       "sha256": "aea0a69855a13d5f24dbf0d20fac7a42017d7f961d2ff650d9c214d4d6717700"
     },
     {
-      "path": "data/sceneassets/server16_dressing_room_20261022/medical_leather_e53fdb368f45.rx3",
+      "path": "data/sceneassets/server16_dressing_room_v3/shared/medical_leather_e53fdb368f45.rx3",
       "bytes": 22160,
       "sha256": "95db51311f550bddbec4ee5c4210163a5bdff908968bbb9bacf66a0d7265e014"
     },
     {
-      "path": "data/sceneassets/server16_dressing_room_20261022/medical_light_4d48afe34985.rx3",
+      "path": "data/sceneassets/server16_dressing_room_v3/shared/medical_light_4d48afe34985.rx3",
       "bytes": 22160,
       "sha256": "755644023c9e008c7cc873d5f61d6ee6881bf5e45f2c64f36a6d8d9148042b89"
     },
     {
-      "path": "data/sceneassets/server16_dressing_room_20261022/medical_rehab_ef9ca350c24a.rx3",
+      "path": "data/sceneassets/server16_dressing_room_v3/shared/medical_rehab_ef9ca350c24a.rx3",
       "bytes": 22160,
       "sha256": "a02025ace09e236a00825bf65141a0bd2efa42be1936a901ad24084db5ca15d9"
     },
     {
-      "path": "data/sceneassets/server16_dressing_room_20261022/medical_room_r57.rx3",
+      "path": "data/sceneassets/server16_dressing_room_v3/shared/medical_room_r57.rx3",
       "bytes": 198368,
       "sha256": "31f0a730f17499d44c6b4c366f58a35f5d48955ebedebc16d666d042913807af"
     },
     {
-      "path": "data/sceneassets/server16_dressing_room_20261022/medical_room_r71.rx3",
+      "path": "data/sceneassets/server16_dressing_room_v3/shared/medical_room_r71.rx3",
       "bytes": 202896,
       "sha256": "b0694ccc8dc0eadceaf11bba6aa7b635f92bbb170eedc08b747d603dea01825b"
     },
     {
-      "path": "data/sceneassets/server16_dressing_room_20261022/medical_room_r72.rx3",
+      "path": "data/sceneassets/server16_dressing_room_v3/shared/medical_room_r72.rx3",
       "bytes": 202896,
       "sha256": "a285d4ef474b295d26e591012daf9dddccde1e95a37387c350dcc790c839a6df"
     },
     {
-      "path": "data/sceneassets/server16_dressing_room_20261022/medical_room_r75.rx3",
+      "path": "data/sceneassets/server16_dressing_room_v3/shared/medical_room_r75.rx3",
       "bytes": 202896,
       "sha256": "a2f0296f858523be03a7a9dbddbaa3eeba17751b8e75d013c6247df5e9f2fe5e"
     },
     {
-      "path": "data/sceneassets/server16_dressing_room_20261022/medical_room_r77.json",
+      "path": "data/sceneassets/server16_dressing_room_v3/shared/medical_room_r77.json",
       "bytes": 6019,
       "sha256": "f53df1f3cfbbd2c102017dba66b8e3ce25f767d4adb16e44ab8ed3ad4d6a4af3"
     },
     {
-      "path": "data/sceneassets/server16_dressing_room_20261022/medical_room_r77.rx3",
+      "path": "data/sceneassets/server16_dressing_room_v3/shared/medical_room_r77.rx3",
       "bytes": 472528,
       "sha256": "7727b9f6a4893dfa023885fd8006e71e2bd37d1a684013da9af0caa2f3fe0f4e"
     },
     {
-      "path": "data/sceneassets/server16_dressing_room_20261022/medical_rubber_55bdb84412c9.rx3",
+      "path": "data/sceneassets/server16_dressing_room_v3/shared/medical_rubber_55bdb84412c9.rx3",
       "bytes": 22160,
       "sha256": "30a2b304a98d403e8eb886aa2e8b22d80f21b656267ad38cb808287daf0b493d"
     },
     {
-      "path": "data/sceneassets/server16_dressing_room_20261022/medical_towel_184c6322adb1.rx3",
+      "path": "data/sceneassets/server16_dressing_room_v3/shared/medical_towel_184c6322adb1.rx3",
       "bytes": 22160,
       "sha256": "2ac25676093fa1dbfc1eed8bdae28e1beaba940d06b95ffbca62d87947cb1158"
     },
     {
-      "path": "data/sceneassets/server16_dressing_room_20261022/medical_wall_76e9d40849f3.rx3",
+      "path": "data/sceneassets/server16_dressing_room_v3/shared/medical_wall_76e9d40849f3.rx3",
       "bytes": 22160,
       "sha256": "8521b25c62a598074a514e68d8fd0e9186df003da9ef9fb02bb21d74d829f179"
     },
     {
-      "path": "data/sceneassets/server16_dressing_room_20261022/native_hanging_0_r50.rx3",
+      "path": "data/sceneassets/server16_dressing_room_v3/shared/native_hanging_0_r50.rx3",
       "bytes": 233648,
       "sha256": "2ff0012dc7282b8dee497d84f96945f7eaced5062358595e236f065013367ef0"
     },
     {
-      "path": "data/sceneassets/server16_dressing_room_20261022/native_hanging_0_r71.rx3",
+      "path": "data/sceneassets/server16_dressing_room_v3/shared/native_hanging_0_r71.rx3",
       "bytes": 261728,
       "sha256": "91c470bdbc6a70eb62c1c141e190303e1f5aa8e165c4e6a2f9dc285109549b70"
     },
     {
-      "path": "data/sceneassets/server16_dressing_room_20261022/native_hanging_2_r50.rx3",
+      "path": "data/sceneassets/server16_dressing_room_v3/shared/native_hanging_2_r50.rx3",
       "bytes": 229040,
       "sha256": "9477a3a765d16ad1ede3d1bf255aea30202f21b625313996c258a964a66a0139"
     },
     {
-      "path": "data/sceneassets/server16_dressing_room_20261022/native_hanging_2_r71.rx3",
+      "path": "data/sceneassets/server16_dressing_room_v3/shared/native_hanging_2_r71.rx3",
       "bytes": 257120,
       "sha256": "794c042753ec3142a682705149d4432340f76496d23f2344b63ab7fc90268a6d"
     },
     {
-      "path": "data/sceneassets/server16_dressing_room_20261022/print_surface.rx3",
+      "path": "data/sceneassets/server16_dressing_room_v3/shared/print_surface.rx3",
       "bytes": 448,
       "sha256": "a3e2643f2cbf28ae9045124bd82187d90c1ad32e50d68d285fb3ae9d281a1a79"
     },
     {
-      "path": "data/sceneassets/server16_dressing_room_20261022/room_layout_r72.json",
+      "path": "data/sceneassets/server16_dressing_room_v3/shared/room_layout_r72.json",
       "bytes": 257098,
       "sha256": "3ce8fe30afd4c336e3bef3bd313d50d37d48b14e573ffb2332b788652681cbdc"
     },
     {
-      "path": "data/sceneassets/server16_dressing_room_20261022/room_layout_r75.json",
+      "path": "data/sceneassets/server16_dressing_room_v3/shared/room_layout_r75.json",
       "bytes": 257096,
       "sha256": "1393146dd65460707051615332741550cf5e3f7d3010b8b817ba4beb455c30d1"
     },
     {
-      "path": "data/sceneassets/server16_dressing_room_20261022/room_layout_r76.json",
+      "path": "data/sceneassets/server16_dressing_room_v3/shared/room_layout_r76.json",
       "bytes": 255042,
       "sha256": "e12ba9a4194c3aa79f79d9918b000fb528bcedede681d03e18da659cb5e8d51e"
     },
     {
-      "path": "data/sceneassets/server16_dressing_room_20261022/room_layout_r77.json",
+      "path": "data/sceneassets/server16_dressing_room_v3/shared/room_layout_r77.json",
       "bytes": 257368,
       "sha256": "8b2a49c1d81b243b6f647412d73deae07fa503c9d2e424c3181e14dc67d022dc"
     },
     {
-      "path": "data/sceneassets/server16_dressing_room_20261022/room_roles_r62.rx3",
+      "path": "data/sceneassets/server16_dressing_room_v3/shared/room_roles_r62.rx3",
       "bytes": 6740752,
       "sha256": "bcbde7a10a6d4d6fd4d36b2a86245936c7f4109f4e4377a17ad94b5cd3022dee"
     },
     {
-      "path": "data/sceneassets/server16_dressing_room_20261022/room_roles_r71.rx3",
+      "path": "data/sceneassets/server16_dressing_room_v3/shared/room_roles_r71.rx3",
       "bytes": 6022080,
       "sha256": "720009d862b8f59eec238ebf80cd617bffc5684e06c3653744f095d0c236272c"
     },
     {
-      "path": "data/sceneassets/server16_dressing_room_20261022/room_roles_r72.rx3",
+      "path": "data/sceneassets/server16_dressing_room_v3/shared/room_roles_r72.rx3",
       "bytes": 6029856,
       "sha256": "bb265f2f2c3676f4e2457c06d75440b271481188621c86b36431f737da9a0173"
     },
     {
-      "path": "data/sceneassets/server16_dressing_room_20261022/room_roles_r75.rx3",
+      "path": "data/sceneassets/server16_dressing_room_v3/shared/room_roles_r75.rx3",
       "bytes": 6033728,
       "sha256": "9be0291df527596fc10a057c58b0eb058b64ee79423b632a9fc5693fb675e465"
     },
     {
-      "path": "data/sceneassets/server16_dressing_room_20261022/room_roles_r76.rx3",
+      "path": "data/sceneassets/server16_dressing_room_v3/shared/room_roles_r76.rx3",
       "bytes": 5100000,
       "sha256": "0598604ac74edb5a38389f74be8efea1629bfea88364517cb14d19228550475f"
     },
     {
-      "path": "data/sceneassets/server16_dressing_room_20261022/room_roles_r77.rx3",
+      "path": "data/sceneassets/server16_dressing_room_v3/shared/room_roles_r77.rx3",
       "bytes": 5100336,
       "sha256": "1bbf9808fa6056ca87d96a33224d0a475bc078b1f395c5a175ffd4d18bd42ede"
     },
     {
-      "path": "data/sceneassets/server16_dressing_room_20261022/room_white_r49.rx3",
+      "path": "data/sceneassets/server16_dressing_room_v3/shared/room_white_r49.rx3",
       "bytes": 336,
       "sha256": "1cd4cb549db89787c8445224c3d7603face740270c693f1af530ea8610530e78"
     },
     {
-      "path": "data/sceneassets/server16_dressing_room_20261022/scenery_r62.rx3",
+      "path": "data/sceneassets/server16_dressing_room_v3/shared/scenery_r62.rx3",
       "bytes": 110736,
       "sha256": "5a2e16e124b339d405a21885ef21ef9eec5ba4fdf2bb753df48e76c5621b81f9"
     },
     {
-      "path": "data/sceneassets/server16_dressing_room_20261022/scenery_r71.rx3",
+      "path": "data/sceneassets/server16_dressing_room_v3/shared/scenery_r71.rx3",
       "bytes": 94960,
       "sha256": "616ceccc2c6c90f9313f3942cca12eb562f308d47100e2911fc6e06bce931de0"
     },
     {
-      "path": "data/sceneassets/server16_dressing_room_20261022/scenery_r72.rx3",
+      "path": "data/sceneassets/server16_dressing_room_v3/shared/scenery_r72.rx3",
       "bytes": 94960,
       "sha256": "e4a71beeb3e799f1c01706c7a94899306405a88cae883d87670d93b2527db8eb"
     },
     {
-      "path": "data/sceneassets/server16_dressing_room_20261022/scenery_r75.rx3",
+      "path": "data/sceneassets/server16_dressing_room_v3/shared/scenery_r75.rx3",
       "bytes": 94960,
       "sha256": "3eda45446f6b3d2fd05b47b575753291b3842fc35581f15588687219f44512f1"
     },
     {
-      "path": "data/sceneassets/server16_dressing_room_20261022/scenery_r76.rx3",
+      "path": "data/sceneassets/server16_dressing_room_v3/shared/scenery_r76.rx3",
       "bytes": 46816,
       "sha256": "526050d90712ddd1e7cc193fa1061e7a6f5748fddf1a8745494fdc942decbd21"
     },
     {
-      "path": "data/sceneassets/server16_dressing_room_20261022/scenery_r77.rx3",
+      "path": "data/sceneassets/server16_dressing_room_v3/shared/scenery_r77.rx3",
       "bytes": 46816,
       "sha256": "1f59390855d6df8d62b8fc14bff2f5523f751956ab3507dcb02ee7909e4d98b0"
     },
     {
-      "path": "data/sceneassets/server16_dressing_room_20261022/scenery_textures_0_r62.rx3",
+      "path": "data/sceneassets/server16_dressing_room_v3/shared/scenery_textures_0_r62.rx3",
       "bytes": 5592768,
       "sha256": "1d7017b30ed1ff23b96e7945f3f29bc48653ea9c67afdc4e77af3b10740c8de5"
     },
     {
-      "path": "data/sceneassets/server16_dressing_room_20261022/scenery_textures_0_r71.rx3",
+      "path": "data/sceneassets/server16_dressing_room_v3/shared/scenery_textures_0_r71.rx3",
       "bytes": 5592768,
       "sha256": "e989fe8e913a088aec372ca9d008dac57842d1089e3c351cc55203d2a472ad3f"
     },
     {
-      "path": "data/sceneassets/server16_dressing_room_20261022/scenery_textures_0_r72.rx3",
+      "path": "data/sceneassets/server16_dressing_room_v3/shared/scenery_textures_0_r72.rx3",
       "bytes": 5592768,
       "sha256": "e989fe8e913a088aec372ca9d008dac57842d1089e3c351cc55203d2a472ad3f"
     },
     {
-      "path": "data/sceneassets/server16_dressing_room_20261022/scenery_textures_1_r62.rx3",
+      "path": "data/sceneassets/server16_dressing_room_v3/shared/scenery_textures_1_r62.rx3",
       "bytes": 5592768,
       "sha256": "de1c970063e492635ac88afb5709894b1eda9c6694938f8e72a1cbe0e0f0a012"
     },
     {
-      "path": "data/sceneassets/server16_dressing_room_20261022/scenery_textures_1_r71.rx3",
+      "path": "data/sceneassets/server16_dressing_room_v3/shared/scenery_textures_1_r71.rx3",
       "bytes": 5592768,
       "sha256": "59642df22457ef5c51984f9fde1517f3aef334453318d050711e9977758b2e2f"
     },
     {
-      "path": "data/sceneassets/server16_dressing_room_20261022/scenery_textures_1_r72.rx3",
+      "path": "data/sceneassets/server16_dressing_room_v3/shared/scenery_textures_1_r72.rx3",
       "bytes": 5592768,
       "sha256": "59642df22457ef5c51984f9fde1517f3aef334453318d050711e9977758b2e2f"
     },
     {
-      "path": "data/sceneassets/server16_dressing_room_20261022/water_cooler_r72.rx3",
+      "path": "data/sceneassets/server16_dressing_room_v3/shared/water_cooler_r72.rx3",
       "bytes": 244000,
       "sha256": "0edfdd905e5fa574d54194c82238745a887b389ae99e977f234a78c2c1b3a768"
     },
     {
-      "path": "data/sceneassets/server16_dressing_room_20261022/water_cooler_r75.rx3",
+      "path": "data/sceneassets/server16_dressing_room_v3/shared/water_cooler_r75.rx3",
       "bytes": 244000,
       "sha256": "df69fa505b7ba1b1a6cbfbacbf388f3b1bb549488b9de0938247e3b01339f5ec"
     },
     {
-      "path": "data/sceneassets/server16_dressing_room_20261022/water_cooler_r78.rx3",
+      "path": "data/sceneassets/server16_dressing_room_v3/shared/water_cooler_r78.rx3",
       "bytes": 244000,
       "sha256": "9b130aa0a36a7b549a0778bea729f7978d2e77599499e5466715bf772c978336"
     },
@@ -16273,8 +18263,8 @@
     },
     {
       "path": "data/ui/game/screens/career/server16/careerclubtransfer.big",
-      "bytes": 5168,
-      "sha256": "43a79b4bc118a2f196f996e9da390968dd03c2e9d0bc16051a6b7952387fa117"
+      "bytes": 5407,
+      "sha256": "809b45cc3dcd86906c3790b368093688e13ca00b8942b3897f7f9e3d5c01ea5e"
     },
     {
       "path": "data/ui/game/screens/career/server16/careercompetitions.big",
@@ -16283,23 +18273,23 @@
     },
     {
       "path": "data/ui/game/screens/career/server16/careerretirement.big",
-      "bytes": 5170,
-      "sha256": "f12184edf7d9886d07de8a3c89c0847e33a7454cbe41ad2600f46df2bbb8a961"
+      "bytes": 5410,
+      "sha256": "f37c9314765665c142c7cb1ad6f029e366c31cd8c60b1266b361f99156d49620"
     },
     {
       "path": "data/ui/game/screens/career/server16/clubbrowser.big",
-      "bytes": 7125,
-      "sha256": "978fb56b46f5dd38c7ae7e29f0e02936825e2fffdc5d8e74e9c64f9b6d207447"
+      "bytes": 7129,
+      "sha256": "c3d7fd7cf0d6d1ab364199097c39c240694171ac1d610293577e0cf6fe51f588"
     },
     {
       "path": "data/ui/game/screens/career/server16/clubfinance.big",
       "bytes": 175910,
-      "sha256": "5a564905afab124535926e51d8611498f736baf4fb3dbb492c54c7e82c1b93e0"
+      "sha256": "12606acc23819442dd29fba8fe9f504d65027ba2ed6acc0ed644625bfdc844c6"
     },
     {
       "path": "data/ui/game/screens/career/server16/dressingroom.big",
-      "bytes": 9390,
-      "sha256": "5613c1745f63706b005fad54083e1a1740c2901fa613093cefd0729d8015e698"
+      "bytes": 10247,
+      "sha256": "12d0d41427273c7493862abaea25c7024e50355786d5c3d3c317dfb41fde68ef"
     },
     {
       "path": "data/ui/game/screens/career/server16/dressingroomplayers.big",
@@ -16308,8 +18298,8 @@
     },
     {
       "path": "data/ui/game/screens/career/server16/managermarket.big",
-      "bytes": 494480,
-      "sha256": "5911e1228b9427a21beb27ab756c57d2247c18b50cab6157a3ff965665ca11e8"
+      "bytes": 516855,
+      "sha256": "9f3745b815687e57bd0e32ee070edf22f7882824293d6f8e9c27dba941ad61a3"
     },
     {
       "path": "data/ui/game/screens/career/server16/markethubbootstrap.big",
@@ -16318,8 +18308,8 @@
     },
     {
       "path": "data/ui/game/screens/career/server16/matchpreview.big",
-      "bytes": 24445,
-      "sha256": "473838bd71f498610058a34e689b0b7256119f0bc5f27ea0a02eeb8f0f2a9c94"
+      "bytes": 40422,
+      "sha256": "dcdb7ed8a160b6e81c741ab16394a4a94cf3d6f2764c372ebd6f40b6af17cacb"
     },
     {
       "path": "data/ui/game/screens/career/server16/matchpreviewloading.big",
@@ -17683,8 +19673,8 @@
     },
     {
       "path": "dinput8.dll",
-      "bytes": 642048,
-      "sha256": "7327a224c86a673a1249ec28a01f5dabcf04b8ba237ccd0e7f6066702e0180c2"
+      "bytes": 647168,
+      "sha256": "20c57a75d3d60d6f5731527f418ef23c47b005882347b70184f5bf3055a50a8a"
     }
   ],
   "local_revision": "Mercado em background, técnicos 3D por identidade, histórico da carreira, vestiário ampliado e recursos do Server16",
@@ -17693,5 +19683,7 @@
   "cups_revision": "2026-11-02 / phase ordering and campaign sample",
   "annual_history_revision": "2026-11-02 / calendar-year archives / same-save checkpoints",
   "manager_market_local_review": "20261102-polish-sampled-calendar-save-discard",
-  "manager_visual_revision": "20261102-R2 / stable trophy identities / reusable compressed art / compact typed records"
+  "manager_visual_revision": "20261102-R2 / stable trophy identities / reusable compressed art / compact typed records",
+  "room_version": 3,
+  "legacy_room_active": false
 }

@@ -1,0 +1,178 @@
+{
+  "revision": 76,
+  "bindings": [
+    {
+      "material": "dark",
+      "submesh": "room_part_1"
+    },
+    {
+      "material": "metal",
+      "submesh": "room_part_2"
+    },
+    {
+      "material": "light",
+      "submesh": "room_part_3"
+    },
+    {
+      "material": "panels",
+      "submesh": "room_part_4"
+    }
+  ],
+  "obstacles": [
+    {
+      "name": "Sala do treinador R76 / parede",
+      "lo": [
+        -325,
+        0,
+        1560
+      ],
+      "hi": [
+        -320,
+        320,
+        2592.0
+      ]
+    },
+    {
+      "name": "Sala do treinador R76 / parede",
+      "lo": [
+        750,
+        0,
+        1560
+      ],
+      "hi": [
+        756,
+        320,
+        2592.0
+      ]
+    },
+    {
+      "name": "Sala do treinador R76 / parede",
+      "lo": [
+        -325,
+        0,
+        2592.0
+      ],
+      "hi": [
+        756,
+        320,
+        2604.0
+      ]
+    },
+    {
+      "name": "Sala do treinador R76 / mesa",
+      "lo": [
+        40,
+        3,
+        2070
+      ],
+      "hi": [
+        320,
+        86,
+        2165
+      ]
+    },
+    {
+      "name": "Sala do treinador R76 / cadeira",
+      "lo": [
+        144,
+        0,
+        2230
+      ],
+      "hi": [
+        216,
+        162,
+        2301
+      ]
+    },
+    {
+      "name": "Sala do treinador R76 / cadeira",
+      "lo": [
+        59,
+        0,
+        1940
+      ],
+      "hi": [
+        131,
+        128,
+        2011
+      ]
+    },
+    {
+      "name": "Sala do treinador R76 / cadeira",
+      "lo": [
+        229,
+        0,
+        1940
+      ],
+      "hi": [
+        301,
+        128,
+        2011
+      ]
+    },
+    {
+      "name": "Sala do treinador R76 / armário de apoio",
+      "lo": [
+        -315,
+        0.5,
+        1800
+      ],
+      "hi": [
+        -266,
+        87,
+        2290
+      ]
+    },
+    {
+      "name": "Sala do treinador R76 / estante de arquivos",
+      "lo": [
+        350,
+        0.5,
+        1563
+      ],
+      "hi": [
+        715,
+        184,
+        1612
+      ]
+    },
+    {
+      "name": "Sala do treinador R76 / vaso",
+      "lo": [
+        -251,
+        0,
+        1644
+      ],
+      "hi": [
+        -199,
+        45,
+        1696
+      ]
+    },
+    {
+      "name": "Sala do treinador R76 / vaso",
+      "lo": [
+        644,
+        0,
+        2394
+      ],
+      "hi": [
+        696,
+        45,
+        2446
+      ]
+    }
+  ],
+  "bounds": {
+    "lo": [
+      -320,
+      0,
+      1561
+    ],
+    "hi": [
+      750,
+      319,
+      2592
+    ]
+  }
+}

@@ -25,7 +25,7 @@ struct Model {
  bool setNational(bool value){if(value==national)return true;auto&next=value?nationRows:clubRows;if(next.empty())return false;int nation=rows.empty()?0:club().nation;rows=next;national=value;selected=0;focus=2;for(size_t i=0;i<rows.size();++i)if(rows[i].nation==nation){selected=i;break;}++revision;recenter();return true;}
  const Club& club()const{return rows[selected];}
  bool choose(int id){for(size_t i=0;i<rows.size();++i)if(rows[i].id==id){selected=i;++revision;recenter(false);return true;}return false;}
- std::vector<size_t> choices(int kind)const{std::vector<size_t> out;int previous=-99999;for(size_t i=0;i<rows.size();++i){const auto& c=rows[i];if(kind>0&&c.country!=club().country)continue;if(kind>1&&c.league!=club().league)continue;int key=kind==0?c.country:kind==1?c.league:c.id;if(key!=previous){out.push_back(i);previous=key;}}return out;}
+ std::vector<size_t> choices(int kind)const{std::vector<size_t> out;std::vector<int> seen;for(size_t i=0;i<rows.size();++i){const auto& c=rows[i];if(kind>0&&c.country!=club().country)continue;if(kind>1&&c.league!=club().league)continue;int key=kind==0?c.country:kind==1?c.league:c.id;if(std::find(seen.begin(),seen.end(),key)==seen.end()){out.push_back(i);seen.push_back(key);}}return out;}
  void step(int kind,int delta){if(rows.empty())return;if(national&&kind==1)kind=2;focus=kind;auto options=choices(kind);if(options.empty())return;size_t current=0;for(size_t j=0;j<options.size();++j){const auto& c=rows[options[j]];if((kind==0&&c.country==club().country)||(kind==1&&c.league==club().league)||(kind==2&&c.id==club().id)){current=j;break;}}
   int next=(int(current)+delta+int(options.size()))%int(options.size());selected=options[next];++revision;recenter();
  }

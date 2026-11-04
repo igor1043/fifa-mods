@@ -25,20 +25,32 @@ def script_for(name):
   def ready(a):
    a.when(T('bound'),lambda a:a.ret())
    def bind(a):
-    a.set(R(1),'bound',True);a.set(T('scene0'),'_visible',True);a.set(R(1),'onEnterFrame',None)
-    a.do(M('InputManager'),'SetLocalEventHandler',CALL(PATH('cafe','utility','Delegate'),'Create',R(1),T('LocalEventHandler')))
+    a.set(R(1),'bound',True);a.set(T('scene0'),'_visible',True);a.set(R(1),'helpDelay',90);a.set(R(1),'onEnterFrame',T('Tick'))
+    a.do(M('InputManager'),'SetLocalEventHandler',CALL(PATH('cafe','utility','Delegate'),'Create',R(1),T('LocalEventHandler')));a.do(PATH('Key'),'addListener',R(1))
     a.do(M('ScreenManager'),'BeginAnimateIn',CALL(PATH('cafe','utility','Delegate'),'Create',R(1),T('OnAnimateInComplete')));a.do(R(1),'OnAnimateInComplete')
    a.when(P(T('scene0'),'action0'),bind)
   a.function('Ready',0,ready)
+  def refresh(a):
+   a.do(M('HelpManager'),'SetCustomSource',CALL(PATH('cafe','utility','Delegate'),'Create',R(1),T('getHelpContext')));a.do(M('HelpManager'),'Update');a.do(M('HelpManager'),'Show');footer.apply(a)
+  a.function('RefreshHelp',0,refresh)
+  def tick(a):
+   a.when(T('helpDelay'),lambda a:(a.set(R(1),'helpDelay',('bin',11,T('helpDelay'),1)),a.when(('bin',17,b.equal(T('helpDelay'),60),b.equal(T('helpDelay'),0)),lambda a:a.do(R(1),'RefreshHelp'))))
+  a.function('Tick',0,tick)
   def complete(a):
    a.when(T('screenReady'),lambda a:a.ret());a.set(R(1),'screenReady',True);a.do(ION,'SendEvent',P(T('staticData'),'SCREEN_CONTROLLER_ID'),'SCREEN_READY','');a.do(ION,'SendSystemEvent',P(T('staticData'),'SCREEN_CONTROLLER_ID'),'DONE_LOADING','');a.do(M('HelpManager'),'SetCustomSource',CALL(PATH('cafe','utility','Delegate'),'Create',R(1),T('getHelpContext')));a.do(M('HelpManager'),'Update');a.do(M('HelpManager'),'Show');footer.apply(a)
   a.function('OnAnimateInComplete',0,complete)
+  def back(a):
+   a.when(T('exiting'),lambda a:a.ret(True));a.do(ION,'SendEvent',P(T('staticData'),'SCREEN_CONTROLLER_ID'),'Back','');a.ret(True)
+  a.function('Back',0,back)
+  def key(a):
+   a.when(b.equal(CALL(PATH('Key'),'getCode'),27),lambda a:a.do(R(1),'Back'))
+  a.function('onKeyDown',0,key)
   def event(a):
-   a.when(b.equal(R(2),P(M('InputCodes'),'BACK')),lambda a:a.do(ION,'SendEvent',P(T('staticData'),'SCREEN_CONTROLLER_ID'),P(T('navEvents'),'BACK'),''));a.ret(True)
+   a.when(b.equal(R(2),P(M('InputCodes'),'BACK')),lambda a:(a.do(R(1),'Back'),a.ret(True)));a.ret(True)
   a.function('LocalEventHandler',2,event)
   a.function('getHelpContext',0,lambda a:a.ret(('array',tuple(CALL(PATH('ion','manager','HelpItem'),'CreateHelpTickerItem',key,label) for key,label in [('ADVANCE','Selecionar'),('BACK','Voltar'),('LAS_UD','Navegar'),('LAS_LR','Alterar'),('RAS_UD','Rolar clubes')]))))
   def shutdown(a):
-   a.when(T('exiting'),lambda a:a.ret());a.set(R(1),'exiting',True);footer.restore(a);a.do(M('InputManager'),'DisableCurrentLocalEventHandler');a.do(M('HelpManager'),'Clear');a.do(R(1),'Shutdown')
+   a.when(T('exiting'),lambda a:a.ret());a.set(R(1),'exiting',True);a.do(PATH('Key'),'removeListener',R(1));footer.restore(a);a.do(M('InputManager'),'DisableCurrentLocalEventHandler');a.do(M('HelpManager'),'Clear');a.do(R(1),'Shutdown')
   a.function('OnExitScreen',0,shutdown);a.op(0);a.finish();a.align();registration=len(data);data.extend(dictionaries[1]);a.string(FULL);a.op(28);a.string(FULL);a.expr(2);a.expr(PATH('Object'));a.method('registerClass');a.op(23);a.op(0);a.finish();return start,registration
  return script
 

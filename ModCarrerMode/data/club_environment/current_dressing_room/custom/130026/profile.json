@@ -1,0 +1,56 @@
+{
+  "schema": 1,
+  "name": "Remo",
+  "collection": "serie-a-original",
+  "concept": "Rios e leão",
+  "assets": {
+    "cabinet": "locker-frame.png",
+    "backing": "locker-backing.png",
+    "feature_wall": "feature-wall.png",
+    "fascia": "locker-backing.png",
+    "corner": "corner-panel.png",
+    "fascia_back_left": "fascia-back-left.png",
+    "fascia_back_right": "fascia-back-right.png",
+    "fascia_left": "fascia-left.png",
+    "fascia_right": "fascia-right.png",
+    "wall_mural": "wall-mural.png"
+  },
+  "defaults": {
+    "style": "custom",
+    "finish": "dark",
+    "backs": "custom",
+    "trim": "primary",
+    "floor": "rubber",
+    "logo": "floor"
+  },
+  "theme": {
+    "banner": {
+      "base": "#07152C",
+      "accent": "#D8E3EC",
+      "panels": [
+        {
+          "mode": "image",
+          "asset_key": "fascia_back_left"
+        },
+        {
+          "mode": "image",
+          "asset_key": "fascia_back_right"
+        },
+        {
+          "mode": "image",
+          "asset_key": "fascia_left"
+        },
+        {
+          "mode": "image",
+          "asset_key": "fascia_right"
+        }
+      ]
+    }
+  },
+  "artwork": {
+    "tool": "image_gen built-in",
+    "original_copy": true
+  },
+  "surface_layout_revision": 4,
+  "surface_image_revision": 7
+}

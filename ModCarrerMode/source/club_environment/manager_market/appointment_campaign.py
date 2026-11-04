@@ -4,20 +4,27 @@ from collections import defaultdict
 
 KEYS=('hw','hd','hl','aw','ad','al')
 INITIAL=('Vínculo inicial desde o início da carreira','Estimado a partir da ativação do mod')
+STATE_TABLES=('appointments','performance_evidence','appointment_campaigns','annual_campaigns')
 
-def retain_closed(market,context=None,appointment=None):
+def state_key(market):return market.branch,tuple(market.db.versions.get(table,0) for table in STATE_TABLES)
+
+def retain_state(market):
+ state=market.db.campaign_state
+ if state is not None:state['key']=state_key(market)
+
+def retain_closed(market,context=None,appointment=None,*,appointments=None,evidence=None,campaigns=None):
  """Recover only evidence already observed on/before a closed initial spell.
 
  A late current total cannot be backdated. Equality with the handover vector
  is required before enriching the preserved counts with current goal totals.
  """
- appointments=[appointment] if appointment is not None else market.rows('appointments','end_date IS NOT NULL')
- appointments=[a for a in appointments if a['origin'] in INITIAL]
- if not appointments:return
+ appointments=[appointment] if appointment is not None else appointments if appointments is not None else market.rows('appointments','end_date IS NOT NULL')
+ appointments=[a for a in appointments if a['end_date'] is not None and a['origin'] in INITIAL];added=[]
+ if not appointments:return added
  club=appointment['club_id'] if appointment is not None else None
  previous=defaultdict(list)
- for r in market.rows('performance_evidence','club_id=?' if club is not None else '',(club,) if club is not None else ()):previous[r['club_id']].append(r)
- campaigns=market.rows('appointment_campaigns','appointment=?' if appointment is not None else '',(appointment['id'],) if appointment is not None else ());stored={(r['appointment'],r['season'],r['competition_key']) for r in campaigns}
+ for r in evidence if evidence is not None else market.rows('performance_evidence','club_id=?' if club is not None else '',(club,) if club is not None else ()):previous[r['club_id']].append(r)
+ campaigns=campaigns if campaigns is not None else market.rows('appointment_campaigns','appointment=?' if appointment is not None else '',(appointment['id'],) if appointment is not None else ());stored={(r['appointment'],r['season'],r['competition_key']) for r in campaigns}
  assets={(r['season'],r['competition_key']):r['asset'] for r in reversed(campaigns)}
  current={(r['season'],r['key'],r['club']):r for r in (context or {}).get('performance',[])}
  for a in appointments:
@@ -37,22 +44,30 @@ def retain_closed(market,context=None,appointment=None):
     if asset is None:continue
    values=[r[k] for k in KEYS]
    if candidate and values==[candidate[k] for k in KEYS] and all(k in candidate for k in ('hgf','hga','agf','aga')):values.extend(candidate[k] for k in ('hgf','hga','agf','aga'))
-   market.db.execute('INSERT OR IGNORE INTO appointment_campaigns VALUES(?,?,?,?,?,?,?,?,?,?)',(market.branch,a['id'],r['season'],r['competition_key'],root,asset,r['game_date'],json.dumps([0]*len(values)),json.dumps(values),'handover_evidence'))
+   preserved=dict(appointment=a['id'],season=r['season'],competition_key=r['competition_key'],root=root,asset=asset,game_date=r['game_date'],baseline=json.dumps([0]*len(values)),counters=json.dumps(values),source='handover_evidence')
+   market.db.execute('INSERT OR IGNORE INTO appointment_campaigns VALUES(?,?,?,?,?,?,?,?,?,?)',(market.branch,*preserved.values()));added.append(preserved)
    stored.add(key)
    assets.setdefault((r['season'],r['competition_key']),asset)
+ return added
 
 def capture(market,context):
- retain_closed(market,context)
- active={a['club_id']:a for a in market.rows('appointments','end_date IS NULL')}
- previous={(r['season'],r['competition_key'],r['club_id']):r for r in market.rows('performance_evidence')}
- stored={(r['appointment'],r['season'],r['competition_key']):r for r in market.rows('appointment_campaigns')}
- by_history=defaultdict(list);by_asset=defaultdict(list)
- for r in stored.values():
-  by_history[(r['appointment'],r['competition_key'])].append(r)
-  by_asset[(r['appointment'],r['season'],r['asset'])].append(r)
- from annual_campaigns import seed as seed_years
- seed_years(market,stored.values())
- annual={(r['appointment'],r['year'],r['competition_key']):r for r in market.rows('annual_campaigns')}
+ state=market.db.campaign_state if market.db.read_depth else None
+ if state is None or state['key']!=state_key(market):
+  appointments=market.rows('appointments');active={a['club_id']:a for a in appointments if a['end_date'] is None}
+  previous={(r['season'],r['competition_key'],r['club_id']):r for r in market.rows('performance_evidence')}
+  stored={(r['appointment'],r['season'],r['competition_key']):r for r in market.rows('appointment_campaigns')}
+  recovered=retain_closed(market,context,appointments=appointments,evidence=previous.values(),campaigns=list(stored.values()))
+  for row in recovered:stored[(row['appointment'],row['season'],row['competition_key'])]=row
+  by_history=defaultdict(list);by_asset=defaultdict(list)
+  for r in stored.values():
+   by_history[(r['appointment'],r['competition_key'])].append(r)
+   by_asset[(r['appointment'],r['season'],r['asset'])].append(r)
+  from annual_campaigns import seed as seed_years
+  annual={(r['appointment'],r['year'],r['competition_key']):r for r in market.rows('annual_campaigns')}
+  seed_years(market,stored.values(),appointments=appointments,known=annual)
+  state=dict(key=state_key(market),active=active,previous=previous,stored=stored,by_history=by_history,by_asset=by_asset,annual=annual)
+  if market.db.read_depth:market.db.campaign_state=state
+ active=state['active'];previous=state['previous'];stored=state['stored'];by_history=state['by_history'];by_asset=state['by_asset'];annual=state['annual']
  for r in context.get('performance',[]):
   a=active.get(r['club'])
   if not a or r['date']>context['date']:continue
@@ -62,21 +77,25 @@ def capture(market,context):
   if context.get('coverage',{}).get('league_only') and not r['root'] and any(v['root'] for v in by_asset[(a['id'],r['season'],r['asset'])]):continue
   key=(a['id'],r['season'],r['key']);old=stored.get(key)
   prior=old or max((v for v in by_history[(a['id'],r['key'])] if v['game_date']<=r['date']),key=lambda v:v['game_date'],default=None)
-  for other in by_asset[(a['id'],r['season'],r['asset'])]:
+  for other in list(by_asset[(a['id'],r['season'],r['asset'])]):
    if bool(other['root'])!=bool(r['root']) and '#cycle:' not in other['competition_key']:
     market.db.execute('DELETE FROM appointment_campaigns WHERE branch=? AND appointment=? AND season=? AND competition_key=?',(market.branch,a['id'],r['season'],other['competition_key']))
+    stored.pop((a['id'],r['season'],other['competition_key']),None);by_asset[(a['id'],r['season'],r['asset'])].remove(other)
   if old and old['game_date']>r['date']:continue
   values=[r[k] for k in KEYS]
   if all(k in r for k in ('hgf','hga','agf','aga')):values.extend(r[k] for k in ('hgf','hga','agf','aga'))
   year_row=annual.get((a['id'],r['date']//10000,r['key']));encoded=json.dumps(values)
-  if old and year_row and all(row['game_date']==r['date'] and row['root']==r['root'] and row['asset']==r['asset'] and row['source']==r['source'] and row['counters']==encoded for row in (old,year_row)):
+  # A calendar tick without football changes does not rewrite thousands of
+  # identical histories. A new calendar year still creates its own baseline.
+  if old and year_row and all(row['root']==r['root'] and row['asset']==r['asset'] and row['source']==r['source'] and row['counters']==encoded for row in (old,year_row)):
    continue
   if old:
    base=json.loads(old['baseline']);last=json.loads(old['counters'])
-   if len(values)>len(base):base.extend(values[len(base):])
+   if len(values)>len(base):base.extend([0]*(len(values)-len(base)) if a['origin'] in INITIAL else values[len(base):])
    if r['date']>old['game_date'] and sum(values[:6])<sum(last[:6]):
     archived={k:v for k,v in old.items() if k!='branch'};archived['competition_key']=r['key']+'#cycle:'+str(r['date'])
     market.add('appointment_campaigns',archived);base=[0]*len(values)
+    stored[(a['id'],r['season'],archived['competition_key'])]=archived
   elif prior and prior['season']!=r['season']:
    last=json.loads(prior['counters']);base=last[:] if sum(values[:6])>=sum(last[:6]) else [0]*len(values)
    if len(values)>len(base):base.extend(values[len(base):])
@@ -88,9 +107,15 @@ def capture(market,context):
    base=[evidence[k] for k in KEYS] if evidence and evidence['game_date']==a['start_date'] else values[:]
    if len(values)>len(base):base.extend(values[len(base):])
   from annual_campaigns import observe as observe_year
-  observe_year(market,a,r,prior,base)
-  market.db.execute('INSERT OR REPLACE INTO appointment_campaigns VALUES(?,?,?,?,?,?,?,?,?,?)',
-   (market.branch,a['id'],r['season'],r['key'],r['root'],r['asset'],r['date'],json.dumps(base),json.dumps(values),r['source']))
+  observe_year(market,a,r,prior,base,known=annual)
+  updated=dict(appointment=a['id'],season=r['season'],competition_key=r['key'],root=r['root'],asset=r['asset'],game_date=r['date'],baseline=json.dumps(base),counters=encoded,source=r['source'])
+  market.db.execute('INSERT OR REPLACE INTO appointment_campaigns VALUES(?,?,?,?,?,?,?,?,?,?)',(market.branch,*updated.values()))
+  stored[key]=updated
+  for index,identity in ((by_history,(a['id'],r['key'])),(by_asset,(a['id'],r['season'],r['asset']))):
+   if old in index[identity]:index[identity].remove(old)
+   index[identity].append(updated)
+ retain_state(market)
+ return previous,active
 
 def overlay(spells,appointments,results,campaigns):
  """Merge by competition and outcome; aggregate and detailed games overlap."""

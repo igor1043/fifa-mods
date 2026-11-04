@@ -1,0 +1,227 @@
+{
+  "revision": 76,
+  "bindings": [
+    {
+      "material": "charcoal",
+      "submesh": "room_part_1"
+    },
+    {
+      "material": "metal",
+      "submesh": "room_part_2"
+    },
+    {
+      "material": "primary",
+      "submesh": "room_part_3"
+    },
+    {
+      "material": "signs",
+      "submesh": "room_part_4"
+    },
+    {
+      "material": "graphic",
+      "submesh": "room_part_5"
+    },
+    {
+      "material": "mural",
+      "submesh": "room_part_6"
+    },
+    {
+      "material": "crest",
+      "submesh": "room_part_7"
+    },
+    {
+      "material": "seam",
+      "submesh": "room_part_8"
+    },
+    {
+      "material": "glass",
+      "submesh": "room_part_9"
+    },
+    {
+      "material": "light",
+      "submesh": "room_part_10"
+    },
+    {
+      "material": "bottle",
+      "submesh": "room_part_11"
+    },
+    {
+      "material": "towel",
+      "submesh": "room_part_12"
+    },
+    {
+      "material": "cabinet_front",
+      "submesh": "room_part_13"
+    },
+    {
+      "material": "counter",
+      "submesh": "room_part_14"
+    },
+    {
+      "material": "fridge_inner",
+      "submesh": "room_part_15"
+    },
+    {
+      "material": "cap_white",
+      "submesh": "room_part_16"
+    },
+    {
+      "material": "labels",
+      "submesh": "room_part_17"
+    },
+    {
+      "material": "drink_amber",
+      "submesh": "room_part_18"
+    },
+    {
+      "material": "drink_red",
+      "submesh": "room_part_19"
+    },
+    {
+      "material": "towel_edge",
+      "submesh": "room_part_20"
+    },
+    {
+      "material": "orange_plastic",
+      "submesh": "room_part_21"
+    },
+    {
+      "material": "cooler_label",
+      "submesh": "room_part_22"
+    },
+    {
+      "material": "bottle_green",
+      "submesh": "room_part_23"
+    },
+    {
+      "material": "bin",
+      "submesh": "room_part_24"
+    },
+    {
+      "material": "backsplash",
+      "submesh": "room_part_25"
+    },
+    {
+      "material": "secondary_wall_primary",
+      "submesh": "room_part_26"
+    },
+    {
+      "material": "secondary_wall_secondary",
+      "submesh": "room_part_27"
+    }
+  ],
+  "cooler_bindings": [
+    {
+      "material": "cooler_body",
+      "submesh": "room_part_1"
+    },
+    {
+      "material": "cooler_glass",
+      "submesh": "room_part_2"
+    }
+  ],
+  "obstacles": [
+    {
+      "name": "Hidratação / bancada r72",
+      "lo": [
+        320,
+        0,
+        1476.0
+      ],
+      "hi": [
+        624,
+        90,
+        1542.0
+      ]
+    },
+    {
+      "name": "Hidratação / refrigerador r72",
+      "lo": [
+        636,
+        0,
+        1483.0
+      ],
+      "hi": [
+        714,
+        242,
+        1541.0
+      ]
+    },
+    {
+      "name": "Hidratação / bebedouro r72",
+      "lo": [
+        254,
+        0,
+        1483.0
+      ],
+      "hi": [
+        313,
+        140,
+        1540.0
+      ]
+    },
+    {
+      "name": "Hidratação / lixeira r72",
+      "lo": [
+        712,
+        0,
+        1506.0
+      ],
+      "hi": [
+        740,
+        59,
+        1534.0
+      ]
+    },
+    {
+      "name": "Parede secundária / banco",
+      "lo": [
+        694,
+        0,
+        870
+      ],
+      "hi": [
+        747,
+        47,
+        1372
+      ]
+    },
+    {
+      "name": "Parede secundária / armário",
+      "lo": [
+        697,
+        0,
+        790
+      ],
+      "hi": [
+        746,
+        213,
+        850
+      ]
+    },
+    {
+      "name": "Parede secundária / prateleiras",
+      "lo": [
+        701,
+        0,
+        1385
+      ],
+      "hi": [
+        746,
+        213,
+        1445
+      ]
+    }
+  ],
+  "extension_cm": 600,
+  "finish": "neutral matte paint, ceramic backsplash, narrow charcoal mural frame",
+  "cooler_model": "water_cooler_r75.rx3",
+  "secondary_wall": {
+    "x": 748.4,
+    "start": 755.0,
+    "end": 1475.0,
+    "bottom": 1000.0,
+    "top": 1316.0
+  },
+  "secondary_area_ratio": 0.3009845288326301
+}

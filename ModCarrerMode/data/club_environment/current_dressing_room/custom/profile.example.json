@@ -1,0 +1,36 @@
+{
+  "schema": 1,
+  "name": "Nome do clube",
+  "assets": {
+    "cabinet": "locker-frame.png",
+    "backing": "locker-backing.png",
+    "corner": "corner-panel.png",
+    "feature_wall": "feature-wall.png",
+    "wall_mural": "wall-mural.png",
+    "hydration_wall": "hydration-wall.png",
+    "fascia_back_left": "fascia-back-left.png",
+    "fascia_back_right": "fascia-back-right.png",
+    "fascia_left": "fascia-left.png",
+    "fascia_right": "fascia-right.png"
+  },
+  "defaults": {
+    "finish": "dark",
+    "backs": "custom",
+    "floor": "rubber",
+    "logo": "floor",
+    "style": "custom",
+    "trim": "primary"
+  },
+  "theme": {
+    "banner": {
+      "base": "#171719",
+      "accent": "#FFFFFF",
+      "panels": [
+        {"mode": "image", "asset_key": "fascia_back_left"},
+        {"mode": "image", "asset_key": "fascia_back_right"},
+        {"mode": "image", "asset_key": "fascia_left"},
+        {"mode": "image", "asset_key": "fascia_right"}
+      ]
+    }
+  }
+}

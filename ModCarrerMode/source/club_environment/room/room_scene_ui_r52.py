@@ -34,7 +34,7 @@ def graphics(apt,data,append,addchar,place,bitmap,scope,read_asset):
     children.extend(place(cid,10+i,8,3,label='head'+str(pid)) for i,(pid,cid) in enumerate(portraits.items()))
     children.append(place(text('',398,56,20),100,12,15,label='label'))
     row=clip(children)
-    controls=[place(panel,1,0,0,8.125,9.3),place(text('CENAS',472,38,28),2,24,18),place(text('Escolha um grupo',472,30,18),3,24,62,label='groupTitle')]
+    controls=[place(panel,1,0,0,8.125,9.3),place(text('CENAS',472,38,28),2,24,18,label='modalTitle'),place(text('Escolha um grupo',472,30,18),3,24,62,label='groupTitle')]
     for i in range(5):controls.append(place(row,10+i,24,106+68*i,label='row'+str(i)))
     controls.append(place(text('',472,28,17),30,24,462,label='counter'))
     page_button=clip([place(neutral,1,0,0,3.3,.5),place(text('',196,30,18),2,10,1,label='label')])
@@ -43,19 +43,42 @@ def graphics(apt,data,append,addchar,place,bitmap,scope,read_asset):
     def action_button(label,width):
         focus=clip([place(selected,1,0,0,width/64,.75)])
         return clip([place(neutral,1,0,0,width/64,.75),place(focus,2,0,0,label='highlight'),place(text(label,width-30,42,25),3,16,4,label='label')])
-    return [place(modal,100,1260,212,label='sceneModal',color=0x00ffffff),place(action_button('Cenas',180),101,1030,930,label='sceneButton'),place(action_button('Jogadores do time',300),102,1230,930,label='playersButton'),place(action_button('Câmera livre',280),103,1550,930,label='freeButton'),place(text('WASD: andar · Mouse com botão direito: olhar · Shift: acelerar',1650,32,22,0xffffffff),104,109,920,label='freeHint')]
+    result=[place(modal,100,1260,212,label='sceneModal',color=0x00ffffff),place(action_button('Cenas',180),101,1030,930,label='sceneButton'),place(action_button('Jogadores do time',300),102,1230,930,label='playersButton'),place(action_button('Câmera livre',280),103,1550,930,label='freeButton'),place(text('WASD: andar · Mouse direito: olhar · Shift: acelerar · Q / R3: personalização',1700,32,22,0xffffffff),104,109,870,label='freeHint')]
+    if scope.get('room_version')==3:
+        result.append(place(action_button('Personalização do vestiário',355),105,650,930,label='settingsButton'))
+        arrow=clip([place(neutral,1,0,0,.75,.6),place(text('',44,38,28),2,12,0,label='label')])
+        focus=clip([place(selected,1,0,0,10.25,1.12)])
+        setting=clip([place(neutral,1,0,0,10.25,1.12),place(focus,2,0,0,label='highlight'),place(text('',510,25,17),3,72,5,label='title'),place(text('',510,38,26),4,72,30,label='value'),place(arrow,5,10,26,label='previous'),place(arrow,6,595,26,label='next')])
+        parts=[place(panel,1,0,0,11,10.15),place(text('PERSONALIZAÇÃO DO VESTIÁRIO',656,40,27),2,24,17)]
+        for i in range(len(scope.get('settings',[]))):parts.append(place(setting,10+i,24,76+i*78,label='setting'+str(i)))
+        parts.extend([place(action_button('Voltar',308),20,24,578,label='close'),place(action_button('Aplicar',308),21,372,578,label='apply'),place(text('As alterações serão usadas ao aplicar.',656,25,18),22,24,548)])
+        result.append(place(clip(parts),106,1080,180,label='roomSettings',color=0x00ffffff))
+    return result
 
 def methods(a,scope):
+    v3=scope.get('room_version')==3
+    action_names=('sceneButton','playersButton','freeButton')+(('settingsButton',) if v3 else ())
+    action_count=len(action_names)
     categories=[('Vestiário',[]),('Jogadores',[]),('Quadros',[]),('Departamento médico',[])]
     for scene in scope['scenes']:
         label=scene['label'];group=3 if label.startswith('Departamento médico') else 1 if ('Camisa ' in label or 'camisa ' in label) else 2 if 'Quadro' in label else 0
         categories[group][1].append({'label':label,'code':scene['id'],'player':scene.get('player',0)})
     categories=[(name,items) for name,items in categories if items]
+    settings=scope.get('settings',[]) if v3 else []
     root=[{'label':'Automático · ordem aleatória','code':-1}]+[{'label':name,'code':-101-i} for i,(name,_) in enumerate(categories)]
     objects=lambda items:('array',tuple(('map',v) for v in items))
     groups=('array',tuple(objects(items) for _,items in categories));root_items=objects(root)
     def init(a):
         for key,value in (('modalOpen',False),('sceneFocus',0),('sceneGroup',-1),('sceneItems',root_items),('roomActionFocus',0),('openingPlayers',False),('roomPlayersOpen',False),('roomPlayersDetail',False),('freeCameraOpen',False)):a.set(R(1),key,value)
+        a.set(R(1),'settingsOpen',False);a.set(R(1),'settingsFocus',0)
+        if v3:
+            mapping='S16ROOM_INPUT_MAP|'
+            for name in ('R3','L1','L2'):
+                mapping=b.plus(b.plus(mapping,P(M('InputCodes'),name)),'|')
+            a.set(b.GLOBAL,'Server16RoomInputMapping',b.plus(mapping,'END_INPUT_MAP'))
+            a.set(T('roomSettings'),'_visible',False);a.set(T('roomSettings'),'_alpha',0)
+            for i,row in enumerate(settings):
+                a.set(R(1),'settingIndex'+str(i),row['selected']);a.set(R(1),'appliedSettingIndex'+str(i),row['selected']);a.set(R(1),'customSettingIndex'+str(i),row.get('custom_selected',row['selected']));a.set(R(1),'appliedCustomSettingIndex'+str(i),row.get('custom_selected',row['selected']))
         a.set(T('freeHint'),'_visible',False);a.set(T('sceneModal'),'_visible',False);a.set(T('sceneModal'),'_alpha',0);a.set(T('sceneButton'),'owner',R(1));a.set(T('sceneButton'),'onRelease',T('SceneButtonClick'));a.set(R(1),'onEnterFrame',T('WaitForSceneClips'))
         a.when(b.G('Server16RoomSequence'),lambda a:None,lambda a:a.set(b.GLOBAL,'Server16RoomSequence',0));a.do(R(1),'PublishScene',-1)
         a.do(R(1),'PublishRoster','room_close');a.do(PATH('Key'),'addListener',R(1))
@@ -66,8 +89,12 @@ def methods(a,scope):
     a.function('PlayersButtonOver',0,lambda a:(a.set(P(R(1),'owner'),'roomActionFocus',1),a.do(P(R(1),'owner'),'RefreshRoomActions')))
     a.function('FreeButtonClick',0,lambda a:a.do(P(R(1),'owner'),'OpenFreeCamera'))
     a.function('FreeButtonOver',0,lambda a:(a.set(P(R(1),'owner'),'roomActionFocus',2),a.do(P(R(1),'owner'),'RefreshRoomActions')))
+    a.function('SettingsButtonClick',0,lambda a:a.do(P(R(1),'owner'),'OpenRoomSettings'))
+    a.function('SettingsButtonOver',0,lambda a:(a.set(P(R(1),'owner'),'roomActionFocus',3),a.do(P(R(1),'owner'),'RefreshRoomActions')))
     def refresh_actions(a):
-        for index,name,click,hover in ((0,'sceneButton','SceneButtonClick','SceneButtonOver'),(1,'playersButton','PlayersButtonClick','PlayersButtonOver'),(2,'freeButton','FreeButtonClick','FreeButtonOver')):
+        buttons=[(0,'sceneButton','SceneButtonClick','SceneButtonOver'),(1,'playersButton','PlayersButtonClick','PlayersButtonOver'),(2,'freeButton','FreeButtonClick','FreeButtonOver')]
+        if v3:buttons.append((3,'settingsButton','SettingsButtonClick','SettingsButtonOver'))
+        for index,name,click,hover in buttons:
             button=T(name);a.set(button,'owner',R(1));a.set(button,'onRelease',T(click));a.set(button,'onRollOver',T(hover))
             a.set(P(button,'highlight'),'_alpha',0);a.set(P(button,'label'),'textColor',0x334b56)
             a.when(EQ(T('roomActionFocus'),index),lambda a,button=button:(a.set(P(button,'highlight'),'_alpha',100),a.set(P(button,'label'),'textColor',rgb(ACCENT_TEXT))))
@@ -81,12 +108,14 @@ def methods(a,scope):
     a.function('RefreshRosterHelp',0,roster_help)
     def free_open(a):
         a.when(T('freeCameraOpen'),lambda a:a.ret());a.set(R(1),'freeCameraOpen',True);a.set(R(1),'modalOpen',False)
-        for name in ('roomHeader','sceneButton','playersButton','freeButton','sceneModal'):a.set(T(name),'_visible',False)
-        a.set(T('freeHint'),'_visible',True);a.do(R(1),'PublishScene',-4);a.do(R(1),'RefreshRosterHelp')
+        for name in ('roomHeader','sceneModal')+action_names:a.set(T(name),'_visible',False)
+        a.set(T('freeHint'),'_visible',True)
+        if v3:a.set(T('settingsButton'),'_visible',True)
+        a.do(R(1),'PublishScene',-4);a.do(R(1),'RefreshRosterHelp')
     a.function('OpenFreeCamera',0,free_open)
     def free_close(a):
         a.set(R(1),'freeCameraOpen',False);a.set(T('freeHint'),'_visible',False);a.do(R(1),'PublishScene',-5)
-        for name in ('roomHeader','sceneButton','playersButton','freeButton'):a.set(T(name),'_visible',True)
+        for name in ('roomHeader',)+action_names:a.set(T(name),'_visible',True)
         a.do(R(1),'RefreshRoomActions');a.do(R(1),'RefreshRosterHelp')
     a.function('CloseFreeCamera',0,free_close)
 
@@ -98,13 +127,13 @@ def methods(a,scope):
     a.function('RoomPlayersTick',0,roster_tick)
     def open_players(a):
         a.when(T('roomPlayersOpen'),lambda a:a.ret());a.set(R(1),'roomPlayersOpen',True);a.set(R(1),'roomPlayersDetail',False);a.set(R(1),'modalOpen',False);a.do(R(1),'PublishScene',-3)
-        for name in ('roomHeader','sceneButton','playersButton','freeButton','sceneModal'):a.set(T(name),'_visible',False)
+        for name in ('roomHeader','sceneModal')+action_names:a.set(T(name),'_visible',False)
         a.do(R(1),'PublishRoster','room_roster');a.set(R(1),'rosterHelpDelay',90);a.set(R(1),'onEnterFrame',T('RoomPlayersTick'));a.do(R(1),'RefreshRosterHelp')
     a.function('OpenPlayers',0,open_players)
     def roster_back(a):
         a.when(T('roomPlayersDetail'),lambda a:(a.set(R(1),'roomPlayersDetail',False),a.do(R(1),'PublishRoster','back'),a.do(R(1),'RefreshRosterHelp'),a.ret()))
         a.do(R(1),'PublishRoster','room_close');a.set(R(1),'roomPlayersOpen',False);a.set(R(1),'onEnterFrame',None)
-        for name in ('roomHeader','sceneButton','playersButton','freeButton'):a.set(T(name),'_visible',True)
+        for name in ('roomHeader',)+action_names:a.set(T(name),'_visible',True)
         a.do(R(1),'RefreshRoomActions');a.do(R(1),'RefreshRosterHelp')
     a.function('RoomPlayersBack',0,roster_back)
     def wait(a):
@@ -112,14 +141,32 @@ def methods(a,scope):
     a.function('WaitForSceneClips',0,wait)
     def publish(a):
         a.set(b.GLOBAL,'Server16RoomSequence',b.plus(b.G('Server16RoomSequence'),1));value=f'S16ROOM2|{scope["club"]}|{scope["nonce"]}|'
-        for part in (b.G('Server16RoomSequence'),'|',R(2),'|ENDROOM'):value=b.plus(value,part)
+        # FIFA's APT arithmetic rounds to float32. Keep the counter and the
+        # six low digits as strings: counter * 1,000,000 loses option bits
+        # after only 16 commands (notably the Default/Custom bit).
+        sequence=b.plus(b.plus('',b.G('Server16RoomSequence')),'000000') if v3 else b.G('Server16RoomSequence')
+        for part in (sequence,'|',R(2),'|ENDROOM'):value=b.plus(value,part)
         a.set(b.GLOBAL,'Server16RoomRequest',value)
         a.do(b.ION,'SendSystemEvent',P(T('staticData'),'SCREEN_CONTROLLER_ID'),'Server16RoomScene',value)
     a.function('PublishScene',1,publish)
+    def publish_appearance(a):
+        a.set(b.GLOBAL,'Server16RoomSequence',b.plus(b.G('Server16RoomSequence'),1))
+        packed=0
+        for i in range(len(settings)):packed=b.plus(packed,('bin',12,T('settingIndex'+str(i)),8**i))
+        a.set(R(1),'appearancePacked',packed);a.set(R(1),'appearanceDigits','')
+        for divisor in (100000,10000,1000,100,10,1):
+            digit=('bin',63,CALL(PATH('Math'),'floor',('bin',13,T('appearancePacked'),divisor)),10)
+            a.set(R(1),'appearanceDigits',b.plus(T('appearanceDigits'),digit))
+        sequence=b.plus(b.plus('',b.G('Server16RoomSequence')),T('appearanceDigits'))
+        value=b.plus(b.plus(f'S16ROOM2|{scope["club"]}|{scope["nonce"]}|',sequence),'|120|ENDROOM')
+        a.do(b.ION,'SendSystemEvent',P(T('staticData'),'SCREEN_CONTROLLER_ID'),'Server16RoomScene',value)
+    a.function('PublishAppearance',0,publish_appearance)
     def refresh(a):
         a.set(T('sceneModal'),'_visible',T('modalOpen'));a.set(T('sceneModal'),'_alpha',0);a.when(T('modalOpen'),lambda a:a.set(T('sceneModal'),'_alpha',100))
         a.set(R(1),'scenePage',CALL(PATH('Math'),'floor',('bin',13,T('sceneFocus'),5)))
         title=P(T('sceneModal'),'groupTitle');a.set(title,'text','Escolha um grupo')
+        a.set(P(T('sceneModal'),'modalTitle'),'text','CENAS')
+
         a.when(('bin',103,T('sceneGroup'),-1),lambda a:a.set(title,'text',('index',('array',tuple(name for name,_ in categories)),T('sceneGroup'))))
         a.set(P(T('sceneModal'),'counter'),'text',b.plus(b.plus(b.plus(b.plus('Item ',b.plus(T('sceneFocus'),1)),' de '),P(T('sceneItems'),'length')),b.plus(' · Página ',b.plus(T('scenePage'),1))))
         for i in range(5):
@@ -139,6 +186,66 @@ def methods(a,scope):
     a.function('RefreshSceneModal',0,refresh)
     # Keep the cinematic moving while browsing; clear an older view's pause.
     a.function('OpenScenes',0,lambda a:(a.set(R(1),'modalOpen',True),a.do(R(1),'PublishScene',-3),a.do(R(1),'RefreshSceneModal')))
+    def refresh_settings(a):
+        a.set(T('roomSettings'),'_visible',T('settingsOpen'));a.set(T('roomSettings'),'_alpha',100)
+        for i,row in enumerate(settings):
+            clip=P(T('roomSettings'),'setting'+str(i));options=('array',tuple(('map',v) for v in row['options']))
+            a.set(P(clip,'title'),'text',row['title']);a.set(P(clip,'value'),'text',P(('index',options,T('settingIndex'+str(i))),'label'))
+            a.set(P(clip,'highlight'),'_alpha',0)
+            a.when(EQ(T('settingsFocus'),i),lambda a,clip=clip:a.set(P(clip,'highlight'),'_alpha',55))
+            for name,delta,label in (('previous',-1,'‹'),('next',1,'›')):
+                button=P(clip,name);a.set(button,'owner',R(1));a.set(button,'row',i);a.set(button,'delta',delta)
+                a.set(P(button,'label'),'text',label);a.set(button,'onRelease',T('SettingsArrowClick'))
+        for offset,name,method in ((0,'close','SettingsCloseClick'),(1,'apply','SettingsApplyClick')):
+            button=P(T('roomSettings'),name);a.set(button,'owner',R(1));a.set(button,'onRelease',T(method))
+            a.set(P(button,'highlight'),'_alpha',0);a.set(P(button,'label'),'textColor',0x334b56)
+            a.when(EQ(T('settingsFocus'),len(settings)+offset),lambda a,button=button:(a.set(P(button,'highlight'),'_alpha',100),a.set(P(button,'label'),'textColor',rgb(ACCENT_TEXT))))
+        a.do(M('HelpManager'),'Update')
+    a.function('RefreshRoomSettings',0,refresh_settings)
+    def open_settings(a):
+        if not v3:a.ret();return
+        for i in range(len(settings)):
+            a.set(R(1),'settingIndex'+str(i),T('appliedSettingIndex'+str(i)));a.set(R(1),'customSettingIndex'+str(i),T('appliedCustomSettingIndex'+str(i)))
+        a.set(R(1),'settingsFocus',0)
+        a.set(R(1),'settingsOpen',True);a.set(R(1),'modalOpen',False);a.set(T('sceneModal'),'_visible',False)
+        a.do(R(1),'RefreshRoomSettings');a.do(R(1),'RefreshRosterHelp')
+    a.function('OpenRoomSettings',0,open_settings)
+    a.function('CloseRoomSettings',0,lambda a:(a.set(R(1),'settingsOpen',False),a.set(T('roomSettings'),'_visible',False),a.do(R(1),'RefreshRosterHelp')))
+    a.function('SettingsCloseClick',0,lambda a:a.do(P(R(1),'owner'),'CloseRoomSettings'))
+    def apply_settings(a):
+        a.set(R(1),'appearanceDirty',False)
+        for i in range(len(settings)):
+            a.when(('not',EQ(T('settingIndex'+str(i)),T('appliedSettingIndex'+str(i)))),lambda a:a.set(R(1),'appearanceDirty',True))
+        a.when(T('appearanceDirty'),lambda a:a.do(R(1),'PublishAppearance'))
+        for i in range(len(settings)):
+            a.set(R(1),'appliedSettingIndex'+str(i),T('settingIndex'+str(i)));a.set(R(1),'appliedCustomSettingIndex'+str(i),T('customSettingIndex'+str(i)))
+        a.do(R(1),'CloseRoomSettings')
+    a.function('ApplyRoomSettings',0,apply_settings)
+    a.function('SettingsApplyClick',0,lambda a:a.do(P(R(1),'owner'),'ApplyRoomSettings'))
+    a.function('SettingsArrowClick',0,lambda a:a.do(P(R(1),'owner'),'ShiftRoomSetting',P(R(1),'row'),P(R(1),'delta')))
+    def shift_setting(a):
+        for i,row in enumerate(settings):
+            def apply(a,i=i,row=row):
+                count=len(row['options']);name='settingIndex'+str(i)
+                a.set(R(1),'settingsFocus',i);a.set(R(1),name,('bin',63,b.plus(b.plus(T(name),R(3)),count),count))
+                options=('array',tuple(('map',v) for v in row['options']))
+                if row['key']!='style':
+                    a.when(EQ(P(('index',options,T(name)),'value'),'custom'),lambda a:a.set(R(1),'settingIndex0',1))
+                if row['key']=='style':
+                    def default_labels(a):
+                        for n,other in enumerate(settings):
+                            if other['key'] in ('finish','backs','floor'):a.set(R(1),'customSettingIndex'+str(n),T('settingIndex'+str(n)))
+                            for k,item in enumerate(other['options']):
+                                if other['key'] in ('finish','backs','floor') and item['value']=='custom':
+                                    a.when(EQ(T('settingIndex'+str(n)),k),lambda a,n=n:a.set(R(1),'settingIndex'+str(n),0))
+                    a.when(EQ(P(('index',options,T(name)),'value'),'default'),default_labels)
+                    def custom_labels(a):
+                        for n,other in enumerate(settings):
+                            if other['key'] in ('finish','backs','floor'):a.set(R(1),'settingIndex'+str(n),T('customSettingIndex'+str(n)))
+                    a.when(EQ(P(('index',options,T(name)),'value'),'custom'),custom_labels)
+            a.when(EQ(R(2),i),apply)
+        a.do(R(1),'RefreshRoomSettings')
+    a.function('ShiftRoomSetting',2,shift_setting)
     def close(a):
         def root_level(a):a.set(R(1),'sceneGroup',-1);a.set(R(1),'sceneFocus',0);a.set(R(1),'sceneItems',root_items)
         a.when(('bin',103,T('sceneGroup'),-1),root_level,lambda a:(a.set(R(1),'modalOpen',False),a.do(R(1),'PublishScene',-3)));a.do(R(1),'RefreshSceneModal')
@@ -161,7 +268,8 @@ def methods(a,scope):
     a.function('RowOver',0,row_over)
     a.function('RowClick',0,lambda a:(a.do(R(1),'onRollOver'),a.do(P(R(1),'owner'),'ApplyScene')))
     def help(a):
-        a.when(T('freeCameraOpen'),lambda a:a.ret(('array',tuple(CALL(PATH('ion','manager','HelpItem'),'CreateHelpTickerItem',code,label) for code,label in [('BACK','Voltar'),('LAS_UD','Andar'),('RAS_LR','Olhar')]))))
+        a.when(T('settingsOpen'),lambda a:a.ret(('array',tuple(CALL(PATH('ion','manager','HelpItem'),'CreateHelpTickerItem',code,label) for code,label in [('LAS_UD','Itens'),('LAS_LR','Alterar'),('ADVANCE','Selecionar'),('BACK','Voltar')]))))
+        a.when(T('freeCameraOpen'),lambda a:a.ret(('array',tuple(CALL(PATH('ion','manager','HelpItem'),'CreateHelpTickerItem',code,label) for code,label in [('BACK','Voltar'),('LAS_UD','Andar'),('RAS_LR','Olhar'),('R3','Personalização')]))))
         def roster_items(a,details=False):
             items=[('BACK','Voltar'),('L2R2','Abas'),('RAS_LR','Girar'),('L1R1','Zoom')]
             if not details:items=[('ADVANCE','Detalhes'),('BACK','Voltar'),('LAS_UD','Elenco')]+items[1:]
@@ -171,7 +279,27 @@ def methods(a,scope):
         a.ret(('array',(CALL(PATH('ion','manager','HelpItem'),'CreateHelpTickerItem','ADVANCE','Selecionar'),CALL(PATH('ion','manager','HelpItem'),'CreateHelpTickerItem','BACK','Voltar'),CALL(PATH('ion','manager','HelpItem'),'CreateHelpTickerItem','LAS_LR','Opções'))))
     a.function('getHelpContext',0,help)
     def key(a):
-        a.when(T('freeCameraOpen'),lambda a:(a.when(EQ(R(2),P(M('InputCodes'),'BACK')),lambda a:a.do(R(1),'CloseFreeCamera')),a.ret(True)))
+        def setting_keys(a):
+            a.when(EQ(R(2),P(M('InputCodes'),'BACK')),lambda a:(a.do(R(1),'CloseRoomSettings'),a.ret(True)))
+            for name,delta in (('UP',-1),('UI_UP',-1),('LAS_UP',-1),('DOWN',1),('UI_DOWN',1),('LAS_DOWN',1)):
+                a.when(('bin',16,P(M('InputCodes'),name),EQ(R(2),P(M('InputCodes'),name))),lambda a,delta=delta:(a.set(R(1),'settingsFocus',('bin',63,b.plus(b.plus(T('settingsFocus'),delta),len(settings)+2),len(settings)+2)),a.do(R(1),'RefreshRoomSettings'),a.ret(True)))
+            for name,delta in (('LEFT',-1),('UI_LEFT',-1),('LAS_LEFT',-1),('RIGHT',1),('UI_RIGHT',1),('LAS_RIGHT',1)):
+                def adjust(a,delta=delta):
+                    a.when(('bin',72,T('settingsFocus'),len(settings)),lambda a:a.do(R(1),'ShiftRoomSetting',T('settingsFocus'),delta),lambda a:(a.set(R(1),'settingsFocus',b.plus(len(settings),('bin',63,b.plus(b.plus(T('settingsFocus'),delta),2),2))),a.do(R(1),'RefreshRoomSettings')));a.ret(True)
+                a.when(('bin',16,P(M('InputCodes'),name),EQ(R(2),P(M('InputCodes'),name))),adjust)
+            for name in ('PRIMARY_SELECT','ADVANCE'):
+                def select(a):
+                    a.when(EQ(T('settingsFocus'),len(settings)),lambda a:a.do(R(1),'CloseRoomSettings'),lambda a:a.when(EQ(T('settingsFocus'),len(settings)+1),lambda a:a.do(R(1),'ApplyRoomSettings'),lambda a:a.do(R(1),'ShiftRoomSetting',T('settingsFocus'),1)));a.ret(True)
+                a.when(('bin',16,P(M('InputCodes'),name),EQ(R(2),P(M('InputCodes'),name))),select)
+            a.ret(True)
+        a.when(T('settingsOpen'),setting_keys)
+        def free_keys(a):
+            a.when(EQ(R(2),P(M('InputCodes'),'BACK')),lambda a:a.do(R(1),'CloseFreeCamera'))
+            # buttonDataKeyBoardMouse.ini maps SC_Q to VB_FE_R3. Use the
+            # engine's native command, not Flash Key.addListener/getCode.
+            a.when(('bin',16,P(M('InputCodes'),'R3'),EQ(R(2),P(M('InputCodes'),'R3'))),lambda a:a.do(R(1),'OpenRoomSettings'))
+            a.ret(True)
+        a.when(T('freeCameraOpen'),free_keys)
         def roster_keys(a):
             a.when(EQ(R(2),P(M('InputCodes'),'BACK')),lambda a:(a.do(R(1),'RoomPlayersBack'),a.ret(True)))
             for name in ('PRIMARY_SELECT','ADVANCE'):
@@ -186,7 +314,7 @@ def methods(a,scope):
             a.when(T('modalOpen'),lambda a:a.do(R(1),'CloseScenes'),lambda a:(a.do(b.ION,'SendEvent',P(T('staticData'),'SCREEN_CONTROLLER_ID'),P(T('navEvents'),'BACK'),''),a.do(M('InputManager'),'DisableCurrentLocalEventHandler')));a.ret(True)
         a.when(EQ(R(2),P(M('InputCodes'),'BACK')),back)
         for name in ('PRIMARY_SELECT','SELECT','ADVANCE'):
-            a.when(('bin',16,P(M('InputCodes'),name),EQ(R(2),P(M('InputCodes'),name))),lambda a:(a.when(T('modalOpen'),lambda a:a.do(R(1),'ApplyScene'),lambda a:a.when(EQ(T('roomActionFocus'),2),lambda a:a.do(R(1),'OpenFreeCamera'),lambda a:a.when(EQ(T('roomActionFocus'),1),lambda a:a.do(R(1),'OpenPlayers'),lambda a:a.do(R(1),'OpenScenes')))),a.ret(True)))
+            a.when(('bin',16,P(M('InputCodes'),name),EQ(R(2),P(M('InputCodes'),name))),lambda a:(a.when(T('modalOpen'),lambda a:a.do(R(1),'ApplyScene'),lambda a:a.when(EQ(T('roomActionFocus'),2),lambda a:a.do(R(1),'OpenFreeCamera'),lambda a:a.when(EQ(T('roomActionFocus'),1),lambda a:a.do(R(1),'OpenPlayers'),lambda a:a.when(EQ(T('roomActionFocus'),3),lambda a:a.do(R(1),'OpenRoomSettings'),lambda a:a.do(R(1),'OpenScenes'))))),a.ret(True)))
         for name in ('SECONDARY_SELECT','SECONDARY','SQUARE','X'):
             a.when(('bin',16,P(M('InputCodes'),name),EQ(R(2),P(M('InputCodes'),name))),lambda a:(a.when(T('modalOpen'),lambda a:a.do(R(1),'CloseScenes'),lambda a:a.do(R(1),'OpenScenes')),a.ret(True)))
         def arrows(a):
@@ -194,7 +322,7 @@ def methods(a,scope):
                 a.when(('bin',16,P(M('InputCodes'),name),EQ(R(2),P(M('InputCodes'),name))),lambda a,delta=delta:(a.do(R(1),'ShiftScene',delta),a.ret(True)))
         def action_arrows(a):
             for name,delta in (('LEFT',-1),('LAS_LEFT',-1),('UI_LEFT',-1),('RIGHT',1),('LAS_RIGHT',1),('UI_RIGHT',1)):
-                a.when(('bin',16,P(M('InputCodes'),name),EQ(R(2),P(M('InputCodes'),name))),lambda a,delta=delta:(a.set(R(1),'roomActionFocus',('bin',63,b.plus(b.plus(T('roomActionFocus'),delta),3),3)),a.do(R(1),'RefreshRoomActions'),a.ret(True)))
+                a.when(('bin',16,P(M('InputCodes'),name),EQ(R(2),P(M('InputCodes'),name))),lambda a,delta=delta:(a.set(R(1),'roomActionFocus',('bin',63,b.plus(b.plus(T('roomActionFocus'),delta),action_count),action_count)),a.do(R(1),'RefreshRoomActions'),a.ret(True)))
         a.when(T('modalOpen'),arrows,action_arrows);a.ret(True)
     a.function('LocalEventHandler',2,key)
     def keyboard(a):

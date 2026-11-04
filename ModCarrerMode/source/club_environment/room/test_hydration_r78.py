@@ -9,20 +9,19 @@ import room_interior_r71 as prior
 import room_hydration_r78 as hydration
 
 REPO=Path(__file__).resolve().parents[4]
-OUT=REPO/'code-release/hydration-r78-20261102'
+OUT=Path(os.environ['SERVER16_GAME_ROOT'])/prior.PREFIX
 BASE=Path(os.environ['SERVER16_GAME_ROOT'])/prior.PREFIX
 
 
 class HydrationTests(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
-        cls.spec=json.loads((OUT/'built/interior_r78.json').read_text(encoding='utf8'))
-        cls.rx=Rx3((OUT/'built/interior_r78.rx3').read_bytes())
+        cls.spec=json.loads((OUT/'interior_r78.json').read_text(encoding='utf8'))
+        cls.rx=Rx3((OUT/'interior_r78.rx3').read_bytes())
 
     def test_supplied_art_is_the_original_file(self):
-        reference=Path(r'C:\Users\igorv\AppData\Local\Temp\codex-clipboard-66a9a6f0-2d73-4a83-be08-64e2728a7d34.png')
-        installed=hydration.source(REPO,1043)
-        self.assertEqual(hashlib.sha256(reference.read_bytes()).digest(),hashlib.sha256(installed.read_bytes()).digest())
+        installed=hydration.source(Path(os.environ['SERVER16_GAME_ROOT']),1043)
+        self.assertEqual('09e20e8ab82fc8165742b6a77dd48915ce1e65fb864dd473fb3217bbf41dbe1c',hashlib.sha256(installed.read_bytes()).hexdigest())
         with Image.open(installed) as im:self.assertEqual(im.size,(2172,724))
 
     def test_white_fallback_has_no_other_club_art(self):
@@ -72,7 +71,7 @@ class HydrationTests(unittest.TestCase):
             self.assertGreater(np.count_nonzero((points[:,0]>260)&(points[:,0]<325)&(points[:,2]>1497)&(points[:,2]<1507)),1000)
 
     def test_moved_dispenser_and_collision_footprints(self):
-        cooler=Rx3((OUT/'built/water_cooler_r78.rx3').read_bytes())
+        cooler=Rx3((OUT/'water_cooler_r78.rx3').read_bytes())
         v,idx=read_mesh(cooler,0);self.assertGreater(v['p'][:,0].min(),690);self.assertLess(v['p'][:,0].max(),753)
         objects=[o for o in self.spec['obstacles'] if o['name'].startswith('Hidratação /')]
         self.assertEqual(len(objects),3)

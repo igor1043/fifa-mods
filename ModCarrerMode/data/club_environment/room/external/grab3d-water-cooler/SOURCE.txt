@@ -1,0 +1,5 @@
+Water Cooler — Grab3D
+https://grab3d.com/models/electronics/water-cooler/
+License: CC0 1.0 (LICENSE.txt)
+Imported into FIFA RX3 with centimetre scale, Y-up, two native materials.
+Original GLB retained for editing.

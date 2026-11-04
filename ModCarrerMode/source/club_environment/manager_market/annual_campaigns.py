@@ -5,10 +5,10 @@ import json
 KEYS=('hw','hd','hl','aw','ad','al')
 
 
-def seed(market,campaigns):
+def seed(market,campaigns,*,appointments=None,known=None):
     """Upgrade existing spells only when their whole observed span is one year."""
-    appointments={a['id']:a for a in market.rows('appointments')}
-    known={(r['appointment'],r['year'],r['competition_key']) for r in market.rows('annual_campaigns')}
+    appointments={a['id']:a for a in (appointments if appointments is not None else market.rows('appointments'))}
+    known=known if known is not None else {(r['appointment'],r['year'],r['competition_key']):r for r in market.rows('annual_campaigns')}
     original_known=set(known)
     for r in campaigns:
         a=appointments.get(r['appointment']);year=r['game_date']//10000;key=(r['appointment'],year,r['competition_key'])
@@ -16,13 +16,14 @@ def seed(market,campaigns):
         if '#cycle:' in r['competition_key'] and (r['appointment'],year,r['competition_key'].split('#cycle:')[0]) in original_known:continue
         market.db.execute('INSERT OR IGNORE INTO annual_campaigns VALUES(?,?,?,?,?,?,?,?,?,?)',
             (market.branch,r['appointment'],year,r['competition_key'],r['root'],r['asset'],r['game_date'],r['baseline'],r['counters'],r['source']))
-        known.add(key)
+        known[key]=dict(r,year=year)
 
 
-def observe(market,appointment,row,previous,lifetime_base):
+def observe(market,appointment,row,previous,lifetime_base,*,known=None):
     year=row['date']//10000;key=row['key'];values=[row[k] for k in KEYS]
     if all(k in row for k in ('hgf','hga','agf','aga')):values.extend(row[k] for k in ('hgf','hga','agf','aga'))
-    old=market.db.execute('SELECT * FROM annual_campaigns WHERE branch=? AND appointment=? AND year=? AND competition_key=?',
+    identity=(appointment['id'],year,key)
+    old=known.get(identity) if known is not None else market.db.execute('SELECT * FROM annual_campaigns WHERE branch=? AND appointment=? AND year=? AND competition_key=?',
         (market.branch,appointment['id'],year,key)).fetchone()
     if old and old['game_date']>row['date']:return
     if old:
@@ -31,7 +32,9 @@ def observe(market,appointment,row,previous,lifetime_base):
             archived=dict(old);archived['competition_key']=key+'#cycle:'+str(row['date'])
             market.add('annual_campaigns',{k:v for k,v in archived.items() if k!='branch'})
             base=[0]*len(values)
-        elif len(values)>len(base):base.extend(values[len(base):])
+        elif len(values)>len(base):
+            initial=appointment['origin'] in ('Vínculo inicial desde o início da carreira','Estimado a partir da ativação do mod') and appointment['start_date']//10000==year
+            base.extend([0]*(len(values)-len(base)) if initial else values[len(base):])
     elif previous and previous['game_date']//10000<year:
         last=json.loads(previous['counters'])
         base=last[:] if sum(values[:6])>=sum(last[:6]) else [0]*len(values)
@@ -43,6 +46,7 @@ def observe(market,appointment,row,previous,lifetime_base):
     else:base=lifetime_base[:]
     market.db.execute('INSERT OR REPLACE INTO annual_campaigns VALUES(?,?,?,?,?,?,?,?,?,?)',
         (market.branch,appointment['id'],year,key,row['root'],row['asset'],row['date'],json.dumps(base),json.dumps(values),row['source']))
+    if known is not None:known[identity]=dict(appointment=appointment['id'],year=year,competition_key=key,root=row['root'],asset=row['asset'],game_date=row['date'],baseline=json.dumps(base),counters=json.dumps(values),source=row['source'])
 
 
 def project(appointments,results,annual,clubs,today):

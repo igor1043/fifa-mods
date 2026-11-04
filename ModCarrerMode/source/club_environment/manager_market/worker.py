@@ -25,7 +25,7 @@ def contract_signature(observed,snapshot,token,live,derived):
  # Player minutes/goals in stats do not change contracts. Native tables can
  # arrive in a different row order without any football result changing.
  body={k:ordered(snapshot.get(k)) for k in ('nodes','fixtures','standings','derivedStandings')}
- body.update(goals=snapshot.get('standingGoals',{}),derived=ordered(derived),league_only=snapshot.get('source')=='live_league_only')
+ body.update(goals=snapshot.get('standingGoals',{}),derived=ordered(derived),league_only=snapshot.get('source')=='live_league_only',calendar_only=snapshot.get('source')=='live_calendar')
  return (observed['signature'],observed['profile'].get('context_epoch',0),hashlib.sha256(json.dumps(body,sort_keys=True,separators=(',',':')).encode()).hexdigest(),token,live['revision'] if live else None)
 
 def view_scope(observed):
@@ -157,16 +157,19 @@ class Service:
      time.sleep(.05)
      try:live_leagues=read_live_leagues(ROOT/'live_leagues.tsv',observed,prepared_views.ticks())
      except (OSError,ValueError,KeyError,UnicodeError):pass
-  token=(io.get('operation'),io.get('access_tick_ms'),saved['path']);league_only=False
+  token=(io.get('operation'),io.get('access_tick_ms'),saved['path']);league_only=False;calendar_snapshot=None
   if memory is not None:
    from career_publication import read as current_publication
    snapshot=current_publication(GAME,saved,observed['date'],epoch=observed['profile'].get('context_epoch'),club=observed['profile']['club_id'])
-   # Foreign league supplements are optional. Waiting for the whole batch used
-   # to skip every intermediate calendar day during a long simulation.
+   # Read-only calendar evidence is published independently of visual/player
+   # statistics. Never advance on a freshly timestamped but stale DB table.
    if snapshot is None:
-    if live_leagues is not None:
-     league_only=True;snapshot=dict(source='live_league_only')
-    else:
+    try:
+     from live_leagues import read_campaign
+     profile=observed['profile']
+     path=ROOT/'league_days'/f"{saved['pid']}-{saved['process_created_100ns']}-{profile['context_epoch']}-{profile['context_address']:x}"/(str(observed['date'])+'.campaign.json')
+     calendar_snapshot=read_campaign(path,observed);snapshot=dict(calendar_snapshot,source='live_calendar');league_only=True
+    except (OSError,ValueError,KeyError,TypeError):
      scope=(view_scope(observed),token)
      if scope!=getattr(self,'campaign_wait_scope',None):
       self.campaign_wait_scope=scope;self.latest_request=None;self.presentation_scope=None;self.published_key=None;self.publication=None
@@ -178,7 +181,7 @@ class Service:
      return
   else:snapshot=json.loads((GAME/'ModCarrerMode/runtime/career_fce_snapshot.json').read_text(encoding='utf8'))
   self.campaign_wait_scope=None
-  if memory is not None and live_leagues is None:
+  if memory is not None and live_leagues is None and calendar_snapshot is None:
    # Keep the complete current view while the owner thread refreshes its
    # publication. Never alternate between live results and old disk tables.
    self.presentation_wait('live_leagues_pending',date=observed['date']);self.service_render(observed,memory);return
@@ -199,7 +202,13 @@ class Service:
   self.stage(1)
   options=dict(live_leagues=live_leagues)
   if league_only:options['league_only']=True
-  context=self.inputs.read(observed,memory,**options);path=Path(saved['path']);db_path=path.parent.parent/'server16_manager_market.sqlite3';digest=context['digest'];owner=(saved['pid'],saved['process_created_100ns'],observed['profile']['context_address'])
+  if calendar_snapshot is not None:options['calendar_snapshot']=calendar_snapshot
+  owner=(saved['pid'],saved['process_created_100ns'],observed['profile']['context_address'])
+  if calendar_snapshot is not None and self.context and owner==self.owner and token==self.last_io:
+   from live_sampler import calendar_context
+   context=calendar_context(self.context,calendar_snapshot,live_leagues['rows'] if live_leagues else [])
+  else:context=self.inputs.read(observed,memory,**options)
+  path=Path(saved['path']);db_path=path.parent.parent/'server16_manager_market.sqlite3';digest=context['digest']
   observed_ms=prepared_views.ticks()
   self.stage(2)
   fresh=self.market is None or self.market.path!=db_path
@@ -218,7 +227,9 @@ class Service:
    if recovered:log('empty_campaign_recovered',**recovered)
    if getattr(self,'sampler',None):
     from live_sampler import replay
-    replay(self.market,context,self.sampler.drain(observed,token,self.market.info()['game_date']))
+    samples=self.sampler.drain(observed,token,self.market.info()['game_date']);replay_started=time.perf_counter()
+    replayed=replay(self.market,context,samples)
+    if replayed:log('calendar_days_processed',dates=replayed,through=context['date'],captured_days=len(samples),processed_days=len(replayed),seconds=round(time.perf_counter()-replay_started,3))
    self.market.advance(context)
    if fresh:
     removed=self.market.discard_abandoned(protected_branches(self.market),limit=1);self.cleanup_pending=True;self.cleanup_at=time.monotonic()+10
@@ -247,9 +258,8 @@ class Service:
   reviews=self.market.rows('reviews');movements=self.market.rows('movements');engine_status=dict(date=context['date'],branch=self.market.branch,tracking_start=self.market.info()['start_date'],coverage=context.get('coverage',{}),recorded_matches=len(self.market.rows('results')),evaluations=len(reviews),evaluations_today=sum(r['game_date']==context['date'] for r in reviews),dismissals=sum(r['kind']=='dismissal' for r in movements),hires=sum(r['kind'] in ('hired','interim_appointed') for r in movements),protected_club=context['club'],protected_club_market_events=sum(r['club_id']==context['club'] and r['kind'] in ('dismissal','resignation','hired','interim_appointed','poached','retirement') for r in movements))
   atomic(ROOT/'engine_status.json',json.dumps(engine_status,ensure_ascii=False,indent=2).encode('utf8'));log('engine_advanced',**engine_status)
   if league_only:
-   # Daily contract work is already committed, independently of screen entry.
-   # Wait for the complete graph only to publish visual details (goals/cups),
-   # not to run the market. Never label an incomplete graph as a full view.
+   # Calendar work is already committed. Player-statistics and presentation
+   # continue in parallel; no whole-screen model/build on every simulated day.
    self.last_signature=signature
    log('calendar_background_processed',date=context['date'],seconds=round(time.perf_counter()-started,3))
    return

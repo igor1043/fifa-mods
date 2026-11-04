@@ -10,7 +10,7 @@ from PIL import Image, ImageDraw
 from rx3 import Rx3, VERTEX, INDEX, TEXTURE
 
 MODULE = 60.
-PREFIX = 'data/sceneassets/server16_dressing_room_20261022/'
+PREFIX = 'data/sceneassets/server16_dressing_room_v3/shared/'
 VERT = np.dtype([('p','<f4',3),('n','<u4'),('g','<u4'),('uv','<f2',2)])
 
 def packed(v):

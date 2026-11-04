@@ -4,7 +4,7 @@ from pathlib import Path
 import hashlib,json,io,math,numpy as np
 from PIL import Image,ImageDraw,ImageFont
 from room_native_hanging_20261022 import texture_package
-ROOT=portable.ROOM;LIVE=portable.GAME/'data/sceneassets/server16_dressing_room_20261022'
+ROOT=portable.ROOM;LIVE=portable.GAME/'data/sceneassets/server16_dressing_room_v3/shared'
 
 def context_for_room(context,roster,rows):
     known={p['id']:p for p in roster};linked={r.value('playerid'):r for r in rows('teamplayerlinks') if r.value('teamid')==context['club']}
@@ -87,7 +87,7 @@ def prepare(context,read_asset,add,identity):
     if (LIVE/'medical_room_r77.rx3').is_file() and (LIVE/'medical_room_r77.json').is_file():
         from room_medical_r77 import prepare as modern_medical
         return modern_medical(context,read_asset,add,identity)
-    spec=json.loads((ROOT/'runtime/medical_room_r57.json').read_text(encoding='utf8'));prefix='data/sceneassets/server16_dressing_room_20261022/';club=context['club'];medical=context['medical']
+    spec=json.loads((ROOT/'runtime/medical_room_r57.json').read_text(encoding='utf8'));prefix='data/sceneassets/server16_dressing_room_v3/shared/';club=context['club'];medical=context['medical']
     portraits={p['player']:player_portrait(read_asset,p['player']) for p in medical['players']}
     medical['portraits']={str(pid):path or 'silhouette' for pid,(_,path) in portraits.items()}
     palette={'wall':(224,227,228),'charcoal':(26,30,33),'cabinet':(42,47,51),'metal':(159,168,174),'leather':(31,34,36),'rubber':(18,22,24),'towel':(229,228,219),'light':(255,253,243),'glass':(78,126,139),'bottle':(216,225,229),'rehab':(110,120,125),'primary':tuple(round(v*255) for v in context['colors'][0])}

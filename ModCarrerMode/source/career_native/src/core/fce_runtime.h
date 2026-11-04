@@ -48,6 +48,9 @@ FceLiveSnapshot *fce_runtime_acquire(void);
 /* Retains only an already-published model.  Safe for UI decoration paths
  * that must never request a capture while a calendar cell is rendered. */
 FceLiveSnapshot *fce_runtime_cached_acquire(void);
+/* Immutable competitions/standings/fixtures captured after native Update.
+ * Independent of the complete UI/player-statistics publication. */
+FceLiveSnapshot *fce_runtime_calendar_acquire(void);
 const FceModel *fce_runtime_model(const FceLiveSnapshot *);
 unsigned long fce_runtime_generation(const FceLiveSnapshot *);
 void fce_runtime_release(FceLiveSnapshot *);

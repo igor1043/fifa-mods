@@ -51,7 +51,7 @@ class PersistenceAndPolish(unittest.TestCase):
   self.assertEqual([20260501],[r['date'] for r in sampler.drain(observed,('read','3','DATA'),20260101)])
  def test_replay_uses_the_real_observation_dates_without_inventing_matches(self):
   c=context(20261201);c['clubs']=[dict(club_id=1,league_id=100)]
-  sample=dict(date=20260401,rows=[])
+  sample=dict(date=20260401,rows=[],snapshot=dict(date=20260401,nodes=[],standings=[],fixtures=[]))
   with patch('global_performance.project',return_value=dict(performance=[],tables={},club_tables={},table_dates={})) as project,patch.object(self.m,'advance') as advance:replay(self.m,c,[sample])
   self.assertEqual(20260401,advance.call_args.args[0]['date']);self.assertEqual([],advance.call_args.args[0]['fixtures']);self.assertEqual(20260401,project.call_args.args[4])
  def test_midyear_observations_trigger_reviews_in_their_months_not_only_december(self):
@@ -62,7 +62,7 @@ class PersistenceAndPolish(unittest.TestCase):
     out.append(dict(teamid=club,leagueid=100,secondarytable=0,nummatchesplayed=n,points=win*3,homewins=win,homedraws=0,homelosses=loss,awaywins=0,awaydraws=0,awaylosses=0,homegf=win,homega=loss,awaygf=0,awayga=0))
    return out
   c=context(20261201);c['clubs']=self.m.rows('clubs')
-  with patch('engine.draw',return_value=9999),self.m.db:replay(self.m,c,[dict(date=20260301,rows=rows(8)),dict(date=20260501,rows=rows(12))])
+  with patch('engine.draw',return_value=9999),self.m.db:replay(self.m,c,[dict(date=d,rows=rows(n),snapshot=dict(date=d,nodes=[],standings=[],fixtures=[])) for d,n in ((20260228,7),(20260301,8),(20260430,11),(20260501,12))])
   self.assertEqual([20260301,20260501],[r['game_date'] for r in self.m.rows('reviews','club_id=1')]);self.assertEqual([],self.m.rows('results'))
 
 if __name__=='__main__':unittest.main()

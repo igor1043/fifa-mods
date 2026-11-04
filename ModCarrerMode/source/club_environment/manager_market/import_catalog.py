@@ -44,6 +44,7 @@ def build(source,portraits,destination):
   age=bio.get('age_as_of_date')
   if bio.get('age_at_death') or (age and age>85):eligible=0
   display=re.sub(r'\s+\d{2,}$','',m['display_name']).strip()
+  if re.fullmatch(r'MGR[-_].*',display,re.I):display='Treinador não identificado';eligible=0
   person=dict(coach_id=cid,name=display,nationality=bio.get('nationality') or '',birth_date=bio.get('birth_date'),reputation=rep,salary=int(2500*rep*rep),style='Equilibrado',image=image,eligible=eligible,fictional=0)
   old=people.get(k)
   if old:
@@ -65,6 +66,11 @@ def build(source,portraits,destination):
   # Budget is a generic calibration until the saved club row supplies its value.
   budget=int(1_000_000*(max(1,c.get('club_reputation_suggested') or 4)**2))
   db.execute('INSERT INTO clubs VALUES(?,?,?,?,?,?,?,?,?)',(c['team_id'],c['team_name'],c.get('league_id') or 0,c.get('league_name') or 'Outras competições',c.get('country_name') or '',region(c.get('country_name')),c.get('club_reputation_suggested') or 4,budget,c.get('league_level') or 1))
+ overrides_path=destination/'portrait_overrides.json'
+ overrides=json.loads(overrides_path.read_text(encoding='utf-8')) if overrides_path.is_file() else {}
+ for person in people.values():
+  relative=overrides.get(person['coach_id'],'');path=destination/relative
+  if relative and path.is_file() and path.resolve().is_relative_to((destination/'minifaces').resolve()):person['image']=relative
  for p in people.values():db.execute('INSERT INTO coaches VALUES(?,?,?,?,?,?,?,?,?,?)',tuple(p.values()))
  db.executemany('INSERT INTO aliases VALUES(?,?,?)',[(k,*v) for k,v in aliases.items()]);db.executemany('INSERT INTO club_seed VALUES(?,?,?,?)',seeds);db.executemany('INSERT INTO rules VALUES(?,?)',DEFAULTS.items())
  db.executemany('INSERT INTO metadata VALUES(?,?)',[('reference_date',d['date']),('nationality_source','Wikidata; correspondências incertas permanecem vazias'),('salary_basis','Modelo simulado em moeda da carreira; não representa salário real'),('source_db_hash',d['game_db_sha256'])]);db.commit();db.close()

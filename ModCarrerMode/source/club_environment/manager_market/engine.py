@@ -2,8 +2,10 @@
 from contextlib import contextmanager
 from datetime import date, timedelta
 from pathlib import Path
-import hashlib,json,sqlite3,uuid,zlib
+import hashlib,json,sqlite3,uuid,zlib,re
 from functools import lru_cache
+try:from .read_batch import Connection
+except ImportError:from read_batch import Connection
 try:from .hiring_fit import DEFAULTS as HIRING_DEFAULTS,offer as hiring_offer
 except ImportError:from hiring_fit import DEFAULTS as HIRING_DEFAULTS,offer as hiring_offer
 
@@ -96,7 +98,7 @@ def score(rows):
 class Market:
  def __init__(self,path,catalog):
   self.path=Path(path);self.path.parent.mkdir(parents=True,exist_ok=True)
-  self.db=sqlite3.connect(self.path,timeout=15);self.db.row_factory=sqlite3.Row
+  self.db=sqlite3.connect(self.path,timeout=15,factory=Connection);self.db.row_factory=sqlite3.Row
   version=self.db.execute('PRAGMA user_version').fetchone()[0]
   if version not in (0,1,2,3,4):raise ValueError('Versão do mercado de técnicos não suportada')
   self.db.executescript(SCHEMA)
@@ -108,7 +110,7 @@ class Market:
  def close(self):self.db.close()
  def rows(self,table,where='',args=()):
   if table not in TABLES:raise ValueError('Tabela inválida')
-  return [dict(x) for x in self.db.execute('SELECT * FROM '+table+' WHERE branch=?'+(' AND '+where if where else ''),(self.branch,*args))]
+  return self.db.rows(self.branch,table,where,args)
  def add(self,table,values):
   if table not in TABLES:raise ValueError('Tabela inválida')
   values=dict(branch=self.branch,**values);cols=','.join(values)
@@ -190,6 +192,12 @@ class Market:
   return digest
  def one(self,table,key,value):return next(iter(self.rows(table,key+'=?',(value,))),None)
  def active(self,club=None,coach=None):
+  if self.db.read_depth:
+   key=(self.branch,self.db.versions.get('appointments',0));cached=self.db.active_index
+   if cached is None or cached[0]!=key:
+    rows=self.rows('appointments','end_date IS NULL');cached=(key,{a['club_id']:a for a in rows},{a['coach_id']:a for a in rows});self.db.active_index=cached
+   row=cached[1].get(club) if club is not None else cached[2].get(coach)
+   return dict(row) if row else None
   key,value=('club_id',club) if club is not None else ('coach_id',coach)
   return next(iter(self.rows('appointments',key+'=? AND end_date IS NULL',(value,))),None)
  def policy(self):return dict(DEFAULTS,**{r['key']:r['value'] for r in self.rows('market_rules')})
@@ -209,13 +217,20 @@ class Market:
  def import_new_coaches(self):
   present={c['coach_id']:c for c in self.rows('coaches')};db=sqlite3.connect(self.catalog);db.row_factory=sqlite3.Row
   try:
-   for c in db.execute('SELECT * FROM coaches'):
+   for row in db.execute('SELECT * FROM coaches'):
+    c=dict(row)
+    if re.fullmatch(r'MGR[-_].*',str(c['name']),re.I):
+     alias=db.execute("SELECT name FROM aliases WHERE coach_id=? AND name NOT LIKE 'MGR%' LIMIT 1",(c['coach_id'],)).fetchone()
+     c['name']=alias[0] if alias else 'Treinador não identificado'
+     if not alias:c['eligible']=0
     if c['coach_id'] not in present:self.add('coaches',dict(c))
     else:
      fields=('name','nationality','birth_date','style','image','eligible','fictional')
      if any(c[f]!=present[c['coach_id']][f] for f in fields):self.db.execute('UPDATE coaches SET '+','.join(f+'=?' for f in fields)+' WHERE branch=? AND coach_id=?',(*(c[f] for f in fields),self.branch,c['coach_id']))
   finally:db.close()
  def sync_clubs(self,context):
+  signature=(self.branch,self.db.versions.get('clubs',0),tuple(tuple(sorted(c.items())) for c in context.get('clubs',[])))
+  if getattr(self,'clubs_synced',None)==signature:return
   previous={r['club_id']:r for r in self.rows('clubs')}
   for c in context.get('clubs',[]):
    old=previous.get(c['club_id'])
@@ -227,6 +242,7 @@ class Market:
     # New league/club expansion does not require any hardcoded club IDs.
     cid='GEN-'+str(c['club_id']);self.add('coaches',dict(coach_id=cid,name='Técnico '+c['name'],nationality=c['country'],birth_date=None,reputation=c['reputation'],salary=10000,style='Equilibrado',image='minifaces/NOTFOUND_DEFAULT.png',eligible=1,fictional=1))
     self.appoint(self.one('coaches','coach_id',cid),c,context['date'],'expansion',initial=True)
+  self.clubs_synced=(self.branch,self.db.versions.get('clubs',0),signature[2])
  def wage(self,coach,club):
   rep=max(1,min(10,coach['reputation']));base=max(3000,min(2500000,club['budget']*.002+rep*rep*2500))
   old=coach['salary'] or base;factor=max(.65,min(1.75,club['reputation']/max(1,rep)))
@@ -240,7 +256,7 @@ class Market:
     born=date.fromisoformat(c['birth_date']);age=at.year-born.year-((at.month,at.day)<(born.month,born.day));retire=age>=p['retirement_age']
    except (ValueError,TypeError):retire=elapsed(info['start_date'],today)>=35*365
    if not retire:continue
-   self.db.execute('UPDATE coaches SET eligible=0 WHERE branch=? AND coach_id=?',(self.branch,c['coach_id']))
+   if c['eligible']:self.db.execute('UPDATE coaches SET eligible=0 WHERE branch=? AND coach_id=?',(self.branch,c['coach_id']))
    a=self.active(coach=c['coach_id'])
    if a and a['club_id']!=context['club']:self.leave(a,today,'retirement','Encerramento da carreira de treinador')
   if not p['regens_enabled']:return
@@ -282,7 +298,7 @@ class Market:
  def ensure_user(self,context,today):
   club=context['club'];ident='USER-'+str(context.get('userid',0));old=self.active(coach=ident)
   if old and old['club_id']==club:
-   if context.get('user_wage',0)>0:self.db.execute('UPDATE appointments SET monthly_wage=? WHERE branch=? AND id=?',(round(context['user_wage']*52/12),self.branch,old['id']))
+   if context.get('user_wage',0)>0 and old['monthly_wage']!=round(context['user_wage']*52/12):self.db.execute('UPDATE appointments SET monthly_wage=? WHERE branch=? AND id=?',(round(context['user_wage']*52/12),self.branch,old['id']))
    return
   if not self.one('coaches','coach_id',ident):self.add('coaches',dict(coach_id=ident,name=context.get('user_name') or 'Seu treinador',nationality=context.get('user_nationality',''),birth_date=None,reputation=5,salary=context.get('user_wage',0)*52//12,style='Controlado pelo jogador',image='minifaces/NOTFOUND_DEFAULT.png',eligible=0,fictional=0))
   if old:self.leave(old,today,'user_move','Troca de clube na carreira',to_club=club)
@@ -315,6 +331,22 @@ class Market:
    if r['home_coach']==coach and (club is None or r['home']==club):home.append((r['hg'],r['ag']))
    if r['away_coach']==coach and (club is None or r['away']==club):away.append((r['ag'],r['hg']))
   return dict(total=score(home+away),home=score(home),away=score(away))
+ def protected_campaign(self,appointment,today):
+  if not appointment:return False
+  games=[]
+  for r in self.rows('results','game_date BETWEEN ? AND ?',(appointment['start_date'],today)):
+   if r['home']==appointment['club_id'] and r['home_coach']==appointment['coach_id']:games.append((r['hg'],r['ag']))
+   elif r['away']==appointment['club_id'] and r['away_coach']==appointment['coach_id']:games.append((r['ag'],r['hg']))
+  samples=[score(games)]
+  totals=[0]*6
+  for r in self.rows('appointment_campaigns','appointment=? AND game_date<=?',(appointment['id'],today)):
+   start=json.loads(r['baseline']);end=json.loads(r['counters'])
+   values=[max(0,end[i]-start[i]) for i in range(6)]
+   totals=[a+b for a,b in zip(totals,values)]
+  played=sum(totals);wins=totals[0]+totals[3];draws=totals[1]+totals[4];losses=totals[2]+totals[5]
+  samples.append(dict(games=played,losses=losses,percentage=100*(3*wins+draws)/(3*played) if played else 0))
+  campaign=max(samples,key=lambda r:r['games'])
+  return campaign['games']>=6 and (campaign['percentage']>=65 or campaign['losses']==0)
  def table_pressure(self,club,table,today,p):
   if not table or club['club_id'] not in {r['club'] for r in table}:return None
   ranks=sorted(table,key=lambda r:r['rank']);r=next(r for r in ranks if r['club']==club['club_id']);n=len(ranks)
@@ -414,9 +446,7 @@ class Market:
   """
   today=context['date'];info=self.info();changed=set();keys=('hw','hd','hl','aw','ad','al')
   from appointment_campaign import capture
-  capture(self,context)
-  previous={(r['season'],r['competition_key'],r['club_id']):r for r in self.rows('performance_evidence')}
-  active={r['club_id']:r for r in self.rows('appointments','end_date IS NULL')}
+  previous,active=capture(self,context)
   baseline={(r['appointment'],r['season'],r['competition_key']):r['played'] for r in self.rows('appointment_baselines')}
   evidence=list(context.get('performance',[]));tenure={}
   for r in evidence:
@@ -427,7 +457,13 @@ class Market:
    values=tuple(r[k] for k in keys)
    if not old or tuple(old[k] for k in keys)!=values:
     self.db.execute('INSERT OR REPLACE INTO performance_evidence VALUES(?,?,?,?,?,?,?,?,?,?,?,?)',(self.branch,r['season'],r['key'],club,r['date'],*values,r['source']))
-    if played and r['date']==today:changed.add(club)
+    previous[identity]=dict(season=r['season'],competition_key=r['key'],club_id=club,game_date=r['date'],**dict(zip(keys,values)),source=r['source'])
+    # A newly discovered or corrected season total is a baseline, not
+    # a match played today. Only a dated increase may trigger a review.
+    # A late season-total replacement is not a match played today. Keep the
+    # corrected statistics, without firing a season's boards in one batch.
+    delta=played-sum(old[k] for k in keys) if old else 0
+    if old and 0<delta<=2 and r['date']==today:changed.add(club)
    bk=(a['id'],r['season'],r['key'])
    if bk not in baseline:
     initial=a['origin'] in ('Vínculo inicial desde o início da carreira','Estimado a partir da ativação do mod')
@@ -437,6 +473,8 @@ class Market:
    if played<baseline[bk]:
     self.db.execute('UPDATE appointment_baselines SET played=? WHERE branch=? AND appointment=? AND season=? AND competition_key=?',(played,self.branch,*bk));baseline[bk]=played
    tenure[club]=tenure.get(club,0)+max(0,played-baseline[bk])
+  from appointment_campaign import retain_state
+  retain_state(self)
   if not p['enabled']:return
   for club in self.rows('clubs'):
    ident=club['club_id']
@@ -455,7 +493,7 @@ class Market:
    if context.get('table_dates',{}).get(lid,today)!=today:continue
    evaluated=self.table_pressure(club,table,today,p)
    if not evaluated:continue
-   pressure,pos,expected,reason=evaluated;probability=dismissal_probability(club,pressure,p);decision='retained'
+   pressure,pos,expected,reason=evaluated;probability=0 if self.protected_campaign(a,today) else dismissal_probability(club,pressure,p);decision='retained'
    self.db.execute('INSERT OR REPLACE INTO progress VALUES(?,?,?)',(self.branch,ident,today))
    fired=self.rows('movements',"club_id=? AND kind='dismissal' AND game_date BETWEEN ? AND ?",(ident,today//10000*10000+101,today//10000*10000+1231))
    if len(fired)<min(3,p['max_dismissals_year']) and probability and draw(info['seed'],'dismiss',ident,today)<probability:
@@ -464,6 +502,8 @@ class Market:
     self.leave(a,today,'resignation','Saída por decisão do treinador',pressure);decision='resignation';self.hire(club,today,info['seed'])
    self.db.execute('INSERT OR REPLACE INTO reviews VALUES(?,?,?,?,?,?,?,?)',(self.branch,ident,today,round(pressure,2),pos,expected,'Classificação agregada · '+reason,decision))
  def advance(self,context):
+  with self.db.read_batch():return self._advance(context)
+ def _advance(self,context):
   today=context['date'];info=self.info()
   if today<info['game_date']:raise ValueError('Data retrocedeu: é necessário restaurar o checkpoint do save')
   self.upgrade_policy();p=self.policy();self.import_new_coaches();self.sync_clubs(context);self.ensure_user(context,today)
@@ -478,12 +518,15 @@ class Market:
   # earlier games after a multi-day simulation.
   fixtures=context['fixtures'];self.contract_fixtures=fixtures;known={r['match_key'] for r in self.rows('results')}
   unseen=[m for m in fixtures if m['played'] and info['start_date']<=m['date']<=today and result_key(m) not in known]
-  dates=sorted({max(info['game_date'],m['date']) for m in unseen})
+  # Late historical evidence updates the ledger on its real match date.
+  # It cannot retroactively fire a coach or masquerade as today's fixtures.
+  dated=[m for m in unseen if m['date']>=info['game_date']]
+  dates=sorted({m['date'] for m in dated})
   clubs=self.rows('clubs');self.review_clubs={c['club_id']:c for c in clubs}
-  participants={current:{t for m in unseen if max(info['game_date'],m['date'])==current for t in (m['home'],m['away'])} for current in dates}
+  participants={current:{t for m in dated if m['date']==current for t in (m['home'],m['away'])} for current in dates}
   employed={a['club_id'] for a in self.rows('appointments','end_date IS NULL')};vacant=set(self.review_clubs)-employed
   for current in dates:
-   self.ingest([m for m in unseen if max(info['game_date'],m['date'])==current],current)
+   self.ingest([m for m in dated if m['date']==current],current)
    for x in context.get('cup_exits',[]):
     if x['date']<=current:
      cp=self.one('competition_policies','competition_id',x.get('asset',0));prestige=cp['prestige'] if cp else x['prestige']
@@ -513,7 +556,7 @@ class Market:
     pressure,pos,expected,reason=evaluated;decision='retained'
     self.db.execute('INSERT OR REPLACE INTO progress VALUES(?,?,?)',(self.branch,ident,current))
     fired=self.rows('movements','club_id=? AND kind=\'dismissal\' AND game_date BETWEEN ? AND ?',(ident,current//10000*10000+101,current//10000*10000+1231))
-    probability=dismissal_probability(club,pressure,p)
+    probability=0 if self.protected_campaign(a,current) else dismissal_probability(club,pressure,p)
     if len(fired)<min(3,p['max_dismissals_year']) and probability and draw(info['seed'],'dismiss',ident,current)<probability:
      self.leave(a,current,'dismissal',reason,pressure);decision='dismissal';self.hire(club,current,info['seed'])
     elif draw(info['seed'],'resign',ident,current)<p['resignation_bps']:

@@ -6,8 +6,15 @@ class BoardAndCareerTest(unittest.TestCase):
  def test_confidence_is_inverse_of_own_spell_pressure_and_stays_bounded(self):
   old=dict(game_date=20260110,pressure=90,reason='Antecessor')
   self.assertEqual(75,for_spell([old],20260110,20260110)['value'])
-  reviews=[old,dict(game_date=20260120,pressure=43.6,reason='Classificação')];self.assertEqual(56,for_spell(reviews,20260110,20260120)['value'])
-  self.assertEqual(0,for_spell([dict(old,pressure=180)],20260101,20260120)['value']);self.assertEqual(100,for_spell([dict(old,pressure=-15)],20260101,20260120)['value'])
+  reviews=[old,dict(game_date=20260120,pressure=43.6,reason='Classificação')];self.assertEqual(36,for_spell(reviews,20260110,20260120)['value'])
+  self.assertEqual(0,for_spell([dict(old,pressure=180)],20260101,20260120)['value']);self.assertEqual(100,for_spell([dict(old,pressure=-25)],20260101,20260120)['value'])
+ def test_low_pressure_is_not_automatic_near_perfect_confidence(self):
+  reviews=[dict(game_date=20261129,pressure=9.38,reason='Expectativa de permanência')]
+  weak=for_spell(reviews,20260226,20261203,stats=dict(games=35,percentage=37.1))
+  strong=for_spell(reviews,20260226,20261203,stats=dict(games=35,percentage=80))
+  self.assertEqual(65,weak['value']);self.assertGreater(strong['value'],weak['value']);self.assertLess(weak['value'],80)
+  short=for_spell(reviews,20260226,20261203,stats=dict(games=1,percentage=100))
+  self.assertLess(short['value'],strong['value'])
  def test_career_history_preserves_clubs_spells_home_away_and_titles(self):
   person=dict(coach_id='coach');clubs={1:dict(name='Primeiro clube'),2:dict(name='Segundo clube')}
   def appointment(ident,club,start,end=None,reason=None,renewal=False):return dict(id=ident,coach_id='coach',club_id=club,start_date=start,end_date=end,end_reason=reason,origin='Mercado simulado',monthly_wage=1000,renewal=renewal)

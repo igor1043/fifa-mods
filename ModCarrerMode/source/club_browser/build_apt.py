@@ -129,7 +129,7 @@ def script(data,dictionaries,scenes,*,from_room=False):
         a.when(b.equal(T('navPage'),4),lambda a:items(a,[('BACK','Voltar'),('L2R2','Abas'),('RAS_LR','Girar'),('L1R1','Zoom')]))
         a.when(b.equal(T('navPage'),6),lambda a:items(a,[('BACK','Voltar'),('RAS_LR','Girar'),('L1R1','Zoom'),('OPTION_TOP','Centralizar')]))
         a.when(b.equal(T('navPage'),5),lambda a:items(a,[('BACK','Voltar'),('L2R2','Abas'),('LAS_UD','Percorrer'),('RAS_LR','Girar'),('L1R1','Zoom')]))
-        items(a,[('ADVANCE','Ver equipe'),('BACK','Voltar'),('LAS_LR','Percorrer'),('L2R2','Ligas'),('L1R1','Zoom'),('OPTION_TOP','Clubes / seleções')])
+        items(a,[('ADVANCE','Ver equipe'),('BACK','Voltar'),('LAS_LR','Percorrer'),('L1R1','Clubes / seleções'),('L2R2','Zoom'),('OPTION_TOP','Alternar')])
     a.function('getHelpContext',0,help)
     def shutdown(a):
         a.when(T('exiting'),lambda a:a.ret());a.set(R(1),'exiting',True)

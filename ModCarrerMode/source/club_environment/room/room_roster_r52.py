@@ -16,7 +16,7 @@ def scene_catalog(context,roster):
     import json
     from pathlib import Path
     medical=portable.ROOM/'runtime/medical_room_r57.json'
-    expanded=portable.GAME/'data/sceneassets/server16_dressing_room_20261022'/('room_layout_r77.json' if (portable.GAME/'data/sceneassets/server16_dressing_room_20261022/room_layout_r77.json').is_file() else 'room_layout_r76.json')
+    expanded=portable.GAME/'data/sceneassets/server16_dressing_room_v3/shared'/('room_layout_r77.json' if (portable.GAME/'data/sceneassets/server16_dressing_room_v3/shared/room_layout_r77.json').is_file() else 'room_layout_r76.json')
     if expanded.is_file():result.extend({'label':s['label']} for s in json.loads(expanded.read_text(encoding='utf8'))['medical']['scenes'])
     elif medical.exists():result.extend({'label':s['label']} for s in json.loads(medical.read_text(encoding='utf8'))['scenes'])
     return [dict(id=i,**r) for i,r in enumerate(result)]

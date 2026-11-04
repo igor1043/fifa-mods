@@ -25,6 +25,7 @@ static void career_ui_jobs_tick(void)
 {
     CareerJobUiCallback callback;
     drain_pending_stats_refresh();
+    drain_manager_calendar();
     if(!fce_runtime_is_stable())return;
     drain_background_refresh();
     drain_bank_mail();

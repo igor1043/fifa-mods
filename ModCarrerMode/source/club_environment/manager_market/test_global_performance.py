@@ -38,27 +38,28 @@ class GlobalProjectionTest(unittest.TestCase):
 
 class GlobalEngineTest(unittest.TestCase):
  def setUp(self):
-  self.tmp=tempfile.TemporaryDirectory();root=Path(self.tmp.name);catalog(root/'cat.sqlite3');self.m=e.Market(root/'world.sqlite3',root/'cat.sqlite3');self.m.open_save('A','DATA',context())
+  self.tmp=tempfile.TemporaryDirectory();root=Path(self.tmp.name);catalog(root/'cat.sqlite3');self.m=e.Market(root/'world.sqlite3',root/'cat.sqlite3');self.m.open_save('A','DATA',context());self.m.advance(GlobalEngineTest.observed(self,20260101,0))
  def tearDown(self):self.m.close();self.tmp.cleanup()
  def observed(self,today,count):
   c=context(today);c['performance']=[native(i,today,count) for i in (1,2,3)];c['tables']={'100':[dict(club=i,played=count,points=count*3 if i==2 else 0,rank=1 if i==2 else 2 if i==3 else 3,gf=0,ga=0) for i in (2,3,1)]};c['table_dates']={'100':today};return c
  def run_to(self,c):
   with self.m.db:self.m.advance(c)
  def test_global_results_trigger_real_replacement_without_fake_fixtures(self):
-  with patch.object(e,'draw',return_value=0):self.run_to(self.observed(20260401,10))
+  with patch.object(e,'draw',return_value=0):self.run_to(self.observed(20260331,9));self.run_to(self.observed(20260401,10))
   self.assertEqual(1,len(self.m.rows('movements',"club_id=1 AND kind='dismissal'")));self.assertEqual(1,len(self.m.rows('movements',"club_id=1 AND kind='hired'")));self.assertEqual([],self.m.rows('results'));self.assertTrue(self.m.rows('reviews','club_id=1'));self.assertFalse(self.m.rows('reviews','club_id=3'));self.assertFalse(self.m.rows('movements',"club_id=3 AND kind IN ('dismissal','hired','retirement','resignation','poached')"));self.assertEqual('USER-42',self.m.active(club=3)['coach_id'])
  def test_unchanged_aggregate_never_rerolls_and_new_coach_gets_working_period(self):
   with patch.object(e,'draw',return_value=0):
-   self.run_to(self.observed(20260401,10));hired=self.m.active(club=1)['coach_id'];self.run_to(self.observed(20260701,10));self.assertEqual(hired,self.m.active(club=1)['coach_id']);self.run_to(self.observed(20260708,12));self.assertEqual(hired,self.m.active(club=1)['coach_id']);self.run_to(self.observed(20260715,18));self.assertNotEqual(hired,self.m.active(club=1)['coach_id'])
+   self.run_to(self.observed(20260331,9));self.run_to(self.observed(20260401,10));hired=self.m.active(club=1)['coach_id'];self.run_to(self.observed(20260701,10));self.assertEqual(hired,self.m.active(club=1)['coach_id']);self.run_to(self.observed(20260708,12));self.assertEqual(hired,self.m.active(club=1)['coach_id']);self.run_to(self.observed(20260714,17));self.run_to(self.observed(20260715,18));self.assertNotEqual(hired,self.m.active(club=1)['coach_id'])
   self.assertEqual(2,len(self.m.rows('movements',"club_id=1 AND kind='dismissal'")))
  def test_stale_saved_table_does_not_provoke_current_date_dismissal(self):
   c=self.observed(20260401,10);c['table_dates']['100']=20260101
-  with patch.object(e,'draw',return_value=0):self.run_to(c)
+  with patch.object(e,'draw',return_value=0):self.run_to(self.observed(20260331,9));self.run_to(c)
   self.assertFalse(self.m.rows('reviews'));self.assertFalse(self.m.rows('movements',"kind='dismissal'"))
  def test_global_path_keeps_three_dismissals_per_year_even_with_high_custom_limit(self):
   self.m.db.execute("UPDATE market_rules SET value=99 WHERE branch=? AND key='max_dismissals_year'",(self.m.branch,))
   with patch.object(e,'draw',return_value=0):
-   for today,count in ((20260401,10),(20260603,20),(20260805,30),(20261007,40)):self.run_to(self.observed(today,count))
+   for today,count in ((20260401,10),(20260603,20),(20260805,30),(20261007,40)):
+    self.run_to(self.observed(e.packed(e.day(today)-e.timedelta(days=1)),count-1));self.run_to(self.observed(today,count))
   self.assertEqual(3,len(self.m.rows('movements',"club_id=1 AND kind='dismissal'")));self.assertEqual('USER-42',self.m.active(club=3)['coach_id'])
  def test_user_club_is_protected_at_hire_and_automatic_exit_boundaries(self):
   a=self.m.active(club=3)

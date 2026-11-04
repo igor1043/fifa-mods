@@ -1,0 +1,303 @@
+{
+  "version": 3,
+  "revision": 7,
+  "capacity": 38,
+  "sources": {
+    "room_roles_r77.rx3": "1bbf9808fa6056ca87d96a33224d0a475bc078b1f395c5a175ffd4d18bd42ede",
+    "scenery_r77.rx3": "1f59390855d6df8d62b8fc14bff2f5523f751956ab3507dcb02ee7909e4d98b0",
+    "crest_surfaces_r77.rx3": "eee3755ddf50b55585732b397620dd53ce2fb036d9e53802a2a4599ae8b7d67c",
+    "interior_r78.rx3": "e8bbcf88beefdbfbdc42cddaf8a1a6d1d5414e6011fcd86db0ea4d173416ae45"
+  },
+  "removed_triangles": {
+    "room_roles_r77.rx3": [
+      4488,
+      24504,
+      0,
+      0,
+      144,
+      0,
+      6924,
+      0,
+      10500,
+      564,
+      7140,
+      840,
+      4200,
+      5880,
+      8400,
+      2100,
+      288,
+      420,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+    ],
+    "scenery_r77.rx3": [
+      420,
+      0,
+      0
+    ],
+    "crest_surfaces_r77.rx3": [
+      96
+    ]
+  },
+  "bay_bindings": [
+    {
+      "material": "wood",
+      "submesh": "room_part_1"
+    },
+    {
+      "material": "niche",
+      "submesh": "room_part_2"
+    },
+    {
+      "material": "accent",
+      "submesh": "room_part_3"
+    },
+    {
+      "material": "cushion",
+      "submesh": "room_part_4"
+    },
+    {
+      "material": "linen",
+      "submesh": "room_part_5"
+    },
+    {
+      "material": "light",
+      "submesh": "room_part_6"
+    }
+  ],
+  "band_bindings": [
+    {
+      "material": "back_left",
+      "submesh": "room_part_1",
+      "width_cm": 540.0,
+      "banner_index": 0
+    },
+    {
+      "material": "back_right",
+      "submesh": "room_part_2",
+      "width_cm": 540.0,
+      "banner_index": 1
+    },
+    {
+      "material": "left_0",
+      "submesh": "room_part_3",
+      "width_cm": 585.0,
+      "banner_index": 2
+    },
+    {
+      "material": "left_1",
+      "submesh": "room_part_4",
+      "width_cm": 585.0,
+      "banner_index": 2
+    },
+    {
+      "material": "right_0",
+      "submesh": "room_part_5",
+      "width_cm": 585.0,
+      "banner_index": 3
+    },
+    {
+      "material": "right_1",
+      "submesh": "room_part_6",
+      "width_cm": 585.0,
+      "banner_index": 3
+    }
+  ],
+  "joinery_bindings": [
+    {
+      "material": "body",
+      "submesh": "room_part_1"
+    },
+    {
+      "material": "edge",
+      "submesh": "room_part_2"
+    },
+    {
+      "material": "light",
+      "submesh": "room_part_3"
+    },
+    {
+      "material": "cabinet",
+      "submesh": "room_part_4"
+    }
+  ],
+  "ceiling_bindings": [
+    {
+      "material": "paint",
+      "submesh": "room_part_1"
+    },
+    {
+      "material": "metal",
+      "submesh": "room_part_2"
+    },
+    {
+      "material": "diffuser",
+      "submesh": "room_part_3"
+    },
+    {
+      "material": "vent",
+      "submesh": "room_part_4"
+    }
+  ],
+  "crest_bindings": [
+    {
+      "material": "bay",
+      "submesh": "room_part_1"
+    },
+    {
+      "material": "ceiling",
+      "submesh": "room_part_2"
+    },
+    {
+      "material": "floor",
+      "submesh": "room_part_3"
+    },
+    {
+      "material": "feature_wall",
+      "submesh": "room_part_4"
+    },
+    {
+      "material": "corner",
+      "submesh": "room_part_5"
+    }
+  ],
+  "mount_bindings": [
+    {
+      "material": "metal",
+      "submesh": "room_part_1"
+    },
+    {
+      "material": "paint",
+      "submesh": "room_part_2"
+    }
+  ],
+  "feature_bindings": [
+    {
+      "material": "wall",
+      "submesh": "room_part_1"
+    }
+  ],
+  "furniture_bindings": [
+    {
+      "material": "walnut",
+      "submesh": "room_part_1"
+    }
+  ],
+  "scenery_bindings": [
+    {
+      "submesh": "room_part_1",
+      "atlas": 0,
+      "alpha": false
+    },
+    {
+      "submesh": "room_part_2",
+      "atlas": 0,
+      "alpha": true
+    },
+    {
+      "submesh": "room_part_3",
+      "atlas": 1,
+      "alpha": false
+    }
+  ],
+  "empty_submeshes": {
+    "room_roles.rx3": [
+      "room_part_6",
+      "room_part_8",
+      "room_part_9",
+      "room_part_10",
+      "room_part_18",
+      "room_part_29",
+      "room_part_30",
+      "room_part_31",
+      "room_part_32",
+      "room_part_33",
+      "room_part_34",
+      "room_part_35",
+      "room_part_36",
+      "room_part_37",
+      "room_part_38",
+      "room_part_39",
+      "room_part_40",
+      "room_part_41",
+      "room_part_42",
+      "room_part_43",
+      "room_part_44",
+      "room_part_45",
+      "room_part_46",
+      "room_part_47",
+      "room_part_48",
+      "room_part_49",
+      "room_part_50"
+    ],
+    "scenery.rx3": [
+      "room_part_2",
+      "room_part_3"
+    ],
+    "crest_surfaces.rx3": [],
+    "interior.rx3": [
+      "room_part_7",
+      "room_part_17",
+      "room_part_22",
+      "room_part_24",
+      "room_part_25",
+      "room_part_26",
+      "room_part_27"
+    ]
+  },
+  "preserved": [
+    "next_match_board",
+    "coach_room",
+    "medical_department",
+    "all_doorways",
+    "exit_paths",
+    "collision_layout"
+  ],
+  "model_files": {
+    "room_roles.rx3": "room_roles_42309461bad76f.rx3",
+    "scenery.rx3": "scenery_c874ddac663808.rx3",
+    "crest_surfaces.rx3": "crest_surfaces_89d255cf1eceb1.rx3",
+    "interior.rx3": "interior_fb7fefde8ca3f4.rx3",
+    "locker_bay.rx3": "locker_bay_87e9b8dc7e48e7.rx3",
+    "fascia.rx3": "fascia_24a0328bc06a21.rx3",
+    "crests.rx3": "crests_238f4c4ced9d79.rx3",
+    "joinery.rx3": "joinery_e71c06e31745b4.rx3",
+    "ceiling_details.rx3": "ceiling_details_5d9e89477022af.rx3",
+    "logo_mount.rx3": "logo_mount_a2ebc9ad5dd548.rx3",
+    "feature_wall.rx3": "feature_wall_383424509b5185.rx3",
+    "furniture_wood.rx3": "furniture_wood_e8b75a0f6e0460.rx3"
+  }
+}

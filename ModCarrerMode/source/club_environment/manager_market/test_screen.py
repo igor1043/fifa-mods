@@ -69,16 +69,16 @@ class NativeScreenTest(unittest.TestCase):
   vm.invoke(s.get('Command'),s,(51,));self.assertTrue(clip.get('pageDotOn1').get('_visible'));self.assertFalse(clip.get('pageDotOn0').get('_visible'));self.assertTrue(clip.get('pageDotOff0').get('_visible'));self.assertEqual(vm.errors,[])
  def test_dots_are_clickable_and_history_years_are_separate_from_spells(self):
   vm,s,_=self.open();s.set('clubs',s.get('clubs')*7);vm.invoke(s.get('Command'),s,(0,))
-  s.set('_xmouse',1100+2*19);s.set('_ymouse',897);vm.invoke(s.get('onMouseDown'),s);self.assertEqual(2,s.get('page'))
+  s.set('_xmouse',1100+2*19);s.set('_ymouse',926);vm.invoke(s.get('onMouseDown'),s);self.assertEqual(2,s.get('page'))
   vm.invoke(s.get('Command'),s,(40,));vm.invoke(s.get('Command'),s,(84,));self.assertEqual(4,s.get('profileTab'));self.assertEqual([],vm.errors)
  def test_movement_scroll_supports_track_click_drag_and_release(self):
-  vm,s,_=self.open();row=list(self.model['hireRows'][0]) if self.model['hireRows'] else list(self.model['clubRows'][0])+[20260102,'02/01/2026'];row[9]=self.model['months'][s.get('month')][0]*100+2
-  s.set('hires',[row]*15);vm.invoke(s.get('Command'),s,(1,));s.set('_xmouse',947);s.set('_ymouse',830);vm.invoke(s.get('onMouseDown'),s)
+  vm,s,_=self.open();row=list(self.model['hireRows'][0]) if self.model['hireRows'] else list(self.model['clubRows'][0])+[20260102,'02/01/2026','Brasil'];row[9]=self.model['months'][s.get('month')][0]*100+2
+  row=row[:11]+[s.get('countries')[0][0]];s.set('hires',[row]*15);vm.invoke(s.get('Command'),s,(1,));s.set('_xmouse',947);s.set('_ymouse',830);vm.invoke(s.get('onMouseDown'),s)
   self.assertGreater(s.get('hirePage'),0);s.set('_ymouse',438);vm.invoke(s.get('onMouseMove'),s);self.assertEqual(0,s.get('hirePage'))
   vm.invoke(s.get('onMouseUp'),s);self.assertEqual(0,s.get('dragScroll'));self.assertEqual([],vm.errors)
  def test_movement_league_filter_preserves_month_and_filters_both_lists(self):
   vm,s,_=self.open();row=list(self.model['clubRows'][0])+[self.model['months'][s.get('month')][0]*100+2,'02/01/2026'];row[8]=s.get('leagues')[0][0]
-  other=list(row);other[8]=-1;s.set('hires',[row,other]);s.set('moves',[row,other]);vm.invoke(s.get('Command'),s,(1,));month=s.get('month')
+  other=list(row);other[8]=-1;s.set('hires',[row,other]);s.set('moves',[row,other]);vm.invoke(s.get('Command'),s,(1,));s.set('movementCountry',0);s.set('movementLeague',0);vm.invoke(s.get('Refresh'),s);month=s.get('month')
   self.assertEqual(2,len(s.get('monthHires')));vm.invoke(s.get('Command'),s,(23,));self.assertEqual(1,len(s.get('monthHires')));self.assertEqual(1,len(s.get('monthMoves')));self.assertEqual(month,s.get('month'));self.assertEqual([],vm.errors)
  def test_native_scroll_press_and_frame_drag_do_not_require_global_mouse_events(self):
   vm,s,_=self.open();row=list(self.model['clubRows'][0])+[self.model['months'][s.get('month')][0]*100+2,'02/01/2026','Brasil'];s.set('hires',[row]*15);vm.invoke(s.get('Command'),s,(1,))
@@ -86,7 +86,7 @@ class NativeScreenTest(unittest.TestCase):
   s.set('_ymouse',820);vm.invoke(button.get('onPress'),button);self.assertEqual(1,s.get('dragScroll'));self.assertGreater(s.get('hirePage'),0)
   s.set('_ymouse',438);vm.invoke(s.get('ScrollFrame'),s);self.assertEqual(0,s.get('hirePage'));vm.invoke(button.get('onReleaseOutside'),button);self.assertEqual(0,s.get('dragScroll'));self.assertEqual([],vm.errors)
  def test_country_and_league_filters_are_separate_and_reset_dependent_selection(self):
-  vm,s,_=self.open();row=list(self.model['clubRows'][0])+[self.model['months'][s.get('month')][0]*100+2,'02/01/2026',s.get('countries')[0][0]];other=list(row);other[11]='Outro país';s.set('hires',[row,other]);vm.invoke(s.get('Command'),s,(1,));vm.invoke(s.get('Command'),s,(25,))
+  vm,s,_=self.open();row=list(self.model['clubRows'][0])+[self.model['months'][s.get('month')][0]*100+2,'02/01/2026',s.get('countries')[0][0]];other=list(row);other[11]='Outro país';s.set('hires',[row,other]);vm.invoke(s.get('Command'),s,(1,));s.set('movementCountry',0);vm.invoke(s.get('Command'),s,(25,))
   self.assertEqual(1,len(s.get('monthHires')));self.assertEqual(0,s.get('movementLeague'));self.assertEqual(s.get('countries')[0][0],s.get('scene3').get('movementCountry').get('text'));self.assertEqual([],vm.errors)
  def test_spatial_navigation_tabs_filters_and_card_rows(self):
   vm,s,_=self.open()
@@ -103,6 +103,14 @@ class NativeScreenTest(unittest.TestCase):
   vm.invoke(s.get('Command'),s,(81,));self.assertEqual(s.get('historyPages'),3)
   vm.invoke(s.get('Command'),s,(71,));self.assertEqual(s.get('historyPage'),1)
   clip=s.get('scene1');self.assertTrue(clip.get('historyScrollThumb').get('_visible'));self.assertRegex(clip.get('entryHome0').get('text'),r'^\d+,\d%$');self.assertTrue(clip.get('entryValue0_0').get('_visible'));self.assertFalse(clip.get('entryAway0').get('_visible'));self.assertEqual(vm.errors,[])
+ def test_month_filters_open_current_month_and_ignore_duplicate_press(self):
+  model=copy.deepcopy(self.model);model['months']=[[202610,'Outubro 2026'],[202611,'Novembro 2026'],[202612,'Dezembro 2026']];model['initialMonth']=2
+  package=Path(self.tmp.name)/'monthly.big';native_screen.build(GAME,package,scenes_for(model,{}),{},script_factory=script_factory(model,{}),full_name=FULL)
+  vm,s,_,calls=open_native(package,full=FULL);load_data(vm,s);vm.invoke(s.get('Command'),s,(1,));self.assertEqual(2,s.get('month'))
+  vm.invoke(s.get('LocalEventHandler'),s,(8,None));vm.invoke(s.get('LocalEventHandler'),s,(8,None));self.assertEqual(1,s.get('month'))
+  for _ in range(6):vm.invoke(s.get('ScrollFrame'),s)
+  vm.invoke(s.get('Command'),s,(30,));self.assertEqual(0,s.get('month'))
+  vm.invoke(s.get('Command'),s,(31,));self.assertEqual(1,s.get('month'));self.assertEqual([],vm.errors)
  def test_initial_view_defers_unopened_coach_histories(self):
   vm,s,_=self.open();self.assertTrue(all(not person[23] and not person[24] for person in s.get('people')))
   vm.invoke(s.get('Command'),s,(40,));selected=s.get('person')
@@ -143,12 +151,12 @@ class NativeScreenTest(unittest.TestCase):
   vm,s,calls=self.open();vm.invoke(s.get('LocalEventHandler'),s,(12,None));self.assertEqual(1,s.get('tab'));self.assertEqual([],s.get('monthMoves'));self.assertEqual([],s.get('monthHires'));vm.invoke(s.get('LocalEventHandler'),s,(12,None));self.assertEqual(2,s.get('tab'));vm.invoke(s.get('Command'),s,(2,));vm.invoke(s.get('Command'),s,(51,));self.assertEqual(1,s.get('page'));vm.invoke(s.get('Command'),s,(50,));self.assertEqual(0,s.get('page'));vm.invoke(s.get('LocalEventHandler'),s,(12,None));self.assertEqual(0,s.get('tab'))
  def test_movements_share_month_but_have_independent_pages_and_profiles(self):
   model=copy.deepcopy(self.model);model['months']=[[202512,'Dezembro 2025'],[202601,'Janeiro 2026'],[202602,'Fevereiro 2026']];model['initialMonth']=2
-  r=model['clubRows'][0];model['moveRows']=[[*r,20260115,'15/01/2026']];model['hireRows']=[[*r,20260116,'16/01/2026'] for _ in range(5)]+[[*r,20260203,'03/02/2026']]
+  r=model['clubRows'][0];model['moveRows']=[[*r,20260115,'15/01/2026','Brasil']];model['hireRows']=[[*r,20260116,'16/01/2026','Brasil'] for _ in range(5)]+[[*r,20260203,'03/02/2026','Brasil']]
   assets={'head_NOTFOUND_DEFAULT':Image.new('RGBA',(64,64),'gray'),**{'stars_'+str(i):stars(i) for i in range(11)}}
   path=Path(self.tmp.name)/'movements.big';native_screen.build(GAME,path,scenes_for(model,assets),assets,script_factory=script_factory(model,assets),full_name=FULL)
   vm,s,_,_=open_native(path,full=FULL);load_data(vm,s);vm.invoke(s.get('Command'),s,(1,));self.assertEqual(1,len(s.get('monthHires')));self.assertEqual(0,len(s.get('monthMoves')))
   vm.invoke(s.get('LocalEventHandler'),s,(8,None));self.assertEqual(1,s.get('tab'));self.assertEqual(5,len(s.get('monthHires')));self.assertEqual(1,len(s.get('monthMoves')));self.assertEqual(2,s.get('hirePageCount'));vm.invoke(s.get('Command'),s,(53,));self.assertEqual(1,s.get('hirePage'));self.assertEqual(0,s.get('movePage'));self.assertTrue(s.get('scene3').get('h_scrollThumb').get('_visible'));self.assertLess(s.get('scene3').get('h_scrollThumb').get('_height'),440)
-  vm.invoke(s.get('Command'),s,(44,));self.assertTrue(s.get('profile'));self.assertEqual(r[7],s.get('person'));vm.invoke(s.get('Command'),s,(60,));vm.invoke(s.get('Command'),s,(30,));self.assertEqual([],s.get('monthHires'));self.assertEqual([],s.get('monthMoves'));self.assertEqual(0,s.get('hirePage'));vm.invoke(s.get('Command'),s,(32,));self.assertEqual(0,s.get('month'));self.assertEqual([],vm.errors)
+  vm.invoke(s.get('Command'),s,(44,));self.assertTrue(s.get('profile'));self.assertEqual(r[7],s.get('person'));vm.invoke(s.get('Command'),s,(60,));s.set('frames',s.get('frames')+6);vm.invoke(s.get('Command'),s,(30,));self.assertEqual([],s.get('monthHires'));self.assertEqual([],s.get('monthMoves'));self.assertEqual(0,s.get('hirePage'));vm.invoke(s.get('Command'),s,(32,));self.assertEqual(0,s.get('month'));self.assertEqual([],vm.errors)
  def test_repeated_nationality_flags_and_reputation_have_separate_clips(self):
   model=copy.deepcopy(self.model)
   for p in model['people']:p['flag']='flag_54'

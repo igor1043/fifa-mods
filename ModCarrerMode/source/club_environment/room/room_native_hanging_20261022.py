@@ -11,14 +11,14 @@ R=scene.ROOT;LIVE=scene.LIVE
 TEMPLATE=portable.ROOM/"assets/texture_template.rx3"
 VERSION='r71'
 
-def texture_package(image,path,name):
+def texture_package(image,path,name,*,mipmaps=True):
  """Same RX3/DXT5/mipmap directory contract as the working entrance package."""
  image=image.convert('RGBA');w,h=image.size;rx=Rx3(TEMPLATE.read_bytes());head=rx.get(TEXTURE)[0][:16];raw=bytearray(head);raw[5]=2;mips=0
  while True:
   out=io.BytesIO();image.save(out,format='DDS',pixel_format='DXT5');dds=out.getvalue();assert dds[84:88]==b'DXT5'
   pixels=dds[128:];pitch=max(1,(image.width+3)//4)*16;rows=max(1,(image.height+3)//4);assert len(pixels)==pitch*rows
   raw.extend(struct.pack('<4I',pitch,rows,len(pixels),0));raw.extend(pixels);mips+=1
-  if image.width==image.height==1:break
+  if not mipmaps or image.width==image.height==1:break
   image=image.resize((max(1,image.width//2),max(1,image.height//2)),Image.Resampling.LANCZOS)
  struct.pack_into('<I',raw,0,len(raw));struct.pack_into('<4H',raw,8,w,h,1,mips)
  rx.sections=[s for s in rx.sections if s[0]!=TEXTURE];rx.sections.append([TEXTURE,bytes(raw),0])
@@ -112,13 +112,13 @@ def prepare_geometry(kind,read_asset):
  original,_=read_model(Rx3(read_asset('data/sceneassets/body/'+native)))
  assert len(original[0]['positions'])//3==len(shirt) and len(original[0]['indices'])==len(ids),'Pose cache must correspond to native jersey topology'
  assert np.max(np.abs(np.array(original[0]['uvs']).reshape(-1,2)-shirt['uv']))<1e-5,'Native kit UVs must be preserved'
- if path.exists():return 'data/sceneassets/server16_dressing_room_20261022/'+filename
+ if path.exists():return 'data/sceneassets/server16_dressing_room_v3/shared/'+filename
  groups=[(shirt,ids),hanger(shirt,ids),decal(shirt,ids,0,192,44,8),decal(shirt,ids,0,180,16,33),decal(shirt,ids,-7,180,13,33),decal(shirt,ids,7,180,13,33)]
  if not path.exists():scene.prop_file(groups,R/'assets'/filename)
- return 'data/sceneassets/server16_dressing_room_20261022/'+filename
+ return 'data/sceneassets/server16_dressing_room_v3/shared/'+filename
 
 def hardware_texture():
  p=LIVE/f'hanging_hardware_{VERSION}.rx3'
  if not p.exists():
   im=Image.new('RGBA',(16,8),(18,22,25,255));im.paste((130,139,145,255),(8,0,16,8));texture_package(im,p,'hardware_cm')
- return 'data/sceneassets/server16_dressing_room_20261022/'+p.name
+ return 'data/sceneassets/server16_dressing_room_v3/shared/'+p.name

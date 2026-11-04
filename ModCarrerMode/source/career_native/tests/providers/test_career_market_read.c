@@ -31,9 +31,15 @@ static int prepared_view_read_file(const char *path,PreparedViewRecord *record){
 static int prepared_view_scope(const PreparedViewRecord *record,CareerContextRead *captured){
     *captured=Fifa16CareerContextRead;
     return captured->sequence==2 && captured->owner_thread==GetCurrentThreadId()
-        && record->pid==GetCurrentProcessId() && record->date==20260111 && record->club==1043
+        && record->pid==GetCurrentProcessId() && record->date==20260100+((int *)(mock_calendar+0x34))[0] && record->club==1043
         && record->epoch==captured->epoch && record->registry==captured->registry;
 }
+static int bank_input_context(CareerContextRead *captured,uintptr_t *context,unsigned *club,int *today){
+    *captured=Fifa16CareerContextRead;*context=(uintptr_t)*(void **)(captured->service+0x18);
+    *club=1043;*today=20260100+((int *)(mock_calendar+0x34))[0];return 1;
+}
+static int campaign_archives;
+#define MANAGER_ARCHIVE_CAMPAIGN(r) ((void)(r),++campaign_archives)
 #include "../../src/host/career_manager_read.inc"
 typedef struct Query {const char *table;int value;} Query;
 static void *q_init(void *q,int operation,const char *table){assert(operation==1);memset(q,0,56);((Query *)q)->table=table;++queries;return q;}
@@ -77,10 +83,23 @@ int main(void){
      mode=0;Fifa16CareerContextRead.sequence=2;strcpy(page,"game/screens/fluxHub/FluxHub");
      before=queries;g_manager_read_next=0;drain_manager_read();assert(queries==before);
      manager_request=(PreparedViewRecord){1,GetCurrentProcessId(),1043,2,0,(uintptr_t)contexts,123,GetTickCount64(),20260111,0,{0}};manager_request_enabled=1;
+     stable=0;drain_manager_calendar();assert(campaign_archives==1 && queries==before);stable=1;
      ++Fifa16CareerContextRead.owner_thread;g_manager_read_next=0;drain_manager_read();assert(queries==before);--Fifa16CareerContextRead.owner_thread;
      manager_request.captured=GetTickCount64()+100000;g_manager_read_next=0;drain_manager_read();assert(queries==before);manager_request.captured=GetTickCount64();
      g_current_stats_provider_owner=(void *)1;g_manager_read_next=0;drain_manager_read();assert(queries==before);g_current_stats_provider_owner=NULL;
      g_manager_read_next=0;drain_manager_read();assert(queries==before+1);f=fopen(league_file,"rb");assert(f);n=fread(buffer,1,sizeof(buffer)-1,f);fclose(f);buffer[n]=0;assert(strstr(buffer,"complete=1") && strstr(buffer,"league=") && strstr(buffer,"date=20260111"));
+     {
+       char days[MAX_PATH],scope[MAX_PATH],archived[MAX_PATH];int observed;
+       snprintf(days,sizeof(days),"%s\\league_days",manager_folder);
+       snprintf(scope,sizeof(scope),"%s\\%lu-%llu-%u-%llx",days,manager_request.pid,manager_request.created,manager_request.epoch,manager_request.context);
+       snprintf(archived,sizeof(archived),"%s\\20260111.tsv",scope);assert(GetFileAttributesA(archived)!=INVALID_FILE_ATTRIBUTES);
+       /* The old request day cannot suppress a new native calendar day,
+        * even when the normal same-day refresh timer has not elapsed. */
+       observed=queries;((int *)(cal+0x34))[0]=12;g_manager_read_next=GetTickCount64()+10000;drain_manager_read();assert(queries==observed+1);
+       f=fopen(league_file,"rb");assert(f);n=fread(buffer,1,sizeof(buffer)-1,f);fclose(f);buffer[n]=0;assert(strstr(buffer,"date=20260112"));
+       assert(DeleteFileA(archived));snprintf(archived,sizeof(archived),"%s\\20260112.tsv",scope);assert(DeleteFileA(archived));assert(RemoveDirectoryA(scope));assert(RemoveDirectoryA(days));
+       ((int *)(cal+0x34))[0]=11;
+     }
      DeleteFileA(league_file);mode=1;g_manager_read_next=0;drain_manager_read();assert(GetFileAttributesA(league_file)==INVALID_FILE_ATTRIBUTES);
      mode=2;g_manager_read_next=0;drain_manager_read();assert(GetFileAttributesA(league_file)==INVALID_FILE_ATTRIBUTES);assert(RemoveDirectoryA(manager_folder));
     }

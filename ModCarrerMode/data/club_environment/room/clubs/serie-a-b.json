@@ -1,0 +1,962 @@
+[
+  {
+    "id": 1039,
+    "name": "Athletico-PR",
+    "city": "Curitiba",
+    "division": "A",
+    "colors": [
+      [
+        155,
+        0,
+        29
+      ],
+      [
+        1,
+        1,
+        1
+      ]
+    ],
+    "asset": "1039/mural.png",
+    "size": [
+      2172,
+      724
+    ],
+    "sha256": "13732ad8b6bd1044df9492520fa8bfed6c28c6fb5d1fe29f62cc02da111d1aa3"
+  },
+  {
+    "id": 1035,
+    "name": "Atlético-MG",
+    "city": "Belo Horizonte",
+    "division": "A",
+    "colors": [
+      [
+        1,
+        1,
+        1
+      ],
+      [
+        255,
+        255,
+        255
+      ]
+    ],
+    "asset": "1035/mural.png",
+    "size": [
+      2172,
+      724
+    ],
+    "sha256": "f18c418e33dbdba15b6cfb458d64ddb5de3a9da26087826111352a197423964a"
+  },
+  {
+    "id": 1598,
+    "name": "Bahia",
+    "city": "Salvador",
+    "division": "A",
+    "colors": [
+      [
+        0,
+        84,
+        153
+      ],
+      [
+        175,
+        19,
+        41
+      ]
+    ],
+    "asset": "1598/mural.png",
+    "size": [
+      2172,
+      724
+    ],
+    "sha256": "6723a730498ea301aac4f4f69731e62d919c3cc1ea9663c581d31e389a907e11"
+  },
+  {
+    "id": 517,
+    "name": "Botafogo",
+    "city": "Rio de Janeiro",
+    "division": "A",
+    "colors": [
+      [
+        0,
+        0,
+        0
+      ],
+      [
+        255,
+        255,
+        255
+      ]
+    ],
+    "asset": "517/mural.png",
+    "size": [
+      2172,
+      724
+    ],
+    "sha256": "de8a733d178028a2075fddf4e976282a4369c15ed249b103c707265a9a30bb61"
+  },
+  {
+    "id": 112476,
+    "name": "Chapecoense",
+    "city": "Chapecó",
+    "division": "A",
+    "colors": [
+      [
+        0,
+        128,
+        1
+      ],
+      [
+        255,
+        255,
+        255
+      ]
+    ],
+    "asset": "112476/mural.png",
+    "size": [
+      2172,
+      724
+    ],
+    "sha256": "02c638687ede8f9fc44bce031dd717cbaf5ef30878c5490fdc4cc780c484de92"
+  },
+  {
+    "id": 1041,
+    "name": "Corinthians",
+    "city": "São Paulo",
+    "division": "A",
+    "colors": [
+      [
+        255,
+        255,
+        255
+      ],
+      [
+        0,
+        0,
+        0
+      ]
+    ],
+    "asset": "1041/mural.png",
+    "size": [
+      2172,
+      724
+    ],
+    "sha256": "34bd21711d9302e510605756cc8b4514f66ba6aac1f61aedf27573b40d040965"
+  },
+  {
+    "id": 111044,
+    "name": "Coritiba",
+    "city": "Curitiba",
+    "division": "A",
+    "colors": [
+      [
+        27,
+        84,
+        40
+      ],
+      [
+        255,
+        255,
+        255
+      ]
+    ],
+    "asset": "111044/mural.png",
+    "size": [
+      2172,
+      724
+    ],
+    "sha256": "e16b008c3941a79ddebd1257e90a7907ec55839afb8b66073abb2192353a2686"
+  },
+  {
+    "id": 568,
+    "name": "Cruzeiro",
+    "city": "Belo Horizonte",
+    "division": "A",
+    "colors": [
+      [
+        4,
+        52,
+        170
+      ],
+      [
+        255,
+        255,
+        255
+      ]
+    ],
+    "asset": "568/mural.png",
+    "size": [
+      2172,
+      724
+    ],
+    "sha256": "d838598b76639496e2274765ecd43a2049b97de9ecf655ea09db43ed25b3f2ea"
+  },
+  {
+    "id": 1043,
+    "name": "Flamengo",
+    "city": "Rio de Janeiro",
+    "division": "A",
+    "colors": [
+      [
+        215,
+        0,
+        15
+      ],
+      [
+        0,
+        0,
+        0
+      ]
+    ],
+    "asset": "1043/mural.png",
+    "size": [
+      2172,
+      724
+    ],
+    "sha256": "78c2f2a3cbe95cbe74ea256f15ebb9f08a5e270956654936f0525b5083f1527d"
+  },
+  {
+    "id": 567,
+    "name": "Fluminense",
+    "city": "Rio de Janeiro",
+    "division": "A",
+    "colors": [
+      [
+        5,
+        112,
+        67
+      ],
+      [
+        132,
+        6,
+        38
+      ]
+    ],
+    "asset": "567/mural.png",
+    "size": [
+      2172,
+      724
+    ],
+    "sha256": "36ceecc9cec1ca044a340648936dbfdb0e4f142439d66e5197d34e9edcb60b67"
+  },
+  {
+    "id": 1629,
+    "name": "Grêmio",
+    "city": "Porto Alegre",
+    "division": "A",
+    "colors": [
+      [
+        0,
+        174,
+        239
+      ],
+      [
+        0,
+        0,
+        0
+      ]
+    ],
+    "asset": "1629/mural.png",
+    "size": [
+      2172,
+      724
+    ],
+    "sha256": "a646624ca10791628dacf447699fd485b33f22196fc01e474354f2897f349b0c"
+  },
+  {
+    "id": 1048,
+    "name": "Internacional",
+    "city": "Porto Alegre",
+    "division": "A",
+    "colors": [
+      [
+        200,
+        0,
+        0
+      ],
+      [
+        255,
+        255,
+        255
+      ]
+    ],
+    "asset": "1048/mural.png",
+    "size": [
+      2172,
+      724
+    ],
+    "sha256": "f8989222b4ac583a1dec134075cebf72b679575fe6c4ec7e0bfade0026e1de45"
+  },
+  {
+    "id": 113163,
+    "name": "Mirassol",
+    "city": "Mirassol",
+    "division": "A",
+    "colors": [
+      [
+        253,
+        222,
+        2
+      ],
+      [
+        0,
+        128,
+        64
+      ]
+    ],
+    "asset": "113163/mural.png",
+    "size": [
+      2172,
+      724
+    ],
+    "sha256": "23193049573385d9f50838c1bda7fecd8261400a4f5c674ae1068250e6007b0a"
+  },
+  {
+    "id": 383,
+    "name": "Palmeiras",
+    "city": "São Paulo",
+    "division": "A",
+    "colors": [
+      [
+        6,
+        115,
+        69
+      ],
+      [
+        255,
+        255,
+        255
+      ]
+    ],
+    "asset": "383/mural.png",
+    "size": [
+      2172,
+      724
+    ],
+    "sha256": "79cb9b8aec2d627ca303c4de3cd2c695a123c79f056c770e5fcfb628c0afcc9f"
+  },
+  {
+    "id": 123921,
+    "name": "RB Bragantino",
+    "city": "Bragança Paulista",
+    "division": "A",
+    "colors": [
+      [
+        0,
+        0,
+        0
+      ],
+      [
+        255,
+        255,
+        255
+      ]
+    ],
+    "asset": "123921/mural.png",
+    "size": [
+      2172,
+      724
+    ],
+    "sha256": "030790c3856b54b28f728714e12e0d6aac9ffd61e472430374d315923bff112a"
+  },
+  {
+    "id": 130026,
+    "name": "Remo",
+    "city": "Belém",
+    "division": "A",
+    "colors": [
+      [
+        0,
+        0,
+        64
+      ],
+      [
+        255,
+        255,
+        255
+      ]
+    ],
+    "asset": "130026/mural.png",
+    "size": [
+      2172,
+      724
+    ],
+    "sha256": "085a88d8b296fdd248db1b510a3b0e48634819c3856f3e238cc59c67f339506b"
+  },
+  {
+    "id": 1053,
+    "name": "Santos",
+    "city": "Santos",
+    "division": "A",
+    "colors": [
+      [
+        255,
+        255,
+        255
+      ],
+      [
+        1,
+        1,
+        1
+      ]
+    ],
+    "asset": "1053/mural.png",
+    "size": [
+      2172,
+      724
+    ],
+    "sha256": "ec95e1ddf60506038b7f514e388ffac232ddab63d18a5699a8a46caa1fb5e164"
+  },
+  {
+    "id": 598,
+    "name": "São Paulo",
+    "city": "São Paulo",
+    "division": "A",
+    "colors": [
+      [
+        250,
+        0,
+        0
+      ],
+      [
+        255,
+        255,
+        255
+      ]
+    ],
+    "asset": "598/mural.png",
+    "size": [
+      2172,
+      724
+    ],
+    "sha256": "fad8b07bda8c860db0649457e404977df05e66482c5858f00b1641540500f26d"
+  },
+  {
+    "id": 569,
+    "name": "Vasco da Gama",
+    "city": "Rio de Janeiro",
+    "division": "A",
+    "colors": [
+      [
+        255,
+        255,
+        255
+      ],
+      [
+        1,
+        1,
+        1
+      ]
+    ],
+    "asset": "569/mural.png",
+    "size": [
+      2172,
+      724
+    ],
+    "sha256": "fa37e9bc8992c8536336cd58d7aa9744df7c649011e34b9a3aa1d774d27d1db7"
+  },
+  {
+    "id": 1719,
+    "name": "Vitória-BA",
+    "city": "Salvador",
+    "division": "A",
+    "colors": [
+      [
+        255,
+        17,
+        0
+      ],
+      [
+        0,
+        0,
+        0
+      ]
+    ],
+    "asset": "1719/mural.png",
+    "size": [
+      2172,
+      724
+    ],
+    "sha256": "f4cf99698a4d285afcf02bbc3d77d9364e2fd9ebb977094af6bf31ab7fe3db64"
+  },
+  {
+    "id": 112001,
+    "name": "América-MG",
+    "city": "Região de Belo Horizonte",
+    "division": "B",
+    "colors": [
+      [
+        0,
+        89,
+        0
+      ],
+      [
+        0,
+        0,
+        0
+      ]
+    ],
+    "asset": "112001/mural.png",
+    "size": [
+      2172,
+      724
+    ],
+    "sha256": "dca6d2e0627f47461eb420e5ebb259489044367be9b47e5bcd7f9d4fdf02f459"
+  },
+  {
+    "id": 130388,
+    "name": "Athletic SJR-MG",
+    "city": "Região de Belo Horizonte",
+    "division": "B",
+    "colors": [
+      [
+        0,
+        0,
+        0
+      ],
+      [
+        255,
+        255,
+        255
+      ]
+    ],
+    "asset": "130388/mural.png",
+    "size": [
+      2172,
+      724
+    ],
+    "sha256": "a171653a6b93579464a1fd6c76b81efd604575d629b1c696d72c0d897ca0d0ff"
+  },
+  {
+    "id": 112119,
+    "name": "Atlético-GO",
+    "city": "Região de Goiânia",
+    "division": "B",
+    "colors": [
+      [
+        0,
+        0,
+        0
+      ],
+      [
+        196,
+        0,
+        5
+      ]
+    ],
+    "asset": "112119/mural.png",
+    "size": [
+      2172,
+      724
+    ],
+    "sha256": "8cb185ef0f74792e61f18d5665604ba05e01be1db9203341ee333fed01acb7c7"
+  },
+  {
+    "id": 111976,
+    "name": "Avaí",
+    "city": "Região de Brasília",
+    "division": "B",
+    "colors": [
+      [
+        0,
+        79,
+        162
+      ],
+      [
+        255,
+        255,
+        255
+      ]
+    ],
+    "asset": "111976/mural.png",
+    "size": [
+      2172,
+      724
+    ],
+    "sha256": "d284ac58e54a467badce8167b0f1e41adec8f1e6c1063faaf000e0ad4419e5a6"
+  },
+  {
+    "id": 130028,
+    "name": "Botafogo-RP",
+    "city": "Botafogo",
+    "division": "B",
+    "colors": [
+      [
+        255,
+        0,
+        0
+      ],
+      [
+        0,
+        0,
+        0
+      ]
+    ],
+    "asset": "130028/mural.png",
+    "size": [
+      2172,
+      724
+    ],
+    "sha256": "15058dcf57501257d761eac4688c34788588bbd28fda0ccbad330092442fa695"
+  },
+  {
+    "id": 111059,
+    "name": "Ceará",
+    "city": "Fortaleza",
+    "division": "B",
+    "colors": [
+      [
+        0,
+        0,
+        0
+      ],
+      [
+        255,
+        255,
+        255
+      ]
+    ],
+    "asset": "111059/mural.png",
+    "size": [
+      2172,
+      724
+    ],
+    "sha256": "ccebb6a95f591a25e62331f26380d8902a4c680de960e7f2b34104bc6b4fcf4e"
+  },
+  {
+    "id": 120005,
+    "name": "CRB",
+    "city": "Região de São José da Coroa Grande",
+    "division": "B",
+    "colors": [
+      [
+        255,
+        0,
+        0
+      ],
+      [
+        255,
+        255,
+        255
+      ]
+    ],
+    "asset": "120005/mural.png",
+    "size": [
+      2172,
+      724
+    ],
+    "sha256": "c20410b8b0bb0776818d9d2231cf02eb5155dc48af714cb58b81cb5654b6da66"
+  },
+  {
+    "id": 111046,
+    "name": "Criciúma",
+    "city": "Criciúma",
+    "division": "B",
+    "colors": [
+      [
+        253,
+        209,
+        22
+      ],
+      [
+        0,
+        0,
+        0
+      ]
+    ],
+    "asset": "111046/mural.png",
+    "size": [
+      2172,
+      724
+    ],
+    "sha256": "93f42118f1807681264843e0f4418485944fd09d781b81776dd0379a8669092c"
+  },
+  {
+    "id": 120006,
+    "name": "Cuiabá",
+    "city": "Cuiabá",
+    "division": "B",
+    "colors": [
+      [
+        6,
+        115,
+        69
+      ],
+      [
+        255,
+        255,
+        0
+      ]
+    ],
+    "asset": "120006/mural.png",
+    "size": [
+      2172,
+      724
+    ],
+    "sha256": "3541a3a1d24c968f478c1f342dbcc053783231bd4d500182f4d894cd4b78dba1"
+  },
+  {
+    "id": 111052,
+    "name": "Fortaleza",
+    "city": "Fortaleza",
+    "division": "B",
+    "colors": [
+      [
+        255,
+        255,
+        255
+      ],
+      [
+        0,
+        0,
+        128
+      ]
+    ],
+    "asset": "111052/mural.png",
+    "size": [
+      2172,
+      724
+    ],
+    "sha256": "058228b030db13d8ba62b2106a65918dd18b02aed42d534cbfbd1533acc1714b"
+  },
+  {
+    "id": 111042,
+    "name": "Goiás",
+    "city": "Goiás",
+    "division": "B",
+    "colors": [
+      [
+        3,
+        113,
+        2
+      ],
+      [
+        255,
+        255,
+        255
+      ]
+    ],
+    "asset": "111042/mural.png",
+    "size": [
+      2172,
+      724
+    ],
+    "sha256": "7a82c5193147f009e5f3cafa0c003a5f488c1c21b73571b29c84b45434df79df"
+  },
+  {
+    "id": 130045,
+    "name": "Grêmio Novorizontino",
+    "city": "Região aproximada",
+    "division": "B",
+    "colors": [
+      [
+        242,
+        225,
+        13
+      ],
+      [
+        0,
+        0,
+        0
+      ]
+    ],
+    "asset": "130045/mural.png",
+    "size": [
+      2172,
+      724
+    ],
+    "sha256": "dbfbc1417d72aef93ce154ab644f55e735188ffcf2391d17c6b56b10d034e101"
+  },
+  {
+    "id": 111041,
+    "name": "Juventude",
+    "city": "Região aproximada",
+    "division": "B",
+    "colors": [
+      [
+        255,
+        255,
+        255
+      ],
+      [
+        0,
+        128,
+        64
+      ]
+    ],
+    "asset": "111041/mural.png",
+    "size": [
+      2172,
+      724
+    ],
+    "sha256": "91879e292a50c4c8d5f7899f6aa0d049184d6d9fe0db5d6b2b055208127e56d1"
+  },
+  {
+    "id": 130021,
+    "name": "Londrina",
+    "city": "Londrina",
+    "division": "B",
+    "colors": [
+      [
+        0,
+        128,
+        255
+      ],
+      [
+        255,
+        255,
+        255
+      ]
+    ],
+    "asset": "130021/mural.png",
+    "size": [
+      2172,
+      724
+    ],
+    "sha256": "13bbaed1db4f7aff47f6e8b4bc83c9c66734de6168b46c6e4273c27a0d96f54a"
+  },
+  {
+    "id": 111050,
+    "name": "Náutico",
+    "city": "Região aproximada",
+    "division": "B",
+    "colors": [
+      [
+        255,
+        0,
+        0
+      ],
+      [
+        255,
+        255,
+        255
+      ]
+    ],
+    "asset": "111050/mural.png",
+    "size": [
+      2172,
+      724
+    ],
+    "sha256": "6a97015e7598271f7e7cfeb9260a8eb148d6e5017694ac852d7252d3d5c5d05e"
+  },
+  {
+    "id": 113116,
+    "name": "Operário-PR",
+    "city": "Região de Curitiba",
+    "division": "B",
+    "colors": [
+      [
+        255,
+        255,
+        255
+      ],
+      [
+        0,
+        0,
+        0
+      ]
+    ],
+    "asset": "113116/mural.png",
+    "size": [
+      2172,
+      724
+    ],
+    "sha256": "ccaed3760d1579247d5b0959d77131593b5648161cf74e6f7325da5458639805"
+  },
+  {
+    "id": 111043,
+    "name": "Ponte Preta",
+    "city": "Região aproximada",
+    "division": "B",
+    "colors": [
+      [
+        1,
+        1,
+        1
+      ],
+      [
+        255,
+        255,
+        255
+      ]
+    ],
+    "asset": "111043/mural.png",
+    "size": [
+      2172,
+      724
+    ],
+    "sha256": "50f26401cd37391bfbf7485a8d7953a69ab48070eb232418de2cb8b33f0e6d81"
+  },
+  {
+    "id": 130046,
+    "name": "São Bernardo",
+    "city": "São Bernardo",
+    "division": "B",
+    "colors": [
+      [
+        255,
+        255,
+        0
+      ],
+      [
+        255,
+        255,
+        255
+      ]
+    ],
+    "asset": "130046/mural.png",
+    "size": [
+      2172,
+      724
+    ],
+    "sha256": "e5a972187ae240ca5488233902a1d483d8185024f8bd5523bfab3cfce6f306e4"
+  },
+  {
+    "id": 111057,
+    "name": "Sport Recife",
+    "city": "Recife",
+    "division": "B",
+    "colors": [
+      [
+        233,
+        27,
+        35
+      ],
+      [
+        36,
+        36,
+        36
+      ]
+    ],
+    "asset": "111057/mural.png",
+    "size": [
+      2172,
+      724
+    ],
+    "sha256": "ceb9c0004da972e2b61f9871606c9f3f0055188b666604ceb213d63a13fd1fe9"
+  },
+  {
+    "id": 120016,
+    "name": "Vila Nova",
+    "city": "Neópolis",
+    "division": "B",
+    "colors": [
+      [
+        255,
+        0,
+        0
+      ],
+      [
+        255,
+        255,
+        255
+      ]
+    ],
+    "asset": "120016/mural.png",
+    "size": [
+      2172,
+      724
+    ],
+    "sha256": "234dcd1746b0bff02fc7f1098b642ab88e8d3db4d7cd047771ed0cf529ba30a4"
+  }
+]

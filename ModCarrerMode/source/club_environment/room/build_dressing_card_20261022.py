@@ -14,14 +14,14 @@ import native_roster_footer as roster_footer
 GAME=portable.GAME;CLASS=('game','screens','career','server16','DressingRoom');FULL='.'.join(CLASS);PAGE=FULL.replace('.','/')
 R=b.reg;T=b.this;P=b.prop;CALL=b.call;PATH=b.path;M=b.MANAGER;ION=b.ION
 XML='data/ui/layout/careermanagerhubcfg.xml';NAV='data/ui/nav/careermode/mainmenuhubflow.nav';FLOW='data/ui/nav/careermode/server16dressingroomflow.nav';BIG='data/ui/game/screens/career/server16/dressingroom.big'
-HEADER_REVISION=69
+HEADER_REVISION=76
 def screen(payload=None,asset_reader=None):
  if payload is None:payload=json.loads((ROOT/'runtime/room_context_r46.json').read_text(encoding='utf8'))
  club=int(payload['club']);club_name=payload['club_name'];assert club>=0 and club_name
  import room_scene_ui_r52 as scene_ui
  previous=json.loads((ROOT/'runtime/room_control_scope.json').read_text(encoding='utf8')) if (ROOT/'runtime/room_control_scope.json').exists() else {}
  nonce=previous.get('nonce') if previous.get('club')==club else secrets.token_hex(8)
- scope={'pid':payload['pid'],'club':club,'nonce':nonce,'scenes':payload['scene_catalog']}
+ scope={'pid':payload['pid'],'club':club,'nonce':nonce,'scenes':payload['scene_catalog'],'room_version':payload.get('room_version',2),'settings':payload.get('room_settings',[])}
  (ROOT/'runtime/room_control_scope.json').write_text(json.dumps(scope,ensure_ascii=False,indent=2),encoding='utf8')
  (ROOT/'runtime/room_control_scope.txt').write_text(f'S16ROOMSCOPE 1 {payload["pid"]} {club} {nonce}\n')
  if asset_reader is None:asset_reader=lambda path:(GAME/path).read_bytes()
@@ -78,7 +78,7 @@ def screen(payload=None,asset_reader=None):
   a.do(M('InputManager'),'SetLocalEventHandler',CALL(PATH('cafe','utility','Delegate'),'Create',R(1),T('LocalEventHandler')));a.do(M('HelpManager'),'Update')
  a.function('OnAnimateInComplete',0,complete)
  def exit(a):
-  a.when(T('exiting'),lambda a:a.ret());a.set(R(1),'exiting',True);a.set(R(1),'onEnterFrame',None);a.set(R(1),'onKeyDown',None)
+  a.when(T('exiting'),lambda a:a.ret());a.set(R(1),'exiting',True);a.set(R(1),'onEnterFrame',None);a.set(R(1),'onKeyDown',None);a.set(R(1),'onKeyUp',None)
   roster_footer.restore(a);a.do(R(1),'PublishRoster','room_close');a.do(PATH('Key'),'removeListener',R(1))
   a.do(M('InputManager'),'DisableCurrentLocalEventHandler');a.do(M('HelpManager'),'Clear');a.do(R(1),'Shutdown')
  a.function('OnExitScreen',0,exit);a.op(0);a.finish();a.align();reg=len(data);data.extend(dictionaries[1]);a.string(FULL);a.op(28);a.string(FULL);a.expr(2);a.expr(PATH('Object'));a.method('registerClass');a.op(23);a.op(0);a.finish()
@@ -86,7 +86,7 @@ def screen(payload=None,asset_reader=None):
   matches=[i for i in range(0,len(apt.entry.original)-7,8) if apt.entry.original[i:i+8]==struct.pack('<Q',tag[-1])];assert len(matches)==1;struct.pack_into('<Q',data,matches[0],target)
  out=ROOT/'package'/BIG;out.parent.mkdir(parents=True,exist_ok=True);b.write_big(big,out,additions)
  parsed=AptFile(BigFile(out));actions=Actions(parsed).read_all();assert not actions.errors and FULL in parsed.exports
- (ROOT/'runtime/room_header.json').write_text(json.dumps({'revision':HEADER_REVISION,'pid':payload['pid'],'catalog_hash':hashlib.sha256(json.dumps(scope['scenes'],sort_keys=True).encode()).hexdigest(),'club':club,'name':club_name,'crest':crest_path,'help':{'ADVANCE':'Selecionar','BACK':'Voltar','LAS_LR':'Opções'},'bytes':out.stat().st_size},ensure_ascii=False,indent=2),encoding='utf8')
+ (ROOT/'runtime/room_header.json').write_text(json.dumps({'revision':HEADER_REVISION,'pid':payload['pid'],'catalog_hash':hashlib.sha256(json.dumps({'scenes':scope['scenes'],'settings':scope['settings']},sort_keys=True).encode()).hexdigest(),'club':club,'name':club_name,'crest':crest_path,'help':{'ADVANCE':'Selecionar','BACK':'Voltar','LAS_LR':'Opções'},'bytes':out.stat().st_size},ensure_ascii=False,indent=2),encoding='utf8')
  return out
 def stage():
  screen();xml=ET.fromstring((GAME/XML).read_text(encoding='utf8'));panel=xml.find('panel_3')

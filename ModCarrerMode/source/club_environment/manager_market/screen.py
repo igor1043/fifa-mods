@@ -8,11 +8,11 @@ import native_screen as native
 import manager_layout
 import profile_layout
 import profile_controller,profile_art
-import asset_cache,club_portraits,prepared_catalogue,template_renderer
-from manager_layout import assets_for,scenes_for,stars,TABS,MAIN,club_xy,free_xy,move_xy,PAGE_SIZE,MOVE_TOP,MOVE_HEIGHT
+import asset_cache,club_portraits,prepared_catalogue,template_renderer,market_footer
+from manager_layout import assets_for,scenes_for,stars,TABS,MAIN,club_xy,free_xy,move_xy,PAGE_SIZE,MOVE_TOP,MOVE_HEIGHT,PAGER_Y
 
 CLASS=('game','screens','career','server16','ManagerMarket');FULL='.'.join(CLASS)
-UI_SIGNATURE=hashlib.sha256(Path(__file__).read_bytes()+b''.join(Path(m.__file__).read_bytes() for m in (manager_layout,profile_layout,profile_controller,profile_art,asset_cache,club_portraits,prepared_catalogue,template_renderer,native,b,bank_art))).hexdigest()
+UI_SIGNATURE=hashlib.sha256(Path(__file__).read_bytes()+b''.join(Path(m.__file__).read_bytes() for m in (manager_layout,profile_layout,profile_controller,profile_art,asset_cache,club_portraits,prepared_catalogue,template_renderer,market_footer,native,b,bank_art))).hexdigest()
 GEOMETRY_SIGNATURE=hashlib.sha256(b''.join(Path(m.__file__).read_bytes() for m in (manager_layout,profile_layout,profile_art,native,b,bank_art))).hexdigest()
 R=b.reg;T=b.this;P=b.prop;EQ=b.equal;CALL=b.call;PATH=b.path;M=b.MANAGER;ION=b.ION
 def arr(v):return ('array',tuple(v))
@@ -46,6 +46,10 @@ def loop(a,index,count,body):
  a.set(R(1),index,0);start,end=a.uid(),a.uid();a.label(start);a.expr(('not',lt(T(index),count)));a.branch(end);body(a);a.set(R(1),index,add(T(index),1));a.branch(start,False);a.label(end)
 
 def script_factory(model,assets):
+ years=sorted({int(m[0])//100 for m in model.get('months',[])}) or [model['date']//10000]
+ initial_country=model.get('initialCountry',0)+1
+ mine_country=(model.get('countries') or [dict(name='')])[initial_country-1]['name']
+ initial_league=next((i+1 for i,l in enumerate([l for l in model['leagues'] if l['country']==mine_country]) if l['id']==model.get('initialLeague')),0)
  def script(data,dictionaries,scenes):
   b.CLASS=CLASS;b.FULL=FULL;a=Code(data);a.align();start=len(data);data.extend(dictionaries[0])
   for i,name in enumerate(CLASS[:-1]):
@@ -62,7 +66,7 @@ def script_factory(model,assets):
   def ctor(a):
    a.op(89);a.reg(2);a.op(118);a.op(93);a.do(M('ScreenManager'),'SetOnExitScreenCallback',CALL(PATH('cafe','utility','Delegate'),'Create',R(1),T('OnExitScreen')));a.do(R(1),'Initialize',FULL,None,True)
    a.set(R(1),'_visible',True);a.set(R(1),'_alpha',100);a.set(R(1),'screenReady',False);a.set(R(1),'staticData',CALL(ION,'GetScreenStaticData'));a.set(R(1),'navEvents',CALL(ION,'GetEvents','Navigation'))
-   for key,value in dict(tab=0,page=0,country=model.get('initialCountry',0),league=model.get('initialLeague',0),movementCountry=0,movementLeague=0,dragScroll=0,month=model.get('initialMonth',0),hirePage=0,movePage=0,age=0,nation=0,profile=False,person=0,profileTab=0,profileVenue=0,historyPage=0,focus=0,frames=0).items():a.set(R(1),key,value)
+   for key,value in dict(tab=0,page=0,country=model.get('initialCountry',0),league=model.get('initialLeague',0),movementCountry=initial_country,movementLeague=initial_league,yearMenu=False,dragScroll=0,month=model.get('initialMonth',0),hirePage=0,movePage=0,age=0,nation=0,profile=False,person=0,profileTab=0,profileVenue=0,historyPage=0,focus=0,frames=0,monthInputFrame=-100,monthInputCommand=-1).items():a.set(R(1),key,value)
    for key in ('clubs','free','moves','hires','people','leagues','countries','months','nations','rendered','profileLoaded'):a.set(R(1),key,arr([]))
    a.set(R(1),'dataStep',0);a.set(R(1),'dataReady',False);a.set(R(1),'onEnterFrame',T('DataFrame'));a.do(PATH('Mouse'),'addListener',R(1))
   a.function(CLASS[-1],0,ctor,True);a.expr(PATH(*CLASS));a.expr(PATH('ion','screen','BaseScreen'));a.op(105)
@@ -168,6 +172,11 @@ def script_factory(model,assets):
   def profile(a):
    a.do(R(1),'EnsureProfile')
    profile_controller.emit(a,scenes,R=R,T=T,P=P,ix=ix,add=add,mul=mul,lt=lt,EQ=EQ,both=both,either=either,clamp=clamp,div=div,CALL=CALL,PATH=PATH,field=field,show=show)
+  def dots(a,root,key,count,prefix,start):
+   for dot in range(16):
+    for state in ('On','Off'):
+     active=EQ(floor(div(T(key),4)) if prefix else T(key),dot)
+     a.when(both(both(lt(dot,count),lt(count,17)),active if state=='On' else ('not',active)),lambda a,dot=dot,state=state:show(a,root,prefix+'pageDot'+state+str(dot),start+dot*19,PAGER_Y+2))
   def clubs(a):
    root=T('scene0');a.set(R(1),'leagueRows',arr([]))
    loop(a,'i',P(T('leagues'),'length'),lambda a:a.when(EQ(ix(ix(T('leagues'),T('i')),2),ix(ix(T('countries'),T('country')),0)),lambda a:a.do(T('leagueRows'),'push',ix(T('leagues'),T('i')))))
@@ -182,24 +191,24 @@ def script_factory(model,assets):
     def row(a,i=i,r=r,p=p,x=x,y=y):
      show(a,root,add('c_',ix(r,4)),x+551,y+13);portrait(a,root,'c_',r,i,x+10,y+14);rating(a,root,'c_',r,i,x+174,y+84);nationality(a,root,'c_',p,i,x+174,y+58)
     a.when(present,row)
-   for dot in range(16):
-    a.when(both(lt(dot,T('pageCount')),lt(T('pageCount'),17)),lambda a,dot=dot:show(a,root,add(add('pageDot',CALL(R(1),'DotState',dot)),str(dot)),1100+dot*19,892))
+   dots(a,root,'page',T('pageCount'),'',1100)
    field(a,root,'pageText',pagetext('page',add(P(T('filtered'),'length'),' clubes')));field(a,root,'empty','Nenhum clube nesta liga.' if model.get('ready') else 'Preparando o mercado da carreira aberta...',EQ(P(T('filtered'),'length'),0))
   def movements(a):
-   root=T('scene3');month=ix(ix(T('months'),T('month')),0);field(a,root,'monthName',ix(ix(T('months'),T('month')),1))
+   root=T('scene3');month=ix(ix(T('months'),T('month')),0);field(a,root,'monthName',ix(ix(T('months'),T('month')),1));field(a,root,'yearName',floor(div(month,100)))
    field(a,root,'movementCountry','Todos os países');a.when(lt(0,T('movementCountry')),lambda a:field(a,root,'movementCountry',ix(ix(T('countries'),sub(T('movementCountry'),1)),0)))
    a.set(R(1),'movementLeagues',arr([]))
    loop(a,'i',P(T('leagues'),'length'),lambda a:a.when(either(EQ(T('movementCountry'),0),EQ(ix(ix(T('leagues'),T('i')),2),ix(ix(T('countries'),sub(T('movementCountry'),1)),0))),lambda a:a.do(T('movementLeagues'),'push',ix(T('leagues'),T('i')))))
    a.set(R(1),'movementLeagueId',0);field(a,root,'movementLeague','Todas as ligas')
    a.when(lt(0,T('movementLeague')),lambda a:(a.set(R(1),'movementLeagueId',ix(ix(T('movementLeagues'),sub(T('movementLeague'),1)),0)),field(a,root,'movementLeague',ix(ix(T('movementLeagues'),sub(T('movementLeague'),1)),1))))
    for source,filtered in (('hires','monthHires'),('moves','monthMoves')):
-    a.set(R(1),filtered,arr([]));loop(a,'i',P(T(source),'length'),lambda a,source=source,filtered=filtered:a.when(both(both(either(EQ(month,0),EQ(floor(div(ix(ix(T(source),T('i')),9),100)),month)),either(EQ(T('movementLeague'),0),EQ(ix(ix(T(source),T('i')),8),T('movementLeagueId')))),either(EQ(T('movementCountry'),0),EQ(ix(ix(T(source),T('i')),11),ix(ix(T('countries'),sub(T('movementCountry'),1)),0)))),lambda a:a.do(T(filtered),'push',ix(T(source),T('i')))))
+    a.set(R(1),filtered,arr([]));loop(a,'i',P(T(source),'length'),lambda a,source=source,filtered=filtered:a.when(both(both(EQ(floor(div(ix(ix(T(source),T('i')),9),100)),month),either(EQ(T('movementLeague'),0),EQ(ix(ix(T(source),T('i')),8),T('movementLeagueId')))),either(EQ(T('movementCountry'),0),EQ(ix(ix(T(source),T('i')),11),ix(ix(T('countries'),sub(T('movementCountry'),1)),0)))),lambda a:a.do(T(filtered),'push',ix(T(source),T('i')))))
    for panel,(rows,key,prefix,status) in enumerate((('monthHires','hirePage','h_','Contratado'),('monthMoves','movePage','d_','Demitido'))):
-    a.set(R(1),key+'Count',CALL(PATH('Math'),'max',1,sub(P(T(rows),'length'),3)));a.set(R(1),key,clamp(T(key),0,sub(T(key+'Count'),1)));field(a,root,prefix+'count',add(P(T(rows),'length'),' contratações' if panel==0 else ' demissões'));field(a,root,prefix+'empty','Nenhuma '+('contratação' if panel==0 else 'demissão')+' neste mês.',EQ(P(T(rows),'length'),0));field(a,root,prefix+'page',add(add(add(add(T(key),1),'–'),CALL(PATH('Math'),'min',add(T(key),4),P(T(rows),'length'))),add(' de ',P(T(rows),'length'))));show(a,root,prefix+'scrollTrack',96+panel*870+847,MOVE_TOP);show(a,root,prefix+'scrollThumb',96+panel*870+847,MOVE_TOP);a.set(P(root,prefix+'scrollThumb'),'_height',div(MOVE_HEIGHT*4,CALL(PATH('Math'),'max',4,P(T(rows),'length'))));a.set(P(root,prefix+'scrollThumb'),'_y',add(MOVE_TOP,mul(div(T(key),CALL(PATH('Math'),'max',1,sub(T(key+'Count'),1))),sub(MOVE_HEIGHT,div(MOVE_HEIGHT*4,CALL(PATH('Math'),'max',4,P(T(rows),'length')))))))
+    a.set(R(1),key+'Count',CALL(PATH('Math'),'max',1,sub(P(T(rows),'length'),3)));a.set(R(1),key,clamp(T(key),0,sub(T(key+'Count'),1)));field(a,root,prefix+'count',add(P(T(rows),'length'),' contratações' if panel==0 else ' saídas'));field(a,root,prefix+'empty','Nenhuma '+('contratação' if panel==0 else 'saída')+' neste mês.',EQ(P(T(rows),'length'),0));field(a,root,prefix+'page',add(add(add(add(T(key),1),'–'),CALL(PATH('Math'),'min',add(T(key),4),P(T(rows),'length'))),add(' de ',P(T(rows),'length'))));show(a,root,prefix+'scrollTrack',96+panel*870+847,MOVE_TOP);show(a,root,prefix+'scrollThumb',96+panel*870+847,MOVE_TOP);a.set(P(root,prefix+'scrollThumb'),'_height',div(MOVE_HEIGHT*4,CALL(PATH('Math'),'max',4,P(T(rows),'length'))));a.set(P(root,prefix+'scrollThumb'),'_y',add(MOVE_TOP,mul(div(T(key),CALL(PATH('Math'),'max',1,sub(T(key+'Count'),1))),sub(MOVE_HEIGHT,div(MOVE_HEIGHT*4,CALL(PATH('Math'),'max',4,P(T(rows),'length')))))))
+    dots(a,root,key,CALL(PATH('Math'),'ceil',div(P(T(rows),'length'),4)),prefix,366+panel*870)
     a.when(EQ(P(T(rows),'length'),0),lambda a,prefix=prefix:field(a,root,prefix+'page',''))
     for j in range(4):
      i=panel*4+j;idx=add(T(key),j);r=ix(T(rows),idx);p=ix(T('people'),ix(r,7));present=lt(idx,P(T(rows),'length'));x,y=move_xy(i)
-     for name,value in (('club',ix(r,0)),('coach',ix(r,1)),('nationality',ix(p,22)),('date',ix(r,10)),('status',status)):field(a,root,name+str(i),value,present)
+     for name,value in (('club',ix(r,0)),('coach',ix(r,1)),('nationality',ix(p,22)),('date',ix(r,10)),('status',status if panel==0 else ix(r,3))):field(a,root,name+str(i),value,present)
      def row(a,j=j,r=r,p=p,x=x,y=y,prefix=prefix):
       show(a,root,add(prefix,ix(r,4)),x+25,y+14);portrait(a,root,prefix,r,j,x+284,y+10);rating(a,root,prefix,r,j,x+101,y+61);nationality(a,root,prefix,p,j,x+374,y+47)
      a.when(present,row)
@@ -218,6 +227,7 @@ def script_factory(model,assets):
     idx=add(mul(T('page'),PAGE_SIZE),i);r=ix(T('filtered'),idx);p=ix(T('people'),ix(r,7));present=lt(idx,P(T('filtered'),'length'));x,y=free_xy(i)
     for name,value in (('coach',ix(p,19)),('nationality',ix(p,21)),('freeDays',ix(p,16)),('age',add(ix(p,13),' anos') if model.get('ready') else ''),('style',ix(p,14)),('formation',ix(p,15)),('status','Livre no mercado')):field(a,root,name+str(i),value,both(present,lt(-1,ix(p,13))) if name=='age' else present)
     a.when(present,lambda a,i=i,r=r,p=p,x=x,y=y:(portrait(a,root,'f_',r,i,x+16,y+12),rating(a,root,'f_',r,i,x+14,y+153),nationality(a,root,'f_',p,i,x+170,y+64)))
+   dots(a,root,'page',T('pageCount'),'',1100)
    field(a,root,'pageText',pagetext('page',add(P(T('filtered'),'length'),' técnicos · Reputação da maior para a menor')));field(a,root,'empty','Nenhum técnico para os filtros selecionados.',EQ(P(T('filtered'),'length'),0))
   a.function('DotState',1,lambda a:a.when(EQ(T('page'),R(2)),lambda a:a.ret('On'),lambda a:a.ret('Off')))
   a.function('RefreshClubs',0,clubs);a.function('RefreshMovements',0,movements);a.function('RefreshFree',0,frees);a.function('RefreshProfile',0,profile)
@@ -225,8 +235,8 @@ def script_factory(model,assets):
    loop(a,'hidden',P(T('rendered'),'length'),lambda a:a.set(ix(T('rendered'),T('hidden')),'_visible',False));a.set(R(1),'rendered',arr([]))
    for i in range(len(scenes)):a.set(T('scene'+str(i)),'_visible',False)
    if not model.get('ready'):
-    a.set(T('scene2'),'_visible',True);a.set(P(T('scene2'),'progress'),'text','Preparando os dados da carreira aberta. Aguarde...');a.do(M('HelpManager'),'Update');a.ret();return
-   a.when(T('profile'),lambda a:(a.set(T('scene1'),'_visible',True),a.do(R(1),'RefreshProfile'),a.do(M('HelpManager'),'Update'),a.ret()))
+    a.set(T('scene2'),'_visible',True);a.set(P(T('scene2'),'progress'),'text','Preparando os dados da carreira aberta. Aguarde...');a.do(M('HelpManager'),'Update');market_footer.apply(a);a.ret();return
+   a.when(T('profile'),lambda a:(a.set(T('scene1'),'_visible',True),a.do(R(1),'RefreshProfile'),a.do(M('HelpManager'),'Update'),market_footer.apply(a),a.ret()))
    root=ix(R(1),add('scene',ix(arr(MAIN),T('tab'))));a.set(root,'_visible',True);a.set(R(1),'mainClip',root)
    for tab in range(3):show(a,root,'tabMark'+str(tab),96+tab*580,203);a.set(P(root,'tabMark'+str(tab)),'_visible',EQ(T('tab'),tab))
    for tab,method in enumerate(('RefreshClubs','RefreshMovements','RefreshFree')):a.when(EQ(T('tab'),tab),lambda a,method=method:a.do(R(1),method))
@@ -240,23 +250,35 @@ def script_factory(model,assets):
        if scene==3:visible=lt(add(T('hirePage' if slot<4 else 'movePage'),slot%4),P(T('monthHires' if slot<4 else 'monthMoves'),'length'))
        else:visible=lt(add(mul(T('page'),PAGE_SIZE),slot),P(T('filtered'),'length'))
       elif 100<=cmd<=115:visible=both(lt(cmd-100,T('pageCount')),lt(T('pageCount'),17))
+      elif 120<=cmd<=155:
+       count=P(T('monthHires' if cmd<140 else 'monthMoves'),'length');dots_count=CALL(PATH('Math'),'ceil',div(count,4));visible=both(lt((cmd-120)%20,dots_count),lt(dots_count,17))
+      elif cmd>=300:visible=T('yearMenu')
       elif cmd in (200,201):visible=lt(4,P(T('monthHires' if cmd==200 else 'monthMoves'),'length'))
-      btn=P(T('scene'+str(scene)),'action'+str(j));a.set(btn,'_visible',visible);a.set(P(btn,'selected'),'_alpha',mul(EQ(T('focus'),cmd),100))
-      if cmd<200:a.when(visible,lambda a,cmd=cmd:a.do(T('focusable'),'push',cmd))
+      btn=P(T('scene'+str(scene)),'action'+str(j))
+      if cmd in (51,53,55):
+       count=T('pageCount') if cmd==51 else CALL(PATH('Math'),'ceil',div(P(T('monthHires' if cmd==53 else 'monthMoves'),'length'),4))
+       start=1100 if cmd==51 else 366 if cmd==53 else 1236
+       used=CALL(PATH('Math'),'min',16,count);a.set(btn,'_x',add(start+12,mul(used,19)))
+       a.when(lt(16,count),lambda a:a.set(btn,'_x',start+12))
+      a.set(btn,'_visible',visible);a.set(P(btn,'selected'),'_alpha',mul(EQ(T('focus'),cmd),100))
+      if cmd<200 or cmd>=300:a.when(visible,lambda a,cmd=cmd:a.do(T('focusable'),'push',cmd))
       if 40<=cmd<=48:
        for node in scenes[scene]['nodes']:
         if node.get('slot')==cmd-40:a.set(P(T('scene'+str(scene)),node['name']),'_visible',visible)
     a.when(EQ(T('tab'),tab),buttons)
    a.set(R(1),'focusExists',False);loop(a,'i',P(T('focusable'),'length'),lambda a:a.when(EQ(ix(T('focusable'),T('i')),T('focus')),lambda a:a.set(R(1),'focusExists',True)))
-   a.when(('not',T('focusExists')),lambda a:a.set(R(1),'focus',0));a.do(M('HelpManager'),'Update')
+   a.when(('not',T('focusExists')),lambda a:a.set(R(1),'focus',0));a.do(M('HelpManager'),'Update');market_footer.apply(a)
   a.function('Refresh',0,refresh)
   def command(a):
    code=R(2)
+   a.when(both(either(EQ(code,30),EQ(code,31)),both(EQ(T('monthInputCommand'),code),lt(sub(T('frames'),T('monthInputFrame')),6))),lambda a:a.ret())
+   a.when(either(EQ(code,30),EQ(code,31)),lambda a:(a.set(R(1),'monthInputFrame',T('frames')),a.set(R(1),'monthInputCommand',code)))
    if not model.get('ready'):
     a.when(EQ(code,60),lambda a:a.do(ION,'SendEvent',P(T('staticData'),'SCREEN_CONTROLLER_ID'),P(T('navEvents'),'BACK'),''));a.ret();return
    a.when(both(T('profile'),both(lt(79,code),lt(code,85))),lambda a:(a.set(R(1),'profileTab',sub(code,80)),a.set(R(1),'historyPage',0)))
    for c,step in ((90,1),(91,-1)):a.when(both(T('profile'),EQ(code,c)),lambda a,step=step:a.set(R(1),'profileVenue',wrap(add(T('profileVenue'),step),3)))
-   a.when(lt(code,3),lambda a:(a.set(R(1),'tab',code),a.set(R(1),'profile',False),a.set(R(1),'page',0),a.set(R(1),'focus',code)))
+   a.when(both(EQ(code,1),('not',EQ(T('tab'),1))),lambda a:(a.set(R(1),'movementCountry',initial_country),a.set(R(1),'movementLeague',initial_league)))
+   a.when(lt(code,3),lambda a:(a.set(R(1),'tab',code),a.set(R(1),'profile',False),a.set(R(1),'page',0),a.set(R(1),'focus',code),a.set(R(1),'yearMenu',False)))
    for c,step in ((10,-1),(11,1)):
     def country(a,step=step):
      a.set(R(1),'country',wrap(add(T('country'),step),P(T('countries'),'length')));a.set(R(1),'foundLeague',False);a.set(R(1),'page',0)
@@ -268,7 +290,21 @@ def script_factory(model,assets):
    for c,step in ((22,-1),(23,1)):a.when(EQ(code,c),lambda a,step=step:(a.set(R(1),'movementLeague',wrap(add(T('movementLeague'),step),add(P(T('movementLeagues'),'length'),1))),a.set(R(1),'hirePage',0),a.set(R(1),'movePage',0)))
    for c,step in ((24,-1),(25,1)):a.when(EQ(code,c),lambda a,step=step:(a.set(R(1),'movementCountry',wrap(add(T('movementCountry'),step),add(P(T('countries'),'length'),1))),a.set(R(1),'movementLeague',0),a.set(R(1),'hirePage',0),a.set(R(1),'movePage',0)))
    a.when(both(lt(99,code),lt(code,116)),lambda a:a.set(R(1),'page',clamp(sub(code,100),0,sub(T('pageCount'),1))))
-   for c,step in ((30,-1),(31,1),(32,-12),(33,12)):a.when(EQ(code,c),lambda a,step=step:(a.set(R(1),'month',clamp(add(T('month'),step),0,sub(P(T('months'),'length'),1))),a.set(R(1),'hirePage',0),a.set(R(1),'movePage',0)))
+   for base,key,rows in ((120,'hirePage','monthHires'),(140,'movePage','monthMoves')):
+    a.when(both(lt(base-1,code),lt(code,base+16)),lambda a,base=base,key=key,rows=rows:a.set(R(1),key,clamp(mul(sub(code,base),4),0,CALL(PATH('Math'),'max',0,sub(P(T(rows),'length'),4)))))
+   def choose_year(a,year):
+    month=ix(ix(T('months'),T('month')),0);a.set(R(1),'desiredMonth',sub(month,mul(floor(div(month,100)),100)));a.set(R(1),'yearDistance',100)
+    def choose(a):
+     value=ix(ix(T('months'),T('j')),0);distance=CALL(PATH('Math'),'abs',sub(sub(value,mul(year,100)),T('desiredMonth')))
+     a.when(both(EQ(floor(div(value,100)),year),lt(distance,T('yearDistance'))),lambda a:(a.set(R(1),'yearDistance',distance),a.set(R(1),'month',T('j'))))
+    loop(a,'j',P(T('months'),'length'),choose);a.set(R(1),'hirePage',0);a.set(R(1),'movePage',0)
+   for c,step in ((32,-1),(33,1)):
+    a.when(EQ(code,c),lambda a,step=step:choose_year(a,add(floor(div(ix(ix(T('months'),T('month')),0),100)),step)))
+   for i,year in enumerate(years):
+    a.when(EQ(code,300+i),lambda a,year=year:(choose_year(a,year),a.set(R(1),'yearMenu',False),a.set(R(1),'focus',38)))
+   a.when(EQ(code,38),lambda a:(a.set(R(1),'yearMenu',('not',T('yearMenu'))),a.set(R(1),'focus',38)))
+   a.when(T('yearMenu'),lambda a:a.set(R(1),'focus',add(300,sub(floor(div(ix(ix(T('months'),T('month')),0),100)),years[0]))))
+   for c,step in ((30,-1),(31,1)):a.when(EQ(code,c),lambda a,step=step:(a.set(R(1),'month',clamp(add(T('month'),step),0,sub(P(T('months'),'length'),1))),a.set(R(1),'hirePage',0),a.set(R(1),'movePage',0)))
    for c,key,step,size in ((34,'age',-1,6),(35,'age',1,6),(36,'nation',-1,P(T('nations'),'length')),(37,'nation',1,P(T('nations'),'length'))):a.when(EQ(code,c),lambda a,key=key,step=step,size=size:(a.set(R(1),key,wrap(add(T(key),step),size)),a.set(R(1),'page',0)))
    for i in range(9):
     def open_person(a,i=i):
@@ -278,6 +314,7 @@ def script_factory(model,assets):
     a.when(EQ(code,40+i),open_person)
    for c,key,step in ((50,'page',-1),(51,'page',1),(52,'hirePage',-1),(53,'hirePage',1),(54,'movePage',-1),(55,'movePage',1)):a.when(EQ(code,c),lambda a,key=key,step=step:a.set(R(1),key,clamp(add(T(key),step),0,sub(T(key+'Count'),1))))
    for c,step in ((70,-1),(71,1)):a.when(EQ(code,c),lambda a,step=step:a.set(R(1),'historyPage',clamp(add(T('historyPage'),step),0,sub(T('historyPages'),1))))
+   a.when(both(EQ(code,60),T('yearMenu')),lambda a:(a.set(R(1),'yearMenu',False),a.set(R(1),'focus',38),a.do(R(1),'Refresh'),a.ret()))
    a.when(EQ(code,60),lambda a:a.when(T('profile'),lambda a:a.set(R(1),'profile',False),lambda a:a.do(ION,'SendEvent',P(T('staticData'),'SCREEN_CONTROLLER_ID'),P(T('navEvents'),'BACK'),'')));a.do(R(1),'Refresh')
   a.function('Command',1,command);a.function('Click',0,lambda a:a.do(P(R(1),'owner'),'Command',P(R(1),'code')));a.function('Over',0,lambda a:(a.set(P(R(1),'owner'),'focus',P(R(1),'code')),a.do(P(R(1),'owner'),'PaintFocus')))
   def paint_focus(a):
@@ -289,13 +326,14 @@ def script_factory(model,assets):
    a.when(either(('not',T('inputBound')),T('exiting')),lambda a:a.ret())
    for scene,s in enumerate(scenes):
     root=T('scene'+str(scene))
-    for j,box in enumerate(s['actions']):
-     inside=both(both(('not',lt(T('_xmouse'),box['x'])),lt(T('_xmouse'),box['x']+box['w'])),both(('not',lt(T('_ymouse'),box['y'])),lt(T('_ymouse'),box['y']+box['h'])))
+    for j,box in sorted(enumerate(s['actions']),key=lambda item:int(item[1]['target'])<300):
+     x=P(P(root,'action'+str(j)),'_x') if int(box['target']) in (51,53,55) else box['x']
+     inside=both(both(('not',lt(T('_xmouse'),x)),lt(T('_xmouse'),add(x,box['w']))),both(('not',lt(T('_ymouse'),box['y'])),lt(T('_ymouse'),box['y']+box['h'])))
      def hit(a,code=int(box['target'])):
       if activate:a.do(R(1),'Command',code)
       else:a.set(R(1),'focus',code);a.do(R(1),'PaintFocus')
       a.ret()
-     a.when(both(both(P(root,'_visible'),P(P(root,'action'+str(j)),'_visible')),inside),hit)
+     a.when(both(both(both(P(root,'_visible'),P(P(root,'action'+str(j)),'_visible')),('not',T('yearMenu')) if int(box['target'])<300 else T('yearMenu')),inside),hit)
   def drag_scroll(a):
    for mode,key,top,height,visible,rows in ((1,'hirePage',MOVE_TOP,MOVE_HEIGHT,4,'monthHires'),(2,'movePage',MOVE_TOP,MOVE_HEIGHT,4,'monthMoves'),(3,'historyPage',315,530,3,'profileRows')):
     def drag(a,key=key,top=top,height=height,visible=visible,rows=rows):
@@ -308,6 +346,8 @@ def script_factory(model,assets):
   a.function('ScrollPress',0,lambda a:a.do(P(R(1),'owner'),'StartScroll',sub(P(R(1),'code'),199)))
   a.function('ScrollRelease',0,lambda a:a.set(P(R(1),'owner'),'dragScroll',0))
   def scroll_frame(a):
+   market_footer.apply(a)
+   a.set(R(1),'frames',add(T('frames'),1))
    a.when(lt(0,T('mouseSelectFrames')),lambda a:a.set(R(1),'mouseSelectFrames',sub(T('mouseSelectFrames'),1)))
    a.when(lt(0,T('dragScroll')),lambda a:a.do(R(1),'DragScroll'))
   a.function('ScrollFrame',0,scroll_frame)
@@ -315,6 +355,7 @@ def script_factory(model,assets):
    # FIFA can also forward the same mouse click as ADVANCE on release.
    # The screen-local hit test already dispatched it; swallow only that echo.
    a.set(R(1),'mouseSelectFrames',4)
+   a.when(T('yearMenu'),lambda a:(pointer(a,True),a.ret()))
    for mode,x,y,height,condition in ((1,945,MOVE_TOP,MOVE_HEIGHT,both(('not',T('profile')),EQ(T('tab'),1))),(2,1815,MOVE_TOP,MOVE_HEIGHT,both(('not',T('profile')),EQ(T('tab'),1))),(3,1824,315,530,both(T('profile'),either(either(EQ(T('profileTab'),1),EQ(T('profileTab'),2)),EQ(T('profileTab'),4))))):
     inside=both(both(lt(x-12,T('_xmouse')),lt(T('_xmouse'),x+14)),both(lt(y-5,T('_ymouse')),lt(T('_ymouse'),y+height+5)))
     a.when(both(condition,inside),lambda a,mode=mode:(a.set(R(1),'dragScroll',mode),a.do(R(1),'DragScroll'),a.ret()))
@@ -323,16 +364,22 @@ def script_factory(model,assets):
   a.function('onMouseMove',0,lambda a:a.when(lt(0,T('dragScroll')),lambda a:a.do(R(1),'DragScroll'),lambda a:pointer(a,False)))
   a.function('onMouseUp',0,lambda a:a.set(R(1),'dragScroll',0))
   def move(a):
+   a.when(T('yearMenu'),lambda a:(a.when(either(EQ(R(2),2),EQ(R(2),3)),lambda a:a.set(R(1),'focus',clamp(add(T('focus'),sub(mul(EQ(R(2),3),2),1)),300,299+len(years)))),a.do(R(1),'Refresh'),a.ret()))
    a.when(T('profile'),lambda a:(a.when(EQ(T('profileTab'),0),lambda a:a.do(R(1),'Command',sub(91,EQ(R(2),3)))),a.when(either(either(EQ(T('profileTab'),1),EQ(T('profileTab'),2)),EQ(T('profileTab'),4)),lambda a:a.do(R(1),'Command',add(70,EQ(R(2),3)))),a.ret()))
    a.when(both(EQ(T('tab'),1),both(EQ(R(2),3),either(EQ(T('focus'),43),EQ(T('focus'),47)))),lambda a:(a.do(R(1),'Command',add(53,mul(2,EQ(T('focus'),47)))),a.ret()))
    a.when(both(EQ(T('tab'),1),both(EQ(R(2),2),either(both(EQ(T('focus'),40),lt(0,T('hirePage'))),both(EQ(T('focus'),44),lt(0,T('movePage')))))),lambda a:(a.do(R(1),'Command',add(52,mul(2,EQ(T('focus'),44)))),a.ret()))
    for tab,scene in enumerate(MAIN):
     def navigate(a,tab=tab,scene=scene):
-     buttons={int(v['target']):v for v in scenes[scene]['actions']};a.set(R(1),'nextFocus',T('focus'))
+     buttons={int(v['target']):v for v in scenes[scene]['actions'] if int(v['target'])<200};a.set(R(1),'nextFocus',T('focus'))
      for code,box in buttons.items():
       for direction in range(4):
        target=code
-       if code<3:target=(10 if tab==0 else 30 if tab==1 else 36) if direction==3 else max(0,min(2,code+(-1 if direction==0 else 1))) if direction<2 else code
+       if 100<=code<=155:
+        base=100 if code<120 else 120 if code<140 else 140;left,right=(50,51) if base==100 else (52,53) if base==120 else (54,55)
+        target=(code-1 if code>base else left) if direction==0 else (code+1 if code<base+15 else right) if direction==1 else (44 if base==140 else 40)
+       elif code in (50,52,54) and direction==1:target=100 if code==50 else 120 if code==52 else 140
+       elif code in (51,53,55) and direction==0:target=50 if code==51 else 52 if code==53 else 54
+       elif code<3:target=(10 if tab==0 else 30 if tab==1 else 36) if direction==3 else max(0,min(2,code+(-1 if direction==0 else 1))) if direction<2 else code
        elif tab==0 and code in (10,11,20,21) and direction>=2:target=0 if direction==2 and code<20 else 10 if direction==2 else 20 if code<20 else 40
        else:
         x,y=box['x']+box['w']/2,box['y']+box['h']/2;options=[]
@@ -344,7 +391,10 @@ def script_factory(model,assets):
         if options:target=min(options)[1]
        a.when(both(EQ(T('focus'),code),EQ(R(2),direction)),lambda a,target=target:a.set(R(1),'nextFocus',target))
      a.set(R(1),'validNext',False);loop(a,'j',P(T('focusable'),'length'),lambda a:a.when(EQ(ix(T('focusable'),T('j')),T('nextFocus')),lambda a:a.set(R(1),'validNext',True)))
-     a.when(T('validNext'),lambda a:a.set(R(1),'focus',T('nextFocus')))
+     def fallback(a):
+      a.when(both(EQ(R(2),1),either(EQ(T('focus'),50),either(EQ(T('focus'),52),EQ(T('focus'),54)))),lambda a:a.set(R(1),'focus',add(T('focus'),1)))
+      a.when(both(EQ(R(2),1),both(lt(99,T('focus')),lt(T('focus'),156))),lambda a:a.set(R(1),'focus',51 if tab!=1 else add(53,mul(2,lt(139,T('focus'))))))
+     a.when(T('validNext'),lambda a:a.set(R(1),'focus',T('nextFocus')),fallback)
     a.when(EQ(T('tab'),tab),navigate)
    a.do(R(1),'Refresh')
   a.function('Move',1,move)
@@ -374,7 +424,7 @@ def script_factory(model,assets):
    for i,s in enumerate(scenes):
     for j,_ in enumerate(s['actions']):
      for event in ('onPress','onRelease','onReleaseOutside','onRollOver'):a.set(P(T('scene'+str(i)),'action'+str(j)),event,None)
-   a.do(M('InputManager'),'DisableCurrentLocalEventHandler');a.do(M('HelpManager'),'Clear');a.do(R(1),'Shutdown')
+   a.do(M('InputManager'),'DisableCurrentLocalEventHandler');market_footer.restore(a);a.do(M('HelpManager'),'Clear');a.do(R(1),'Shutdown')
   a.function('OnExitScreen',0,shutdown);a.op(0);a.finish();a.align();registration=len(data);data.extend(dictionaries[1]);a.string(FULL);a.op(28);a.string(FULL);a.expr(2);a.expr(PATH('Object'));a.method('registerClass');a.op(23);a.op(0);a.finish();return start,registration
  return script
 

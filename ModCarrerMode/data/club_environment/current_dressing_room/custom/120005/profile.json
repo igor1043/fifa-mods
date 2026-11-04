@@ -1,0 +1,7 @@
+{
+  "schema": 1,
+  "name": "CRB",
+  "assets": {
+    "wall_mural": "wall-mural.png"
+  }
+}

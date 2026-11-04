@@ -6,8 +6,8 @@ import numpy as np
 from room_collision_r70 import solid_obstacles
 from PIL import Image,ImageDraw,ImageFont
 from room_native_hanging_20261022 import texture_package
-ROOT=portable.ROOM;GAME=portable.GAME;LIVE=GAME/'data/sceneassets/server16_dressing_room_20261022'
-BOARD_REVISION=63
+ROOT=portable.ROOM;GAME=portable.GAME;LIVE=GAME/'data/sceneassets/server16_dressing_room_v3/shared'
+BOARD_REVISION=64
 BOARD_SCALE=3
 BOARD_FOCUS_DISTANCE=300
 BOARD_FOCUS_FOV=53
@@ -53,7 +53,7 @@ def make_context(snap,projected,roster,rows,base,read_asset):
  context['board_revision']=BOARD_REVISION
  payload={k:v for k,v in context.items() if k not in ('pid','date')};signature=hashlib.sha256(json.dumps(payload,sort_keys=True,ensure_ascii=False).encode()).hexdigest()[:14];path=LIVE/f'next_match_{club}_{signature}_r{BOARD_REVISION}.rx3'
  if not path.exists():texture_package(draw_board(context,read_asset),path,'board_cm')
- context['board_texture']='data/sceneassets/server16_dressing_room_20261022/'+path.name
+ context['board_texture']='data/sceneassets/server16_dressing_room_v3/shared/'+path.name
  context['focus']=[]
  for number in (9,10):
   found=next(((i,p) for i,p in enumerate(roster) if p['number']==number),None)
@@ -78,12 +78,12 @@ class ScaledDraw:
    return getattr(self.draw,name)(self.coords(box),*args,**kw)
   return paint
 
-def draw_board(c,read_asset):
+def draw_board(c,read_asset,*,size=(4096,4096)):
  # Supersample text, retaining the same 4096-square resource and GPU budget.
  scale=BOARD_SCALE
- im=Image.new('RGBA',(1600*scale,1008*scale),(239,238,228,255));d=ScaledDraw(im,scale)
+ im=Image.new('RGBA',(1600*scale,1008*scale),(248,248,242,255));d=ScaledDraw(im,scale)
  def font(size,bold=False):return ImageFont.truetype(str(portable.FONTS/('arialbd.ttf' if bold else 'arial.ttf')),size*scale)
- def text(x,y,s,size=30,color=(30,45,51),bold=False):d.text((x,y),str(s),font=font(size,bold),fill=color+(255,))
+ def text(x,y,s,size=30,color=(19,30,36),bold=False):d.text((x,y),str(s),font=font(size,bold),fill=color+(255,))
  def icon(paths,box):
   for path in paths:
    try:
@@ -93,7 +93,7 @@ def draw_board(c,read_asset):
  primary=tuple(round(v*255) for v in c['colors'][0]);d.rectangle((0,0,1600,13),fill=primary+(255,));text(42,32,'PRÓXIMA PARTIDA',48,bold=True)
  league=c['league'];icon([f'data/ui/imgassets/careerCompetitionIcons/{league}.png',f'data/ui/imgassets/league/light/l{league}.dds',f'data/ui/imgassets/league/dark/l{league}.dds',f'data/ui/imgassets/league/{league}.dds',f'data/ui/imgassets/cmCalendarCompetitions/cmCalendarCompetitions{league}.dds'],(1330,28,210,100))
  text(42,95,c['league_name'] or ('Competição '+str(league) if league else 'Calendário da carreira'),32)
- if not c['available']:text(220,400,'Sem próxima partida agendada',48,bold=True);return im.resize((4096,4096),Image.Resampling.LANCZOS)
+ if not c['available']:text(220,400,'Sem próxima partida agendada',48,bold=True);return im.resize(size,Image.Resampling.LANCZOS)
  fixture=c['fixture'];date=str(fixture[3]);hour=fixture[4];text(670,42,f'{date[6:8]}/{date[4:6]}/{date[:4]}  •  {hour//100:02d}:{hour%100:02d}',30)
  for team,x in ((c['user'],42),(c['opponent'],825)):
   ident=team['team_id'];icon([f'data/ui/imgassets/crest/light/l{ident}.dds',f'data/ui/imgassets/crest/dark/l{ident}.dds'],(x,152,100,100));text(x+122,168,team['name'],36,bold=True)
@@ -107,15 +107,19 @@ def draw_board(c,read_asset):
    label=str(p['number']);box=d.textbbox((0,0),label,font=font(36,True));d.text((round(px-(box[2]-box[0])/2),round(py-(box[3]-box[1])/2-box[1])),label,font=font(36,True),fill=(255,255,255,255),stroke_width=1,stroke_fill=(0,0,0,255))
 
   saved=c['tactics'] if ident==c['club'] else c['opponent_tactics'];y=813
-  text(x,y,'TÁTICAS GRAVADAS',24,bold=True)
-  for j,(key,value) in enumerate(saved.items()):text(x+(j%3)*218,y+37+(j//3)*43,f'{key}: {value}',24)
- text(42,958,'Onze adversário provável. Formações e parâmetros vêm do save; nenhuma tática é inventada.',24,(71,78,78))
- return im.resize((4096,4096),Image.Resampling.LANCZOS)
+  text(x,y,'TÁTICAS GRAVADAS',28,bold=True)
+  for j,(key,value) in enumerate(saved.items()):text(x+(j%3)*218,y+40+(j//3)*43,f'{key}: {value}',27)
+ text(42,958,'Escalações e táticas da carreira • Adversário provável',28,(40,50,55))
+ return im.resize(size,Image.Resampling.LANCZOS)
 
 def write_tour(context,roster,frame,rotation,generation):
  data=json.loads((ROOT/'runtime/room_roles_r62.json').read_text(encoding='utf8'));focus=[]
+ import room_v3
+ if room_v3.enabled(GAME):data['board_anchor']['target'][1]-=room_v3.BOARD_DROP
  layout_path=LIVE/('room_layout_r77.json' if (LIVE/'room_layout_r77.json').is_file() else 'room_layout_r76.json' if (LIVE/'room_layout_r76.json').is_file() else 'room_layout_r75.json' if (LIVE/'room_layout_r75.json').is_file() else 'room_layout_r72.json')
  expanded=json.loads(layout_path.read_text(encoding='utf8')) if layout_path.is_file() else None
+ import room_v3
+ if expanded and room_v3.enabled(GAME):expanded=room_v3.camera_layout(expanded)
  if expanded:data=expanded['room']
  for p in context['focus']:
   origin,yaw=frame(p['locker']);r=rotation(yaw);eye=origin+r@np.array([0,187,285]);target=origin+r@np.array([0,165,54]);eye[0]=max(-575,min(575,eye[0]));focus.append([p['number'],*eye.tolist(),*target.tolist()])
@@ -141,6 +145,7 @@ def write_tour(context,roster,frame,rotation,generation):
  if interior.is_file():
   extra_obstacles=json.loads(interior.read_text(encoding='utf8'))['obstacles']
   obstacles_data=[p for p in obstacles_data if not p['name'].startswith('Hidratação /')]+extra_obstacles
+ if room_v3.enabled(GAME):obstacles_data=room_v3.obstacles(obstacles_data)
  obstacles=solid_obstacles(obstacles_data);lines=[f'S16TOUR 5 {context["pid"]} {context["club"]} {generation} {len(focus)} {len(obstacles)} {len(path)} {len(details)} {len(shirts)} {len(navigation)} {len(extra)}']
  lines+=[' '.join(map(str,p)) for p in focus]
  lines+=[' '.join(map(str,p['lo']+p['hi'])) for p in obstacles]

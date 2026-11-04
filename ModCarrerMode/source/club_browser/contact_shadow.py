@@ -11,7 +11,7 @@ from native_assets import geometry, STRIDE
 from rx3 import Rx3, MESH
 
 MODEL = 'data/sceneassets/server16_club_xi/player_contact_shadow_r1.rx3'
-TEXTURE_PATH = 'data/sceneassets/server16_dressing_room_20261022/contact_shadow_r51.rx3'
+TEXTURE_PATH = 'data/sceneassets/server16_dressing_room_v3/shared/contact_shadow_r51.rx3'
 PARTS = ('xi_floor_contact_1', 'xi_floor_contact_2')
 
 

@@ -11,7 +11,7 @@
 struct FceLiveSnapshot { volatile LONG refs; unsigned long generation; FceModel model; };
 static SRWLOCK snapshot_lock=SRWLOCK_INIT;
 static SRWLOCK install_lock=SRWLOCK_INIT;
-static FceLiveSnapshot *current;
+static FceLiveSnapshot *current,*calendar_current;
 static unsigned char *module;
 static volatile LONG generation=1, dirty=1, installed, busy, requested, settle_ticks;
 static volatile LONG publication_revision;
@@ -131,9 +131,9 @@ void fce_runtime_release(FceLiveSnapshot *s) {
     if(s && InterlockedDecrement(&s->refs)==0) { fce_model_free(&s->model); free(s); }
 }
 static void invalidate(void) {
-    FceLiveSnapshot *old;
+    FceLiveSnapshot *old,*old_calendar;
     AcquireSRWLockExclusive(&snapshot_lock);
-    old=current; current=NULL;
+    old=current; current=NULL;old_calendar=calendar_current;calendar_current=NULL;
     InterlockedIncrement(&generation); InterlockedExchange(&dirty,1);
     InterlockedExchange(&requested,0); InterlockedExchange(&settle_ticks,0);
     pending_fixture_count=pending_stat_count=pending_standing_count=0;
@@ -141,6 +141,7 @@ static void invalidate(void) {
     incomplete_retry_at=0; incomplete_retry_count=0;
     ReleaseSRWLockExclusive(&snapshot_lock);
     fce_runtime_release(old);
+    fce_runtime_release(old_calendar);
 }
 void fce_runtime_invalidate(void) { invalidate(); }
 static int copy_table(void *manager,size_t offset,FceRawTable *t) {
@@ -160,6 +161,7 @@ static int copy_table(void *manager,size_t offset,FceRawTable *t) {
     if(size) memcpy((void *)t->bytes,source,size);
     return 1;
 }
+#include "calendar_snapshot.inc"
 #include "derived_standings.inc"
 /* Executes on the thread which owns FCE::Update. Readers never walk the
  * process heap, saved DATA, old snapshots, or screen-local stat containers. */
@@ -294,6 +296,10 @@ static void update_hook(void *self) {
     LONG interval;
     engine_thread=GetCurrentThreadId();
     original_update(self);
+    /* Calendar evidence does not depend on the player-statistics/UI settle
+     * gate. Copy only after the native Update returns, on its owning thread. */
+    calendar_capture(self);
+    derived_tick(self);
     now=GetTickCount64();
     until=InterlockedCompareExchange64(&live_refresh_until,0,0);
     next=InterlockedCompareExchange64(&live_refresh_next,0,0);
@@ -320,7 +326,6 @@ static void update_hook(void *self) {
     if(InterlockedExchange(&requested,0)) {
         InterlockedExchange(&dirty,0); capture(self);
     }
-    derived_tick(self);
     if(ui_tick_callback) ui_tick_callback();
 }
 static void post_hook(void *self,void *request) {
@@ -477,6 +482,13 @@ FceLiveSnapshot *fce_runtime_cached_acquire(void) {
     FceLiveSnapshot *s;
     AcquireSRWLockShared(&snapshot_lock);
     s=current; if(s) InterlockedIncrement(&s->refs);
+    ReleaseSRWLockShared(&snapshot_lock);
+    return s;
+}
+FceLiveSnapshot *fce_runtime_calendar_acquire(void) {
+    FceLiveSnapshot *s;
+    AcquireSRWLockShared(&snapshot_lock);
+    s=calendar_current;if(s)InterlockedIncrement(&s->refs);
     ReleaseSRWLockShared(&snapshot_lock);
     return s;
 }
