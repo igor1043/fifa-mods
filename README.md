@@ -1,5 +1,11 @@
 # FIFA Friends V12
 
+## Server16 0.2.20 — logs por sessão (04/11/2026)
+
+Limpeza automática dos logs do Server e dos mods ao abrir, botão **Limpar logs**
+e limites durante a execução. Saves, bancos e assets são preservados.
+[Detalhes e limites](ModCarrerMode/docs/SERVER16_LOGS_20261104.md).
+
 Mais vida na carreira, nos uniformes e na apresentação das partidas do FIFA 16.
 
 O FIFA Friends V12 reúne melhorias para acompanhar seu clube, personalizar a experiência e dar mais identidade a cada competição. O [Server16](https://github.com/igor1043/CG-File-Server-16---Python-Port/tree/fifa-friends) é o painel que acompanha o projeto e permite escolher os recursos antes e durante a partida.
