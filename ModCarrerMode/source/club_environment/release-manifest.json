@@ -11237,11 +11237,6 @@
       "sha256": "46eeebc0e1ac13322de5c601bb25727ef7a7ae321d69cc8765471be37cc4e7fa"
     },
     {
-      "path": "ModCarrerMode/source/club_environment/bank/screen_metadata.json",
-      "bytes": 9154,
-      "sha256": "69d6ba4c06484a7f90ddb2fe0a25615479159c6579ab7f3e54d922a29623082a"
-    },
-    {
       "path": "ModCarrerMode/source/club_environment/bank/test_club_finance.py",
       "bytes": 8306,
       "sha256": "4a23cdceee38eaff7b664760c614084289f5a7f326adae7cb601857d9b0d906b"
@@ -11935,11 +11930,6 @@
       "path": "ModCarrerMode/source/club_environment/preview/competition_names_worker_r57.py",
       "bytes": 737,
       "sha256": "393894face2c7cf4e91e59d124b6d02e08e74d489c1e3fce8ce89d4a02c0324c"
-    },
-    {
-      "path": "ModCarrerMode/source/club_environment/preview/image_resources.json",
-      "bytes": 14338,
-      "sha256": "c98916ed71db2da86767ce7460bbae463841af59eaf46618f4a4401951b32c35"
     },
     {
       "path": "ModCarrerMode/source/club_environment/preview/lineup_selection.py",
