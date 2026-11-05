@@ -1,5 +1,13 @@
 # FIFA Friends V12
 
+## Menus e Voltar — revisão de 04/11/2026
+
+Integração das novas artes e layouts, preservando os destinos dos mods e os IDs
+do calendário. Aposentadoria e Outro clube usam o retorno nativo do FIFA por
+ESC/Voltar. Os 23 ícones novos ou alterados acompanham o Git; ao instalar um ZIP
+de assets anterior, aplique esta atualização do Git por último.
+[Mudanças, testes e rollback](ModCarrerMode/docs/MENU_LAYOUT_BACK_20261104.md).
+
 ## Entrega — 04/11/2026
 
 Vestiário V3 oficial, mercado de técnicos com acompanhamento diário e navegação revisados, clubes/seleções e Server16 0.2.20. O ZIP incremental de assets é `FIFA-Friends-Assets-Delta-20261104-sobre-20261102-R2.zip`, sobre a entrega de 02/11 R2. V1/V2 ficam em backup e não acompanham o pacote.

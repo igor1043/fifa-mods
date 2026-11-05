@@ -42,7 +42,9 @@ def extract_complements(stage,expected,tracked,archives,retired=(),seeded=()):
         with zipfile.ZipFile(archive) as z:
             members=z.namelist();assert len(members)==len(set(members))
             assert not set(members)-set(expected)-retired,'Complement has unexpected assets'
-            assert not set(members)&tracked,'Complement duplicates the Git payload'
+            # A visual asset can move from the old ZIP into Git. Its explicitly
+            # retired ZIP entry must not overwrite the current versioned bytes.
+            assert not (set(members)-retired)&tracked,'Complement duplicates the Git payload'
             for name in members:
                 safe(name)
                 if name in retired:continue

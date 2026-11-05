@@ -28,4 +28,11 @@ class AssetDeltaTests(unittest.TestCase):
  def test_path_traversal_is_rejected(self):
   with self.assertRaises(ValueError):verify.safe('../outside.rx3')
 
+ def test_retired_zip_icon_cannot_overwrite_its_new_version_in_git(self):
+  with tempfile.TemporaryDirectory() as tmp:
+   root=Path(tmp);stage=root/'clean';stage.mkdir();name='menu.dds';(stage/name).write_bytes(b'new layout')
+   with zipfile.ZipFile(root/'old-assets.zip','w') as z:z.writestr(name,b'old layout')
+   self.assertEqual(set(),verify.extract_complements(stage,{}, {name},[root/'old-assets.zip'],{name}))
+   self.assertEqual(b'new layout',(stage/name).read_bytes())
+
 if __name__=='__main__':unittest.main()

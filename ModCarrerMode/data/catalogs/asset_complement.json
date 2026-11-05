@@ -133,10 +133,18 @@
     "data/sceneassets/server16_dressing_room_20261022/scenery_textures_1_r72.rx3",
     "data/sceneassets/server16_dressing_room_20261022/water_cooler_r72.rx3",
     "data/sceneassets/server16_dressing_room_20261022/water_cooler_r75.rx3",
-    "data/sceneassets/server16_dressing_room_20261022/water_cooler_r78.rx3"
+    "data/sceneassets/server16_dressing_room_20261022/water_cooler_r78.rx3",
+    "data/ui/imgAssets/tileicons/ti_calendar_small_active.DDS",
+    "data/ui/imgAssets/tileicons/ti_calendar_small_nonactive.DDS",
+    "data/ui/imgAssets/tileicons/ti_otherleagues_small_active.DDS",
+    "data/ui/imgAssets/tileicons/ti_otherleagues_small_nonactive.DDS",
+    "data/ui/imgAssets/tileicons/ti_playerstats_small_active.DDS",
+    "data/ui/imgAssets/tileicons/ti_playerstats_small_nonactive.DDS",
+    "data/ui/imgAssets/tileicons/ti_teamstats_small_active.DDS",
+    "data/ui/imgAssets/tileicons/ti_teamstats_small_nonactive.DDS"
   ],
   "groups": {
-    "existing_base": 1092,
+    "existing_base": 1084,
     "room_art": 213,
     "manager_interface": 3,
     "manager_minifaces": 1527,
@@ -13734,16 +13742,6 @@
       "sha256": "17b9d26a36e7ea35d263c87fc4d1a535d2cfc5d7ad9ff8cb791546c4be43c2cb"
     },
     {
-      "path": "data/ui/imgAssets/tileicons/ti_calendar_small_active.DDS",
-      "bytes": 173120,
-      "sha256": "eb56eba27f50d878b2ece41245306fde97695f660388bdb22093196d250ed019"
-    },
-    {
-      "path": "data/ui/imgAssets/tileicons/ti_calendar_small_nonactive.DDS",
-      "bytes": 173120,
-      "sha256": "eb56eba27f50d878b2ece41245306fde97695f660388bdb22093196d250ed019"
-    },
-    {
       "path": "data/ui/imgAssets/tileicons/ti_catalogue_square_active.DDS",
       "bytes": 76248,
       "sha256": "ef519ff538c83f2e4e3ed2b09e31cd91e9ce095ba80c0fe0724ff35e2cee3ccd"
@@ -14314,16 +14312,6 @@
       "sha256": "c5e7ec0ce8d383c17fb7c8545c79ed1d582eb8901802a58f5b27424aa75a965d"
     },
     {
-      "path": "data/ui/imgAssets/tileicons/ti_otherleagues_small_active.DDS",
-      "bytes": 173120,
-      "sha256": "057844d6e4cb7077bf0399c06f220db98ef0d56dc2639dc2d99ef695acbf2167"
-    },
-    {
-      "path": "data/ui/imgAssets/tileicons/ti_otherleagues_small_nonactive.DDS",
-      "bytes": 173120,
-      "sha256": "057844d6e4cb7077bf0399c06f220db98ef0d56dc2639dc2d99ef695acbf2167"
-    },
-    {
       "path": "data/ui/imgAssets/tileicons/ti_penalties_med_active.DDS",
       "bytes": 58280,
       "sha256": "a5ae5debaabef4def602b214a9b383cde9bec9bfa241ec7b38061c4c73de302a"
@@ -14342,16 +14330,6 @@
       "path": "data/ui/imgAssets/tileicons/ti_playerratings_med_nonactive.dds",
       "bytes": 36056,
       "sha256": "e50790ecd563e0a2275c6372606a5655561e3e482f4d14cdac0d6edd75c57e5a"
-    },
-    {
-      "path": "data/ui/imgAssets/tileicons/ti_playerstats_small_active.DDS",
-      "bytes": 46928,
-      "sha256": "1e1d0136cf56ae22da7a6b51b5025ca34d1fdb63bc1b12109df265a067aeb8ad"
-    },
-    {
-      "path": "data/ui/imgAssets/tileicons/ti_playerstats_small_nonactive.DDS",
-      "bytes": 63392,
-      "sha256": "eb065c007dd4ba42010d23415ca48d0af5b863111e1c4cfd9242e5766a86f650"
     },
     {
       "path": "data/ui/imgAssets/tileicons/ti_privacysettings_longmedium_active.DDS",
@@ -14712,16 +14690,6 @@
       "path": "data/ui/imgAssets/tileicons/ti_teamsheets_square_nonactive.DDS",
       "bytes": 106832,
       "sha256": "714b70fcae117d76bb4bd6e549340819bc182cf8979414931f904c192f6bcc58"
-    },
-    {
-      "path": "data/ui/imgAssets/tileicons/ti_teamstats_small_active.DDS",
-      "bytes": 173120,
-      "sha256": "f9568dba6de31194c39bfb44ddc4baa19ce0439c75fc2efeac7578bf57e33c6b"
-    },
-    {
-      "path": "data/ui/imgAssets/tileicons/ti_teamstats_small_nonactive.DDS",
-      "bytes": 173120,
-      "sha256": "f9568dba6de31194c39bfb44ddc4baa19ce0439c75fc2efeac7578bf57e33c6b"
     },
     {
       "path": "data/ui/imgAssets/tileicons/ti_topscorers_medtall_active.dds",

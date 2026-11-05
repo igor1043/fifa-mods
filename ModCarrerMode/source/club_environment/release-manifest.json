@@ -128,8 +128,13 @@
     },
     {
       "path": "ModCarrerMode/data/catalogs/asset_complement.json",
-      "bytes": 611733,
-      "sha256": "8e444a6a37c846b75c629953b985c4c62d0a18bb826b9ed6c9660c824da0c98a"
+      "bytes": 610671,
+      "sha256": "fe5ac0566c57152c1ab5df18b9d2a51682960bef21bd1d273e2d3cb20e76c0b5"
+    },
+    {
+      "path": "ModCarrerMode/data/catalogs/menu_layout_20261104.json",
+      "bytes": 7171,
+      "sha256": "20829a265ab90e35cc91e07c912900089b2ba7b0e27c2029f9136b1292b1e479"
     },
     {
       "path": "ModCarrerMode/data/catalogs/presentation_assets.json",
@@ -9457,6 +9462,11 @@
       "sha256": "2763cdbda3ccbda0baf3ed14a76084f8f329b13f832f9535fc277c55da534f9f"
     },
     {
+      "path": "ModCarrerMode/docs/MENU_LAYOUT_BACK_20261104.md",
+      "bytes": 2818,
+      "sha256": "4105b4a85e8aff7d4c59daa2773daeed25620660970d2ee8847d299f5b63c875"
+    },
+    {
       "path": "ModCarrerMode/docs/MERCADO_CONTRATOS_CAMPANHAS_20261031.md",
       "bytes": 1867,
       "sha256": "784772583b7a91e5e900aa0fc2441864d4bcba8c12352cb6ea8cbdd9f77e2171"
@@ -9828,8 +9838,8 @@
     },
     {
       "path": "ModCarrerMode/source/club_browser/build_career_options.py",
-      "bytes": 8322,
-      "sha256": "6fb8d08b48666188d8bc22db424f3fd7f5dd9705a635c313f2e89c8ca0e7b3db"
+      "bytes": 8671,
+      "sha256": "c44a23b9f4f19dedb3817f73aef35605d6c39d763142ad2a31ca5cab0a2e8d03"
     },
     {
       "path": "ModCarrerMode/source/club_browser/build_competitions_apt.py",
@@ -10843,8 +10853,8 @@
     },
     {
       "path": "ModCarrerMode/source/club_browser/test_career_options_navigation.py",
-      "bytes": 2911,
-      "sha256": "a8f3758bdf3c76949259323715e9f8bb4f00d0c6f13b2e442af93ba0eec39be4"
+      "bytes": 4324,
+      "sha256": "33a746a8b193c2530509b6062d154b8989ebd59ea012ca2f23629315f34e5000"
     },
     {
       "path": "ModCarrerMode/source/club_browser/test_career_publication.py",
@@ -11015,6 +11025,11 @@
       "path": "ModCarrerMode/source/club_browser/test_scene_lua.py",
       "bytes": 3167,
       "sha256": "e3d610ca136164945faedcc5c4724a9f6ea1dd28dcd6e8eaec8bd1eeb42ab5c7"
+    },
+    {
+      "path": "ModCarrerMode/source/club_browser/test_screen_back_contract.py",
+      "bytes": 3877,
+      "sha256": "f9127a5f5e0d91936b2521dc76eb71f17e32d1d9706fa807065acbc989760ee3"
     },
     {
       "path": "ModCarrerMode/source/club_browser/test_season_stats.py",
@@ -12703,8 +12718,8 @@
     },
     {
       "path": "ModCarrerMode/source/native_mods/career_overlay/layout/careermanagerhubcfg.xml",
-      "bytes": 189248,
-      "sha256": "8a8d3854c046710e260c728ed67730ff26310c1c241bf13e24599b83a2ea3982"
+      "bytes": 189430,
+      "sha256": "9a18a262444711ce0e2bec36db7fb0ae640a5385e91d400ccf5e11a8141f304b"
     },
     {
       "path": "ModCarrerMode/source/native_mods/extra_scenes/README.md",
@@ -13368,8 +13383,8 @@
     },
     {
       "path": "ModCarrerMode/source/tests/test_asset_complement.py",
-      "bytes": 4424,
-      "sha256": "405e59e04c7b0779056f812270bb91c0e6696a160b013db16a7ba1d74866246d"
+      "bytes": 5075,
+      "sha256": "f1974d08c4091c6c6cdef4e07e264c636c3a928954f1b6b455907c02b3bed77f"
     },
     {
       "path": "ModCarrerMode/source/tests/test_audio_module_defaults.py",
@@ -13442,6 +13457,11 @@
       "sha256": "2fe7b38c5482d262246f9aeafcadc95c0efc7f5ff0b0a6a2d8fffd962d9fdc0e"
     },
     {
+      "path": "ModCarrerMode/source/tests/test_menu_layout_integration.py",
+      "bytes": 2537,
+      "sha256": "44e45b67a0f6c61d0d06c112cec76ecdd4cff10bbe6bcc988ac370f9a6402e67"
+    },
+    {
       "path": "ModCarrerMode/source/tests/test_narration_panel.py",
       "bytes": 4230,
       "sha256": "1f39c773d3c20a332610d4b8d5e5a821dfc74eccbe5c5512d0dc145f183bcd12"
@@ -13463,8 +13483,8 @@
     },
     {
       "path": "ModCarrerMode/source/tests/test_portable_asset_delta.py",
-      "bytes": 2972,
-      "sha256": "47813cd782aa62eb43ad0b778bdc21b9b2cd6348e09c01840acae0d6b5651aa5"
+      "bytes": 3457,
+      "sha256": "6f2c38a673670afcd166027aab1cf691d23c7a15d21a0397ecfaf55d0abc25c7"
     },
     {
       "path": "ModCarrerMode/source/tests/test_portable_frozen_sources.py",
@@ -13522,6 +13542,11 @@
       "sha256": "87a3fef57d07b9e544a158f320835512853b205310bb3357d782bacd197152b4"
     },
     {
+      "path": "ModCarrerMode/source/tools/integrate_menu_layout.py",
+      "bytes": 4264,
+      "sha256": "aced7dfdff4463323bd671efa78eb964b5952a9ee8291b21afff42850f8ee6b2"
+    },
+    {
       "path": "ModCarrerMode/source/tools/reorganize_career_hub.py",
       "bytes": 15224,
       "sha256": "37f3441ebf73e377e6e7b3f94c265ee5ac178589e1999942ae91f6de3e747a5f"
@@ -13538,8 +13563,8 @@
     },
     {
       "path": "ModCarrerMode/tools/Verify-PortablePackage.py",
-      "bytes": 12374,
-      "sha256": "400b68f0e2f1b03a4741e0d9712d5e95f1f5a377ca64b3ca7c591283f6f6d127"
+      "bytes": 12546,
+      "sha256": "6cffb13176c9298761bec05f1027a8b70076af84ac236adc97cab7eea4e667d1"
     },
     {
       "path": "ModCarrerMode/tools/club_browser/generate_lineup.exe",
@@ -13553,8 +13578,8 @@
     },
     {
       "path": "README.md",
-      "bytes": 39146,
-      "sha256": "f21533324f706806c4814d5cc54ca2895d268ca67d57fa2e2266d07932f1c474"
+      "bytes": 39591,
+      "sha256": "4ae0fd41243c01b2c51a6a69381c8f7b107d667f689474c648300230ab4c92bd"
     },
     {
       "path": "ScoreBoardGBD/XXX - EI Maxx CN/game/globalcomponents/globalcomponents.big",
@@ -18253,8 +18278,8 @@
     },
     {
       "path": "data/ui/game/screens/career/server16/careerclubtransfer.big",
-      "bytes": 5407,
-      "sha256": "809b45cc3dcd86906c3790b368093688e13ca00b8942b3897f7f9e3d5c01ea5e"
+      "bytes": 5432,
+      "sha256": "8d80a74a805861c26a54a17968f02c11cdd4b861c5bc966b7a980a5f8cc03fba"
     },
     {
       "path": "data/ui/game/screens/career/server16/careercompetitions.big",
@@ -18263,8 +18288,8 @@
     },
     {
       "path": "data/ui/game/screens/career/server16/careerretirement.big",
-      "bytes": 5410,
-      "sha256": "f37c9314765665c142c7cb1ad6f029e366c31cd8c60b1266b361f99156d49620"
+      "bytes": 5428,
+      "sha256": "14726ae93a1ed58587c15fbc7545c84d422d08b80ae313dc59de0d106ba7615c"
     },
     {
       "path": "data/ui/game/screens/career/server16/clubbrowser.big",
@@ -18514,12 +18539,12 @@
     {
       "path": "data/ui/imgAssets/tileicons/ti_calendar_small_active.DDS",
       "bytes": 173120,
-      "sha256": "eb56eba27f50d878b2ece41245306fde97695f660388bdb22093196d250ed019"
+      "sha256": "dd9f2ac399f0c2cbbb2bef1b1ad44779c8d44f59c032c1edd96eb407b218b8f8"
     },
     {
       "path": "data/ui/imgAssets/tileicons/ti_calendar_small_nonactive.DDS",
       "bytes": 173120,
-      "sha256": "eb56eba27f50d878b2ece41245306fde97695f660388bdb22093196d250ed019"
+      "sha256": "dd9f2ac399f0c2cbbb2bef1b1ad44779c8d44f59c032c1edd96eb407b218b8f8"
     },
     {
       "path": "data/ui/imgAssets/tileicons/ti_catalogue_square_active.DDS",
@@ -18542,6 +18567,16 @@
       "sha256": "5f187fd04d2176576b7186f1be14ccf851ca37232e3640d255a628969417c017"
     },
     {
+      "path": "data/ui/imgAssets/tileicons/ti_clubranking_small_active.dds",
+      "bytes": 173120,
+      "sha256": "b14a3462cc909aca1701fb16a417bec0b44c85995c14b58638c264c3f0d41c0e"
+    },
+    {
+      "path": "data/ui/imgAssets/tileicons/ti_clubranking_small_nonactive.dds",
+      "bytes": 173120,
+      "sha256": "b14a3462cc909aca1701fb16a417bec0b44c85995c14b58638c264c3f0d41c0e"
+    },
+    {
       "path": "data/ui/imgAssets/tileicons/ti_combosettings_square_active.DDS",
       "bytes": 68584,
       "sha256": "adba81ce07e43aadb6b52eec1b480f193f4866c64a35863de0b62dd58d82c66c"
@@ -18558,6 +18593,16 @@
     },
     {
       "path": "data/ui/imgAssets/tileicons/ti_contract_sml_nonactive.dds",
+      "bytes": 41696,
+      "sha256": "1f9f8f8111fe73be4967dba3e7b8d680fce468af760096d376d6c9a8a728efa9"
+    },
+    {
+      "path": "data/ui/imgAssets/tileicons/ti_contracts_small_active.dds",
+      "bytes": 31040,
+      "sha256": "67dcfdc768d5d83c57d04caac94e56fc3fa92f74bfc2c1c54968e8c4dc37c796"
+    },
+    {
+      "path": "data/ui/imgAssets/tileicons/ti_contracts_small_nonactive.dds",
       "bytes": 41696,
       "sha256": "1f9f8f8111fe73be4967dba3e7b8d680fce468af760096d376d6c9a8a728efa9"
     },
@@ -18842,6 +18887,16 @@
       "sha256": "131f74c3c1070af508322df28df3021b9789e8f8c15430aa70339db76eb71a6b"
     },
     {
+      "path": "data/ui/imgAssets/tileicons/ti_globaltransfer_active.DDS",
+      "bytes": 176528,
+      "sha256": "cdb5b818056aabcfa1550552ec9a185f024ad0ad335119c23d6b18b614fe186f"
+    },
+    {
+      "path": "data/ui/imgAssets/tileicons/ti_globaltransfer_nonactive.DDS",
+      "bytes": 176528,
+      "sha256": "16c40d26b5db86316335151c3ea4196932ef1424b617afa445fa569951bcc622"
+    },
+    {
       "path": "data/ui/imgAssets/tileicons/ti_globaltransfernetwork_med_active.DDS",
       "bytes": 59704,
       "sha256": "7da9b5a2decca75cdfdbdab1e57abeb53c355b2d0a1a5a37bf9f2c126da7e961"
@@ -19062,6 +19117,16 @@
       "sha256": "8d0db594de799501e255309baad31f9fa2bc391d356d7c87accbdc314baa78f9"
     },
     {
+      "path": "data/ui/imgAssets/tileicons/ti_networkltransfer_active.DDS",
+      "bytes": 176528,
+      "sha256": "8659fce79e283b6a7a399745d3efeb430f8070ad81294ff3acb52c9760aa6a1b"
+    },
+    {
+      "path": "data/ui/imgAssets/tileicons/ti_networkltransfer_nonactive.DDS",
+      "bytes": 176528,
+      "sha256": "8659fce79e283b6a7a399745d3efeb430f8070ad81294ff3acb52c9760aa6a1b"
+    },
+    {
       "path": "data/ui/imgAssets/tileicons/ti_nextmatch_small_active.dds",
       "bytes": 54976,
       "sha256": "8cd6e17b5a6dbbb08c5456cee8af1ce907c7bc8b2940580dfb52f265d8497f84"
@@ -19070,6 +19135,16 @@
       "path": "data/ui/imgAssets/tileicons/ti_nextmatch_small_nonactive.dds",
       "bytes": 54976,
       "sha256": "8cd6e17b5a6dbbb08c5456cee8af1ce907c7bc8b2940580dfb52f265d8497f84"
+    },
+    {
+      "path": "data/ui/imgAssets/tileicons/ti_ntranking_small_active.dds",
+      "bytes": 173120,
+      "sha256": "c5132e39aa65b1228c14b1eb965e32fad95c72746dce5f0379303710dafc0759"
+    },
+    {
+      "path": "data/ui/imgAssets/tileicons/ti_ntranking_small_nonactive.dds",
+      "bytes": 173120,
+      "sha256": "c5132e39aa65b1228c14b1eb965e32fad95c72746dce5f0379303710dafc0759"
     },
     {
       "path": "data/ui/imgAssets/tileicons/ti_objectives_small_active.DDS",
@@ -19094,12 +19169,27 @@
     {
       "path": "data/ui/imgAssets/tileicons/ti_otherleagues_small_active.DDS",
       "bytes": 173120,
-      "sha256": "057844d6e4cb7077bf0399c06f220db98ef0d56dc2639dc2d99ef695acbf2167"
+      "sha256": "f979b01f67d3b1062e79f6d2ce0240d9bf2eebd7dc574c9fc966039d50b8bdf3"
     },
     {
       "path": "data/ui/imgAssets/tileicons/ti_otherleagues_small_nonactive.DDS",
       "bytes": 173120,
-      "sha256": "057844d6e4cb7077bf0399c06f220db98ef0d56dc2639dc2d99ef695acbf2167"
+      "sha256": "f979b01f67d3b1062e79f6d2ce0240d9bf2eebd7dc574c9fc966039d50b8bdf3"
+    },
+    {
+      "path": "data/ui/imgAssets/tileicons/ti_othernews_small_active.dds",
+      "bytes": 173120,
+      "sha256": "b7f4537850688e49da9a42aec0c9edff23267ad9a41038a45dbddb7b4ee881b4"
+    },
+    {
+      "path": "data/ui/imgAssets/tileicons/ti_othernews_small_active2.DDS",
+      "bytes": 46928,
+      "sha256": "1e1d0136cf56ae22da7a6b51b5025ca34d1fdb63bc1b12109df265a067aeb8ad"
+    },
+    {
+      "path": "data/ui/imgAssets/tileicons/ti_othernews_small_nonactive.DDS",
+      "bytes": 173120,
+      "sha256": "b7f4537850688e49da9a42aec0c9edff23267ad9a41038a45dbddb7b4ee881b4"
     },
     {
       "path": "data/ui/imgAssets/tileicons/ti_penalties_med_active.DDS",
@@ -19123,13 +19213,13 @@
     },
     {
       "path": "data/ui/imgAssets/tileicons/ti_playerstats_small_active.DDS",
-      "bytes": 46928,
-      "sha256": "1e1d0136cf56ae22da7a6b51b5025ca34d1fdb63bc1b12109df265a067aeb8ad"
+      "bytes": 173120,
+      "sha256": "784f00bd8d408ecc91410b0cc1cbfb3b665e2ef4bcbc9c39455a4f2cd007d412"
     },
     {
       "path": "data/ui/imgAssets/tileicons/ti_playerstats_small_nonactive.DDS",
-      "bytes": 63392,
-      "sha256": "eb065c007dd4ba42010d23415ca48d0af5b863111e1c4cfd9242e5766a86f650"
+      "bytes": 173120,
+      "sha256": "784f00bd8d408ecc91410b0cc1cbfb3b665e2ef4bcbc9c39455a4f2cd007d412"
     },
     {
       "path": "data/ui/imgAssets/tileicons/ti_privacysettings_longmedium_active.DDS",
@@ -19310,6 +19400,16 @@
       "path": "data/ui/imgAssets/tileicons/ti_searchclubs_med_nonactive.dds",
       "bytes": 54000,
       "sha256": "5ddf4b95d44f73098d81a508e21955e9baea33ca313a7c9ce210363e6996e9b5"
+    },
+    {
+      "path": "data/ui/imgAssets/tileicons/ti_seeclubs_small_active.dds",
+      "bytes": 173120,
+      "sha256": "efd13d88a20e0edfdb212ca932fc6001e286ac3dc98aabbce62ca2adb161d4bd"
+    },
+    {
+      "path": "data/ui/imgAssets/tileicons/ti_seeclubs_small_nonactive.dds",
+      "bytes": 173120,
+      "sha256": "efd13d88a20e0edfdb212ca932fc6001e286ac3dc98aabbce62ca2adb161d4bd"
     },
     {
       "path": "data/ui/imgAssets/tileicons/ti_selectkeeperarena_square_active.DDS",
@@ -19494,12 +19594,12 @@
     {
       "path": "data/ui/imgAssets/tileicons/ti_teamstats_small_active.DDS",
       "bytes": 173120,
-      "sha256": "f9568dba6de31194c39bfb44ddc4baa19ce0439c75fc2efeac7578bf57e33c6b"
+      "sha256": "4d8711ab09892c867723716228db741e5418d32aa69f7567399dd396bbeee06c"
     },
     {
       "path": "data/ui/imgAssets/tileicons/ti_teamstats_small_nonactive.DDS",
       "bytes": 173120,
-      "sha256": "f9568dba6de31194c39bfb44ddc4baa19ce0439c75fc2efeac7578bf57e33c6b"
+      "sha256": "4d8711ab09892c867723716228db741e5418d32aa69f7567399dd396bbeee06c"
     },
     {
       "path": "data/ui/imgAssets/tileicons/ti_topscorers_medtall_active.dds",
@@ -19563,13 +19663,33 @@
     },
     {
       "path": "data/ui/layout/careermanagerhubcfg.xml",
-      "bytes": 189248,
-      "sha256": "8a8d3854c046710e260c728ed67730ff26310c1c241bf13e24599b83a2ea3982"
+      "bytes": 189430,
+      "sha256": "9a18a262444711ce0e2bec36db7fb0ae640a5385e91d400ccf5e11a8141f304b"
+    },
+    {
+      "path": "data/ui/layout/careerplayerhubcfg.xml",
+      "bytes": 37692,
+      "sha256": "ea14555c834f9164248f6c98b64bdbfbad77c351360fd68eae9599a1eb8a9ee7"
     },
     {
       "path": "data/ui/layout/mainhubcfg.xml",
       "bytes": 61422,
       "sha256": "3ff38c35baf3673f156ababebd8955ca4034756450ca3b4e7d8a1136922dbed3"
+    },
+    {
+      "path": "data/ui/layout/pauseendgamehubcfg.xml",
+      "bytes": 9766,
+      "sha256": "c2d7205d2b86184aa1f013750d925d43b4945a03209c3adeeaa780321383667e"
+    },
+    {
+      "path": "data/ui/layout/pausehubcfg.xml",
+      "bytes": 24082,
+      "sha256": "69d333be6f0dc7214e40d7855cc4944cae7300da77ba9998cafb7944884d3886"
+    },
+    {
+      "path": "data/ui/layout/tournamenthubcfg.xml",
+      "bytes": 24842,
+      "sha256": "792fe3c04a096ac5735e1103025d685bc441bfc2ed2635c71d2e113ab718221e"
     },
     {
       "path": "data/ui/nav/careermode/mainmenuhubflow.nav",
@@ -19675,5 +19795,6 @@
   "manager_market_local_review": "20261102-polish-sampled-calendar-save-discard",
   "manager_visual_revision": "20261102-R2 / stable trophy identities / reusable compressed art / compact typed records",
   "room_version": 3,
-  "legacy_room_active": false
+  "legacy_room_active": false,
+  "menu_layout_revision": "20261104-native-back-and-menu-art"
 }

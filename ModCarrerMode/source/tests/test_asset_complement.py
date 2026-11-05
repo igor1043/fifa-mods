@@ -39,9 +39,17 @@ class AssetComplementTests(unittest.TestCase):
                     self.assertEqual(row['sha256'],self.rows[row['path']]['sha256'])
                     self.assertEqual(row['bytes'],self.rows[row['path']]['bytes'])
                 else:
-                    # A small animation JSON is already versioned with its code.
-                    self.assertEqual(Path(row['path']).suffix,'.json')
-                    self.assertTrue((ROOT/row['path']).is_file())
+                    # Module inputs can move from the complement into Git
+                    # (animation recipes and the editable V3 documentation).
+                    # Require their exact entry in the published manifest,
+                    # rather than assuming every such input is a JSON file.
+                    import hashlib
+                    published={r['path']:r for r in json.loads((ROOT/'ModCarrerMode/source/club_environment/release-manifest.json').read_text(encoding='utf8'))['files']}
+                    self.assertIn(row['path'],published)
+                    self.assertEqual(row['sha256'],published[row['path']]['sha256'])
+                    payload=(ROOT/row['path']).read_bytes()
+                    self.assertEqual(len(payload),row['bytes'])
+                    self.assertEqual(hashlib.sha256(payload).hexdigest(),row['sha256'])
 
     def test_pose_subson_coach_faces_and_all_scoreboard_copy_sources_are_present(self):
         for relative in ('ModCarrerMode/data/club_browser/poses/starting_eleven.pose',

@@ -40,7 +40,12 @@ def script_for(name):
    a.when(T('screenReady'),lambda a:a.ret());a.set(R(1),'screenReady',True);a.do(ION,'SendEvent',P(T('staticData'),'SCREEN_CONTROLLER_ID'),'SCREEN_READY','');a.do(ION,'SendSystemEvent',P(T('staticData'),'SCREEN_CONTROLLER_ID'),'DONE_LOADING','');a.do(M('HelpManager'),'SetCustomSource',CALL(PATH('cafe','utility','Delegate'),'Create',R(1),T('getHelpContext')));a.do(M('HelpManager'),'Update');a.do(M('HelpManager'),'Show');footer.apply(a)
   a.function('OnAnimateInComplete',0,complete)
   def back(a):
-   a.when(T('exiting'),lambda a:a.ret(True));a.do(ION,'SendEvent',P(T('staticData'),'SCREEN_CONTROLLER_ID'),'Back','');a.ret(True)
+   # Navigation events are supplied by ION; a literal "Back" is not the
+   # controller's event identifier on every build. Both ESC and BACK use this
+   # route, including while the native view is still waiting for its data.
+   a.when(('bin',17,T('exiting'),T('backRequested')),lambda a:a.ret(True))
+   a.set(R(1),'backRequested',True)
+   a.do(ION,'SendEvent',P(T('staticData'),'SCREEN_CONTROLLER_ID'),P(T('navEvents'),'BACK'),'');a.ret(True)
   a.function('Back',0,back)
   def key(a):
    a.when(b.equal(CALL(PATH('Key'),'getCode'),27),lambda a:a.do(R(1),'Back'))
@@ -50,7 +55,7 @@ def script_for(name):
   a.function('LocalEventHandler',2,event)
   a.function('getHelpContext',0,lambda a:a.ret(('array',tuple(CALL(PATH('ion','manager','HelpItem'),'CreateHelpTickerItem',key,label) for key,label in [('ADVANCE','Selecionar'),('BACK','Voltar'),('LAS_UD','Navegar'),('LAS_LR','Alterar'),('RAS_UD','Rolar clubes')]))))
   def shutdown(a):
-   a.when(T('exiting'),lambda a:a.ret());a.set(R(1),'exiting',True);a.do(PATH('Key'),'removeListener',R(1));footer.restore(a);a.do(M('InputManager'),'DisableCurrentLocalEventHandler');a.do(M('HelpManager'),'Clear');a.do(R(1),'Shutdown')
+   a.when(T('exiting'),lambda a:a.ret());a.set(R(1),'exiting',True);a.set(R(1),'onEnterFrame',None);a.do(PATH('Key'),'removeListener',R(1));footer.restore(a);a.do(M('InputManager'),'DisableCurrentLocalEventHandler');a.do(M('HelpManager'),'Clear');a.do(R(1),'Shutdown')
   a.function('OnExitScreen',0,shutdown);a.op(0);a.finish();a.align();registration=len(data);data.extend(dictionaries[1]);a.string(FULL);a.op(28);a.string(FULL);a.expr(2);a.expr(PATH('Object'));a.method('registerClass');a.op(23);a.op(0);a.finish();return start,registration
  return script
 

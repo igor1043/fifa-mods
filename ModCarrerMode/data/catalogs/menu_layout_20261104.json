@@ -1,0 +1,182 @@
+{
+  "schema": 1,
+  "release": "Menu layout and Back / 2026-11-04",
+  "source": "arte menu + layout",
+  "files": [
+    {
+      "path": "data/ui/game/screens/career/server16/careerclubtransfer.big",
+      "bytes": 5432,
+      "sha256": "8d80a74a805861c26a54a17968f02c11cdd4b861c5bc966b7a980a5f8cc03fba"
+    },
+    {
+      "path": "data/ui/game/screens/career/server16/careerretirement.big",
+      "bytes": 5428,
+      "sha256": "14726ae93a1ed58587c15fbc7545c84d422d08b80ae313dc59de0d106ba7615c"
+    },
+    {
+      "path": "data/ui/imgAssets/tileicons/ti_calendar_small_active.DDS",
+      "bytes": 173120,
+      "sha256": "dd9f2ac399f0c2cbbb2bef1b1ad44779c8d44f59c032c1edd96eb407b218b8f8"
+    },
+    {
+      "path": "data/ui/imgAssets/tileicons/ti_calendar_small_nonactive.DDS",
+      "bytes": 173120,
+      "sha256": "dd9f2ac399f0c2cbbb2bef1b1ad44779c8d44f59c032c1edd96eb407b218b8f8"
+    },
+    {
+      "path": "data/ui/imgAssets/tileicons/ti_clubranking_small_active.dds",
+      "bytes": 173120,
+      "sha256": "b14a3462cc909aca1701fb16a417bec0b44c85995c14b58638c264c3f0d41c0e"
+    },
+    {
+      "path": "data/ui/imgAssets/tileicons/ti_clubranking_small_nonactive.dds",
+      "bytes": 173120,
+      "sha256": "b14a3462cc909aca1701fb16a417bec0b44c85995c14b58638c264c3f0d41c0e"
+    },
+    {
+      "path": "data/ui/imgAssets/tileicons/ti_contracts_small_active.dds",
+      "bytes": 31040,
+      "sha256": "67dcfdc768d5d83c57d04caac94e56fc3fa92f74bfc2c1c54968e8c4dc37c796"
+    },
+    {
+      "path": "data/ui/imgAssets/tileicons/ti_contracts_small_nonactive.dds",
+      "bytes": 41696,
+      "sha256": "1f9f8f8111fe73be4967dba3e7b8d680fce468af760096d376d6c9a8a728efa9"
+    },
+    {
+      "path": "data/ui/imgAssets/tileicons/ti_globaltransfer_active.DDS",
+      "bytes": 176528,
+      "sha256": "cdb5b818056aabcfa1550552ec9a185f024ad0ad335119c23d6b18b614fe186f"
+    },
+    {
+      "path": "data/ui/imgAssets/tileicons/ti_globaltransfer_nonactive.DDS",
+      "bytes": 176528,
+      "sha256": "16c40d26b5db86316335151c3ea4196932ef1424b617afa445fa569951bcc622"
+    },
+    {
+      "path": "data/ui/imgAssets/tileicons/ti_networkltransfer_active.DDS",
+      "bytes": 176528,
+      "sha256": "8659fce79e283b6a7a399745d3efeb430f8070ad81294ff3acb52c9760aa6a1b"
+    },
+    {
+      "path": "data/ui/imgAssets/tileicons/ti_networkltransfer_nonactive.DDS",
+      "bytes": 176528,
+      "sha256": "8659fce79e283b6a7a399745d3efeb430f8070ad81294ff3acb52c9760aa6a1b"
+    },
+    {
+      "path": "data/ui/imgAssets/tileicons/ti_ntranking_small_active.dds",
+      "bytes": 173120,
+      "sha256": "c5132e39aa65b1228c14b1eb965e32fad95c72746dce5f0379303710dafc0759"
+    },
+    {
+      "path": "data/ui/imgAssets/tileicons/ti_ntranking_small_nonactive.dds",
+      "bytes": 173120,
+      "sha256": "c5132e39aa65b1228c14b1eb965e32fad95c72746dce5f0379303710dafc0759"
+    },
+    {
+      "path": "data/ui/imgAssets/tileicons/ti_otherleagues_small_active.DDS",
+      "bytes": 173120,
+      "sha256": "f979b01f67d3b1062e79f6d2ce0240d9bf2eebd7dc574c9fc966039d50b8bdf3"
+    },
+    {
+      "path": "data/ui/imgAssets/tileicons/ti_otherleagues_small_nonactive.DDS",
+      "bytes": 173120,
+      "sha256": "f979b01f67d3b1062e79f6d2ce0240d9bf2eebd7dc574c9fc966039d50b8bdf3"
+    },
+    {
+      "path": "data/ui/imgAssets/tileicons/ti_othernews_small_active.dds",
+      "bytes": 173120,
+      "sha256": "b7f4537850688e49da9a42aec0c9edff23267ad9a41038a45dbddb7b4ee881b4"
+    },
+    {
+      "path": "data/ui/imgAssets/tileicons/ti_othernews_small_active2.DDS",
+      "bytes": 46928,
+      "sha256": "1e1d0136cf56ae22da7a6b51b5025ca34d1fdb63bc1b12109df265a067aeb8ad"
+    },
+    {
+      "path": "data/ui/imgAssets/tileicons/ti_othernews_small_nonactive.DDS",
+      "bytes": 173120,
+      "sha256": "b7f4537850688e49da9a42aec0c9edff23267ad9a41038a45dbddb7b4ee881b4"
+    },
+    {
+      "path": "data/ui/imgAssets/tileicons/ti_playerstats_small_active.DDS",
+      "bytes": 173120,
+      "sha256": "784f00bd8d408ecc91410b0cc1cbfb3b665e2ef4bcbc9c39455a4f2cd007d412"
+    },
+    {
+      "path": "data/ui/imgAssets/tileicons/ti_playerstats_small_nonactive.DDS",
+      "bytes": 173120,
+      "sha256": "784f00bd8d408ecc91410b0cc1cbfb3b665e2ef4bcbc9c39455a4f2cd007d412"
+    },
+    {
+      "path": "data/ui/imgAssets/tileicons/ti_seeclubs_small_active.dds",
+      "bytes": 173120,
+      "sha256": "efd13d88a20e0edfdb212ca932fc6001e286ac3dc98aabbce62ca2adb161d4bd"
+    },
+    {
+      "path": "data/ui/imgAssets/tileicons/ti_seeclubs_small_nonactive.dds",
+      "bytes": 173120,
+      "sha256": "efd13d88a20e0edfdb212ca932fc6001e286ac3dc98aabbce62ca2adb161d4bd"
+    },
+    {
+      "path": "data/ui/imgAssets/tileicons/ti_teamstats_small_active.DDS",
+      "bytes": 173120,
+      "sha256": "4d8711ab09892c867723716228db741e5418d32aa69f7567399dd396bbeee06c"
+    },
+    {
+      "path": "data/ui/imgAssets/tileicons/ti_teamstats_small_nonactive.DDS",
+      "bytes": 173120,
+      "sha256": "4d8711ab09892c867723716228db741e5418d32aa69f7567399dd396bbeee06c"
+    },
+    {
+      "path": "data/ui/layout/careermanagerhubcfg.xml",
+      "bytes": 189430,
+      "sha256": "9a18a262444711ce0e2bec36db7fb0ae640a5385e91d400ccf5e11a8141f304b"
+    },
+    {
+      "path": "data/ui/layout/careerplayerhubcfg.xml",
+      "bytes": 37692,
+      "sha256": "ea14555c834f9164248f6c98b64bdbfbad77c351360fd68eae9599a1eb8a9ee7"
+    },
+    {
+      "path": "data/ui/layout/mainhubcfg.xml",
+      "bytes": 61422,
+      "sha256": "3ff38c35baf3673f156ababebd8955ca4034756450ca3b4e7d8a1136922dbed3"
+    },
+    {
+      "path": "data/ui/layout/pauseendgamehubcfg.xml",
+      "bytes": 9766,
+      "sha256": "c2d7205d2b86184aa1f013750d925d43b4945a03209c3adeeaa780321383667e"
+    },
+    {
+      "path": "data/ui/layout/pausehubcfg.xml",
+      "bytes": 24082,
+      "sha256": "69d333be6f0dc7214e40d7855cc4944cae7300da77ba9998cafb7944884d3886"
+    },
+    {
+      "path": "data/ui/layout/tournamenthubcfg.xml",
+      "bytes": 24842,
+      "sha256": "792fe3c04a096ac5735e1103025d685bc441bfc2ed2635c71d2e113ab718221e"
+    }
+  ],
+  "source_pack_files": 244,
+  "git_artwork_files": 23,
+  "retired_zip_icons": [
+    "data/ui/imgAssets/tileicons/ti_calendar_small_active.DDS",
+    "data/ui/imgAssets/tileicons/ti_calendar_small_nonactive.DDS",
+    "data/ui/imgAssets/tileicons/ti_otherleagues_small_active.DDS",
+    "data/ui/imgAssets/tileicons/ti_otherleagues_small_nonactive.DDS",
+    "data/ui/imgAssets/tileicons/ti_playerstats_small_active.DDS",
+    "data/ui/imgAssets/tileicons/ti_playerstats_small_nonactive.DDS",
+    "data/ui/imgAssets/tileicons/ti_teamstats_small_active.DDS",
+    "data/ui/imgAssets/tileicons/ti_teamstats_small_nonactive.DDS"
+  ],
+  "skipped_authoring_files": [
+    "data/ui/imgAssets/tileicons/ti_playerratings_med_nonactive - Copia.dds",
+    "data/ui/imgAssets/tileicons/tileicons.rar",
+    "data/ui/layout/careermanagerhubcfg-rzm.xml",
+    "data/ui/layout/careermanagerhubcfg.rar",
+    "data/ui/layout/layout-antigo.rar",
+    "data/ui/layout/layout-new.rar"
+  ]
+}

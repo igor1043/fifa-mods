@@ -8,6 +8,7 @@ ModCarrerMode/source/mascot_photographer/assets/** -text whitespace=cr-at-eol
 *.bin -text
 *.big -text
 *.dds -text
+*.DDS -text
 *.cbac -text
 *.ico -text
 # Installation manifests validate these runtime inputs byte for byte on Windows.
@@ -26,6 +27,10 @@ ModCarrerMode/source/tools/pyinstaller-COPYING.txt -text whitespace=-blank-at-eo
 ModCarrerMode/tools/Install-ClubEnvironment.ps1 -text
 ModCarrerMode/install-club-environment.cmd -text
 data/ui/layout/careermanagerhubcfg.xml -text
+data/ui/layout/careerplayerhubcfg.xml -text
+data/ui/layout/pauseendgamehubcfg.xml -text
+data/ui/layout/pausehubcfg.xml -text
+data/ui/layout/tournamenthubcfg.xml -text
 data/ui/nav/careermode/mainmenuhubflow.nav -text
 data/ui/nav/careermode/server16*.nav -text
 # Preserve the original navigation exports, including their native formatting.
@@ -114,6 +119,10 @@ ModCarrerMode/source/tests/test_bootstrap_ui.py -text whitespace=cr-at-eol
 ModCarrerMode/source/tests/test_club_environment.py -text whitespace=cr-at-eol
 ModCarrerMode/tools/Build-PortablePackages.py -text whitespace=cr-at-eol
 ModCarrerMode/tools/Verify-PortablePackage.py -text whitespace=cr-at-eol
+ModCarrerMode/source/tools/integrate_menu_layout.py -text whitespace=cr-at-eol
+ModCarrerMode/source/tests/test_menu_layout_integration.py -text whitespace=cr-at-eol
+ModCarrerMode/docs/MENU_LAYOUT_BACK_20261104.md -text whitespace=cr-at-eol
+ModCarrerMode/data/catalogs/menu_layout_20261104.json -text whitespace=cr-at-eol
 ModCarrerMode/docs/CAREER_HUB_ORGANIZATION.md -text whitespace=cr-at-eol
 ModCarrerMode/source/career_native/src/host/active_save_probe.inc -text whitespace=cr-at-eol
 ModCarrerMode/source/career_native/src/host/dinput8_wrapper.c -text whitespace=cr-at-eol

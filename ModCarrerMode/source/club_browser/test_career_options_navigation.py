@@ -43,4 +43,26 @@ class CareerOptionsNavigationTest(unittest.TestCase):
     vm.invoke(view.get('OnExitScreen'),view)
     self.assertTrue(any(k=='removeListener' for k,v in calls));self.assertEqual([],vm.errors)
 
+ def test_back_uses_ion_event_mapping_once_even_before_data_is_ready(self):
+  from apt_vm import Object,Native
+  game=Path(__file__).resolve().parents[3]
+  with tempfile.TemporaryDirectory() as tmp:
+   for name,*_ in options.PAGES:
+    package=Path(tmp)/(name+'.big');options.build(game,package,name)
+    for event in (42,'FIFA_NAV_BACK'):
+     for source in ('onKeyDown','LocalEventHandler','Back'):
+      with self.subTest(page=name,event=event,source=source):
+       def setup(vm,calls):vm.global_.set('Key',Object({k:Native(k) for k in ('addListener','removeListener','getCode')}))
+       vm,view,_,calls=open_native(package,full='game.screens.career.server16.'+name,setup=setup,
+         callbacks={'getCode':lambda owner,args:27,'GetEvents':lambda owner,args:Object({'BACK':event})})
+       calls.clear()
+       vm.invoke(view.get(source),view,(1,True) if source=='LocalEventHandler' else ())
+       # The keyboard listener and FIFA's InputManager can report the same
+       # physical press. Never let its second report also leave the career hub.
+       vm.invoke(view.get('LocalEventHandler'),view,(1,True))
+       self.assertEqual([list(v) for k,v in calls if k=='SendEvent'],[['Calendar',event,'']])
+       self.assertTrue(view.get('backRequested'))
+       vm.invoke(view.get('OnExitScreen'),view)
+       self.assertIsNone(view.get('onEnterFrame'));self.assertEqual([],vm.errors)
+
 if __name__=='__main__':unittest.main()
