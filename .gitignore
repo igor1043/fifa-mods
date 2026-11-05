@@ -189,6 +189,12 @@ runtime/diagnostics/
 !/data/ui/imgAssets/tileicons/ti_globaltransfer_nonactive.DDS
 !/data/ui/imgAssets/tileicons/ti_networkltransfer_active.DDS
 !/data/ui/imgAssets/tileicons/ti_networkltransfer_nonactive.DDS
+!/data/ui/imgAssets/tileicons/ti_moreexpensive_active.dds
+!/data/ui/imgAssets/tileicons/ti_moreexpensive_nonactive.dds
+!/data/ui/imgAssets/tileicons/ti_mostrecent_active.dds
+!/data/ui/imgAssets/tileicons/ti_mostrecent_nonactive.dds
+!/data/ui/imgAssets/tileicons/ti_teamsjam_small_active.dds
+!/data/ui/imgAssets/tileicons/ti_teamsjam_small_nonactive.DDS
 !/data/ui/imgAssets/tileicons/ti_ntranking_small_active.dds
 !/data/ui/imgAssets/tileicons/ti_ntranking_small_nonactive.dds
 !/data/ui/imgAssets/tileicons/ti_otherleagues_small_active.DDS

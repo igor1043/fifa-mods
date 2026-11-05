@@ -1,4 +1,9 @@
 # FIFA Friends V12
+## Menu + Layout — integração de 05/11/2026
+
+Aplicados o layout atualizado da carreira e novos/atualizados ícones dos cards de mercado e elenco, preservando as rotas e IDs dos mods. Os arquivos foram sincronizados entre jogo e desenvolvimento.
+[Detalhes e recuperação](ModCarrerMode/docs/MENU_LAYOUT_20261105.md).
+
 
 ## Menus e Voltar — revisão de 04/11/2026
 

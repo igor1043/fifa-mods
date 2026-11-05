@@ -1,5 +1,5 @@
 {
-  "release": "FIFA Friends V12 / Server16 / 2026-11-04",
+  "release": "FIFA Friends V12 / Server16 / 2026-11-05",
   "files": [
     {
       "path": "FSW/ScoreBoard/globalcomponents/globalcomponents.big",
@@ -12718,8 +12718,8 @@
     },
     {
       "path": "ModCarrerMode/source/native_mods/career_overlay/layout/careermanagerhubcfg.xml",
-      "bytes": 189430,
-      "sha256": "9a18a262444711ce0e2bec36db7fb0ae640a5385e91d400ccf5e11a8141f304b"
+      "bytes": 190521,
+      "sha256": "c9a80545a9a20b088c70c4734a72d0efddfb7c3d9dbd99b09728d9bbb6324494"
     },
     {
       "path": "ModCarrerMode/source/native_mods/extra_scenes/README.md",
@@ -13543,8 +13543,8 @@
     },
     {
       "path": "ModCarrerMode/source/tools/integrate_menu_layout.py",
-      "bytes": 4264,
-      "sha256": "aced7dfdff4463323bd671efa78eb964b5952a9ee8291b21afff42850f8ee6b2"
+      "bytes": 4639,
+      "sha256": "7635b5aae73f9197960a715a498eb81aec2d1bf4a60fd9ac2eb6b8c3a3e186f5"
     },
     {
       "path": "ModCarrerMode/source/tools/reorganize_career_hub.py",
@@ -13578,8 +13578,8 @@
     },
     {
       "path": "README.md",
-      "bytes": 39591,
-      "sha256": "4ae0fd41243c01b2c51a6a69381c8f7b107d667f689474c648300230ab4c92bd"
+      "bytes": 39918,
+      "sha256": "bbd7636235fc03bb324aeccc67ccdcf04120bb553c9bd0f220f39933144590d3"
     },
     {
       "path": "ScoreBoardGBD/XXX - EI Maxx CN/game/globalcomponents/globalcomponents.big",
@@ -18889,12 +18889,12 @@
     {
       "path": "data/ui/imgAssets/tileicons/ti_globaltransfer_active.DDS",
       "bytes": 176528,
-      "sha256": "cdb5b818056aabcfa1550552ec9a185f024ad0ad335119c23d6b18b614fe186f"
+      "sha256": "7d6f7fe59a8015cf921c95bc2719ccaf93156cec01624761a7a0a6fa8229f0fd"
     },
     {
       "path": "data/ui/imgAssets/tileicons/ti_globaltransfer_nonactive.DDS",
       "bytes": 176528,
-      "sha256": "16c40d26b5db86316335151c3ea4196932ef1424b617afa445fa569951bcc622"
+      "sha256": "7e19616eba9cec89bafcb78e91810a1bfab69eda22fdd5b7528d3b6997a2e86b"
     },
     {
       "path": "data/ui/imgAssets/tileicons/ti_globaltransfernetwork_med_active.DDS",
@@ -19119,12 +19119,12 @@
     {
       "path": "data/ui/imgAssets/tileicons/ti_networkltransfer_active.DDS",
       "bytes": 176528,
-      "sha256": "8659fce79e283b6a7a399745d3efeb430f8070ad81294ff3acb52c9760aa6a1b"
+      "sha256": "8fbfb18be2b76c17eaea752dc895b860cb7b31a03c96c0e8d65ef7e1a1498f61"
     },
     {
       "path": "data/ui/imgAssets/tileicons/ti_networkltransfer_nonactive.DDS",
       "bytes": 176528,
-      "sha256": "8659fce79e283b6a7a399745d3efeb430f8070ad81294ff3acb52c9760aa6a1b"
+      "sha256": "0408a8134c36f313b322cfefa876a6762b04b23f32ee978895d9e7610a90e44b"
     },
     {
       "path": "data/ui/imgAssets/tileicons/ti_nextmatch_small_active.dds",
@@ -19663,8 +19663,8 @@
     },
     {
       "path": "data/ui/layout/careermanagerhubcfg.xml",
-      "bytes": 189430,
-      "sha256": "9a18a262444711ce0e2bec36db7fb0ae640a5385e91d400ccf5e11a8141f304b"
+      "bytes": 190521,
+      "sha256": "c9a80545a9a20b088c70c4734a72d0efddfb7c3d9dbd99b09728d9bbb6324494"
     },
     {
       "path": "data/ui/layout/careerplayerhubcfg.xml",
@@ -19785,6 +19785,46 @@
       "path": "dinput8.dll",
       "bytes": 647168,
       "sha256": "20c57a75d3d60d6f5731527f418ef23c47b005882347b70184f5bf3055a50a8a"
+    },
+    {
+      "path": "ModCarrerMode/data/catalogs/menu_layout_20261105.json",
+      "bytes": 51884,
+      "sha256": "4fa0ca903e1701263561f7a3d6f80a520cc9b5b25d8368617b0c0056a778e93a"
+    },
+    {
+      "path": "ModCarrerMode/docs/MENU_LAYOUT_20261105.md",
+      "bytes": 1156,
+      "sha256": "e15821270b67154c74bfbb79d8c53607be4559d559717c966acd5a830c6d4a3b"
+    },
+    {
+      "path": "data/ui/imgAssets/tileicons/ti_moreexpensive_active.dds",
+      "bytes": 176528,
+      "sha256": "2b143a02f9f3116ddce9afdee3ae99b167b566e7db76d243740b33848dc59bbb"
+    },
+    {
+      "path": "data/ui/imgAssets/tileicons/ti_moreexpensive_nonactive.dds",
+      "bytes": 176528,
+      "sha256": "00f7646daae64b1c6d9e08d848d9b7c092bdd4cba97c2a7a8f8f3b70d88914eb"
+    },
+    {
+      "path": "data/ui/imgAssets/tileicons/ti_mostrecent_active.dds",
+      "bytes": 176528,
+      "sha256": "1204c94a4d7553f18e966c13033a6aaca2535353cc0fd9edaa5a381560167fe4"
+    },
+    {
+      "path": "data/ui/imgAssets/tileicons/ti_mostrecent_nonactive.dds",
+      "bytes": 176528,
+      "sha256": "06e2945827c6df9d4a97b3ca9d76afb575748886a3efeffce8a234cae81a6584"
+    },
+    {
+      "path": "data/ui/imgAssets/tileicons/ti_teamsjam_small_active.dds",
+      "bytes": 360128,
+      "sha256": "0c67e11b819a887795caa2ce6a8148d3650461a03ef7f3948f1670349a8fc3bd"
+    },
+    {
+      "path": "data/ui/imgAssets/tileicons/ti_teamsjam_small_nonactive.DDS",
+      "bytes": 360128,
+      "sha256": "0c67e11b819a887795caa2ce6a8148d3650461a03ef7f3948f1670349a8fc3bd"
     }
   ],
   "local_revision": "Mercado em background, técnicos 3D por identidade, histórico da carreira, vestiário ampliado e recursos do Server16",
@@ -19796,5 +19836,5 @@
   "manager_visual_revision": "20261102-R2 / stable trophy identities / reusable compressed art / compact typed records",
   "room_version": 3,
   "legacy_room_active": false,
-  "menu_layout_revision": "20261104-native-back-and-menu-art"
+  "menu_layout_revision": "20261105-menu-layout-and-career-hub-art"
 }

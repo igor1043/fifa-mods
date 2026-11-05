@@ -1,0 +1,1287 @@
+{
+  "schema": 1,
+  "release": "Menu + Layout integration / 2026-11-05",
+  "source": "Menu + Layout",
+  "files": [
+    {
+      "path": "data/ui/game/screens/career/server16/careerclubtransfer.big",
+      "bytes": 5432,
+      "sha256": "8d80a74a805861c26a54a17968f02c11cdd4b861c5bc966b7a980a5f8cc03fba"
+    },
+    {
+      "path": "data/ui/game/screens/career/server16/careerretirement.big",
+      "bytes": 5428,
+      "sha256": "14726ae93a1ed58587c15fbc7545c84d422d08b80ae313dc59de0d106ba7615c"
+    },
+    {
+      "path": "data/ui/imgAssets/tileicons/lockicon_active.dds",
+      "bytes": 2592,
+      "sha256": "a2f18a8e28559c63bc88ca69bfed506aaf17eb2f54181379f800b7c1b53fa0c9"
+    },
+    {
+      "path": "data/ui/imgAssets/tileicons/lockicon_inactive.dds",
+      "bytes": 3552,
+      "sha256": "f631f2ae751b6a4056b0db9e51176beea968339e4bdb551799c65eb4d0c9def5"
+    },
+    {
+      "path": "data/ui/imgAssets/tileicons/ti_accomplishments_small_active.DDS",
+      "bytes": 35464,
+      "sha256": "98d374e09d41d120c95538e7868c09daedbab3cb3a5b79294e5c71b8ff23973b"
+    },
+    {
+      "path": "data/ui/imgAssets/tileicons/ti_accomplishments_small_nonactive.DDS",
+      "bytes": 47408,
+      "sha256": "22c5eed554d57c133c2772666e95eba9b0b09dc1fd805409cc4dd3847392affb"
+    },
+    {
+      "path": "data/ui/imgAssets/tileicons/ti_age_sml_active.dds",
+      "bytes": 53456,
+      "sha256": "a8b78d930adfdd97ec23c72f50acec99dc7fcbc8040488347c0c603da9992a42"
+    },
+    {
+      "path": "data/ui/imgAssets/tileicons/ti_age_sml_nonactive.dds",
+      "bytes": 53456,
+      "sha256": "a8b78d930adfdd97ec23c72f50acec99dc7fcbc8040488347c0c603da9992a42"
+    },
+    {
+      "path": "data/ui/imgAssets/tileicons/ti_basiccontrols_square_active.DDS",
+      "bytes": 61960,
+      "sha256": "6d6bd4c3b21531dbfea44ab4d8bc96db9ceb22fcc367ef820f7d6d622c589ed1"
+    },
+    {
+      "path": "data/ui/imgAssets/tileicons/ti_basiccontrols_square_nonactive.DDS",
+      "bytes": 83088,
+      "sha256": "0dcbde617b163783e9ac537966c164bad92a1990fae03de3234a8fef7653ef1b"
+    },
+    {
+      "path": "data/ui/imgAssets/tileicons/ti_basiccontrolspc_active.DDS",
+      "bytes": 62616,
+      "sha256": "fe077f011f92fd6ee79b3544b6320739b83f03e39e32a28ac03896afdbb40337"
+    },
+    {
+      "path": "data/ui/imgAssets/tileicons/ti_basiccontrolspc_nonactive.DDS",
+      "bytes": 84192,
+      "sha256": "4c12920d899a48ba68095c0f46ac81efe984021025d8e5c4c18eac50a5d58b9b"
+    },
+    {
+      "path": "data/ui/imgAssets/tileicons/ti_basiccontrolsps4_active.DDS",
+      "bytes": 58888,
+      "sha256": "b04bce2d0989da8576380cc2aef0d4c40c235db5d3050e9a9b8f90208562f767"
+    },
+    {
+      "path": "data/ui/imgAssets/tileicons/ti_basiccontrolsps4_nonactive.DDS",
+      "bytes": 78800,
+      "sha256": "a5e5f9c91db47b82cb579ed6156a76a712c172e670170a15260f85677f919108"
+    },
+    {
+      "path": "data/ui/imgAssets/tileicons/ti_basiccontrolsxbox_active.DDS",
+      "bytes": 64648,
+      "sha256": "f15e50fd74850bf596dac4178427a9835f9c7dd1cc65b916bd1dcbe0ef5c07aa"
+    },
+    {
+      "path": "data/ui/imgAssets/tileicons/ti_basiccontrolsxbox_nonactive.DDS",
+      "bytes": 86496,
+      "sha256": "bce46f5a2c3dc02935fcb3ce4016a5f2fd77f07e84c8311d1c2659db6359bf7a"
+    },
+    {
+      "path": "data/ui/imgAssets/tileicons/ti_browsejobs_small_active.DDS",
+      "bytes": 42088,
+      "sha256": "1aa6a8f96521698a41d91097bfc6853d61a7996534ceec4f2b58eb0ba29a666d"
+    },
+    {
+      "path": "data/ui/imgAssets/tileicons/ti_browsejobs_small_nonactive.DDS",
+      "bytes": 56592,
+      "sha256": "17b9d26a36e7ea35d263c87fc4d1a535d2cfc5d7ad9ff8cb791546c4be43c2cb"
+    },
+    {
+      "path": "data/ui/imgAssets/tileicons/ti_calendar_small_active.DDS",
+      "bytes": 173120,
+      "sha256": "dd9f2ac399f0c2cbbb2bef1b1ad44779c8d44f59c032c1edd96eb407b218b8f8"
+    },
+    {
+      "path": "data/ui/imgAssets/tileicons/ti_calendar_small_nonactive.DDS",
+      "bytes": 173120,
+      "sha256": "dd9f2ac399f0c2cbbb2bef1b1ad44779c8d44f59c032c1edd96eb407b218b8f8"
+    },
+    {
+      "path": "data/ui/imgAssets/tileicons/ti_catalogue_square_active.DDS",
+      "bytes": 76248,
+      "sha256": "ef519ff538c83f2e4e3ed2b09e31cd91e9ce095ba80c0fe0724ff35e2cee3ccd"
+    },
+    {
+      "path": "data/ui/imgAssets/tileicons/ti_catalogue_square_nonactive.DDS",
+      "bytes": 102448,
+      "sha256": "53c4d8db596d09f15eae9d1c689082a08255678d52b529440bc409c99019367d"
+    },
+    {
+      "path": "data/ui/imgAssets/tileicons/ti_celebrations_square_active.DDS",
+      "bytes": 67336,
+      "sha256": "2c4ee450c28260cce88bb7a8a42bb2fb113509ab1b4997cc2328febdcacb1092"
+    },
+    {
+      "path": "data/ui/imgAssets/tileicons/ti_celebrations_square_nonactive.DDS",
+      "bytes": 90016,
+      "sha256": "5f187fd04d2176576b7186f1be14ccf851ca37232e3640d255a628969417c017"
+    },
+    {
+      "path": "data/ui/imgAssets/tileicons/ti_clubranking_small_active.dds",
+      "bytes": 173120,
+      "sha256": "b14a3462cc909aca1701fb16a417bec0b44c85995c14b58638c264c3f0d41c0e"
+    },
+    {
+      "path": "data/ui/imgAssets/tileicons/ti_clubranking_small_nonactive.dds",
+      "bytes": 173120,
+      "sha256": "b14a3462cc909aca1701fb16a417bec0b44c85995c14b58638c264c3f0d41c0e"
+    },
+    {
+      "path": "data/ui/imgAssets/tileicons/ti_combosettings_square_active.DDS",
+      "bytes": 68584,
+      "sha256": "adba81ce07e43aadb6b52eec1b480f193f4866c64a35863de0b62dd58d82c66c"
+    },
+    {
+      "path": "data/ui/imgAssets/tileicons/ti_combosettings_square_nonactive.DDS",
+      "bytes": 92112,
+      "sha256": "0da839b79d64d266a829c2ef1b7e8c03c14caf483853451289ed4dd48f320f5a"
+    },
+    {
+      "path": "data/ui/imgAssets/tileicons/ti_contract_sml_active.dds",
+      "bytes": 31040,
+      "sha256": "67dcfdc768d5d83c57d04caac94e56fc3fa92f74bfc2c1c54968e8c4dc37c796"
+    },
+    {
+      "path": "data/ui/imgAssets/tileicons/ti_contract_sml_nonactive.dds",
+      "bytes": 41696,
+      "sha256": "1f9f8f8111fe73be4967dba3e7b8d680fce468af760096d376d6c9a8a728efa9"
+    },
+    {
+      "path": "data/ui/imgAssets/tileicons/ti_contracts_small_active.dds",
+      "bytes": 31040,
+      "sha256": "67dcfdc768d5d83c57d04caac94e56fc3fa92f74bfc2c1c54968e8c4dc37c796"
+    },
+    {
+      "path": "data/ui/imgAssets/tileicons/ti_contracts_small_nonactive.dds",
+      "bytes": 41696,
+      "sha256": "1f9f8f8111fe73be4967dba3e7b8d680fce468af760096d376d6c9a8a728efa9"
+    },
+    {
+      "path": "data/ui/imgAssets/tileicons/ti_controllersettingspc_active.DDS",
+      "bytes": 66952,
+      "sha256": "9039b9f5bf8667d8fa975bfa7ee0d60c1f05c3b846a9535721871f064b5f5deb"
+    },
+    {
+      "path": "data/ui/imgAssets/tileicons/ti_controllersettingspc_nonactive.DDS",
+      "bytes": 89568,
+      "sha256": "9c096e075e31d144a622814105446d8a25185194f8007fe5322afc99c661a810"
+    },
+    {
+      "path": "data/ui/imgAssets/tileicons/ti_controllersettingsps4_active.DDS",
+      "bytes": 63496,
+      "sha256": "1273ee7d91a39b3061fe6296d8f194adeabd198f31f4f5003721d249bb31dda5"
+    },
+    {
+      "path": "data/ui/imgAssets/tileicons/ti_controllersettingsps4_nonactive.DDS",
+      "bytes": 84192,
+      "sha256": "b30457b44323df2b71655bcf1fedcf36760ba4a2825b343119e728e01672ab4f"
+    },
+    {
+      "path": "data/ui/imgAssets/tileicons/ti_controllersettingsxbox_active.DDS",
+      "bytes": 66952,
+      "sha256": "24b0bab09eaca6db72fe3da7ee50dd1a85577c403286ea95f9e16bf21cd42c7e"
+    },
+    {
+      "path": "data/ui/imgAssets/tileicons/ti_controllersettingsxbox_nonactive.DDS",
+      "bytes": 89568,
+      "sha256": "f55bedc1f4da5035f2e8d349f09ae5cc14635f8ac1c7f47177696b2726cadc93"
+    },
+    {
+      "path": "data/ui/imgAssets/tileicons/ti_createplayer_square_active.DDS",
+      "bytes": 81784,
+      "sha256": "26a86e1e60452f6489cb8672b5a9b7f1bf9b92dfd82efe16b22d2c6b05f47395"
+    },
+    {
+      "path": "data/ui/imgAssets/tileicons/ti_createplayer_square_nonactive.DDS",
+      "bytes": 109888,
+      "sha256": "506457abcce55f23ebd3ce8e9e199ed2f83199ea0ce9c0404bdb16f0ba4648c0"
+    },
+    {
+      "path": "data/ui/imgAssets/tileicons/ti_credits_square_active.DDS",
+      "bytes": 65032,
+      "sha256": "64d7256386d9a721d1c359165f1bcad38930931ac856ce26940aeee86665de73"
+    },
+    {
+      "path": "data/ui/imgAssets/tileicons/ti_credits_square_nonactive.DDS",
+      "bytes": 86976,
+      "sha256": "82d44e732f9b92f7a176dac6c87f9ae0d6cfa5e6506c9a04cb9d871db63aba7b"
+    },
+    {
+      "path": "data/ui/imgAssets/tileicons/ti_delete_square_active.DDS",
+      "bytes": 57672,
+      "sha256": "c75764aafa1e5a02ebf16cd1abc98566251039199db38803621191c72fa796f2"
+    },
+    {
+      "path": "data/ui/imgAssets/tileicons/ti_delete_square_nonactive.DDS",
+      "bytes": 77264,
+      "sha256": "bcae3649a6824ebd96bfc1b448ddeb3421a2be314d8e2405fc95a2fb982a30ff"
+    },
+    {
+      "path": "data/ui/imgAssets/tileicons/ti_deleteplayer_square_active.DDS",
+      "bytes": 77752,
+      "sha256": "639ae3f5fd7f470606955e0b5796c023eda810fa3af7598ac6b0e0fa5921d48a"
+    },
+    {
+      "path": "data/ui/imgAssets/tileicons/ti_deleteplayer_square_nonactive.DDS",
+      "bytes": 104560,
+      "sha256": "90f46819f7ae7101a1aaa5a7ec9caccb742f63fec485b089479f66e524a5f7cd"
+    },
+    {
+      "path": "data/ui/imgAssets/tileicons/ti_disconnected_half_active.dds",
+      "bytes": 253424,
+      "sha256": "91f7a13cd51bd2a125daf11a9106b23f3be965deee9e492e61e8284e8be36745"
+    },
+    {
+      "path": "data/ui/imgAssets/tileicons/ti_disconnected_half_nonactive.dds",
+      "bytes": 253424,
+      "sha256": "91f7a13cd51bd2a125daf11a9106b23f3be965deee9e492e61e8284e8be36745"
+    },
+    {
+      "path": "data/ui/imgAssets/tileicons/ti_downloadupdates_square_active.DDS",
+      "bytes": 53032,
+      "sha256": "87899ab7bd49cc3c5021fdf7116fddafd672699147106847cc843556818e8ee5"
+    },
+    {
+      "path": "data/ui/imgAssets/tileicons/ti_downloadupdates_square_nonactive.DDS",
+      "bytes": 71328,
+      "sha256": "b04313df9c2b745cbfd0462dfcb3a9333d1ed9ff9e72ef62d16b3f6dd37d2292"
+    },
+    {
+      "path": "data/ui/imgAssets/tileicons/ti_eaaccountsettings_half_active.dds",
+      "bytes": 268016,
+      "sha256": "9006a8d01cfeecea4b92e32a2a326aa00e4bf2050c9b90eb41ad17908441b513"
+    },
+    {
+      "path": "data/ui/imgAssets/tileicons/ti_eaaccountsettings_half_nonactive.dds",
+      "bytes": 268016,
+      "sha256": "9006a8d01cfeecea4b92e32a2a326aa00e4bf2050c9b90eb41ad17908441b513"
+    },
+    {
+      "path": "data/ui/imgAssets/tileicons/ti_eaaccountsettings_square_active.DDS",
+      "bytes": 33592,
+      "sha256": "336544bff387a38f802688e4a9cdbb85d3bd498d4f63d2a89c371b94f0596b19"
+    },
+    {
+      "path": "data/ui/imgAssets/tileicons/ti_eaaccountsettings_square_nonactive.DDS",
+      "bytes": 45408,
+      "sha256": "a4023143ff3e5c716107afd1cdfdaadaa2e551ba4f3b0210b6958d7e88d1a183"
+    },
+    {
+      "path": "data/ui/imgAssets/tileicons/ti_easfc_logo_small_active.dds",
+      "bytes": 50736,
+      "sha256": "0c6a33fe238caa7e894ada390c851d7d371542294f06935e6698ee297acb3f17"
+    },
+    {
+      "path": "data/ui/imgAssets/tileicons/ti_easfc_logo_small_nonactive.dds",
+      "bytes": 50736,
+      "sha256": "0c6a33fe238caa7e894ada390c851d7d371542294f06935e6698ee297acb3f17"
+    },
+    {
+      "path": "data/ui/imgAssets/tileicons/ti_easportstrax_square_active.DDS",
+      "bytes": 66664,
+      "sha256": "b6a726dc87158a67425ba00aaa64e570246285a2ae74f50fe5171ad6dc40274d"
+    },
+    {
+      "path": "data/ui/imgAssets/tileicons/ti_easportstrax_square_nonactive.DDS",
+      "bytes": 89408,
+      "sha256": "75fc34b09f9df5b73460a473bb5e8d06ceaeb1cb1da0e2e4878075553d9b777a"
+    },
+    {
+      "path": "data/ui/imgAssets/tileicons/ti_editplayer_med_active.dds",
+      "bytes": 56496,
+      "sha256": "25f1b3ba6276516d7ca9582b3b6225a98ddc725e3284cbfcf0a3a60e7c8092b0"
+    },
+    {
+      "path": "data/ui/imgAssets/tileicons/ti_editplayer_med_nonactive.dds",
+      "bytes": 56496,
+      "sha256": "25f1b3ba6276516d7ca9582b3b6225a98ddc725e3284cbfcf0a3a60e7c8092b0"
+    },
+    {
+      "path": "data/ui/imgAssets/tileicons/ti_editplayer_square_active.DDS",
+      "bytes": 80776,
+      "sha256": "6a825ad66da3d4d0910a35e7ec298ad5564b9d0b6badac821aaf53dad73c72e4"
+    },
+    {
+      "path": "data/ui/imgAssets/tileicons/ti_editplayer_square_nonactive.DDS",
+      "bytes": 108112,
+      "sha256": "e3e0e57079f896fb0084ee906335cfb8da441dbccd9312c397b6fb1b278c5667"
+    },
+    {
+      "path": "data/ui/imgAssets/tileicons/ti_editplayereasfclock_small_active.DDS",
+      "bytes": 39736,
+      "sha256": "33f4de8f28abacd3f14b04d4e7e3e0e8454e8fbb3a905bc079325e3856431b9f"
+    },
+    {
+      "path": "data/ui/imgAssets/tileicons/ti_editplayereasfclock_small_nonactive.DDS",
+      "bytes": 53680,
+      "sha256": "3950f0fb1dc5655a45c76147fbad203859df9d8b346a6edeb95c36edfcccaa4f"
+    },
+    {
+      "path": "data/ui/imgAssets/tileicons/ti_editplayers_small_active.dds",
+      "bytes": 56496,
+      "sha256": "25f1b3ba6276516d7ca9582b3b6225a98ddc725e3284cbfcf0a3a60e7c8092b0"
+    },
+    {
+      "path": "data/ui/imgAssets/tileicons/ti_editplayers_small_nonactive.dds",
+      "bytes": 56496,
+      "sha256": "25f1b3ba6276516d7ca9582b3b6225a98ddc725e3284cbfcf0a3a60e7c8092b0"
+    },
+    {
+      "path": "data/ui/imgAssets/tileicons/ti_editteams_square_active.DDS",
+      "bytes": 79768,
+      "sha256": "ced736772a33ba3d43201aa0eab9528e7ebb4b3ec9c01cf33d273347fbfc4e1e"
+    },
+    {
+      "path": "data/ui/imgAssets/tileicons/ti_editteams_square_nonactive.DDS",
+      "bytes": 107088,
+      "sha256": "370001a8f08d9f939365daba6a6deceefb00549d78d808b4e3c0eda82df22712"
+    },
+    {
+      "path": "data/ui/imgAssets/tileicons/ti_endmatchasdraw_med_active.DDS",
+      "bytes": 58504,
+      "sha256": "68205e0908aeaca15b44fffdcc7908793092ee67a9b4750824b55fb13c46d7fb"
+    },
+    {
+      "path": "data/ui/imgAssets/tileicons/ti_endmatchasdraw_med_nonactive.DDS",
+      "bytes": 78064,
+      "sha256": "e22e42c21f84b0dc6069b9ae3e3f7c92f5189aa00e3671910011309f342e1383"
+    },
+    {
+      "path": "data/ui/imgAssets/tileicons/ti_enduserlicenseagreement_square_active.DDS",
+      "bytes": 55768,
+      "sha256": "1d9a4f58bfeb38ab90ccb010e1500ecdf84eb3f04874a63c473f492e689117d8"
+    },
+    {
+      "path": "data/ui/imgAssets/tileicons/ti_enduserlicenseagreement_square_nonactive.DDS",
+      "bytes": 75232,
+      "sha256": "c70524bd2bb9d9bcac1a1c5d09194139662c0fce4dfb532fa902393a1752c0fe"
+    },
+    {
+      "path": "data/ui/imgAssets/tileicons/ti_finances_med_active.DDS",
+      "bytes": 56440,
+      "sha256": "4a13b137bd32a15c6ac500a736bc4c0bb4dbd05f39557cafad6c262bf462edda"
+    },
+    {
+      "path": "data/ui/imgAssets/tileicons/ti_finances_med_nonactive.DDS",
+      "bytes": 76080,
+      "sha256": "5256d8f53f8c72d3cffa73751218e9e5513cf4b532733b38601746b14e181983"
+    },
+    {
+      "path": "data/ui/imgAssets/tileicons/ti_fixtures_medtall_active.DDS",
+      "bytes": 42560,
+      "sha256": "043131d129d939f9b54432085dad25d38ee1aa8b44f68f3a3175a8aa4afd6af3"
+    },
+    {
+      "path": "data/ui/imgAssets/tileicons/ti_fixtures_medtall_nonactive.DDS",
+      "bytes": 42560,
+      "sha256": "043131d129d939f9b54432085dad25d38ee1aa8b44f68f3a3175a8aa4afd6af3"
+    },
+    {
+      "path": "data/ui/imgAssets/tileicons/ti_fixtures_small_active.DDS",
+      "bytes": 87496,
+      "sha256": "49dd35639ed8352cdf59e875c64b30c1d3e6ab4e758c61f2b5f63653228fabde"
+    },
+    {
+      "path": "data/ui/imgAssets/tileicons/ti_fixtures_small_nonactive.DDS",
+      "bytes": 117232,
+      "sha256": "19a7acd644cce0ca85b5993235bbf0432d4977a18596f892be5ebb59516b6cce"
+    },
+    {
+      "path": "data/ui/imgAssets/tileicons/ti_formationsettings_square_active.DDS",
+      "bytes": 66664,
+      "sha256": "196d73f1818808509618a8f2bd3b98bab41ac265c7a4cce6b171d68511b9d3f2"
+    },
+    {
+      "path": "data/ui/imgAssets/tileicons/ti_formationsettings_square_nonactive.DDS",
+      "bytes": 90928,
+      "sha256": "8c691592e860124b0924a3dc8a260039abc9d8a35e7709d0daa333f68b131ba5"
+    },
+    {
+      "path": "data/ui/imgAssets/tileicons/ti_friendliesplaymatch_sml_active.dds",
+      "bytes": 54976,
+      "sha256": "e6f5550dfd0cf7ea623c206e75b3928a1f71a6a6813735fc547a7b81256b5da6"
+    },
+    {
+      "path": "data/ui/imgAssets/tileicons/ti_friendliesplaymatch_sml_nonactive.dds",
+      "bytes": 54976,
+      "sha256": "e6f5550dfd0cf7ea623c206e75b3928a1f71a6a6813735fc547a7b81256b5da6"
+    },
+    {
+      "path": "data/ui/imgAssets/tileicons/ti_gameplayassistance_active.dds",
+      "bytes": 90928,
+      "sha256": "8c691592e860124b0924a3dc8a260039abc9d8a35e7709d0daa333f68b131ba5"
+    },
+    {
+      "path": "data/ui/imgAssets/tileicons/ti_gameplayassistance_nonactive.dds",
+      "bytes": 90928,
+      "sha256": "8c691592e860124b0924a3dc8a260039abc9d8a35e7709d0daa333f68b131ba5"
+    },
+    {
+      "path": "data/ui/imgAssets/tileicons/ti_gameplayassistance_square_active.dds",
+      "bytes": 90928,
+      "sha256": "3c1e5cdab566bd544f22648017dcef09ec3f7b4e9e4621bbb36f86b60a73c4cf"
+    },
+    {
+      "path": "data/ui/imgAssets/tileicons/ti_gameplayassistance_square_nonactive.dds",
+      "bytes": 90928,
+      "sha256": "3c1e5cdab566bd544f22648017dcef09ec3f7b4e9e4621bbb36f86b60a73c4cf"
+    },
+    {
+      "path": "data/ui/imgAssets/tileicons/ti_gamesettings_square_active.DDS",
+      "bytes": 68744,
+      "sha256": "dea4c470ed3f8b0526ab9acb17aac25a9e6bb7111ed693506f662fd738db2a40"
+    },
+    {
+      "path": "data/ui/imgAssets/tileicons/ti_gamesettings_square_nonactive.DDS",
+      "bytes": 92016,
+      "sha256": "131f74c3c1070af508322df28df3021b9789e8f8c15430aa70339db76eb71a6b"
+    },
+    {
+      "path": "data/ui/imgAssets/tileicons/ti_globaltransfer_active.DDS",
+      "bytes": 176528,
+      "sha256": "7d6f7fe59a8015cf921c95bc2719ccaf93156cec01624761a7a0a6fa8229f0fd"
+    },
+    {
+      "path": "data/ui/imgAssets/tileicons/ti_globaltransfer_nonactive.DDS",
+      "bytes": 176528,
+      "sha256": "7e19616eba9cec89bafcb78e91810a1bfab69eda22fdd5b7528d3b6997a2e86b"
+    },
+    {
+      "path": "data/ui/imgAssets/tileicons/ti_globaltransfernetwork_med_active.DDS",
+      "bytes": 59704,
+      "sha256": "7da9b5a2decca75cdfdbdab1e57abeb53c355b2d0a1a5a37bf9f2c126da7e961"
+    },
+    {
+      "path": "data/ui/imgAssets/tileicons/ti_globaltransfernetwork_med_nonactive.DDS",
+      "bytes": 80416,
+      "sha256": "caefa43a0d6b259f3ac0f7e78f09469214d29c1c8eb0533733bac6193e819e06"
+    },
+    {
+      "path": "data/ui/imgAssets/tileicons/ti_goalcelebrations_square_active.dds",
+      "bytes": 104784,
+      "sha256": "05ef55f6536f29a413f768ec3eb5716a45956c2721a1c9f2178d9d2d1e32e1d7"
+    },
+    {
+      "path": "data/ui/imgAssets/tileicons/ti_goalcelebrations_square_nonactive.dds",
+      "bytes": 104784,
+      "sha256": "05ef55f6536f29a413f768ec3eb5716a45956c2721a1c9f2178d9d2d1e32e1d7"
+    },
+    {
+      "path": "data/ui/imgAssets/tileicons/ti_help_small_active.DDS",
+      "bytes": 34632,
+      "sha256": "85a48e7fe13730adf5abee5ed0ed13fe46b2f0b543b99ed3962a0a3ae44459cc"
+    },
+    {
+      "path": "data/ui/imgAssets/tileicons/ti_help_small_nonactive.DDS",
+      "bytes": 46528,
+      "sha256": "58040e98594cd745f9bfe8fd3ecd003392f115116472b6a5e1cdf3f293e81293"
+    },
+    {
+      "path": "data/ui/imgAssets/tileicons/ti_help_square_active.DDS",
+      "bytes": 63496,
+      "sha256": "c27e5f0169efa6972e01f05cec1f77036f3ee29c851230fb0d70b45a7f6ddb13"
+    },
+    {
+      "path": "data/ui/imgAssets/tileicons/ti_help_square_nonactive.DDS",
+      "bytes": 84912,
+      "sha256": "0c5a14e1eaa933cd8ef9381e689f14dee02307a032bd218a48c9fd7437f6386a"
+    },
+    {
+      "path": "data/ui/imgAssets/tileicons/ti_injurylist_small_active.DDS",
+      "bytes": 49448,
+      "sha256": "c45d044ea21038c021878dba8281b6a05100eb5db94199519e4b7f1aad942acf"
+    },
+    {
+      "path": "data/ui/imgAssets/tileicons/ti_injurylist_small_nonactive.DDS",
+      "bytes": 66368,
+      "sha256": "a17466f112b10415d82cef7ab335da63477fdbbd939e8cef126b0daeb8dddc37"
+    },
+    {
+      "path": "data/ui/imgAssets/tileicons/ti_instantreplay_small_active.DDS",
+      "bytes": 43784,
+      "sha256": "b41bc5303e8a71dc1cc51c166a611578ca90b8cb68a5ff3974485de4ae6986ce"
+    },
+    {
+      "path": "data/ui/imgAssets/tileicons/ti_instantreplay_small_nonactive.DDS",
+      "bytes": 58560,
+      "sha256": "d147eea522c8c89782bf8c947c31022ceb2bdd3b67fada5dea9688c256621fb3"
+    },
+    {
+      "path": "data/ui/imgAssets/tileicons/ti_kinectsettings_square_active.DDS",
+      "bytes": 58504,
+      "sha256": "4fa59c71d52ee130573a4ef7086b69d1332206c725a11685056179726ac9b0ba"
+    },
+    {
+      "path": "data/ui/imgAssets/tileicons/ti_kinectsettings_square_nonactive.DDS",
+      "bytes": 78064,
+      "sha256": "9d1355e4c6bf580e17c3693de739a6676f8f3286db6437edd0b03fe9ad467a8d"
+    },
+    {
+      "path": "data/ui/imgAssets/tileicons/ti_kitnumbers_small_active.DDS",
+      "bytes": 40456,
+      "sha256": "e24bebd2c59f0cfb00877f827b6a67e3459250359b83a9713ebf53bbc1d9d8c7"
+    },
+    {
+      "path": "data/ui/imgAssets/tileicons/ti_kitnumbers_small_nonactive.DDS",
+      "bytes": 54400,
+      "sha256": "c32fd6330baa9ef5bbe6ef4fd3ddeea5d1e2e320e03b2a9d29aa5755ba7f101d"
+    },
+    {
+      "path": "data/ui/imgAssets/tileicons/ti_leaguetable_medtall_active.dds",
+      "bytes": 57152,
+      "sha256": "ead1d357b0281e4a45488be1ca5c1d39ae637e7688f8f370bd9afacdca7a292a"
+    },
+    {
+      "path": "data/ui/imgAssets/tileicons/ti_leaguetable_medtall_nonactive.dds",
+      "bytes": 57152,
+      "sha256": "ead1d357b0281e4a45488be1ca5c1d39ae637e7688f8f370bd9afacdca7a292a"
+    },
+    {
+      "path": "data/ui/imgAssets/tileicons/ti_loadfifaprofile_square_active.DDS",
+      "bytes": 65608,
+      "sha256": "520822b95964eb2cf8714adb8b73d39c9fccaee62b1ddde36f903350070e4a45"
+    },
+    {
+      "path": "data/ui/imgAssets/tileicons/ti_loadfifaprofile_square_nonactive.DDS",
+      "bytes": 87824,
+      "sha256": "ad8e06791710c6da61f27d0be01fcae0abee607bb401f1d92e8af9b384a35a28"
+    },
+    {
+      "path": "data/ui/imgAssets/tileicons/ti_loadsquads_square_active.DDS",
+      "bytes": 76248,
+      "sha256": "180177082c9dda361900e66deae6899f5f2cc75dc4006a614e650a12313f4fac"
+    },
+    {
+      "path": "data/ui/imgAssets/tileicons/ti_loadsquads_square_nonactive.DDS",
+      "bytes": 102448,
+      "sha256": "4295b5eb8294fe940bac9a6944e056cadeb1297f8fc8fbff1e559cc0a650622b"
+    },
+    {
+      "path": "data/ui/imgAssets/tileicons/ti_matchdetails_med_active.DDS",
+      "bytes": 50824,
+      "sha256": "6551ce667dd8441a956ab3d33ec7051b089ef5209e18a01fcbc24a8e849e9746"
+    },
+    {
+      "path": "data/ui/imgAssets/tileicons/ti_matchdetails_med_nonactive.DDS",
+      "bytes": 67904,
+      "sha256": "e286ddf18fd05dea416b1327a77b603e80f4f9976b3b5556574eddbc03a04cbb"
+    },
+    {
+      "path": "data/ui/imgAssets/tileicons/ti_matchhighlights_active.DDS",
+      "bytes": 63392,
+      "sha256": "366b7e4f08625ed44d4c623b6574e4a22d2cd4449e6b577c1a8753b11955a457"
+    },
+    {
+      "path": "data/ui/imgAssets/tileicons/ti_matchhighlights_nonactive.DDS",
+      "bytes": 63392,
+      "sha256": "366b7e4f08625ed44d4c623b6574e4a22d2cd4449e6b577c1a8753b11955a457"
+    },
+    {
+      "path": "data/ui/imgAssets/tileicons/ti_matchhighlights_small_active.DDS",
+      "bytes": 42472,
+      "sha256": "dfaceb29d62e7bfe70c3bb7ba1383ce5a31063d707f60df8ffab3a271aa622da"
+    },
+    {
+      "path": "data/ui/imgAssets/tileicons/ti_matchhighlights_small_nonactive.DDS",
+      "bytes": 57088,
+      "sha256": "dce9e93cc3d318253b686ec86c20d8a0398cb83c4c444b798ccd8e17c93645ef"
+    },
+    {
+      "path": "data/ui/imgAssets/tileicons/ti_matchmakingsettings_longmedium_active.DDS",
+      "bytes": 88904,
+      "sha256": "3348f7b3d18db3c52d9e66ad6973f6f17dcf42e7de0d8db82f68a0ba30250d81"
+    },
+    {
+      "path": "data/ui/imgAssets/tileicons/ti_matchmakingsettings_longmedium_nonactive.DDS",
+      "bytes": 119200,
+      "sha256": "e6504aa6e8cf65ae55a7cbe86f7032d90dac28734b3e7b975fff441432fcb510"
+    },
+    {
+      "path": "data/ui/imgAssets/tileicons/ti_moreexpensive_active.dds",
+      "bytes": 176528,
+      "sha256": "2b143a02f9f3116ddce9afdee3ae99b167b566e7db76d243740b33848dc59bbb"
+    },
+    {
+      "path": "data/ui/imgAssets/tileicons/ti_moreexpensive_nonactive.dds",
+      "bytes": 176528,
+      "sha256": "00f7646daae64b1c6d9e08d848d9b7c092bdd4cba97c2a7a8f8f3b70d88914eb"
+    },
+    {
+      "path": "data/ui/imgAssets/tileicons/ti_mostrecent_active.dds",
+      "bytes": 176528,
+      "sha256": "1204c94a4d7553f18e966c13033a6aaca2535353cc0fd9edaa5a381560167fe4"
+    },
+    {
+      "path": "data/ui/imgAssets/tileicons/ti_mostrecent_nonactive.dds",
+      "bytes": 176528,
+      "sha256": "06e2945827c6df9d4a97b3ca9d76afb575748886a3efeffce8a234cae81a6584"
+    },
+    {
+      "path": "data/ui/imgAssets/tileicons/ti_mutualquit_small_active.dds",
+      "bytes": 52720,
+      "sha256": "3fc88c7c35f5ad162ecb49b1b47a703caf9443c19b778734d107c08006d5b2f0"
+    },
+    {
+      "path": "data/ui/imgAssets/tileicons/ti_mutualquit_small_nonactive.dds",
+      "bytes": 52720,
+      "sha256": "3fc88c7c35f5ad162ecb49b1b47a703caf9443c19b778734d107c08006d5b2f0"
+    },
+    {
+      "path": "data/ui/imgAssets/tileicons/ti_myactions_small_active.DDS",
+      "bytes": 47976,
+      "sha256": "709e82504cb7f7d5422808a13cf67025891ce297c6a2df4619a930a52736979c"
+    },
+    {
+      "path": "data/ui/imgAssets/tileicons/ti_myactions_small_nonactive.DDS",
+      "bytes": 64432,
+      "sha256": "44aef8935c6c32703527ddf56b3da0e4c25ccf3ec72962d05037f723b9a455c3"
+    },
+    {
+      "path": "data/ui/imgAssets/tileicons/ti_mycareer_small_active.DDS",
+      "bytes": 38408,
+      "sha256": "e5cf90b46bc7c4b9384d188f4f6a2abc5ab28a12f99db7b84f68eb9155c48dea"
+    },
+    {
+      "path": "data/ui/imgAssets/tileicons/ti_mycareer_small_nonactive.DDS",
+      "bytes": 51424,
+      "sha256": "1e1ff57ff1c597a6b2fe7c68987f81254b0739e70c0552b0ad22c2b554f2545e"
+    },
+    {
+      "path": "data/ui/imgAssets/tileicons/ti_nationalsquads_small_active.DDS",
+      "bytes": 31784,
+      "sha256": "8cb27104543634f5a25a2bb0f6e819bbbaaafec21074812ae46461f70f1bd62f"
+    },
+    {
+      "path": "data/ui/imgAssets/tileicons/ti_nationalsquads_small_nonactive.DDS",
+      "bytes": 42800,
+      "sha256": "563833168327d75a6be2ff4a5bea2d6434ac7ebbd6f2ffe70724f2c6afc38537"
+    },
+    {
+      "path": "data/ui/imgAssets/tileicons/ti_nationalsquads_square_active.DDS",
+      "bytes": 68776,
+      "sha256": "d549e42d090a313a1bf6a87bb388646a9e3e44e6e4b53468abd68c38040fe9c8"
+    },
+    {
+      "path": "data/ui/imgAssets/tileicons/ti_nationalsquads_square_nonactive.DDS",
+      "bytes": 92336,
+      "sha256": "fc8250c67f60a5b4d7359cf7193296ccff27465be7510941e1fa190399cd3dd2"
+    },
+    {
+      "path": "data/ui/imgAssets/tileicons/ti_natlsquadselection_small_active.DDS",
+      "bytes": 45032,
+      "sha256": "75f2d7b1724e42514e1650dede23ac4bba0595d3d874dc10b412e205a694d190"
+    },
+    {
+      "path": "data/ui/imgAssets/tileicons/ti_natlsquadselection_small_nonactive.DDS",
+      "bytes": 60560,
+      "sha256": "c6620f9ff563e39b60d8f9d25283c0233321a561728fb3952b44a20eafa451e4"
+    },
+    {
+      "path": "data/ui/imgAssets/tileicons/ti_natlteamjoboffers_small_active.DDS",
+      "bytes": 40456,
+      "sha256": "409f2326098d6487123f6eb0765833ff460f40da927f7b4ddedf2b43d35a28db"
+    },
+    {
+      "path": "data/ui/imgAssets/tileicons/ti_natlteamjoboffers_small_nonactive.DDS",
+      "bytes": 54400,
+      "sha256": "8d0db594de799501e255309baad31f9fa2bc391d356d7c87accbdc314baa78f9"
+    },
+    {
+      "path": "data/ui/imgAssets/tileicons/ti_networkltransfer_active.DDS",
+      "bytes": 176528,
+      "sha256": "8fbfb18be2b76c17eaea752dc895b860cb7b31a03c96c0e8d65ef7e1a1498f61"
+    },
+    {
+      "path": "data/ui/imgAssets/tileicons/ti_networkltransfer_nonactive.DDS",
+      "bytes": 176528,
+      "sha256": "0408a8134c36f313b322cfefa876a6762b04b23f32ee978895d9e7610a90e44b"
+    },
+    {
+      "path": "data/ui/imgAssets/tileicons/ti_nextmatch_small_active.dds",
+      "bytes": 54976,
+      "sha256": "8cd6e17b5a6dbbb08c5456cee8af1ce907c7bc8b2940580dfb52f265d8497f84"
+    },
+    {
+      "path": "data/ui/imgAssets/tileicons/ti_nextmatch_small_nonactive.dds",
+      "bytes": 54976,
+      "sha256": "8cd6e17b5a6dbbb08c5456cee8af1ce907c7bc8b2940580dfb52f265d8497f84"
+    },
+    {
+      "path": "data/ui/imgAssets/tileicons/ti_ntranking_small_active.dds",
+      "bytes": 173120,
+      "sha256": "c5132e39aa65b1228c14b1eb965e32fad95c72746dce5f0379303710dafc0759"
+    },
+    {
+      "path": "data/ui/imgAssets/tileicons/ti_ntranking_small_nonactive.dds",
+      "bytes": 173120,
+      "sha256": "c5132e39aa65b1228c14b1eb965e32fad95c72746dce5f0379303710dafc0759"
+    },
+    {
+      "path": "data/ui/imgAssets/tileicons/ti_objectives_small_active.DDS",
+      "bytes": 31096,
+      "sha256": "3a04e42d7b68b5c6f15562c9003d3ac69e785d62cbf53dccf334c25c64f492bf"
+    },
+    {
+      "path": "data/ui/imgAssets/tileicons/ti_objectives_small_nonactive.DDS",
+      "bytes": 42112,
+      "sha256": "f02d18e4ae53fb9f74282f7508a10ee4d52719651019acc5e9dcb0ef104f3138"
+    },
+    {
+      "path": "data/ui/imgAssets/tileicons/ti_onlinesettings_square_active.DDS",
+      "bytes": 71960,
+      "sha256": "3a0a4faa65315c56d8f7e18b8373efad7fb7ac0ea4f240c79ff340f420967558"
+    },
+    {
+      "path": "data/ui/imgAssets/tileicons/ti_onlinesettings_square_nonactive.DDS",
+      "bytes": 96736,
+      "sha256": "c5e7ec0ce8d383c17fb7c8545c79ed1d582eb8901802a58f5b27424aa75a965d"
+    },
+    {
+      "path": "data/ui/imgAssets/tileicons/ti_otherleagues_small_active.DDS",
+      "bytes": 173120,
+      "sha256": "f979b01f67d3b1062e79f6d2ce0240d9bf2eebd7dc574c9fc966039d50b8bdf3"
+    },
+    {
+      "path": "data/ui/imgAssets/tileicons/ti_otherleagues_small_nonactive.DDS",
+      "bytes": 173120,
+      "sha256": "f979b01f67d3b1062e79f6d2ce0240d9bf2eebd7dc574c9fc966039d50b8bdf3"
+    },
+    {
+      "path": "data/ui/imgAssets/tileicons/ti_othernews_small_active.dds",
+      "bytes": 173120,
+      "sha256": "b7f4537850688e49da9a42aec0c9edff23267ad9a41038a45dbddb7b4ee881b4"
+    },
+    {
+      "path": "data/ui/imgAssets/tileicons/ti_othernews_small_active2.DDS",
+      "bytes": 46928,
+      "sha256": "1e1d0136cf56ae22da7a6b51b5025ca34d1fdb63bc1b12109df265a067aeb8ad"
+    },
+    {
+      "path": "data/ui/imgAssets/tileicons/ti_othernews_small_nonactive.DDS",
+      "bytes": 173120,
+      "sha256": "b7f4537850688e49da9a42aec0c9edff23267ad9a41038a45dbddb7b4ee881b4"
+    },
+    {
+      "path": "data/ui/imgAssets/tileicons/ti_penalties_med_active.DDS",
+      "bytes": 58280,
+      "sha256": "a5ae5debaabef4def602b214a9b383cde9bec9bfa241ec7b38061c4c73de302a"
+    },
+    {
+      "path": "data/ui/imgAssets/tileicons/ti_penalties_med_nonactive.DDS",
+      "bytes": 78160,
+      "sha256": "29f9f8c9d963a7b340127ce7ed2ae0f07d546aa796ed25a7ed910893cfd42fdb"
+    },
+    {
+      "path": "data/ui/imgAssets/tileicons/ti_playerratings_med_active.dds",
+      "bytes": 71984,
+      "sha256": "bd62119d50482af8f7403dc7346a11dca5f7ba212d4f66e627307e80bbaa31d5"
+    },
+    {
+      "path": "data/ui/imgAssets/tileicons/ti_playerstats_small_active.DDS",
+      "bytes": 173120,
+      "sha256": "784f00bd8d408ecc91410b0cc1cbfb3b665e2ef4bcbc9c39455a4f2cd007d412"
+    },
+    {
+      "path": "data/ui/imgAssets/tileicons/ti_playerstats_small_nonactive.DDS",
+      "bytes": 173120,
+      "sha256": "784f00bd8d408ecc91410b0cc1cbfb3b665e2ef4bcbc9c39455a4f2cd007d412"
+    },
+    {
+      "path": "data/ui/imgAssets/tileicons/ti_privacysettings_longmedium_active.DDS",
+      "bytes": 79624,
+      "sha256": "6c2e1a237021b79c24993d1b5509f90f202acc5e85f4ec80455520b43409eead"
+    },
+    {
+      "path": "data/ui/imgAssets/tileicons/ti_privacysettings_longmedium_nonactive.DDS",
+      "bytes": 106800,
+      "sha256": "7e27f1485c05ddad265f998fac3330b3dac1a91538e35e7fa5091b95265eeff6"
+    },
+    {
+      "path": "data/ui/imgAssets/tileicons/ti_privacysettings_square_active.DDS",
+      "bytes": 131176,
+      "sha256": "8f2df113ad7ae384321cf09815e9de096478b1059196400f3e996f3026154dd4"
+    },
+    {
+      "path": "data/ui/imgAssets/tileicons/ti_privacysettings_square_nonactive.DDS",
+      "bytes": 175776,
+      "sha256": "f4c19cca2a59447f5a6b013eda25d4951d2c297311849286a9155de07d9bf8bb"
+    },
+    {
+      "path": "data/ui/imgAssets/tileicons/ti_profile_square_active.DDS",
+      "bytes": 55576,
+      "sha256": "880689f7f9d7126cf4d21ce1e61bf4db7537357286eb6ec53d7ce213a117c925"
+    },
+    {
+      "path": "data/ui/imgAssets/tileicons/ti_profile_square_nonactive.DDS",
+      "bytes": 74736,
+      "sha256": "0c2f7048be1dd4d62ccc44fd3fb937a02ff8396d5606a336dcc548afe886b9d9"
+    },
+    {
+      "path": "data/ui/imgAssets/tileicons/ti_psvr_square_active.DDS",
+      "bytes": 53384,
+      "sha256": "f242f03cb9ee03e042a41b05f5a21ad5af64e5fb95bd823e12f754ecc7d52888"
+    },
+    {
+      "path": "data/ui/imgAssets/tileicons/ti_psvr_square_nonactive.DDS",
+      "bytes": 71264,
+      "sha256": "5e15637c696561d6648fcd736d0b771bb1535c81bd27f095b284485d75c0196f"
+    },
+    {
+      "path": "data/ui/imgAssets/tileicons/ti_quit_small_active.DDS",
+      "bytes": 33736,
+      "sha256": "9a8c2fd493933517e5ebddc98067a108910f70db42536fba00e99037e5b22182"
+    },
+    {
+      "path": "data/ui/imgAssets/tileicons/ti_quit_small_nonactive.DDS",
+      "bytes": 45328,
+      "sha256": "5194d78b448c9eab7f44d1ce4c29b7ec154f6b3b17863e8c393bdf2b9524fbec"
+    },
+    {
+      "path": "data/ui/imgAssets/tileicons/ti_remoteplay_small_active.DDS",
+      "bytes": 34696,
+      "sha256": "44ca0ef3870d254ae5b6732ef8a0bc7f6693b56ea71e258b928247932009b515"
+    },
+    {
+      "path": "data/ui/imgAssets/tileicons/ti_remoteplay_small_nonactive.DDS",
+      "bytes": 46384,
+      "sha256": "e360800a1c3ebe0272f2eccc7469e000ca2021911d3bcbe49ae5685e61eba634"
+    },
+    {
+      "path": "data/ui/imgAssets/tileicons/ti_requestfunds_small_active.DDS",
+      "bytes": 44856,
+      "sha256": "382da48d6dc8ec63c9368e7e839cef794f6d66673ab3fbbb3fc2151639412df4"
+    },
+    {
+      "path": "data/ui/imgAssets/tileicons/ti_requestfunds_small_nonactive.DDS",
+      "bytes": 60512,
+      "sha256": "8dda31fd2d9514436547f65c7ec124a2df296e5ef9026700c87ae1284506eaba"
+    },
+    {
+      "path": "data/ui/imgAssets/tileicons/ti_requestsub_small_active.DDS",
+      "bytes": 40744,
+      "sha256": "b5432341f0b5443d06dcc07d003aa2e254d6c56ac0c01d1cd1352f63d32fb08c"
+    },
+    {
+      "path": "data/ui/imgAssets/tileicons/ti_requestsub_small_nonactive.DDS",
+      "bytes": 54752,
+      "sha256": "d932465a19deefe34006c172bf09fa34f2cd29e9934419a4da7c5d1e49d586a8"
+    },
+    {
+      "path": "data/ui/imgAssets/tileicons/ti_resetallsquads_square_active.DDS",
+      "bytes": 71944,
+      "sha256": "dcebc0be260cf360598af8ff91c35858de2c549225ff4bbc8c94a890b59bd901"
+    },
+    {
+      "path": "data/ui/imgAssets/tileicons/ti_resetallsquads_square_nonactive.DDS",
+      "bytes": 96240,
+      "sha256": "12c41d17d9fa934a28f54eb968840cf98967b590093de39a34498f87c44c127f"
+    },
+    {
+      "path": "data/ui/imgAssets/tileicons/ti_resetofsquads_square_active.dds",
+      "bytes": 93904,
+      "sha256": "b3b069303f69c67d01cd1c869d1626e8a10a2df2ebb5ab6f5ae48d05b3b886fb"
+    },
+    {
+      "path": "data/ui/imgAssets/tileicons/ti_resetofsquads_square_nonactive.dds",
+      "bytes": 93904,
+      "sha256": "b3b069303f69c67d01cd1c869d1626e8a10a2df2ebb5ab6f5ae48d05b3b886fb"
+    },
+    {
+      "path": "data/ui/imgAssets/tileicons/ti_resignnatlteam_small_active.DDS",
+      "bytes": 36744,
+      "sha256": "4b2bd5138ab9a69a9f121b40296154e4eb36ca8a82e9282594b383c50567677f"
+    },
+    {
+      "path": "data/ui/imgAssets/tileicons/ti_resignnatlteam_small_nonactive.DDS",
+      "bytes": 49136,
+      "sha256": "30c0767c1a538f53462563e385ee7b09d2fe1161d5b3d7b341bbeff81f144861"
+    },
+    {
+      "path": "data/ui/imgAssets/tileicons/ti_restart_small_active.DDS",
+      "bytes": 37576,
+      "sha256": "ddd916f4a500d457ffff4ca0ccfe9a9edf0fc77735fd8478d78f70eb3fd26ab9"
+    },
+    {
+      "path": "data/ui/imgAssets/tileicons/ti_restart_small_nonactive.DDS",
+      "bytes": 50592,
+      "sha256": "63d4492d83baeaadd87b533c88e6f832d2bf74e13492c23e99dc3faf57b934a4"
+    },
+    {
+      "path": "data/ui/imgAssets/tileicons/ti_restartlocked_small_active.dds",
+      "bytes": 49536,
+      "sha256": "7f575b604d4cab297ef29fc6965cef267155db042d08b912c0497d8856195743"
+    },
+    {
+      "path": "data/ui/imgAssets/tileicons/ti_restartlocked_small_nonactive.dds",
+      "bytes": 49536,
+      "sha256": "7f575b604d4cab297ef29fc6965cef267155db042d08b912c0497d8856195743"
+    },
+    {
+      "path": "data/ui/imgAssets/tileicons/ti_restartwithnewteams_small_active.DDS",
+      "bytes": 39880,
+      "sha256": "6bf715c945e69bf931777a22dbbc557795450da1dc93c8a6756e75c7b570b2fb"
+    },
+    {
+      "path": "data/ui/imgAssets/tileicons/ti_restartwithnewteams_small_nonactive.DDS",
+      "bytes": 53456,
+      "sha256": "d6db51aa3a529704b205a3616edb21eac39e1bd3caa3560db8098810e14746d6"
+    },
+    {
+      "path": "data/ui/imgAssets/tileicons/ti_resumematch_small_active.DDS",
+      "bytes": 42824,
+      "sha256": "71fecc4cbe3305b58673b70e71306b11272d5dc1957b5c556cfd37c09f233061"
+    },
+    {
+      "path": "data/ui/imgAssets/tileicons/ti_resumematch_small_nonactive.DDS",
+      "bytes": 57424,
+      "sha256": "dc09ce70a16b49bd113819824ed06a97630c7f92c22f060281dd3f1af3331b29"
+    },
+    {
+      "path": "data/ui/imgAssets/tileicons/ti_savefifaprofile_square_active.DDS",
+      "bytes": 55832,
+      "sha256": "08d733e3f553b39dcc8b4bf81b496b515920aee02d5f5c43a1eb8eec177c2b39"
+    },
+    {
+      "path": "data/ui/imgAssets/tileicons/ti_savefifaprofile_square_nonactive.DDS",
+      "bytes": 75200,
+      "sha256": "e23f0bf8a39bebd3b261df333eb550857e6ce937c70c93aa058f97521dde85bd"
+    },
+    {
+      "path": "data/ui/imgAssets/tileicons/ti_savesquads_square_active.DDS",
+      "bytes": 67736,
+      "sha256": "a4d230aaa29695be9f1ee0961f20e2fb5e8cc2a319a2d40627d344b20a515cbc"
+    },
+    {
+      "path": "data/ui/imgAssets/tileicons/ti_savesquads_square_nonactive.DDS",
+      "bytes": 91168,
+      "sha256": "6d3e01bffeb39b6eb1c65c61f5e828bc1ff5daba27853969c934b0ecddeb0797"
+    },
+    {
+      "path": "data/ui/imgAssets/tileicons/ti_searchclubs_med_active.dds",
+      "bytes": 54000,
+      "sha256": "5ddf4b95d44f73098d81a508e21955e9baea33ca313a7c9ce210363e6996e9b5"
+    },
+    {
+      "path": "data/ui/imgAssets/tileicons/ti_searchclubs_med_nonactive.dds",
+      "bytes": 54000,
+      "sha256": "5ddf4b95d44f73098d81a508e21955e9baea33ca313a7c9ce210363e6996e9b5"
+    },
+    {
+      "path": "data/ui/imgAssets/tileicons/ti_seeclubs_small_active.dds",
+      "bytes": 173120,
+      "sha256": "efd13d88a20e0edfdb212ca932fc6001e286ac3dc98aabbce62ca2adb161d4bd"
+    },
+    {
+      "path": "data/ui/imgAssets/tileicons/ti_seeclubs_small_nonactive.dds",
+      "bytes": 173120,
+      "sha256": "efd13d88a20e0edfdb212ca932fc6001e286ac3dc98aabbce62ca2adb161d4bd"
+    },
+    {
+      "path": "data/ui/imgAssets/tileicons/ti_selectkeeperarena_square_active.DDS",
+      "bytes": 65656,
+      "sha256": "ba2e10822dbdaa7b2fd5355334d69ee003a11f4326c31b1c596b2db663e7e498"
+    },
+    {
+      "path": "data/ui/imgAssets/tileicons/ti_selectkeeperarena_square_nonactive.DDS",
+      "bytes": 88272,
+      "sha256": "63df38dde916bd6b7c7c7d5499cb225de1fe417076994eb7c21ef91e1aea1fd7"
+    },
+    {
+      "path": "data/ui/imgAssets/tileicons/ti_selectplayerarena_square_active.DDS",
+      "bytes": 66376,
+      "sha256": "0e9cbe8560998173c4d4ccd36e53bbffb8b386ae09959c9c00540e2cfe468ace"
+    },
+    {
+      "path": "data/ui/imgAssets/tileicons/ti_selectplayerarena_square_nonactive.DDS",
+      "bytes": 89056,
+      "sha256": "9dfb350d6e5f0a553c7846db3efd88392435df91f66b19a1e2f188db207070ef"
+    },
+    {
+      "path": "data/ui/imgAssets/tileicons/ti_selectsidespc_active.DDS",
+      "bytes": 64376,
+      "sha256": "927a7b2428ba02140da722a44555f87b6283f1c4a12e47ac79b3bacca487dbcd"
+    },
+    {
+      "path": "data/ui/imgAssets/tileicons/ti_selectsidespc_nonactive.DDS",
+      "bytes": 86656,
+      "sha256": "92e6effa13b09fd0989ad5536cbad6e039e8b69d92803d00c7e771321f7b2b94"
+    },
+    {
+      "path": "data/ui/imgAssets/tileicons/ti_selectsidesps4_active.DDS",
+      "bytes": 63496,
+      "sha256": "bec6eb11626469e342cb2a0c99bcb949197f1a6e19287256215c00ca185e82b8"
+    },
+    {
+      "path": "data/ui/imgAssets/tileicons/ti_selectsidesps4_nonactive.DDS",
+      "bytes": 85104,
+      "sha256": "a68702af45914791524a173fa19954187ef7258811b401e85bbd4432a2ca4a7e"
+    },
+    {
+      "path": "data/ui/imgAssets/tileicons/ti_selectsidesxbox_active.DDS",
+      "bytes": 64376,
+      "sha256": "4514c9a2abfd39d53ce8c3f37290853a5739711e3276c96aace505464286fc9f"
+    },
+    {
+      "path": "data/ui/imgAssets/tileicons/ti_selectsidesxbox_nonactive.DDS",
+      "bytes": 86656,
+      "sha256": "e9ca39aded6283d54693a2f16a9eedc84208ef540f2d9cd30cbc6e67288a9ff1"
+    },
+    {
+      "path": "data/ui/imgAssets/tileicons/ti_settings_small_active.DDS",
+      "bytes": 39880,
+      "sha256": "0bc63b17fed0f62f4059604ba63e99afa48d46c36b1a8bab5f703fd667be343d"
+    },
+    {
+      "path": "data/ui/imgAssets/tileicons/ti_settings_small_nonactive.DDS",
+      "bytes": 53456,
+      "sha256": "236e1153d6a0c4af8117895ff5ca6cffe2296e3b50655a7fdd1ad47e6c8045c1"
+    },
+    {
+      "path": "data/ui/imgAssets/tileicons/ti_settings_smallw_active.dds",
+      "bytes": 53456,
+      "sha256": "3856c118cd43747b22801d1cd4638d8c3f2471347733e375fe69daa220325662"
+    },
+    {
+      "path": "data/ui/imgAssets/tileicons/ti_settings_smallw_nonactive.dds",
+      "bytes": 53456,
+      "sha256": "3856c118cd43747b22801d1cd4638d8c3f2471347733e375fe69daa220325662"
+    },
+    {
+      "path": "data/ui/imgAssets/tileicons/ti_simmatch_small_active.DDS",
+      "bytes": 36936,
+      "sha256": "c16975b58333614de072be57a6741aa49d8709904dfeaa580683ee9147645e7b"
+    },
+    {
+      "path": "data/ui/imgAssets/tileicons/ti_simmatch_small_nonactive.DDS",
+      "bytes": 49536,
+      "sha256": "f27bb9e81d124e33d741b8753b87f99254c2cdfc7149d6e36ca749559a1115e9"
+    },
+    {
+      "path": "data/ui/imgAssets/tileicons/ti_simmatch_smallw_active.dds",
+      "bytes": 117232,
+      "sha256": "07177ee529f9e08e7e55a367f2723d7c3faf22490e314461b2a4e2dd31fe2e8c"
+    },
+    {
+      "path": "data/ui/imgAssets/tileicons/ti_simmatch_smallw_nonactive.dds",
+      "bytes": 117232,
+      "sha256": "07177ee529f9e08e7e55a367f2723d7c3faf22490e314461b2a4e2dd31fe2e8c"
+    },
+    {
+      "path": "data/ui/imgAssets/tileicons/ti_simmatch_sml_active.dds",
+      "bytes": 50640,
+      "sha256": "c544572dee1b9e436594af4aa5ba00d28d11b50a13591bcbfe4e23262166af07"
+    },
+    {
+      "path": "data/ui/imgAssets/tileicons/ti_simmatch_sml_nonactive.dds",
+      "bytes": 50640,
+      "sha256": "c544572dee1b9e436594af4aa5ba00d28d11b50a13591bcbfe4e23262166af07"
+    },
+    {
+      "path": "data/ui/imgAssets/tileicons/ti_skillmoves_square_active.DDS",
+      "bytes": 56952,
+      "sha256": "3a78d04cde0e1bb719e58dee1779be68b67d1fbf4e6ba3cd304d303f3c0e324e"
+    },
+    {
+      "path": "data/ui/imgAssets/tileicons/ti_skillmoves_square_nonactive.DDS",
+      "bytes": 76800,
+      "sha256": "ac0d3e1e41d59803c4b6c94a47d241b76f55e59b1d04efd7015f5a928765202e"
+    },
+    {
+      "path": "data/ui/imgAssets/tileicons/ti_squadranking_small_active.dds",
+      "bytes": 70288,
+      "sha256": "76ca9759f5bde17c9924149c862f387a1b63826d31f577450c6e89f8a8ae57ae"
+    },
+    {
+      "path": "data/ui/imgAssets/tileicons/ti_squadranking_small_nonactive.dds",
+      "bytes": 70288,
+      "sha256": "76ca9759f5bde17c9924149c862f387a1b63826d31f577450c6e89f8a8ae57ae"
+    },
+    {
+      "path": "data/ui/imgAssets/tileicons/ti_squadranks_small_active.DDS",
+      "bytes": 27592,
+      "sha256": "e8ebdcdb347f150368f859d47dcc27e785439786e8b591604742e6bd181b46e4"
+    },
+    {
+      "path": "data/ui/imgAssets/tileicons/ti_squadranks_small_nonactive.DDS",
+      "bytes": 37072,
+      "sha256": "dc29d93e394affe15474442b5116e2ba16b200acfacc85f32a6ecf809ae60c2b"
+    },
+    {
+      "path": "data/ui/imgAssets/tileicons/ti_squadreport_small_active.DDS",
+      "bytes": 30664,
+      "sha256": "85822793e1f911ae83109bdf577f13869a49b014935e48ceb6503a4192911d08"
+    },
+    {
+      "path": "data/ui/imgAssets/tileicons/ti_squadreport_small_nonactive.DDS",
+      "bytes": 41264,
+      "sha256": "ec943b1e26a23b14dd9869d9f40f7922eeeb05d0ea417561add7583a5440ce26"
+    },
+    {
+      "path": "data/ui/imgAssets/tileicons/ti_stadiums_square_active.DDS",
+      "bytes": 48520,
+      "sha256": "69bd7d99c9c0d622bd90b07b2507a2debfab9a28bf5c4772fcd12afd9a7d2d62"
+    },
+    {
+      "path": "data/ui/imgAssets/tileicons/ti_stadiums_square_nonactive.DDS",
+      "bytes": 64928,
+      "sha256": "1bab11fe5044d3d29f9e2d1afb5de759e524514e265ab994e80f02ea2c28ba7b"
+    },
+    {
+      "path": "data/ui/imgAssets/tileicons/ti_teamsheets_small_active.DDS",
+      "bytes": 30376,
+      "sha256": "35db23a061e0f75e278a2f2713fe90e90dd4679977341b480ef16ada909eeaaf"
+    },
+    {
+      "path": "data/ui/imgAssets/tileicons/ti_teamsheets_small_nonactive.DDS",
+      "bytes": 41024,
+      "sha256": "b604d4403580ac8674df7158ed4ff940004762bbf47c86312befc8708f8d9547"
+    },
+    {
+      "path": "data/ui/imgAssets/tileicons/ti_teamsheets_smallw_active.dds",
+      "bytes": 117232,
+      "sha256": "94e2bdd1b8dfe2841b5ffab69771ea9054fbcb190ae383453fd50f7ed585b726"
+    },
+    {
+      "path": "data/ui/imgAssets/tileicons/ti_teamsheets_smallw_nonactive.dds",
+      "bytes": 117232,
+      "sha256": "94e2bdd1b8dfe2841b5ffab69771ea9054fbcb190ae383453fd50f7ed585b726"
+    },
+    {
+      "path": "data/ui/imgAssets/tileicons/ti_teamsheets_square_active.DDS",
+      "bytes": 81032,
+      "sha256": "d9a62b44a3936e32401a00ae2f6cab19e4384d2e2e8a31bc7771e906c99d787f"
+    },
+    {
+      "path": "data/ui/imgAssets/tileicons/ti_teamsheets_square_nonactive.DDS",
+      "bytes": 106832,
+      "sha256": "714b70fcae117d76bb4bd6e549340819bc182cf8979414931f904c192f6bcc58"
+    },
+    {
+      "path": "data/ui/imgAssets/tileicons/ti_teamsjam_small_active.dds",
+      "bytes": 360128,
+      "sha256": "0c67e11b819a887795caa2ce6a8148d3650461a03ef7f3948f1670349a8fc3bd"
+    },
+    {
+      "path": "data/ui/imgAssets/tileicons/ti_teamsjam_small_nonactive.DDS",
+      "bytes": 360128,
+      "sha256": "0c67e11b819a887795caa2ce6a8148d3650461a03ef7f3948f1670349a8fc3bd"
+    },
+    {
+      "path": "data/ui/imgAssets/tileicons/ti_teamstats_small_active.DDS",
+      "bytes": 173120,
+      "sha256": "4d8711ab09892c867723716228db741e5418d32aa69f7567399dd396bbeee06c"
+    },
+    {
+      "path": "data/ui/imgAssets/tileicons/ti_teamstats_small_nonactive.DDS",
+      "bytes": 173120,
+      "sha256": "4d8711ab09892c867723716228db741e5418d32aa69f7567399dd396bbeee06c"
+    },
+    {
+      "path": "data/ui/imgAssets/tileicons/ti_topscorers_medtall_active.dds",
+      "bytes": 98512,
+      "sha256": "ce4e7e96739a3ca3b87c0f0cf5dd8ea4e40adeb60183899d30808243ec18f667"
+    },
+    {
+      "path": "data/ui/imgAssets/tileicons/ti_topscorers_medtall_nonactive.dds",
+      "bytes": 98512,
+      "sha256": "ce4e7e96739a3ca3b87c0f0cf5dd8ea4e40adeb60183899d30808243ec18f667"
+    },
+    {
+      "path": "data/ui/imgAssets/tileicons/ti_trainer_small_active.DDS",
+      "bytes": 41608,
+      "sha256": "121717859c8efa7bff7a79f0a6aa3ca0ef6f2e4e3677fab1c8ea2a6a342399b7"
+    },
+    {
+      "path": "data/ui/imgAssets/tileicons/ti_trainer_small_nonactive.DDS",
+      "bytes": 55616,
+      "sha256": "72f5a174bbff2127c5ed5ec27b6cb60654538f9dd52b4a0a1c309916daa589a5"
+    },
+    {
+      "path": "data/ui/imgAssets/tileicons/ti_videocalibration_square_active.DDS",
+      "bytes": 59752,
+      "sha256": "dd3889671d359a4b88f450f25919689171716b4c06850f68fcfa6af9a44bcb3e"
+    },
+    {
+      "path": "data/ui/imgAssets/tileicons/ti_videocalibration_square_nonactive.DDS",
+      "bytes": 80320,
+      "sha256": "9517fff868157663e1adadbbabdc55ae2f2951e4d5eda74631c6e12f11e61be7"
+    },
+    {
+      "path": "data/ui/imgAssets/tileicons/ti_voicerecognitionhelp_square_active.DDS",
+      "bytes": 59608,
+      "sha256": "02146d1b17eb96813d3c079c842a62bb119c093b6e4677d97fdcff51acf72a01"
+    },
+    {
+      "path": "data/ui/imgAssets/tileicons/ti_voicerecognitionhelp_square_nonactive.DDS",
+      "bytes": 80176,
+      "sha256": "56ff74c037eb8e22908b9c00d6588c4f03a58ba73d93a43639b72193fbdc8608"
+    },
+    {
+      "path": "data/ui/imgAssets/tileicons/ti_xboxonehelp_small_active.dds",
+      "bytes": 48384,
+      "sha256": "0836849b5e1d6ccede829ff07c4e79241db4351cb2ed8747ebf3849a786ea4e5"
+    },
+    {
+      "path": "data/ui/imgAssets/tileicons/ti_xboxonehelp_small_nonactive.dds",
+      "bytes": 48384,
+      "sha256": "0836849b5e1d6ccede829ff07c4e79241db4351cb2ed8747ebf3849a786ea4e5"
+    },
+    {
+      "path": "data/ui/layout/careermanagerhubcfg.xml",
+      "bytes": 190521,
+      "sha256": "c9a80545a9a20b088c70c4734a72d0efddfb7c3d9dbd99b09728d9bbb6324494"
+    },
+    {
+      "path": "data/ui/layout/careerplayerhubcfg.xml",
+      "bytes": 37692,
+      "sha256": "ea14555c834f9164248f6c98b64bdbfbad77c351360fd68eae9599a1eb8a9ee7"
+    },
+    {
+      "path": "data/ui/layout/mainhubcfg.xml",
+      "bytes": 61422,
+      "sha256": "3ff38c35baf3673f156ababebd8955ca4034756450ca3b4e7d8a1136922dbed3"
+    },
+    {
+      "path": "data/ui/layout/pauseendgamehubcfg.xml",
+      "bytes": 9766,
+      "sha256": "c2d7205d2b86184aa1f013750d925d43b4945a03209c3adeeaa780321383667e"
+    },
+    {
+      "path": "data/ui/layout/pausehubcfg.xml",
+      "bytes": 24082,
+      "sha256": "69d333be6f0dc7214e40d7855cc4944cae7300da77ba9998cafb7944884d3886"
+    },
+    {
+      "path": "data/ui/layout/tournamenthubcfg.xml",
+      "bytes": 24842,
+      "sha256": "792fe3c04a096ac5735e1103025d685bc441bfc2ed2635c71d2e113ab718221e"
+    }
+  ],
+  "source_pack_files": 244,
+  "git_artwork_files": 29,
+  "retired_zip_icons": [
+    "data/ui/imgAssets/tileicons/ti_calendar_small_active.DDS",
+    "data/ui/imgAssets/tileicons/ti_calendar_small_nonactive.DDS",
+    "data/ui/imgAssets/tileicons/ti_otherleagues_small_active.DDS",
+    "data/ui/imgAssets/tileicons/ti_otherleagues_small_nonactive.DDS",
+    "data/ui/imgAssets/tileicons/ti_playerstats_small_active.DDS",
+    "data/ui/imgAssets/tileicons/ti_playerstats_small_nonactive.DDS",
+    "data/ui/imgAssets/tileicons/ti_teamstats_small_active.DDS",
+    "data/ui/imgAssets/tileicons/ti_teamstats_small_nonactive.DDS"
+  ],
+  "skipped_authoring_files": [
+    "data/ui/imgAssets/tileicons/ti_playerratings_med_nonactive - Copia.dds",
+    "data/ui/imgAssets/tileicons/tileicons.rar",
+    "data/ui/layout/careermanagerhubcfg-rzm.xml",
+    "data/ui/layout/careermanagerhubcfg.rar",
+    "data/ui/layout/layout-antigo.rar",
+    "data/ui/layout/layout-new.rar"
+  ]
+}

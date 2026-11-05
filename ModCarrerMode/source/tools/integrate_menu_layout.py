@@ -21,15 +21,21 @@ def digest(raw):
 
 
 def contract(node):
-    """Keep IDs, callbacks, provider bindings, state and native parameters exact."""
+    """Keep functional layout bindings exact while allowing visual image layers."""
+    # Incoming menu packs may add, remove, or resize image-only layers (for
+    # example a custom tile illustration). They cannot dispatch actions or
+    # carry data providers, so exclude them from the functional contract.
+    if node.tag == 'data' and node.get('TYPE') == 'image':
+        return None
     ignored = set(VISUAL)
     if node.tag == 'data':
         if node.get('TYPE') in ('text', 'title'):
-            ignored.add('PARAM')
+            ignored.update(('PARAM', 'TRANSLATE'))
         if node.get('TYPE') in ('asset', 'image'):
             ignored.add('PATH')
+    children = tuple(item for child in node if (item := contract(child)) is not None)
     return (node.tag, tuple(sorted((k, v) for k, v in node.attrib.items() if k not in ignored)),
-            (node.text or '').strip(), tuple(contract(child) for child in node))
+            (node.text or '').strip(), children)
 
 
 def checked_layout(current, incoming):
