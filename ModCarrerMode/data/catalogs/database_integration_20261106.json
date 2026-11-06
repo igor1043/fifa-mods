@@ -1,0 +1,60 @@
+{
+  "schema": 1,
+  "sourceArchive": "EMIRADOS=ATLANTE.rar",
+  "sourceArchiveSha256": "eeae3c07c1529180925850862943c2fdfe65dc67c16ad710f033e410117fdd73",
+  "databaseSha256": "ea785ec7ee90cc05f2fc58f89b0d2693e1786fae0bfd2fca6d9840baa5e39a24",
+  "localeSha256": "00a0b696ed3cd88c7ad77c411085523196770d042ea73534fe45c5a448f1f1f9",
+  "addedLeague": {
+    "id": 698,
+    "nation": 190,
+    "name": "UAE Pro League",
+    "clubs": 14
+  },
+  "addedTeams": 14,
+  "removedTeams": [
+    {
+      "id": 111654,
+      "name": "Mazatlán F.C."
+    }
+  ],
+  "clubs": 1657,
+  "nations": 83,
+  "countryCentroidHints": [
+    130205,
+    114388
+  ],
+  "assetsIncluded": 0,
+  "saveFilesModified": false,
+  "repairedDefaultSheets": [
+    463,
+    472,
+    1874,
+    1884,
+    1948,
+    100634,
+    100761,
+    101026,
+    101136,
+    105529,
+    110913,
+    111044,
+    111670,
+    111836,
+    112390,
+    113060,
+    114696,
+    130089,
+    130128,
+    130131,
+    130175,
+    130177,
+    130289,
+    130320,
+    130321,
+    130348,
+    130405,
+    130407,
+    130424,
+    130813
+  ]
+}

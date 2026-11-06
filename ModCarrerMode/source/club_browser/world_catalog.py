@@ -70,6 +70,10 @@ def build(game,base=None):
         if ident<=0 or (not is_national and not links[ident] and members[ident]<11):
             excluded.append(dict(id=ident,name=team['teamname'],reason='Sem liga nem elenco jogável'));continue
         candidates=sorted(links[ident],key=lambda r:(bool(r['secondarytable']),r['leagueid']))
+        # A previous display hint must not override a new primary membership.
+        # Expanded databases can move a ROW club into its own domestic league.
+        primary=[r for r in candidates if not r['secondarytable']]
+        if primary:candidates=primary
         old_league=int(hint[5]) if hint else 0
         link=next((r for r in candidates if r['leagueid']==old_league),candidates[0] if candidates else None)
         league=leagues.get(link['leagueid'],{}) if link else {}
@@ -78,21 +82,22 @@ def build(game,base=None):
             excluded.append(dict(id=ident,name=team['teamname'],reason='Liga interna sem país nem associação nacional'));continue
         country=nations.get(nation,{})
         geography=geo.get(country.get('isocountrycode',''),{})
+        same_identity=bool(hint and old_league==league.get('leagueid') and int(hint[2])==nation)
         lat,lon=float(team.get('latitude') or 0),float(team.get('longitude') or 0)
-        if hint:lat,lon=float(hint[12]),float(hint[13])
+        if same_identity:lat,lon=float(hint[12]),float(hint[13])
         elif lat==lon==0:lat,lon=geography.get('lat',0),geography.get('lon',0)
         confed=int(country.get('confederation') or 1)
         label=hint[6] if hint and old_league==league.get('leagueid') else league.get('leaguename','Clubes independentes')
         scope=league_scope(league,nation,label)
-        row=dict(id=ident,name=(country.get('nationname') if is_national else hint[10] if hint else team['teamname']) or team['teamname'],
+        row=dict(id=ident,name=(country.get('nationname') if is_national else hint[10] if same_identity else team['teamname']) or team['teamname'],
             kind='nations' if is_national else 'clubs',nation=nation or 0,
             country=confed if is_national else nation or 0,
-            countryName=CONFEDERATIONS.get(confed,'Outras regiões') if is_national else hint[1] if hint and int(hint[2])==nation else country.get('nationname','Outros países'),
-            world=int(hint[3]) if hint else geography.get('world',0),
+            countryName=CONFEDERATIONS.get(confed,'Outras regiões') if is_national else hint[1] if hint and int(hint[2])==nation else geography.get('name') or country.get('nationname','Outros países'),
+            world=int(hint[3]) if same_identity else geography.get('world',0),
             league=10000+confed if is_national else league.get('leagueid',9999),
             leagueName='Seleções nacionais' if is_national else league_label(league,label,scope),leagueScope='national' if is_national else scope,
             level=1 if is_national else max(1,int(league.get('level') or 1)),
-            city=country.get('nationname','') if is_national else hint[11] if hint else '',lat=lat,lon=lon,confederation=confed,
+            city=country.get('nationname','') if is_national else hint[11] if same_identity else '',lat=lat,lon=lon,confederation=confed,
             attack=team.get('attackrating') or rating(ident,'attack'),midfield=team.get('midfieldrating') or rating(ident,'midfield'),
             defense=team.get('defenserating') or rating(ident,'defense'),overall=team.get('overallrating') or rating(ident,'overall'),
             international=team.get('internationalprestige') or 0,domestic=team.get('domesticprestige') or 0)

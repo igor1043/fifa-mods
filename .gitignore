@@ -145,7 +145,7 @@ runtime/diagnostics/
 /FSW/ScoreBoard/
 /ScoreBoardGBD/
 /data/fifarna/splash.fsh
-/data/loc/por_br.db
+# The integrated language DB is versioned with the gameplay database.
 /data/ui/game/components/fluxcomponents/career/transferinfo.big
 /data/ui/game/widgets/mainhubwidget.big
 /data/ui/pow/components/easfcwidget.big

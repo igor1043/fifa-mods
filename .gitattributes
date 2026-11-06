@@ -6,6 +6,12 @@ ModCarrerMode/source/mascot_photographer/assets/** -text whitespace=cr-at-eol
 *.rx3 -text
 *.lnx -text whitespace=cr-at-eol
 *.bin -text
+data/db/*.db -text
+data/db/*-meta.xml -text whitespace=cr-at-eol
+data/loc/*.db -text
+data/loc/*-meta.xml -text whitespace=cr-at-eol
+ModCarrerMode/data/catalogs/database_integration_*.json -text whitespace=cr-at-eol
+ModCarrerMode/source/docs/DB_EMIRADOS_ATLANTE_20261106.md -text whitespace=cr-at-eol
 *.big -text
 *.dds -text
 *.DDS -text

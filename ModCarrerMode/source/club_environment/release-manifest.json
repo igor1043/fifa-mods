@@ -132,9 +132,19 @@
       "sha256": "fe5ac0566c57152c1ab5df18b9d2a51682960bef21bd1d273e2d3cb20e76c0b5"
     },
     {
+      "path": "ModCarrerMode/data/catalogs/database_integration_20261106.json",
+      "bytes": 1064,
+      "sha256": "490bedb4c5b868ebf30848d953f903d59a24ee786ef70ea482e7a0697692d8c9"
+    },
+    {
       "path": "ModCarrerMode/data/catalogs/menu_layout_20261104.json",
       "bytes": 7171,
       "sha256": "20829a265ab90e35cc91e07c912900089b2ba7b0e27c2029f9136b1292b1e479"
+    },
+    {
+      "path": "ModCarrerMode/data/catalogs/menu_layout_20261105.json",
+      "bytes": 51884,
+      "sha256": "4fa0ca903e1701263561f7a3d6f80a520cc9b5b25d8368617b0c0056a778e93a"
     },
     {
       "path": "ModCarrerMode/data/catalogs/presentation_assets.json",
@@ -208,13 +218,13 @@
     },
     {
       "path": "ModCarrerMode/data/club_browser/catalog.tsv",
-      "bytes": 191246,
-      "sha256": "049f7ede40b377ea9756ee3d65ebe4ee72f9d3d39073acfbc099d9fe4c0dd48e"
+      "bytes": 191767,
+      "sha256": "dcda0e327a04df97c3737aa1d849252122ad813261c9747ce7a996925d906cb3"
     },
     {
       "path": "ModCarrerMode/data/club_browser/nations.tsv",
-      "bytes": 7841,
-      "sha256": "984bf9b1d6d6e39e3fd23f56edd73fd568d82e6fd986cb3f3d78285694a04c24"
+      "bytes": 7849,
+      "sha256": "b7a75749e0d637cf5d915d77e0d026bed942f3624e0fe95a74fff42160553a18"
     },
     {
       "path": "ModCarrerMode/data/club_browser/poses/starting_eleven.json",
@@ -238,8 +248,8 @@
     },
     {
       "path": "ModCarrerMode/data/club_browser/world_geography.json",
-      "bytes": 17590,
-      "sha256": "c2dabd335c15a4828a56d1897b0c7b232dc2bd817991ad925b18680f95926bdc"
+      "bytes": 17630,
+      "sha256": "b279ba13a9d1b4c4e9a204f74df6594aecdee8a923d5ce9d0e5a561ef509dfb9"
     },
     {
       "path": "ModCarrerMode/data/club_environment/bank/assets/banrisul.png",
@@ -9462,6 +9472,11 @@
       "sha256": "2763cdbda3ccbda0baf3ed14a76084f8f329b13f832f9535fc277c55da534f9f"
     },
     {
+      "path": "ModCarrerMode/docs/MENU_LAYOUT_20261105.md",
+      "bytes": 1156,
+      "sha256": "e15821270b67154c74bfbb79d8c53607be4559d559717c966acd5a830c6d4a3b"
+    },
+    {
       "path": "ModCarrerMode/docs/MENU_LAYOUT_BACK_20261104.md",
       "bytes": 2818,
       "sha256": "4105b4a85e8aff7d4c59daa2773daeed25620660970d2ee8847d299f5b63c875"
@@ -10698,8 +10713,8 @@
     },
     {
       "path": "ModCarrerMode/source/club_browser/native/test_native.cpp",
-      "bytes": 23552,
-      "sha256": "b016bb5ce126b6e4b20b9f6037a9115aaad6f65ba3005cf4b6aecdec5327c548"
+      "bytes": 23705,
+      "sha256": "5c245710ecebed02af49291eb7f53583446262b58fe2c557a491580647f6ee65"
     },
     {
       "path": "ModCarrerMode/source/club_browser/native/test_native_gpu_layout.cpp",
@@ -10713,8 +10728,8 @@
     },
     {
       "path": "ModCarrerMode/source/club_browser/native/test_ranking.cpp",
-      "bytes": 4858,
-      "sha256": "f910c1343608e3762fa56d8b1607342d02f3944fcfe16853338b2d96191e77d5"
+      "bytes": 4920,
+      "sha256": "5238c4ab5d29e04bc65c6b8383afa7ecaf4c0fa54faabe1e9c59b998e3adfb5a"
     },
     {
       "path": "ModCarrerMode/source/club_browser/native/test_scene_publication.cpp",
@@ -11043,13 +11058,13 @@
     },
     {
       "path": "ModCarrerMode/source/club_browser/test_world_catalog.py",
-      "bytes": 3578,
-      "sha256": "04c12485bdc76139f4b28c0500f295cc0fcf0841e25c9def8cfba65da2094b46"
+      "bytes": 4994,
+      "sha256": "f380e0f06a2932a87e176f0caf20d7031c84fc81a2dbc6bef1e308ef5dfcd3c0"
     },
     {
       "path": "ModCarrerMode/source/club_browser/world_catalog.py",
-      "bytes": 9721,
-      "sha256": "3b7406ac91887e47643dee478c1f9ce584a9e937d645ec1444e90a1bfc5b547b"
+      "bytes": 10146,
+      "sha256": "ffac7949f64064623aef0b48b62a01c98258d024fa397ecb41218bf37ad67f4c"
     },
     {
       "path": "ModCarrerMode/source/club_environment/CAREER_DATA.md",
@@ -12627,6 +12642,11 @@
       "sha256": "625b07def9c2c9efab599a20a48a03aabdd181000cd872f28626092528d84e83"
     },
     {
+      "path": "ModCarrerMode/source/docs/DB_EMIRADOS_ATLANTE_20261106.md",
+      "bytes": 2290,
+      "sha256": "46c3421da9b4abfa77b1ed6bded644aa5f816cea21b050ad3c62efd43ee37b7b"
+    },
+    {
       "path": "ModCarrerMode/source/docs/SERVER_AUDIO_STADIUM_20261025.md",
       "bytes": 878,
       "sha256": "35ff3e1dc26d4698dd7ede8bac022a9f5b24f5cc323eacf404c54984c1eafc5a"
@@ -13612,6 +13632,16 @@
       "sha256": "abde4d8f5246b5082321e16900905e48cfc70026dbd652749534b53f858dfa98"
     },
     {
+      "path": "data/db/fifa_ng_db-meta.xml",
+      "bytes": 405517,
+      "sha256": "b71c608252e8864d739d15fc1fc7f5a5b46aafda364cddb44c2063fc7ee4fde6"
+    },
+    {
+      "path": "data/db/fifa_ng_db.db",
+      "bytes": 8573300,
+      "sha256": "ea785ec7ee90cc05f2fc58f89b0d2693e1786fae0bfd2fca6d9840baa5e39a24"
+    },
+    {
       "path": "data/fifarna/lua/assets/server16_frontend_176.lua",
       "bytes": 88,
       "sha256": "56e5f6d961e3a1a3e1be332ed338d7d92f8c6db445e6e86d884ccde863e2d3e0"
@@ -13637,9 +13667,189 @@
       "sha256": "aefbd1bc46bbc88221da9e957d8225ef4792888555e887853729f5be90174b84"
     },
     {
+      "path": "data/loc/ara_sa-meta.xml",
+      "bytes": 962,
+      "sha256": "ef2d8dcb2846d55716213d491f8203b10050f5835419cb198e470158543906dc"
+    },
+    {
+      "path": "data/loc/ara_sa.db",
+      "bytes": 3494108,
+      "sha256": "e230a4920a7ec43291246e2c128075253c520a3573a68100d2b05855e84753c2"
+    },
+    {
+      "path": "data/loc/chi_hk-meta.xml",
+      "bytes": 962,
+      "sha256": "996dedef6a725fddc02be42e59ea6a7b578756c5d06cf20303a76fa1a7427b05"
+    },
+    {
+      "path": "data/loc/chi_hk.db",
+      "bytes": 3152324,
+      "sha256": "09d0b59fa017395311bf10cf2db81ed8c60eeae5d3468029e2cff616b778b458"
+    },
+    {
+      "path": "data/loc/cze_cz-meta.xml",
+      "bytes": 962,
+      "sha256": "f0a592de5c409b4fe1c3a9f3eadf01f2f23bc1a65ab588fd449e6d1c38fbe780"
+    },
+    {
+      "path": "data/loc/cze_cz.db",
+      "bytes": 3105724,
+      "sha256": "bb5f7b599f02cac4aaf75cef2b282e6e5e36895b542f454fdb13585d5981fa84"
+    },
+    {
+      "path": "data/loc/dan_dk-meta.xml",
+      "bytes": 962,
+      "sha256": "10015eab276b0659afb8a0d95618b80da919f260e037ac87a049ea5e2c67a644"
+    },
+    {
+      "path": "data/loc/dan_dk.db",
+      "bytes": 2898932,
+      "sha256": "c448ebcb08b45473ba79827e2ccf89a3d4c68e45a8711526c617ab8c4a01beed"
+    },
+    {
+      "path": "data/loc/dut_nl-meta.xml",
+      "bytes": 962,
+      "sha256": "4d2d57f53d56ce74f0ad715d4b94a5a66496da95efed7acc4a18b3dc9d5a0a1a"
+    },
+    {
+      "path": "data/loc/dut_nl.db",
+      "bytes": 2843340,
+      "sha256": "3287424867d6c6c1cc8be61f026133233da46660093afd4b6c0c41217df89f29"
+    },
+    {
+      "path": "data/loc/eng_us-meta.xml",
+      "bytes": 962,
+      "sha256": "54febbf9471b9a08270923426442852b1a4a04c8837f2e1236401568f000749b"
+    },
+    {
+      "path": "data/loc/eng_us.db",
+      "bytes": 4115940,
+      "sha256": "d7fe066a013ff58136d7cdd7ccbd78844e864a8f5d14555fa4f251321c24827b"
+    },
+    {
+      "path": "data/loc/fre_fr-meta.xml",
+      "bytes": 962,
+      "sha256": "a9bd39d93152d1452f101d5a3cc0d89bb609746ca7641dcb2d04681c3864ce85"
+    },
+    {
+      "path": "data/loc/fre_fr.db",
+      "bytes": 2979396,
+      "sha256": "bedbb1343c7570ed3ba64b9365fe4c6f4ffff3f04a100e610cd72720a1e46eda"
+    },
+    {
+      "path": "data/loc/ger_de-meta.xml",
+      "bytes": 962,
+      "sha256": "a92095ce93a2c8e37c57162d9d0a54dc3251f64d73fb0193a6edb832ad0ade9f"
+    },
+    {
+      "path": "data/loc/ger_de.db",
+      "bytes": 2960636,
+      "sha256": "85f61d591019ff9e5f525a9b69066f382a20b4feddd4b874f0480568a8836b3b"
+    },
+    {
+      "path": "data/loc/ita_it-meta.xml",
+      "bytes": 962,
+      "sha256": "9e29a1df974a768e07e71c16d37fcfb5cfe7bbaf9c2757404dbe1c8e4fb919e8"
+    },
+    {
+      "path": "data/loc/ita_it.db",
+      "bytes": 2890524,
+      "sha256": "a80550e6b17480a0dc672d8c74bf808764051359491c15feffb0b6e9de9b938c"
+    },
+    {
+      "path": "data/loc/locale.big",
+      "bytes": 15728,
+      "sha256": "51c8d1f09ef9f85ac540236a16ee47208feaa8bd69a943ecb499d53c79a0779b"
+    },
+    {
+      "path": "data/loc/nor_no-meta.xml",
+      "bytes": 962,
+      "sha256": "27aa3ef4201071cc00f0af85461ecf297dd6426f6b845b6d4ba09b86e6437075"
+    },
+    {
+      "path": "data/loc/nor_no.db",
+      "bytes": 2830788,
+      "sha256": "6704ea9dba05cf2ba0a601e55df6079c84935e78fb64aa562f96dabca1f61a8a"
+    },
+    {
+      "path": "data/loc/pol_pl-meta.xml",
+      "bytes": 962,
+      "sha256": "65123d95c05b17fa08a3a901090dd84c109a608f5d6381f80d6696dd6725f74f"
+    },
+    {
+      "path": "data/loc/pol_pl.db",
+      "bytes": 3024756,
+      "sha256": "2135942aa38f0fb9f7a9323a21b5c005f44ce6bd0e35dcc6722b39b9ac70d8f9"
+    },
+    {
+      "path": "data/loc/por_br-meta.xml",
+      "bytes": 962,
+      "sha256": "a4ab5b7d2db217a549575550d6d712d944c00bf1a80bfad68e6c987affcb4672"
+    },
+    {
       "path": "data/loc/por_br.db",
-      "bytes": 3458156,
-      "sha256": "9919aa1bcd5993c4598d3948f6969f6e43348874d5502754e83e73d8f8961648"
+      "bytes": 3460516,
+      "sha256": "00a0b696ed3cd88c7ad77c411085523196770d042ea73534fe45c5a448f1f1f9"
+    },
+    {
+      "path": "data/loc/por_pt-meta.xml",
+      "bytes": 962,
+      "sha256": "7295598fc3a613b40ab8b8d4a17c60ed82ba43d49aaf7964daff5882d2445d9c"
+    },
+    {
+      "path": "data/loc/por_pt.db",
+      "bytes": 3830484,
+      "sha256": "3d29102e959d94eea6acc84703ddd31589dca126d8de62994c1aa6502b833cc7"
+    },
+    {
+      "path": "data/loc/rus_ru-meta.xml",
+      "bytes": 962,
+      "sha256": "4818384378b3ab6f4737a6ee8427d45f3f3ed3c552d18cb59cb73551e1623d61"
+    },
+    {
+      "path": "data/loc/rus_ru.db",
+      "bytes": 4774748,
+      "sha256": "a00d7f2aca9dfbf85f53203b3bf5dd0d55f1258a7040c1577ba576afdd9f442d"
+    },
+    {
+      "path": "data/loc/spa_es-meta.xml",
+      "bytes": 962,
+      "sha256": "ac66e1f7fea7d3d2d2e374386a649e857a46d7c57d0d9ff6fdbe6634a4007d80"
+    },
+    {
+      "path": "data/loc/spa_es.db",
+      "bytes": 2951524,
+      "sha256": "e069be5ee0fb082c78e539a4d0db5339979785bfdd9c1655c8a1f7d81267ea32"
+    },
+    {
+      "path": "data/loc/spa_mx-meta.xml",
+      "bytes": 962,
+      "sha256": "65e67e3c3ead25e9646fce986a375202fd0a0f1ed72aa976da77928a55a8175b"
+    },
+    {
+      "path": "data/loc/spa_mx.db",
+      "bytes": 2959204,
+      "sha256": "e0a4c0750cecaf2d605dacb386eb8ea72c23eeb9353acb75ea2e1d97c47189cb"
+    },
+    {
+      "path": "data/loc/swe_se-meta.xml",
+      "bytes": 962,
+      "sha256": "f79a0d9c5f43a40c577cd540ab30fa60caabf486fc2cdfb09e8b70a811981cb3"
+    },
+    {
+      "path": "data/loc/swe_se.db",
+      "bytes": 2881988,
+      "sha256": "cb3301addc8a47cfad2d23d6a69f394e2a65b843a79c4a6ec3d770b06ef36b76"
+    },
+    {
+      "path": "data/loc/tur_tr-meta.xml",
+      "bytes": 962,
+      "sha256": "1c8b97f275b519de709d3071a43a86fbb78894977974b4570a2dc1bcafbbe07d"
+    },
+    {
+      "path": "data/loc/tur_tr.db",
+      "bytes": 3143084,
+      "sha256": "0027d23ada7a83becd4248c1a8136f980373d5d008fb691694758e929b2357c0"
     },
     {
       "path": "data/sceneassets/entrance_props/competitions/1/asset.ini",
@@ -19047,6 +19257,26 @@
       "sha256": "e6504aa6e8cf65ae55a7cbe86f7032d90dac28734b3e7b975fff441432fcb510"
     },
     {
+      "path": "data/ui/imgAssets/tileicons/ti_moreexpensive_active.dds",
+      "bytes": 176528,
+      "sha256": "2b143a02f9f3116ddce9afdee3ae99b167b566e7db76d243740b33848dc59bbb"
+    },
+    {
+      "path": "data/ui/imgAssets/tileicons/ti_moreexpensive_nonactive.dds",
+      "bytes": 176528,
+      "sha256": "00f7646daae64b1c6d9e08d848d9b7c092bdd4cba97c2a7a8f8f3b70d88914eb"
+    },
+    {
+      "path": "data/ui/imgAssets/tileicons/ti_mostrecent_active.dds",
+      "bytes": 176528,
+      "sha256": "1204c94a4d7553f18e966c13033a6aaca2535353cc0fd9edaa5a381560167fe4"
+    },
+    {
+      "path": "data/ui/imgAssets/tileicons/ti_mostrecent_nonactive.dds",
+      "bytes": 176528,
+      "sha256": "06e2945827c6df9d4a97b3ca9d76afb575748886a3efeffce8a234cae81a6584"
+    },
+    {
       "path": "data/ui/imgAssets/tileicons/ti_mutualquit_small_active.dds",
       "bytes": 52720,
       "sha256": "3fc88c7c35f5ad162ecb49b1b47a703caf9443c19b778734d107c08006d5b2f0"
@@ -19592,6 +19822,16 @@
       "sha256": "714b70fcae117d76bb4bd6e549340819bc182cf8979414931f904c192f6bcc58"
     },
     {
+      "path": "data/ui/imgAssets/tileicons/ti_teamsjam_small_active.dds",
+      "bytes": 360128,
+      "sha256": "0c67e11b819a887795caa2ce6a8148d3650461a03ef7f3948f1670349a8fc3bd"
+    },
+    {
+      "path": "data/ui/imgAssets/tileicons/ti_teamsjam_small_nonactive.DDS",
+      "bytes": 360128,
+      "sha256": "0c67e11b819a887795caa2ce6a8148d3650461a03ef7f3948f1670349a8fc3bd"
+    },
+    {
       "path": "data/ui/imgAssets/tileicons/ti_teamstats_small_active.DDS",
       "bytes": 173120,
       "sha256": "4d8711ab09892c867723716228db741e5418d32aa69f7567399dd396bbeee06c"
@@ -19785,46 +20025,6 @@
       "path": "dinput8.dll",
       "bytes": 647168,
       "sha256": "20c57a75d3d60d6f5731527f418ef23c47b005882347b70184f5bf3055a50a8a"
-    },
-    {
-      "path": "ModCarrerMode/data/catalogs/menu_layout_20261105.json",
-      "bytes": 51884,
-      "sha256": "4fa0ca903e1701263561f7a3d6f80a520cc9b5b25d8368617b0c0056a778e93a"
-    },
-    {
-      "path": "ModCarrerMode/docs/MENU_LAYOUT_20261105.md",
-      "bytes": 1156,
-      "sha256": "e15821270b67154c74bfbb79d8c53607be4559d559717c966acd5a830c6d4a3b"
-    },
-    {
-      "path": "data/ui/imgAssets/tileicons/ti_moreexpensive_active.dds",
-      "bytes": 176528,
-      "sha256": "2b143a02f9f3116ddce9afdee3ae99b167b566e7db76d243740b33848dc59bbb"
-    },
-    {
-      "path": "data/ui/imgAssets/tileicons/ti_moreexpensive_nonactive.dds",
-      "bytes": 176528,
-      "sha256": "00f7646daae64b1c6d9e08d848d9b7c092bdd4cba97c2a7a8f8f3b70d88914eb"
-    },
-    {
-      "path": "data/ui/imgAssets/tileicons/ti_mostrecent_active.dds",
-      "bytes": 176528,
-      "sha256": "1204c94a4d7553f18e966c13033a6aaca2535353cc0fd9edaa5a381560167fe4"
-    },
-    {
-      "path": "data/ui/imgAssets/tileicons/ti_mostrecent_nonactive.dds",
-      "bytes": 176528,
-      "sha256": "06e2945827c6df9d4a97b3ca9d76afb575748886a3efeffce8a234cae81a6584"
-    },
-    {
-      "path": "data/ui/imgAssets/tileicons/ti_teamsjam_small_active.dds",
-      "bytes": 360128,
-      "sha256": "0c67e11b819a887795caa2ce6a8148d3650461a03ef7f3948f1670349a8fc3bd"
-    },
-    {
-      "path": "data/ui/imgAssets/tileicons/ti_teamsjam_small_nonactive.DDS",
-      "bytes": 360128,
-      "sha256": "0c67e11b819a887795caa2ce6a8148d3650461a03ef7f3948f1670349a8fc3bd"
     }
   ],
   "local_revision": "Mercado em background, técnicos 3D por identidade, histórico da carreira, vestiário ampliado e recursos do Server16",
@@ -19836,5 +20036,6 @@
   "manager_visual_revision": "20261102-R2 / stable trophy identities / reusable compressed art / compact typed records",
   "room_version": 3,
   "legacy_room_active": false,
-  "menu_layout_revision": "20261105-menu-layout-and-career-hub-art"
+  "menu_layout_revision": "20261105-menu-layout-and-career-hub-art",
+  "database_integration": "20261106 / UAE Pro League and Atlante / validated default sheets"
 }

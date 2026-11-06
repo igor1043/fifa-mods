@@ -162,7 +162,8 @@
   "AE": {
     "world": 85,
     "lat": 23.466,
-    "lon": 54.547
+    "lon": 54.547,
+    "name": "Emirados Árabes Unidos"
   },
   "UA": {
     "world": 113,

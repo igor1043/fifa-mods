@@ -10,6 +10,23 @@ class Fixture:
  def rows(self,name,fields):return [{f:r.get(f) for f in fields} for r in self.data[name]]
 
 class Catalog(unittest.TestCase):
+ def test_database_expansion_replaces_old_row_identity_and_secondary_membership(self):
+  from tempfile import TemporaryDirectory
+  fixture=Fixture()
+  fixture.data['nations'].append(dict(nationid=190,nationname='United Arab Emirates',isocountrycode='AE',confederation=5))
+  fixture.data['leagues'].append(dict(leagueid=698,leaguename='UAE Pro League',countryid=190,level=1))
+  fixture.data['teams'][0].update(teamname='Updated club',latitude=24,longitude=55)
+  fixture.data['leagueteamlinks']=[dict(teamid=1,leagueid=9876,secondarytable=1),dict(teamid=1,leagueid=698,secondarytable=0)]
+  fixture.tables={name:dict(rows=len(rows)) for name,rows in fixture.data.items()}
+  with TemporaryDirectory() as temp:
+   game=Path(temp);folder=game/'ModCarrerMode/data/club_browser';folder.mkdir(parents=True)
+   (folder/'catalog.tsv').write_text('54\tOld country\t54\t30\t1\t9876\tOld league\t1\t0\t1\tOld club\tWrong city\t-23\t-46\t70\t70\t70\t70\n')
+   (folder/'world_geography.json').write_text(json.dumps(dict(AE=dict(name='Emirados Árabes Unidos',world=85,lat=23.466,lon=54.547))),encoding='utf8')
+   rows,_=build(game,fixture);club=next(r for r in rows if r['id']==1)
+   self.assertEqual((club['league'],club['nation'],club['name']),(698,190,'Updated club'))
+   self.assertEqual((club['countryName'],club['world']),('Emirados Árabes Unidos',85))
+   self.assertEqual((club['lat'],club['lon'],club['city']),(24,55,''))
+
  def test_national_divisions_precede_federations_for_existing_and_added_countries(self):
   from tempfile import TemporaryDirectory
   fixture=Fixture()
