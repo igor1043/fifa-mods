@@ -1,5 +1,6 @@
 """Emit the profile's native AVM controller using the common screen helpers."""
 from profile_layout import TAB_X
+from profile_art import STATUS_TONES
 
 def emit(a,scenes,*,R,T,P,ix,add,mul,lt,EQ,both,either,clamp,div,CALL,PATH,field,show):
  root=T('scene1');p=ix(T('people'),T('person'));ov=ix(p,23);visual=ix(p,26);tab=T('profileTab');history=either(either(EQ(tab,1),EQ(tab,2)),EQ(tab,4))
@@ -16,15 +17,16 @@ def emit(a,scenes,*,R,T,P,ix,add,mul,lt,EQ,both,either,clamp,div,CALL,PATH,field
   field(a,root,'profileTabOff'+str(i),('Visão geral','Passagens','Títulos','Estilo de jogo','Histórico anual')[i],('not',EQ(tab,i)))
   field(a,root,'profileTabOn'+str(i),('Visão geral','Passagens','Títulos','Estilo de jogo','Histórico anual')[i],EQ(tab,i))
   a.when(EQ(tab,i),lambda a,i=i:show(a,root,'profileMark'+str(i),TAB_X[i],190))
- field(a,root,'name',ix(p,0));field(a,root,'nationality',ix(p,11));field(a,root,'bio',add(ix(p,13),' anos'),lt(-1,ix(p,13)));field(a,root,'currentClub',ix(ov,15));field(a,root,'clubStatus','Clube atual');a.when(('not',ix(ov,16)),lambda a:field(a,root,'clubStatus','Livre no mercado'))
+ field(a,root,'name',ix(p,0));field(a,root,'nationality',ix(p,11));field(a,root,'bio',add(ix(p,13),' anos'),lt(-1,ix(p,13)));field(a,root,'currentClub',ix(ov,15));field(a,root,'clubStatus','Clube atual');a.when(('not',ix(ov,16)),lambda a:field(a,root,'clubStatus','',False))
  field(a,root,'salary',ix(p,17));field(a,root,'style',ix(p,14));field(a,root,'formation',ix(p,15));field(a,root,'profileCaption','');field(a,root,'scope',ix(ov,14))
  for name,col in (('contractUntil',27),('contractRemaining',28),('contractSince',29),('contractState',30)):field(a,root,name,ix(visual,col))
+ a.when(('not',ix(ov,16)),lambda a:(field(a,root,'contractInfoHeading','DISPONIBILIDADE'),field(a,root,'contractSince','Pode assumir um novo clube'),field(a,root,'contractState',ix(p,16))))
  field(a,root,'trust',add(ix(ov,17),'%'),lt(-1,ix(ov,17)));a.when(lt(ix(ov,17),0),lambda a:field(a,root,'trust','—'));field(a,root,'trustStatus',ix(ov,18))
- for name,x,y in (('identityCard',96,190),('trustTrack',118,653)):show(a,root,name,x,y)
- for i in range(3):show(a,root,'identityTile'+str(i),108+i*116,436)
- show(a,root,add('img_',ix(p,9)),112,235);show(a,root,add('img_',ix(p,12)),278,216);show(a,root,add('rating',ix(p,10)),278,374)
- a.when(lt(0,ix(ov,17)),lambda a:(show(a,root,'trustFill',118,653),a.set(P(root,'trustFill'),'_width',mul(3.22,ix(ov,17)))))
- a.when(ix(ov,16),lambda a:show(a,root,add('current_',ix(ov,16)),278,289))
+ for name,x,y in (('identityCard',96,190),('trustTrack',118,703)):show(a,root,name,x,y)
+ for i,(x,y) in enumerate(((112,426),(112,523),(285,523))):show(a,root,'identityTile'+str(i),x,y)
+ show(a,root,add('img_',ix(p,9)),112,218);show(a,root,add('img_',ix(p,12)),286,219);show(a,root,add('rating',ix(p,10)),286,390)
+ a.when(lt(0,ix(ov,17)),lambda a:(show(a,root,'trustFill',118,703),a.set(P(root,'trustFill'),'_width',mul(3.22,ix(ov,17)))))
+ a.when(ix(ov,16),lambda a:show(a,root,add('current_',ix(ov,16)),286,294))
  def overview(a):
   for i in range(6):field(a,root,'metric'+str(i),add('',ix(ov,i)));field(a,root,'metricNote'+str(i),ix(visual,i))
   for i in range(3):
@@ -56,12 +58,19 @@ def emit(a,scenes,*,R,T,P,ix,add,mul,lt,EQ,both,either,clamp,div,CALL,PATH,field
    def passage(a):
     show(a,root,add('entry'+str(i)+'_',ix(r,1)),510,y+18)
     for name,value in (('entryName',ix(r,0)),('entryStatus',add(ix(r,4),add(' · ',ix(r,11)))),('entryDates',add(ix(r,2),add(' · ',ix(r,3)))),('entryHome',ix(r,12))):field(a,root,name+str(i),value)
+    def status_tag(a):
+     field(a,root,'entryStatus'+str(i),ix(r,4));field(a,root,'entryDates'+str(i),add(ix(r,2),add(' · ',add(ix(r,3),add(' · ',ix(r,11))))))
+     for label,tone in STATUS_TONES.items():a.when(EQ(ix(r,4),label),lambda a,tone=tone:show(a,root,'entryBadge'+str(i)+'_'+tone,1486,y+11))
+    a.when(EQ(tab,1),status_tag)
     for j in range(6):field(a,root,'entryValue'+str(i)+'_'+str(j),ix(r,13+j));a.set(P(root,'entryLabel'+str(i)+'_'+str(j)),'_visible',True)
     for side,col,x in (('Home',6,609),):
      show(a,root,'entry'+side+'Track'+str(i),x,y+151);show(a,root,'entry'+side+'Fill'+str(i),x,y+151);a.set(P(root,'entry'+side+'Fill'+str(i)),'_width',mul(11.67,ix(r,col)))
    def title(a):
     show(a,root,add('trophy'+str(i)+'_',ix(r,1)),510,y+18)
-    for name,value in (('entryName',ix(r,0)),('entryStatus',ix(r,4)),('entryDates',add(ix(r,2),add(' · ',ix(r,5)))),('entryTotal','Título confirmado pelos resultados da carreira.')):field(a,root,name+str(i),value)
+    show(a,root,add('cup'+str(i)+'_',add('cup_',CALL(ix(r,1),'substr',12))),1668,y+61)
+    show(a,root,add('entry'+str(i)+'_',ix(r,3)),610,y+83)
+    for name,value in (('entryName',ix(r,0)),('entryStatus',ix(r,4)),('entryDates',ix(r,5)),('entryTotal',ix(r,2))):field(a,root,name+str(i),value)
+    a.set(P(root,'entryTotal'+str(i)),'_x',700)
    a.when(EQ(tab,2),title,passage)
   a.when(present,row)
 

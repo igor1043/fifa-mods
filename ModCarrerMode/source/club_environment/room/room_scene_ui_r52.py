@@ -7,6 +7,7 @@ from PIL import Image
 import build_screen as b
 import native_roster_footer as roster_footer
 R=b.reg;T=b.this;P=b.prop;CALL=b.call;PATH=b.path;M=b.MANAGER;EQ=b.equal
+ACTION_Y=930
 
 def graphics(apt,data,append,addchar,place,bitmap,scope,read_asset):
     from PIL import ImageDraw
@@ -43,9 +44,9 @@ def graphics(apt,data,append,addchar,place,bitmap,scope,read_asset):
     def action_button(label,width):
         focus=clip([place(selected,1,0,0,width/64,.75)])
         return clip([place(neutral,1,0,0,width/64,.75),place(focus,2,0,0,label='highlight'),place(text(label,width-30,42,25),3,16,4,label='label')])
-    result=[place(modal,100,1260,212,label='sceneModal',color=0x00ffffff),place(action_button('Cenas',180),101,1030,930,label='sceneButton'),place(action_button('Jogadores do time',300),102,1230,930,label='playersButton'),place(action_button('Câmera livre',280),103,1550,930,label='freeButton'),place(text('WASD: andar · Mouse direito: olhar · Shift: acelerar · Q / R3: personalização',1700,32,22,0xffffffff),104,109,870,label='freeHint')]
+    result=[place(modal,100,1260,212,label='sceneModal',color=0x00ffffff),place(action_button('Cenas',180),101,1030,ACTION_Y,label='sceneButton'),place(action_button('Jogadores do time',300),102,1230,ACTION_Y,label='playersButton'),place(action_button('Câmera livre',280),103,1550,ACTION_Y,label='freeButton'),place(text('WASD: andar · Mouse direito: olhar · Shift: acelerar · Q / R3: personalização',1700,32,22,0xffffffff),104,109,870,label='freeHint')]
     if scope.get('room_version')==3:
-        result.append(place(action_button('Personalização do vestiário',355),105,650,930,label='settingsButton'))
+        result.append(place(action_button('Personalização do vestiário',355),105,650,ACTION_Y,label='settingsButton'))
         arrow=clip([place(neutral,1,0,0,.75,.6),place(text('',44,38,28),2,12,0,label='label')])
         focus=clip([place(selected,1,0,0,10.25,1.12)])
         setting=clip([place(neutral,1,0,0,10.25,1.12),place(focus,2,0,0,label='highlight'),place(text('',510,25,17),3,72,5,label='title'),place(text('',510,38,26),4,72,30,label='value'),place(arrow,5,10,26,label='previous'),place(arrow,6,595,26,label='next')])
@@ -70,6 +71,7 @@ def methods(a,scope):
     groups=('array',tuple(objects(items) for _,items in categories));root_items=objects(root)
     def init(a):
         for key,value in (('modalOpen',False),('sceneFocus',0),('sceneGroup',-1),('sceneItems',root_items),('roomActionFocus',0),('openingPlayers',False),('roomPlayersOpen',False),('roomPlayersDetail',False),('freeCameraOpen',False)):a.set(R(1),key,value)
+        a.set(T('roomHeader'),'_visible',False);a.set(T('roomHeader'),'_alpha',0)
         a.set(R(1),'settingsOpen',False);a.set(R(1),'settingsFocus',0)
         if v3:
             mapping='S16ROOM_INPUT_MAP|'
@@ -83,6 +85,11 @@ def methods(a,scope):
         a.when(b.G('Server16RoomSequence'),lambda a:None,lambda a:a.set(b.GLOBAL,'Server16RoomSequence',0));a.do(R(1),'PublishScene',-1)
         a.do(R(1),'PublishRoster','room_close');a.do(PATH('Key'),'addListener',R(1))
     a.function('InitSceneControl',0,init)
+    def identity(a):
+        valid=('bin',16,EQ(b.G('Server16ActiveCareerClubId'),scope['club']),('bin',16,('not',T('roomPlayersOpen')),('not',T('freeCameraOpen'))))
+        a.set(T('roomHeader'),'_visible',valid);a.set(T('roomHeader'),'_alpha',0)
+        a.when(valid,lambda a:a.set(T('roomHeader'),'_alpha',100))
+    a.function('RefreshRoomIdentity',0,identity)
     a.function('SceneButtonClick',0,lambda a:a.do(P(R(1),'owner'),'OpenScenes'))
     a.function('PlayersButtonClick',0,lambda a:a.do(P(R(1),'owner'),'OpenPlayers'))
     a.function('SceneButtonOver',0,lambda a:(a.set(P(R(1),'owner'),'roomActionFocus',0),a.do(P(R(1),'owner'),'RefreshRoomActions')))
@@ -104,7 +111,9 @@ def methods(a,scope):
     a.function('PublishRoster',1,roster_command)
     def roster_help(a):
         a.do(M('HelpManager'),'SetCustomSource',CALL(PATH('cafe','utility','Delegate'),'Create',R(1),T('getHelpContext')));a.do(M('HelpManager'),'Update');a.do(M('HelpManager'),'Show')
-        a.when(T('roomPlayersOpen'),roster_footer.apply,roster_footer.restore)
+        # Keep native input legends on their own bottom line in every mode,
+        # including personalization/free camera, and restore only on exit.
+        roster_footer.apply(a)
     a.function('RefreshRosterHelp',0,roster_help)
     def free_open(a):
         a.when(T('freeCameraOpen'),lambda a:a.ret());a.set(R(1),'freeCameraOpen',True);a.set(R(1),'modalOpen',False)
@@ -116,6 +125,7 @@ def methods(a,scope):
     def free_close(a):
         a.set(R(1),'freeCameraOpen',False);a.set(T('freeHint'),'_visible',False);a.do(R(1),'PublishScene',-5)
         for name in ('roomHeader',)+action_names:a.set(T(name),'_visible',True)
+        a.do(R(1),'RefreshRoomIdentity')
         a.do(R(1),'RefreshRoomActions');a.do(R(1),'RefreshRosterHelp')
     a.function('CloseFreeCamera',0,free_close)
 
@@ -134,10 +144,11 @@ def methods(a,scope):
         a.when(T('roomPlayersDetail'),lambda a:(a.set(R(1),'roomPlayersDetail',False),a.do(R(1),'PublishRoster','back'),a.do(R(1),'RefreshRosterHelp'),a.ret()))
         a.do(R(1),'PublishRoster','room_close');a.set(R(1),'roomPlayersOpen',False);a.set(R(1),'onEnterFrame',None)
         for name in ('roomHeader',)+action_names:a.set(T(name),'_visible',True)
+        a.do(R(1),'RefreshRoomIdentity')
         a.do(R(1),'RefreshRoomActions');a.do(R(1),'RefreshRosterHelp')
     a.function('RoomPlayersBack',0,roster_back)
     def wait(a):
-        a.when(T('sceneModal'),lambda a:(a.do(R(1),'RefreshSceneModal'),a.set(T('sceneButton'),'owner',R(1)),a.set(T('sceneButton'),'onRelease',T('SceneButtonClick')),a.do(R(1),'RefreshRoomActions'),a.set(R(1),'onEnterFrame',None)))
+        a.when(T('sceneModal'),lambda a:(a.do(R(1),'RefreshSceneModal'),a.set(T('sceneButton'),'owner',R(1)),a.set(T('sceneButton'),'onRelease',T('SceneButtonClick')),a.do(R(1),'RefreshRoomActions'),a.do(R(1),'RefreshRoomIdentity'),a.do(R(1),'RefreshRosterHelp'),a.set(R(1),'onEnterFrame',None)))
     a.function('WaitForSceneClips',0,wait)
     def publish(a):
         a.set(b.GLOBAL,'Server16RoomSequence',b.plus(b.G('Server16RoomSequence'),1));value=f'S16ROOM2|{scope["club"]}|{scope["nonce"]}|'

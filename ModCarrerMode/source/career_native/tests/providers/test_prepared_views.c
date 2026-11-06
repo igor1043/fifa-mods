@@ -29,6 +29,9 @@ static unsigned char *bank_mail_service(uintptr_t registry,unsigned descriptor,s
         descriptor==0x44568e0?(unsigned char *)mock_bus:mock_calendar;
 }
 static void append_loader_log(const char *event){(void)event;}
+static int bank_input_context(CareerContextRead *out,uintptr_t *context,unsigned *club,int *date){
+    *out=Fifa16CareerContextRead;*context=*(uintptr_t *)(out->service+0x18);*club=1043;*date=20260111;return 1;
+}
 #include "../../src/host/career_prepared_views.inc"
 static void *allocate(void *allocator,unsigned size,const char *name,unsigned flags){
     assert(allocator==mock_allocator && size==0x98 && name==(const char *)(g_module_base+0x3055600) && !flags);
@@ -43,7 +46,7 @@ static void submit(void *bus,void *message){
 }
 static void process_queued(void){
     if(ack && queued_event[0]){
-        strcpy(mock_page,strstr(queued_event,"Manager")?"game/screens/career/server16/ManagerMarket":strstr(queued_event,"Finance")?"game/screens/career/server16/ClubFinance":strstr(queued_event,"Dressing")?"game/screens/career/server16/DressingRoom":strstr(queued_event,"Transfer")?"game/screens/career/server16/TransferMarket":"game/screens/career/server16/MatchPreview");queued_event[0]=0;
+        strcpy(mock_page,!strcmp(queued_event,"Back")?"game/screens/fluxHub/FluxHub":strstr(queued_event,"Manager")?"game/screens/career/server16/ManagerMarket":strstr(queued_event,"Finance")?"game/screens/career/server16/ClubFinance":strstr(queued_event,"Dressing")?"game/screens/career/server16/DressingRoom":strstr(queued_event,"Transfer")?"game/screens/career/server16/TransferMarket":"game/screens/career/server16/MatchPreview");queued_event[0]=0;
     }
 }
 static void trampoline(unsigned offset,uintptr_t callback,int prefix){
@@ -123,6 +126,12 @@ int main(void){
      strcpy(mock_page,"game/screens/fluxHub/FluxHub");tick();strcpy(mock_page,"game/screens/career/server16/ManagerMarket");tick();assert(calls==before+2);
      DeleteFileA(managers);*strrchr(managers,'\\')=0;assert(RemoveDirectoryA(managers));
     }
+    strcpy(mock_page,"game/screens/career/server16/CareerCompetitions");before=calls;
+    competition_back_request();++Fifa16CareerContextRead.owner_thread;tick();assert(calls==before);--Fifa16CareerContextRead.owner_thread;
+    stable=0;tick();assert(calls==before);stable=1;g_current_stats_provider_owner=(void *)1;tick();assert(calls==before);g_current_stats_provider_owner=NULL;
+    tick();assert(calls==before+1&&!strcmp(mock_page,"game/screens/fluxHub/FluxHub"));tick();assert(calls==before+1);
+    strcpy(mock_page,"game/screens/career/server16/CareerCompetitions");competition_back_request();++g_competition_back_context.epoch;tick();assert(calls==before+1&&!g_competition_back_until);
+    competition_back_request();strcpy(mock_page,"game/screens/fluxHub/FluxHub");tick();assert(calls==before+1&&!g_competition_back_until);
     assert(constructed==released && released==calls);
     DeleteFileA(preview);DeleteFileA(market);*strrchr(preview,'\\')=0;assert(RemoveDirectoryA(preview));*strrchr(preview,'\\')=0;assert(RemoveDirectoryA(preview));*strrchr(market,'\\')=0;assert(RemoveDirectoryA(market));assert(RemoveDirectoryA(folder));*strrchr(folder,'\\')=0;assert(RemoveDirectoryA(folder));assert(RemoveDirectoryA(g_mod_dir));VirtualFree(g_module_base,0,MEM_RELEASE);
     puts("PASS prepared views: fresh current career only, skipped days/club/session rejected, owner thread, provider guard, waiting retries, no ready reload loop, both screens");return 0;

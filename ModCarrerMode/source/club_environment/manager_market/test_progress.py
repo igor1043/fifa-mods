@@ -38,5 +38,14 @@ class ProgressTest(unittest.TestCase):
    p=Progress(Path(folder)/'progress.json');o=self.observed();io=dict(operation='read',access_tick_ms='1')
    p.begin(o,io);p.set(4);p.set(1);self.assertEqual(4,p.value['stage'])
    p.done();p.begin(o,io);p.set(2);self.assertFalse(p.value['active'])
+ def test_real_market_counters_dates_and_errors_survive_stage_publication(self):
+  with TemporaryDirectory() as folder:
+   p=Progress(Path(folder)/'progress.json');p.begin(self.observed(),dict(operation='read',access_tick_ms='1'));p.set(2)
+   p.market_start(20260101,20260201,20);p.market_event('hired');p.market_event('dismissal');p.market_event('renewal');p.market_day(20260120,complete=True);p.set(3)
+   value=json.loads(p.path.read_bytes());self.assertEqual((1,1,1),(value['detail']['hires'],value['detail']['exits'],value['detail']['renewals']));self.assertEqual(20260120,value['detail']['through'])
+   texts=[n.get('text','') for n in scene(3,99,value['detail'])[0]['nodes']]
+   # Scene text nodes use value; verify serialized content stays factual.
+   raw=json.dumps(scene(3,99,value['detail']),ensure_ascii=False);self.assertIn('20/01/2026',raw);self.assertIn('19 / 31',raw)
+   p.fail('missing snapshot');self.assertIn('error',json.loads(p.path.read_bytes()));p.market_start(20260120,20260201,20);self.assertNotIn('error',json.loads(p.path.read_bytes()))
 
 if __name__=='__main__':unittest.main()

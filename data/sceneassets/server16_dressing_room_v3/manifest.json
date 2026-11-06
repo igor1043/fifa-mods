@@ -1,6 +1,6 @@
 {
   "version": 3,
-  "revision": 7,
+  "revision": 9,
   "capacity": 38,
   "sources": {
     "room_roles_r77.rx3": "1bbf9808fa6056ca87d96a33224d0a475bc078b1f395c5a175ffd4d18bd42ede",
@@ -273,9 +273,7 @@
       "room_part_17",
       "room_part_22",
       "room_part_24",
-      "room_part_25",
-      "room_part_26",
-      "room_part_27"
+      "room_part_25"
     ]
   },
   "preserved": [
@@ -290,14 +288,26 @@
     "room_roles.rx3": "room_roles_42309461bad76f.rx3",
     "scenery.rx3": "scenery_c874ddac663808.rx3",
     "crest_surfaces.rx3": "crest_surfaces_89d255cf1eceb1.rx3",
-    "interior.rx3": "interior_fb7fefde8ca3f4.rx3",
+    "interior.rx3": "interior_7d46205a2329de.rx3",
     "locker_bay.rx3": "locker_bay_87e9b8dc7e48e7.rx3",
     "fascia.rx3": "fascia_24a0328bc06a21.rx3",
-    "crests.rx3": "crests_238f4c4ced9d79.rx3",
+    "crests.rx3": "crests_63759b772adbd1.rx3",
     "joinery.rx3": "joinery_e71c06e31745b4.rx3",
     "ceiling_details.rx3": "ceiling_details_5d9e89477022af.rx3",
     "logo_mount.rx3": "logo_mount_a2ebc9ad5dd548.rx3",
     "feature_wall.rx3": "feature_wall_383424509b5185.rx3",
-    "furniture_wood.rx3": "furniture_wood_e8b75a0f6e0460.rx3"
+    "furniture_wood.rx3": "furniture_wood_e8b75a0f6e0460.rx3",
+    "loading_error_texture_r81.rx3": "loading_error_texture_r81.rx3",
+    "loading_panel_r81.rx3": "loading_panel_r81.rx3",
+    "loading_panel_texture_r81.rx3": "loading_panel_texture_r81.rx3",
+    "loading_progress_r81.rx3": "loading_progress_r81.rx3",
+    "loading_progress_texture_r81.rx3": "loading_progress_texture_r81.rx3"
+  },
+  "loading": {
+    "revision": 81,
+    "bar_x": -318.75,
+    "bar_width": 637.5,
+    "bar_y": 1098.21875,
+    "progress": "loaded native resources / requested native resources"
   }
 }

@@ -7,6 +7,18 @@ typedef struct PreparedViewRecord {
 } PreparedViewRecord;
 typedef struct PreparedViewState {ULONGLONG next,entered;int inside;char applied[65];} PreparedViewState;
 static PreparedViewState g_prepared_views[5];
+static SRWLOCK g_competition_back_lock=SRWLOCK_INIT;
+static CareerContextRead g_competition_back_context;
+static ULONGLONG g_competition_back_until;
+
+static void competition_back_request(void)
+{
+    CareerContextRead captured;uintptr_t context;unsigned club;int date;
+    if(!bank_input_context(&captured,&context,&club,&date))return;
+    AcquireSRWLockExclusive(&g_competition_back_lock);
+    g_competition_back_context=captured;g_competition_back_until=GetTickCount64()+2000;
+    ReleaseSRWLockExclusive(&g_competition_back_lock);
+}
 
 /* SendSystemEvent is handled by Calendar::HandleSystemScreenEvent, which
  * accepts DONE_LOADING but ignores custom navigation events. Queue the same
@@ -54,6 +66,7 @@ static int prepared_view_page(void)
     if(!strcmp(page,"game/screens/career/server16/DressingRoom"))return 5;
     if(!strcmp(page,"game/screens/career/server16/ClubFinance"))return 6;
     if(!strcmp(page,"game/screens/career/server16/ManagerMarket"))return 7;
+    if(!strcmp(page,"game/screens/career/server16/CareerCompetitions"))return 8;
     return !strcmp(page,"game/screens/career/server16/TransferMarketLoading")?4:0;
 }
 
@@ -126,6 +139,23 @@ static void drain_prepared_views(void)
 {
     int page=prepared_view_page(),kind,waiting,i;ULONGLONG now=GetTickCount64();
     PreparedViewState *state;PreparedViewRecord record;CareerContextRead captured;
+    if(TryAcquireSRWLockExclusive(&g_competition_back_lock)) {
+        if(g_competition_back_until) {
+            CareerContextRead request=g_competition_back_context;
+            if(page!=8 || now>g_competition_back_until || request.epoch!=fce_runtime_context_epoch())g_competition_back_until=0;
+            else if(fce_runtime_is_stable() && !g_current_stats_provider_owner
+                && Fifa16CareerContextRead.owner_thread==GetCurrentThreadId()
+                && Fifa16CareerContextRead.epoch==request.epoch
+                && Fifa16CareerContextRead.registry==request.registry
+                && Fifa16CareerContextRead.service==request.service
+                && !(Fifa16CareerContextRead.sequence&1)) {
+                g_competition_back_until=0;
+                if(prepared_view_queue(request.registry,"Back"))append_loader_log("career_competition_back_queued_on_ui_owner");
+            }
+        }
+        ReleaseSRWLockExclusive(&g_competition_back_lock);
+    }
+    if(page==8)return;
     if(!page){for(i=0;i<5;++i)g_prepared_views[i].inside=0;return;}
     kind=page==7?4:page==6?3:page==5?2:page>2;waiting=page==2 || page==4;state=&g_prepared_views[kind];
     for(i=0;i<5;++i)if(i!=kind)g_prepared_views[i].inside=0;

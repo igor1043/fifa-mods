@@ -53,12 +53,13 @@ def identity(path):
 def revision(game,model):
  import portable_paths
  game=Path(game);folder=game/'ModCarrerMode/data/manager_market';paths={folder/p['image'] for p in model['people']};paths.add(folder/'minifaces/NOTFOUND_DEFAULT.png')
- crests={r[4] for k in ('clubRows','hireRows','moveRows') for r in model[k]}|{r[1] for p in model['people'] for r in p.get('spellCards',[])}|{r[3] for p in model['people'] for r in p.get('titleCards',[])}
+ crests={r[1] for r in model.get('historyClubRows',[])}|{r[4] for k in ('clubRows','hireRows','moveRows') for r in model[k]}|{r[1] for p in model['people'] for r in p.get('spellCards',[])}|{r[3] for p in model['people'] for r in p.get('titleCards',[])}
  for key in crests:
   for kind in ('light','dark'):paths.add(game/f'data/ui/imgAssets/crest/{kind}/l{key.split("_")[1]}.dds')
  leagues=competition_ids(game,model)
  for ident in leagues:
   paths.add(game/f'data/ui/imgAssets/careerCompetitionIcons/{ident}.png')
+  paths.add(game/f'data/ui/imgAssets/trophy256x256/t{ident}.dds')
   for kind in ('light','dark'):paths.add(game/f'data/ui/imgAssets/league/{kind}/l{ident}.dds')
  for flag in flag_keys(game,model):paths.add(game/f'data/ui/imgAssets/flags512x512/f_{flag[5:]}.dds')
  paths.update(game/p for p in portable_paths._priority)

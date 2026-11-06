@@ -3,6 +3,8 @@ import math,re
 from PIL import Image,ImageDraw
 from ui_theme import ACCENT,ACCENT_INK
 
+STATUS_TONES={'Atual':'current','Demitido':'dismissed','Pediu demissão':'resigned','Não renovou':'ended','Saída com multa':'buyout','Transferido':'transferred','Aposentado':'ended','Renovado':'current','Mudou de clube':'transferred','Substituído':'dismissed','Encerrada':'ended'}
+
 def panel(w,h,fill='#ffffff',radius=12,stroke='#e2e9ee'):
  scale=2;im=Image.new('RGBA',(w*scale,h*scale));d=ImageDraw.Draw(im)
  d.rounded_rectangle((1,1,w*scale-2,h*scale-2),radius*scale,fill=fill,outline=stroke,width=scale)
@@ -42,6 +44,7 @@ def glyph(kind,size=128):
 
 def assets():
  result={}
+ for name,color in dict(current='#e5f4eb',dismissed='#fbe7ea',resigned='#fff0d9',ended='#eaf0f4',buyout='#f5eedf',transferred='#e4edf7').items():result['status_'+name]=panel(300,36,color,7,color)
  sizes=dict(identity=(366,712),metric=(210,150),venue=(432,180),summary=(1320,226),entry=(1320,166),timeline=(690,120),style=(650,250),pitch=(450,450))
  for name,(w,h) in sizes.items():result['profile_'+name]=panel(w,h)
  result['profile_tab_off']=panel(318,52,'#eaf0f4',7,'#eaf0f4');result['profile_tab_on']=gradient(318,52,'#ac8950',ACCENT,7)

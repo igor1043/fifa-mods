@@ -7,7 +7,7 @@ def digest(path):
 def build(root,base,output,name):
  root=Path(root).resolve();base=Path(base);output=Path(output);output.mkdir(parents=True,exist_ok=True)
  current=json.loads((root/'ModCarrerMode/data/catalogs/asset_complement.json').read_text(encoding='utf-8'))
- before={r['path']:r for r in json.loads(base.read_text(encoding='utf-8'))['files']};rows=current['files'];tracked=set(subprocess.check_output(['git','ls-files','-z'],cwd=root).decode('utf-8').split('\0'));seen=set();delta=[]
+ baseline=json.loads(base.read_text(encoding='utf-8'));before={r['path']:r for r in baseline['files']};rows=current['files'];tracked=set(subprocess.check_output(['git','ls-files','-z'],cwd=root).decode('utf-8').split('\0'));seen=set();delta=[]
  for row in rows:
   rel=row['path'];path=PurePosixPath(rel)
   if path.is_absolute() or '..' in path.parts or ':' in rel or '\\' in rel:raise ValueError('Unsafe asset path: '+rel)
@@ -26,7 +26,7 @@ def build(root,base,output,name):
   for row in delta:
    with z.open(row['path']) as f:assert hashlib.file_digest(f,'sha256').hexdigest()==row['sha256']
  os.replace(temporary,target)
- report=dict(zip=target.name,bytes=target.stat().st_size,sha256=digest(target),base=before and '2026-11-02 R2',base_manifest_sha256=digest(base),code_commit=subprocess.check_output(['git','rev-parse','HEAD'],cwd=root,text=True).strip(),files=delta,files_count=len(delta),unchanged_files=len(rows)-len(delta),retired_assets=sorted(set(before)-seen),room_version=3,contains_saves=False,contains_runtime=False,contains_legacy_room=False)
+ report=dict(zip=target.name,bytes=target.stat().st_size,sha256=digest(target),base=baseline.get('release',base.name),base_manifest_sha256=digest(base),code_commit=subprocess.check_output(['git','rev-parse','HEAD'],cwd=root,text=True).strip(),files=delta,files_count=len(delta),unchanged_files=len(rows)-len(delta),retired_assets=sorted(set(before)-seen),room_version=3,contains_saves=False,contains_runtime=False,contains_legacy_room=False)
  target.with_suffix('.json').write_text(json.dumps(report,ensure_ascii=False,indent=2)+'\n',encoding='utf-8')
  return {k:v for k,v in report.items() if k not in ('files','retired_assets')}
 if __name__=='__main__':

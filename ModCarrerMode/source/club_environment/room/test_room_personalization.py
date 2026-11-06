@@ -28,6 +28,17 @@ def commands(calls):return [args[-1] for name,args in calls if name=='SendSystem
 
 
 class PersonalizationTests(unittest.TestCase):
+    def test_native_help_stays_below_actions_in_every_room_mode_and_restores_on_exit(self):
+        vm,s,calls,_=open_personalization()
+        holder=Object({'_y':930});scroller=Object({'_y':930})
+        vm.path('game.globalClasses.HelpManager').set('mcHelpDisplay',Object({'mcHelpItemsHolder':holder,'mcTextScroller':scroller}))
+        for method in ('RefreshRosterHelp','OpenRoomSettings','CloseRoomSettings','OpenFreeCamera','CloseFreeCamera','OpenPlayers','RoomPlayersBack'):
+            vm.invoke(s.get(method),s)
+            self.assertEqual(holder.get('_y'),1030,method)
+            self.assertEqual(scroller.get('_y'),1030,method)
+        vm.invoke(s.get('OnExitScreen'),s)
+        self.assertEqual(holder.get('_y'),930);self.assertEqual(scroller.get('_y'),930)
+
     def test_apply_preserves_every_option_after_many_commands_in_float32_apt(self):
         import apt_vm
         native_text=apt_vm.text

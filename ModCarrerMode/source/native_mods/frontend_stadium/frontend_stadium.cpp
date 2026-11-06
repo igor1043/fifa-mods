@@ -10,6 +10,7 @@
 #include "frontend_visibility.h"
 #include "career_profile.h"
 #include "scene_context.h"
+#include "player_scene.h"
 #include "menu_page.h"
 #include "profile_reload.h"
 #include "stadium_metadata.h"
@@ -49,6 +50,7 @@ static uint64_t lastRouteComplete=0;
 static bool uiRegistered=false;
 static uint32_t drawnRequest=0;
 static frontend_stadium::ProfileReloadProgress reloadProgress;
+static frontend_stadium::PlayerScene playerScene;
 static bool bootComplete=false;
 static frontend_stadium::PageKind previousPage=frontend_stadium::PageKind::Transition;
 static uint32_t requestsAtPost=0;
@@ -76,6 +78,9 @@ static void log(const char* event,int team=0,int detail=0){
     std::fclose(file);
 }
 static int setting(const wchar_t* key,int fallback){return static_cast<int>(GetPrivateProfileIntW(L"frontend_stadium",key,fallback,config));}
+static uintptr_t nativeCommands(int* state);
+static frontend_stadium::PageKind currentPage(){return frontend_stadium::pageKind(image,read);}
+static bool stadiumEnabled(){return frontend_stadium::enabledForPage(setting(L"enabled",0)!=0,currentPage());}
 static void selection(int team,wchar_t* output,DWORD size){
     if(careerWasActive){
         if(static_cast<int>(GetPrivateProfileIntW(L"frontend_stadium_career",L"session",0,config))==careerSession&&
@@ -133,9 +138,14 @@ static PublishedUiContext uiContext(){
        !read(address,&b,sizeof b)||std::memcmp(&a,&b,sizeof a))return {};
     return a;
 }
+static int activeCareerRole(){
+    const auto scope=uiContext();if(!scope.service||get<uintptr_t>(scope.service)!=scope.vtable)return -1;
+    int selected=get<int>(scope.service+0x14);if(selected<0||selected>=8)return -1;
+    const auto context=get<uintptr_t>(scope.service+0x18)+uintptr_t(selected)*0x318;
+    int role=-1;return read(context+0x18c,&role,sizeof role)?role:-1;
+}
 static bool careerCommandOwner(){bool career=false;club(&career);return !career||uiContext().thread==GetCurrentThreadId();}
-static uintptr_t nativeCommands(int* state);
-static bool customActive(){return !stopping&&activeMode==1&&setting(L"enabled",0)&&activeSlot()==static_cast<int>(FrontendStadiumStatus.slot);}
+static bool customActive(){return !stopping&&activeMode==1&&stadiumEnabled()&&activeSlot()==static_cast<int>(FrontendStadiumStatus.slot);}
 static bool menuScene(){
     // The same predicate used by StadiumPanDP::IsScreenTriggeredInMenus.
     const auto owner=reinterpret_cast<void*(__fastcall*)()>(image+0x4036820)();
@@ -173,15 +183,23 @@ static void* __fastcall backgroundHook(void* self){
     backgroundViewModel=reinterpret_cast<uintptr_t>(self);backgroundVtable=get<uintptr_t>(backgroundViewModel);
     const auto slot=FrontendStadiumStatus.slot;
     const auto page=frontend_stadium::pageKind(image,read);
-    const bool menuPage=page==frontend_stadium::PageKind::Menu;
-    const bool validRoute=sceneReady&&activeMode&&setting(L"enabled",0)&&activeSlot()==static_cast<int>(slot);
+    const bool menuPage=frontend_stadium::isBackgroundPage(page);
+    int nativeState=-1;const auto nativeService=nativeCommands(&nativeState);
+    const bool nativeBusy=nativeService&&nativeState!=0&&nativeState!=12;
+    const bool pending=awaitingReload||stageRequest!=0||nativeBusy;
+    const bool stadiumSettled=frontend_stadium::photographRefreshReady(pending,sceneReady,nativeState,GetTickCount64()-lastRouteComplete);
+    const bool validRoute=stadiumSettled&&activeMode&&frontend_stadium::enabledForPage(setting(L"enabled",0)!=0,page)&&activeSlot()==static_cast<int>(slot);
     const bool transition=page==frontend_stadium::PageKind::Transition;
-    const auto photograph=frontend_stadium::photographPolicy(menuPage,bootComplete,awaitingReload||stageRequest!=0,sceneReady,validRoute,transition);
+    const auto photograph=frontend_stadium::photographPolicy(menuPage,bootComplete,pending,sceneReady,validRoute,transition);
     if(provider&&!stopping&&photograph!=frontend_stadium::Photograph::Original){
         const auto text=get<uintptr_t>(reinterpret_cast<uintptr_t>(self)+0x168);
         char previous[64]{};
         if(read(text,previous,sizeof previous-1))std::memcpy(FrontendStadiumStatus.previousImage,previous,sizeof previous);
-        if(photograph==frontend_stadium::Photograph::Stadium&&menuScene()&&frontend_stadium::routePhotograph(provider,
+        // This native background component is also used while Career is
+        // replacing the initial FIFA scene. Its 3D scene predicate can be
+        // false for a frame during that handoff; gating the image route on it
+        // restored BOOTFLOW after the custom stadium had already settled.
+        if(photograph==frontend_stadium::Photograph::Stadium&&frontend_stadium::routePhotograph(provider,
             reinterpret_cast<frontend_stadium::SetProviderString>(image+0x4c174d0),
             reinterpret_cast<const char*>(image+0x21c3fe8))){
             FrontendStadiumStatus.photoHidden++;
@@ -246,10 +264,16 @@ static DWORD prepare(int team,int slot,int career,int session){
 static void __fastcall loadHook(void* self,const void* context){
     const auto original=reinterpret_cast<Prepare>(image+0x4361970);
     alignas(16) std::array<unsigned char,0x110> copy{};
-    if(stopping||!activeMode||!setting(L"enabled",0)||!read(reinterpret_cast<uintptr_t>(context),copy.data(),copy.size())){
+    if(stopping||!activeMode||!stadiumEnabled()||!read(reinterpret_cast<uintptr_t>(context),copy.data(),copy.size())){
         original(self,context);return;
     }
     const int slot=static_cast<int>(FrontendStadiumStatus.slot);
+    {
+        AcquireSRWLockShared(&gate);
+        const bool restored=awaitingReload&&playerScene.restore(copy,static_cast<int>(FrontendStadiumStatus.team),uiContext().epoch,activeCareerRole());
+        ReleaseSRWLockShared(&gate);
+        if(restored)log("PLAYER_CAREER_LOAD_CONTEXT_PRESERVED",static_cast<int>(FrontendStadiumStatus.team),frontend_stadium::PlayerScene::integer(copy,0xdc));
+    }
     frontend_stadium::routeContext(copy,slot);
     log("LOAD_SAME_ROUTE",static_cast<int>(FrontendStadiumStatus.team),slot);
     original(self,copy.data());
@@ -331,8 +355,9 @@ static void pollReload(){
     lastProbe=now;
     if(!TryAcquireSRWLockExclusive(&gate))return;
     const auto page=frontend_stadium::pageKind(image,read);
-    const bool allowedPage=page==frontend_stadium::PageKind::Menu;
-    if(frontend_stadium::refreshOnMenuReturn(previousPage,page,sceneReady,setting(L"enabled",0)!=0))photoDirty=true;
+    const bool allowedPage=frontend_stadium::isBackgroundPage(page);
+    const bool enabled=frontend_stadium::enabledForPage(setting(L"enabled",0)!=0,page);
+    if(frontend_stadium::refreshOnMenuReturn(previousPage,page,sceneReady,enabled))photoDirty=true;
     previousPage=page;
     if(allowedPage)bootComplete=true;
     if(!allowedPage&&!awaitingReload){ReleaseSRWLockExclusive(&gate);return;}
@@ -347,9 +372,9 @@ static void pollReload(){
         InterlockedExchange(&stageRequest,0);InterlockedExchange(&stageComplete,0);
         sceneReady=false;photoDirty=true;
         backgroundViewModel=backgroundVtable=0;observedEpoch=career?epoch:0;
+        if(!playerScene.matches(team,epoch,activeCareerRole()))playerScene.clear();
         if(newCareer){careerSession=static_cast<int>(now&0x7fffffff);log("CAREER_EPOCH_RESET",team,static_cast<int>(epoch));}
     }
-    const int enabled=setting(L"enabled",0);
     if(!enabled){
         if(observedEnabled!=0||contextChanged||observedTeam!=team){
             activeMode=0;awaitingReload=false;observedTeam=team;
@@ -387,7 +412,7 @@ static void pollReload(){
     if(!allowedPage){ReleaseSRWLockExclusive(&gate);return;}
     const int revision=setting(L"reload_revision",0);
     wchar_t chosen[512]{};selection(team,chosen,_countof(chosen));
-    if(team>0&&setting(career?L"career":L"favorite_team",1)&&
+    if(team>0&&(frontend_stadium::forcesStadium(page)||setting(career?L"career":L"favorite_team",1))&&
        (team!=observedTeam||static_cast<int>(career)!=observedCareer||revision!=observedRevision||std::wcscmp(chosen,observedSelection))){
         observedTeam=stageTeam=team;observedCareer=stageCareer=career?1:0;
         observedRevision=stageRevision=revision;
@@ -442,10 +467,12 @@ static void* __fastcall sceneFrameHook(){
 }
 static void __fastcall hook(void* self,const void* context){
     const auto original=reinterpret_cast<Prepare>(image+kPrepare);
-    if(stopping||!setting(L"enabled",0)){activeMode=0;sceneReady=false;photoDirty=true;original(self,context);return;}
+    const auto page=currentPage();
+    const bool forced=frontend_stadium::forcesStadium(page);
+    if(stopping||!frontend_stadium::enabledForPage(setting(L"enabled",0)!=0,page)){activeMode=0;sceneReady=false;photoDirty=true;original(self,context);return;}
     bool career=false;const int team=club(&career);
     updateCareerContext(career,team);
-    if(team<=0||team>2000000||!setting(career?L"career":L"favorite_team",1)){activeMode=0;original(self,context);return;}
+    if(team<=0||team>2000000||(!forced&&!setting(career?L"career":L"favorite_team",1))){activeMode=0;original(self,context);return;}
     alignas(16) std::array<unsigned char,0x110> copy{};
     if(!read(reinterpret_cast<uintptr_t>(context),copy.data(),copy.size())){activeMode=0;original(self,context);return;}
     AcquireSRWLockExclusive(&gate);
@@ -457,6 +484,10 @@ static void __fastcall hook(void* self,const void* context){
     wchar_t chosen[512]{};selection(team,chosen,_countof(chosen));
     const int revision=setting(L"reload_revision",0);
     const auto epoch=uiContext().epoch;
+    const int role=career?activeCareerRole():-1;
+    if(awaitingReload){
+        if(playerScene.restore(copy,team,epoch,role))log("PLAYER_CAREER_PREPARE_CONTEXT_PRESERVED",team,frontend_stadium::PlayerScene::integer(copy,0xdc));
+    }else playerScene.capture(copy,team,epoch,role);
     const bool staged=stageRequest&&stageComplete==stageRequest&&stageTeam==team&&stageCareer==static_cast<int>(career)&&stageRevision==revision&&!std::wcscmp(chosen,stageSelection)&&frontend_stadium::sameCareerRoute(career,stageEpoch,epoch);
     // Opening the panorama can request the FE scene again. Reuse the route
     // that is already loaded for this club/choice; do not briefly replace it

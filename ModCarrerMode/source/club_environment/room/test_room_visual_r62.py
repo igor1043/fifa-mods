@@ -39,10 +39,27 @@ def open_room():
     for i in range(5):modal.set('row'+str(i),Object({'label':Object(),'highlight':Object(),'head233605':Object(),'head213629':Object()}))
     for button in ('sceneButton','playersButton','freeButton'):
         screen.get(button).set('label',Object());screen.get(button).set('highlight',Object())
+    vm.global_.set('Server16ActiveCareerClubId',1043)
     vm.invoke(klass,screen);vm.invoke(screen.get('WaitForSceneClips'),screen)
     return vm,screen,calls,saved_scope,apt
 
 class VisualRoomTests(unittest.TestCase):
+    def test_previous_career_header_cannot_reappear_on_return_from_roster_or_camera(self):
+        vm,screen,_,_,_=open_room()
+        self.assertTrue(screen.get('roomHeader').get('_visible'))
+        vm.global_.set('Server16ActiveCareerClubId',567)
+        vm.invoke(screen.get('RefreshRoomIdentity'),screen)
+        self.assertFalse(screen.get('roomHeader').get('_visible'))
+        vm.invoke(screen.get('OpenPlayers'),screen)
+        vm.invoke(screen.get('RoomPlayersBack'),screen)
+        self.assertFalse(screen.get('roomHeader').get('_visible'))
+        vm.invoke(screen.get('OpenFreeCamera'),screen)
+        vm.invoke(screen.get('CloseFreeCamera'),screen)
+        self.assertFalse(screen.get('roomHeader').get('_visible'))
+        vm.global_.set('Server16ActiveCareerClubId',1043)
+        vm.invoke(screen.get('RefreshRoomIdentity'),screen)
+        self.assertTrue(screen.get('roomHeader').get('_visible'))
+
     def test_free_camera_is_third_action_and_back_returns_without_unloading_room(self):
         vm,screen,calls,scope,_=open_room()
         vm.invoke(screen.get('LocalEventHandler'),screen,[14,True])
@@ -141,7 +158,7 @@ class VisualRoomTests(unittest.TestCase):
         vm.invoke(screen.get('OpenPlayers'),screen)
         self.assertTrue(screen.get('roomPlayersOpen'))
 
-    def test_original_help_footer_moves_below_cards_only_while_roster_is_open(self):
+    def test_original_help_footer_stays_below_actions_until_room_exit(self):
         vm,screen,calls,_,_=open_room()
         display=Object({'mcHelpItemsHolder':Object({'_y':940}),'mcTextScroller':Object({'_y':942})})
         vm.path('game.globalClasses.HelpManager').set('mcHelpDisplay',display)
@@ -150,8 +167,8 @@ class VisualRoomTests(unittest.TestCase):
         self.assertEqual(display.get('mcTextScroller').get('_y'),1030)
         vm.invoke(screen.get('RefreshRosterHelp'),screen)
         vm.invoke(screen.get('RoomPlayersBack'),screen)
-        self.assertEqual(display.get('mcHelpItemsHolder').get('_y'),940)
-        self.assertEqual(display.get('mcTextScroller').get('_y'),942)
+        self.assertEqual(display.get('mcHelpItemsHolder').get('_y'),1030)
+        self.assertEqual(display.get('mcTextScroller').get('_y'),1030)
         vm.invoke(screen.get('OpenPlayers'),screen)
         vm.invoke(screen.get('OnExitScreen'),screen)
         self.assertEqual(display.get('mcHelpItemsHolder').get('_y'),940)

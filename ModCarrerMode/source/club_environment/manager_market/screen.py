@@ -8,12 +8,13 @@ import native_screen as native
 import manager_layout
 import profile_layout
 import profile_controller,profile_art
-import asset_cache,club_portraits,prepared_catalogue,template_renderer,market_footer
-from manager_layout import assets_for,scenes_for,stars,TABS,MAIN,club_xy,free_xy,move_xy,PAGE_SIZE,MOVE_TOP,MOVE_HEIGHT,PAGER_Y
+import asset_cache,club_portraits,prepared_catalogue,template_renderer,market_footer,club_history_ui
+from profile_request import RESUME
+from manager_layout import TAB_W,TAB_STEP,assets_for,scenes_for,stars,TABS,MAIN,club_xy,free_xy,move_xy,PAGE_SIZE,MOVE_TOP,MOVE_HEIGHT,PAGER_Y
 
 CLASS=('game','screens','career','server16','ManagerMarket');FULL='.'.join(CLASS)
-UI_SIGNATURE=hashlib.sha256(Path(__file__).read_bytes()+b''.join(Path(m.__file__).read_bytes() for m in (manager_layout,profile_layout,profile_controller,profile_art,asset_cache,club_portraits,prepared_catalogue,template_renderer,market_footer,native,b,bank_art))).hexdigest()
-GEOMETRY_SIGNATURE=hashlib.sha256(b''.join(Path(m.__file__).read_bytes() for m in (manager_layout,profile_layout,profile_art,native,b,bank_art))).hexdigest()
+UI_SIGNATURE=hashlib.sha256(Path(__file__).read_bytes()+b''.join(Path(m.__file__).read_bytes() for m in (manager_layout,profile_layout,profile_controller,profile_art,asset_cache,club_portraits,prepared_catalogue,template_renderer,market_footer,club_history_ui,native,b,bank_art))).hexdigest()
+GEOMETRY_SIGNATURE=hashlib.sha256(b''.join(Path(m.__file__).read_bytes() for m in (manager_layout,profile_layout,profile_art,club_history_ui,native,b,bank_art))).hexdigest()
 R=b.reg;T=b.this;P=b.prop;EQ=b.equal;CALL=b.call;PATH=b.path;M=b.MANAGER;ION=b.ION
 def arr(v):return ('array',tuple(v))
 
@@ -25,6 +26,7 @@ def packed_array(values,schemas):
  return CALL(R(1),'ReadRecord'+str(index),'\x1c'.join('' if v==arr([]) else str(v) for v in values))
 
 def profile_payload(person):
+ if person.get('profilePending'):return ''
  # Store data as strings in the APT constant pool, not 2,000 generated
  # functions. Only the selected CV is decoded by the bounded controller.
  def flat(values):
@@ -59,6 +61,9 @@ def script_factory(model,assets):
   operations=[('hide','scene'+str(i),n['name']) for i,s in enumerate(scenes) for n in s['nodes'] if n['type']=='image' and n.get('name') and not n.get('native_group')]
   for key,rows in (('clubs',model['clubRows']),('free',model['freeRows']),('moves',model['moveRows']),('hires',model['hireRows'])):operations.extend(('row',key,row) for row in rows)
   operations.extend(('profile','people',p) for p in model['people'])
+  history_clubs=model.get('historyClubRows',[[r[0],r[4],int(r[4].split('_')[1]),r[8]] for r in model['clubRows']])
+  operations.extend(('row','historyClubs',[native.fit(r[0],478,27),r[1],r[2],r[3]]) for r in history_clubs)
+  operations.extend(('row','timelineRows',r) for r in (model.get('clubHistory') or {}).get('rows',[]))
   operations.extend(('row','leagues',[l['id'],l['name'],l['country'],l['level'],l['image'],native.fit(l['country']+' · '+l['name'],260,18)]) for l in model['leagues'])
   operations.extend(('row','countries',[c['name'],c['flag']]) for c in model.get('countries',[]) or [dict(name='Aguardando carreira',flag='flag_0')])
   operations.extend(('row','months',m) for m in model.get('months',[]) or [[202601,'Janeiro 2026']]);operations.extend(('value','nations',v) for v in model['nationalities'])
@@ -66,8 +71,11 @@ def script_factory(model,assets):
   def ctor(a):
    a.op(89);a.reg(2);a.op(118);a.op(93);a.do(M('ScreenManager'),'SetOnExitScreenCallback',CALL(PATH('cafe','utility','Delegate'),'Create',R(1),T('OnExitScreen')));a.do(R(1),'Initialize',FULL,None,True)
    a.set(R(1),'_visible',True);a.set(R(1),'_alpha',100);a.set(R(1),'screenReady',False);a.set(R(1),'staticData',CALL(ION,'GetScreenStaticData'));a.set(R(1),'navEvents',CALL(ION,'GetEvents','Navigation'))
-   for key,value in dict(tab=0,page=0,country=model.get('initialCountry',0),league=model.get('initialLeague',0),movementCountry=initial_country,movementLeague=initial_league,yearMenu=False,dragScroll=0,month=model.get('initialMonth',0),hirePage=0,movePage=0,age=0,nation=0,profile=False,person=0,profileTab=0,profileVenue=0,historyPage=0,focus=0,frames=0,monthInputFrame=-100,monthInputCommand=-1).items():a.set(R(1),key,value)
-   for key in ('clubs','free','moves','hires','people','leagues','countries','months','nations','rendered','profileLoaded'):a.set(R(1),key,arr([]))
+   defaults=dict(tab=0,page=0,country=model.get('initialCountry',0),league=model.get('initialLeague',0),movementCountry=initial_country,movementLeague=initial_league,yearMenu=False,dragScroll=0,month=model.get('initialMonth',0),hirePage=0,movePage=0,age=0,nation=0,profile=False,person=0,profileTab=0,profileVenue=0,historyPage=0,focus=0,frames=0,marketEnabled=bool(model.get('settings',{}).get('enabled',True)),cadenceIndex=(1,7,30).index(model.get('settings',{}).get('cadence',1)),settingsSerial=0,settingsPending=False,clubTimeline=bool(model.get('clubHistory')),historyPending=False,timelinePage=0,mouseIsDown=False,pagerInputFrame=-100,pagerInputCommand=-1,monthInputFrame=-100,monthInputCommand=-1)
+   defaults.update(model.get('resume',{}))
+   for key,value in defaults.items():a.set(R(1),key,value)
+   a.set(R(1),'profileRequested',arr([]))
+   for key in ('clubs','free','moves','hires','people','leagues','countries','months','nations','rendered','profileLoaded','historyClubs','timelineRows'):a.set(R(1),key,arr([]))
    a.set(R(1),'dataStep',0);a.set(R(1),'dataReady',False);a.set(R(1),'onEnterFrame',T('DataFrame'));a.do(PATH('Mouse'),'addListener',R(1))
   a.function(CLASS[-1],0,ctor,True);a.expr(PATH(*CLASS));a.expr(PATH('ion','screen','BaseScreen'));a.op(105)
   def decode_fields(a):
@@ -87,11 +95,22 @@ def script_factory(model,assets):
   a.function('DecodeRows',1,decode_rows)
   def ensure_profile(a):
    a.when(ix(T('profileLoaded'),T('person')),lambda a:a.ret())
+   if model.get('lazyProfiles'):
+    def request_profile(a):
+     a.when(('not',ix(T('profileRequested'),T('person'))),lambda a:(a.do(R(1),'RequestProfile',T('person')),a.expr(T('profileRequested')),a.expr(T('person')),a.expr(True),a.op(79)))
+     a.ret()
+    a.when(EQ(ix(ix(T('people'),T('person')),28),''),request_profile)
    target=ix(T('people'),T('person'));a.set(R(1),'profileParts',CALL(ix(target,28),'split','\x1d'))
    for col,part,nested in ((7,0,False),(8,1,False),(24,2,True),(25,3,True),(23,4,False),(26,5,False),(27,6,True)):
     a.expr(target);a.expr(col);a.expr(CALL(R(1),'DecodeRows' if nested else 'DecodeFields',ix(T('profileParts'),part)));a.op(79)
    a.expr(T('profileLoaded'));a.expr(T('person'));a.expr(True);a.op(79)
   a.function('EnsureProfile',0,ensure_profile)
+  def request_profile(a):
+   wire=add('S16MGRP1|'+model.get('profileToken','')+'|',R(2))
+   for key in RESUME:wire=add(add(wire,'|'),T(key))
+   wire=add(wire,'|END')
+   a.do(ION,'SendSystemEvent',P(T('staticData'),'SCREEN_CONTROLLER_ID'),'Server16ManagerProfile',wire)
+  a.function('RequestProfile',1,request_profile)
   schemas={}
   for batch_index,batch in enumerate(batches):
    def append_batch(a,batch=batch):
@@ -119,7 +138,7 @@ def script_factory(model,assets):
    a.function('ReadRecord'+str(index),1,read_record)
   def data_frame(a):
    a.when(('not',P(T('scene1'),'profileCaption')),lambda a:a.ret())
-   for i in (0,1,3,4):a.set(T('scene'+str(i)),'_visible',False)
+   for i in (0,1,3,4,5,6,7):a.set(T('scene'+str(i)),'_visible',False)
    a.set(T('scene2'),'_visible',True);a.set(P(T('scene2'),'progress'),'text',add('Preparando os dados: ',add(floor(div(mul(T('dataStep'),100),len(batches))),'%')))
    # Two bounded dispatches per frame; each inner callback retains the original
    # conservative 128-value stack budget. Never build a giant literal array.
@@ -140,11 +159,11 @@ def script_factory(model,assets):
   def wait(a):
    a.when(either(('not',T('dataReady')),T('inputBound')),lambda a:a.ret());a.when(('not',P(T('scene1'),'profileCaption')),lambda a:a.ret());a.set(R(1),'inputBound',True)
    date=str(model['date']);meta=model['clubName']+' · '+date[6:8]+'/'+date[4:6]+'/'+date[:4]+' · Salários em moeda da carreira' if model.get('ready') else 'Aguardando os dados da carreira aberta...'
-   for i in MAIN:a.set(P(T('scene'+str(i)),'careerMeta'),'text',meta)
+   for i in (*MAIN,7):a.set(P(T('scene'+str(i)),'careerMeta'),'text',meta)
    for i,s in enumerate(scenes):
     for j,action in enumerate(s['actions']):
      btn=P(T('scene'+str(i)),'action'+str(j));a.set(btn,'owner',R(1));a.set(btn,'code',int(action['target']));a.set(btn,'onRelease',None);a.set(btn,'onRollOver',None)
-     if 200<=int(action['target'])<=202:
+     if 200<=int(action['target'])<=203:
       a.set(btn,'onPress',T('ScrollPress'));a.set(btn,'onRelease',T('ScrollRelease'));a.set(btn,'onReleaseOutside',T('ScrollRelease'))
    a.set(R(1),'onEnterFrame',T('ScrollFrame'));a.do(M('InputManager'),'SetLocalEventHandler',CALL(PATH('cafe','utility','Delegate'),'Create',R(1),T('LocalEventHandler')));a.do(R(1),'Refresh');a.do(M('ScreenManager'),'BeginAnimateIn',CALL(PATH('cafe','utility','Delegate'),'Create',R(1),T('OnAnimateInComplete')));a.do(R(1),'OnAnimateInComplete')
   a.function('Wait',0,wait)
@@ -209,6 +228,7 @@ def script_factory(model,assets):
     for j in range(4):
      i=panel*4+j;idx=add(T(key),j);r=ix(T(rows),idx);p=ix(T('people'),ix(r,7));present=lt(idx,P(T(rows),'length'));x,y=move_xy(i)
      for name,value in (('club',ix(r,0)),('coach',ix(r,1)),('nationality',ix(p,22)),('date',ix(r,10)),('status',status if panel==0 else ix(r,3))):field(a,root,name+str(i),value,present)
+     if panel==0:a.when(both(present,lt(12,P(r,'length'))),lambda a,i=i,r=r:field(a,root,'status'+str(i),ix(r,12),True))
      def row(a,j=j,r=r,p=p,x=x,y=y,prefix=prefix):
       show(a,root,add(prefix,ix(r,4)),x+25,y+14);portrait(a,root,prefix,r,j,x+284,y+10);rating(a,root,prefix,r,j,x+101,y+61);nationality(a,root,prefix,p,j,x+374,y+47)
      a.when(present,row)
@@ -229,6 +249,17 @@ def script_factory(model,assets):
     a.when(present,lambda a,i=i,r=r,p=p,x=x,y=y:(portrait(a,root,'f_',r,i,x+16,y+12),rating(a,root,'f_',r,i,x+14,y+153),nationality(a,root,'f_',p,i,x+170,y+64)))
    dots(a,root,'page',T('pageCount'),'',1100)
    field(a,root,'pageText',pagetext('page',add(P(T('filtered'),'length'),' técnicos · Reputação da maior para a menor')));field(a,root,'empty','Nenhum técnico para os filtros selecionados.',EQ(P(T('filtered'),'length'),0))
+  def refresh_settings(a):
+   root=T('scene5');field(a,root,'marketState',CALL(R(1),'MarketStateLabel'));field(a,root,'cadenceName',ix(arr(('Diário','Semanal','Mensal')),T('cadenceIndex')));field(a,root,'cadenceHelp',ix(arr(('Decisões avaliadas todos os dias, como no padrão atual.','Decisões agrupadas por semana do calendário da carreira.','Decisões agrupadas por mês do calendário da carreira.')),T('cadenceIndex')))
+   a.when(T('marketEnabled'),lambda a:show(a,root,'marketSwitchOn',1575,407),lambda a:show(a,root,'marketSwitchOff',1575,407));field(a,root,'settingsFeedback',CALL(R(1),'SettingsFeedback'))
+  a.function('MarketStateLabel',0,lambda a:a.when(T('marketEnabled'),lambda a:a.ret('Ativo'),lambda a:a.ret('Desativado')))
+  a.function('SettingsFeedback',0,lambda a:a.when(T('settingsPending'),lambda a:a.ret('Salvando preferências...'),lambda a:a.ret(model.get('settingsError') or 'Preferências salvas para este usuário.')))
+  a.function('RefreshSettings',0,refresh_settings)
+  def request_settings(a):
+   a.set(R(1),'settingsSerial',add(T('settingsSerial'),1));a.set(R(1),'settingsPending',True)
+   wire=add('S16MGRS1|'+model.get('profileToken','')+'|',mul(T('marketEnabled'),1));wire=add(add(wire,'|'),T('cadenceIndex'));wire=add(add(wire,'|'),T('settingsSerial'));wire=add(wire,'|END');a.do(ION,'SendSystemEvent',P(T('staticData'),'SCREEN_CONTROLLER_ID'),'Server16ManagerSettings',wire)
+  a.function('RequestSettings',0,request_settings)
+  club_history_ui.emit(a,model,scenes,R=R,T=T,P=P,ix=ix,add=add,sub=sub,mul=mul,div=div,lt=lt,EQ=EQ,both=both,clamp=clamp,CALL=CALL,PATH=PATH,arr=arr,loop=loop,field=field,show=show,pages=pages,dots=dots,club_xy=club_xy)
   a.function('DotState',1,lambda a:a.when(EQ(T('page'),R(2)),lambda a:a.ret('On'),lambda a:a.ret('Off')))
   a.function('RefreshClubs',0,clubs);a.function('RefreshMovements',0,movements);a.function('RefreshFree',0,frees);a.function('RefreshProfile',0,profile)
   def refresh(a):
@@ -236,10 +267,19 @@ def script_factory(model,assets):
    for i in range(len(scenes)):a.set(T('scene'+str(i)),'_visible',False)
    if not model.get('ready'):
     a.set(T('scene2'),'_visible',True);a.set(P(T('scene2'),'progress'),'text','Preparando os dados da carreira aberta. Aguarde...');a.do(M('HelpManager'),'Update');market_footer.apply(a);a.ret();return
-   a.when(T('profile'),lambda a:(a.set(T('scene1'),'_visible',True),a.do(R(1),'RefreshProfile'),a.do(M('HelpManager'),'Update'),market_footer.apply(a),a.ret()))
+   def show_profile(a):
+    if model.get('lazyProfiles'):
+     a.do(R(1),'EnsureProfile')
+     a.when(('not',ix(T('profileLoaded'),T('person'))),lambda a:(a.set(T('scene2'),'_visible',True),a.set(P(T('scene2'),'progress'),'text',add('Consultando histórico de ',ix(ix(T('people'),T('person')),0))),a.do(M('HelpManager'),'Update'),market_footer.apply(a),a.ret()))
+    a.set(T('scene1'),'_visible',True);a.do(R(1),'RefreshProfile');a.do(M('HelpManager'),'Update');market_footer.apply(a);a.ret()
+   a.when(T('profile'),show_profile)
+   def show_timeline(a):
+    a.when(T('historyPending'),lambda a:(a.set(T('scene2'),'_visible',True),field(a,T('scene2'),'progress','Consultando os técnicos e títulos deste clube...'),a.ret()))
+    a.set(T('scene7'),'_visible',True);a.do(R(1),'RefreshClubTimeline');a.do(M('HelpManager'),'Update');market_footer.apply(a);a.ret()
+   a.when(T('clubTimeline'),show_timeline)
    root=ix(R(1),add('scene',ix(arr(MAIN),T('tab'))));a.set(root,'_visible',True);a.set(R(1),'mainClip',root)
-   for tab in range(3):show(a,root,'tabMark'+str(tab),96+tab*580,203);a.set(P(root,'tabMark'+str(tab)),'_visible',EQ(T('tab'),tab))
-   for tab,method in enumerate(('RefreshClubs','RefreshMovements','RefreshFree')):a.when(EQ(T('tab'),tab),lambda a,method=method:a.do(R(1),method))
+   for tab in range(len(TABS)):show(a,root,'tabMark'+str(tab),96+tab*TAB_STEP,203);a.set(P(root,'tabMark'+str(tab)),'_visible',EQ(T('tab'),tab))
+   for tab,method in enumerate(('RefreshClubs','RefreshMovements','RefreshFree','RefreshSettings','RefreshHistoryClubs')):a.when(EQ(T('tab'),tab),lambda a,method=method:a.do(R(1),method))
    a.set(R(1),'focusable',arr([]))
    for tab,scene in enumerate(MAIN):
     def buttons(a,scene=scene):
@@ -252,7 +292,7 @@ def script_factory(model,assets):
       elif 100<=cmd<=115:visible=both(lt(cmd-100,T('pageCount')),lt(T('pageCount'),17))
       elif 120<=cmd<=155:
        count=P(T('monthHires' if cmd<140 else 'monthMoves'),'length');dots_count=CALL(PATH('Math'),'ceil',div(count,4));visible=both(lt((cmd-120)%20,dots_count),lt(dots_count,17))
-      elif cmd>=300:visible=T('yearMenu')
+      elif 300<=cmd<400:visible=T('yearMenu')
       elif cmd in (200,201):visible=lt(4,P(T('monthHires' if cmd==200 else 'monthMoves'),'length'))
       btn=P(T('scene'+str(scene)),'action'+str(j))
       if cmd in (51,53,55):
@@ -271,6 +311,9 @@ def script_factory(model,assets):
   a.function('Refresh',0,refresh)
   def command(a):
    code=R(2)
+   paging=either(both(lt(49,code),lt(code,56)),either(EQ(code,581),EQ(code,582)))
+   a.when(both(paging,both(EQ(T('pagerInputCommand'),code),lt(sub(T('frames'),T('pagerInputFrame')),6))),lambda a:a.ret())
+   a.when(paging,lambda a:(a.set(R(1),'pagerInputFrame',T('frames')),a.set(R(1),'pagerInputCommand',code)))
    a.when(both(either(EQ(code,30),EQ(code,31)),both(EQ(T('monthInputCommand'),code),lt(sub(T('frames'),T('monthInputFrame')),6))),lambda a:a.ret())
    a.when(either(EQ(code,30),EQ(code,31)),lambda a:(a.set(R(1),'monthInputFrame',T('frames')),a.set(R(1),'monthInputCommand',code)))
    if not model.get('ready'):
@@ -278,7 +321,13 @@ def script_factory(model,assets):
    a.when(both(T('profile'),both(lt(79,code),lt(code,85))),lambda a:(a.set(R(1),'profileTab',sub(code,80)),a.set(R(1),'historyPage',0)))
    for c,step in ((90,1),(91,-1)):a.when(both(T('profile'),EQ(code,c)),lambda a,step=step:a.set(R(1),'profileVenue',wrap(add(T('profileVenue'),step),3)))
    a.when(both(EQ(code,1),('not',EQ(T('tab'),1))),lambda a:(a.set(R(1),'movementCountry',initial_country),a.set(R(1),'movementLeague',initial_league)))
-   a.when(lt(code,3),lambda a:(a.set(R(1),'tab',code),a.set(R(1),'profile',False),a.set(R(1),'page',0),a.set(R(1),'focus',code),a.set(R(1),'yearMenu',False)))
+   a.when(lt(code,len(TABS)),lambda a:(a.set(R(1),'tab',code),a.set(R(1),'clubTimeline',False),a.set(R(1),'historyPending',False),a.set(R(1),'profile',False),a.set(R(1),'page',0),a.set(R(1),'focus',code),a.set(R(1),'yearMenu',False)))
+   a.when(both(('not',T('profile')),EQ(code,400)),lambda a:(a.set(R(1),'marketEnabled',('not',T('marketEnabled'))),a.do(R(1),'RequestSettings')))
+   for setting_code,step in ((401,-1),(402,1),(403,1)):
+    a.when(both(('not',T('profile')),EQ(code,setting_code)),lambda a,step=step:(a.set(R(1),'cadenceIndex',wrap(add(T('cadenceIndex'),step),3)),a.do(R(1),'RequestSettings')))
+   for c,step in ((581,-1),(582,1)):
+    a.when(EQ(code,c),lambda a,step=step:a.set(R(1),'timelinePage',clamp(add(T('timelinePage'),step),0,sub(T('timelinePageCount'),1))))
+   a.when(EQ(code,583),lambda a:(a.set(R(1),'clubTimeline',False),a.set(R(1),'historyPending',False),a.set(R(1),'focus',40)))
    for c,step in ((10,-1),(11,1)):
     def country(a,step=step):
      a.set(R(1),'country',wrap(add(T('country'),step),P(T('countries'),'length')));a.set(R(1),'foundLeague',False);a.set(R(1),'page',0)
@@ -306,19 +355,26 @@ def script_factory(model,assets):
    a.when(T('yearMenu'),lambda a:a.set(R(1),'focus',add(300,sub(floor(div(ix(ix(T('months'),T('month')),0),100)),years[0]))))
    for c,step in ((30,-1),(31,1)):a.when(EQ(code,c),lambda a,step=step:(a.set(R(1),'month',clamp(add(T('month'),step),0,sub(P(T('months'),'length'),1))),a.set(R(1),'hirePage',0),a.set(R(1),'movePage',0)))
    for c,key,step,size in ((34,'age',-1,6),(35,'age',1,6),(36,'nation',-1,P(T('nations'),'length')),(37,'nation',1,P(T('nations'),'length'))):a.when(EQ(code,c),lambda a,key=key,step=step,size=size:(a.set(R(1),key,wrap(add(T(key),step),size)),a.set(R(1),'page',0)))
+   for slot in range(3):
+    a.when(both(T('clubTimeline'),EQ(code,540+slot)),lambda a,slot=slot:(a.set(R(1),'person',ix(ix(T('timelineRows'),add(T('timelinePage'),slot)),11)),a.set(R(1),'profile',True),a.set(R(1),'profileTab',0),a.set(R(1),'historyPage',0)))
    for i in range(9):
     def open_person(a,i=i):
+     a.when(EQ(T('tab'),4),lambda a:(a.do(R(1),'RequestClubHistory',ix(ix(T('filtered'),add(mul(T('page'),PAGE_SIZE),i)),2)),a.ret()))
      a.set(R(1),'selectedRow',ix(T('filtered'),add(mul(T('page'),PAGE_SIZE),i)))
      a.when(EQ(T('tab'),1),lambda a:a.set(R(1),'selectedRow',ix(T('monthHires' if i<4 else 'monthMoves'),add(T('hirePage' if i<4 else 'movePage'),i%4))))
      a.when(T('selectedRow'),lambda a:(a.set(R(1),'person',ix(T('selectedRow'),7)),a.set(R(1),'profile',True),a.set(R(1),'profileTab',0),a.set(R(1),'profileVenue',0),a.set(R(1),'historyPage',0)))
     a.when(EQ(code,40+i),open_person)
    for c,key,step in ((50,'page',-1),(51,'page',1),(52,'hirePage',-1),(53,'hirePage',1),(54,'movePage',-1),(55,'movePage',1)):a.when(EQ(code,c),lambda a,key=key,step=step:a.set(R(1),key,clamp(add(T(key),step),0,sub(T(key+'Count'),1))))
    for c,step in ((70,-1),(71,1)):a.when(EQ(code,c),lambda a,step=step:a.set(R(1),'historyPage',clamp(add(T('historyPage'),step),0,sub(T('historyPages'),1))))
+   a.when(both(both(EQ(code,60),T('clubTimeline')),('not',T('profile'))),lambda a:(a.set(R(1),'clubTimeline',False),a.set(R(1),'historyPending',False),a.set(R(1),'focus',40),a.do(R(1),'Refresh'),a.ret()))
    a.when(both(EQ(code,60),T('yearMenu')),lambda a:(a.set(R(1),'yearMenu',False),a.set(R(1),'focus',38),a.do(R(1),'Refresh'),a.ret()))
-   a.when(EQ(code,60),lambda a:a.when(T('profile'),lambda a:a.set(R(1),'profile',False),lambda a:a.do(ION,'SendEvent',P(T('staticData'),'SCREEN_CONTROLLER_ID'),P(T('navEvents'),'BACK'),'')));a.do(R(1),'Refresh')
+   def back_profile(a):
+    if model.get('lazyProfiles'):a.do(R(1),'RequestProfile',-1)
+    a.set(R(1),'profile',False)
+   a.when(EQ(code,60),lambda a:a.when(T('profile'),back_profile,lambda a:a.do(ION,'SendEvent',P(T('staticData'),'SCREEN_CONTROLLER_ID'),P(T('navEvents'),'BACK'),'')));a.do(R(1),'Refresh')
   a.function('Command',1,command);a.function('Click',0,lambda a:a.do(P(R(1),'owner'),'Command',P(R(1),'code')));a.function('Over',0,lambda a:(a.set(P(R(1),'owner'),'focus',P(R(1),'code')),a.do(P(R(1),'owner'),'PaintFocus')))
   def paint_focus(a):
-   for scene in MAIN:
+   for scene in (*MAIN,7):
     for index,button in enumerate(scenes[scene]['actions']):a.set(P(P(T('scene'+str(scene)),'action'+str(index)),'selected'),'_alpha',mul(EQ(T('focus'),int(button['target'])),100))
   a.function('PaintFocus',0,paint_focus)
   # Screen-local hit rectangles work even when art covers the button clip.
@@ -333,9 +389,9 @@ def script_factory(model,assets):
       if activate:a.do(R(1),'Command',code)
       else:a.set(R(1),'focus',code);a.do(R(1),'PaintFocus')
       a.ret()
-     a.when(both(both(both(P(root,'_visible'),P(P(root,'action'+str(j)),'_visible')),('not',T('yearMenu')) if int(box['target'])<300 else T('yearMenu')),inside),hit)
+     a.when(both(both(both(P(root,'_visible'),P(P(root,'action'+str(j)),'_visible')),T('yearMenu') if 300<=int(box['target'])<400 else ('not',T('yearMenu'))),inside),hit)
   def drag_scroll(a):
-   for mode,key,top,height,visible,rows in ((1,'hirePage',MOVE_TOP,MOVE_HEIGHT,4,'monthHires'),(2,'movePage',MOVE_TOP,MOVE_HEIGHT,4,'monthMoves'),(3,'historyPage',315,530,3,'profileRows')):
+   for mode,key,top,height,visible,rows in ((1,'hirePage',MOVE_TOP,MOVE_HEIGHT,4,'monthHires'),(2,'movePage',MOVE_TOP,MOVE_HEIGHT,4,'monthMoves'),(3,'historyPage',315,530,3,'profileRows'),(4,'timelinePage',365,522,3,'timelineRows')):
     def drag(a,key=key,top=top,height=height,visible=visible,rows=rows):
      count=P(T(rows),'length');thumb=div(height*visible,CALL(PATH('Math'),'max',visible,count));span=CALL(PATH('Math'),'max',1,sub(height,thumb));limit=CALL(PATH('Math'),'max',0,sub(count,visible))
      target=floor(add(mul(clamp(div(sub(sub(T('_ymouse'),top),div(thumb,2)),span),0,1),limit),.5))
@@ -354,20 +410,28 @@ def script_factory(model,assets):
   def mouse_down(a):
    # FIFA can also forward the same mouse click as ADVANCE on release.
    # The screen-local hit test already dispatched it; swallow only that echo.
-   a.set(R(1),'mouseSelectFrames',4)
+   a.set(R(1),'mouseSelectFrames',4);a.set(R(1),'mouseIsDown',True)
    a.when(T('yearMenu'),lambda a:(pointer(a,True),a.ret()))
-   for mode,x,y,height,condition in ((1,945,MOVE_TOP,MOVE_HEIGHT,both(('not',T('profile')),EQ(T('tab'),1))),(2,1815,MOVE_TOP,MOVE_HEIGHT,both(('not',T('profile')),EQ(T('tab'),1))),(3,1824,315,530,both(T('profile'),either(either(EQ(T('profileTab'),1),EQ(T('profileTab'),2)),EQ(T('profileTab'),4))))):
+   for mode,x,y,height,condition in ((1,945,MOVE_TOP,MOVE_HEIGHT,both(('not',T('profile')),EQ(T('tab'),1))),(2,1815,MOVE_TOP,MOVE_HEIGHT,both(('not',T('profile')),EQ(T('tab'),1))),(3,1824,315,530,both(T('profile'),either(either(EQ(T('profileTab'),1),EQ(T('profileTab'),2)),EQ(T('profileTab'),4)))),(4,1824,365,522,both(T('clubTimeline'),('not',T('profile'))))):
     inside=both(both(lt(x-12,T('_xmouse')),lt(T('_xmouse'),x+14)),both(lt(y-5,T('_ymouse')),lt(T('_ymouse'),y+height+5)))
     a.when(both(condition,inside),lambda a,mode=mode:(a.set(R(1),'dragScroll',mode),a.do(R(1),'DragScroll'),a.ret()))
    pointer(a,True)
   a.function('onMouseDown',0,mouse_down)
   a.function('onMouseMove',0,lambda a:a.when(lt(0,T('dragScroll')),lambda a:a.do(R(1),'DragScroll'),lambda a:pointer(a,False)))
-  a.function('onMouseUp',0,lambda a:a.set(R(1),'dragScroll',0))
+  a.function('onMouseUp',0,lambda a:(a.set(R(1),'dragScroll',0),a.set(R(1),'mouseIsDown',False),a.set(R(1),'mouseSelectFrames',4)))
   def move(a):
    a.when(T('yearMenu'),lambda a:(a.when(either(EQ(R(2),2),EQ(R(2),3)),lambda a:a.set(R(1),'focus',clamp(add(T('focus'),sub(mul(EQ(R(2),3),2),1)),300,299+len(years)))),a.do(R(1),'Refresh'),a.ret()))
    a.when(T('profile'),lambda a:(a.when(EQ(T('profileTab'),0),lambda a:a.do(R(1),'Command',sub(91,EQ(R(2),3)))),a.when(either(either(EQ(T('profileTab'),1),EQ(T('profileTab'),2)),EQ(T('profileTab'),4)),lambda a:a.do(R(1),'Command',add(70,EQ(R(2),3)))),a.ret()))
    a.when(both(EQ(T('tab'),1),both(EQ(R(2),3),either(EQ(T('focus'),43),EQ(T('focus'),47)))),lambda a:(a.do(R(1),'Command',add(53,mul(2,EQ(T('focus'),47)))),a.ret()))
    a.when(both(EQ(T('tab'),1),both(EQ(R(2),2),either(both(EQ(T('focus'),40),lt(0,T('hirePage'))),both(EQ(T('focus'),44),lt(0,T('movePage')))))),lambda a:(a.do(R(1),'Command',add(52,mul(2,EQ(T('focus'),44)))),a.ret()))
+   a.when(T('clubTimeline'),lambda a:(a.do(R(1),'TimelineMove',R(2)),a.ret()))
+   def settings_move(a):
+    a.set(R(1),'settingsOldFocus',T('focus'));code=T('settingsOldFocus');direction=R(2)
+    a.when(lt(code,len(TABS)),lambda a:a.when(EQ(direction,3),lambda a:a.set(R(1),'focus',400),lambda a:a.when(lt(direction,2),lambda a:a.set(R(1),'focus',clamp(add(code,sub(mul(EQ(direction,1),2),1)),0,len(TABS)-1)))))
+    a.when(EQ(code,400),lambda a:a.set(R(1),'focus',CALL(R(1),'SettingsFocus',direction)))
+    a.when(either(either(EQ(code,401),EQ(code,402)),EQ(code,403)),lambda a:a.when(EQ(direction,2),lambda a:a.set(R(1),'focus',400),lambda a:a.when(lt(direction,2),lambda a:(a.do(R(1),'Command',add(401,EQ(direction,1))),a.set(R(1),'focus',403)))))
+    a.do(R(1),'Refresh');a.ret()
+   a.when(EQ(T('tab'),3),settings_move)
    for tab,scene in enumerate(MAIN):
     def navigate(a,tab=tab,scene=scene):
      buttons={int(v['target']):v for v in scenes[scene]['actions'] if int(v['target'])<200};a.set(R(1),'nextFocus',T('focus'))
@@ -379,8 +443,8 @@ def script_factory(model,assets):
         target=(code-1 if code>base else left) if direction==0 else (code+1 if code<base+15 else right) if direction==1 else (44 if base==140 else 40)
        elif code in (50,52,54) and direction==1:target=100 if code==50 else 120 if code==52 else 140
        elif code in (51,53,55) and direction==0:target=50 if code==51 else 52 if code==53 else 54
-       elif code<3:target=(10 if tab==0 else 30 if tab==1 else 36) if direction==3 else max(0,min(2,code+(-1 if direction==0 else 1))) if direction<2 else code
-       elif tab==0 and code in (10,11,20,21) and direction>=2:target=0 if direction==2 and code<20 else 10 if direction==2 else 20 if code<20 else 40
+       elif code<len(TABS):target=(10 if tab in (0,4) else 30 if tab==1 else 36) if direction==3 else max(0,min(len(TABS)-1,code+(-1 if direction==0 else 1))) if direction<2 else code
+       elif tab in (0,4) and code in (10,11,20,21) and direction>=2:target=0 if direction==2 and code<20 else 10 if direction==2 else 20 if code<20 else 40
        else:
         x,y=box['x']+box['w']/2,box['y']+box['h']/2;options=[]
         for dest,other in buttons.items():
@@ -397,18 +461,21 @@ def script_factory(model,assets):
      a.when(T('validNext'),lambda a:a.set(R(1),'focus',T('nextFocus')),fallback)
     a.when(EQ(T('tab'),tab),navigate)
    a.do(R(1),'Refresh')
+  a.function('SettingsFocus',1,lambda a:a.when(EQ(R(2),2),lambda a:a.ret(3),lambda a:a.when(EQ(R(2),3),lambda a:a.ret(403),lambda a:a.ret(400))))
+  a.function('SettingsSelectorFocus',1,lambda a:a.when(EQ(R(2),0),lambda a:a.ret(401),lambda a:a.ret(402)))
   a.function('Move',1,move)
-  a.function('onMouseWheel',1,lambda a:a.when(T('profile'),lambda a:a.when(lt(0,R(2)),lambda a:a.do(R(1),'Command',70),lambda a:a.do(R(1),'Command',71)),lambda a:a.when(EQ(T('tab'),1),lambda a:a.do(R(1),'Command',add(add(52,EQ(lt(0,R(2)),False)),mul(2,lt(43,T('focus'))))))))
+  a.function('onMouseWheel',1,lambda a:a.when(both(T('clubTimeline'),('not',T('profile'))),lambda a:a.do(R(1),'Command',add(581,EQ(lt(0,R(2)),False))),lambda a:a.when(T('profile'),lambda a:a.when(lt(0,R(2)),lambda a:a.do(R(1),'Command',70),lambda a:a.do(R(1),'Command',71)),lambda a:a.when(EQ(T('tab'),1),lambda a:a.do(R(1),'Command',add(add(52,EQ(lt(0,R(2)),False)),mul(2,lt(43,T('focus')))))))))
   def local(a):
+   a.when(T('historyPending'),lambda a:(a.when(EQ(R(2),P(M('InputCodes'),'BACK')),lambda a:a.do(R(1),'Command',60)),a.ret(True)))
    for key in ('BACK','ADVANCE','PRIMARY_SELECT','UP','DOWN','LAS_UP','LAS_DOWN','LEFT','RIGHT','LAS_LEFT','LAS_RIGHT','RAS_LEFT','RAS_RIGHT','RAS_UP','RAS_DOWN','OPTION_LEFT','OPTION_TOP','L1','R1','L2','R2'):
     def handle(a,key=key):
      if key=='BACK':a.do(R(1),'Command',60)
-     elif key in ('ADVANCE','PRIMARY_SELECT'):a.when(lt(0,T('mouseSelectFrames')),lambda a:a.ret(True));a.when(('not',T('profile')),lambda a:a.do(R(1),'Command',T('focus')))
+     elif key in ('ADVANCE','PRIMARY_SELECT'):a.when(either(T('mouseIsDown'),lt(0,T('mouseSelectFrames'))),lambda a:a.ret(True));a.when(('not',T('profile')),lambda a:a.do(R(1),'Command',T('focus')))
      elif key in ('UP','LAS_UP','DOWN','LAS_DOWN'):a.do(R(1),'Move',2 if key in ('UP','LAS_UP') else 3)
-     elif key in ('OPTION_LEFT','OPTION_TOP'):a.when(('not',T('profile')),lambda a:a.when(EQ(T('tab'),1),lambda a:a.do(R(1),'Command',add(52 if key=='OPTION_LEFT' else 53,mul(2,lt(43,T('focus'))))),lambda a:a.do(R(1),'Command',50 if key=='OPTION_LEFT' else 51)))
-     elif key.startswith('RAS_'):a.when(T('profile'),lambda a:a.do(R(1),'Command',70 if key in ('RAS_LEFT','RAS_UP') else 71),lambda a:a.when(EQ(T('tab'),1),lambda a:a.do(R(1),'Command',add(52 if key in ('RAS_LEFT','RAS_UP') else 53,mul(2,lt(43,T('focus'))))),lambda a:a.do(R(1),'Command',50 if key in ('RAS_LEFT','RAS_UP') else 51)))
-     elif key in ('L1','R1'):a.when(('not',T('profile')),lambda a:a.when(EQ(T('tab'),1),lambda a:a.do(R(1),'Command',30 if key=='L1' else 31),lambda a:a.do(R(1),'Command',50 if key=='L1' else 51)))
-     elif key in ('L2','R2'):a.when(T('profile'),lambda a:a.do(R(1),'Command',add(80,wrap(add(T('profileTab'),-1 if key=='L2' else 1),5))),lambda a:a.do(R(1),'Command',wrap(add(T('tab'),-1 if key=='L2' else 1),3)))
+     elif key in ('OPTION_LEFT','OPTION_TOP'):a.when(EQ(T('tab'),3),lambda a:a.ret(True));a.when(('not',T('profile')),lambda a:a.when(EQ(T('tab'),1),lambda a:a.do(R(1),'Command',add(52 if key=='OPTION_LEFT' else 53,mul(2,lt(43,T('focus'))))),lambda a:a.do(R(1),'Command',50 if key=='OPTION_LEFT' else 51)))
+     elif key.startswith('RAS_'):a.when(both(T('clubTimeline'),('not',T('profile'))),lambda a:(a.do(R(1),'Command',581 if key in ('RAS_LEFT','RAS_UP') else 582),a.ret(True)));a.when(EQ(T('tab'),3),lambda a:(a.do(R(1),'Command',401 if key in ('RAS_LEFT','RAS_UP') else 402),a.ret(True)));a.when(T('profile'),lambda a:a.do(R(1),'Command',70 if key in ('RAS_LEFT','RAS_UP') else 71),lambda a:a.when(EQ(T('tab'),1),lambda a:a.do(R(1),'Command',add(52 if key in ('RAS_LEFT','RAS_UP') else 53,mul(2,lt(43,T('focus'))))),lambda a:a.do(R(1),'Command',50 if key in ('RAS_LEFT','RAS_UP') else 51)))
+     elif key in ('L1','R1'):a.when(both(T('clubTimeline'),('not',T('profile'))),lambda a:(a.do(R(1),'Command',581 if key=='L1' else 582),a.ret(True)));a.when(EQ(T('tab'),3),lambda a:(a.do(R(1),'Command',401 if key=='L1' else 402),a.ret(True)));a.when(('not',T('profile')),lambda a:a.when(EQ(T('tab'),1),lambda a:a.do(R(1),'Command',30 if key=='L1' else 31),lambda a:a.do(R(1),'Command',50 if key=='L1' else 51)))
+     elif key in ('L2','R2'):a.when(T('profile'),lambda a:a.do(R(1),'Command',add(80,wrap(add(T('profileTab'),-1 if key=='L2' else 1),5))),lambda a:a.do(R(1),'Command',wrap(add(T('tab'),-1 if key=='L2' else 1),len(TABS))))
      else:
       left=key in ('LEFT','LAS_LEFT');a.when(T('profile'),lambda a:a.do(R(1),'Command',70 if left else 71),lambda a:a.do(R(1),'Move',0 if left else 1))
      a.ret(True)
@@ -417,6 +484,8 @@ def script_factory(model,assets):
   a.function('LocalEventHandler',2,local)
   def help_context(a):
    a.when(T('profile'),lambda a:a.ret(arr(CALL(PATH('ion','manager','HelpItem'),'CreateHelpTickerItem',code,label) for code,label in [('BACK','Voltar'),('L2R2','Abas do perfil'),('LAS_LR','Páginas do histórico')])) )
+   a.when(both(T('clubTimeline'),('not',T('profile'))),lambda a:a.ret(arr(CALL(PATH('ion','manager','HelpItem'),'CreateHelpTickerItem',code,label) for code,label in [('ADVANCE','Ver perfil'),('BACK','Clubes'),('L2R2','Abas'),('RAS_UD','Rolar histórico')])))
+   a.when(both(('not',T('profile')),EQ(T('tab'),3)),lambda a:a.ret(arr(CALL(PATH('ion','manager','HelpItem'),'CreateHelpTickerItem',code,label) for code,label in [('ADVANCE','Alterar'),('BACK','Voltar'),('L2R2','Abas'),('L1R1','Frequência'),('LAS_UD','Navegar')])))
    a.ret(arr(CALL(PATH('ion','manager','HelpItem'),'CreateHelpTickerItem',code,label) for code,label in [('ADVANCE','Ver perfil'),('BACK','Voltar'),('L2R2','Abas'),('L1R1','Mês / páginas'),('RAS_UD','Listas / páginas'),('LAS_UD','Navegar')]))
   a.function('getHelpContext',0,help_context)
   def shutdown(a):
@@ -434,7 +503,7 @@ def build(game,path,model):
  # covers only geometry, catalogue membership, photos, theme, and generators.
  keys=[]
  for group in ('clubRows','freeRows','moveRows','hireRows'):
-  keys.append((group,sorted({r[4] for r in model['clubRows']}|{p['head'] for p in model['people']}),sorted(asset_cache.flag_keys(game,model))))
+  keys.append((group,sorted({r[1] for r in model.get('historyClubRows',[])}|{r[4] for r in model['clubRows']}|{p['head'] for p in model['people']}),sorted(asset_cache.flag_keys(game,model))))
  revision=asset_cache.revision(game,model)
  token=hashlib.sha256((GEOMETRY_SIGNATURE+revision).encode()+json.dumps(keys,sort_keys=True).encode()).hexdigest()
  template=root/'native_templates'/('template_'+token+'.big')

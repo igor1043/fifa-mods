@@ -27,7 +27,7 @@ PREFIX = 'data/sceneassets/server16_dressing_room_v3/'
 CONFIG = 'ModCarrerMode/data/club_environment/room/locker-system-v3.json'
 ACTIVE = 'ModCarrerMode/data/club_environment/room/active-version.txt'
 CAPACITY = 38
-REVISION = 7
+REVISION = 9
 CEILING_Y = 1338.
 DEPTH = 84.
 MAIN_END = 1543.6
@@ -403,9 +403,24 @@ def ceiling_crest():
 
 def floor_crest():
     vertices=np.zeros(4,dtype=VERT)
-    vertices['p']=[(-160,1000.85,370),(-160,1000.85,690),(160,1000.85,690),(160,1000.85,370)]
+    # 20% larger, retaining the same central floor anchor and clearance.
+    vertices['p']=[(-192,1000.85,338),(-192,1000.85,722),(192,1000.85,722),(192,1000.85,338)]
     vertices['n']=packed((0,1,0));vertices['g']=packed((1,0,0));vertices['uv']=[(0,0),(0,1),(1,1),(1,0)]
     return vertices,np.array([0,1,2,0,2,3],dtype='<u2')
+
+
+def annex_surfaces(vertices, indices):
+    """Remove the replaced main-room wall, retaining both enclosed annexes.
+
+    R76/R77 also put the coach/medical solid walls in secondary_wall_*.
+    Dropping the entire material slot removed their inner and outer faces.
+    The main room ends before z=1544; the annex shells start at z=1545.
+    """
+    tri=indices.reshape(-1,3)
+    keep=(vertices['p'][tri][:,:,2]>=1544.).all(axis=1)
+    if not keep.any():return empty_mesh()
+    used,inverse=np.unique(tri[keep],return_inverse=True)
+    return vertices[used].copy(),inverse.reshape(-1).astype('<u2')
 
 
 def stage(game, output):
@@ -419,7 +434,8 @@ def stage(game, output):
         if name=='interior.rx3':
             rx=Rx3(path.read_bytes());spec=json.loads(path.with_suffix('.json').read_text(encoding='utf8'))
             for slot,binding in enumerate(spec['bindings']):
-                if binding['material'].startswith('secondary_wall_'):replace_mesh(rx,slot,*empty_mesh())
+                if binding['material'].startswith('secondary_wall_'):
+                    replace_mesh(rx,slot,*annex_surfaces(*read_mesh(rx,slot)))
             (output/name).write_bytes(rx.build())
         else:report['removed_triangles'][source] = trim_lockers(path, output / name, 'crest' in source)
         widen_main(output/name)
@@ -460,6 +476,9 @@ def stage(game, output):
     for name in list(MODELS.values())+['locker_bay.rx3','fascia.rx3','crests.rx3','joinery.rx3','ceiling_details.rx3','logo_mount.rx3','feature_wall.rx3','furniture_wood.rx3']:
         data=(output/name).read_bytes();hashed=Path(name).stem+'_'+hashlib.sha256(data).hexdigest()[:14]+'.rx3'
         (output/hashed).write_bytes(data);report['model_files'][name]=hashed
+    from room_loading_r81 import stage as loading_stage
+    report['loading']=loading_stage(game,output)
+    for path in output.glob('loading_*_r81.rx3'):report['model_files'][path.name]=path.name
     (output / 'manifest.json').write_text(json.dumps(report, indent=2), encoding='utf8')
     return report
 

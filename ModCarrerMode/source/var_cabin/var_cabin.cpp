@@ -120,7 +120,7 @@ static int readCompetition(unsigned index){
     const uintptr_t row=luaRow(sles,index);
     return luaInteger(row,"isVarCabin")==1?luaInteger(row,"varCabinCompetitionId"):-1;
 }
-static bool competitionAllowed(int id){return id==7||id==83;}
+static bool competitionAllowed(int id){return id==7||id==9||id==83||id==229;}
 static void refreshCompetition(uintptr_t state){
     const uint64_t now=GetTickCount64();if(now<nextCompetition)return;nextCompetition=now+1000;
     competitionId=-1;unsigned index=0;if(!get(state+0x4c,index)||index>=176)return;
@@ -300,7 +300,7 @@ static DWORD WINAPI worker(void*){
         appliedCall[0]=0xe8;const int32_t d=(int32_t)rel;memcpy(appliedCall+1,&d,4);
         if(!patch()){VirtualFree(relay,0,MEM_RELEASE);Sleep(200);continue;}
         event("startup_reinforcement enabled window_ms=6000 max_attempts=3 first_checkpoint_ms=500");
-        event("installed var_cabin v4 scene_thread_lua verified_readiness retry_context competition_filter=7,83");return 0;
+        event("installed var_cabin v5 scene_thread_lua verified_readiness retry_context competition_filter=7,9,83,229");return 0;
     }event("signature_conflict_or_timeout");return 0;
 }
 extern "C" __declspec(dllexport) unsigned WINAPI Fifa16ModGetApiVersion(){return 1;}

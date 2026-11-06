@@ -8,6 +8,8 @@ try:from .read_batch import Connection
 except ImportError:from read_batch import Connection
 try:from .hiring_fit import DEFAULTS as HIRING_DEFAULTS,offer as hiring_offer
 except ImportError:from hiring_fit import DEFAULTS as HIRING_DEFAULTS,offer as hiring_offer
+try:from .coach_approach import DEFAULTS as APPROACH_DEFAULTS
+except ImportError:from coach_approach import DEFAULTS as APPROACH_DEFAULTS
 
 DEFAULTS=dict(max_dismissals_year=3,min_tenure_days=60,min_tenure_games=8,review_gap_days=5,
  pressure_threshold=20,max_dismissal_bps=6000,resignation_bps=4,poach_bps=800,dismissal_slope_bps=190,
@@ -17,9 +19,11 @@ DEFAULTS=dict(max_dismissals_year=3,min_tenure_days=60,min_tenure_games=8,review
  brazil_pressure_offset=3,brazil_dismissal_multiplier=1.3,brazil_min_tenure_days=45,brazil_min_tenure_games=6,
  same_nationality_bonus=1.15,domestic_nationality_bonus=.4,free_coach_bonus=.6,
  rehire_dismissed_bps=500,recent_rehire_bps=100,recent_rehire_days=180,
- quality_drop=1.5,elite_quality_drop=1,quality_exception_bps=1000,**HIRING_DEFAULTS)
+ quality_drop=1.5,elite_quality_drop=1,quality_exception_bps=1000,**HIRING_DEFAULTS,**APPROACH_DEFAULTS)
 SCHEMA='''
 PRAGMA foreign_keys=ON;
+CREATE TABLE IF NOT EXISTS market_cycles(branch TEXT,slot INT,last_review INT,cadence INT,enabled INT,PRIMARY KEY(branch,slot));
+CREATE TABLE IF NOT EXISTS market_review_pending(branch TEXT,club_id INT,changed_date INT,PRIMARY KEY(branch,club_id));
 CREATE TABLE IF NOT EXISTS branches(id TEXT PRIMARY KEY,career TEXT NOT NULL,start_date INT NOT NULL,game_date INT NOT NULL,season INT NOT NULL,user_club INT NOT NULL,seed TEXT NOT NULL,kind TEXT NOT NULL);
 CREATE TABLE IF NOT EXISTS save_checkpoints(save_hash TEXT PRIMARY KEY,save_path TEXT NOT NULL,branch TEXT NOT NULL,game_date INT NOT NULL,state BLOB);
 CREATE TABLE IF NOT EXISTS coaches(branch TEXT,coach_id TEXT,name TEXT,nationality TEXT,birth_date TEXT,reputation REAL,salary INT,style TEXT,image TEXT,eligible INT,fictional INT,PRIMARY KEY(branch,coach_id));
@@ -33,8 +37,15 @@ CREATE INDEX IF NOT EXISTS result_home_coach ON results(branch,home_coach);
 CREATE INDEX IF NOT EXISTS result_away_coach ON results(branch,away_coach);
 CREATE INDEX IF NOT EXISTS result_home_date ON results(branch,home,game_date);
 CREATE INDEX IF NOT EXISTS result_away_date ON results(branch,away,game_date);
+CREATE INDEX IF NOT EXISTS result_date ON results(branch,game_date);
+CREATE INDEX IF NOT EXISTS result_home_coach_date ON results(branch,home_coach,game_date);
+CREATE INDEX IF NOT EXISTS result_away_coach_date ON results(branch,away_coach,game_date);
+CREATE INDEX IF NOT EXISTS movement_club_kind_date ON movements(branch,club_id,kind,game_date);
+CREATE INDEX IF NOT EXISTS appointment_deadline ON appointments(branch,contract_end) WHERE end_date IS NULL;
+CREATE INDEX IF NOT EXISTS appointment_history_date ON appointments(branch,club_id,start_date);
 CREATE TABLE IF NOT EXISTS honours(branch TEXT,coach_id TEXT,club_id INT,season INT,competition_id INT,root INT,game_date INT,name TEXT,PRIMARY KEY(branch,season,root,club_id));
 CREATE TABLE IF NOT EXISTS reviews(branch TEXT,club_id INT,game_date INT,pressure REAL,position INT,expected_position INT,reason TEXT,decision TEXT,PRIMARY KEY(branch,club_id,game_date));
+CREATE INDEX IF NOT EXISTS review_date ON reviews(branch,game_date);
 CREATE TABLE IF NOT EXISTS cup_exits(branch TEXT,root INT,club_id INT,game_date INT,prestige INT,PRIMARY KEY(branch,root,club_id,game_date));
 CREATE TABLE IF NOT EXISTS competition_policies(branch TEXT,competition_id INT,name TEXT,prestige INT,PRIMARY KEY(branch,competition_id));
 CREATE TABLE IF NOT EXISTS market_rules(branch TEXT,key TEXT,value REAL,PRIMARY KEY(branch,key));
@@ -47,9 +58,12 @@ CREATE TABLE IF NOT EXISTS annual_campaigns(branch TEXT,appointment TEXT,year IN
 CREATE TABLE IF NOT EXISTS session_states(pid INT,created INT,context INT,epoch INT,captured_ms INT,branch TEXT,game_date INT,state_hash TEXT,state BLOB,PRIMARY KEY(pid,created,context,captured_ms));
 CREATE TABLE IF NOT EXISTS session_observations(pid INT,created INT,context INT,captured_ms INT,observed_ms INT,PRIMARY KEY(pid,created,context,captured_ms));
 CREATE TABLE IF NOT EXISTS save_receipts(event_id TEXT PRIMARY KEY,save_hash TEXT,branch TEXT,game_date INT,pid INT,created INT,write_ms INT,source TEXT);
+CREATE TABLE IF NOT EXISTS reputation_events(branch TEXT,appointment TEXT,month INT,game_date INT,coach_id TEXT,club_id INT,games INT,percentage REAL,expected REAL,delta REAL,PRIMARY KEY(branch,appointment,month));
+CREATE TABLE IF NOT EXISTS approaches(branch TEXT,id TEXT,game_date INT,club_id INT,source_club INT,coach_id TEXT,appointment TEXT,status TEXT,fee INT,offered_wage INT,chance INT,reason TEXT,PRIMARY KEY(branch,id));
+CREATE INDEX IF NOT EXISTS approach_cooldown ON approaches(branch,club_id,coach_id,game_date);
 PRAGMA user_version=4;
 '''
-TABLES=('coaches','clubs','appointments','movements','results','honours','reviews','cup_exits','competition_policies','market_rules','salary_events','progress','performance_evidence','appointment_baselines','appointment_campaigns','annual_campaigns')
+TABLES=('coaches','clubs','appointments','movements','results','honours','reviews','cup_exits','competition_policies','market_rules','salary_events','progress','performance_evidence','appointment_baselines','appointment_campaigns','annual_campaigns','reputation_events','approaches','market_cycles','market_review_pending')
 
 def day(value):return date(value//10000,value//100%100,value%100)
 def packed(d):return d.year*10000+d.month*100+d.day
@@ -106,7 +120,10 @@ class Market:
   columns={r[1] for r in self.db.execute('PRAGMA table_info(results)')}
   for name in ('home_appointment','away_appointment'):
    if name not in columns:self.db.execute('ALTER TABLE results ADD COLUMN '+name+' TEXT')
-  self.catalog=Path(catalog);self.branch=None
+  self.catalog=Path(catalog);self.branch=None;self.restored_through=0
+  try:from .snapshot_journal import Journal
+  except ImportError:from snapshot_journal import Journal
+  self.journal=Journal(self.db,TABLES)
  def close(self):self.db.close()
  def rows(self,table,where='',args=()):
   if table not in TABLES:raise ValueError('Tabela inválida')
@@ -115,6 +132,7 @@ class Market:
   if table not in TABLES:raise ValueError('Tabela inválida')
   values=dict(branch=self.branch,**values);cols=','.join(values)
   self.db.execute('INSERT INTO '+table+' ('+cols+') VALUES('+','.join('?' for _ in values)+')',tuple(values.values()))
+  if table=='movements' and getattr(self,'market_progress',None):self.market_progress.market_event(values['kind'])
  def info(self):return dict(self.db.execute('SELECT * FROM branches WHERE id=?',(self.branch,)).fetchone())
  def clone(self,source,kind='live'):
   new=uuid.uuid4().hex;row=dict(self.db.execute('SELECT * FROM branches WHERE id=?',(source,)).fetchone());row.update(id=new,kind=kind)
@@ -134,8 +152,10 @@ class Market:
       if table not in TABLES:raise ValueError('Tabela desconhecida no checkpoint')
       cols=content['columns'];query='INSERT INTO '+table+' (branch,'+','.join(cols)+') VALUES('+','.join('?' for _ in range(len(cols)+1))+')';self.db.executemany(query,[(new,*r) for r in content['rows']])
     else:self.branch=self.clone(found['branch'])
+    self.restored_through=self.info()['game_date']
     if previous and previous!=self.branch:self.discard_session(previous)
     return 'restored'
+   self.restored_through=0
    self.branch=uuid.uuid4().hex;today=context.get('saved_date',context['date']);career=uuid.uuid4().hex;seed_context=dict(context,date=today,club=context.get('saved_club',context['club']))
    self.db.execute('INSERT INTO branches VALUES(?,?,?,?,?,?,?,?)',(self.branch,career,today,today,context['season'],context['club'],career,'live'))
    cat=sqlite3.connect(self.catalog);cat.row_factory=sqlite3.Row
@@ -158,11 +178,12 @@ class Market:
  def discard_session(self,branch):
   """Delete mutable session rows; completed save snapshots own their payload."""
   if self.db.execute('SELECT 1 FROM save_checkpoints WHERE branch=? AND state IS NULL',(branch,)).fetchone():return False
+  self.journal.suspend(branch)
   for table in TABLES:self.db.execute('DELETE FROM '+table+' WHERE branch=?',(branch,))
   # Snapshots also bridge a write completed while the engine was catching up.
   # A subsequent load may discard its mutable branch before that receipt is
   # bound. Keep the bounded immutable journal independently of branch lifetime.
-  self.db.execute('DELETE FROM branches WHERE id=?',(branch,));return True
+  self.db.execute('DELETE FROM branches WHERE id=?',(branch,));self.journal.discarded(branch);return True
  def discard_abandoned(self,keep,limit=None):
   keep=set(keep)|{self.branch};removed=[]
   for row in self.db.execute('SELECT id FROM branches').fetchall():
@@ -173,14 +194,14 @@ class Market:
  def snapshot(self):
   tables={}
   for table in TABLES:
-   cols=[r[1] for r in self.db.execute('PRAGMA table_info('+table+')') if r[1]!='branch'];tables[table]=dict(columns=cols,rows=[list(r) for r in self.db.execute('SELECT '+','.join(cols)+' FROM '+table+' WHERE branch=?',(self.branch,))])
+   cols,order=self.journal.layouts[table];tables[table]=dict(columns=cols,rows=[list(r) for r in self.db.execute('SELECT '+','.join(cols)+' FROM '+table+' WHERE branch=? ORDER BY '+','.join(order),(self.branch,))])
   return zlib.compress(json.dumps(dict(info=self.info(),tables=tables),ensure_ascii=False,separators=(',',':')).encode(),6)
  def checkpoint(self,digest,path,replace=False,state=None):
   if not replace and self.db.execute('SELECT 1 FROM save_checkpoints WHERE save_hash=?',(digest,)).fetchone():return False
-  state=self.snapshot() if state is None else state;info=json.loads(zlib.decompress(state))['info']
+  state=self.snapshot() if state is None else self.journal.materialize(state);info=json.loads(zlib.decompress(state))['info']
   self.db.execute('INSERT OR REPLACE INTO save_checkpoints VALUES(?,?,?,?,?)',(digest,str(path),info['id'],info['game_date'],state));return True
  def capture_session(self,pid,created,context,epoch,captured_ms,observed_ms=None):
-  state=self.snapshot();digest=hashlib.sha256(state).hexdigest()
+  state=self.journal.capture(self.info());digest=hashlib.sha256(state).hexdigest()
   last=self.db.execute('SELECT state_hash,epoch FROM session_states WHERE pid=? AND created=? AND context=? ORDER BY captured_ms DESC LIMIT 1',(pid,created,context)).fetchone()
   if last and last['state_hash']==digest and last['epoch']==epoch:return digest
   self.db.execute('INSERT OR REPLACE INTO session_states (pid,created,context,epoch,captured_ms,branch,game_date,state_hash,state) VALUES(?,?,?,?,?,?,?,?,?)',(pid,created,context,epoch,captured_ms,self.branch,self.info()['game_date'],digest,state))
@@ -189,8 +210,14 @@ class Market:
   # only bridges busy UI compilation and saves received between helper polls.
   self.db.execute('DELETE FROM session_states WHERE pid=? AND created=? AND captured_ms NOT IN (SELECT captured_ms FROM session_states WHERE pid=? AND created=? ORDER BY captured_ms DESC LIMIT 128)',(pid,created,pid,created))
   self.db.execute('DELETE FROM session_observations WHERE pid=? AND created=? AND captured_ms NOT IN (SELECT captured_ms FROM session_states WHERE pid=? AND created=?)',(pid,created,pid,created))
+  self.journal_captures=getattr(self,'journal_captures',0)+1
+  if self.journal_captures%128==0:self.journal.stats['unused_objects_removed']=self.journal.collect(limit=128)
   return digest
  def one(self,table,key,value):return next(iter(self.rows(table,key+'=?',(value,))),None)
+ def status_counts(self,today):
+  row=self.db.execute('SELECT COUNT(*),COALESCE(SUM(game_date=?),0) FROM reviews WHERE branch=?',(today,self.branch)).fetchone()
+  moves=self.db.execute("SELECT COALESCE(SUM(kind='dismissal'),0),COALESCE(SUM(kind IN ('hired','interim_appointed')),0),COALESCE(SUM(club_id=? AND kind IN ('dismissal','resignation','hired','interim_appointed','poached','retirement')),0) FROM movements WHERE branch=?",(self.info()['user_club'],self.branch)).fetchone()
+  return dict(recorded_matches=self.db.execute('SELECT COUNT(*) FROM results WHERE branch=?',(self.branch,)).fetchone()[0],evaluations=row[0],evaluations_today=row[1],dismissals=moves[0],hires=moves[1],protected_club_market_events=moves[2])
  def active(self,club=None,coach=None):
   if self.db.read_depth:
    key=(self.branch,self.db.versions.get('appointments',0));cached=self.db.active_index
@@ -200,8 +227,12 @@ class Market:
    return dict(row) if row else None
   key,value=('club_id',club) if club is not None else ('coach_id',coach)
   return next(iter(self.rows('appointments',key+'=? AND end_date IS NULL',(value,))),None)
- def policy(self):return dict(DEFAULTS,**{r['key']:r['value'] for r in self.rows('market_rules')})
+ def policy(self):
+  policy=dict(DEFAULTS,**{r['key']:r['value'] for r in self.rows('market_rules')})
+  if hasattr(self,'simulation_settings'):policy.update(enabled=int(self.simulation_settings['enabled']),review_cadence=self.simulation_settings['cadence'])
+  return policy
  def upgrade_policy(self):
+  for key,value in APPROACH_DEFAULTS.items():self.db.execute('INSERT OR IGNORE INTO market_rules VALUES(?,?,?)',(self.branch,key,value))
   for key,value in HIRING_DEFAULTS.items():self.db.execute('INSERT OR IGNORE INTO market_rules VALUES(?,?,?)',(self.branch,key,value))
   for key in ('rehire_dismissed_bps','recent_rehire_bps','recent_rehire_days','brazil_pressure_offset','brazil_dismissal_multiplier','brazil_min_tenure_days','brazil_min_tenure_games','expectation_shortfall_weight'):self.db.execute('INSERT OR IGNORE INTO market_rules VALUES(?,?,?)',(self.branch,key,DEFAULTS[key]))
   existing={r['key']:r['value'] for r in self.rows('market_rules')}
@@ -215,6 +246,12 @@ class Market:
    self.db.execute('INSERT OR IGNORE INTO market_rules VALUES(?,?,?)',(self.branch,key,DEFAULTS[key]))
   self.db.execute('INSERT OR REPLACE INTO market_rules VALUES(?,?,?)',(self.branch,'market_policy_version',7))
  def import_new_coaches(self):
+  def stamp(path):
+   try:s=path.stat();return s.st_ino,s.st_size,s.st_mtime_ns
+   except OSError:return None
+  catalog_stamp=(stamp(self.catalog),stamp(Path(str(self.catalog)+'-wal')))
+  signature=(self.branch,self.db.versions.get('coaches',0),catalog_stamp)
+  if getattr(self,'catalog_synced',None)==signature:return
   present={c['coach_id']:c for c in self.rows('coaches')};db=sqlite3.connect(self.catalog);db.row_factory=sqlite3.Row
   try:
    for row in db.execute('SELECT * FROM coaches'):
@@ -228,6 +265,7 @@ class Market:
      fields=('name','nationality','birth_date','style','image','eligible','fictional')
      if any(c[f]!=present[c['coach_id']][f] for f in fields):self.db.execute('UPDATE coaches SET '+','.join(f+'=?' for f in fields)+' WHERE branch=? AND coach_id=?',(*(c[f] for f in fields),self.branch,c['coach_id']))
   finally:db.close()
+  self.catalog_synced=(self.branch,self.db.versions.get('coaches',0),catalog_stamp)
  def sync_clubs(self,context):
   signature=(self.branch,self.db.versions.get('clubs',0),tuple(tuple(sorted(c.items())) for c in context.get('clubs',[])))
   if getattr(self,'clubs_synced',None)==signature:return
@@ -316,7 +354,8 @@ class Market:
   row=self.db.execute('SELECT * FROM appointments WHERE branch=? AND club_id=? AND start_date<=? AND (end_date IS NULL OR end_date>?) ORDER BY start_date DESC LIMIT 1',(self.branch,club,today,today)).fetchone()
   return dict(row) if row else None
  def ingest(self,fixtures,today,baseline=False):
-  known={r['match_key'] for r in self.rows('results')};added=[];start=self.info()['start_date']
+  start=self.info()['start_date'];fixtures=[m for m in fixtures if m['played'] and start<=m['date']<=today and m.get('hg') is not None and m.get('ag') is not None]
+  known=self.known_results(fixtures);added=[]
   for m in sorted(fixtures,key=lambda m:(m['date'],m['id'])):
    if not m['played'] or m['date']>today or m['date']<start or m.get('hg') is None or m.get('ag') is None:continue
    key=result_key(m)
@@ -325,28 +364,50 @@ class Market:
    self.add('results',dict(match_key=key,season=m['season'],root=m['root'],competition_id=m['asset'],stage=m['stage'],game_date=m['date'],home=m['home'],away=m['away'],hg=m['hg'],ag=m['ag'],home_coach=ha['coach_id'] if ha else None,away_coach=aa['coach_id'] if aa else None,home_appointment=ha['id'] if ha else None,away_appointment=aa['id'] if aa else None))
    known.add(key);added.append(m)
   return added
+ def known_results(self,fixtures):
+  keys=list({result_key(m) for m in fixtures if m['played']});known=set()
+  for offset in range(0,len(keys),400):
+   batch=keys[offset:offset+400]
+   known.update(r[0] for r in self.db.execute('SELECT match_key FROM results WHERE branch=? AND match_key IN ('+','.join('?' for _ in batch)+')',(self.branch,*batch)))
+  return known
  def stats(self,coach,club=None):
   rows=self.rows('results','(home_coach=? OR away_coach=?)',(coach,coach));home=[];away=[]
   for r in rows:
    if r['home_coach']==coach and (club is None or r['home']==club):home.append((r['hg'],r['ag']))
    if r['away_coach']==coach and (club is None or r['away']==club):away.append((r['ag'],r['hg']))
   return dict(total=score(home+away),home=score(home),away=score(away))
- def protected_campaign(self,appointment,today):
-  if not appointment:return False
+ def appointment_performance(self,appointment,today):
+  if not appointment:return dict(games=0,losses=0,percentage=0)
   games=[]
-  for r in self.rows('results','game_date BETWEEN ? AND ?',(appointment['start_date'],today)):
+  year=today//10000;start_date=max(appointment['start_date'],year*10000+101)
+  for r in self.rows('results','game_date BETWEEN ? AND ? AND ((home=? AND home_coach=?) OR (away=? AND away_coach=?))',(start_date,today,appointment['club_id'],appointment['coach_id'],appointment['club_id'],appointment['coach_id'])):
    if r['home']==appointment['club_id'] and r['home_coach']==appointment['coach_id']:games.append((r['hg'],r['ag']))
    elif r['away']==appointment['club_id'] and r['away_coach']==appointment['coach_id']:games.append((r['ag'],r['hg']))
   samples=[score(games)]
   totals=[0]*6
-  for r in self.rows('appointment_campaigns','appointment=? AND game_date<=?',(appointment['id'],today)):
+  aggregate=self.rows('annual_campaigns','appointment=? AND year=? AND game_date<=?',(appointment['id'],year,today))
+  if not aggregate and appointment['start_date']//10000==year:aggregate=self.rows('appointment_campaigns','appointment=? AND game_date<=?',(appointment['id'],today))
+  for r in aggregate:
    start=json.loads(r['baseline']);end=json.loads(r['counters'])
    values=[max(0,end[i]-start[i]) for i in range(6)]
    totals=[a+b for a,b in zip(totals,values)]
   played=sum(totals);wins=totals[0]+totals[3];draws=totals[1]+totals[4];losses=totals[2]+totals[5]
   samples.append(dict(games=played,losses=losses,percentage=100*(3*wins+draws)/(3*played) if played else 0))
-  campaign=max(samples,key=lambda r:r['games'])
+  return max(samples,key=lambda r:r['games'])
+ def protected_campaign(self,appointment,today):
+  campaign=self.appointment_performance(appointment,today)
   return campaign['games']>=6 and (campaign['percentage']>=65 or campaign['losses']==0)
+ def dismissal_risk(self,club,appointment,today,pressure,policy):
+  from market_balance import dismissal_risk
+  return dismissal_risk(dismissal_probability(club,pressure,policy),club,self.appointment_performance(appointment,today))
+ def update_reputation(self,club,appointment,today,expected_position,league_size):
+  from market_balance import reputation_delta
+  campaign=self.appointment_performance(appointment,today)
+  if campaign['games']<6:return
+  expected=(2.25-1.35*(expected_position-1)/max(1,league_size-1))/3*100
+  delta=reputation_delta(campaign,expected)
+  inserted=self.db.execute('INSERT OR IGNORE INTO reputation_events VALUES(?,?,?,?,?,?,?,?,?,?)',(self.branch,appointment['id'],today//100,today,appointment['coach_id'],club['club_id'],campaign['games'],campaign['percentage'],expected,delta)).rowcount
+  if inserted:self.db.execute('UPDATE coaches SET reputation=MAX(1,MIN(10,reputation+?)) WHERE branch=? AND coach_id=?',(delta,self.branch,appointment['coach_id']))
  def table_pressure(self,club,table,today,p):
   if not table or club['club_id'] not in {r['club'] for r in table}:return None
   ranks=sorted(table,key=lambda r:r['rank']);r=next(r for r in ranks if r['club']==club['club_id']);n=len(ranks)
@@ -374,14 +435,14 @@ class Market:
   return pressure,r['rank'],er,'; '.join(reasons) or 'Desempenho dentro da expectativa'
  def hire(self,club,today,seed):
   info=self.info()
-  if club['club_id']==info['user_club']:return False
+  if club['club_id']==info['user_club'] or self.active(club=club['club_id']):return False
   p=self.policy();appointments=self.rows('appointments');employed={a['coach_id']:a for a in appointments if a['end_date'] is None};candidates=[];offers={}
   coaches={c['coach_id']:c for c in self.rows('coaches')};clubs={c['club_id']:c for c in self.rows('clubs')}
-  from hiring_fit import league_attraction
+  from hiring_fit import league_attraction,league_nationalities
   attraction=league_attraction(club,clubs)
   prior=max((a for a in appointments if a['club_id']==club['club_id'] and a['end_date'] is not None and a['end_date']<=today),key=lambda a:(a['end_date'],a['start_date']),default=None)
   predecessor=coaches.get(prior['coach_id'],{}) if prior else {}
-  preferred=nationalities(predecessor.get('nationality')) or nationalities(club['country']);domestic=nationalities(club['country'])
+  domestic=league_nationalities(club,clubs,nationalities);preferred=nationalities(predecessor.get('nationality')) or domestic
   target=max(club['reputation'],predecessor.get('reputation',club['reputation'])-.25)
   drop=p['elite_quality_drop'] if club['reputation']>=7.5 else p['quality_drop']
   exception=draw(seed,'quality_exception',club['club_id'],today)<p['quality_exception_bps']
@@ -397,22 +458,46 @@ class Market:
    current=employed.get(c['coach_id']);poach=False
    if current:
     source=clubs.get(current['club_id'])
-    if current['club_id']==info['user_club'] or elapsed(current['start_date'],today)<90 or not source or club['reputation']<source['reputation']+1.5:continue
-    if score(evidence.get(c['coach_id'],[])[-10:])['percentage']<58:continue
-    if draw(seed,'poach',club['club_id'],c['coach_id'],today)>=p['poach_bps']:continue
+    if current['club_id'] in (info['user_club'],club['club_id']) or elapsed(current['start_date'],today)<p['approach_min_days'] or not source or club['reputation']<source['reputation']+p['approach_gap']:continue
     poach=True
    if c['coach_id'] in exits and elapsed(exits[c['coach_id']],today)<14:continue
    salary=hiring_offer(c,club,clubs,self.wage(c,club),p,attraction=attraction)
    if salary is None:continue
+   if current:salary=max(salary,round(current['monthly_wage']*1.05/100)*100)
    offers[c['coach_id']]=salary
    recent=score(evidence.get(c['coach_id'],[])[-10:]);reliability=min(1,recent['games']/10)
    fit=10-abs(c['reputation']-target)*2.2+reliability*max(-1.5,min(1.5,(recent['percentage']-45)/20))
    nationality=nationalities(c['nationality'])
    if nationality&preferred:fit+=p['same_nationality_bonus']
-   if nationality&domestic:fit+=p['domestic_nationality_bonus']
+   if nationality&domestic:
+    fit+=p['domestic_nationality_bonus']+p['league_nationality_bonus']
+    if domestic&nationalities('Brasil'):fit+=p['brazil_nationality_bonus']
    if not current:fit+=p['free_coach_bonus']
    fit+=draw(seed,'fit',today,club['club_id'],c['coach_id'])/20000
    candidates.append((fit,c,current if poach else None))
+  # Suitable free agents remain the first route. Contact employed managers
+  # only when available quality does not satisfy this club's normal target.
+  adequate=[r for r in candidates if not r[2] and r[1]['reputation']>=target-drop]
+  if adequate:candidates=[r for r in candidates if not r[2]]
+  else:
+   from coach_approach import buyout,willingness
+   accepted=[]
+   for fit,c,current in sorted((r for r in candidates if r[2]),key=lambda r:(-r[0],r[1]['coach_id']))[:3]:
+    if c['reputation']<target-drop:continue
+    prior_contact=self.db.execute('SELECT game_date FROM approaches WHERE branch=? AND club_id=? AND coach_id=? ORDER BY game_date DESC LIMIT 1',(self.branch,club['club_id'],c['coach_id'])).fetchone()
+    if prior_contact and elapsed(prior_contact[0],today)<p['approach_cooldown_days']:continue
+    if draw(seed,'approach',club['club_id'],c['coach_id'],today)>=p['approach_bps']:continue
+    source=clubs[current['club_id']];fee=buyout(current,today,elapsed(today,current['contract_end']),p);salary=offers[c['coach_id']]
+    fees=self.db.execute("SELECT COALESCE(SUM(CASE WHEN kind='coach_buyout_received' THEN amount ELSE -amount END),0) FROM salary_events WHERE branch=? AND club_id=? AND kind IN ('coach_buyout_paid','coach_buyout_received') AND game_date BETWEEN ? AND ?",(self.branch,club['club_id'],today//10000*10000+101,today)).fetchone()[0]
+    limit=max(0,club['budget'])*p['approach_fee_budget_bps']/10000+fees
+    chance=willingness(c,source,club,salary,current['monthly_wage'])
+    affordable=fee<=limit and hiring_offer(c,club,clubs,salary,p,attraction=attraction) is not None
+    success=affordable and draw(seed,'approach_accept',club['club_id'],c['coach_id'],today)<chance
+    ident='approach:'+str(today)+':'+str(club['club_id'])+':'+c['coach_id']
+    status='agreed' if success else 'rejected';reason='Treinador aceitou a proposta e a multa cabe no orçamento' if success else 'Multa ou salário fora da capacidade financeira' if not affordable else 'Treinador recusou deixar o projeto atual'
+    self.add('approaches',dict(id=ident,game_date=today,club_id=club['club_id'],source_club=current['club_id'],coach_id=c['coach_id'],appointment=current['id'],status=status,fee=fee,offered_wage=salary,chance=chance,reason=reason))
+    if success:accepted.append((fit,c,current));break
+   candidates=[r for r in candidates if not r[2]]+accepted
   if candidates:
    qualified=[r for r in candidates if r[1]['reputation']>=target-drop]
    if exception:
@@ -436,8 +521,17 @@ class Market:
    pick-=weight
    if pick<0:selected=row;break
   _,coach,current=selected
-  if current:self.leave(current,today,'poached','Contratado por clube de maior reputação',to_club=club['club_id'])
-  self.appoint(coach,club,today,'hired',agreed_salary=offers[coach['coach_id']]);return True
+  self.db.execute("UPDATE approaches SET status='not_selected' WHERE branch=? AND club_id=? AND game_date=? AND status='agreed' AND coach_id<>?",(self.branch,club['club_id'],today,coach['coach_id']))
+  if current:
+   approach=self.db.execute("SELECT id,fee FROM approaches WHERE branch=? AND club_id=? AND coach_id=? AND game_date=? AND status='agreed'",(self.branch,club['club_id'],coach['coach_id'],today)).fetchone()
+   if not approach:raise ValueError('Sondagem sem acordo de transferência')
+   fee=approach['fee'];self.leave(current,today,'poached','Saída por proposta de outro clube · multa de '+str(fee)+' paga por '+club['name'],to_club=club['club_id'])
+   for owner,kind in ((club['club_id'],'coach_buyout_paid'),(current['club_id'],'coach_buyout_received')):
+    self.add('salary_events',dict(id=kind+':'+approach['id'],coach_id=coach['coach_id'],club_id=owner,game_date=today,amount=fee,kind=kind))
+   self.db.execute("UPDATE approaches SET status='completed' WHERE branch=? AND id=?",(self.branch,approach['id']))
+  self.appoint(coach,club,today,'hired',agreed_salary=offers[coach['coach_id']])
+  if current:self.db.execute('UPDATE movements SET from_club=?,reason=? WHERE branch=? AND id=?',(current['club_id'],'Contratado por sondagem · multa paga: '+str(fee),self.branch,self.active(club=club['club_id'])['id']))
+  return True
  def review_global(self,context,p):
   """Review actual aggregate progress where FIFA has not published fixtures.
 
@@ -475,7 +569,12 @@ class Market:
    tenure[club]=tenure.get(club,0)+max(0,played-baseline[bk])
   from appointment_campaign import retain_state
   retain_state(self)
+  if p.get('review_cadence',1)!=1 and p.get('market_active',p['enabled']):
+   for ident in changed:self.db.execute('INSERT OR REPLACE INTO market_review_pending VALUES(?,?,?)',(self.branch,ident,today))
   if not p['enabled']:return
+  # A weekly/monthly review must include games captured on earlier days of
+  # its interval, even if no fixture finishes on the review day itself.
+  if p.get('review_cadence',1)!=1:changed.update(r['club_id'] for r in self.rows('market_review_pending'))
   for club in self.rows('clubs'):
    ident=club['club_id']
    if ident==context['club'] or ident==info['user_club'] or ident not in changed:continue
@@ -493,8 +592,10 @@ class Market:
    if context.get('table_dates',{}).get(lid,today)!=today:continue
    evaluated=self.table_pressure(club,table,today,p)
    if not evaluated:continue
-   pressure,pos,expected,reason=evaluated;probability=0 if self.protected_campaign(a,today) else dismissal_probability(club,pressure,p);decision='retained'
+   pressure,pos,expected,reason=evaluated;probability=self.dismissal_risk(club,a,today,pressure,p);decision='retained'
+   self.update_reputation(club,a,today,expected,len(table))
    self.db.execute('INSERT OR REPLACE INTO progress VALUES(?,?,?)',(self.branch,ident,today))
+   self.db.execute('DELETE FROM market_review_pending WHERE branch=? AND club_id=?',(self.branch,ident))
    fired=self.rows('movements',"club_id=? AND kind='dismissal' AND game_date BETWEEN ? AND ?",(ident,today//10000*10000+101,today//10000*10000+1231))
    if len(fired)<min(3,p['max_dismissals_year']) and probability and draw(info['seed'],'dismiss',ident,today)<probability:
     self.leave(a,today,'dismissal',reason,pressure);decision='dismissal';self.hire(club,today,info['seed'])
@@ -506,6 +607,10 @@ class Market:
  def _advance(self,context):
   today=context['date'];info=self.info()
   if today<info['game_date']:raise ValueError('Data retrocedeu: é necessário restaurar o checkpoint do save')
+  # Reopening a saved day restores its exact world. A richer publication of
+  # that same day must not roll decisions/contracts again. History remains
+  # intact across season/table resets; simulation resumes on the next day.
+  if today<=self.restored_through:return
   self.upgrade_policy();p=self.policy();self.import_new_coaches();self.sync_clubs(context);self.ensure_user(context,today)
   # One-time compatibility for the first catalogue: the user's requested
   # initial tenure starts at the native save's startdate, not the mod install.
@@ -516,22 +621,31 @@ class Market:
   for c in context.get('competitions',[]):self.db.execute('INSERT OR IGNORE INTO competition_policies VALUES(?,?,?,?)',(self.branch,c['asset'],c['name'],c['prestige']))
   # Results are applied chronologically so a later appointment cannot inherit
   # earlier games after a multi-day simulation.
-  fixtures=context['fixtures'];self.contract_fixtures=fixtures;known={r['match_key'] for r in self.rows('results')}
+  fixtures=context['fixtures'];self.contract_fixtures=fixtures;known=self.known_results(fixtures)
   unseen=[m for m in fixtures if m['played'] and info['start_date']<=m['date']<=today and result_key(m) not in known]
   # Late historical evidence updates the ledger on its real match date.
   # It cannot retroactively fire a coach or masquerade as today's fixtures.
-  dated=[m for m in unseen if m['date']>=info['game_date']]
+  dated=[m for m in unseen if m['date']>=info['game_date'] and m['date']>self.restored_through]
   dates=sorted({m['date'] for m in dated})
+  from market_settings import review_dates
+  decision_dates=review_dates(self,[*dates,today],p);current_policy=dict(p,enabled=bool(p['enabled'] and today in decision_dates),market_active=bool(p['enabled']))
+  if not p['enabled']:self.db.execute('DELETE FROM market_review_pending WHERE branch=?',(self.branch,))
   clubs=self.rows('clubs');self.review_clubs={c['club_id']:c for c in clubs}
   participants={current:{t for m in dated if m['date']==current for t in (m['home'],m['away'])} for current in dates}
   employed={a['club_id'] for a in self.rows('appointments','end_date IS NULL')};vacant=set(self.review_clubs)-employed
   for current in dates:
+   if getattr(self,'market_progress',None):self.market_progress.market_day(current)
    self.ingest([m for m in dated if m['date']==current],current)
    for x in context.get('cup_exits',[]):
     if x['date']<=current:
      cp=self.one('competition_policies','competition_id',x.get('asset',0));prestige=cp['prestige'] if cp else x['prestige']
      self.db.execute('INSERT OR IGNORE INTO cup_exits VALUES(?,?,?,?,?)',(self.branch,x['root'],x['club'],x['date'],prestige))
-   if not p['enabled']:continue
+   if p['enabled'] and p.get('review_cadence',1)!=1:
+    for ident in participants[current]:self.db.execute('INSERT OR REPLACE INTO market_review_pending VALUES(?,?,?)',(self.branch,ident,current))
+    if current in decision_dates:participants[current].update(r['club_id'] for r in self.rows('market_review_pending'))
+   if not p['enabled'] or current not in decision_dates:
+    if getattr(self,'market_progress',None):self.market_progress.market_day(current,complete=True)
+    continue
    tables=context.get('tables',{});daily_tables={}
    for club in (c for c in clubs if c['club_id'] in participants[current] or c['club_id'] in vacant):
     ident=club['club_id'];a=self.active(club=ident)
@@ -555,26 +669,32 @@ class Market:
     if not evaluated:continue
     pressure,pos,expected,reason=evaluated;decision='retained'
     self.db.execute('INSERT OR REPLACE INTO progress VALUES(?,?,?)',(self.branch,ident,current))
+    self.db.execute('DELETE FROM market_review_pending WHERE branch=? AND club_id=?',(self.branch,ident))
     fired=self.rows('movements','club_id=? AND kind=\'dismissal\' AND game_date BETWEEN ? AND ?',(ident,current//10000*10000+101,current//10000*10000+1231))
-    probability=0 if self.protected_campaign(a,current) else dismissal_probability(club,pressure,p)
+    probability=self.dismissal_risk(club,a,current,pressure,p)
+    self.update_reputation(club,a,current,expected,len(table))
     if len(fired)<min(3,p['max_dismissals_year']) and probability and draw(info['seed'],'dismiss',ident,current)<probability:
      self.leave(a,current,'dismissal',reason,pressure);decision='dismissal';self.hire(club,current,info['seed'])
     elif draw(info['seed'],'resign',ident,current)<p['resignation_bps']:
      self.leave(a,current,'resignation','Saída por decisão do treinador',pressure);decision='resignation';self.hire(club,current,info['seed'])
     self.add('reviews',dict(club_id=ident,game_date=current,pressure=round(pressure,2),position=pos,expected_position=expected,reason=reason,decision=decision))
+   if getattr(self,'market_progress',None):self.market_progress.market_day(current,complete=True)
   self.ingest(fixtures,today)
-  self.review_global(context,p)
+  self.review_global(context,current_policy)
   for title in context.get('titles',[]):
    if title['date']<info['start_date'] or title['date']>today:continue
    evidence=self.db.execute('SELECT home,home_coach,away_coach FROM results WHERE branch=? AND root=? AND competition_id=? AND game_date<=? AND (home=? OR away=?) ORDER BY game_date DESC LIMIT 1',(self.branch,title['root'],title['asset'],title['date'],title['club'],title['club'])).fetchone()
    coach=(evidence['home_coach'] if evidence['home']==title['club'] else evidence['away_coach']) if evidence else None
    if coach:
     inserted=self.db.execute('INSERT OR IGNORE INTO honours VALUES(?,?,?,?,?,?,?,?)',(self.branch,coach,title['club'],title['season'],title['asset'],title['root'],title['date'],title['name'])).rowcount
-    if inserted:self.db.execute('UPDATE coaches SET reputation=MIN(10,reputation+.25) WHERE branch=? AND coach_id=?',(self.branch,coach))
-  self.future_market(today,context,p)
+    if inserted:
+     from title_rewards import reward,prestige
+     reputation,wage_growth=reward(prestige(self,title['asset']))
+     self.db.execute('UPDATE coaches SET reputation=MIN(10,reputation+?),salary=MIN(2500000,MAX(salary,ROUND(salary*(1+?)/100)*100)) WHERE branch=? AND coach_id=?',(reputation,wage_growth,self.branch,coach))
+  self.future_market(today,context,current_policy)
   # Every vacant club receives a replacement, including a club whose coach was
   # poached later in the day's review order.
-  if p['enabled']:
+  if current_policy['enabled']:
    for club in self.rows('clubs'):
     if club['club_id']!=context['club'] and not self.active(club=club['club_id']):self.hire(club,today,info['seed'])
   # CPU salary ledger is simulated in this database. The user's native wage
@@ -593,7 +713,7 @@ class Market:
    cursor=(last+timedelta(days=1)).replace(day=1)
   # Contract renewals change the new term only; salaries never rewrite old terms.
   for a in self.rows('appointments','end_date IS NULL AND contract_end<=?',(today,)):
-   if not p['enabled'] or a['club_id']==context['club']:continue
+   if not current_policy['enabled'] or a['club_id']==context['club']:continue
    coach=self.one('coaches','coach_id',a['coach_id']);club=self.one('clubs','club_id',a['club_id']);stats=self.stats(coach['coach_id'],club['club_id'])['total']
    from club_profile import spell
    campaign=spell(self.db,self.branch,club['club_id'],today)
@@ -602,7 +722,9 @@ class Market:
    # Offer belongs to this club/contract; the expired salary ledger is immutable.
    adjustment=max(-.15,min(.20,(stats['percentage']-50)/200)) if stats['games']>=8 else 0
    if club['budget']<a['monthly_wage']*18:adjustment=max(-.20,adjustment-.10)
-   offered=max(1000,round(a['monthly_wage']*(1+adjustment)/100)*100)
+   from title_rewards import renewal_bonus
+   title_bonus=renewal_bonus(self,a,today)
+   offered=max(1000,round(a['monthly_wage']*(1+adjustment+title_bonus)/100)*100)
    refusal=min(7000,p['nonrenewal_bps']+max(0,-adjustment)*15000)
    self.db.execute('UPDATE coaches SET reputation=? WHERE branch=? AND coach_id=?',(max(1,min(10,coach['reputation']+delta)),self.branch,coach['coach_id']))
    if draw(info['seed'],'nonrenewal',a['id'],a['contract_end'])<refusal:

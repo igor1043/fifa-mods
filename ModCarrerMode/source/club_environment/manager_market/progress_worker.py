@@ -20,12 +20,13 @@ def main():
     stage=value['stage'];elapsed=max(0,round(time.monotonic()-value['started_ms']/1000))
     # Keep the native view mounted during a long stage. Reloading it every
     # ten seconds just to change a clock caused visible flashes and resets.
-    identity=(owner,stage)
-    if identity!=last:
-     temporary=root/('progress-'+str(os.getpid())+'.big');build(game,temporary,stage,elapsed)
+    identity=(owner,stage,json.dumps(value.get('detail'),sort_keys=True),value.get('error'))
+    if identity!=last and (last is None or stage!=last[1] or time.monotonic()-last_at>=2):
+     temporary=root/('progress-'+str(os.getpid())+'.big');build(game,temporary,stage,elapsed,value.get('detail'),value.get('error'))
      with view_lock(process.pid):
       latest=observe(memory)
-      if state.read_bytes()!=raw or scope(latest,io_event(latest['save']))!=owner:continue
+      updated=json.loads(state.read_bytes())
+      if not updated.get('active') or updated.get('scope')!=owner or updated.get('stage')!=stage or scope(latest,io_event(latest['save']))!=owner:continue
       blob=temporary.read_bytes();atomic(game/'data/ui/game/screens/career/server16/managermarket.big',blob)
       prepared_views.publish(root/'view_ready.tsv',latest['save'],latest['profile'],latest['date'],hashlib.sha256(blob).hexdigest())
       last=identity;last_at=time.monotonic()

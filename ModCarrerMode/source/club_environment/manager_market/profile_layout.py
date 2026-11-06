@@ -18,22 +18,21 @@ def profile_scene(assets):
  text('name',96,106,1700,68,size=43)
  image('profile_identity','identityCard',96,190,366,719)
  # The team-coloured portrait is the only photograph background.
- for n in range(11):image('stars_'+str(n),'rating'+str(n),278,374,162,31)
- # Portraits keep a square aspect ratio over a separate decorative backdrop.
+ for n in range(11):image('stars_'+str(n),'rating'+str(n),286,390,154,30)
  for key in list(assets):
-  if key.startswith('head_'):image(key,'img_'+key,112,235,146,146)
-  elif key.startswith('flag_'):image(key,'img_'+key,278,216,28,19)
-  elif key.startswith('crest_'):image(key,'current_'+key,278,289,38,42)
- text('nationality',315,211,132,29,size=20);text('bio',278,247,160,25,size=17,color=MUTED)
- text('currentClub',323,289,124,45,size=19);text('clubStatus',278,341,167,24,size=15,color=MUTED)
- for i in range(3):image('profile_metric','identityTile'+str(i),108+i*116,436,110,148)
- text('salaryLabel',118,450,94,32,'SALÁRIO MENSAL',12,MUTED);text('salary',118,493,94,35,size=23);text('salaryUnit',118,544,94,23,'/ mês',16,MUTED)
- text('styleLabel',234,450,92,25,'SITUAÇÃO',12,MUTED);text('style',234,487,92,47,size=17);text('formation',234,544,92,30,size=13,color=MUTED)
- text('contractLabel',350,450,94,25,'VÍNCULO',12,MUTED);text('contractUntil',350,486,94,46,size=17);text('contractRemaining',350,540,94,35,size=13,color=MUTED)
- text('trustLabel',118,612,248,26,'Confiança da diretoria',18);text('trust',369,610,71,28,size=23)
- image('profile_track','trustTrack',118,653,322,10);image('profile_gold_bar','trustFill',118,653,322,10);text('trustStatus',118,675,320,24,size=15,color=MUTED)
- text('contractInfoHeading',118,733,320,28,'CONTRATO COM O CLUBE',17,MUTED)
- text('contractSince',118,776,320,28,size=18);text('contractState',118,821,320,55,size=17,color=MUTED)
+  if key.startswith('head_'):image(key,'img_'+key,112,218,160,160)
+  elif key.startswith('flag_'):image(key,'img_'+key,286,219,28,19)
+  elif key.startswith('crest_'):image(key,'current_'+key,286,294,36,40)
+ text('nationality',324,214,122,29,size=19);text('bio',286,251,160,25,size=17,color=MUTED)
+ text('currentClub',330,292,116,54,size=19);text('clubStatus',286,355,160,25,size=14,color=MUTED)
+ image('profile_metric','identityTile0',112,426,334,85);image('profile_metric','identityTile1',112,523,161,108);image('profile_metric','identityTile2',285,523,161,108)
+ text('salaryLabel',130,437,250,23,'SALÁRIO MENSAL',14,MUTED);text('salary',130,464,224,36,size=29);text('salaryUnit',364,475,66,23,'/ mês',16,MUTED)
+ text('styleLabel',130,535,129,24,'SITUAÇÃO',13,MUTED);text('style',130,562,129,40,size=17);text('formation',130,605,129,23,size=12,color=MUTED)
+ text('contractLabel',302,535,128,24,'VÍNCULO',13,MUTED);text('contractUntil',302,562,128,40,size=17);text('contractRemaining',302,605,128,23,size=12,color=MUTED)
+ text('trustLabel',118,662,246,26,'Confiança da diretoria',18);text('trust',369,660,71,28,size=23)
+ image('profile_track','trustTrack',118,703,322,10);image('profile_gold_bar','trustFill',118,703,322,10);text('trustStatus',118,724,320,24,size=15,color=MUTED)
+ text('contractInfoHeading',118,773,320,28,'CONTRATO COM O CLUBE',17,MUTED)
+ text('contractSince',118,812,320,28,size=18);text('contractState',118,850,320,42,size=16,color=MUTED)
  # This label also serves as the native screen-ready sentinel.
  text('profileCaption',490,276,1320,27,size=19,color=MUTED)
  for tab,title in enumerate(('Visão geral','Passagens','Títulos','Estilo de jogo','Histórico anual')):
@@ -59,12 +58,16 @@ def profile_scene(assets):
  text('coverage',514,863,1250,24,'Placares individuais confirmados. A campanha total inclui os contadores da competição.',16,MUTED,0)
  text('recentEmpty',550,781,1170,36,'Nenhum placar individual disponível para este filtro.',21,MUTED)
  # History / titles retain independent pagination and competition artwork.
+ image('profile_track','titleTimelineRail',493,333,3,500,2)
  for i in range(3):
   y=315+i*182;image('profile_entry','entryCard'+str(i),490,y,1320,166)
+  image('profile_dot','titleTimelineDot'+str(i),483,y+34,22,22,2)
   for key in list(assets):
    if key.startswith('crest_'):image(key,'entry'+str(i)+'_'+key,510,y+18,74,74)
    elif key.startswith('competition_'):image(key,'trophy'+str(i)+'_'+key,510,y+18,86,90)
-  text('entryName'+str(i),609,y+11,920,35,size=26);text('entryStatus'+str(i),1564,y+14,220,30,size=19,color=MUTED);text('entryDates'+str(i),609,y+51,1180,28,size=19,color=MUTED);text('entryTotal'+str(i),609,y+88,1180,28,size=21)
+   elif key.startswith('cup_'):image(key,'cup'+str(i)+'_'+key,1668,y+61,100,100)
+  for tone in ('current','dismissed','resigned','ended','buyout','transferred'):image('status_'+tone,'entryBadge'+str(i)+'_'+tone,1486,y+11,300,36)
+  text('entryName'+str(i),609,y+11,850,35,size=26);text('entryStatus'+str(i),1500,y+18,275,27,size=18,color=INK);text('entryDates'+str(i),609,y+51,1180,28,size=19,color=MUTED);text('entryTotal'+str(i),609,y+88,1180,28,size=21)
   for j,label in enumerate(('JOGOS','VITÓRIAS','EMPATES','DERROTAS','GOLS PRÓ','GOLS CONTRA')):
    x=609+j*195;text('entryValue'+str(i)+'_'+str(j),x,y+83,180,29,size=24);text('entryLabel'+str(i)+'_'+str(j),x,y+113,180,19,label,12,MUTED)
   text('entryHome'+str(i),510,y+113,86,23,size=17,color=INK);text('entryAway'+str(i),1220,y+122,556,24,size=16,color=MUTED)

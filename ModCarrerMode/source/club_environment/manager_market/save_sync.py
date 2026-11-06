@@ -10,6 +10,24 @@ import hashlib,json,zlib
 def record(path):
  return dict(line.split('=',1) for line in Path(path).read_text(encoding='utf-8-sig').splitlines() if '=' in line)
 
+def pending_checkpoint(market,game,save,context=None):
+ """A known native write must bind before any load may seed/restore its slot."""
+ folder=Path(game)/'ModCarrerMode/runtime/manager_market/save_events';save=Path(save)
+ def normal(path):return Path(str(path).removeprefix('\\\\?\\')).resolve()
+ for path in folder.glob('*.tsv'):
+  try:
+   event=record(path)
+   if not event.get('market_revision') or event.get('operation')!='write' or normal(event['path'])!=normal(save):continue
+   # A slot may be overwritten/copied after this receipt was captured. Its
+   # old marker cannot belong to a different saved club or a future date.
+   # Use the already-decoded save, never poll/decode DATA again here.
+   if context and (int(event['market_club'])!=context.get('saved_club',context['club']) or int(event['market_date'])>context.get('saved_date',context['date'])):continue
+   if market.db.execute('SELECT 1 FROM save_receipts WHERE event_id=?',(path.stem,)).fetchone():continue
+   with save.open('rb') as stream:header=stream.read(160)
+   if len(header)==160 and save.stat().st_size==int(event['size_bytes']) and int.from_bytes(header[132:136],'little')==int(event['payload_crc32']):return True
+  except (OSError,ValueError,KeyError,TypeError):continue
+ return False
+
 def bind_pending(market,game,current=None):
  folder=Path(game)/'ModCarrerMode/runtime/manager_market/save_events';bound=[]
  if not folder.is_dir():return bound
@@ -19,7 +37,17 @@ def bind_pending(market,game,current=None):
    if event.get('operation')!='write' or event.get('complete_file')!='1' or event.get('save_type')!='SaveType_Career':continue
    ident=path.stem
    if market.db.execute('SELECT 1 FROM save_receipts WHERE event_id=?',(ident,)).fetchone():continue
-   candidate=market.db.execute('SELECT s.* FROM session_states s LEFT JOIN session_observations o ON o.pid=s.pid AND o.created=s.created AND o.context=s.context AND o.captured_ms=s.captured_ms WHERE s.pid=? AND s.created=? AND s.context=? AND s.epoch=? AND COALESCE(o.observed_ms,s.captured_ms)<=? ORDER BY s.game_date DESC,s.captured_ms DESC LIMIT 1',(pid,created,context,epoch,tick)).fetchone()
+   revision=event.get('market_revision')
+   query='SELECT s.* FROM session_states s LEFT JOIN session_observations o ON o.pid=s.pid AND o.created=s.created AND o.context=s.context AND o.captured_ms=s.captured_ms WHERE s.pid=? AND s.created=? AND s.epoch=? AND COALESCE(o.observed_ms,s.captured_ms)<=?'
+   args=(pid,created,epoch,tick)
+   if revision:
+    # Exact revision selected by the real completed write, not whichever SQL
+    # branch happens to be active when a verification read finishes later.
+    if len(revision)!=64 or any(c not in '0123456789abcdef' for c in revision):continue
+    candidate=market.db.execute(query+' AND s.state_hash=? AND s.context=? AND s.captured_ms<=? ORDER BY s.captured_ms DESC LIMIT 1',args+(revision,int(event['market_context'],16),tick)).fetchone()
+    if candidate is None:continue
+   else:
+    candidate=market.db.execute(query+' AND s.context=? ORDER BY s.game_date DESC,s.captured_ms DESC LIMIT 1',args+(context,)).fetchone()
    owner=dict(pid=pid,created=created,context=context,epoch=epoch)
    # An unrelated old receipt cannot bind a SQL world. Do not repeatedly
    # reopen and decode its complete FIFA save on every background poll.
@@ -40,6 +68,7 @@ def bind_pending(market,game,current=None):
    payload=candidate['state'] if candidate else None
    state=json.loads(zlib.decompress(payload)) if payload else None
    info=state['info'] if state else {}
+   if revision and (info.get('game_date')!=int(event['market_date']) or info.get('user_club')!=int(event['market_club'])):continue
    if info.get('game_date')!=dates[0]['currdate'] or info.get('user_club')!=clubs[0]['clubteamid']:
     # The calendar may advance faster than the Python worker. An older SQL
     # world must not be permanently attached to a newly completed native save.
@@ -54,7 +83,7 @@ def bind_pending(market,game,current=None):
    # The newer explicit write wins; ordinary loads never overwrite snapshots.
    newer=market.db.execute('SELECT 1 FROM save_receipts WHERE save_hash=? AND created=? AND write_ms>?',(digest,created,tick)).fetchone()
    if not newer:market.checkpoint(digest,save,replace=True,state=payload)
-   market.db.execute('INSERT INTO save_receipts VALUES(?,?,?,?,?,?,?,?)',(ident,digest,info['id'],info['game_date'],pid,created,tick,'native_write'))
+   market.db.execute('INSERT INTO save_receipts VALUES(?,?,?,?,?,?,?,?)',(ident,digest,info['id'],info['game_date'],pid,created,tick,'native_write_v2'))
    bound.append(dict(event=ident,digest=digest,branch=info['id'],date=info['game_date'],path=str(save)))
   except (OSError,ValueError,KeyError,TypeError,UnicodeError):continue
  return bound

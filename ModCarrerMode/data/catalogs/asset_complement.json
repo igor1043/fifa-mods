@@ -1,7 +1,7 @@
 {
   "schema": 1,
-  "release": "FIFA Friends V12 / 2026-11-04 / official V3",
-  "purpose": "Cumulative public static assets; delta over 02 November R2. No career state or generated match caches.",
+  "release": "FIFA Friends V12 / 2026-11-06 / official V3",
+  "purpose": "Cumulative public static assets; incremental package over 04 November. No saves or generated career caches.",
   "room_version": 3,
   "legacy_room_active": false,
   "retired_assets": [
@@ -46,6 +46,7 @@
     "ModCarrerMode/data/club_environment/room/clubs/568/mural.png",
     "ModCarrerMode/data/club_environment/room/clubs/569/mural.png",
     "ModCarrerMode/data/club_environment/room/clubs/598/mural.png",
+    "data/loc/por_br.db",
     "data/sceneassets/server16_dressing_room_20261022/ceiling_r49.rx3",
     "data/sceneassets/server16_dressing_room_20261022/ceiling_r71.rx3",
     "data/sceneassets/server16_dressing_room_20261022/ceiling_r72.rx3",
@@ -144,11 +145,11 @@
     "data/ui/imgAssets/tileicons/ti_teamstats_small_nonactive.DDS"
   ],
   "groups": {
-    "existing_base": 1084,
+    "existing_base": 1083,
     "room_art": 213,
     "manager_interface": 3,
     "manager_minifaces": 1527,
-    "room_v3": 99
+    "room_v3": 106
   },
   "files": [
     {
@@ -8992,11 +8993,6 @@
       "sha256": "aefbd1bc46bbc88221da9e957d8225ef4792888555e887853729f5be90174b84"
     },
     {
-      "path": "data/loc/por_br.db",
-      "bytes": 3458156,
-      "sha256": "9919aa1bcd5993c4598d3948f6969f6e43348874d5502754e83e73d8f8961648"
-    },
-    {
       "path": "data/sceneassets/entrance_props/competitions/1/asset.ini",
       "bytes": 301,
       "sha256": "983a4fd58c259e9c11091d2840e3cc09d16016f55debd9cac57bb10574ef62bc"
@@ -12409,7 +12405,7 @@
     {
       "path": "data/sceneassets/server16_dressing_room_v3/ceiling_details.rx3",
       "bytes": 138640,
-      "sha256": "28d7adc6d0a2205e6f92e2d51bfacbfee9b5d9458c7eb2c658648202559a86bc"
+      "sha256": "5d9e89477022af2e784dfc4972bf16e82bb302d57a072ddc249747d64e21bd2a"
     },
     {
       "path": "data/sceneassets/server16_dressing_room_v3/ceiling_details_5d9e89477022af.rx3",
@@ -12429,12 +12425,17 @@
     {
       "path": "data/sceneassets/server16_dressing_room_v3/crests.rx3",
       "bytes": 2080,
-      "sha256": "4f71da6da0cd4e96313b242292f86087a4585a19ebb496566f9e002719cb8412"
+      "sha256": "63759b772adbd141bd8afb256e952b370d7c19cafbdf1d78d21fbc1c7c2f164a"
     },
     {
       "path": "data/sceneassets/server16_dressing_room_v3/crests_238f4c4ced9d79.rx3",
       "bytes": 2080,
       "sha256": "238f4c4ced9d7994e1ab3e31ad128631c186b64347c3a53d15bfe472bf83a1ff"
+    },
+    {
+      "path": "data/sceneassets/server16_dressing_room_v3/crests_63759b772adbd1.rx3",
+      "bytes": 2080,
+      "sha256": "63759b772adbd141bd8afb256e952b370d7c19cafbdf1d78d21fbc1c7c2f164a"
     },
     {
       "path": "data/sceneassets/server16_dressing_room_v3/fascia.rx3",
@@ -12449,7 +12450,7 @@
     {
       "path": "data/sceneassets/server16_dressing_room_v3/feature_wall.rx3",
       "bytes": 464,
-      "sha256": "6e9a59e8d7d96eab61d90582570ac6fc65de8e175fe8d2731b263bcf48b2462e"
+      "sha256": "383424509b5185dab8fbe97f548b994b535200ce737dbdba55b7c0e480967238"
     },
     {
       "path": "data/sceneassets/server16_dressing_room_v3/feature_wall_383424509b5185.rx3",
@@ -12468,8 +12469,13 @@
     },
     {
       "path": "data/sceneassets/server16_dressing_room_v3/interior.rx3",
-      "bytes": 735712,
-      "sha256": "fb7fefde8ca3f4231784f5b2c91bd2535f1a2c4bfec3638f64037deb0291248e"
+      "bytes": 789264,
+      "sha256": "7d46205a2329de25310af6b06d3da818babe4ed281798439e278c8d2334a2e7a"
+    },
+    {
+      "path": "data/sceneassets/server16_dressing_room_v3/interior_7d46205a2329de.rx3",
+      "bytes": 789264,
+      "sha256": "7d46205a2329de25310af6b06d3da818babe4ed281798439e278c8d2334a2e7a"
     },
     {
       "path": "data/sceneassets/server16_dressing_room_v3/interior_fb7fefde8ca3f4.rx3",
@@ -12479,12 +12485,37 @@
     {
       "path": "data/sceneassets/server16_dressing_room_v3/joinery.rx3",
       "bytes": 19952,
-      "sha256": "cdbdbd383dd130c2bac549aaa29dbe647a966d3bd0be3c2d1474e4a39307012d"
+      "sha256": "e71c06e31745b409ad816fefbb6bf3f2e01a85da1e647ca4fea880149760ec9f"
     },
     {
       "path": "data/sceneassets/server16_dressing_room_v3/joinery_e71c06e31745b4.rx3",
       "bytes": 19952,
       "sha256": "e71c06e31745b409ad816fefbb6bf3f2e01a85da1e647ca4fea880149760ec9f"
+    },
+    {
+      "path": "data/sceneassets/server16_dressing_room_v3/loading_error_texture_r81.rx3",
+      "bytes": 2766560,
+      "sha256": "434571e643e09f57a91432e65b2295c7affce9a4821eeb0ccca90fe17d3e0370"
+    },
+    {
+      "path": "data/sceneassets/server16_dressing_room_v3/loading_panel_r81.rx3",
+      "bytes": 464,
+      "sha256": "1a01729ce5efbee233623ae9fcf27d0f599604e599f688b1f5e54361468bf693"
+    },
+    {
+      "path": "data/sceneassets/server16_dressing_room_v3/loading_panel_texture_r81.rx3",
+      "bytes": 2766560,
+      "sha256": "4a90be2dcd81127d8c01835b21d0ebd98faed4a9b035d86a9cf95bb5c0fad8c8"
+    },
+    {
+      "path": "data/sceneassets/server16_dressing_room_v3/loading_progress_r81.rx3",
+      "bytes": 464,
+      "sha256": "3a64deb4a0bb31e7e5f697b261e9ca14b26baf08c111a16d55f124a1705dae02"
+    },
+    {
+      "path": "data/sceneassets/server16_dressing_room_v3/loading_progress_texture_r81.rx3",
+      "bytes": 336,
+      "sha256": "470036542101f1d8a89e658af4e8b29c2b3e1403cfa9bb4ef8211080429e372f"
     },
     {
       "path": "data/sceneassets/server16_dressing_room_v3/locker_bay.rx3",
@@ -12499,7 +12530,7 @@
     {
       "path": "data/sceneassets/server16_dressing_room_v3/logo_mount.rx3",
       "bytes": 1920,
-      "sha256": "7ed95296e3be8d76355382c40d37795a964572b0df7019107faf60a0dd0b2d4b"
+      "sha256": "a2ebc9ad5dd54877db3401945658f4c4695a042d5bbcedd54c35117e30030c74"
     },
     {
       "path": "data/sceneassets/server16_dressing_room_v3/logo_mount_a2ebc9ad5dd548.rx3",
@@ -12509,7 +12540,7 @@
     {
       "path": "data/sceneassets/server16_dressing_room_v3/room_roles.rx3",
       "bytes": 972032,
-      "sha256": "29420f143c0ce90eef5fb1aff1f1cb09e8e80ac0d11bcf2ba24c7ada006ebf3d"
+      "sha256": "42309461bad76fe831ddcd0539a2b4baa88b303fbd196c47c9957ad54cc614fe"
     },
     {
       "path": "data/sceneassets/server16_dressing_room_v3/room_roles_42309461bad76f.rx3",

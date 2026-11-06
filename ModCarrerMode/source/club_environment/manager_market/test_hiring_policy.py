@@ -23,9 +23,9 @@ class HiringPolicyTest(unittest.TestCase):
   import hiring_fit
   with patch.object(hiring_fit,'league_attraction',wraps=hiring_fit.league_attraction) as attraction:
    self.choose();self.assertEqual(1,attraction.call_count)
- def test_foreign_predecessor_gets_a_small_preference_over_host_country(self):
+ def test_brazilian_league_preference_outweighs_foreign_predecessor_when_quality_matches(self):
   self.m.db.execute("UPDATE coaches SET nationality='Italy' WHERE branch=? AND coach_id IN ('1','4')",(self.m.branch,))
-  self.assertEqual('4',self.choose())
+  self.assertEqual('5',self.choose())
  def test_elite_club_keeps_quality_when_a_suitable_free_coach_exists(self):
   self.m.db.execute("UPDATE coaches SET reputation=5 WHERE branch=? AND coach_id='4'",(self.m.branch,))
   self.assertEqual('5',self.choose())

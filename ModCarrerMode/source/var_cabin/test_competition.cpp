@@ -35,10 +35,10 @@ int main(){
     for(int id=-1;id<=2500;++id){
         rowNodes[0].value=numberValue(id);
         assert(readCompetition(41)==id);
-        assert(competitionAllowed(readCompetition(41))==(id==7||id==83));
+        assert(competitionAllowed(readCompetition(41))==(id==7||id==9||id==83||id==229));
     }
     // Allowed -> disallowed -> other allowed must not retain the old state.
-    const int transitions[]={7,-1,83,350,7,351,83,101,31,29,0};
+    const int transitions[]={7,-1,229,350,9,351,83,101,31,29,0,229,9,7,83};
     for(int id:transitions){
         rowNodes[0].value=numberValue(id);assert(readCompetition(41)==id);
     }
@@ -54,6 +54,6 @@ int main(){
     globalNodes[0].value.tag=0;assert(readCompetition(41)==-1);globalNodes[0].value=tableValue(db);
     globals.data[8]=0;assert(readCompetition(41)==-1);globals.data[8]=5;
     assert(VirtualFree(fake,0,MEM_RELEASE));image=0;
-    puts("PASS native competition reader: only 7/83, context transitions, malformed/missing data, array/hash rows");
+    puts("PASS native competition reader: only 7/9/83/229, context transitions, malformed/missing data, array/hash rows");
     return 0;
 }

@@ -73,4 +73,33 @@ class SaveSyncTest(unittest.TestCase):
   with patch('lineup_data.databases',side_effect=AssertionError('No owned snapshot; native decode is unnecessary')):
    self.assertEqual([],bind_pending(self.m,self.root))
 
+ def test_native_revision_survives_cached_context_relocation_and_later_wrong_branch(self):
+  self.capture();self.m.leave(self.m.active(club=1),20260120,'dismissal','Teste');self.m.hire(self.m.one('clubs','club_id',1),20260120,'seed')
+  with self.m.db:revision=self.m.capture_session(10,20,30,2,150)
+  expected=self.m.snapshot();coach=self.m.active(club=1)['coach_id']
+  self.event(context='ffff',market_revision=revision,market_context='1e',market_date=20260120,market_club=3)
+  self.m.open_save('unrelated','OTHER',context(20260120))
+  with self.m.db:self.m.capture_session(10,20,30,2,180)
+  self.assertEqual(1,len(self.bind()))
+  self.m.open_save(self.digest,self.save,context(20260120))
+  self.assertEqual(coach,self.m.active(club=1)['coach_id']);self.assertEqual(5,len(self.m.rows('results')))
+  actual=json.loads(zlib.decompress(self.m.snapshot()));want=json.loads(zlib.decompress(expected));actual['info'].update(id=want['info']['id'],kind=want['info']['kind']);self.assertEqual(want,actual)
+
+ def test_missing_or_foreign_revision_does_not_fall_back_to_another_market(self):
+  from save_sync import pending_checkpoint
+  self.capture();self.event(market_revision='0'*64,market_context='1e',market_date=20260120,market_club=3)
+  self.assertEqual([],self.bind());self.assertTrue(pending_checkpoint(self.m,self.root,self.save))
+  with self.m.db:revision=self.m.capture_session(10,20,30,2,150)
+  self.event(pid=11,market_revision=revision,market_context='1e',market_date=20260120,market_club=3)
+  self.assertEqual([],self.bind())
+
+ def test_old_marker_from_future_or_other_club_cannot_block_an_existing_save(self):
+  from save_sync import pending_checkpoint
+  self.event(market_revision='0'*64,market_context='1e',market_date=20271202,market_club=598)
+  self.assertFalse(pending_checkpoint(self.m,self.root,self.save,dict(context(),saved_date=20260101,saved_club=3)))
+  self.event(market_revision='0'*64,market_context='1e',market_date=20260101,market_club=598)
+  self.assertFalse(pending_checkpoint(self.m,self.root,self.save,dict(context(),saved_date=20260101,saved_club=3)))
+  self.event(market_revision='0'*64,market_context='1e',market_date=20260101,market_club=3)
+  self.assertTrue(pending_checkpoint(self.m,self.root,self.save,dict(context(),saved_date=20260101,saved_club=3)))
+
 if __name__=='__main__':unittest.main()

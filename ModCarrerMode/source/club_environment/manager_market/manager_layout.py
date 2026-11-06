@@ -7,7 +7,8 @@ from layout import Scene
 from ui_theme import ACCENT
 from profile_layout import profile_scene
 from profile_art import pitch,formation,panel,glyph
-TABS=('Clubes e ligas','Movimentações','Livres no mercado');MAIN=(0,3,4)
+TABS=('Clubes e ligas','Movimentações','Livres no mercado','Configurações','Histórico do clube');MAIN=(0,3,4,5,6)
+TAB_W=338;TAB_STEP=350
 PAGE_SIZE=6
 PAGER_Y=921
 MOVE_TOP=438;MOVE_HEIGHT=400
@@ -62,13 +63,17 @@ def prepare_assets(game,model):
    except (OSError,ValueError):pass
   assets[key]=fallback.copy()
  shield=Image.new('RGBA',(128,128));ImageDraw.Draw(shield).polygon([(28,18),(100,18),(95,83),(64,112),(33,83)],fill='#b8c6cf')
- crest_keys={r[4] for group in ('clubRows','moveRows','hireRows') for r in model[group]}|{r[1] for p in model['people'] for r in p.get('spellCards',[])}|{r[3] for p in model['people'] for r in p.get('titleCards',[])}
+ crest_keys={r[1] for r in model.get('historyClubRows',[])}|{r[4] for group in ('clubRows','moveRows','hireRows') for r in model[group]}|{r[1] for p in model['people'] for r in p.get('spellCards',[])}|{r[3] for p in model['people'] for r in p.get('titleCards',[])}
  for key in crest_keys:
   ident=key.split('_')[1];art(key,[f'data/ui/imgAssets/crest/{kind}/l{ident}.dds' for kind in ('light','dark')],(128,128),shield)
  for l in model['leagues']:
   ident=l['id'];art(l['image'],[f'data/ui/imgAssets/careerCompetitionIcons/{ident}.png',f'data/ui/imgAssets/league/light/l{ident}.dds',f'data/ui/imgAssets/league/dark/l{ident}.dds'],(128,128),shield)
  from asset_cache import competition_ids
  for ident in sorted(competition_ids(game,model)):art('competition_'+str(ident),[f'data/ui/imgAssets/careerCompetitionIcons/{ident}.png',f'data/ui/imgAssets/league/light/l{ident}.dds',f'data/ui/imgAssets/league/dark/l{ident}.dds'],(128,128),shield)
+ for ident in sorted(competition_ids(game,model)):
+  try:
+   with Image.open(io.BytesIO(portable.read_asset(f'data/ui/imgAssets/trophy256x256/t{ident}.dds'))) as src:assets['cup_'+str(ident)]=fit_image(src,(160,160))
+  except (OSError,ValueError):pass
  assets['track']=Image.new('RGBA',(4,4),'#dbe5eb')
  generic=Image.new('RGBA',(64,40));d=ImageDraw.Draw(generic);d.rounded_rectangle((1,1,62,38),5,fill='#dbe3e9');d.ellipse((22,10,42,30),outline='#8c9eaa',width=2);d.line((23,20,41,20),fill='#8c9eaa',width=2)
  from asset_cache import flag_keys
@@ -90,9 +95,9 @@ def shell(model,key,title):
  s=Scene(key,title);s.rect(60,60,1800,920,PAPER);s.text(96,111,1680,50,'MERCADO DE TÉCNICOS',36,INK,bold=True)
  text(s,'careerMeta',98,164,1700,29,'',21,MUTED)
  for i,label in enumerate(TABS):
-  action(s,96+i*580,203,568,44,i,size=24);image(s,'accent','tabMark'+str(i),96+i*580,203,568,44)
-  s.image('nav_'+('shield','trophy','coach')[i],235+i*580,215,22,22)
-  text(s,'navLabel'+str(i),96+i*580,212,568,30,label,24);s.nodes[-1]['align']=2
+  action(s,96+i*TAB_STEP,203,TAB_W,44,i,size=22);image(s,'accent','tabMark'+str(i),96+i*TAB_STEP,203,TAB_W,44)
+  if i<3:s.image('nav_'+('shield','trophy','coach')[i],114+i*TAB_STEP,215,22,22)
+  text(s,'navLabel'+str(i),140+i*TAB_STEP,212,TAB_W-52,30,label,22);s.nodes[-1]['align']=2
  return s
 
 def row_images(s,assets,prefix,rows,model,*,head=80,crest=96,slots=8,rating_height=24):
@@ -193,4 +198,21 @@ def scenes_for(model,assets):
        assets[key]=im
       node.update(type='image',asset=key)
      node.setdefault('name','deco'+str(j));node['slot']=slot;break
- return [s.pack(),p.pack(),loading.pack(),moves.pack(),free.pack()]
+ settings=shell(model,'settings','Configurações do mercado')
+ settings.text(130,292,1600,42,'CONFIGURAÇÕES DO MERCADO',29,INK,bold=True)
+ settings.image('card',130,362,1660,154)
+ settings.text(166,390,1100,36,'Mercado de técnicos',27,INK,bold=True)
+ settings.text(166,444,1240,45,'Ativa contratações, demissões, sondagens e renovações automáticas.',21,MUTED)
+ action(settings,1510,394,230,78,400,fill='#ffffff');settings.nodes[-1]['background_asset']='profile_clear'
+ for state,color in (('On',ACCENT),('Off','#a4b1ba')):
+  key='marketSwitch'+state;im=Image.new('RGBA',(120,60));d=ImageDraw.Draw(im);d.rounded_rectangle((1,1,119,59),29,fill=color);x=90 if state=='On' else 30;d.ellipse((x-23,7,x+23,53),fill='white');assets[key]=im;image(settings,key,key,1575,407,120,60)
+ text(settings,'marketState',1355,420,180,32,'',24)
+ settings.rect(166,553,1580,2,LIGHT)
+ settings.text(166,598,1000,37,'Frequência de cálculo',27,INK,bold=True)
+ settings.text(166,648,1000,62,'Define quando o mercado toma decisões. Resultados e histórico continuam sendo acompanhados.',21,MUTED)
+ action(settings,1235,592,66,65,401,'‹',fill='#ffffff',size=34);action(settings,1307,592,365,65,403,fill='#ffffff');text(settings,'cadenceName',1315,611,350,35,'',26);settings.nodes[-1]['align']=2;action(settings,1678,592,66,65,402,'›',fill='#ffffff',size=34)
+ text(settings,'cadenceHelp',166,748,1580,65,'',22,MUTED)
+ text(settings,'settingsFeedback',166,855,1580,35,'Preferências salvas para este usuário.',21,MUTED)
+ from club_history_ui import scenes as history_scenes
+ history_picker,history_timeline=history_scenes(model,assets,shell,card,text,image,action,pager,club_xy,INK=INK,MUTED=MUTED,LIGHT=LIGHT)
+ return [s.pack(),p.pack(),loading.pack(),moves.pack(),free.pack(),settings.pack(),history_picker,history_timeline]

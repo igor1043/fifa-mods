@@ -59,8 +59,14 @@ int main(void) {
     derived_next=0;derived_tick(fixture_iface);assert(derived_complete);assert(simulations==2 && refreshes==1);assert(fce_runtime_derived_copy(out,4,20260810)==4);assert(out[0].standing.played==5 && out[2].standing.played==3);assert(out[0].home_gf+out[0].away_gf==13);
     run();assert(simulations==2);++generation;assert(fce_runtime_derived_copy(out,4,20260810)==0);
     fixture.model.date=20260811;run();assert(simulations==4 && fce_runtime_derived_copy(out,4,20260810)==0);
-    standings[0].home_wins=standings[0].played=1;run();assert(simulations==5 && fce_runtime_derived_copy(out,4,20260811)==2);
-    fixture_iface[0x30]=0;++fixture.model.date;run();assert(simulations==5);
+    /* Reordering raw rows is not a new campaign. */
+    {FceStanding tmp=standings[0];standings[0]=standings[3];standings[3]=tmp;run();assert(simulations==4);tmp=standings[0];standings[0]=standings[3];standings[3]=tmp;}
+    /* Only the changed root is recalculated. Unrelated data cannot flush it. */
+    nodes[5].stage_kind=9;run();assert(simulations==5 && derived_reused==0); /* final unchanged run resets counters */
+    {FceFixture game={1,13,12,20260811,1600,1200,1201,1,0,1,1};
+     fixture.model.fixtures=&game;fixture.model.fixture_count=1;run();assert(simulations==6);game.home_score=2;run();assert(simulations==7);fixture.model.fixture_count=0;fixture.model.fixtures=NULL;run();assert(simulations==8);}
+    standings[0].home_wins=standings[0].played=1;run();assert(simulations==8 && fce_runtime_derived_copy(out,4,20260811)==2);
+    fixture_iface[0x30]=0;++fixture.model.date;run();assert(simulations==8);
     {
         FceCompNode world_nodes[435];FceStanding world_standings[290];unsigned j;
         phases=145;fixture_iface[0x30]=1;
@@ -73,7 +79,18 @@ int main(void) {
         }
         fixture.model.nodes=world_nodes;fixture.model.node_count=435;fixture.model.standings=world_standings;fixture.model.standing_count=290;
         for(j=0;j<3;++j){fixture.model.date=20260901+j;derived_next=0;derived_tick(fixture_iface);assert(derived_complete);assert(derived_cursor==145);assert(fce_runtime_derived_copy(NULL,0,fixture.model.date)==290);}
-        assert(simulations==5+145*3);
+        assert(simulations==8+145*3);
+        {
+            FceDerivedStanding golden[290],actual[290];unsigned previous=simulations;size_t k;
+            assert(fce_runtime_derived_copy(golden,290,fixture.model.date)==290);
+            for(k=0;k<145;++k){FceStanding t=world_standings[k];world_standings[k]=world_standings[289-k];world_standings[289-k]=t;}
+            derived_next=0;derived_tick(fixture_iface);assert(simulations==previous);assert(fce_runtime_derived_copy(actual,290,fixture.model.date)==290);assert(!memcmp(golden,actual,sizeof(golden)));
+            /* A counter in one root must leave the other 144 cached roots intact. */
+            world_nodes[1].stage_kind=10;derived_next=0;derived_tick(fixture_iface);
+            assert(derived_complete&&simulations==previous+1&&derived_reused==144);assert(fce_runtime_derived_copy(actual,290,fixture.model.date)==290);assert(!memcmp(golden,actual,sizeof(golden)));
+            ++generation;derived_next=0;derived_tick(fixture_iface);assert(simulations==previous+146);assert(fce_runtime_derived_copy(actual,290,fixture.model.date)==290);assert(!memcmp(golden,actual,sizeof(golden)));
+        }
     }
-    free(derived_rows);return 0;
+    {size_t k;for(k=0;k<65536;++k)free(derived_cache[k].rows);free(derived_cache);}
+    free(derived_rows);puts("PASS: date/epoch-scoped campaign reuse, semantic invalidation, order stability and 145-phase daily capture");return 0;
 }

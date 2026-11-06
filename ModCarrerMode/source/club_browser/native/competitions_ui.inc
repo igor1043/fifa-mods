@@ -1,7 +1,9 @@
 // This screen never creates a player or touches the native FCE database.
 #include "competitions_model.h"
 #include "competitions_layout.h"
+std::atomic<int> competitionPresentation{0};
 struct CompetitionView{
+ bool padHints=true;
  clubcomp::BracketScene bracketScene;clubcomp::BracketCamera viewport;bool bracketDirty=true,bracketDrag=false;int bracketPhase=-1;float bracketMouseX=0,bracketMouseY=0;uint64_t bracketLast=0;
  clubcomp::DashboardNavigation nav;bool controlReady=false,leftTriggerHeld=false,rightTriggerHeld=false;bool keyState[256]{};WORD previousPad=0;int repeatDirection=0,detailDirection=0;uint64_t repeatAt=0,detailAt=0;
  clubcomp::Data data;int selected=0,group=0,round=0,scroll=0,stat=0,statScroll=0;bool bracket=false,ready=false,expanded=false;float canvasZoom=1,canvasPanX=0,canvasPanY=0,canvasCenterX=0,canvasCenterY=0;ID3D11RasterizerState*canvasClip=nullptr;uint64_t submitted=0,retry=0,checked=0;int currentClub=0,mixedScroll=0;fs::file_time_type publication{};
@@ -22,13 +24,16 @@ struct CompetitionView{
   if(ready&&!submitted&&now>=checked){checked=now+1000;std::error_code ec;auto stamp=fs::last_write_time(art.game/L"ModCarrerMode/runtime/career_fce_snapshot.json",ec);int club=careerClub();if(club&&club!=currentClub){enter(club);return;}if(!ec&&stamp!=publication){publication=stamp;request();}}
  }
  void command(const std::string&s){if(s=="comp_refresh"){request();return;}if(!ready||data.competitions.empty())return;auto&c=data.competitions[selected];
+  if(s=="comp_activate"&&(expanded||nav.rounds||nav.fullList>=0)){if(expanded&&nav.fullList<0)fitBracket();return;}
+  if(s=="comp_activate"&&nav.focus>=3)return;
+  if(s=="comp_activate"&&nav.focus==0&&c.format!="cup"){nav.rounds=true;nav.fullList=-1;nav.matchScroll=0;return;}
   if(s=="comp_activate"||s=="comp_goals"||s=="comp_assists"){
    if(s!="comp_activate"||nav.focus==1||nav.focus==2){nav.openList(s=="comp_assists"?1:s=="comp_goals"?0:nav.focus-1);expanded=true;return;}
    expanded=true;nav.rounds=false;nav.fullList=-1;bracketDirty=true;fitBracket(true);return;
   }
   if(s=="comp_rounds"&&c.format=="cup"){expanded=true;nav.rounds=false;nav.fullList=-1;bracketDirty=true;fitBracket(true);return;}if(s=="comp_rounds"){nav.rounds=true;expanded=false;nav.fullList=-1;nav.matchScroll=0;return;}if(s=="comp_bracket"){expanded=true;nav.rounds=false;nav.fullList=-1;bracketDirty=true;fitBracket(true);return;}if(s=="comp_close"){expanded=false;nav.rounds=false;nav.fullList=-1;return;}if(s=="comp_center"){if(nav.fullList>=0)nav.listSelected=nav.listScroll=0;else fitBracket();return;}
   if(nav.fullList>=0){if(s=="comp_prev"||s=="comp_next")nav.openList(1-nav.fullList);else if(s=="comp_up"||s=="comp_down")nav.scroll(s=="comp_up"?-1:1,0,scroll,c);return;}if(expanded)return;
-  if(s=="comp_focus_left"||s=="comp_focus_right"){nav.moveFocus(s=="comp_focus_left"?-1:1);return;}
+  if(s=="comp_focus_left"||s=="comp_focus_right"){nav.moveSpatial(s=="comp_focus_left"?-1:1,0);return;}
   if(nav.rounds){if(s=="comp_prev"||s=="comp_left")nav.stepRound(-1,c);else if(s=="comp_next"||s=="comp_right")nav.stepRound(1,c);else if(s=="comp_up"||s=="comp_down")nav.scroll(s=="comp_up"?-1:1,0,scroll,c);return;}
   if(s=="comp_prev"||s=="comp_next"){int d=s=="comp_prev"?-1:1;selected=(selected+d+int(data.competitions.size()))%int(data.competitions.size());resetSelection();}
   else if(s=="comp_stat_prev"||s=="comp_stat_next"){nav.focus=s=="comp_stat_prev"?1:2;}
@@ -48,7 +53,17 @@ struct CompetitionView{
  }
  void text(ID3D11DeviceContext*c,const std::string&value,float x,float y,int w,int h,int size,COLORREF ink=RGB(25,52,76),bool center=false){scaledText(c,value,x,y,w,h,size,1,ink,center);}
  static std::string num(int n){return n<0?"—":std::to_string(n);}
- void image(ID3D11DeviceContext*c,const std::string&kind,int id,float x,float y,float w,float h){if(id<=0)return;std::string key=kind+std::to_string(id);if(images.size()>512&&!images.count(key)){for(auto&it:images)it.second.clear();images.clear();}auto&t=images[key];std::string i=std::to_string(id);std::vector<std::string>paths=kind=="trophy"?std::vector<std::string>{"data/ui/imgAssets/trophy256x256/t"+i+".dds","data/ui/imgAssets/trophy128x128/t"+i+".dds"}:kind=="head"?std::vector<std::string>{"data/ui/imgAssets/heads/p"+i+".dds","data/ui/imgAssets/heads/p0.dds"}:kind=="comp"?std::vector<std::string>{"data/ui/imgAssets/careerCompetitionIcons/"+i+".png","data/ui/imgAssets/league/light/l"+i+".dds","data/ui/imgAssets/league/dark/l"+i+".dds"}:std::vector<std::string>{"data/ui/imgAssets/crest/light/l"+i+".dds","data/ui/imgAssets/crest/dark/l"+i+".dds"};clubgfx::gameImage(renderer.device,t,art,paths);if(!t.view||!t.w||!t.h)return;float fit=(std::min)(w/t.w,h/t.h);renderer.normal(c);renderer.quad(c,x+(w-t.w*fit)/2,y+(h-t.h*fit)/2,t.w*fit,t.h*fit,t.view);}
+ void image(ID3D11DeviceContext*c,const std::string&kind,int id,float x,float y,float w,float h){
+  if(id<=0)return;std::string key=kind+std::to_string(id);if(images.size()>512&&!images.count(key)){for(auto&it:images)it.second.clear();images.clear();}
+  auto&t=images[key];std::string i=std::to_string(id);std::vector<std::string>paths;
+  if(kind=="flag")paths={"data/ui/imgAssets/flags512x512/f_"+i+".dds","data/ui/artassets/countryflags/f_"+i+".big"};
+  else if(kind=="league")paths={"data/ui/imgAssets/league/light/l"+i+".dds","data/ui/imgAssets/league/dark/l"+i+".dds"};
+  else if(kind=="trophy")paths={"data/ui/imgAssets/trophy256x256/t"+i+".dds","data/ui/imgAssets/trophy128x128/t"+i+".dds"};
+  else if(kind=="head")paths={"data/ui/imgAssets/heads/p"+i+".dds","data/ui/imgAssets/heads/p0.dds"};
+  else if(kind=="comp")paths={"data/ui/imgAssets/careerCompetitionIcons/"+i+".png","data/ui/imgAssets/league/light/l"+i+".dds","data/ui/imgAssets/league/dark/l"+i+".dds"};
+  else paths={"data/ui/imgAssets/crest/light/l"+i+".dds","data/ui/imgAssets/crest/dark/l"+i+".dds"};
+  clubgfx::gameImage(renderer.device,t,art,paths);if(!t.view||!t.w||!t.h)return;float fit=(std::min)(w/t.w,h/t.h);renderer.normal(c);renderer.quad(c,x+(w-t.w*fit)/2,y+(h-t.h*fit)/2,t.w*fit,t.h*fit,t.view);
+ }
  unsigned color(const std::string&v,unsigned fallback=0xffd6e0e5){if(v.size()!=7||v[0]!='#')return fallback;try{return 0xff000000|unsigned(std::stoul(v.substr(1),nullptr,16));}catch(...){return fallback;}}
  void arrow(ID3D11DeviceContext*c,float x,float y,int dir,unsigned ink=uitheme::accent()){renderer.primitive(c,{{x-4,y+dir*3.f},{x+4,y+dir*3.f},{x,y-dir*4.f}},ink,true);}
  void rounded(ID3D11DeviceContext*c,float x,float y,float w,float h,float radius,unsigned fill){
@@ -56,7 +71,7 @@ struct CompetitionView{
   for(int corner=0;corner<4;++corner)for(int i=0;i<=4;++i){float a=3.14159265f+(corner*4+i)*1.57079633f/4;points.push_back({centres[corner][0]+rad*std::cos(a),centres[corner][1]+rad*std::sin(a)});}
   for(size_t i=0;i<points.size();++i){triangles.push_back({x+w/2,y+h/2});triangles.push_back(points[i]);triangles.push_back(points[(i+1)%points.size()]);}r.primitive(c,triangles,fill,true);
  }
- void panel(ID3D11DeviceContext*c,float x,float y,float w,float h){bool active=!expanded&&!nav.rounds&&nav.fullList<0&&((nav.focus==0&&x==60)||(nav.focus==1&&x==757&&y==155)||(nav.focus==2&&x==757&&y==480)||(nav.focus==3&&x==1124));float border=active?3.f:1.f;rounded(c,x,y+2,w,h,10,0x0c193348);rounded(c,x,y,w,h,10,active?uitheme::accent():0xffe6edf3);rounded(c,x+border,y+border,w-2*border,h-2*border,8,0xfff9fbfe);}
+ void panel(ID3D11DeviceContext*c,float x,float y,float w,float h){bool active=!expanded&&!nav.rounds&&nav.fullList<0&&((nav.focus==0&&x==60&&y==155)||(nav.focus==1&&x==757&&y==155)||(nav.focus==2&&x==757&&y==480)||(nav.focus==3&&x==1124&&y==155)||(nav.focus==4&&x==60&&y==810)||(nav.focus==5&&x==808&&y==810));float border=active?3.f:1.f;rounded(c,x,y+2,w,h,10,0x0c193348);rounded(c,x,y,w,h,10,active?uitheme::accent():0xffe6edf3);rounded(c,x+border,y+border,w-2*border,h-2*border,8,0xfff9fbfe);}
  void table(ID3D11DeviceContext*c,clubcomp::Competition&comp){
   auto&r=renderer;panel(c,60,155,682,635);
   if(comp.groups.empty()){text(c,"Aguardando a composição dos grupos",90,370,620,65,24,RGB(116,138,150),true);return;}
@@ -90,7 +105,7 @@ struct CompetitionView{
   auto&r=renderer;panel(c,60,155,682,635);text(c,comp.knockoutFirst?"FASE ELIMINATÓRIA":"FASE DE GRUPOS",82,165,390,31,23);text(c,"Ver chaveamento  ›",490,168,204,27,18,uitheme::accentInk(),true);r.line(c,74,207,728,207,0xffe5edf3);
   mixedScroll=std::clamp(mixedScroll,0,mixedMaximum(comp));
   if(!canvasClip){D3D11_RASTERIZER_DESC desc{};r.raster->GetDesc(&desc);desc.ScissorEnable=TRUE;r.device->CreateRasterizerState(&desc,&canvasClip);}if(!canvasClip)return;
-  D3D11_RECT old[16]{};UINT count=16;c->RSGetScissorRects(&count,old);D3D11_RECT clip{LONG(r.left+64*r.scale),LONG(r.top+212*r.scale),LONG(r.left+728*r.scale),LONG(r.top+779*r.scale)};c->RSSetState(canvasClip);c->RSSetScissorRects(1,&clip);
+  ID3D11RasterizerState*oldRaster=nullptr;c->RSGetState(&oldRaster);D3D11_RECT old[16]{};UINT count=16;c->RSGetScissorRects(&count,old);D3D11_RECT clip{LONG(r.left+64*r.scale),LONG(r.top+212*r.scale),LONG(r.left+728*r.scale),LONG(r.top+779*r.scale)};if(count){clip.left=(std::max)(clip.left,old[0].left);clip.top=(std::max)(clip.top,old[0].top);clip.right=(std::min)(clip.right,old[0].right);clip.bottom=(std::max)(clip.top,(std::min)(clip.bottom,old[0].bottom));}c->RSSetState(canvasClip);c->RSSetScissorRects(1,&clip);
   float y=218.f-mixedScroll;
   auto knockout=[&](){float oldTop=r.top;r.top+=(y-212)*r.scale;if(y<779&&y+578>212)cup(c,comp,true);r.top=oldTop;y+=578;};
   if(comp.knockoutFirst){knockout();r.line(c,82,y,710,y,uitheme::accent());text(c,"FASE DE GRUPOS",86,y+9,610,28,20,uitheme::accentInk());y+=47;}
@@ -100,7 +115,7 @@ struct CompetitionView{
    }y+=height;
   }
   if(!comp.knockoutFirst){r.line(c,82,y,710,y,uitheme::accent());text(c,"FASE ELIMINATÓRIA",86,y+9,610,28,20,uitheme::accentInk());y+=47;knockout();}
-  c->RSSetState(r.raster);c->RSSetScissorRects(count,old);
+  c->RSSetState(oldRaster);clubgfx::release(oldRaster);c->RSSetScissorRects(count,old);
   float track=553,content=float(mixedMaximum(comp)+561),thumb=(std::max)(40.f,track*561/content);rounded(c,733,218,5,track,2.5f,0xffdce6ee);rounded(c,733,218+(track-thumb)*mixedScroll/(std::max)(1,mixedMaximum(comp)),5,thumb,2.5f,uitheme::accent());
  }
  void pitch(ID3D11DeviceContext*c,clubcomp::Competition&comp,float offset=0){
@@ -128,6 +143,6 @@ struct CompetitionView{
   if(data.competitions.empty()){text(c,"Nenhuma competição registrada para este clube",80,350,1440,90,25,RGB(116,138,150),true);return;}
   selected=std::clamp(selected,0,int(data.competitions.size())-1);auto&comp=data.competitions[selected];if(nav.fullList>=0){drawFullLeaders(c,comp);return;}if(expanded){drawExpanded(c,comp);return;}if(nav.rounds){drawMatchdays(c,comp);return;}r.rectangle(c,40,20,1520,80,0xfff8fbfc);image(c,"comp",comp.asset,136,32,60,57);text(c,"‹",68,35,56,53,44,uitheme::accentInk(),true);text(c,"›",1477,35,56,53,44,uitheme::accentInk(),true);text(c,comp.name,214,29,1100,45,31);text(c,comp.status+" · "+data.clubName+" · "+std::to_string(data.date/10000),216,71,1100,25,16,RGB(116,138,150));if(comp.rank>0)text(c,std::to_string(comp.rank)+"º  ·  "+num(comp.points)+" PTS",1298,35,168,47,23,uitheme::accentInk(),true);
   float tabWidth=1504.f/data.competitions.size();for(size_t i=0;i<data.competitions.size();++i){float xx=48+i*tabWidth;r.rectangle(c,xx,102,tabWidth-5,40,i==selected?uitheme::accent():0xffdde6eb);text(c,data.competitions[i].name,xx+8,106,int(tabWidth)-21,32,15,i==selected?uitheme::selectedText():RGB(52,77,90),true);}
-  if(comp.format=="cup"&&!comp.groups.empty())mixed(c,comp);else if(comp.format=="cup")cup(c,comp);else table(c,comp);leaderCards(c,comp);detailRail(c,comp);r.normal(c);
+  dashboardBody(c,comp);r.normal(c);
  }
 } competitions;

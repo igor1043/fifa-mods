@@ -7,6 +7,13 @@ original contém 14 registros novos de times e remove um registro anterior.
 DB e LOC ficam versionados na branch `fifa-friends-v12`. Imagens, kits,
 minifaces, caches, saves e bancos pessoais não fazem parte desse commit.
 
+## Prioridade dos idiomas
+
+Todos os 18 bancos de idioma, os respectivos metadados e `locale.big` seguem
+o pacote do Robson. Em conflitos de string, prevalece o conteúdo recebido;
+apenas chaves locais inexistentes no pacote devem ser preservadas. A
+comparação desta entrega não encontrou chaves locais ausentes no recebido.
+
 ## Catálogos e compatibilidade
 
 - O globo e o ranking continuam lendo os vínculos da DB. Um vínculo primário

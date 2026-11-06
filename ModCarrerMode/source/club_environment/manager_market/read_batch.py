@@ -1,6 +1,8 @@
-"""Transaction-local read reuse; every SQL mutation invalidates its table.
+"""Transaction-local rows plus a versioned campaign working set.
 
-Never shared across threads/connections, careers, transactions or rollbacks.
+Rows never cross transactions. The campaign index may survive a successful
+commit; table versions, native branch keys and SQLite data_version validate
+it. External commits and rollback discard it before it can be reused.
 The database remains the source of truth; cached dictionaries are not writable
 state and callers always receive their own copies.
 """
@@ -11,9 +13,26 @@ import sqlite3
 
 MUTATION=re.compile(r'^\s*(?:INSERT(?:\s+OR\s+\w+)?\s+INTO|REPLACE\s+INTO|UPDATE(?:\s+OR\s+\w+)?|DELETE\s+FROM)\s+["`\[]?(\w+)',re.I)
 
+class Cursor(sqlite3.Cursor):
+ def executescript(self,sql):
+  self.connection.invalidate_all();return super().executescript(sql)
+ def execute(self,sql,parameters=()):
+  before=self.connection.total_changes
+  try:return super().execute(sql,parameters)
+  finally:self.connection.invalidate(sql,self.connection.total_changes!=before)
+ def executemany(self,sql,parameters):
+  before=self.connection.total_changes
+  try:return super().executemany(sql,parameters)
+  finally:self.connection.invalidate(sql,self.connection.total_changes!=before)
+
 class Connection(sqlite3.Connection):
  def __init__(self,*args,**kwargs):
-  super().__init__(*args,**kwargs);self.read_depth=0;self.read_cache=OrderedDict();self.versions={};self.campaign_state=None;self.active_index=None
+  super().__init__(*args,**kwargs);self.read_depth=0;self.read_cache=OrderedDict();self.versions={};self.campaign_state=None;self.active_index=None;self.external_version=None
+ def sync_external(self):
+  version=super().execute('PRAGMA data_version').fetchone()[0]
+  if self.external_version is not None and version!=self.external_version:self.invalidate_all()
+  self.external_version=version
+ def cursor(self,factory=Cursor):return super().cursor(factory)
  def invalidate_all(self):
   self.read_cache.clear();self.campaign_state=None;self.active_index=None
   for table in self.versions:self.versions[table]+=1
@@ -39,15 +58,17 @@ class Connection(sqlite3.Connection):
   try:return super().__exit__(*args)
   finally:
    if args[0] is not None:self.invalidate_all()
-   else:self.read_cache.clear();self.campaign_state=None;self.active_index=None
+   else:self.read_cache.clear();self.active_index=None
  @contextmanager
  def read_batch(self):
-  if not self.read_depth:self.read_cache.clear();self.campaign_state=None;self.active_index=None
+  if not self.read_depth:self.sync_external();self.read_cache.clear();self.active_index=None
   self.read_depth+=1
   try:yield
+  except BaseException:
+   self.campaign_state=None;raise
   finally:
    self.read_depth-=1
-   if not self.read_depth:self.read_cache.clear();self.campaign_state=None;self.active_index=None
+   if not self.read_depth:self.read_cache.clear();self.active_index=None
  def rows(self,branch,table,where,args):
   if where:return [dict(row) for row in super().execute('SELECT * FROM '+table+' WHERE branch=? AND '+where,(branch,*args))]
   key=(branch,table,where,args);version=self.versions.get(table,0)

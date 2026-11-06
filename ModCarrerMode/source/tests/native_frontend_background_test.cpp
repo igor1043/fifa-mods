@@ -70,7 +70,7 @@ int main(){
     assert(frontend_stadium::photographPolicy(false,true,true,false,false)==Photo::Friends);
     assert(frontend_stadium::photographPolicy(true,true,false,false,false)==Photo::Friends);
     assert(frontend_stadium::photographPolicy(true,true,false,true,true)==Photo::Stadium);
-    assert(frontend_stadium::photographPolicy(false,true,false,true,true)==Photo::Original);
+    assert(frontend_stadium::photographPolicy(false,true,false,true,true)==Photo::Stadium);
     // Career exit has already finished loading, but its page is temporarily
     // absent. The profile's photograph (229/Grêmio here) must stay covered.
     assert(frontend_stadium::photographPolicy(false,true,false,true,true,true)==Photo::Friends);
@@ -150,7 +150,7 @@ int main(){
     page="game/screens/saveload_pc/profile";
     assert(frontend_stadium::reloadPage(0,pageRead));
     page="game/screens/career/server16/ClubBrowser";
-    assert(frontend_stadium::pageKind(0,pageRead)==frontend_stadium::PageKind::Menu);
+    assert(frontend_stadium::pageKind(0,pageRead)==frontend_stadium::PageKind::ClubBrowser);
     page="game/screens/playNow/KickOffHub";
     assert(!frontend_stadium::reloadPage(0,pageRead));
     assert(frontend_stadium::pageKind(0,pageRead)==frontend_stadium::PageKind::Other);

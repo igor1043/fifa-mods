@@ -2,6 +2,7 @@
 from pathlib import Path
 import hashlib,json,os,sys,time,traceback,subprocess
 from concurrent.futures import ThreadPoolExecutor
+from collections import OrderedDict
 import psutil
 import portable_paths as portable
 import prepared_views
@@ -13,7 +14,7 @@ from engine import Market
 from model import project
 from screen import UI_SIGNATURE,build,waiting
 from live_leagues import read as read_live_leagues
-from save_sync import bind_pending
+from save_sync import bind_pending,pending_checkpoint
 from asset_cache import revision as artwork_revision
 from model_assets import publication as publish_model_assets
 
@@ -69,6 +70,7 @@ class Service:
   self.executor=render_executor if render_executor is not None else ThreadPoolExecutor(max_workers=1,thread_name_prefix='manager-presentation') if background else None
   self.pending=None;self.latest_request=None;self.published_key=None;self.presentation_scope=None;self.model_revision=None;self.model_cache=None;self.render_retry=0;self.load_serial=0
   self.progress=None
+  self.profile_serial=0;self.profile_input=None;self.profile_cache=OrderedDict();self.settings_input=None;self.history_input=None;self.history_cache=OrderedDict()
  def stage(self,index):
   if self.progress:self.progress.set(index)
  def capture_monthly(self,observed,memory,checkpoint=False):
@@ -90,6 +92,8 @@ class Service:
   marker=(reason,repr(values))
   if marker!=getattr(self,'last_presentation_wait',None):log('presentation_wait',reason=reason,**values);self.last_presentation_wait=marker
  def publish(self,request,observed,memory,cached,build_seconds):
+  if request.get('profile_serial',0)!=self.profile_serial:
+   self.presentation_wait('superseded_profile');return
   if request['scope']!=self.presentation_scope or request['observed_scope']!=view_scope(observed):
    self.presentation_wait('changed_scope',request_scope=request['scope'],current_scope=self.presentation_scope,request_observation=request['observed_scope'],current_observation=view_scope(observed));return
   if memory is not None:
@@ -108,6 +112,69 @@ class Service:
   atomic(ROOT/'active.json',json.dumps(dict(schema=1,pid=saved['pid'],created=saved['process_created_100ns'],save=saved['path'],database=str(self.market.path),branch=self.market.branch,date=context['date'],ready=True),ensure_ascii=False).encode('utf8'))
   self.publication=revision;self.published_key=request['key'];prepared_views.publish(ROOT/'view_ready.tsv',saved,observed['profile'],context['date'],revision)
   log('published',date=context['date'],clubs=len(request['model']['clubRows']),free=len(request['model']['freeRows']),dismissals=len(request['model']['moveRows']),seconds=round(time.perf_counter()-request['started'],3),input_engine_seconds=round(request['input_seconds'],3),model_seconds=round(request['model_seconds'],3),build_seconds=round(build_seconds,3),package_cached=cached,background_build=self.executor is not None)
+ def service_history(self,observed):
+  if not self.market or not self.market.branch or not self.model_cache or not self.latest_request:return
+  base=self.model_cache[0]
+  if base['date']!=observed.get('date'):return
+  from club_history import request,build as history
+  try:click=request(ROOT/'history_request.tsv',observed,base,prepared_views.ticks())
+  except (OSError,ValueError,KeyError,TypeError):return
+  if click['identity']==self.history_input:return
+  self.history_input=click['identity'];started=time.perf_counter();identity=(self.market.branch,base['date'],click['club'])
+  if identity not in self.history_cache:
+   with self.market.db.read_batch():self.history_cache[identity]=history(self.market,click['club'],base['people'])
+   while len(self.history_cache)>8:self.history_cache.popitem(last=False)
+  self.history_cache.move_to_end(identity)
+  model=dict(base,clubHistory=self.history_cache[identity],resume=click['resume']);key=package_key(model,UI_SIGNATURE,artwork_revision(GAME,model))
+  self.model_cache=(model,key);self.profile_serial+=1
+  self.latest_request=dict(self.latest_request,model=model,key=key,package=ROOT/'packages'/('managers_'+key+'.big'),profile_serial=self.profile_serial,started=started,model_seconds=time.perf_counter()-started,input_seconds=0)
+  log('club_history_requested',club=click['club'],spells=len(model['clubHistory']['rows']),seconds=round(time.perf_counter()-started,3))
+ def service_settings(self,observed):
+  if not self.market or not self.market.branch or not self.model_cache or not self.latest_request:return
+  base=self.model_cache[0]
+  if base['date']!=observed.get('date'):return
+  from market_settings import request,write
+  try:change=request(ROOT/'settings_request.tsv',observed,base,prepared_views.ticks())
+  except (OSError,ValueError,KeyError,TypeError):return
+  if change['identity']==self.settings_input:return
+  self.settings_input=change['identity'];error=None
+  try:
+   # Preferences persist independently of the selected save. No old dates
+   # are replayed when the user changes frequency or re-enables the market.
+   with self.market.db:
+    value=change['value'];self.market.db.execute('INSERT OR REPLACE INTO market_cycles VALUES(?,0,?,?,?)',(self.market.branch,self.market.info()['game_date'],value['cadence'],int(value['enabled'])))
+    value=write(self.market.path.with_name('server16_manager_market_settings.json'),value)
+   self.market.simulation_settings=value
+   log('market_settings_saved',**value)
+  except OSError as exc:
+   error='Não foi possível salvar. Tente novamente.';log('market_settings_failed',error=str(exc))
+  value=getattr(self.market,'simulation_settings',dict(enabled=True,cadence=1))
+  model=dict(base,settings=dict(value),settingsError=error,resume=dict(tab=3,focus=400,profile=False))
+  key=package_key(model,UI_SIGNATURE,artwork_revision(GAME,model));self.model_cache=(model,key);self.profile_serial+=1
+  self.latest_request=dict(self.latest_request,model=model,key=key,package=ROOT/'packages'/('managers_'+key+'.big'),profile_serial=self.profile_serial,started=time.perf_counter(),model_seconds=0,input_seconds=0)
+ def service_profile(self,observed):
+  if not self.market or not self.model_cache or not self.latest_request:return
+  base=self.model_cache[0]
+  if not base.get('lazyProfiles') or base['date']!=observed.get('date') or self.market.info()['game_date']!=base['date']:return
+  from profile_request import read
+  try:request=read(ROOT/'profile_request.tsv',observed,base,prepared_views.ticks())
+  except (OSError,ValueError,KeyError,TypeError):return
+  if request['identity']==self.profile_input:return
+  self.profile_input=request['identity'];self.profile_serial+=1;started=time.perf_counter()
+  person=request['person'];coach=request['coach']
+  if coach and coach not in self.profile_cache:
+   with self.market.db.read_batch():
+    detail=project(self.market,user_confidence=self.context.get('user_confidence'),lightweight=True,detail_coach=coach)
+   selected=detail['people'][person]
+   if selected['id']!=coach:raise ValueError('Catálogo mudou durante a consulta do perfil')
+   self.profile_cache[coach]=selected
+   while len(self.profile_cache)>8:self.profile_cache.popitem(last=False)
+  if coach:self.profile_cache.move_to_end(coach)
+  people=[self.profile_cache.get(p['id'],p) for p in base['people']]
+  model=dict(base,people=people,resume=request['resume'])
+  key=package_key(model,UI_SIGNATURE,artwork_revision(GAME,model));seconds=time.perf_counter()-started
+  self.latest_request=dict(model=model,key=key,package=ROOT/'packages'/('managers_'+key+'.big'),scope=self.presentation_scope,observed_scope=view_scope(observed),context=self.context,started=started,input_seconds=0,model_seconds=seconds,profile_serial=self.profile_serial)
+  log('profile_requested' if coach else 'profile_return',coach=coach,date=base['date'],seconds=round(seconds,3),cached_profiles=len(self.profile_cache))
  def service_render(self,observed,memory):
   if self.market and self.publication and not self.pending and getattr(self,'cleanup_pending',False) and time.monotonic()>=self.cleanup_at:
    with self.market.db:removed=self.market.discard_abandoned(protected_branches(self.market),limit=1)
@@ -192,6 +259,9 @@ class Service:
   signature=contract_signature(observed,snapshot,token,live_leagues,derived_rows)
   # Drain a completed view before doing another calendar transaction. A new
   # native publication must not leave an already finished render waiting here.
+  self.service_history(observed)
+  self.service_settings(observed)
+  if signature==self.last_signature:self.service_profile(observed)
   self.service_render(observed,memory)
   if signature==self.last_signature:
    self.capture_monthly(observed,memory)
@@ -203,7 +273,11 @@ class Service:
   options=dict(live_leagues=live_leagues)
   if league_only:options['league_only']=True
   if calendar_snapshot is not None:options['calendar_snapshot']=calendar_snapshot
-  owner=(saved['pid'],saved['process_created_100ns'],observed['profile']['context_address'])
+  # FIFA reads DATA while saving/verifying slots too. A ReadFile receipt is
+  # not a career load; the native load epoch is the timeline boundary. The
+  # selected context can also relocate inside that same epoch.
+  epoch=observed['profile'].get('context_epoch',0)
+  owner=(saved['pid'],saved['process_created_100ns'],epoch,0 if epoch else observed['profile']['context_address'])
   if calendar_snapshot is not None and self.context and owner==self.owner and token==self.last_io:
    from live_sampler import calendar_context
    context=calendar_context(self.context,calendar_snapshot,live_leagues['rows'] if live_leagues else [])
@@ -215,22 +289,35 @@ class Service:
   if fresh:
    if self.market:self.market.close()
    self.market=Market(db_path,GAME/'ModCarrerMode/data/manager_market/catalog.sqlite3')
+   from market_settings import read as read_preferences
+   try:self.market.simulation_settings=read_preferences(db_path.with_name('server16_manager_market_settings.json'))
+   except (OSError,ValueError,TypeError,KeyError):
+    log('market_settings_read_failed');self.market.simulation_settings=dict(enabled=True,cadence=1)
+  unloaded=self.market.branch is None or not self.market.db.execute('SELECT 1 FROM branches WHERE id=?',(self.market.branch,)).fetchone()
   with self.market.db:
    receipts=bind_pending(self.market,GAME)
    resumed=self.resume_handoff(observed,context,token) if fresh else False
-   if not resumed and (fresh or owner!=self.owner or (token!=self.last_io and io.get('operation')=='read')):
+   # A season rollover may replace the native context while the last DATA
+   # receipt still describes last year's save. Only a matching saved date
+   # plus a real read can restore an existing market; rollover carries it on.
+   native_load=owner!=self.owner and io.get('operation')=='read' and context.get('saved_date',context['date'])==context['date']
+   if not resumed and (fresh or unloaded or native_load):
+    if pending_checkpoint(self.market,GAME,path,context):raise ValueError('Aguardando o snapshot do mercado vinculado ao salvamento; nenhum mercado será recriado')
     status=self.market.open_save(digest,path,context);log('career_'+status,database=str(db_path),branch=self.market.branch,date=context['date'])
    elif context['date']<self.market.info()['game_date']:
     self.market.open_save(digest,path,context);log('restored_after_date_rewind',date=context['date'])
    from campaign_recovery import recover
    recovered=recover(self.market,context,path)
    if recovered:log('empty_campaign_recovered',**recovered)
+   if self.progress:
+    self.progress.market_start(self.market.info()['game_date'],context['date'],len(context.get('clubs',[])));self.market.market_progress=self.progress
    if getattr(self,'sampler',None):
     from live_sampler import replay
     samples=self.sampler.drain(observed,token,self.market.info()['game_date']);replay_started=time.perf_counter()
     replayed=replay(self.market,context,samples)
     if replayed:log('calendar_days_processed',dates=replayed,through=context['date'],captured_days=len(samples),processed_days=len(replayed),seconds=round(time.perf_counter()-replay_started,3))
    self.market.advance(context)
+   if self.progress:self.progress.market_day(context['date'],complete=True)
    if fresh:
     removed=self.market.discard_abandoned(protected_branches(self.market),limit=1);self.cleanup_pending=True;self.cleanup_at=time.monotonic()+10
     if removed:log('discarded_abandoned_sessions',count=len(removed))
@@ -254,8 +341,12 @@ class Service:
   for receipt in receipts:log('save_checkpoint_bound',receipt_id=receipt['event'],**{k:v for k,v in receipt.items() if k!='event'})
   state=dict(schema=1,pid=saved['pid'],created=saved['process_created_100ns'],save=saved['path'],database=str(db_path),branch=self.market.branch,date=context['date'],digest=digest,context=observed['profile']['context_address'],epoch=observed['profile'].get('context_epoch',0),club=context['club'],io=list(token),revision=state_revision)
   atomic(ROOT/'state_ready.json',json.dumps(state,ensure_ascii=False,sort_keys=True).encode('utf8'))
+  # The native completed-write hook copies this immutable SQL revision into
+  # its durable receipt. It never opens SQLite or invokes FIFA from I/O.
+  marker=dict(schema=1,pid=saved['pid'],created=saved['process_created_100ns'],context=format(observed['profile']['context_address'],'x'),epoch=epoch,date=context['date'],club=context['club'],revision=state_revision)
+  atomic(ROOT/'save_state.tsv',''.join(f'{k}={v}\n' for k,v in marker.items()).encode('ascii'))
   publish_model_assets(GAME,self.market.db,state);self.model_asset_scope=state
-  reviews=self.market.rows('reviews');movements=self.market.rows('movements');engine_status=dict(date=context['date'],branch=self.market.branch,tracking_start=self.market.info()['start_date'],coverage=context.get('coverage',{}),recorded_matches=len(self.market.rows('results')),evaluations=len(reviews),evaluations_today=sum(r['game_date']==context['date'] for r in reviews),dismissals=sum(r['kind']=='dismissal' for r in movements),hires=sum(r['kind'] in ('hired','interim_appointed') for r in movements),protected_club=context['club'],protected_club_market_events=sum(r['club_id']==context['club'] and r['kind'] in ('dismissal','resignation','hired','interim_appointed','poached','retirement') for r in movements))
+  engine_status=dict(date=context['date'],branch=self.market.branch,tracking_start=self.market.info()['start_date'],coverage=context.get('coverage',{}),protected_club=context['club'],**self.market.status_counts(context['date']),journal=self.market.journal.stats)
   atomic(ROOT/'engine_status.json',json.dumps(engine_status,ensure_ascii=False,indent=2).encode('utf8'));log('engine_advanced',**engine_status)
   if league_only:
    # Calendar work is already committed. Player-statistics and presentation
@@ -267,11 +358,14 @@ class Service:
   projected=time.perf_counter();model_revision=(state_revision,context.get('user_confidence'))
   if model_revision==self.model_revision and self.model_cache is not None:model,token_hash=self.model_cache
   else:
-   model=project(self.market,user_confidence=context.get('user_confidence'));token_hash=package_key(model,UI_SIGNATURE,artwork_revision(GAME,model));self.model_cache=(model,token_hash);self.model_revision=model_revision
+   with self.market.db.read_batch():model=project(self.market,user_confidence=context.get('user_confidence'),lightweight=True)
+   model.update(lazyProfiles=True,profileToken=hashlib.sha256((state_revision+repr(scope)+UI_SIGNATURE).encode()).hexdigest())
+   token_hash=package_key(model,UI_SIGNATURE,artwork_revision(GAME,model));self.model_cache=(model,token_hash);self.model_revision=model_revision
+   self.profile_serial+=1;self.profile_input=None;self.profile_cache.clear();self.history_cache.clear();self.history_input=None
   prepared=time.perf_counter()
   package=ROOT/'packages'/('managers_'+token_hash+'.big')
   self.last_signature=signature
-  self.latest_request=dict(model=model,key=token_hash,package=package,scope=scope,observed_scope=view_scope(observed),context=context,started=started,input_seconds=projected-started,model_seconds=prepared-projected)
+  self.latest_request=dict(model=model,key=token_hash,package=package,scope=scope,observed_scope=view_scope(observed),context=context,started=started,input_seconds=projected-started,model_seconds=prepared-projected,profile_serial=self.profile_serial)
   self.stage(4)
   log('presentation_model_ready',date=context['date'],key=token_hash,cached=package.is_file(),seconds=round(prepared-projected,3))
   self.service_render(observed,memory)
@@ -325,7 +419,8 @@ def main():
    try:service.update(observe(memory),memory);error=None
    except Exception as exc:
     message=str(exc)
-    if message!=error:log('waiting',error=message);error=message
+    if service.progress:service.progress.fail(message)
+    if message!=error:log('waiting',error=message,traceback=traceback.format_exc());error=message
    time.sleep(.5)
  except psutil.NoSuchProcess:pass
  except Exception as exc:log('failed',error=str(exc),traceback=traceback.format_exc())

@@ -22,7 +22,8 @@ def script(data,dictionaries,scenes):
    a.set(R(1),'bound',True);a.set(T('scene0'),'_visible',True);a.set(R(1),'onEnterFrame',T('Tick'))
    for i,handler in ((0,None),(1,'OpenRounds'),(2,'CloseBracket'),(3,'OpenBracket'),(4,'OpenGoals'),(5,'OpenAssists')):
     button=P(T('scene0'),'action'+str(i));a.set(button,'_alpha',0);a.set(button,'owner',R(1))
-    if handler:a.set(button,'onRelease',T('Mouse'+handler))
+    # Native hit testing follows the scrolled content. Static invisible APT
+    # rectangles must not open a different card after the viewport moves.
    a.set(P(T('scene0'),'action2'),'_visible',False)
    a.do(M('InputManager'),'SetLocalEventHandler',CALL(PATH('cafe','utility','Delegate'),'Create',R(1),T('LocalEventHandler')))
    a.do(M('ScreenManager'),'BeginAnimateIn',CALL(PATH('cafe','utility','Delegate'),'Create',R(1),T('OnAnimateInComplete')));a.do(R(1),'OnAnimateInComplete')
@@ -59,23 +60,17 @@ def script(data,dictionaries,scenes):
  a.function('CloseBracket',0,closed)
  for target in ('OpenBracket','CloseBracket','OpenRounds','OpenGoals','OpenAssists'):a.function('Mouse'+target,0,lambda a,target=target:a.do(P(R(1),'owner'),target))
  def event(a):
-  a.when(b.equal(R(2),P(M('InputCodes'),'BACK')),lambda a:(a.when(('bin',17,T('expanded'),T('rounds')),lambda a:(a.do(R(1),'CloseBracket'),a.ret(True))),a.do(ION,'SendEvent',P(T('staticData'),'SCREEN_CONTROLLER_ID'),P(T('navEvents'),'BACK'),''),a.ret(True)))
-  a.when(b.equal(R(2),P(M('InputCodes'),'OPTION_LEFT')),lambda a:(a.when(('not',T('expanded')),lambda a:a.do(R(1),'OpenRounds')),a.ret(True)))
-  a.when(T('rounds'),lambda a:a.ret(True))
+  a.when(b.equal(R(2),P(M('InputCodes'),'BACK')),lambda a:(a.do(ION,'SendSystemEvent',P(T('staticData'),'SCREEN_CONTROLLER_ID'),'Server16ClubBrowser','comp_back'),a.ret(True)))
   for code in ('ADVANCE','PRIMARY_SELECT'):
-   a.when(b.equal(R(2),P(M('InputCodes'),code)),lambda a:(a.when(T('expanded'),lambda a:a.do(ION,'SendSystemEvent',P(T('staticData'),'SCREEN_CONTROLLER_ID'),'Server16ClubBrowser','comp_center'),lambda a:a.do(R(1),'OpenSelected')),a.ret(True)))
-  a.when(b.equal(R(2),P(M('InputCodes'),'OPTION_TOP')),lambda a:a.do(ION,'SendSystemEvent',P(T('staticData'),'SCREEN_CONTROLLER_ID'),'Server16ClubBrowser','comp_mode'))
+   a.when(b.equal(R(2),P(M('InputCodes'),code)),lambda a:(a.do(ION,'SendSystemEvent',P(T('staticData'),'SCREEN_CONTROLLER_ID'),'Server16ClubBrowser','comp_activate'),a.ret(True)))
   # DirectInput/XInput edges are read once by the native screen for navigation.
   # Swallow the underlying Calendar events, avoiding double changes of tab.
   a.ret(True)
  a.function('LocalEventHandler',2,event)
  def help(a):
-  expanded=[('BACK','Voltar'),('ADVANCE','Ajustar'),('RAS_LR','Fases')]
-  a.when(T('expanded'),lambda a:a.ret(('array',tuple(CALL(PATH('ion','manager','HelpItem'),'CreateHelpTickerItem',key,label) for key,label in expanded))))
-  rounds=[('BACK','Voltar'),('L2R2','Rodadas'),('LAS_UD','Jogos'),('RAS_UD','Rolar lista')]
-  a.when(T('rounds'),lambda a:a.ret(('array',tuple(CALL(PATH('ion','manager','HelpItem'),'CreateHelpTickerItem',key,label) for key,label in rounds))))
-  values=[('ADVANCE','Selecionar'),('BACK','Voltar'),('OPTION_LEFT','Rodadas / chaveamento'),('L1R1','Competições'),('L2R2','Foco'),('LAS_UD','Selecionar card'),('OPTION_TOP','Grupos / chaves'),('RAS_UD','Carrossel / destaques')]
-  a.ret(('array',tuple(CALL(PATH('ion','manager','HelpItem'),'CreateHelpTickerItem',key,label) for key,label in values)))
+  # The native view owns the viewport and modal state for every input method.
+  # It draws a matching footer; no stale APT context remains over that row.
+  a.ret(('array',()))
  a.function('getHelpContext',0,help)
  def shutdown(a):
   a.when(T('exiting'),lambda a:a.ret());a.set(R(1),'exiting',True);a.set(R(1),'onEnterFrame',None);footer.restore(a);a.do(M('InputManager'),'DisableCurrentLocalEventHandler');a.do(M('HelpManager'),'Clear');a.do(R(1),'Shutdown')

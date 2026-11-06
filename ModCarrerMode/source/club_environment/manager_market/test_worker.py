@@ -130,4 +130,45 @@ class WorkerRecoveryTest(unittest.TestCase):
     current.update(date=20260220,fixtures=matches(15));observed['signature']=('B',20260220);publish();self.assertGreater(len(service.market.rows('results')),5)
     io.update(operation='read',access_tick_ms='3');current.update(date=20260120,fixtures=matches(5));observed['signature']=('B',20260120);publish();self.assertEqual(5,len(service.market.rows('results')));self.assertEqual(b'unchanged',save.read_bytes());service.market.close()
 
+ def test_save_menu_and_verification_reads_do_not_restore_initial_world(self):
+  with tempfile.TemporaryDirectory() as tmp:
+   game=Path(tmp);root=game/'runtime';cat=game/'ModCarrerMode/data/manager_market/catalog.sqlite3';cat.parent.mkdir(parents=True);catalog(cat);snapshot=game/'ModCarrerMode/runtime/career_fce_snapshot.json';snapshot.parent.mkdir(parents=True);save=game/'saves/slot/DATA';save.parent.mkdir(parents=True);save.write_bytes(b'unchanged')
+   io=dict(operation='read',access_tick_ms='1');current=dict(context(),digest='A',saved_date=20260101)
+   observed=dict(save=dict(path=str(save),pid=10,process_created_100ns=20),profile=dict(context_address=1,club_id=3,registry_address=123,context_epoch=2),signature=('A',20260101))
+   def build(g,p,m):p.parent.mkdir(parents=True,exist_ok=True);p.write_bytes(b'APT')
+   with patch.multiple(worker,GAME=game,ROOT=root,DEST=game/'screen.big'),patch.object(worker,'Inputs') as inputs,patch.object(worker,'io_event',side_effect=lambda s:io),patch.object(worker,'observe',side_effect=lambda m:observed),patch.object(worker,'build',side_effect=build),patch.object(worker,'log'):
+    inputs.return_value.read.side_effect=lambda *a,**k:dict(current);service=worker.Service()
+    def publish():snapshot.write_text(json.dumps(dict(fixtures=current['fixtures'],standings=[])));service.update(observed,None)
+    try:
+     publish();current.update(date=20261203,fixtures=matches(60));observed['signature']=('A',20261203);publish();branch=service.market.branch
+     expected=service.market.snapshot();io.update(operation='read',access_tick_ms='2');publish()
+     self.assertEqual(branch,service.market.branch);self.assertEqual(60,len(service.market.rows('results')))
+     # A context allocation moves, but the same native load epoch continues.
+     observed['profile']['context_address']=99;observed['signature']=('A',20261203,99);io['access_tick_ms']='3';publish()
+     self.assertEqual(branch,service.market.branch);self.assertEqual(60,len(service.market.rows('results')))
+     self.assertTrue((root/'save_state.tsv').exists());self.assertIn('revision=',(root/'save_state.tsv').read_text())
+     # A season context reset carries on while DATA still refers to last year.
+     observed['profile']['context_epoch']=3;current['date']=20270102;observed['signature']=('A',20270102,99,3);publish()
+     self.assertEqual(branch,service.market.branch);self.assertEqual(60,len(service.market.rows('results')))
+     # A real native load matches the saved day and restores its exact world.
+     observed['profile']['context_epoch']=4;current.update(date=20260101,fixtures=[]);observed['signature']=('A',20260101,99,4);io['access_tick_ms']='4';publish()
+     self.assertNotEqual(branch,service.market.branch)
+    finally:service.close()
+
+ def test_waiting_for_save_binding_retries_open_instead_of_reading_a_missing_branch(self):
+  with tempfile.TemporaryDirectory() as tmp:
+   game=Path(tmp);root=game/'runtime';cat=game/'ModCarrerMode/data/manager_market/catalog.sqlite3';cat.parent.mkdir(parents=True);catalog(cat)
+   snapshot=game/'ModCarrerMode/runtime/career_fce_snapshot.json';snapshot.parent.mkdir(parents=True);snapshot.write_text('{}')
+   save=game/'saves/slot/DATA';save.parent.mkdir(parents=True);save.write_bytes(b'unchanged')
+   observed=dict(save=dict(path=str(save),pid=10,process_created_100ns=20),profile=dict(context_address=1,club_id=3,registry_address=123,context_epoch=2),date=20260101,signature=('A',20260101))
+   def build(g,p,m):p.parent.mkdir(parents=True,exist_ok=True);p.write_bytes(b'ready')
+   with patch.multiple(worker,GAME=game,ROOT=root,DEST=game/'screen.big'),patch.object(worker,'Inputs') as inputs,patch.object(worker,'io_event',return_value=dict(operation='read',access_tick_ms='1')),patch.object(worker,'observe',return_value=observed),patch.object(worker,'build',side_effect=build),patch.object(worker,'log'),patch.object(worker,'pending_checkpoint',side_effect=[True,True,False]):
+    inputs.return_value.read.return_value=dict(context(),digest='A');service=worker.Service()
+    try:
+     for _ in range(2):
+      with self.assertRaisesRegex(ValueError,'snapshot'):service.update(observed,None)
+      self.assertIsNone(service.market.branch)
+     service.update(observed,None);self.assertTrue(service.market.branch);self.assertTrue((game/'screen.big').exists());self.assertEqual(b'unchanged',save.read_bytes())
+    finally:service.close()
+
 if __name__=='__main__':unittest.main()

@@ -14,6 +14,7 @@ typedef struct SaveReadHandle {
 static SaveReadHandle g_save_read_handles[SAVE_READ_HANDLE_CAPACITY];
 static SRWLOCK g_save_read_handles_lock = SRWLOCK_INIT;
 static int append_career_save_scope(char *record,int length,size_t capacity);
+static int append_market_save_state(char *record,int length,size_t capacity,ULONGLONG created);
 
 static BOOL is_fifa_save_data_path(const char *path)
 {
@@ -241,6 +242,8 @@ static void publish_active_save_access(const char *path, const char *operation,
         (unsigned long)payload_crc32,path);
     if (length <= 0 || (size_t)length >= sizeof(record)) return;
     length=append_career_save_scope(record,length,sizeof(record));
+    if(length<=0 || (size_t)length>=sizeof(record))return;
+    if(!strcmp(operation,"write"))length=append_market_save_state(record,length,sizeof(record),created_value.QuadPart);
     if(length<=0 || (size_t)length>=sizeof(record))return;
     /* Keep the established bridge for existing mod tools and publish a
      * dedicated source bridge that cannot be confused with unrelated assets. */

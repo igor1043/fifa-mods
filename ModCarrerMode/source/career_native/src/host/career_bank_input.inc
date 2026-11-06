@@ -60,9 +60,37 @@ static int bank_input_capture(const char *wire)
     append_loader_log("career_bank_request_captured_directly");return 1;
 }
 
+#include "manager_profile_wire.h"
+#include "manager_settings_wire.h"
+#include "manager_history_wire.h"
+static int manager_market_capture(const char *wire,int mode)
+{
+    static const unsigned offsets[]={232,192,136,472};
+    uintptr_t node=0,context;char page[96],path[MAX_PATH],temp[MAX_PATH];unsigned i,club;int date;
+    CareerContextRead captured;FILE *file;FILETIME created,exit,kernel,user;ULARGE_INTEGER identity;
+    if(!bank_mail_string(wire,512)||!(mode==2?manager_history_wire_valid(wire):mode==1?manager_settings_wire_valid(wire):manager_profile_wire_valid(wire)))return 0;
+    if(!read_card_scope((uintptr_t)g_module_base+0x3809030,&node,8))return 0;
+    for(i=0;i<4;++i)if(!node||!read_card_scope(node+offsets[i],&node,8))return 0;
+    if(!node||!read_card_scope(node,page,sizeof(page))||!memchr(page,0,sizeof(page))
+        ||strcmp(page,"game/screens/career/server16/ManagerMarket"))return 0;
+    if(!bank_input_context(&captured,&context,&club,&date)
+        ||!GetProcessTimes(GetCurrentProcess(),&created,&exit,&kernel,&user))return 0;
+    identity.LowPart=created.dwLowDateTime;identity.HighPart=created.dwHighDateTime;
+    snprintf(path,sizeof(path),"%s\\runtime\\manager_market\\%s_request.tsv",g_mod_dir,mode==2?"history":mode==1?"settings":"profile");
+    snprintf(temp,sizeof(temp),"%s.new",path);file=fopen(temp,"wb");if(!file)return 0;
+    fprintf(file,"schema=1\npid=%lu\ncreated=%llu\nclub=%u\ncontext=%llx\nepoch=%u\ndate=%d\ncaptured_tick=%llu\nwire=%s\n",
+        GetCurrentProcessId(),(unsigned long long)identity.QuadPart,club,(unsigned long long)context,captured.epoch,date,(unsigned long long)GetTickCount64(),wire);
+    fclose(file);return MoveFileExA(temp,path,MOVEFILE_REPLACE_EXISTING|MOVEFILE_WRITE_THROUGH)!=0;
+}
+
+static void competition_back_request(void);
 static uintptr_t bank_input_event(void *bridge,const char *controller,const char *event,const char *argument)
 {
     typedef uintptr_t (*Dispatch)(void *,const char *,const char *,const char *);
+    if(bank_mail_string(event,128)&&(!strcmp(event,"Server16ManagerProfile")||!strcmp(event,"Server16ManagerSettings")||!strcmp(event,"Server16ClubHistory"))) {
+        if(bank_mail_string(controller,64)&&!strcmp(controller,"Calendar"))(void)manager_market_capture(argument,!strcmp(event,"Server16ClubHistory")?2:!strcmp(event,"Server16ManagerSettings"));
+        return 0;
+    }
     if(bank_mail_string(event,128) && !strcmp(event,"Server16RoomScene")) {
         if(bank_mail_string(controller,64) && !strcmp(controller,"Calendar")
             && bank_mail_string(argument,192)) {
@@ -78,6 +106,12 @@ static uintptr_t bank_input_event(void *bridge,const char *controller,const char
             typedef BOOL (WINAPI *ClubCommand)(const char *);
             HMODULE module=GetModuleHandleW(L"club_browser.dll");
             ClubCommand command=module?(ClubCommand)GetProcAddress(module,"Fifa16ClubBrowserCommand"):NULL;
+            if(!strcmp(argument,"comp_back")) {
+                typedef int (WINAPI *CompetitionBack)(void);
+                CompetitionBack back=module?(CompetitionBack)GetProcAddress(module,"Fifa16ClubBrowserCompetitionBack"):NULL;
+                if(back && back()==0)competition_back_request();
+                return 0;
+            }
             if(command)(void)command(argument);
         }
         return 0;

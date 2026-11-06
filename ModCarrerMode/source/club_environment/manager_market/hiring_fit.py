@@ -1,10 +1,12 @@
 """Hard career-market eligibility before nationality and weighted selection."""
 from math import ceil
+from collections import Counter
 
 
 DEFAULTS = dict(max_coach_club_gap=1.5, max_coach_league_gap=3.0,
                 elite_coach_threshold=8.0, elite_min_league_attraction=5.5,
-                minimum_salary_retention_bps=8000, salary_capacity_bps=3000)
+                minimum_salary_retention_bps=8000, salary_capacity_bps=3000,
+                league_nationality_bonus=1.5, brazil_nationality_bonus=1.0)
 
 
 def league_attraction(club, clubs):
@@ -14,6 +16,14 @@ def league_attraction(club, clubs):
     peers.sort(reverse=True);top=peers[:max(1,ceil(len(peers)/4))]
     value=.65*sum(top)/len(top)+.35*sum(peers)/len(peers)
     return max(1,value-max(0,club.get('level',1)-1)*.75)
+
+def league_nationalities(club,clubs,normalize):
+    peers=[c for c in clubs.values() if c['league_id']==club['league_id']]
+    counts=Counter(n for c in peers for n in normalize(c.get('country')))
+    if counts:
+        highest=max(counts.values())
+        if highest>len(peers)/2:return frozenset(n for n,count in counts.items() if count==highest)
+    return normalize(club.get('country'))
 
 
 def offer(coach, club, clubs, proposed, policy, *, attraction=None):

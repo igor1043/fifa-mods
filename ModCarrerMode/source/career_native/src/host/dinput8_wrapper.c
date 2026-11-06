@@ -2485,6 +2485,21 @@ static void *owner_service(
 
 
 #include "career_context_read.inc"
+#include "career_market_save_state.h"
+
+static int append_market_save_state(char *record,int length,size_t capacity,ULONGLONG created)
+{
+    char path[MAX_PATH];CareerMarketSaveState state;DWORD epoch;int added;
+    AcquireSRWLockShared(&g_context_read_lock);
+    epoch=Fifa16CareerContextRead.epoch;
+    ReleaseSRWLockShared(&g_context_read_lock);
+    snprintf(path,sizeof(path),"%s\\runtime\\manager_market\\save_state.tsv",g_mod_dir);
+    if(!career_market_save_state_read(path,GetCurrentProcessId(),created,epoch,&state))return length;
+    added=snprintf(record+length,capacity-(size_t)length,
+        "market_revision=%s\r\nmarket_context=%llx\r\nmarket_date=%d\r\nmarket_club=%u\r\n",
+        state.revision,state.context,state.date,state.club);
+    return added<0?0:length+added;
+}
 
 /* I/O hooks only copy the cached identity; they never query FIFA off owner. */
 static int append_career_save_scope(char *record,int length,size_t capacity)

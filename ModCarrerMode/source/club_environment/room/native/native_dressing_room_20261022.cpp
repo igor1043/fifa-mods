@@ -29,7 +29,7 @@ uintptr_t allocatedNative=0;
 void*relay=nullptr;LONG beforeCall=0,oursCall=0;
 uintptr_t ownVtable[29]{};
 std::atomic<bool>started{false},stopping{false},installed{false},active{false},ready{false};
-std::atomic<bool>holdDrawing{false},roomLoading{false},componentsReadyStatus{false};
+std::atomic<bool>holdDrawing{false},roomLoading{false},componentsReadyStatus{false},roomRequested{false};
 uint64_t roomLoadBegan=0;
 std::atomic<unsigned>phase{0},fault{0},frames{0},draws{0},submissions{0};
 std::atomic<unsigned>roomSceneState{0};
@@ -198,10 +198,12 @@ bool guardObject(){
  visibility(false);log("NATIVE_GAMEPLAYPROP_CONTEXT_VALIDATED: native capacity retained, only instance zero used");return true;
 }
 void poll(){
- const bool requested=page();active=false;
- if(!requested){roomLoading=false;roomLoadBegan=0;if(object)visibility(false);hideComponents();
-  auto pointer=get<uintptr_t>(image+0x3809030);for(unsigned offset:{232u,192u,136u,472u})pointer=get<uintptr_t>(pointer+offset);char current[128]{};
-  if(validCareerClub&&read(pointer,current,127)&&!strncmp(current,"game/screens/career/",20)){pollComponents(false);pollSlate(false,false);}return;}
+ const bool requested=page(),wasRequested=roomRequested.exchange(requested);active=false;
+ // Calendar and other career pages must not allocate or reload room props.
+ // Hide once on exit; retained FIFA objects stay untouched while the room is idle.
+ if(!requested){roomLoading=false;roomLoadBegan=0;
+  if(wasRequested){if(object)visibility(false);hideComponents();pollSlate(false,false);log("ROOM_ASSETS_IDLE: calendar and other pages do not load room resources");}return;}
+ if(!wasRequested)componentNextCheck=0;
  if(!roomLoadBegan)roomLoadBegan=GetTickCount64();roomLoading=true;pollSlate(true,false);
  if(!creationAttempted){creationAttempted=true;requestedAt=GetTickCount64();phase=1;log("ROOM_CARD_ENTER: isolated native allocation, stadium retained");
   void*allocator=((void*(__fastcall*)())(image+0x4abfba0))();
@@ -245,7 +247,7 @@ void poll(){
    ready=true;phase=3;log("NATIVE_CONTEXT_READY");
   }else if(!ready&&GetTickCount64()-requestedAt>45000){fault=8;phase=9;log("NATIVE_ASSET_TIMEOUT_NO_RETRY");}
  }
- pollComponents(false);
+ pollComponents(true);
  componentsReadyStatus=roomComponentsReady();active=requested&&ready&&componentsReadyStatus&&!fault&&!holdDrawing;roomLoading=requested&&!active;
  visibility(active);showComponents(active);
  const bool preparationError=fault||roomComponentsFailed()||GetTickCount64()-roomLoadBegan>90000;
@@ -272,7 +274,7 @@ bool install(){
  if(!relay){for(uintptr_t step=0x10000;step<0x70000000&&!relay;step+=0x10000)relay=VirtualAlloc((void*)(image+step),4096,MEM_COMMIT|MEM_RESERVE,PAGE_READWRITE);if(!relay)return false;unsigned char jump[14]={0xff,0x25,0,0,0,0};auto target=(uintptr_t)&frame;memcpy(jump+6,&target,8);memcpy(relay,jump,14);DWORD old;if(!VirtualProtect(relay,4096,PAGE_EXECUTE_READ,&old))return false;FlushInstructionCache(GetCurrentProcess(),relay,4096);}
  oursCall=LONG(intptr_t(relay)-intptr_t(image+0x3a19f84));return exchange(beforeCall,oursCall);
 }
-void status(){std::ofstream f(folder/L"runtime/native_status.json.tmp");f<<"{\"pid\":"<<GetCurrentProcessId()<<",\"installed\":"<<(installed?"true":"false")<<",\"scene_state\":"<<roomSceneState<<",\"active\":"<<(active?"true":"false")<<",\"ready\":"<<(ready?"true":"false")<<",\"loading\":"<<(roomLoading?"true":"false")<<",\"components_ready\":"<<(componentsReadyStatus?"true":"false")<<",\"phase\":"<<phase<<",\"error\":"<<fault<<",\"frames\":"<<frames<<",\"native_draw_callbacks\":"<<draws<<",\"native_draw_returns\":"<<submissions<<",\"flat_shadow_passes\":"<<flatShadowPasses<<",\"self_shadow_passes\":"<<selfShadowPasses<<",\"engine_shadow_registered\":"<<(engineShadowRegistered?"true":"false")<<",\"engine_shadow_contexts_registered\":"<<(engineShadowContextsRegistered?"true":"false")<<",\"object\":"<<object<<",\"indoor_uploads\":"<<indoorUploads<<",\"indoor_failures\":"<<indoorFailures<<",\"spot_power\":"<<indoorSpotPower.load()<<",\"spotlighted_draws\":"<<spotlightedDraws<<",\"return_background_refreshes\":"<<roomReturnRefreshes<<",\"return_background_hook\":"<<(roomPhotoInstalled?"true":"false")<<",\"roster_camera\":"<<(roomRosterCameraOwned()?"true":"false")<<",\"free_camera\":"<<(camera.walk.active?"true":"false")<<",\"camera_automatic\":"<<(camera.director.automatic?"true":"false")<<",\"camera_selected\":"<<camera.director.selected<<",\"camera_paused\":"<<(camera.director.paused?"true":"false")<<",\"camera_command_sequence\":"<<camera.controlSequence<<",\"stadium_reloads\":0,\"renderer\":\"FIFA native GameplayProp\",\"webview\":false}\n";f.close();MoveFileExW((folder/L"runtime/native_status.json.tmp").c_str(),(folder/L"runtime/native_status.json").c_str(),MOVEFILE_REPLACE_EXISTING);}
+void status(){std::ofstream f(folder/L"runtime/native_status.json.tmp");f<<"{\"pid\":"<<GetCurrentProcessId()<<",\"installed\":"<<(installed?"true":"false")<<",\"scene_state\":"<<roomSceneState<<",\"requested\":"<<(roomRequested?"true":"false")<<",\"active\":"<<(active?"true":"false")<<",\"ready\":"<<(ready?"true":"false")<<",\"loading\":"<<(roomLoading?"true":"false")<<",\"components_ready\":"<<(componentsReadyStatus?"true":"false")<<",\"phase\":"<<phase<<",\"error\":"<<fault<<",\"frames\":"<<frames<<",\"native_draw_callbacks\":"<<draws<<",\"native_draw_returns\":"<<submissions<<",\"flat_shadow_passes\":"<<flatShadowPasses<<",\"self_shadow_passes\":"<<selfShadowPasses<<",\"engine_shadow_registered\":"<<(engineShadowRegistered?"true":"false")<<",\"engine_shadow_contexts_registered\":"<<(engineShadowContextsRegistered?"true":"false")<<",\"object\":"<<object<<",\"indoor_uploads\":"<<indoorUploads<<",\"indoor_failures\":"<<indoorFailures<<",\"spot_power\":"<<indoorSpotPower.load()<<",\"spotlighted_draws\":"<<spotlightedDraws<<",\"return_background_refreshes\":"<<roomReturnRefreshes<<",\"return_background_hook\":"<<(roomPhotoInstalled?"true":"false")<<",\"roster_camera\":"<<(roomRosterCameraOwned()?"true":"false")<<",\"free_camera\":"<<(camera.walk.active?"true":"false")<<",\"camera_automatic\":"<<(camera.director.automatic?"true":"false")<<",\"camera_selected\":"<<camera.director.selected<<",\"camera_paused\":"<<(camera.director.paused?"true":"false")<<",\"camera_command_sequence\":"<<camera.controlSequence<<",\"stadium_reloads\":0,\"renderer\":\"FIFA native GameplayProp\",\"webview\":false}\n";f.close();MoveFileExW((folder/L"runtime/native_status.json.tmp").c_str(),(folder/L"runtime/native_status.json").c_str(),MOVEFILE_REPLACE_EXISTING);}
 DWORD WINAPI worker(void*){
  const auto began=GetTickCount64();log("WAIT_NATIVE_CODE: delayed signature validation after executable unpack");
  while(!stopping){
@@ -290,7 +292,7 @@ DWORD WINAPI worker(void*){
   flushMedicalCapture();
   if(fs::exists(folder/L"runtime/STOP_NATIVE"))stopping=true;status();Sleep(500);
  }
- closeNativeAssetHelperMonitor();active=false;roomLoading=false;hideComponents();componentVisibility(loadingSlate,false);componentVisibility(errorSlate,false);camera.restore();if(object){visibility(false);InterlockedCompareExchangePointer((void*volatile*)object,(void*)originalVtable,ownVtable);}if(installed)exchange(oursCall,beforeCall);if(roomPhotoInstalled)roomPhotoExchange(roomPhotoAfter,roomPhotoBefore);stopMedicalCapture();installed=false;log("STOPPED: prior render callback restored");status();return 0;
+ closeNativeAssetHelperMonitor();active=false;roomLoading=false;hideComponents();componentVisibility(loadingSlate,false);componentVisibility(errorSlate,false);componentVisibility(loadingProgress,false);camera.restore();if(object){visibility(false);InterlockedCompareExchangePointer((void*volatile*)object,(void*)originalVtable,ownVtable);}if(installed)exchange(oursCall,beforeCall);if(roomPhotoInstalled)roomPhotoExchange(roomPhotoAfter,roomPhotoBefore);stopMedicalCapture();installed=false;log("STOPPED: prior render callback restored");status();return 0;
 }
 }
 extern "C" __declspec(dllexport) unsigned WINAPI Fifa16ModGetApiVersion(){return 1;}

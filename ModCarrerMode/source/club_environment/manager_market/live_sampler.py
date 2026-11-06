@@ -119,6 +119,7 @@ def _replay(market,context,samples):
   if index and index<len(samples)-1 and not changed and not deadline and not month_end and today%10000!=101:continue
   c=calendar_context(context,sample['snapshot'],sample['rows'])
   market.advance(c);processed.append(today);previous=key
+  if getattr(market,'market_progress',None):market.market_progress.market_day(today,complete=True)
  return processed
 
 def calendar_context(context,snapshot,rows):

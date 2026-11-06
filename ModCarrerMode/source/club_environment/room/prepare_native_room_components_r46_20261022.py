@@ -323,6 +323,31 @@ def publish_room_ready(pid):
  revision=hashlib.sha256((GAME/ui.BIG).read_bytes()).hexdigest()
  prepared_views.publish(ROOT/'runtime/view_ready.tsv',dict(pid=pid,process_created_100ns=snap.get('processCreated100ns',0)),profile,parts[2]*10000+parts[1]*100+parts[0],revision)
 
+def room_requested(pid):
+ # Published by the native UI owner. A retained/stale status cannot wake assets
+ # for a different session, or keep preparing them after a stalled render loop.
+ path=ROOT/'runtime/native_status.json'
+ try:
+  age=time.time()-path.stat().st_mtime
+  status=json.loads(path.read_text(encoding='utf8'))
+  return (0<=age<=4 and status.get('pid')==pid and status.get('installed') is True
+          and status.get('requested') is True and status.get('error')==0)
+ except (OSError,ValueError,TypeError):return False
+
+def refresh_requested_room(pid,state,logfile):
+ if not room_requested(pid):return False
+ snap=json.loads((GAME/'ModCarrerMode/runtime/career_fce_snapshot.json').read_text())
+ if snap.get('pid')!=pid or not snap.get('club'):return False
+ stamp=(snap.get('pid'),snap.get('club'),snap.get('savePath'),snap.get('saveWriteTime100ns'),calendar_stamp(pid),__import__('room_interior_r71').art_stamp(GAME,snap['club']),__import__('room_secondary_wall_r75').config_stamp(GAME),tuple(tuple(r[:11]) for r in snap.get('fixtures',[]) if snap['club'] in r[5:7]),(ROOT/'runtime/medical_native_capture.tsv').stat().st_mtime_ns if (ROOT/'runtime/medical_native_capture.tsv').exists() else 0)
+ if stamp!=state.get('last'):
+  prepare();state['last']=stamp;state['appearance_stamp']=room_v3.stamp(GAME,snap['club'])
+  with logfile.open('a') as f:f.write(f'PREPARED club={snap["club"]} native game assets, no save writes\n')
+ elif room_v3.enabled(GAME) and (state.get('appearance_changed') or room_v3.stamp(GAME,snap['club'])!=state.get('appearance_stamp')):
+  refresh_appearance();state['appearance_stamp']=room_v3.stamp(GAME,snap['club'])
+ state['appearance_changed']=False
+ publish_room_ready(pid)
+ return True
+
 def watch():
  import psutil
  pid=int(sys.argv[sys.argv.index('--pid')+1]) if '--pid' in sys.argv else next(p.pid for p in psutil.process_iter(['name']) if (p.info['name'] or '').lower()=='fifa16.exe')
@@ -337,25 +362,15 @@ def watch():
  marker=ROOT/'runtime/native_asset_helper_r46.pid';marker.write_text(f'{pid} {os.getpid()}\n')
  changed=threading.Event()
  if room_v3.enabled(GAME):__import__('room_appearance').start_service(GAME,pid,changed.set)
- logfile=ROOT/'runtime/native_asset_helper_r46.log';logfile.write_text(f'Native room asset helper session game_pid={pid}\n');last=None
+ logfile=ROOT/'runtime/native_asset_helper_r46.log';logfile.write_text(f'Native room asset helper session game_pid={pid}\n');state={}
  while psutil.pid_exists(pid):
   try:
-   snap=json.loads((GAME/'ModCarrerMode/runtime/career_fce_snapshot.json').read_text());stamp=(snap.get('pid'),snap.get('club'),snap.get('savePath'),snap.get('saveWriteTime100ns'),calendar_stamp(pid),__import__('room_interior_r71').art_stamp(GAME,snap.get('club',0)),__import__('room_secondary_wall_r75').config_stamp(GAME),tuple(tuple(r[:11]) for r in snap.get('fixtures',[]) if snap.get('club') in r[5:7]),(ROOT/'runtime/medical_native_capture.tsv').stat().st_mtime_ns if (ROOT/'runtime/medical_native_capture.tsv').exists() else 0)
-   if snap.get('pid')==pid and stamp!=last:
-    prepare();last=stamp;appearance_stamp=room_v3.stamp(GAME,snap.get('club',0));changed.clear()
-    with logfile.open('a') as f:f.write(f'PREPARED club={snap["club"]} native game assets, no save writes\n')
-   elif room_v3.enabled(GAME) and room_v3.stamp(GAME,snap.get('club',0))!=appearance_stamp:
-    refresh_appearance();appearance_stamp=room_v3.stamp(GAME,snap.get('club',0))
-   publish_room_ready(pid)
+   refresh_requested_room(pid,state,logfile)
   except Exception as e:
    with logfile.open('a') as f:f.write(type(e).__name__+': '+str(e)+'\n')
   if changed.wait(2):
    time.sleep(.06);changed.clear()
-   try:
-    refresh_appearance()
-    appearance_stamp=room_v3.stamp(GAME,snap.get('club',0))
-   except Exception as e:
-    with logfile.open('a') as f:f.write('APPEARANCE '+type(e).__name__+': '+str(e)+'\n')
+   state['appearance_changed']=True
  with logfile.open('a') as f:f.write('SESSION_END\n')
 if __name__=='__main__':
  if '--watch' in sys.argv:watch()

@@ -14,7 +14,7 @@ import native_roster_footer as roster_footer
 GAME=portable.GAME;CLASS=('game','screens','career','server16','DressingRoom');FULL='.'.join(CLASS);PAGE=FULL.replace('.','/')
 R=b.reg;T=b.this;P=b.prop;CALL=b.call;PATH=b.path;M=b.MANAGER;ION=b.ION
 XML='data/ui/layout/careermanagerhubcfg.xml';NAV='data/ui/nav/careermode/mainmenuhubflow.nav';FLOW='data/ui/nav/careermode/server16dressingroomflow.nav';BIG='data/ui/game/screens/career/server16/dressingroom.big'
-HEADER_REVISION=76
+HEADER_REVISION=78
 def screen(payload=None,asset_reader=None):
  if payload is None:payload=json.loads((ROOT/'runtime/room_context_r46.json').read_text(encoding='utf8'))
  club=int(payload['club']);club_name=payload['club_name'];assert club>=0 and club_name
@@ -51,7 +51,7 @@ def screen(payload=None,asset_reader=None):
  # A bitmap/shape placement is not a scriptable MovieClip. Hide its enclosing
  # clip, so the original crest cannot remain under the roster's own header.
  raw=bytearray(data[apt.characters[9].offset:apt.characters[9].offset+56]);header_frame=append(struct.pack('<I4xQ',len(header_controls),append(struct.pack('<'+'Q'*len(header_controls),*header_controls))));struct.pack_into('<I4xQ',raw,32,1,header_frame);struct.pack_into('<Q',raw,48,0)
- controls.append(place(addchar(raw),1,0,0,label='roomHeader'))
+ controls.append(place(addchar(raw),1,0,0,label='roomHeader',color=0x00ffffff))
  controls.extend(scene_ui.graphics(apt,data,append,addchar,place,bitmap,scope,asset_reader))
  newtable=append(bytes(data[table:table+count*8])+struct.pack('<'+'Q'*len(chars),*chars));struct.pack_into('<I4xQ',data,root+56,count+len(chars),newtable)
  frame=append(struct.pack('<I4xQ',len(controls),append(struct.pack('<'+'Q'*len(controls),*controls))));struct.pack_into('<I4xQ',data,apt.characters[9].offset+32,1,frame)
