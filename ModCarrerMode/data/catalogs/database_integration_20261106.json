@@ -2,7 +2,7 @@
   "schema": 1,
   "sourceArchive": "EMIRADOS=ATLANTE.rar",
   "sourceArchiveSha256": "eeae3c07c1529180925850862943c2fdfe65dc67c16ad710f033e410117fdd73",
-  "databaseSha256": "ea785ec7ee90cc05f2fc58f89b0d2693e1786fae0bfd2fca6d9840baa5e39a24",
+  "databaseSha256": "c0223b427e6a1a7cbf8543044d34b4475ac7d62606293ca3b453931fc201db50",
   "localeSha256": "00a0b696ed3cd88c7ad77c411085523196770d042ea73534fe45c5a448f1f1f9",
   "addedLeague": {
     "id": 698,
@@ -14,7 +14,7 @@
   "removedTeams": [
     {
       "id": 111654,
-      "name": "Mazatlán F.C."
+      "name": "MazatlÃ¡n F.C."
     }
   ],
   "clubs": 1657,
@@ -56,5 +56,6 @@
     130407,
     130424,
     130813
-  ]
+  ],
+  "checksumReview": "20261106 / physical directory spans / 137 tables / 32 auxiliary bytes / valid records unchanged"
 }

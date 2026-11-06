@@ -31,7 +31,13 @@ class ScreenBackContract(unittest.TestCase):
                 before = len(vm.errors)
                 calls.clear()
                 vm.invoke(view.get('LocalEventHandler'), view, (1, True))
-                self.assertIn(('SendEvent', ['Calendar', 42, '']), [(k, list(v)) for k, v in calls])
+                if name=='CareerCompetitions':
+                    # This view delegates Back to the verified native owner:
+                    # it first closes an expanded bracket/round, or returns
+                    # to the hub. It must not dispatch BACK twice from APT.
+                    self.assertEqual([('SendSystemEvent',['Calendar','Server16ClubBrowser','comp_back'])],[(k,list(v)) for k,v in calls])
+                else:
+                    self.assertIn(('SendEvent', ['Calendar', 42, '']), [(k, list(v)) for k, v in calls])
                 self.assertEqual([], vm.errors[before:])
 
     def test_every_custom_career_flow_can_return_to_the_hub(self):

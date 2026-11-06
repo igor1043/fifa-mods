@@ -31,6 +31,14 @@ int wmain(int argc,wchar_t**argv){
  // writing the next frame. DISCARD must rename storage instead of updating
  // DEFAULT storage in place or returning to frame-zero after a GPU draw.
  for(unsigned frame=0;frame<240;++frame){clubanim::prepareNativeDraw(c,2000+frame*7);bind(source);assert(bound()==privateBuffer->animated);if(frame%16==0)assert(read(source)==bytes);}assert(read(source)==bytes);
+ // Mascot start/stop uses the same verified stream, without reallocating or
+ // exposing FIFA's original pose on alternate frames.
+ clubanim::setPlaying(clip,false);clubanim::prepareNativeDraw(c,3800);assert(read(privateBuffer->animated)==bytes&&read(source)==bytes);
+ clubanim::prepareNativeDraw(c,3810);assert(read(privateBuffer->animated)==bytes);
+ clubanim::setPlaying(clip,true);clubanim::prepareNativeDraw(c,3820);assert(read(privateBuffer->animated)==bytes);
+ clubanim::prepareNativeDraw(c,3970);assert(read(privateBuffer->animated)!=bytes&&read(source)==bytes);
+ clubanim::setPlaying(clip,false);clubanim::prepareNativeDraw(c,3980);assert(read(privateBuffer->animated)==bytes);
+ clubanim::setPlaying(clip,true);
  // Runtime refresh of the native binding entry must not lose the association.
  assert(clubanim::replace(hook.table+18,(void*)&clubanim::bindVertices,(void*)hook.bind));auto rearms=clubanim::drawRearms.load();clubanim::prepareNativeDraw(c,4000);assert(clubanim::drawRearms==rearms+1);bind(source);assert(bound()==privateBuffer->animated);
  ID3D11DeviceContext*deferred=nullptr;assert(SUCCEEDED(d->CreateDeferredContext(0,&deferred)));assert(!clubanim::armNativeDraw(deferred));deferred->Release();

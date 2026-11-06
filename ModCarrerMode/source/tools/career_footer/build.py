@@ -37,6 +37,8 @@ def career_hub(a):
 
 def bind_help(a):
     a.do(R(1),ANIMATE)
+    a.when(EQ(T('onEnterFrame'),T('Server16FrontendFrame')),lambda a:None,lambda a:(a.set(R(1),'Server16FrontendOriginalFrame',T('onEnterFrame')),a.set(R(1),'onEnterFrame',T('Server16FrontendFrame'))))
+    a.set(R(1),'Server16FrontendFrames',0)
     a.when(CALL(R(1),'Server16IsCareerHub'),lambda a:None,lambda a:(a.set(b.GLOBAL,'Server16ActiveCareerClubId',None),a.set(b.GLOBAL,'Server16ActiveCareerClubName',None),a.ret()))
     a.do(R(1),'Server16CaptureCareerClub')
     # A custom view may have owned HelpManager immediately before this hub.
@@ -46,7 +48,20 @@ def bind_help(a):
     a.do(b.MANAGER('HelpManager'),'Update');a.do(b.MANAGER('HelpManager'),'Show')
 
 
+def frontend_frame(a):
+    # The native UI event is independent of FCE updates, which may stop when
+    # Career closes. Preserve the original frame callback and throttle the
+    # pulse; the C bridge verifies page lifetime and the factory owner thread.
+    a.when(T('Server16FrontendOriginalFrame'),lambda a:a.do(R(1),'Server16FrontendOriginalFrame'))
+    a.set(R(1),'Server16FrontendFrames',('bin',71,T('Server16FrontendFrames'),1))
+    a.when(('bin',72,T('Server16FrontendFrames'),15),lambda a:a.ret())
+    a.set(R(1),'Server16FrontendFrames',0)
+    a.when(P(b.ION,'SendSystemEvent'),lambda a:a.do(b.ION,'SendSystemEvent','Calendar','Server16FrontendTick','tick'))
+
+
 def unbind_help(a):
+    a.when(EQ(T('onEnterFrame'),T('Server16FrontendFrame')),lambda a:a.set(R(1),'onEnterFrame',T('Server16FrontendOriginalFrame')))
+    a.set(R(1),'Server16FrontendOriginalFrame',None)
     manager=b.MANAGER('HelpManager')
     a.when(AND(T('Server16CareerFooterDelegate'),EQ(P(manager,'m_cbCustomSource'),T('Server16CareerFooterDelegate'))),lambda a:a.do(manager,'SetCustomSource',None))
     a.set(R(1),'Server16CareerFooterDelegate',None);a.ret(CALL(R(1),EXIT))
@@ -146,6 +161,7 @@ def generate(source,destination):
         a.set(PROTO,OLD,P(PROTO,'getHelpContext'))
         a.set(PROTO,ANIMATE,P(PROTO,'AnimateInComplete'));a.set(PROTO,EXIT,P(PROTO,'OnExitScreen'))
         a.function('Server16IsCareerHub',0,career_hub)
+        a.function('Server16FrontendFrame',0,frontend_frame)
         a.function('Server16CaptureCareerClub',0,capture_club)
         a.function('Server16AppendHubHelp',1,append_items)
         a.function('getHelpContext',0,help_context)
@@ -162,7 +178,7 @@ def generate(source,destination):
         if name!=apt.entry.name:assert result.big.entries[name].data==entry.original
     report=dict(source=str(source),file=str(destination),sha256=hashlib.sha256(destination.read_bytes()).hexdigest(),
                 native_handlers_preserved=True,imports_exports_preserved=True,footer_scope='CareerHubDataHelper',
-                resources_preserved=True,new_methods=6)
+                resources_preserved=True,new_methods=7)
     return report
 
 

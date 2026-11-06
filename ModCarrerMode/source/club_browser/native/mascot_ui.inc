@@ -2,6 +2,7 @@
 clubmascot::View mascot;
 void centreMascot(){clubscene::playerAngle=0;clubscene::playerZoom=1;clubscene::playerPan=0;}
 void enterMascot(int club,int career){clubscene::mascotCamera=true;clubscene::rosterCamera=true;clubscene::roomView=false;clubscene::playerHeight=180;centreMascot();mascot.enter(lineup,club,career);}
+void toggleMascotAnimation(){mascot.toggle();}
 void openMascot(){hubFocus=3;clubPage=ClubPage::Mascot;model.detailOpen=true;enterMascot(model.club().id,careerClub());}
 void mascotControls(HWND window,float w,float h,float dt){
  DWORD pid=0;GetWindowThreadProcessId(GetForegroundWindow(),&pid);if(pid!=GetCurrentProcessId()||GetTickCount64()<enteredAt+250)return;
@@ -14,7 +15,7 @@ void mascotControls(HWND window,float w,float h,float dt){
  int wheel=wheelDelta.exchange(0);if(mx<0||mx>1600||my<145||my>805)wheel=0;
  clubscene::playerZoom=std::clamp(clubscene::playerZoom.load()*std::exp(zoom*dt+wheel*.001f),.65f,2.8f);
  static bool wasDown=false,dragging=false;static float x=0,y=0;bool down=held(VK_LBUTTON);
- if(down&&!wasDown){dragging=mx>=0&&mx<1600&&my>=145&&my<805;x=mx;y=my;}
+ if(down&&!wasDown){dragging=mx>=0&&mx<1600&&my>=145&&my<805&&!(mx>=1200&&mx<=1520&&my>=730&&my<=788);x=mx;y=my;}
  if(dragging&&down){clubscene::playerAngle=clubscene::playerAngle.load()+(mx-x)*.012f;clubscene::playerPan=std::clamp(clubscene::playerPan.load()+(my-y)*.003f,-.45f,.65f);x=mx;y=my;}
  if(!down)dragging=false;wasDown=down;
 }
@@ -23,6 +24,7 @@ void drawMascot(ID3D11DeviceContext*c){
  gameImage(r.device,r.clubIcon,art,{"data/ui/imgAssets/crest/light/l"+std::to_string(mascot.club)+".dds","data/ui/imgAssets/crest/dark/l"+std::to_string(mascot.club)+".dds"});containImage(c,r.clubIcon,60,55,58,65);
  r.label(c,0,L"TEMPORADA / OUTRAS LIGAS / VER CLUBES",62,19,1000,25,17,RGB(196,215,225));r.label(c,1,L"MASCOTE DO CLUBE",137,55,1040,47,37,RGB(255,255,255));
  r.label(c,2,model.club().id==mascot.club?wide(model.club().name):L"Clube da carreira",139,101,1110,27,20,RGB(211,226,234));
+ if(mascot.canAnimate()){r.rectangle(c,1200,730,320,58,0xf0b9a274);r.label(c,4,mascot.celebrating?L"Parar comemoração":L"Comemorar",1210,743,300,35,23,RGB(19,41,55),true);}
  if(!mascot.error.empty()||!mascot.ready||(mascot.submitted&&clubscene::readySequence!=mascot.submitted)){
   r.rectangle(c,420,705,760,83,0xc0122937);r.label(c,3,mascot.error.empty()?L"Preparando o mascote...":wide(mascot.error),440,721,720,52,23,RGB(255,255,255),true);
  }

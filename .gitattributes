@@ -673,3 +673,11 @@ ModCarrerMode/source/var_cabin/var_cabin.cpp -text whitespace=cr-at-eol
 ModCarrerMode/tools/Build-ReleaseDelta.py -text whitespace=cr-at-eol
 data/sceneassets/server16_dressing_room_v3/manifest.json -text whitespace=cr-at-eol
 ModCarrerMode/source/career_native/tests/providers/test_prepared_views.c whitespace=cr-at-eol
+
+# Preserve validated native source and documentation bytes.
+ModCarrerMode/source/career_native/** -text whitespace=cr-at-eol
+ModCarrerMode/source/native_mods/frontend_stadium/** -text whitespace=cr-at-eol
+ModCarrerMode/docs/ABERTURA_DB_CRC_20261106.md -text whitespace=cr-at-eol
+ModCarrerMode/docs/FRONTEND_MASCOT_STARTUP_20261106.md -text whitespace=cr-at-eol
+
+.gitattributes text eol=lf

@@ -14,6 +14,9 @@ int main(){
  view.enter(worker,111046,1043);std::string bindings="0";for(int i=1;i<96;++i)bindings+=",0";ready("actor=1\nrenderer=native\nheight=180\npages=1\nhash="+std::string(64,'a')+"\nbindings="+bindings+"\n");view.poll(worker,nullptr);assert(view.submitted==worker.sequence);assert(pending&&pending->club==111046&&pending->career==1043&&pending->single&&!pending->animation);
  view.enter(worker,1629,1043);ready("actor=0\n");view.poll(worker,nullptr);assert(!view.submitted&&!requested&&view.ready);
  view.enter(worker,1043,1043);ready("actor=1\nrenderer=native\nheight=180\npages=1\nhash="+std::string(64,'a')+"\nbindings=9\n");view.poll(worker,nullptr);assert(!view.error.empty()&&!view.submitted);
+ view.error.clear();view.ready=true;view.animation=std::make_shared<clubanim::Clip>();view.animation->constant=true;view.toggle();assert(!view.celebrating);
+ view.animation->constant=false;view.toggle();assert(view.celebrating&&!view.animation->paused);view.toggle();assert(!view.celebrating&&view.animation->paused);
+ view.enter(worker,1629,1043);assert(!view.animation&&!view.celebrating&&!view.canAnimate());
  worker.stop();std::filesystem::remove_all(temp);pending.reset();base=executable=0;VirtualFree(fake,0,MEM_RELEASE);
  std::cout<<"PASS mascot page: centre camera/restoration, own club, missing package hides prior actor, bounded materials\n";
 }

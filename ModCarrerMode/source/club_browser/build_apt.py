@@ -34,9 +34,9 @@ def script(data,dictionaries,scenes,*,from_room=False):
     def ready(a):
         def bind(a):
             a.set(R(1),'onEnterFrame',T('Tick'))
-            for i,handler in enumerate(('MouseOpen','MouseXI','MouseRoster','MouseCoach','MouseMascot')):
+            for i,handler in enumerate(('MouseOpen','MouseXI','MouseRoster','MouseCoach','MouseMascot','MouseMascotAnimate')):
                 button=P(T('scene0'),'action'+str(i));a.set(button,'_alpha',0);a.set(button,'owner',R(1));a.set(button,'onRelease',T(handler))
-                if i:a.set(button,'onRollOver',T('HoverXI' if i==1 else 'HoverRoster' if i==2 else 'HoverCoach' if i==3 else 'HoverMascot'))
+                if 0<i<5:a.set(button,'onRollOver',T('HoverXI' if i==1 else 'HoverRoster' if i==2 else 'HoverCoach' if i==3 else 'HoverMascot'))
             a.do(R(1),'SetPage',3 if from_room else 0)
             a.do(M('InputManager'),'SetLocalEventHandler',CALL(PATH('cafe','utility','Delegate'),'Create',R(1),T('LocalEventHandler')))
             a.do(M('HelpManager'),'Update')
@@ -66,6 +66,7 @@ def script(data,dictionaries,scenes,*,from_room=False):
     def page(a):
         a.set(R(1),'helpDelay',90);a.set(R(1),'navPage',R(2));a.set(P(T('scene0'),'action0'),'_visible',b.equal(R(2),0))
         for i in (1,2,3,4):a.set(P(T('scene0'),'action'+str(i)),'_visible',b.equal(R(2),1))
+        a.set(P(T('scene0'),'action5'),'_visible',b.equal(R(2),6))
         a.when(b.equal(R(2),1),lambda a:a.do(R(1),'PublishFocus'))
         a.do(R(1),'RefreshHelp')
     a.function('SetPage',1,page)
@@ -82,6 +83,8 @@ def script(data,dictionaries,scenes,*,from_room=False):
         a.function(name,0,lambda a,index=index,page=page,command=command:open_choice(a,index,page,command))
     for name,target in (('MouseOpen','OpenDetail'),('MouseXI','OpenXI'),('MouseRoster','OpenRoster'),('MouseCoach','OpenCoach'),('MouseMascot','OpenMascot')):
         a.function(name,0,lambda a,target=target:a.do(P(R(1),'owner'),target))
+    a.function('MascotAnimate',0,lambda a:a.when(b.equal(T('navPage'),6),lambda a:a.do(R(1),'Publish','mascot_animate')))
+    a.function('MouseMascotAnimate',0,lambda a:a.do(P(R(1),'owner'),'MascotAnimate'))
     for name,index,command in (('HoverXI',0,'focus_xi'),('HoverRoster',1,'focus_roster'),('HoverCoach',2,'focus_coach'),('HoverMascot',3,'focus_mascot')):
         a.function(name,0,lambda a,index=index,command=command:a.when(b.equal(P(P(R(1),'owner'),'navPage'),1),lambda a:(a.set(P(R(1),'owner'),'hubIndex',index),a.do(P(R(1),'owner'),'PublishFocus'))))
     def back(a):
@@ -94,6 +97,7 @@ def script(data,dictionaries,scenes,*,from_room=False):
         a.ret(True)
     a.function('Back',0,back)
     def select(a):
+        a.when(b.equal(T('navPage'),6),lambda a:(a.do(R(1),'MascotAnimate'),a.ret(True)))
         a.when(b.equal(T('navPage'),0),lambda a:(a.do(R(1),'OpenDetail'),a.ret(True)))
         a.when(b.equal(T('navPage'),1),lambda a:(a.when(b.equal(T('hubIndex'),0),lambda a:a.do(R(1),'OpenXI'),lambda a:a.when(b.equal(T('hubIndex'),1),lambda a:a.do(R(1),'OpenRoster'),lambda a:a.when(b.equal(T('hubIndex'),2),lambda a:a.do(R(1),'OpenCoach'),lambda a:a.do(R(1),'OpenMascot')))),a.ret(True)))
         a.when(b.equal(T('navPage'),3),lambda a:(a.do(R(1),'SetPage',4),a.do(R(1),'Publish','detail'),a.ret(True)))
@@ -127,7 +131,7 @@ def script(data,dictionaries,scenes,*,from_room=False):
         a.when(b.equal(T('navPage'),2),lambda a:items(a,[('BACK','Voltar'),('ADVANCE','Atualizar')]))
         a.when(b.equal(T('navPage'),3),lambda a:items(a,[('ADVANCE','Detalhes'),('BACK','Voltar'),('LAS_UD','Elenco'),('L2R2','Abas'),('RAS_LR','Girar'),('L1R1','Zoom')]))
         a.when(b.equal(T('navPage'),4),lambda a:items(a,[('BACK','Voltar'),('L2R2','Abas'),('RAS_LR','Girar'),('L1R1','Zoom')]))
-        a.when(b.equal(T('navPage'),6),lambda a:items(a,[('BACK','Voltar'),('RAS_LR','Girar'),('L1R1','Zoom'),('OPTION_TOP','Centralizar')]))
+        a.when(b.equal(T('navPage'),6),lambda a:items(a,[('ADVANCE','Comemorar / parar'),('BACK','Voltar'),('RAS_LR','Girar'),('L1R1','Zoom'),('OPTION_TOP','Centralizar')]))
         a.when(b.equal(T('navPage'),5),lambda a:items(a,[('BACK','Voltar'),('L2R2','Abas'),('LAS_UD','Percorrer'),('RAS_LR','Girar'),('L1R1','Zoom')]))
         items(a,[('ADVANCE','Ver equipe'),('BACK','Voltar'),('LAS_LR','Percorrer'),('L1R1','Clubes / seleções'),('L2R2','Zoom'),('OPTION_TOP','Alternar')])
     a.function('getHelpContext',0,help)
@@ -145,7 +149,8 @@ def build(game,output,*,from_room=False):
     # 1600x900 layout at the APT's 1920x1080 design resolution.
     action=dict(type='action',index=0,x=134.4,y=439.2,w=364.8,h=408,color='#ffffff',ink='#ffffff',text='',size=1)
     nodes=[action]+[dict(type='action',index=i+1,x=72+i*450,y=330,w=426,h=408,color='#ffffff',ink='#ffffff',text='',size=1) for i in range(4)]
-    return native.build(game,output,[dict(key='clubs',nodes=nodes,actions=[dict(target='detail'),dict(target='xi'),dict(target='roster'),dict(target='coach'),dict(target='mascot')])],{},script_factory=lambda data,dictionaries,scenes:script(data,dictionaries,scenes,from_room=from_room),full_name=ROOM_FULL if from_room else FULL)
+    nodes.append(dict(type='action',index=5,x=1440,y=876,w=384,h=69.6,color='#ffffff',ink='#ffffff',text='',size=1))
+    return native.build(game,output,[dict(key='clubs',nodes=nodes,actions=[dict(target='detail'),dict(target='xi'),dict(target='roster'),dict(target='coach'),dict(target='mascot'),dict(target='mascot_animate')])],{},script_factory=lambda data,dictionaries,scenes:script(data,dictionaries,scenes,from_room=from_room),full_name=ROOM_FULL if from_room else FULL)
 
 if __name__=='__main__':
     import json

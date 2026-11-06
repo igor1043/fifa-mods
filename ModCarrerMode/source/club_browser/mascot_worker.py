@@ -8,6 +8,7 @@ from native_assets import convert,STRIDE
 from character_lighting import ensure
 from lineup_worker import observe,request,publish,atomic
 from static_stream import prepare as prepare_static
+from mascot_animation import prepare as prepare_celebration
 
 VERSION=1
 
@@ -49,7 +50,8 @@ def generate(game,folder,req,memory,projection_cache=None):
  paths=package(game,req['club'])
  if paths is None:return ready(actor=0)
  model,texture=[p.read_bytes() for p in paths]
- identity=hashlib.sha256(b'mascot-viewer-v2-stable-stream\0'+str(req['club']).encode()+model+texture).hexdigest()
+ clip=Path(game)/'ModCarrerMode/data/club_browser/mascot_celebration.json'
+ identity=hashlib.sha256(b'mascot-viewer-v3-celebration\0'+str(req['club']).encode()+model+texture+(clip.read_bytes() if clip.is_file() else b'')).hexdigest()
  cache=Path(game)/'ModCarrerMode/cache/club_browser/mascot'/identity
  target=Path(game)/'data/sceneassets/server16_club_xi'/str(req['pid'])/identity
  ensure(game,portable_paths.read_asset)
@@ -58,6 +60,9 @@ def generate(game,folder,req,memory,projection_cache=None):
    temp=Path(temp);blob,_=model_bytes(model,texture);(temp/'mascot.ff3d').write_bytes(blob)
    convert(temp/'mascot.ff3d',temp/'native',portable_paths.read_asset,Path(game)/'ModCarrerMode/cache/club_browser/xi/materials')
    prepare_static(temp/'native',portable_paths.read_asset)
+   if clip.is_file():
+    try:prepare_celebration(model,clip,temp/'native',lambda:not current())
+    except ValueError:prepare_static(temp/'native',portable_paths.read_asset)
    if not current():return False
    cache.parent.mkdir(parents=True,exist_ok=True);os.replace(temp/'native',cache)
  if not current():return False
@@ -71,4 +76,4 @@ def generate(game,folder,req,memory,projection_cache=None):
    os.replace(out,target)
  assets=json.loads((target/'assets.json').read_text());bounds=assets['bounds']
  return ready(actor=1,hash=identity,height=round(bounds[4]-bounds[1]),pages=assets['pages'],
-              bindings=','.join(str(row[0]) for row in assets['bindings']),renderer='native',stable_stream=1)
+              bindings=','.join(str(row[0]) for row in assets['bindings']),renderer='native',stable_stream=1,celebration=int(assets.get('celebration',0)))

@@ -2,14 +2,16 @@
 namespace clubmascot {
 inline int number(const std::string&s,int low,int high){try{size_t end=0;int n=std::stoi(s,&end);return end==s.size()&&n>=low&&n<=high?n:-1;}catch(...){return -1;}}
 struct View{
- int club=0,career=0;uint64_t consumed=0,submitted=0;bool ready=false;std::string error;
+ int club=0,career=0;uint64_t consumed=0,submitted=0;bool ready=false,celebrating=false;std::shared_ptr<clubanim::Clip> animation;std::string error;
  std::future<std::shared_ptr<clubanim::Clip>> staticClip;clubscene::Assets staticAssets;std::array<int,96>staticPages{};
- void enter(clublineup::View&worker,int id,int activeCareer){club=id;career=activeCareer;consumed=submitted=0;ready=false;error.clear();clubscene::intent(false,0);clubanim::activate({});if(career>0){worker.career=career;worker.request(club,"mascot");}}
+ bool canAnimate()const{return ready&&animation&&!animation->constant&&error.empty();}
+ void toggle(){if(canAnimate()){celebrating=!celebrating;clubanim::setPlaying(animation,celebrating);}}
+ void enter(clublineup::View&worker,int id,int activeCareer){club=id;career=activeCareer;consumed=submitted=0;ready=false;celebrating=false;animation.reset();error.clear();clubscene::intent(false,0);clubanim::activate({});if(career>0){worker.career=career;worker.request(club,"mascot");}}
  void poll(clublineup::View&worker,ID3D11Device*device){
   if(staticClip.valid()&&staticClip.wait_for(std::chrono::milliseconds(0))==std::future_status::ready){
    auto clip=staticClip.get();if(worker.kind=="mascot"&&worker.sequence==staticAssets.sequence&&club==staticAssets.club&&career==staticAssets.career){
     if(!clip){error="Geometria estável do mascote indisponível.";return;}
-    staticAssets.animation=std::move(clip);clubscene::submit(staticAssets,staticPages);submitted=staticAssets.sequence;ready=true;
+    animation=clip;clubanim::setPlaying(animation,false);staticAssets.animation=std::move(clip);clubscene::submit(staticAssets,staticPages);submitted=staticAssets.sequence;ready=true;
    }
   }
   worker.poll(device);if(worker.kind!="mascot"||worker.club!=club)return;

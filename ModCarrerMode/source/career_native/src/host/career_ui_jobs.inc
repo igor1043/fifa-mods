@@ -26,6 +26,10 @@ static void career_ui_jobs_tick(void)
     CareerJobUiCallback callback;
     drain_pending_stats_refresh();
     drain_manager_calendar();
+    /* The menu has no CareerContext publication. Its callback was registered
+     * by the actual Background ViewModel factory on the same native thread. */
+    drain_frontend_ui_tick();
+    if(frontend_ui_is_owner())drain_background_refresh();
     if(!fce_runtime_is_stable())return;
     drain_background_refresh();
     drain_bank_mail();

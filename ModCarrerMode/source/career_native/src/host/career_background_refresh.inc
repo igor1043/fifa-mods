@@ -7,7 +7,7 @@ typedef struct CareerBackgroundRefresh {
     void *registry;
     uintptr_t view;
     unsigned long context;
-    int room;
+    int room,frontend;
     ULONGLONG entered_at,deadline;
 } CareerBackgroundRefresh;
 static SRWLOCK g_background_refresh_lock = SRWLOCK_INIT;
@@ -42,6 +42,20 @@ static uintptr_t background_room_view(void)
         && read_card_scope(node+472,&check,sizeof(check)) && check==page?node:0;
 }
 
+static uintptr_t background_menu_view(void)
+{
+    static const unsigned offsets[]={232,192,136};
+    uintptr_t node=0,page=0,check=0;char name[128];size_t i;
+    if(!read_card_scope((uintptr_t)g_module_base+0x3809030,&node,sizeof(node)))return 0;
+    for(i=0;i<3;++i)if(!node||!read_card_scope(node+offsets[i],&node,sizeof(node)))return 0;
+    if(!node||!read_card_scope(node+472,&page,sizeof(page))||!page
+        ||!read_card_scope(page,name,sizeof(name))||!memchr(name,0,sizeof(name))
+        ||!read_card_scope(node+472,&check,sizeof(check))||check!=page)return 0;
+    {const char *leaf=strrchr(name,'/');leaf=leaf?leaf+1:name;
+        return !_stricmp(leaf,"MainMenuWithStadium")||!_stricmp(leaf,"MainMenuHub")
+            ||!_stricmp(leaf,"FluxHub")?node:0;}
+}
+
 static int background_refresh_owner_valid(void *owner, void *vtable, void *registry)
 {
     uintptr_t actual_vtable = 0, actual_registry = 0, factory = 0;
@@ -58,7 +72,8 @@ __declspec(dllexport) BOOL WINAPI Fifa16CareerQueueBackgroundRefresh(void *owner
     CareerBackgroundRefresh request;
     uintptr_t registry = 0;
     memset(&request, 0, sizeof(request));
-    request.view = current_card_hub_view();
+    if(frontend_ui_dispatching()){request.view=background_menu_view();request.frontend=request.view!=0;}
+    if(!request.view)request.view = current_card_hub_view();
     if (!request.view) {request.view=background_room_view();request.room=request.view!=0;}
     if (!request.view || !background_refresh_owner_valid(owner, vtable, NULL)
         || !read_card_scope((uintptr_t)owner + 8, &registry, sizeof(registry))) return FALSE;
@@ -83,14 +98,18 @@ static void drain_background_refresh(void)
         ReleaseSRWLockExclusive(&g_background_refresh_lock);
         return;
     }
-    view = request.room?background_room_view():current_card_hub_view();
+    view = request.frontend?background_menu_view():request.room?background_room_view():current_card_hub_view();
     if (!view || view != request.view || request.context != fce_runtime_context_epoch()
         || GetTickCount64() > request.deadline) {
         memset(&g_background_refresh, 0, sizeof(g_background_refresh));
         ReleaseSRWLockExclusive(&g_background_refresh_lock);
         return;
     }
-    if (request.room || !g_pending_stats_provider_owner) {
+    if(request.frontend){
+        if(!frontend_ui_is_owner()||g_current_stats_provider_owner||GetTickCount64()<request.entered_at+80){
+            ReleaseSRWLockExclusive(&g_background_refresh_lock);return;
+        }
+    } else if (request.room || !g_pending_stats_provider_owner) {
         if (g_current_stats_provider_owner || !fce_runtime_is_stable()
             || Fifa16CareerContextRead.sequence&1
             || Fifa16CareerContextRead.pid!=GetCurrentProcessId()

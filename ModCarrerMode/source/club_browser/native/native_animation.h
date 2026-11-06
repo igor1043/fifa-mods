@@ -20,7 +20,7 @@
 namespace clubanim {
 struct PrivateBuffer;
 struct Track{unsigned slot=0,vertices=0;std::vector<unsigned char>frames,scratch,expandedInitial,expandedScratch,expandedFrames;};
-struct Clip{unsigned count=0,player=0;float duration=0;std::vector<Track>tracks;std::mutex mutex;uint64_t start=0;bool begun=false,constant=false;std::atomic<unsigned>captured{0},updates{0};};
+struct Clip{unsigned count=0,player=0;float duration=0;std::vector<Track>tracks;std::mutex mutex;uint64_t start=0;bool begun=false,constant=false,paused=false;std::atomic<unsigned>captured{0},updates{0};};
 inline std::shared_ptr<Clip>activeClip;
 inline std::atomic<bool>enabled{true},visible{false};
 inline std::atomic<uint64_t>drawTime{0};
@@ -37,6 +37,7 @@ inline std::shared_ptr<Clip> load(const std::filesystem::path& path,unsigned pla
  if(total!=size_t(size))return {};c->constant=c->count==2;for(auto&t:c->tracks)if(c->constant&&memcmp(t.frames.data(),t.frames.data()+size_t(t.vertices)*20,size_t(t.vertices)*20))c->constant=false;for(auto&t:c->tracks){size_t frameBytes=size_t(t.vertices)*20,expandedBytes=size_t(t.vertices)*28;t.expandedFrames.resize(expandedBytes*c->count);for(unsigned frame=0;frame<c->count;++frame){expand(t.frames.data()+size_t(frame)*frameBytes,t.vertices,t.expandedScratch);memcpy(t.expandedFrames.data()+size_t(frame)*expandedBytes,t.expandedScratch.data(),expandedBytes);}t.expandedInitial.assign(t.expandedFrames.begin(),t.expandedFrames.begin()+expandedBytes);t.expandedScratch.clear();}return c;
 }
 
+inline void setPlaying(const std::shared_ptr<Clip>&c,bool play){if(!c)return;std::lock_guard<std::mutex>lock(c->mutex);c->paused=!play;c->begun=false;}
 inline size_t range(const Track&t,const void*data,size_t size,unsigned stride=20){const auto&expected=stride==28?t.expandedInitial:t.frames;size_t n=size_t(t.vertices)*stride;if(!data||size<n||expected.size()<n)return SIZE_MAX;auto first=(const unsigned char*)data,end=first+size;auto prefix=(std::min)(size_t(40),n);while(size_t(end-first)>=n){auto at=std::search(first,end,expected.data(),expected.data()+prefix);if(at==end||size_t(end-at)<n)return SIZE_MAX;if(!memcmp(at,expected.data(),n))return size_t(at-(const unsigned char*)data);first=at+1;}return SIZE_MAX;}
 
 struct PrivateBuffer{
@@ -70,7 +71,7 @@ inline std::shared_ptr<PrivateBuffer> verify(ID3D11DeviceContext*c,ID3D11Buffer*
 
 inline void upload(ID3D11DeviceContext*c,const std::shared_ptr<Clip>&clip,const std::shared_ptr<PrivateBuffer>&buffer,uint64_t now){
  std::lock_guard<std::mutex>lock(clip->mutex);if(buffer->lastUpload==now)return;if(!clip->begun){clip->start=now;clip->begun=true;}
- double f=std::fmod(double(now-clip->start)*.001,double(clip->duration))/clip->duration*(clip->count-1);unsigned a=(unsigned)f,b=(std::min)(a+1,clip->count-1);float mix=float(f-a);auto&t=clip->tracks[buffer->track];size_t bytes=size_t(t.vertices)*buffer->stride;const auto&frames=buffer->stride==28?t.expandedFrames:t.frames;auto left=frames.data()+a*bytes,right=frames.data()+b*bytes;
+ double f=clip->paused?0.:std::fmod(double(now-clip->start)*.001,double(clip->duration))/clip->duration*(clip->count-1);unsigned a=(unsigned)f,b=(std::min)(a+1,clip->count-1);float mix=float(f-a);auto&t=clip->tracks[buffer->track];size_t bytes=size_t(t.vertices)*buffer->stride;const auto&frames=buffer->stride==28?t.expandedFrames:t.frames;auto left=frames.data()+a*bytes,right=frames.data()+b*bytes;
  D3D11_MAPPED_SUBRESOURCE mapped{};if(FAILED(c->Map(buffer->animated,0,D3D11_MAP_WRITE_DISCARD,0,&mapped))){++drawUnavailable;return;}auto out=(unsigned char*)mapped.pData;memcpy(out,mix<.5?left:right,bytes);
  if(!clip->constant)for(unsigned v=0;v<t.vertices;++v)for(unsigned axis=0;axis<3;++axis){size_t offset=size_t(v)*buffer->stride+axis*2;uint16_t x,y;memcpy(&x,left+offset,2);memcpy(&y,right+offset,2);float X=DirectX::PackedVector::XMConvertHalfToFloat(x),Y=DirectX::PackedVector::XMConvertHalfToFloat(y);auto value=DirectX::PackedVector::XMConvertFloatToHalf(X+(Y-X)*mix);memcpy(out+offset,&value,2);}c->Unmap(buffer->animated,0);buffer->lastUpload=now;++clip->updates;++drawUploads;
 }

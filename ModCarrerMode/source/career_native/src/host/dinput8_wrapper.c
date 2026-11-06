@@ -4802,6 +4802,7 @@ void WINAPI Fifa16CareerReleaseSnapshot(void *snapshot)
 }
 
 
+#include "frontend_ui_owner.inc"
 #include "career_background_refresh.inc"
 #include "career_market_read.inc"
 #include "career_prepared_views.inc"

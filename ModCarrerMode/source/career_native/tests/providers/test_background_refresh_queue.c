@@ -22,6 +22,7 @@ static uintptr_t current_card_hub_view(void) { return active_view; }
 static unsigned long fce_runtime_context_epoch(void) { return context; }
 static int fce_runtime_is_stable(void) { return stable; }
 static void append_loader_log(const char *message) { (void)message; ++logs; }
+#include "../../src/host/frontend_ui_owner.inc"
 #include "../../src/host/career_background_refresh.inc"
 static void native_refresh(void *owner, int command, void *data)
 {
@@ -29,6 +30,7 @@ static void native_refresh(void *owner, int command, void *data)
     native_thread = GetCurrentThreadId();
     ++calls;
 }
+static void menu_callback(void) {}
 static void *owner[2];
 static uintptr_t vtable[10];
 static unsigned char stadium_service[0x80],stadium_object[0x40];
@@ -125,6 +127,23 @@ int main(void)
         g_current_stats_provider_owner=owner;drain_background_refresh();assert(calls==2);
         g_current_stats_provider_owner=NULL;drain_background_refresh();assert(calls==3);
         drain_background_refresh();assert(calls==3);
+    }
+    {
+        unsigned char nodes[0x1500]={0};
+        *(void **)(g_module_base+0x3809030)=nodes;
+        *(void **)(nodes+232)=nodes+0x400;*(void **)(nodes+0x400+192)=nodes+0x800;
+        *(void **)(nodes+0x800+136)=nodes+0xc00;*(void **)(nodes+0xc00+472)=nodes+0x1000;
+        strcpy_s((char *)nodes+0x1000,128,"game/screens/frontEnd/MainMenuWithStadium");
+        active_view=0;stable=0;Fifa16CareerContextRead.owner_thread=0;
+        assert(Fifa16FrontendRegisterUiCallback(menu_callback));
+        /* Only a real frontend dispatch may produce a main-menu request. */
+        assert(!Fifa16CareerQueueBackgroundRefresh(owner,vtable));
+        g_frontend_ui_running=1;assert(Fifa16CareerQueueBackgroundRefresh(owner,vtable));g_frontend_ui_running=0;
+        assert(g_background_refresh.frontend);g_background_refresh.entered_at=GetTickCount64()-100;
+        drain_background_refresh();assert(calls==4);
+        g_frontend_ui_running=1;assert(Fifa16CareerQueueBackgroundRefresh(owner,vtable));g_frontend_ui_running=0;
+        strcpy_s((char *)nodes+0x1000,128,"game/screens/online/OnlineHub");drain_background_refresh();assert(calls==4&&!g_background_refresh.owner);
+        drain_frontend_ui_tick();
     }
     assert(VirtualFree(g_module_base, 0, MEM_RELEASE));
     puts("PASS: render producer never invokes native UI; owner-thread delivery, coalescing, lifecycle/context/registry/expiry guards");

@@ -95,6 +95,20 @@ class FooterTests(unittest.TestCase):
         self.vm.invoke(self.proto.get('OnExitScreen'),self.hub);self.assertIsNone(manager.get('m_cbCustomSource'))
         self.vm.invoke(self.proto.get('AnimateInComplete'),self.hub);popup=Native('popup');manager.set('m_cbCustomSource',popup)
         self.vm.invoke(self.proto.get('OnExitScreen'),self.hub);self.assertIs(manager.get('m_cbCustomSource'),popup)
+    def test_frontend_tick_survives_career_exit_without_changing_native_frame(self):
+        self.setup_vm([],[],[],career=False)
+        ion=Object(dict(SendSystemEvent=Native('SendSystemEvent')));self.vm.global_.set('ION_CareerMode',ion)
+        original=Native('originalFrame');self.hub.set('onEnterFrame',original)
+        self.vm.invoke(self.proto.get('AnimateInComplete'),self.hub)
+        tick=self.hub.get('onEnterFrame');self.assertIsNot(tick,original)
+        for _ in range(30):self.vm.invoke(tick,self.hub)
+        self.assertEqual(sum(n=='originalFrame' for n,_ in self.calls),30)
+        self.assertEqual(sum(n=='SendSystemEvent' and a==['Calendar','Server16FrontendTick','tick'] for n,a in self.calls),2)
+        self.vm.invoke(self.proto.get('AnimateInComplete'),self.hub)
+        self.assertIs(self.hub.get('Server16FrontendOriginalFrame'),original)
+        self.vm.invoke(self.proto.get('OnExitScreen'),self.hub)
+        self.assertIs(self.hub.get('onEnterFrame'),original)
+
     def test_active_club_identity_changes_with_native_hub_data(self):
         self.setup_vm([],[],[])
         self.vm.global_.set('Server16CareerBrandOwner',Object(dict(m_objData=Object(dict(ASSET_ID=1043,TEAM_NAME='Flamengo')))))

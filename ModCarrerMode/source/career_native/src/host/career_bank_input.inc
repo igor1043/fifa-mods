@@ -84,9 +84,21 @@ static int manager_market_capture(const char *wire,int mode)
 }
 
 static void competition_back_request(void);
+static int frontend_ui_is_owner(void);
+static uintptr_t background_menu_view(void);
+static void drain_frontend_ui_tick(void);
+static void drain_background_refresh(void);
 static uintptr_t bank_input_event(void *bridge,const char *controller,const char *event,const char *argument)
 {
     typedef uintptr_t (*Dispatch)(void *,const char *,const char *,const char *);
+    if(bank_mail_string(event,128)&&!strcmp(event,"Server16FrontendTick")){
+        if(bank_mail_string(controller,64)&&!strcmp(controller,"Calendar")
+            &&bank_mail_string(argument,16)&&!strcmp(argument,"tick")
+            &&frontend_ui_is_owner()&&background_menu_view()){
+            drain_frontend_ui_tick();drain_background_refresh();
+        }
+        return 0;
+    }
     if(bank_mail_string(event,128)&&(!strcmp(event,"Server16ManagerProfile")||!strcmp(event,"Server16ManagerSettings")||!strcmp(event,"Server16ClubHistory"))) {
         if(bank_mail_string(controller,64)&&!strcmp(controller,"Calendar"))(void)manager_market_capture(argument,!strcmp(event,"Server16ClubHistory")?2:!strcmp(event,"Server16ManagerSettings"));
         return 0;
