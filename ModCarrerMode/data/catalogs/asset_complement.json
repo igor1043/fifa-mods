@@ -145,7 +145,7 @@
     "data/ui/imgAssets/tileicons/ti_teamstats_small_nonactive.DDS"
   ],
   "groups": {
-    "existing_base": 1274,
+    "existing_base": 1273,
     "room_art": 208,
     "manager_interface": 3,
     "manager_minifaces": 1534,
@@ -231,11 +231,6 @@
       "path": "FSW/Substitutions/598.mp3",
       "bytes": 42632,
       "sha256": "5c1d0a556b119e52e98db0fe51fd4d1b1cc79689ffea07a51c6fb3cacaf69e87"
-    },
-    {
-      "path": "LEIA-ME-ROBSON-ASSETS.txt",
-      "bytes": 1188,
-      "sha256": "2e3270ed5d7720899ca2a08de711831d6e4af145ae35b5971599da729a06cbe6"
     },
     {
       "path": "ModCarrerMode/data/club_browser/assets/globe/atlas-hd.png",

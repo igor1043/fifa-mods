@@ -17,10 +17,10 @@ def same_session(previous,current):
 class Sampler:
  def __init__(self,process,game,root,observe,attach,io_event,read,publish,ticks):
   self.process=process;self.game=game;self.root=root;self.observe=observe;self.attach=attach;self.io=io_event;self.read=read;self.publish=publish;self.ticks=ticks
-  self.journal_stamps={};self.retained_revisions={};self.journal_floor=0;self.stop=Event();self.lock=Lock();self.samples=OrderedDict();self.owner=None;self.thread=Thread(target=self.run,daemon=True,name='manager-live-sampler')
+  self.drained_files={};self.committed_files={};self.journal_stamps={};self.retained_revisions={};self.journal_floor=0;self.stop=Event();self.lock=Lock();self.samples=OrderedDict();self.owner=None;self.thread=Thread(target=self.run,daemon=True,name='manager-live-sampler')
  def start(self):self.thread.start()
  def close(self):self.stop.set();self.thread.join(timeout=2)
- def retain(self,observed,token,live):
+ def retain(self,observed,token,live,journal=()):
   owner=scope(observed,token)
   with self.lock:
    if not same_session(self.owner,owner):self.samples.clear();self.retained_revisions.clear()
@@ -28,23 +28,37 @@ class Sampler:
    row_revision=live.get('revision') or hashlib.sha256(json.dumps(live['rows'],sort_keys=True).encode()).hexdigest()
    campaign_revision=hashlib.sha256(json.dumps(live['snapshot'],sort_keys=True).encode()).hexdigest() if live.get('snapshot') else None
    seen=self.retained_revisions.get(live['date'])
-   if seen and seen[0]==row_revision and (campaign_revision is None or campaign_revision==seen[1]):return
-   self.retained_revisions[live['date']]=(row_revision,campaign_revision or (seen[1] if seen else None))
    old=self.samples.get(live['date'])
+   if seen and seen[0]==row_revision and (campaign_revision is None or campaign_revision==seen[1]):
+    if old and journal:old['journal']=journal
+    return
+   self.retained_revisions[live['date']]=(row_revision,campaign_revision or (seen[1] if seen else None))
    previous=json.loads(zlib.decompress(old['payload'])) if old else {}
    payload=dict(rows=live['rows'],snapshot=live.get('snapshot') or previous.get('snapshot'))
    encoded=zlib.compress(json.dumps(payload,separators=(',',':')).encode(),1)
-   if old and old['payload']==encoded:return
-   self.samples[live['date']]=dict(date=live['date'],revision=live.get('revision'),payload=encoded)
+   files=journal or (old.get('journal',()) if old else ())
+   self.samples[live['date']]=dict(date=live['date'],revision=live.get('revision'),payload=encoded,journal=files)
    while len(self.samples)>512:self.samples.popitem(last=False)
  def drain(self,observed,token,after):
   self.journal_floor=after
   self.capture_journal(observed,token)
   with self.lock:
+   self.drained_files={}
    if not same_session(self.owner,scope(observed,token)):return []
-   dates=sorted(d for d in self.samples if d<=observed['date']);result=[dict(date=d,**json.loads(zlib.decompress(self.samples[d]['payload']))) for d in dates if d>=after]
-   for d in dates:self.samples.pop(d,None)
+   dates=sorted(d for d in self.samples if d<=observed['date']);result=[]
+   for day in dates:
+    item=self.samples.pop(day)
+    if day<after:continue
+    decoded=json.loads(zlib.decompress(item['payload']))
+    result.append(dict(date=day,**decoded))
+    if decoded.get('snapshot'):
+     self.drained_files.update({(day,path):stamp for path,stamp in item['journal']})
    return result
+ def discard_committed(self,through):
+  if self.root is None:return
+  from server16_py.session_storage import prune_committed_calendar
+  self.committed_files.update(self.drained_files);self.drained_files={}
+  prune_committed_calendar(self.root,self.committed_files,through)
  def capture_journal(self,observed,token):
   if self.root is None:return
   from live_leagues import read,read_campaign
@@ -67,7 +81,8 @@ class Sampler:
     live=dict(date=date,rows=[])
     if key[0] is not None:live=read(path,dict(observed,date=date),self.ticks(),max_age_ms=None)
     if key[1] is not None:live['snapshot']=read_campaign(campaign,dict(observed,date=date))
-    self.retain(observed,token,live)
+    files=tuple((p,s) for p,s in zip((path,campaign),key) if s is not None)
+    self.retain(observed,token,live,files)
     with self.lock:self.journal_stamps[str(path)]=key
    except (OSError,ValueError,KeyError,RuntimeError):continue
  def run(self):

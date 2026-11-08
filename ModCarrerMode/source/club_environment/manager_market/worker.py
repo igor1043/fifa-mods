@@ -384,6 +384,7 @@ class Service:
   # its durable receipt. It never opens SQLite or invokes FIFA from I/O.
   marker=dict(schema=1,pid=saved['pid'],created=saved['process_created_100ns'],context=format(observed['profile']['context_address'],'x'),epoch=epoch,date=context['date'],club=context['club'],revision=state_revision)
   atomic(ROOT/'save_state.tsv',''.join(f'{k}={v}\n' for k,v in marker.items()).encode('ascii'))
+  if getattr(self,'sampler',None):self.sampler.discard_committed(context['date'])
   publish_model_assets(GAME,self.market.db,state);self.model_asset_scope=state
   engine_status=dict(date=context['date'],branch=self.market.branch,tracking_start=self.market.info()['start_date'],coverage=context.get('coverage',{}),protected_club=context['club'],**self.market.status_counts(context['date']),journal=self.market.journal.stats)
   atomic(ROOT/'engine_status.json',json.dumps(engine_status,ensure_ascii=False,indent=2).encode('utf8'));log('engine_advanced',**engine_status)
