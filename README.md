@@ -386,3 +386,9 @@ agora reúne vestiário, globo, SubsOn, mascotes e objetos de apresentação.
 - [Changelog completo e instalação para o Robson](ModCarrerMode/docs/RELEASE_20261025.md).
 - [Cenas extras: funcionamento e testes](ModCarrerMode/source/native_mods/extra_scenes/README.md).
 - [Sala interna do VAR adiada: anotações para retomada](ModCarrerMode/source/docs/VAR_ROOM_DEFERRED_20261025.md).
+
+## Cenas extras — técnicos mandante e visitante
+
+As cutscenes adicionais podem mostrar o técnico do mandante ou do visitante, independentemente do lado controlado pelo jogador. O mascote continua sendo exclusivamente o do mandante, quando estiver instalado e carregado. Cada tomada mantém o mesmo personagem até terminar a sequência nativa. A frequência, os pesos e o intervalo configurados são preservados.
+
+Em `ModCarrerMode/config/extra_scenes.ini`, `coach_team=0` permite os dois técnicos (padrão); `1` restringe ao mandante e `2` ao visitante. Essas escolhas respeitam os switches existentes de técnico e mascote.
