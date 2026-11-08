@@ -16,7 +16,7 @@ void* __fastcall roomPhotoHook(void*self){
  if(get<uintptr_t>(vt+0x38)==image+0x408d1d0&&get<uintptr_t>(p+8))roomPhotoView=p;
  // The room owns its transparent cover independently of the stadium setting.
  // This factory is already running on the native UI owner thread.
- if(result&&page())((void(__fastcall*)(void*,const char*,const char*))(image+0x4c174d0))(result,"Param","server16_frontend_clear");
+ if(result&&roomVisiblePage())((void(__fastcall*)(void*,const char*,const char*))(image+0x4c174d0))(result,"Param","server16_frontend_clear");
  return result;
 }
 bool roomPhotoExchange(LONG64 from,LONG64 to){

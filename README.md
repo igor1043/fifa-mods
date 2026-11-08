@@ -1,4 +1,27 @@
 # FIFA Friends V12
+
+## Fundos da carreira e revisão local — 08/11/2026
+
+Em **Select + Start → Configurações visuais → Fundo da carreira**, escolha
+**Imagem de fundo**, **Estádio 3D** ou **Vestiário 3D**. A preferência fica salva.
+O vestiário usa a sala V3 do clube ativo e seu passeio automático; a câmera é
+liberada ao sair da carreira ou abrir outra tela. O fundo reutiliza os recursos
+preparados durante o avanço do calendário, sem refazer a sala a cada dia.
+
+Inclui a revisão dos comandos contextuais no rodapé da carreira, as cutscenes
+dos dois técnicos com o mascote limitado ao mandante e a organização das notas
+dos módulos no README principal. Server16 incluído: **0.2.29**, com limpeza dos
+resíduos de sessões encerradas.
+
+Doze animações nativas foram recuperadas como **candidatas desativadas** na
+pasta ModCarrerMode/data/club_browser/animations/candidates/. A escolha aleatória
+atual permanece; os clipes experimentais e os que precisam de transição não
+foram habilitados automaticamente.
+
+Validação: testes de persistência e controles, enquadramento dos painéis,
+câmera e isolamento da carreira, preparação da sala e autoteste do pacote
+compilado. A aparência da nova opção deve ser conferida na instalação do jogo.
+
 ## Menu + Layout — integração de 05/11/2026
 
 Aplicados o layout atualizado da carreira e novos/atualizados ícones dos cards de mercado e elenco, preservando as rotas e IDs dos mods. Os arquivos foram sincronizados entre jogo e desenvolvimento.
@@ -30,7 +53,7 @@ O FIFA Friends V12 reúne melhorias para acompanhar seu clube, personalizar a ex
 
 **Edição:** FIFA Friends V12 · **Atualizado em:** 04/11/2026
 
-**Server16 incluído:** 0.2.20. As DLLs compiladas ficam nesta branch, organizadas em uma pasta por mod. O [índice dos módulos ativos](ModCarrerMode/mods/README.md) informa arquivos, funções e configurações.
+**Server16 incluído:** 0.2.20. As DLLs compiladas ficam nesta branch, organizadas em uma pasta por mod. O índice dos módulos ativos está resumido neste README.
 
 **Revisão R3 de 02/11 — mercado de técnicos:** salvamento confirmado pelo FIFA
 vinculado ao checkpoint SQL, preservando os técnicos na recarga e descartando o
@@ -186,7 +209,7 @@ O erro `failed to open archive file` ocorria antes do Python: o carregador não 
 
 O auxiliar dos titulares inicia ao abrir a visualização e recupera até duas falhas de inicialização do carregador, preservando clube e pedido. Não prepara modelos no mapa. Saves, contratos, texturas e demais mods mantêm seus fluxos existentes.
 
-As [notícias nativas de gols](ModCarrerMode/source/native_mods/goal_news/README.md) mostram placares dos jogos simulados em paralelo, sem filtro adicional por liga ou idioma da narração. A leitura respeita o relógio, aguarda o painel anterior e descarta repetições. A exibição em partida foi confirmada pelo usuário nesta revisão.
+As notícias nativas de gols mostram placares dos jogos simulados em paralelo, sem filtro adicional por liga ou idioma da narração. A leitura respeita o relógio, aguarda o painel anterior e descarta repetições. A exibição em partida foi confirmada pelo usuário nesta revisão.
 
 Empréstimos passam a usar a moeda escolhida no save e a formatação monetária do próprio FIFA, inclusive nos e-mails. Novas propostas têm uma chance simulada de recusa que varia por banco, exposição financeira e prazo. A decisão é fixada no pedido e guardada no SQLite; reabrir telas ou carregar o mesmo estado não sorteia novamente. Contratos e pedidos anteriores mantêm suas condições. [Testes, limites da cobertura e entrega](ModCarrerMode/docs/RELEASE_20261025.md).
 
@@ -208,12 +231,12 @@ Teste da revisão: o executável congelado criou os runtimes ausentes e executou
 
 ## Atualização — 24/10/2026
 
-- **Empréstimos:** tela nativa com bancos e logotipos, contratos individuais, tabela de parcelas e até dois contratos ativos. Datas da solicitação/resposta ficam fixas no SQLite por carreira e clube; parcelas vencidas são processadas mesmo ao pular dias. Pedido, decisão e lembretes usam e-mails da carreira. [Funcionamento e persistência](ModCarrerMode/source/club_environment/bank/README.md).
+- **Empréstimos:** tela nativa com bancos e logotipos, contratos individuais, tabela de parcelas e até dois contratos ativos. Datas da solicitação/resposta ficam fixas no SQLite por carreira e clube; parcelas vencidas são processadas mesmo ao pular dias. Pedido, decisão e lembretes usam e-mails da carreira.
 - **Próxima partida:** contexto e calendário atualizam os campinhos, escalações e adversário após avançar pela Central ou pelo calendário, sem reutilizar a partida anterior.
-- **Vestiário:** revisão R62 com modelos e poses completos, ajuste de impressão dos kits, transição das cenas e preservação da visão 3D ao retornar. [Ambiente do clube](ModCarrerMode/source/club_environment/README.md).
-- **Estádio e panorâmica:** respeitam o estádio definido para o clube e a preferência de fundo, com preparação fora da thread de desenho. [Revisão do cenário](ModCarrerMode/source/native_mods/frontend_stadium/README.md).
-- **Mercado de Transferências:** novo item no carrossel Rede Mundial; dados ao vivo e carregamento automático, cinco abas e controles/legendas nativos. [Detalhes](ModCarrerMode/source/club_environment/market/README.md).
-- **Ver clubes e onze titulares:** carrossel em Outras ligas, globo 8K com pontos fixos, imagens dos clubes lidas do FIFA e onze titulares em pose estática desenhados pela engine no estádio. Carregamento somente ao abrir Ver titulares; recursos isolados por seleção evitam misturar clubes. [Arquitetura e testes](ModCarrerMode/source/club_browser/README.md).
+- **Vestiário:** revisão R62 com modelos e poses completos, ajuste de impressão dos kits, transição das cenas e preservação da visão 3D ao retornar.
+- **Estádio e panorâmica:** respeitam o estádio definido para o clube e a preferência de fundo, com preparação fora da thread de desenho.
+- **Mercado de Transferências:** novo item no carrossel Rede Mundial; dados ao vivo e carregamento automático, cinco abas e controles/legendas nativos.
+- **Ver clubes e onze titulares:** carrossel em Outras ligas, globo 8K com pontos fixos, imagens dos clubes lidas do FIFA e onze titulares em pose estática desenhados pela engine no estádio. Carregamento somente ao abrir Ver titulares; recursos isolados por seleção evitam misturar clubes.
 - **Server16 0.2.15:** compatibilidade ReShade API 17, controles genéricos opcionais e sincronização dos auxiliares. Executável atualizado incluído neste repositório; fontes canônicos na branch `fifa-friends` do [Server16](https://github.com/igor1043/CG-File-Server-16---Python-Port/tree/fifa-friends).
 
 **Para atualizar:** com FIFA/Server fechados, copie esta branch e extraia **FIFA-Friends-Assets-Complementares-20261025.zip** diretamente na pasta do FIFA. O complemento de 25/10 tem 650 assets, incluindo apresentações, mascotes, cabine de campo e iluminação dos titulares. Server16, DLLs, código e interfaces vêm desta branch. Não há instalador no ZIP. [Conteúdo e conferência](ModCarrerMode/docs/RELEASE_20261025.md).
@@ -228,7 +251,7 @@ Teste da revisão: o executável congelado criou os runtimes ausentes e executou
 - **Câmeras — revisão 12:** acompanhamento nas cobranças e reinícios, correção da pose após a transição nativa e flags de desfoque desligadas nos quadros modificados. A terceira pessoa reduz oscilações e limita as viradas; no modo de um jogador, o vínculo do atleta permanece fixo. Testes isolados aprovados; usuário relatou melhora significativa. Casos específicos ainda aguardam validação.
 - **Física de roupas:** começa desligada e mantém a escolha salva, inclusive ao atualizar a instalação.
 - **Layouts do Server16:** corrigidas as sobreposições no painel da carreira e no rodapé da fumaça; textos respeitam o espaço dos atalhos, switches e botões. A busca de estádio usa teclado QWERTY com fileiras escalonadas e navegação por posição. São 117 testes aprovados e 52 estados renderizados; conferência visual dentro do FIFA pendente.
-- **Ano de nascimento:** corrigida a prioridade da interface que removia o cadeado e listava 2006–2012. O instalador agora ativa essa tela no índice BH local, com backup, sem substituir o índice de outros mods. [Detalhes e reparo manual](ModCarrerMode/source/tools/birthyear_ui/README.md). Desbloqueio e lista confirmados pelo usuário.
+- **Ano de nascimento:** corrigida a prioridade da interface que removia o cadeado e listava 2006–2012. O instalador agora ativa essa tela no índice BH local, com backup, sem substituir o índice de outros mods. Desbloqueio e lista confirmados pelo usuário.
 - **Estádio de fundo:** pacote completo do módulo v11, preparador, scripts e interface nativa ajustada para o menu e a carreira. O recurso começa desligado; atualizações preservam as escolhas salvas. Os estádios continuam nos pacotes locais do usuário.
 - **Panorâmica:** módulo v5, revisão de tomadas 6, com 39 cenas. A órbita alta leva cerca de 99 segundos, com rotação mais lenta e o tempo de parada preservado. Há uma nova órbita a 65 m para ver o perfil do estádio e uma travessia completa dos 68 m da linha central.
 - **Pênaltis:** o Server mantém o placar durante a disputa, e a pirotecnia bloqueia os disparos nessa fase.
@@ -256,7 +279,7 @@ Veja a [lista de arquivos e recursos publicados](ModCarrerMode/docs/ATUALIZACAO_
 ## Ícones por ID da competição — 18/10/2026
 
 Calendário, card Próxima Partida da Central e cards de Competições compartilham
-[uma pasta de ícones](data/ui/imgAssets/careerCompetitionIcons/README.md).
+uma pasta de ícones.
 Use `<ID_DO_INI>.png`; o pacote já inclui as versões proporcionais para cada área.
 Carreiras antigas são resolvidas pela identidade da competição, preservando o
 mesmo logo em todos os meses. A DLL gera o BIG/APT e as texturas nativas de cada ícone ao iniciar.
@@ -365,9 +388,9 @@ A cabine do VAR é visual: não altera decisões de arbitragem. As bolas de repo
 ## Para quem desenvolve ou monta o pacote
 
 - [Guia técnico, instalação e estrutura dos arquivos](ModCarrerMode/docs/GUIA_TECNICO.md).
-- [Índice dos módulos ativos e suas configurações](ModCarrerMode/mods/README.md).
+- O índice dos módulos ativos e suas configurações está resumido nesta página.
 - [Catálogo completo das implementações](ModCarrerMode/docs/implementations.json).
-- [Detalhes da física de roupas](ModCarrerMode/source/cloth_motion/README.md).
+- Física de roupas: módulo experimental descrito na seção de módulos desta página.
 - [Server16: configuração, áudio e personalização](https://github.com/igor1043/CG-File-Server-16---Python-Port/tree/fifa-friends).
 
 A edição **New Experience** tem sua [própria branch](https://github.com/igor1043/fifa-mods/tree/fifa-friends-new-experience).
@@ -384,8 +407,15 @@ isolamento das texturas de estádios entre partidas. O complemento de assets
 agora reúne vestiário, globo, SubsOn, mascotes e objetos de apresentação.
 
 - [Changelog completo e instalação para o Robson](ModCarrerMode/docs/RELEASE_20261025.md).
-- [Cenas extras: funcionamento e testes](ModCarrerMode/source/native_mods/extra_scenes/README.md).
+- Cenas extras: módulo experimental no código nativo do Server16.
 - [Sala interna do VAR adiada: anotações para retomada](ModCarrerMode/source/docs/VAR_ROOM_DEFERRED_20261025.md).
+
+## Ultrawide e chute rasteiro — revisão local
+
+- **Ultrawide:** switch no Server16 → Módulos e no painel Select + Start. Nos menus e na carreira, abra Configurações visuais → Ultrawide; antes da partida, Configurações da partida → Ultrawide; durante a partida, Gráficos e jogabilidade → Ultrawide. A mudança é imediata e não depende de ativar o estádio personalizado. A cena 3D acompanha a largura da janela; menus e HUD permanecem centralizados em 16:9. O controle nativo fica em `ModCarrerMode/mods/ultrawide/ultrawide.ini`; não exige ReShade nem altera o executável no disco. A alteração usa a rotina de redimensionamento do FIFA; se a tela cheia exclusiva não atualizar imediatamente, alterne Alt + Enter.
+- **Fundo padrão e ultrawide:** os dois DDS editáveis ficam em `ModCarrerMode/data/ultrawide/`: `st_bootflow_standard.dds` (1920×1080) e `st_bootflow_ultrawide.dds` (2560×1080). O Server16 seleciona o arquivo conforme o switch, inclusive ao iniciar. A renderização reconhece somente essa arte de fundo e a mantém na largura da tela; os demais elementos da interface continuam em 16:9. As imagens são assets do complemento local.
+- **Revisão local 0.2.25:** o ajuste da interface nativa não é reaplicado aos desenhos próprios dos mods nem a uma área já centralizada. O mouse usa a transformação inversa da área central, tanto nas mensagens da janela quanto na leitura da posição, com a opção ligada ou desligada. O cursor do Windows não é movido. A revisão mantém os outros módulos do executável e atualiza apenas a ponte gráfica e a versão.
+- **Chute rasteiro:** `ModCarrerMode/mods/low_driven_shot/low_driven_shot.dll`, com switch independente. Segure o botão de chute para carregar, solte e dê o segundo toque em até 300 ms. A configuração recebida usa X/Quadrado; para B/Círculo, altere `shoot_button=B` em `low_driven_shot.ini`. É um filtro de controle durante a partida, não uma mudança permanente nos atributos ou na trajetória da bola. O filtro compartilha a captura de controles existente e não atua nas telas do mod.
 
 ## Cenas extras — técnicos mandante e visitante
 

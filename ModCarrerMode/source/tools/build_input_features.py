@@ -1,5 +1,6 @@
 """Build the two native feature switches without replacing unrelated Server16 code."""
 import argparse
+import ast
 import hashlib
 import io
 import json
@@ -46,7 +47,10 @@ def build(server, overlay, output, preserve_offsets=False, native_only=False):
             assert original.toc['PYZ.pyz'][0]==updated.toc['PYZ.pyz'][0]
             previous=original.extract('PYZ.pyz');current=updated.extract('PYZ.pyz')
             assert previous[12:]==current[12:len(previous)]
-    report={'output':str(output),'version':'0.2.25','bytes':output.stat().st_size,
+    package = ast.parse((Path(__file__).parents[1]/'server16_py/__init__.py').read_text(encoding='utf-8'))
+    version = next(ast.literal_eval(node.value) for node in package.body
+                   if isinstance(node,ast.Assign) and any(isinstance(target,ast.Name) and target.id=='__version__' for target in node.targets))
+    report={'output':str(output),'version':version,'bytes':output.stat().st_size,
             'sha256':hashlib.sha256(output.read_bytes()).hexdigest(),
             'overlay_sha256':hashlib.sha256(overlay.read_bytes()).hexdigest(),
             'python_modules':python_report['modules'],'preserved_python_modules':python_report['preserved_python_modules'],

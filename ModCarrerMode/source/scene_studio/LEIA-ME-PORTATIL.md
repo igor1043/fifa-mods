@@ -19,7 +19,6 @@ Uma foto estima profundidade e partes ocultas: revise a pose com IK/FK.
 
 Ctrl+Z desfaz; Ctrl+X refaz. Punhos e pés têm IK de dois ossos. As cenas são
 poses estáticas; a exportação não cria uma animação ou cutscene nativa completa.
-Consulte README-editor.md para os controles e local_ai/README.md para a IA.
 
 Os fontes estão na branch fifa-friends-v12, em
 ModCarrerMode/source/scene_studio. Modelos, pesos ONNX e runtime portátil ficam

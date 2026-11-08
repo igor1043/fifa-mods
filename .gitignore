@@ -24,7 +24,6 @@ data/sceneassets/mascot/
 # Competition artwork by INI ID is distributed; old visual-ID migration files stay local.
 data/ui/imgAssets/careerCompetitionIcons/*
 !data/ui/imgAssets/careerCompetitionIcons/*.png
-!data/ui/imgAssets/careerCompetitionIcons/README.md
 !data/ui/imgAssets/careerCompetitionIcons/COMPETICOES.txt
 !data/ui/imgAssets/careerCompetitionIcons/competitions.tsv
 !data/ui/imgAssets/careerCompetitionIcons/calendar/
@@ -237,3 +236,19 @@ runtime/diagnostics/
 /data/sceneassets/server16_dressing_room_v3/**/*.rx3
 /data/sceneassets/server16_dressing_room_v3/**/*.dds
 /ModCarrerMode/data/club_environment/room/v3-settings/
+
+# Keep module-specific README notes in the local reference archive only.
+/ModCarrerMode/**/README*.md
+/data/**/README*.md
+/.local-reference/
+
+/ModCarrerMode/**/README*.txt
+
+# Original editable background variants are distributed as visual assets.
+/ModCarrerMode/data/ultrawide/*.dds
+/ModCarrerMode/data/ultrawide/*.big
+
+# Generated build output and per-machine ultrawide state.
+/ModCarrerMode/source/runtime/
+/ModCarrerMode/mods/ultrawide/runtime_state.txt
+/ModCarrerMode/mods/ultrawide/ultrawide.ini

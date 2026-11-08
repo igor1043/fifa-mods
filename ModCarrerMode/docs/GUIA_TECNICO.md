@@ -45,7 +45,7 @@ Para usar os mods diretamente deste desenvolvimento com um DB/DLC externo, execu
 
 Os fontes ficam em `ModCarrerMode/source/<mod>/`. A pasta `ModCarrerMode/mods/` contém os arquivos usados na execução e uma DLL atual por módulo. Os objetos de abertura usam `entrance_props.dll`; a cabine usa `var_cabin.dll`. As revisões internas continuam identificadas nos logs.
 
-O [índice dos 18 módulos ativos](../mods/README.md) relaciona cada DLL com sua configuração. Os fontes de estádio de fundo, panorâmica e cenas extras ficam em `ModCarrerMode/source/native_mods/`. As cenas extras estão desativadas; o código permanece nesse diretório. Backups ficam em `ModCarrerMode/backups/`, e relatórios de sessão em `ModCarrerMode/runtime/`; ambos permanecem locais.
+O README principal resume os módulos ativos e suas configurações. Os fontes de estádio de fundo, panorâmica e cenas extras ficam em `ModCarrerMode/source/native_mods/`. As cenas extras estão desativadas; o código permanece nesse diretório. Backups ficam em `ModCarrerMode/backups/`, e relatórios de sessão em `ModCarrerMode/runtime/`; ambos permanecem locais.
 
 O Server16 incluído é o 0.2.8. Seleção de narrador, aplicação automática e avisos de narração estão ocultos por opções internas de desenvolvimento. O estádio de fundo começa desligado e preserva a preferência salva nas atualizações.
 
@@ -65,15 +65,15 @@ Uma competição sem modelo de abertura fica sem esses objetos e a partida conti
 
 ## Fontes e conferência
 
-- [Objetos de abertura](../source/entrance_props/README.md)
-- [Cabine do VAR](../source/var_cabin/README.md)
-- [Mascotes](../source/mascot_photographer/README.md)
-- [Bolas de reposição](../source/multiball_visual/README.md)
-- [Pirotecnia](../source/stadium_pyrotechnics/README.md)
-- [Máquinas de fumaça](../mods/smoke_machine/README.txt)
-- [Física de roupas](../source/cloth_motion/README.md)
-- [Tiro de meta moderno](../source/goal_kick_short_pass/README.md)
-- [Ícones da carreira](../source/career_ui_assets/README.md)
+- Objetos de abertura (`source/entrance_props/`)
+- Cabine do VAR (`source/var_cabin/`)
+- Mascotes (`source/mascot_photographer/`)
+- Bolas de reposição (`source/multiball_visual/`)
+- Pirotecnia (`source/stadium_pyrotechnics/`)
+- Máquinas de fumaça: `ModCarrerMode/source/smoke_machine/`.
+- Física de roupas (`source/cloth_motion/`)
+- Tiro de meta moderno (`source/goal_kick_short_pass/`)
+- Ícones da carreira (`source/career_ui_assets/`)
 
 Para compilar, use MSVC x64 e execute o build do módulo. Copie a saída para a DLL correspondente em `ModCarrerMode/mods/`. `Verify-Package.ps1` confere o pacote compilado; `Test-Package.ps1` testa a instalação isolada, sem abrir FIFA nem usar saves. `Review-Code.py` confere os fontes. `Export-Code.py` cria um ZIP somente com código, configuração e documentação. Os scripts ficam em `ModCarrerMode/tools/maintenance/`.
 

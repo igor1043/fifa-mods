@@ -15,6 +15,7 @@
 #include "profile_reload.h"
 #include "stadium_metadata.h"
 #include "../../common/club_stadium_scope.h"
+#include "../../common/career_background.h"
 
 // Verified call sites on the installed 577DE45C FIFA build. Scene requests
 // pass through FIFA's existing FE event queue and preparation/loading pair.
@@ -707,6 +708,21 @@ static DWORD WINAPI worker(void*){
 extern "C" __declspec(dllexport) BOOL WINAPI Fifa16FrontendStadiumView(DWORD* team,int* phase){
     if(!team||!phase||stopping||!installed||!TryAcquireSRWLockShared(&gate))return FALSE;
     *team=publishedTeam;*phase=publishedPhase;ReleaseSRWLockShared(&gate);return TRUE;
+}
+extern "C" __declspec(dllexport) DWORD WINAPI Fifa16FrontendRoomBackgroundClub(){
+    if(stopping||!installed)return 0;
+    wchar_t value[32]{};GetPrivateProfileStringW(L"frontend_stadium",L"background_mode",L"",value,_countof(value),config);
+    const auto mode=career_background::parse(!std::wcscmp(value,L"dressing_room")?"dressing_room":
+        !std::wcscmp(value,L"image")?"image":!std::wcscmp(value,L"stadium")?"stadium":"",setting(L"enabled",0)!=0);
+    if(mode!=career_background::Mode::DressingRoom)return 0;
+    auto p=get<uintptr_t>(image+0x3809030);
+    for(unsigned offset:{232u,192u,136u,472u})p=get<uintptr_t>(p+offset);
+    char name[128]{};if(!read(p,name,sizeof name-1))return 0;
+    for(auto& c:name)if(c>='A'&&c<='Z')c+='a'-'A';
+    const auto leaf=std::strrchr(name,'/');
+    bool resolved=false;const int team=activeCareerClub(image,read,&resolved);
+    return career_background::wantsRoom(mode,leaf&&!std::strcmp(leaf,"/fluxhub"),resolved,
+        team>0?static_cast<unsigned>(team):0,activeCareerRole(),menuScene())?static_cast<DWORD>(team):0;
 }
 extern "C" __declspec(dllexport) BOOL WINAPI Fifa16FrontendStadiumName(DWORD team,wchar_t* text,DWORD capacity){
     if(!text||capacity<2||capacity>1024||stopping||!installed||!TryAcquireSRWLockShared(&gate))return FALSE;

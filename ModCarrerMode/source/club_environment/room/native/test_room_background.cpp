@@ -12,6 +12,7 @@ static int routed=0,queued=0;
 static bool read(uintptr_t at,void*out,size_t n){SIZE_T got=0;return ReadProcessMemory(GetCurrentProcess(),(void*)at,out,n,&got)&&got==n;}
 template<class T>static T get(uintptr_t at){T result{};read(at,&result,sizeof result);return result;}
 static bool page(){return inRoom;}
+static bool roomVisiblePage(){return inRoom;}
 static void log(const char*){}
 static void* factory(void*){return reinterpret_cast<void*>(0x1234);}
 static void setParameter(void*provider,const char*key,const char*value){

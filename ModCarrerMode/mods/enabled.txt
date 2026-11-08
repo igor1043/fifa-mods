@@ -37,5 +37,5 @@ extra_scenes\extra_scenes.dll
 server16_overlay\cgfs16_overlay.dll
 first_person\server16_first_person_v14.dll
 career_jobs\career_jobs_runtime.dll
-cloth_motion\cloth_motion.dll
 low_driven_shot\low_driven_shot.dll
+cloth_motion\cloth_motion.dll

@@ -49,7 +49,6 @@ ModCarrerMode/data/catalogs/presentation_assets.json -text whitespace=cr-at-eol
 ModCarrerMode/source/common/scene_camera_lease.h -text whitespace=cr-at-eol
 ModCarrerMode/source/docs/SERVER_AUDIO_STADIUM_20261025.md -text whitespace=cr-at-eol
 ModCarrerMode/source/docs/VAR_ROOM_DEFERRED_20261025.md -text whitespace=cr-at-eol
-ModCarrerMode/source/native_mods/extra_scenes/README.md -text whitespace=cr-at-eol
 ModCarrerMode/source/native_mods/extra_scenes/extra_scenes.cpp -text whitespace=cr-at-eol
 ModCarrerMode/source/native_mods/extra_scenes/extra_scenes.ini -text whitespace=cr-at-eol
 ModCarrerMode/source/native_mods/extra_scenes/frame_camera.h -text whitespace=cr-at-eol
@@ -96,9 +95,7 @@ ModCarrerMode/source/career_native/src/host/career_bank_input.inc -text whitespa
 ModCarrerMode/source/career_native/src/host/career_prepared_views.inc -text whitespace=cr-at-eol
 # Exact bytes for the 27/10 release inputs.
 ModCarrerMode/docs/RELEASE_20261027.md -text whitespace=cr-at-eol
-ModCarrerMode/mods/README.md -text whitespace=cr-at-eol
 
-/README.md -text whitespace=cr-at-eol
 # Exact installed bytes for the shared overlay and 28/10 release inputs.
 ModCarrerMode/source/career_native/src/host/native_cards.inc -text whitespace=cr-at-eol
 ModCarrerMode/source/server16_py/d3d_overlay/cgfs16_overlay.cpp -text whitespace=cr-at-eol
@@ -134,7 +131,6 @@ ModCarrerMode/source/career_native/src/host/active_save_probe.inc -text whitespa
 ModCarrerMode/source/career_native/src/host/dinput8_wrapper.c -text whitespace=cr-at-eol
 ModCarrerMode/source/career_native/tests/providers/test_career_market_read.c -text whitespace=cr-at-eol
 ModCarrerMode/source/tests/test_career_transfer_cards_layout.py -text whitespace=cr-at-eol
-ModCarrerMode/source/tools/career_branding/README.md -text whitespace=cr-at-eol
 
 data/fifarna/lua/assets/server16_frontend_176.lua -text
 data/fifarna/lua/assets/server16_frontend_261.lua -text
@@ -157,7 +153,6 @@ ModCarrerMode/source/tests/test_scoreboard_theme_baseline.py -text whitespace=cr
 ModCarrerMode/docs/WORLD_RANKINGS_LOCAL.md -text whitespace=cr-at-eol
 ModCarrerMode/data/club_browser/ranking_rules.json -text whitespace=cr-at-eol
 ModCarrerMode/data/club_browser/world_geography.json -text whitespace=cr-at-eol
-ModCarrerMode/source/club_browser/README.md -text whitespace=cr-at-eol
 ModCarrerMode/source/club_browser/build_apt.py -text whitespace=cr-at-eol
 ModCarrerMode/source/club_browser/build_ranking_apt.py -text whitespace=cr-at-eol
 ModCarrerMode/source/club_browser/lineup_worker.py -text whitespace=cr-at-eol
@@ -195,7 +190,6 @@ ModCarrerMode/docs/MATCH_ATTENDANCE_FINANCE_20261030.md -text whitespace=cr-at-e
 ModCarrerMode/docs/RELEASE_20261030.md -text whitespace=cr-at-eol
 ModCarrerMode/docs/STATIC_SCENES_LEAGUE_ORDER_20261030.md -text whitespace=cr-at-eol
 ModCarrerMode/docs/TICKET_OPERATING_COSTS.md -text whitespace=cr-at-eol
-ModCarrerMode/mods/var_cabin/README.md -text whitespace=cr-at-eol
 ModCarrerMode/mods/var_cabin/var_cabin.ini -text whitespace=cr-at-eol
 ModCarrerMode/source/club_browser/build_mascot.cmd -text whitespace=cr-at-eol
 ModCarrerMode/source/club_browser/career_results.py -text whitespace=cr-at-eol
@@ -259,7 +253,6 @@ ModCarrerMode/source/club_environment/bank/test_loan_reminders.py -text whitespa
 ModCarrerMode/source/club_environment/bank/test_loan_statement.py -text whitespace=cr-at-eol
 ModCarrerMode/source/club_environment/bank/test_loan_ui_recovery.py -text whitespace=cr-at-eol
 ModCarrerMode/source/club_environment/bank/test_receipt_details.py -text whitespace=cr-at-eol
-ModCarrerMode/source/club_environment/manager_market/README.md -text whitespace=cr-at-eol
 ModCarrerMode/source/club_environment/manager_market/SIDELINE_MODELS.md -text whitespace=cr-at-eol
 ModCarrerMode/source/club_environment/manager_market/engine.py -text whitespace=cr-at-eol
 ModCarrerMode/source/club_environment/manager_market/manager_layout.py -text whitespace=cr-at-eol
@@ -282,7 +275,6 @@ ModCarrerMode/source/club_environment/preview/test_preview_progression.py -text 
 ModCarrerMode/source/club_environment/preview/test_preview_summary.py -text whitespace=cr-at-eol
 ModCarrerMode/source/club_environment/preview/test_stadium_sources.py -text whitespace=cr-at-eol
 ModCarrerMode/source/club_environment/release-manifest.json -text whitespace=cr-at-eol
-ModCarrerMode/source/native_mods/first_person/README.md -text whitespace=cr-at-eol
 ModCarrerMode/source/native_mods/frontend_customization/layout/mainhubcfg.xml -text whitespace=cr-at-eol
 ModCarrerMode/source/server16_py/d3d_injector.py -text whitespace=cr-at-eol
 ModCarrerMode/source/server16_py/first_person_runtime.py -text whitespace=cr-at-eol
@@ -296,7 +288,6 @@ ModCarrerMode/source/tests/test_grass_quality.py -text whitespace=cr-at-eol
 ModCarrerMode/source/tests/test_loading_notice_retry.py -text whitespace=cr-at-eol
 ModCarrerMode/source/tests/test_overlay_reattach.py -text whitespace=cr-at-eol
 ModCarrerMode/source/tools/integrate_frontend_cards.py -text whitespace=cr-at-eol
-ModCarrerMode/source/var_cabin/README.md -text whitespace=cr-at-eol
 data/ui/layout/mainhubcfg.xml -text whitespace=cr-at-eol
 
 # Retain native XML formatting and Windows manifest bytes verbatim.
@@ -505,7 +496,6 @@ ModCarrerMode/source/club_environment/room/test_room_interior_r71.py -text white
 ModCarrerMode/source/club_environment/room/test_room_interior_r72.py -text whitespace=cr-at-eol
 ModCarrerMode/source/mascot_photographer/Build-NativeManagerFromFbx.py -text whitespace=cr-at-eol
 ModCarrerMode/source/mascot_photographer/Clean-NativeManagerGarment.py -text whitespace=cr-at-eol
-ModCarrerMode/source/mascot_photographer/README.md -text whitespace=cr-at-eol
 ModCarrerMode/source/mascot_photographer/Repair-NativeManagerLegWeights.py -text whitespace=cr-at-eol
 ModCarrerMode/source/mascot_photographer/Repair-NativeManagerSurfaces.py -text whitespace=cr-at-eol
 ModCarrerMode/source/mascot_photographer/Test-NativeManagerLegWeights.py -text whitespace=cr-at-eol
@@ -558,7 +548,6 @@ ModCarrerMode/source/career_jobs_runtime/protocol.h -text whitespace=cr-at-eol
 ModCarrerMode/source/career_jobs_runtime/test.cmd -text whitespace=cr-at-eol
 ModCarrerMode/source/career_jobs_runtime/test_runtime.c -text whitespace=cr-at-eol
 ModCarrerMode/source/career_native/src/host/dinput8_wrapper.def -text whitespace=cr-at-eol
-ModCarrerMode/source/common/README.md -text whitespace=cr-at-eol
 ModCarrerMode/source/common/competition_identity.h -text whitespace=cr-at-eol
 ModCarrerMode/source/common/live_competition.h -text whitespace=cr-at-eol
 ModCarrerMode/source/common/preload_status.h -text whitespace=cr-at-eol
@@ -660,7 +649,6 @@ ModCarrerMode/source/tests/native_frontend_player_test.cpp -text whitespace=cr-a
 ModCarrerMode/source/tests/test_cache_maintenance.py -text whitespace=cr-at-eol
 ModCarrerMode/source/tools/career_footer/build.py -text whitespace=cr-at-eol
 ModCarrerMode/source/tools/career_footer/test_footer.py -text whitespace=cr-at-eol
-ModCarrerMode/source/native_mods/frontend_stadium/README.md -text whitespace=cr-at-eol
 ModCarrerMode/source/native_mods/frontend_stadium/menu_page.h -text whitespace=cr-at-eol
 ModCarrerMode/source/server16_py/assets/startup_baseline.json -text whitespace=cr-at-eol
 ModCarrerMode/source/server16_py/locales/en.json -text whitespace=cr-at-eol
@@ -681,3 +669,4 @@ ModCarrerMode/docs/ABERTURA_DB_CRC_20261106.md -text whitespace=cr-at-eol
 ModCarrerMode/docs/FRONTEND_MASCOT_STARTUP_20261106.md -text whitespace=cr-at-eol
 
 .gitattributes text eol=lf
+/README.md -text whitespace=cr-at-eol

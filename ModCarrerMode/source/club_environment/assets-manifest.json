@@ -2,11 +2,6 @@
   "version": 1,
   "files": [
     {
-      "path": "ModCarrerMode/data/club_environment/current_dressing_room/README.md",
-      "bytes": 6057,
-      "sha256": "e67c4caf7ea8d139d9b2403b6d6080d278b630f49b89ad994c0f4f3695e647b6"
-    },
-    {
       "path": "ModCarrerMode/data/club_environment/current_dressing_room/SERIE-A.md",
       "bytes": 3143,
       "sha256": "3d873a69745f415a198aeedd52e984b147079564c2ed2d28d509af6d6a06c4b9"
@@ -1275,11 +1270,6 @@
       "path": "ModCarrerMode/data/club_environment/room/assets/texture_template.rx3",
       "bytes": 448,
       "sha256": "4435f70808925092d885a38ab979f5fcfc13d0e7b57c06958668e37151419b21"
-    },
-    {
-      "path": "ModCarrerMode/data/club_environment/room/clubs/README.md",
-      "bytes": 452,
-      "sha256": "b52d95d0bd78e54355926f9413da3d2df817ac4ab662a7fa7bba8ea6c902037f"
     },
     {
       "path": "ModCarrerMode/data/club_environment/room/clubs/serie-a-b.json",

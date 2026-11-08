@@ -323,29 +323,40 @@ def publish_room_ready(pid):
  revision=hashlib.sha256((GAME/ui.BIG).read_bytes()).hexdigest()
  prepared_views.publish(ROOT/'runtime/view_ready.tsv',dict(pid=pid,process_created_100ns=snap.get('processCreated100ns',0)),profile,parts[2]*10000+parts[1]*100+parts[0],revision)
 
-def room_requested(pid):
+def room_request_status(pid):
  # Published by the native UI owner. A retained/stale status cannot wake assets
  # for a different session, or keep preparing them after a stalled render loop.
  path=ROOT/'runtime/native_status.json'
  try:
   age=time.time()-path.stat().st_mtime
   status=json.loads(path.read_text(encoding='utf8'))
-  return (0<=age<=4 and status.get('pid')==pid and status.get('installed') is True
-          and status.get('requested') is True and status.get('error')==0)
- except (OSError,ValueError,TypeError):return False
+  if (0<=age<=4 and status.get('pid')==pid and status.get('installed') is True
+          and status.get('requested') is True and status.get('error')==0):return status
+ except (OSError,ValueError,TypeError):pass
+ return {}
+
+def room_requested(pid):return bool(room_request_status(pid))
 
 def refresh_requested_room(pid,state,logfile):
- if not room_requested(pid):return False
+ status=room_request_status(pid)
+ if not status:return False
  snap=json.loads((GAME/'ModCarrerMode/runtime/career_fce_snapshot.json').read_text())
  if snap.get('pid')!=pid or not snap.get('club'):return False
- stamp=(snap.get('pid'),snap.get('club'),snap.get('savePath'),snap.get('saveWriteTime100ns'),calendar_stamp(pid),__import__('room_interior_r71').art_stamp(GAME,snap['club']),__import__('room_secondary_wall_r75').config_stamp(GAME),tuple(tuple(r[:11]) for r in snap.get('fixtures',[]) if snap['club'] in r[5:7]),(ROOT/'runtime/medical_native_capture.tsv').stat().st_mtime_ns if (ROOT/'runtime/medical_native_capture.tsv').exists() else 0)
+ background=bool(status.get('background_club'))
+ if background and status['background_club']!=snap['club']:return False
+ # The cinematic backdrop reuses prepared room assets while the calendar runs.
+ # Full dated panels/fixtures refresh on entry into the dedicated room screen.
+ date='background' if background else calendar_stamp(pid)
+ fixtures=() if background else tuple(tuple(r[:11]) for r in snap.get('fixtures',[]) if snap['club'] in r[5:7])
+ medical=ROOT/'runtime/medical_native_capture.tsv'
+ stamp=(snap.get('pid'),snap.get('club'),snap.get('savePath'),snap.get('saveWriteTime100ns'),date,__import__('room_interior_r71').art_stamp(GAME,snap['club']),__import__('room_secondary_wall_r75').config_stamp(GAME),fixtures,medical.stat().st_mtime_ns if not background and medical.exists() else 0)
  if stamp!=state.get('last'):
   prepare();state['last']=stamp;state['appearance_stamp']=room_v3.stamp(GAME,snap['club'])
   with logfile.open('a') as f:f.write(f'PREPARED club={snap["club"]} native game assets, no save writes\n')
  elif room_v3.enabled(GAME) and (state.get('appearance_changed') or room_v3.stamp(GAME,snap['club'])!=state.get('appearance_stamp')):
   refresh_appearance();state['appearance_stamp']=room_v3.stamp(GAME,snap['club'])
  state['appearance_changed']=False
- publish_room_ready(pid)
+ if not background:publish_room_ready(pid)
  return True
 
 def watch():

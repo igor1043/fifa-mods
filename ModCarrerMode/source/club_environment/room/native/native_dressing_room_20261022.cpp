@@ -45,6 +45,13 @@ template<class T>T get(uintptr_t at){T v{};read(at,&v,sizeof v);return v;}
 bool write(uintptr_t at,const void*data,size_t n){__try{memcpy((void*)at,data,n);return true;}__except(EXCEPTION_EXECUTE_HANDLER){return false;}}
 void log(const char*message){std::ofstream f(logfile,std::ios::app);f<<GetTickCount64()<<" pid="<<GetCurrentProcessId()<<" "<<message<<"\n";}
 bool page(){auto p=get<uintptr_t>(image+0x3809030);for(unsigned o:{232u,192u,136u,472u})p=get<uintptr_t>(p+o);char text[128]{};return read(p,text,127)&&!strcmp(text,roomPage);}
+std::atomic<unsigned>backgroundClub{0};
+unsigned backgroundRequest(){
+ using Query=DWORD(WINAPI*)();auto module=GetModuleHandleW(L"frontend_stadium_native_v11.dll");
+ auto query=module?reinterpret_cast<Query>(GetProcAddress(module,"Fifa16FrontendRoomBackgroundClub")):nullptr;
+ return query?query():0;
+}
+bool roomVisiblePage(){return page()||backgroundClub.load()!=0;}
 bool execute(const char*script){auto lua=get<uintptr_t>(image+0x3613fd0);if(!lua||get<int>(lua+0x80)!=5)return false;__try{((void(__fastcall*)(const char*,size_t,const char*))(image+0x4ac35e0))(script,strlen(script),"Server16NativeDressingRoom");return true;}__except(EXCEPTION_EXECUTE_HANDLER){return false;}}
 #include "room_background_r52.h"
 struct LuaValue {uintptr_t value=0;int type=0;};
@@ -89,7 +96,7 @@ struct BorrowedCamera {
  }scene=0;}
  void apply(bool waiting=false){auto s=get<uintptr_t>(image+0x3517c10);const auto state=get<int>(s+0x3c);roomSceneState=state;if(state!=1&&state!=13)return;float x=get<float>(s+0x88),y=get<float>(s+0x8c);if(!std::isfinite(x)||!std::isfinite(y)||y<=0||x/y<.5f||x/y>4)return;
   auto now=GetTickCount64();const double dt=tourTick?std::min(.1,double(now-tourTick)*.001):0.;tourTick=now;
-  if(!director.initialized||director.generation!=roomTourVersion)director.reset(roomTour,roomTourVersion,GetCurrentProcessId()^roomTourVersion^static_cast<unsigned>(now));control();
+  if(!director.initialized||director.generation!=roomTourVersion)director.reset(roomTour,roomTourVersion,GetCurrentProcessId()^roomTourVersion^static_cast<unsigned>(now));if(!backgroundClub)control();
   auto pose=waiting?panorama::Pose{{0,187,750},{0,180,0},74}:walk.active?walk.tick(input.sample(static_cast<float>(dt)),static_cast<float>(dt),roomTour):director.tick(dt,roomTour);if(!waiting&&!walk.active&&!room_cinema::poseSafe(pose,roomTour))pose=lastSafe;else if(!waiting)lastSafe=pose;pose.eye=pose.eye+panorama::Vec{roomOriginX,1000,0};pose.target=pose.target+panorama::Vec{roomOriginX,1000,0};float m[16];if(!panorama::matrix(pose,m)||!read(s+0x40,original,sizeof original))return;scene=s;
   float Y=std::tan(pose.fov*.00872664626f),X=Y*(x/y),zero=0;unsigned char off=0;write(s+0x40,m,sizeof m);write(s+0x88,&X,4);write(s+0x8c,&Y,4);write(s+0xb0,&off,1);write(s+0xbc,&zero,4);write(s+0xc0,&zero,4);read(s+0x40,written,sizeof written);applyNear();
  }
@@ -127,7 +134,7 @@ bool captureRoomSceneCommand(const char*argument){
  ReleaseSRWLockExclusive(&roomCommandLock);return accepted;
 }
 void __fastcall draw(void*self,int pass){
- ++draws;if(stopping||!active||!ready||!page()||self!=(void*)object)return;
+ ++draws;if(stopping||!active||!ready||!roomVisiblePage()||self!=(void*)object)return;
  // V3 scenery is managed with the other content-addressed components so it
  // can be replaced on a room re-entry, without stale native asset caching.
  if(roomV3)return;
@@ -198,7 +205,9 @@ bool guardObject(){
  visibility(false);log("NATIVE_GAMEPLAYPROP_CONTEXT_VALIDATED: native capacity retained, only instance zero used");return true;
 }
 void poll(){
- const bool requested=page(),wasRequested=roomRequested.exchange(requested);active=false;
+ const unsigned backdrop=backgroundRequest(),priorBackdrop=backgroundClub.exchange(backdrop);
+ const bool requested=page()||backdrop!=0,wasRequested=roomRequested.exchange(requested);active=false;
+ if(backdrop!=priorBackdrop){camera.resetTour();camera.controlSequence=0;}
  // Calendar and other career pages must not allocate or reload room props.
  // Hide once on exit; retained FIFA objects stay untouched while the room is idle.
  if(!requested){roomLoading=false;roomLoadBegan=0;
@@ -221,19 +230,25 @@ void poll(){
  if(object&&!fault){
   if(!registered){
    const char script[]=R"lua(local s=S16NativeDressingRoom;local gr=gRenderables;local shadowOk,shadowErr=pcall(function()
-    -- FIFA creates and schedules these global renderers in assets.lua. Reuse
-    -- them so the room prop joins the same shadow passes as native props.
-    local flat=gr:Find('flatshadow',0);local selfshadow=gr:Find('selfshadowpo',0)
-    assert(flat and selfshadow,'FIFA global shadow renderers unavailable')
+    local flatGlobal=gr:Find('flatshadow',0);local selfGlobal=gr:Find('selfshadowpo',0)
+    local flat=gr:Create('flatshadow',1);local selfshadow=gr:Create('selfshadowpo',1)
+    assert(flat and selfshadow and flat~=flatGlobal and selfshadow~=selfGlobal,'private FIFA shadow renderers unavailable')
     s.flat_shadow=flat;s.self_shadow=selfshadow
+    gr:AddSubObject(flat,s.object,2);gr:AddSubObject(selfshadow,s.object,4)
    end)
    s.engine_shadow_registered=shadowOk;s.engine_shadow_error=tostring(shadowErr)
-   s.engine_shadow_contexts_registered=shadowOk
+   local flatQueued,flatQueueErr=false,'shadow renderer unavailable';local selfQueued,selfQueueErr=false,'shadow renderer unavailable'
+   if shadowOk then
+    flatQueued,flatQueueErr=pcall(function() ContextAddRenderable('gameplayprops',s.flat_shadow,0,{}) end)
+    selfQueued,selfQueueErr=pcall(function() ContextAddRenderable('gameplayprops',s.self_shadow,0,{}) end)
+   end
+   s.engine_shadow_contexts_registered=flatQueued and selfQueued
+   s.engine_shadow_context_error=tostring(flatQueueErr)..'; '..tostring(selfQueueErr)
    local ok,err=pcall(function() ContextAddRenderable('gameplayprops',s.object,1,{}) end)
    s.registered=ok;s.error=tostring(err);s.stage=ok and 'registered_loading' or 'failed'
    )lua";
    if(!execute(script)||roomField("registered").type!=1||!roomField("registered").value){fault=7;phase=9;log("NATIVE_CONTEXT_REGISTRATION_REJECTED");return;}
-   registered=true;engineShadowRegistered=roomField("engine_shadow_registered").type==1&&roomField("engine_shadow_registered").value;engineShadowContextsRegistered=roomField("engine_shadow_contexts_registered").type==1&&roomField("engine_shadow_contexts_registered").value;log(engineShadowRegistered?"NATIVE_GLOBAL_SHADOW_GROUPS_REUSED":"NATIVE_GLOBAL_SHADOW_GROUPS_UNAVAILABLE");
+   registered=true;engineShadowRegistered=roomField("engine_shadow_registered").type==1&&roomField("engine_shadow_registered").value;engineShadowContextsRegistered=roomField("engine_shadow_contexts_registered").type==1&&roomField("engine_shadow_contexts_registered").value;log(engineShadowContextsRegistered?"NATIVE_SHADOW_RENDERERS_QUEUED_IN_ROOM_CONTEXT":engineShadowRegistered?"NATIVE_SHADOW_GROUPS_LINKED_CONTEXT_QUEUE_FAILED":"NATIVE_SHADOW_GROUPS_UNAVAILABLE");
   }
   if(!prepareAttempted){prepareAttempted=true;log("NATIVE_PREPARE_BEGIN");((void(__fastcall*)(void*,bool))(image+0x4ad7e50))((void*)object,true);log("NATIVE_PREPARE_RETURNED");}
   if(!ready&&loaded()){
@@ -242,8 +257,7 @@ void poll(){
   }else if(!ready&&GetTickCount64()-requestedAt>45000){fault=8;phase=9;log("NATIVE_ASSET_TIMEOUT_NO_RETRY");}
  }
  pollComponents(true);
- componentsReadyStatus=roomComponentsReady();
- active=requested&&ready&&componentsReadyStatus&&!fault&&!holdDrawing;roomLoading=requested&&!active;
+ componentsReadyStatus=roomComponentsReady();active=requested&&ready&&componentsReadyStatus&&(!backdrop||backdrop==componentClub)&&!fault&&!holdDrawing;roomLoading=requested&&!active;
  visibility(active);showComponents(active);
  const bool preparationError=fault||roomComponentsFailed()||GetTickCount64()-roomLoadBegan>90000;
  pollSlate(roomLoading,preparationError);
@@ -251,7 +265,7 @@ void poll(){
 void*__fastcall frame(){
  camera.restore();void*result=((void*(__fastcall*)())previousFrame)();++frames;
  if(stopping)return result;
- __try{poll();if(active||roomLoading){if(!roomLoading&&roomRosterCameraOwned()){camera.applyNear();camera.tourTick=0;camera.walk.active=false;camera.input.reset();}else camera.apply(roomLoading);}else camera.resetTour();roomReturnTick(page());}
+ __try{poll();if(active||roomLoading){if(!backgroundClub&&!roomLoading&&roomRosterCameraOwned()){camera.applyNear();camera.tourTick=0;camera.walk.active=false;camera.input.reset();}else camera.apply(roomLoading);}else camera.resetTour();roomReturnTick(roomVisiblePage());}
  __except(EXCEPTION_EXECUTE_HANDLER){fault=GetExceptionCode();phase=9;active=false;log("ROOM_MONITOR_EXCEPTION_DISABLED");}
  return result;
 }
@@ -269,7 +283,7 @@ bool install(){
  if(!relay){for(uintptr_t step=0x10000;step<0x70000000&&!relay;step+=0x10000)relay=VirtualAlloc((void*)(image+step),4096,MEM_COMMIT|MEM_RESERVE,PAGE_READWRITE);if(!relay)return false;unsigned char jump[14]={0xff,0x25,0,0,0,0};auto target=(uintptr_t)&frame;memcpy(jump+6,&target,8);memcpy(relay,jump,14);DWORD old;if(!VirtualProtect(relay,4096,PAGE_EXECUTE_READ,&old))return false;FlushInstructionCache(GetCurrentProcess(),relay,4096);}
  oursCall=LONG(intptr_t(relay)-intptr_t(image+0x3a19f84));return exchange(beforeCall,oursCall);
 }
-void status(){std::ofstream f(folder/L"runtime/native_status.json.tmp");f<<"{\"pid\":"<<GetCurrentProcessId()<<",\"installed\":"<<(installed?"true":"false")<<",\"scene_state\":"<<roomSceneState<<",\"requested\":"<<(roomRequested?"true":"false")<<",\"active\":"<<(active?"true":"false")<<",\"ready\":"<<(ready?"true":"false")<<",\"loading\":"<<(roomLoading?"true":"false")<<",\"components_ready\":"<<(componentsReadyStatus?"true":"false")<<",\"phase\":"<<phase<<",\"error\":"<<fault<<",\"frames\":"<<frames<<",\"native_draw_callbacks\":"<<draws<<",\"native_draw_returns\":"<<submissions<<",\"flat_shadow_passes\":"<<flatShadowPasses<<",\"self_shadow_passes\":"<<selfShadowPasses<<",\"engine_shadow_registered\":"<<(engineShadowRegistered?"true":"false")<<",\"engine_shadow_contexts_registered\":"<<(engineShadowContextsRegistered?"true":"false")<<",\"board_shadow_link_attempts\":"<<roomBoardShadowLinkAttempts<<",\"board_shadow_linked\":"<<(roomBoardShadowLinked?"true":"false")<<",\"board_flat_shadow_passes\":"<<roomBoardFlatShadowPasses<<",\"board_self_shadow_passes\":"<<roomBoardSelfShadowPasses<<",\"object\":"<<object<<",\"indoor_uploads\":"<<indoorUploads<<",\"indoor_failures\":"<<indoorFailures<<",\"spot_power\":"<<indoorSpotPower.load()<<",\"spotlighted_draws\":"<<spotlightedDraws<<",\"return_background_refreshes\":"<<roomReturnRefreshes<<",\"return_background_hook\":"<<(roomPhotoInstalled?"true":"false")<<",\"roster_camera\":"<<(roomRosterCameraOwned()?"true":"false")<<",\"free_camera\":"<<(camera.walk.active?"true":"false")<<",\"camera_automatic\":"<<(camera.director.automatic?"true":"false")<<",\"camera_selected\":"<<camera.director.selected<<",\"camera_paused\":"<<(camera.director.paused?"true":"false")<<",\"camera_command_sequence\":"<<camera.controlSequence<<",\"stadium_reloads\":0,\"renderer\":\"FIFA native GameplayProp\",\"webview\":false}\n";f.close();MoveFileExW((folder/L"runtime/native_status.json.tmp").c_str(),(folder/L"runtime/native_status.json").c_str(),MOVEFILE_REPLACE_EXISTING);}
+void status(){std::ofstream f(folder/L"runtime/native_status.json.tmp");f<<"{\"pid\":"<<GetCurrentProcessId()<<",\"installed\":"<<(installed?"true":"false")<<",\"background_club\":"<<backgroundClub<<",\"scene_state\":"<<roomSceneState<<",\"requested\":"<<(roomRequested?"true":"false")<<",\"active\":"<<(active?"true":"false")<<",\"ready\":"<<(ready?"true":"false")<<",\"loading\":"<<(roomLoading?"true":"false")<<",\"components_ready\":"<<(componentsReadyStatus?"true":"false")<<",\"phase\":"<<phase<<",\"error\":"<<fault<<",\"frames\":"<<frames<<",\"native_draw_callbacks\":"<<draws<<",\"native_draw_returns\":"<<submissions<<",\"flat_shadow_passes\":"<<flatShadowPasses<<",\"self_shadow_passes\":"<<selfShadowPasses<<",\"engine_shadow_registered\":"<<(engineShadowRegistered?"true":"false")<<",\"engine_shadow_contexts_registered\":"<<(engineShadowContextsRegistered?"true":"false")<<",\"object\":"<<object<<",\"indoor_uploads\":"<<indoorUploads<<",\"indoor_failures\":"<<indoorFailures<<",\"spot_power\":"<<indoorSpotPower.load()<<",\"spotlighted_draws\":"<<spotlightedDraws<<",\"return_background_refreshes\":"<<roomReturnRefreshes<<",\"return_background_hook\":"<<(roomPhotoInstalled?"true":"false")<<",\"roster_camera\":"<<(roomRosterCameraOwned()?"true":"false")<<",\"free_camera\":"<<(camera.walk.active?"true":"false")<<",\"camera_automatic\":"<<(camera.director.automatic?"true":"false")<<",\"camera_selected\":"<<camera.director.selected<<",\"camera_paused\":"<<(camera.director.paused?"true":"false")<<",\"camera_command_sequence\":"<<camera.controlSequence<<",\"stadium_reloads\":0,\"renderer\":\"FIFA native GameplayProp\",\"webview\":false}\n";f.close();MoveFileExW((folder/L"runtime/native_status.json.tmp").c_str(),(folder/L"runtime/native_status.json").c_str(),MOVEFILE_REPLACE_EXISTING);}
 DWORD WINAPI worker(void*){
  const auto began=GetTickCount64();log("WAIT_NATIVE_CODE: delayed signature validation after executable unpack");
  while(!stopping){
