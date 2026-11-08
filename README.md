@@ -45,8 +45,8 @@ Mods de carreira, apresentação e partidas para FIFA 16, integrados ao Server16
 | Fundo da carreira | Permite usar imagem estática, estádio 3D ou vestiário 3D como fundo da carreira. |
 | Estádio de fundo | Carrega o estádio para os menus e para os fluxos de visualização dos clubes. |
 | Panorâmica de estádio | Acrescenta enquadramentos e movimentos de câmera pelo estádio. |
-| Primeira pessoa | Oferece visualização em primeira pessoa nas cenas compatíveis. |
-| Terceira pessoa | Oferece visualização em terceira pessoa nas cenas compatíveis. |
+| Câmera em primeira pessoa | Permite jogar partidas pela perspectiva do jogador. |
+| Câmera em terceira pessoa aprimorada | Melhora o enquadramento e o acompanhamento do jogador durante as partidas. |
 | Cutscenes de técnico e mascote | Insere cenas ocasionais dos dois técnicos e do mascote do mandante, com seleção aleatória e intervalo entre ocorrências. |
 | Ultrawide | Amplia a área de visualização 3D nas resoluções compatíveis, mantendo os painéis centralizados. |
 | Tema visual | Aplica cards claros e a cor de destaque dourada `#B9A274` às telas dos mods. |
