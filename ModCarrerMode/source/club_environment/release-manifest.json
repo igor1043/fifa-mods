@@ -97,11 +97,6 @@
       "sha256": "fd5c331f4d944f735f85db282a8cc72a775e171bcf6fc1617131662afb45c55b"
     },
     {
-      "path": "LEIA-ME-ROBSON-ASSETS.txt",
-      "bytes": 1188,
-      "sha256": "2e3270ed5d7720899ca2a08de711831d6e4af145ae35b5971599da729a06cbe6"
-    },
-    {
       "path": "ModCarrerMode/config/extra_scenes.ini",
       "bytes": 566,
       "sha256": "9d9ca580d02be1a830fdfc31939b1b4fdbe16e7982eea55a7db17a9086454bd4"
@@ -460,11 +455,6 @@
       "path": "ModCarrerMode/data/club_environment/bank/assets/sicredi.source.json",
       "bytes": 281,
       "sha256": "12aedd6c10070df2be54b712feeb0035d74ecb5dcdeef0953f0744b79c0b39b3"
-    },
-    {
-      "path": "ModCarrerMode/data/club_environment/current_dressing_room/SERIE-A.md",
-      "bytes": 3143,
-      "sha256": "3d873a69745f415a198aeedd52e984b147079564c2ed2d28d509af6d6a06c4b9"
     },
     {
       "path": "ModCarrerMode/data/club_environment/current_dressing_room/custom/1035/corner-panel.png",
@@ -9442,311 +9432,6 @@
       "sha256": "c305b5e9dc5a3d536a0c41098659557a0edb4e2608b671f4eaed50c8467dc1e1"
     },
     {
-      "path": "ModCarrerMode/docs/ABERTURA_DB_CRC_20261106.md",
-      "bytes": 2963,
-      "sha256": "25f23fa10a55c2f697bb500660967cea9434bbc61cf0324999db0dec6f7649b1"
-    },
-    {
-      "path": "ModCarrerMode/docs/CAMPANHAS_SOMENTE_SAVE_20261031.md",
-      "bytes": 4691,
-      "sha256": "68fc43cb5f402e929c329cb1a5f21d08408b523dceb825e6388df22fab33fa95"
-    },
-    {
-      "path": "ModCarrerMode/docs/CAREER_HUB_ORGANIZATION.md",
-      "bytes": 4143,
-      "sha256": "4af72c6a6ee8671fa11a4aafbaeafac9080ed1935e5777dd113888ec1fa337f2"
-    },
-    {
-      "path": "ModCarrerMode/docs/CARREIRA_OPCOES_E_REVISAO_20261031.md",
-      "bytes": 3936,
-      "sha256": "3c928061c1e2f3a174f9940a194f3ae9892cfab41b4963df84984b6d23c30346"
-    },
-    {
-      "path": "ModCarrerMode/docs/CHAVEAMENTO_20261031.md",
-      "bytes": 3003,
-      "sha256": "baf919d9932e40358604d85e04b14cbff74029c6303ebb4e11f7ec71cb4fc323"
-    },
-    {
-      "path": "ModCarrerMode/docs/CLUB_3D_TEXTURES_FOCUS_20261030.md",
-      "bytes": 3904,
-      "sha256": "108da5b1b21a46d2251d9c6dfa119f1bb59929891dfc1e00cef88dcf1b8111b6"
-    },
-    {
-      "path": "ModCarrerMode/docs/CLUB_MASCOT_VIEWER_20261030.md",
-      "bytes": 2269,
-      "sha256": "94d91b51559b554e8cf916b6f06020be1bc48612d6d9cc1bc03b6cd1a91d773c"
-    },
-    {
-      "path": "ModCarrerMode/docs/COACH_MINIFACE.md",
-      "bytes": 1070,
-      "sha256": "3b8aa19c4c4b86764b5dd943a89a62a43af6933caf05101cb888f9d8c94ec17a"
-    },
-    {
-      "path": "ModCarrerMode/docs/COMPETICOES_PAINEL_20261031.md",
-      "bytes": 3700,
-      "sha256": "5d81c04b155c4cebc974f0dfe1a649e75345a44debea44b6ffd8dfdfd4e4b4b8"
-    },
-    {
-      "path": "ModCarrerMode/docs/CREDIT_RANKINGS_FINANCE_20261030.md",
-      "bytes": 5697,
-      "sha256": "31a8acbf76a98bcd7c2f0ef9666c1b74587338c4a7b730e66a19c9e9eda12966"
-    },
-    {
-      "path": "ModCarrerMode/docs/CUSTOM_UI_THEME.md",
-      "bytes": 2070,
-      "sha256": "e5743da6096814cd4b477b0c7dcc6a14a64b492590519af86061bdc96a85278c"
-    },
-    {
-      "path": "ModCarrerMode/docs/DEPARTAMENTO_MEDICO_R77_20261101.md",
-      "bytes": 3404,
-      "sha256": "e219119904116e29aca45202b07aa3857ebea18de2fe5625acedca342d2c61bf"
-    },
-    {
-      "path": "ModCarrerMode/docs/FINANCE_BALANCE_20261102.md",
-      "bytes": 5451,
-      "sha256": "add6962d7550409cbd16a91793b1479dd546d9c25988452ba40ef3152f723693"
-    },
-    {
-      "path": "ModCarrerMode/docs/FINANCE_LOADING_CRASH_20261030.md",
-      "bytes": 1852,
-      "sha256": "3a0f7eb89ad02b8a2c002d890684b1bb503bc039bee774933df1749d85d29368"
-    },
-    {
-      "path": "ModCarrerMode/docs/FINANCE_RECEIPTS_RESULTS_20261030.md",
-      "bytes": 3061,
-      "sha256": "d4741245a8d3349dec1d31d9d89a3cb604b264b4d33732a8e5523f28e7fe5495"
-    },
-    {
-      "path": "ModCarrerMode/docs/FRONTEND_MASCOT_STARTUP_20261106.md",
-      "bytes": 3395,
-      "sha256": "75fb63c7dce1912c2dc5b6cc057b66ffa55e30b1fcf9f1dfb0c39b2e3044222c"
-    },
-    {
-      "path": "ModCarrerMode/docs/GRAMADO_ALTA_QUALIDADE_20261030.md",
-      "bytes": 3021,
-      "sha256": "59b33c80487e8e5387ba0c449968dffd1a2c82fc987a4e6fa067371c600d2605"
-    },
-    {
-      "path": "ModCarrerMode/docs/GUIA_TECNICO.md",
-      "bytes": 8729,
-      "sha256": "51df6eddd21a15f180d016b39672068bdd45b3c24609fb3e47e29e7e254e6522"
-    },
-    {
-      "path": "ModCarrerMode/docs/HIDRATACAO_R78_20261102.md",
-      "bytes": 2448,
-      "sha256": "9e25b867b17309b5d31b2685fa64908fbc6232c9d7dbd86dc5e22a71f6619f1f"
-    },
-    {
-      "path": "ModCarrerMode/docs/LIVE_CAREER_CORE_20261102.md",
-      "bytes": 6248,
-      "sha256": "f83b31f75f70f0ec1da2f6b55ffcdafd299940ef0128e080759f339b8294cd5f"
-    },
-    {
-      "path": "ModCarrerMode/docs/MANAGER_BACKGROUND_20261102.md",
-      "bytes": 4749,
-      "sha256": "b18fc826aa088fc1282e6a1db46a1122089f0a4e75cfb66f822d42ce1796b8af"
-    },
-    {
-      "path": "ModCarrerMode/docs/MANAGER_MARKET_REVIEW_20261102.md",
-      "bytes": 3355,
-      "sha256": "d0de114baaa53e77241da7cdbc39cd82bcc729b5d460d7ef627a705ec765cc49"
-    },
-    {
-      "path": "ModCarrerMode/docs/MANAGER_POLISH_PERSISTENCE_20261102.md",
-      "bytes": 3855,
-      "sha256": "99e7ccaf32b70ac3c9a957adc620a0b32ffe90e3110d8dda9c9895f9fb5b1cc2"
-    },
-    {
-      "path": "ModCarrerMode/docs/MANAGER_PROGRESS_WORLD_20261102.md",
-      "bytes": 5254,
-      "sha256": "e78e7a75b090ac5fdd779134034e6cdea5ef8d11c6bb054bb1f99c6647ae0b38"
-    },
-    {
-      "path": "ModCarrerMode/docs/MANAGER_SAVE_BACKGROUND_20261102.md",
-      "bytes": 5830,
-      "sha256": "f82cd9b660550fea55e69f1fd4d6c824b2154ca969cd73046bff5e4d244b6275"
-    },
-    {
-      "path": "ModCarrerMode/docs/MANAGER_VISUAL_FAST_20261102.md",
-      "bytes": 2219,
-      "sha256": "9dea9474f6fe6dd245b4b3ac995dd516554d4c593a75b317d84c8bab015a55c1"
-    },
-    {
-      "path": "ModCarrerMode/docs/MASCOTE_E_RECURSOS_20261101.md",
-      "bytes": 3694,
-      "sha256": "286e1d529781a8ab572c39ea0b744ca7165f083519f68cfe97625f8391915576"
-    },
-    {
-      "path": "ModCarrerMode/docs/MASCOTE_ORIENTACAO_20261031.md",
-      "bytes": 1241,
-      "sha256": "fbc33c73e67c41500f7a11670d109add37f53f3d50891336dd85332b0764c4b0"
-    },
-    {
-      "path": "ModCarrerMode/docs/MATCH_ATTENDANCE_FINANCE_20261030.md",
-      "bytes": 2768,
-      "sha256": "2763cdbda3ccbda0baf3ed14a76084f8f329b13f832f9535fc277c55da534f9f"
-    },
-    {
-      "path": "ModCarrerMode/docs/MENU_LAYOUT_20261105.md",
-      "bytes": 1156,
-      "sha256": "e15821270b67154c74bfbb79d8c53607be4559d559717c966acd5a830c6d4a3b"
-    },
-    {
-      "path": "ModCarrerMode/docs/MENU_LAYOUT_BACK_20261104.md",
-      "bytes": 2818,
-      "sha256": "4105b4a85e8aff7d4c59daa2773daeed25620660970d2ee8847d299f5b63c875"
-    },
-    {
-      "path": "ModCarrerMode/docs/MERCADO_CONTRATOS_CAMPANHAS_20261031.md",
-      "bytes": 1867,
-      "sha256": "784772583b7a91e5e900aa0fc2441864d4bcba8c12352cb6ea8cbdd9f77e2171"
-    },
-    {
-      "path": "ModCarrerMode/docs/MERCADO_TECNICOS_NAVEGACAO_20261031.md",
-      "bytes": 2435,
-      "sha256": "95e1b3aff694f05db8a7ba98e9643599396071fd03cda94d4843b86c799f460a"
-    },
-    {
-      "path": "ModCarrerMode/docs/RELEASE_20261027.md",
-      "bytes": 3396,
-      "sha256": "8dc700051165944a4a03936455ddfaaf0df6c1214ef4b3903637be77f9b009dd"
-    },
-    {
-      "path": "ModCarrerMode/docs/RELEASE_20261028.md",
-      "bytes": 4802,
-      "sha256": "1d73146b5bfe5ce38736150165b7b2e0c53058ae84e4efc750fb4c23c4cc91d4"
-    },
-    {
-      "path": "ModCarrerMode/docs/RELEASE_20261029.md",
-      "bytes": 8472,
-      "sha256": "42c2ac1f0cd6d9d62f9840e8783fd64070000f0cdaa1d9d4f21074e78da1d4b6"
-    },
-    {
-      "path": "ModCarrerMode/docs/RELEASE_20261029_R2.md",
-      "bytes": 2972,
-      "sha256": "31ea3f6234ea38cc0dfe990377f12014dccdfcb7a5caff0d45ab176dcdb55c62"
-    },
-    {
-      "path": "ModCarrerMode/docs/RELEASE_20261030.md",
-      "bytes": 6002,
-      "sha256": "a5a243a8a3d6d927f132d8938b225f48aa331673b3f3ac91ec2fa35dc2d2bc5f"
-    },
-    {
-      "path": "ModCarrerMode/docs/RELEASE_20261102.md",
-      "bytes": 5994,
-      "sha256": "4c39cc280d665c1877a59d9533bba2568fc76aaa4ba9f825d345e3e84badcc89"
-    },
-    {
-      "path": "ModCarrerMode/docs/RELEASE_20261106.md",
-      "bytes": 4819,
-      "sha256": "99807407759bf1b3397c86ca99801178d6b163a84a804dafc61d698c9049a2ab"
-    },
-    {
-      "path": "ModCarrerMode/docs/RELOAD_COMPETICOES_20261031.md",
-      "bytes": 3171,
-      "sha256": "b1ac6346c03697bace2c4340a2f15e883606c90d7c3bacdd9698c8a27fcfa2ab"
-    },
-    {
-      "path": "ModCarrerMode/docs/SALA_TREINADOR_R76_20261101.md",
-      "bytes": 3133,
-      "sha256": "fa468a01ead18e8c052188fa08ee7316b3a85f83136230224ef65daa9ee1af60"
-    },
-    {
-      "path": "ModCarrerMode/docs/SCOREBOARD_THEME.md",
-      "bytes": 1686,
-      "sha256": "8cddaca7e078fe70d9150ee8b501b7c5352ca4a7011ac8a98c7849824c8cc3d2"
-    },
-    {
-      "path": "ModCarrerMode/docs/SCREEN_LOAD_ISOLATION_20261102.md",
-      "bytes": 4178,
-      "sha256": "96cb45408d89727036315e2441186278fc614ab93e3faad82d1189d63097bd59"
-    },
-    {
-      "path": "ModCarrerMode/docs/SOM_SUBSTITUICAO_20261031.md",
-      "bytes": 2703,
-      "sha256": "f01cb3518924b3e1f5c183cc418638fc97820b5863c0a5da3059c21542658ba4"
-    },
-    {
-      "path": "ModCarrerMode/docs/SOM_SUBSTITUICAO_CORRECAO_20261101.md",
-      "bytes": 2106,
-      "sha256": "4f4894eb4ce11aa8a7057b049c176a724a416ac235521b03f653a96372c9819a"
-    },
-    {
-      "path": "ModCarrerMode/docs/SONS_SUBSTITUICAO_20261101.md",
-      "bytes": 1554,
-      "sha256": "bbc2311f23813d7778fdea3aeaa6b0973b06e75d89e90ec78e4f1363746bdea5"
-    },
-    {
-      "path": "ModCarrerMode/docs/STADIUM_TRANSITIONS_20261031.md",
-      "bytes": 3811,
-      "sha256": "1cdfc16c905bc1f54a66de7cdcd3f868bb0888daba8b075ed3fd7969582702b9"
-    },
-    {
-      "path": "ModCarrerMode/docs/STATIC_SCENES_LEAGUE_ORDER_20261030.md",
-      "bytes": 2369,
-      "sha256": "af4314202291482e8779128f0cce9c06af8e47cba9b91ce7f4a014eee50c1ac4"
-    },
-    {
-      "path": "ModCarrerMode/docs/TECNICOS_PERNAS_20261101.md",
-      "bytes": 3384,
-      "sha256": "9889836e941bb0116558e7191b48da518987398d2d8d67e990b0bf41cffe17db"
-    },
-    {
-      "path": "ModCarrerMode/docs/TECNICOS_SERIE_A_20261101.md",
-      "bytes": 7021,
-      "sha256": "bd20bbafa29cb5fd4336cc364c18dac0ce874fb1d32f76881e982eea0e6dbf7f"
-    },
-    {
-      "path": "ModCarrerMode/docs/TECNICOS_SUPERFICIES_E_ALPHA_20261101.md",
-      "bytes": 5313,
-      "sha256": "046e8c6b69f60ac7ab0bf3f10e4fb2928f9afb00c9905210309d26cd5ef81a0a"
-    },
-    {
-      "path": "ModCarrerMode/docs/TICKET_OPERATING_COSTS.md",
-      "bytes": 3054,
-      "sha256": "93a7f168267fac7aa97fc297052ecc7c7ef61d59271f828601b1c4e398238641"
-    },
-    {
-      "path": "ModCarrerMode/docs/VESTIARIO_INTERIOR_R71_20261101.md",
-      "bytes": 2684,
-      "sha256": "3c63fd573431e5ce0a51f5cb0de9044798cfab8d4c4d38f4461174226f0a86e0"
-    },
-    {
-      "path": "ModCarrerMode/docs/VESTIARIO_INTERIOR_R72_20261101.md",
-      "bytes": 2799,
-      "sha256": "0cb248d5a39ed5c929bb10995f6b4de63546e0011d342b6d39ce1a6b21f2dbc0"
-    },
-    {
-      "path": "ModCarrerMode/docs/VESTIARIO_PAREDES_R73_20261101.md",
-      "bytes": 1365,
-      "sha256": "4f65f8c5d9a74fc9c76c65d50bcd771bd8f06adefc5bac7060bef4c14666b020"
-    },
-    {
-      "path": "ModCarrerMode/docs/VESTIARIO_PAREDES_R74_20261101.md",
-      "bytes": 2208,
-      "sha256": "9cc8df030c99519db606e143a24ba4cf89dd6dcb24d0486d41149175b8843a0b"
-    },
-    {
-      "path": "ModCarrerMode/docs/VESTIARIO_PAREDE_SECUNDARIA_R75_20261101.md",
-      "bytes": 2353,
-      "sha256": "615064c309c7ed5871a97e00f5802a76749797886f9ded672df581e6068f6a6c"
-    },
-    {
-      "path": "ModCarrerMode/docs/VISUALIZADOR_CABELO_POSES_CACHE_20261101.md",
-      "bytes": 5479,
-      "sha256": "3b4bf1855bd17bffc4f7b9f7401e0b0f1d5e9d60d015f2fcb4c874f9f05cee73"
-    },
-    {
-      "path": "ModCarrerMode/docs/WORLD_RANKINGS_LOCAL.md",
-      "bytes": 9077,
-      "sha256": "39ecf02f0f97b524a829e82909e8a8938f9fbf00880f6f38cfbcf31d9c6c551e"
-    },
-    {
-      "path": "ModCarrerMode/docs/YEAR_HISTORY_20261102.md",
-      "bytes": 4402,
-      "sha256": "41bc9f09c67595cd6baae2668f80cadd3a7641e38f5c00666e00a55090f90edf"
-    },
-    {
       "path": "ModCarrerMode/mods/career_jobs/career_jobs_runtime.dll",
       "bytes": 193024,
       "sha256": "6b03319dad74d96d732d8638b949a527c75841a8bc8db16400c4fb016dc9539a"
@@ -11277,34 +10962,9 @@
       "sha256": "ffac7949f64064623aef0b48b62a01c98258d024fa397ecb41218bf37ad67f4c"
     },
     {
-      "path": "ModCarrerMode/source/club_environment/CAREER_DATA.md",
-      "bytes": 3883,
-      "sha256": "3fbb6743813188adcd0c965d8d74c66dda4b4643df7d6e5f5d26bc141a22d0a8"
-    },
-    {
       "path": "ModCarrerMode/source/club_environment/assets-manifest.json",
       "bytes": 83806,
       "sha256": "0f3e1d0a531606d15f02c40db866526b4bdeb88589276da4b949aeb811d7e456"
-    },
-    {
-      "path": "ModCarrerMode/source/club_environment/bank/BANK_TERMS.md",
-      "bytes": 3206,
-      "sha256": "b7ee554fa3792f76f603469d21be547a210df105f16c599a9962291b29418673"
-    },
-    {
-      "path": "ModCarrerMode/source/club_environment/bank/FINANCAS_V1.md",
-      "bytes": 9876,
-      "sha256": "e1ff3a403584cd9b261ecd52ba08fcbf740b5ae6baeae8f7a8b3c19562f3952a"
-    },
-    {
-      "path": "ModCarrerMode/source/club_environment/bank/FINANCAS_V2.md",
-      "bytes": 6143,
-      "sha256": "a50ad0667f877ca8ecc3e9119b68e6d2127b5d37543e9f25ef3cbca72b01d326"
-    },
-    {
-      "path": "ModCarrerMode/source/club_environment/bank/SAVE_SQLITE.md",
-      "bytes": 5408,
-      "sha256": "0b6656a10301447d225b302dd6bf4ebabf648029f2e7a867294c5ddf20b41d28"
     },
     {
       "path": "ModCarrerMode/source/club_environment/bank/bank_art.py",
@@ -11670,11 +11330,6 @@
       "path": "ModCarrerMode/source/club_environment/kit_selection.py",
       "bytes": 703,
       "sha256": "a0383c485abed15b118841fe7c7fb254292eeffb8a3a839688bd8ae2f78f8dea"
-    },
-    {
-      "path": "ModCarrerMode/source/club_environment/manager_market/SIDELINE_MODELS.md",
-      "bytes": 4412,
-      "sha256": "01163622ac33f6908f1214f5eaa7f180ffdf7edafd79f5193f789bb69691dc2d"
     },
     {
       "path": "ModCarrerMode/source/club_environment/manager_market/annual_campaigns.py",
@@ -12387,11 +12042,6 @@
       "sha256": "ad5b37048c4b4d8cfd8a20a196cf722dcedfcad4b14330a8b39c49ae88d59709"
     },
     {
-      "path": "ModCarrerMode/source/club_environment/room/CAMERA_LIVRE_R68.md",
-      "bytes": 3381,
-      "sha256": "e0a1b28b8580b5e2c5db9d94f911070b80ddfdc737ba864b2308b2ae78f2d910"
-    },
-    {
       "path": "ModCarrerMode/source/club_environment/room/build_dressing_card_20261022.py",
       "bytes": 12171,
       "sha256": "58df0b7c1c4bdb3a36e544c561dd2df784de491aa134ab486b6fb518b069d886"
@@ -13017,26 +12667,6 @@
       "sha256": "625b07def9c2c9efab599a20a48a03aabdd181000cd872f28626092528d84e83"
     },
     {
-      "path": "ModCarrerMode/source/docs/CACHE_MAINTENANCE.md",
-      "bytes": 2975,
-      "sha256": "ca6e8a2d087182979284d6e9fb15a6657daefaf8423934380c4821ec7d6c4f41"
-    },
-    {
-      "path": "ModCarrerMode/source/docs/DB_EMIRADOS_ATLANTE_20261106.md",
-      "bytes": 2618,
-      "sha256": "51d1a3620fc73024b4121ad2459e686d6d2915dea39bd18776fa2e0dd3f01275"
-    },
-    {
-      "path": "ModCarrerMode/source/docs/SERVER_AUDIO_STADIUM_20261025.md",
-      "bytes": 878,
-      "sha256": "35ff3e1dc26d4698dd7ede8bac022a9f5b24f5cc323eacf404c54984c1eafc5a"
-    },
-    {
-      "path": "ModCarrerMode/source/docs/VAR_ROOM_DEFERRED_20261025.md",
-      "bytes": 1367,
-      "sha256": "a91ef4b16dad3bb2577e47c7ae954908e4dab6a8b7752db11efb94779b43fb03"
-    },
-    {
       "path": "ModCarrerMode/source/mascot_photographer/Build-NativeManagerFromFbx.py",
       "bytes": 19951,
       "sha256": "3a520e8323073b3a48a1b9d3e636d2e6b7649a1e05fb7e594a80a829a1aa3756"
@@ -13230,11 +12860,6 @@
       "path": "ModCarrerMode/source/native_mods/frontend_stadium/test_background_mode.cpp",
       "bytes": 1097,
       "sha256": "0f215b5ec15efa9ef2ba4eda30a0a4f869a679e9297d5165eea5ca2903e4b788"
-    },
-    {
-      "path": "ModCarrerMode/source/scene_studio/LEIA-ME-PORTATIL.md",
-      "bytes": 1461,
-      "sha256": "cc732407bbd97883b0603c301103a340b6fbf5b44fec5731a5c26c7fdc18c2cc"
     },
     {
       "path": "ModCarrerMode/source/scripts/run_regressions.py",
@@ -14098,8 +13723,8 @@
     },
     {
       "path": "README.md",
-      "bytes": 43762,
-      "sha256": "a89971b923080e43dd34f452fff73ef41f0b975766a7591feb76a3d0d91829fe"
+      "bytes": 7351,
+      "sha256": "dcb030adcc1930a497bce49a4644ce91e839ddfc4e902bab884cb90665d2b7e6"
     },
     {
       "path": "ScoreBoardGBD/XXX - EI Maxx CN/game/globalcomponents/globalcomponents.big",

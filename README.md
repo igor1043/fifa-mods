@@ -1,433 +1,96 @@
 # FIFA Friends V12
 
-## Fundos da carreira e revisão local — 08/11/2026
-
-Em **Select + Start → Configurações visuais → Fundo da carreira**, escolha
-**Imagem de fundo**, **Estádio 3D** ou **Vestiário 3D**. A preferência fica salva.
-O vestiário usa a sala V3 do clube ativo e seu passeio automático; a câmera é
-liberada ao sair da carreira ou abrir outra tela. O fundo reutiliza os recursos
-preparados durante o avanço do calendário, sem refazer a sala a cada dia.
-
-Inclui a revisão dos comandos contextuais no rodapé da carreira, as cutscenes
-dos dois técnicos com o mascote limitado ao mandante e a organização das notas
-dos módulos no README principal. Server16 incluído: **0.2.29**, com limpeza dos
-resíduos de sessões encerradas.
-
-Doze animações nativas foram recuperadas como **candidatas desativadas** na
-pasta ModCarrerMode/data/club_browser/animations/candidates/. A escolha aleatória
-atual permanece; os clipes experimentais e os que precisam de transição não
-foram habilitados automaticamente.
-
-Validação: testes de persistência e controles, enquadramento dos painéis,
-câmera e isolamento da carreira, preparação da sala e autoteste do pacote
-compilado. A aparência da nova opção deve ser conferida na instalação do jogo.
-
-## Menu + Layout — integração de 05/11/2026
-
-Aplicados o layout atualizado da carreira e novos/atualizados ícones dos cards de mercado e elenco, preservando as rotas e IDs dos mods. Os arquivos foram sincronizados entre jogo e desenvolvimento.
-[Detalhes e recuperação](ModCarrerMode/docs/MENU_LAYOUT_20261105.md).
-
-
-## Menus e Voltar — revisão de 04/11/2026
-
-Integração das novas artes e layouts, preservando os destinos dos mods e os IDs
-do calendário. Aposentadoria e Outro clube usam o retorno nativo do FIFA por
-ESC/Voltar. Os 23 ícones novos ou alterados acompanham o Git; ao instalar um ZIP
-de assets anterior, aplique esta atualização do Git por último.
-[Mudanças, testes e rollback](ModCarrerMode/docs/MENU_LAYOUT_BACK_20261104.md).
-
-## Entrega — 04/11/2026
-
-Vestiário V3 oficial, mercado de técnicos com acompanhamento diário e navegação revisados, clubes/seleções e Server16 0.2.20. O ZIP incremental de assets é `FIFA-Friends-Assets-Delta-20261104-sobre-20261102-R2.zip`, sobre a entrega de 02/11 R2. V1/V2 ficam em backup e não acompanham o pacote.
-[Instalação, mudanças e validação](ModCarrerMode/docs/RELEASE_20261104.md).
-
-## Server16 0.2.20 — logs por sessão (04/11/2026)
-
-Limpeza automática dos logs do Server e dos mods ao abrir, botão **Limpar logs**
-e limites durante a execução. Saves, bancos e assets são preservados.
-[Detalhes e limites](ModCarrerMode/docs/SERVER16_LOGS_20261104.md).
-
-Mais vida na carreira, nos uniformes e na apresentação das partidas do FIFA 16.
-
-O FIFA Friends V12 reúne melhorias para acompanhar seu clube, personalizar a experiência e dar mais identidade a cada competição. O [Server16](https://github.com/igor1043/CG-File-Server-16---Python-Port/tree/fifa-friends) é o painel que acompanha o projeto e permite escolher os recursos antes e durante a partida.
-
-**Edição:** FIFA Friends V12 · **Atualizado em:** 04/11/2026
-
-**Server16 incluído:** 0.2.20. As DLLs compiladas ficam nesta branch, organizadas em uma pasta por mod. O índice dos módulos ativos está resumido neste README.
-
-**Revisão R3 de 02/11 — mercado de técnicos:** salvamento confirmado pelo FIFA
-vinculado ao checkpoint SQL, preservando os técnicos na recarga e descartando o
-avanço não salvo. Cálculo do calendário otimizado, montagem visual em processo
-separado e correção do seletor de países que pulava opções. Mantém o complemento
-R2 existente; não exige outro ZIP. [Regras, medições e testes](ModCarrerMode/docs/MANAGER_SAVE_BACKGROUND_20261102.md).
-
-**Revisão R2 de 02/11 — mercado de técnicos:** corrigida a reconstrução de imagens
-provocada pelos IDs alternativos de títulos. A tela reutiliza os blocos gráficos
-comprimidos e compila registros compactos da carreira. Requer também o pequeno
-complemento `FIFA-Friends-Assets-Delta-Mercado-Tecnicos-20261102-R2.zip` sobre os
-anteriores. [Medições e detalhes](ModCarrerMode/docs/MANAGER_VISUAL_FAST_20261102.md).
-
-A combinação Git + ZIP é agora verificada em uma pasta vazia, sem caches do desenvolvedor, incluindo igualdade entre o módulo embutido no EXE e o fonte publicado.
-
-## Entrega — 02/11/2026
-
-Atualização conjunta das branches do FIFA Friends e Server16. Acompanha o
-**FIFA-Friends-Assets-Delta-20261102-sobre-20261030.zip**, somente com assets novos
-ou alterados; mantenha o complemento completo de 30/10 já instalado.
-
-- Técnicos: modelos 3D por identidade, campanhas em tempo real de todas as ligas,
-  vínculos corretos, histórico anual, contratações e filtros revistos.
-- Mercado: contratos em background e catálogo visual preparado no complemento,
-  evitando reconstruir todas as fotos durante a abertura; progresso sem reinícios
-  periódicos e entrega da tela pronta antes de atualizações complementares.
-- Vestiário: interior ampliado, murais, sala do treinador, departamento médico,
-  hidratação e câmeras/colisões revisadas.
-- Competições, próxima partida e finanças com fontes atuais da carreira,
-  relatórios/histórico e layouts revisados. Server16 sincronizado com opções
-  da carreira, anúncios de substituição e recuperação de recursos de estádio.
-
-[Instalação, changelog e limites de validação](ModCarrerMode/docs/RELEASE_20261102.md).
-
-## Técnicos 3D e mercado da carreira — 01/11/2026
-
-Revisão local de 02/11: leitura dinâmica das competições da sessão, recuperação
-de campanhas não salvas e contratações compatíveis com prestígio, liga e salário.
-Veja [diagnóstico, regras e validação](ModCarrerMode/docs/LIVE_CAREER_CORE_20261102.md).
-Os ajustes da ordem das fases e dos destaques das copas estão instalados localmente.
-O [histórico anual de técnicos e finanças](ModCarrerMode/docs/YEAR_HISTORY_20261102.md)
-preserva os vínculos, as campanhas anteriores e os lançamentos entre os anos.
-O [refinamento do mercado e da persistência](ModCarrerMode/docs/MANAGER_POLISH_PERSISTENCE_20261102.md)
-inclui filtros separados de país/liga, arraste das barras, títulos localizados,
-nacionalidade principal e observações intermediárias durante o calendário.
-Esta revisão integra a entrega de 02/11/2026 descrita acima.
-
-Na carreira, o modelo 3D de **Ver clubes → Técnico** e dos técnicos à beira do
-campo acompanha o treinador atualmente contratado. Se ele não tem modelo
-instalado, o perfil fica sem personagem e a partida usa o técnico genérico.
-Partidas fora da carreira preservam os modelos fixos por clube.
-
-Os 20 personagens próprios da carreira ficam em
-`data/sceneassets/manager_market/<assetId>/`, com modelo e texturas das duas
-variantes; o catálogo é
-`ModCarrerMode/data/manager_market/manager_models.json`. Os RX3 são distribuídos
-como assets externos ao Git. Atualize também `club_browser.dll`, o exportador,
-os fontes auxiliares e `data/fifarna/lua/assets/sle.lua`, com o FIFA fechado,
-e reinicie o jogo. Minifaces e modelos fixos por clube são preservados.
-
-[Instalação, geração dos assets e funcionamento](ModCarrerMode/source/club_environment/manager_market/SIDELINE_MODELS.md).
-
-## Entrega — 30/10/2026
-
-Use o código desta branch e **FIFA-Friends-Assets-Complementares-20261030.zip**, completo e substituto do complemento R2. Requer a base FIFA Friends. Atualize com FIFA e Server16 fechados.
-
-- Rankings de clubes, seleções e técnicos com campanhas de todas as ligas disponíveis na carreira, prestígio e navegação revisados.
-- Finanças com bilheteria por partida, público variável, receitas brutas, custos e líquidas, moeda da carreira e reconciliação dos lançamentos com a verba real. Empréstimos seguem porte, dívida, quatro contratos e intervalo de dois meses.
-- Ver clubes inclui seleções, divisões organizadas, perfil do técnico, elenco, onze iniciais e visualização do mascote. Corrigidos números de uniformes, foco ao voltar e estabilidade dos modelos estáticos.
-- Próxima partida reúne escalações, dados do estádio e histórico; integração dos cards do Robson e novos ícones.
-- Mercado de técnicos preparado em segundo plano, com cache visual e retratos processados em paralelo. Corrigido o pacote que excedia o limite do carregador após a ampliação das fotos.
-- Server16 sincronizado com o executável instalado: recuperação do overlay, avisos de carregamento e primeira pessoa em 130°/extra-alta. O experimento de gramado permanece oculto e desligado.
-
-[Instalação, diferenças do ZIP anterior e limites de validação](ModCarrerMode/docs/RELEASE_20261030.md).
-
-## Correção R2 — 29/10/2026
-
-Entrega anterior: código atualizado + **FIFA-Friends-Assets-Complementares-20261029-R2.zip**. O complemento foi refeito do zero e substitui o ZIP anterior do mesmo dia; requer a base FIFA Friends instalada.
-
-- **Server16:** novo executável com as correções de aplicação/restauração de estádio e redes. As rotinas verificam herança/acesso às pastas de assets do Server, preservando as permissões existentes e registrando falhas.
-- **Técnicos:** catálogo público e fotos ampliados, com verificação de todas as imagens referenciadas. O manifesto registra a contagem e os hashes desta entrega.
-- **Distribuição:** jogo, desenvolvimento, fontes canônicos do Server e código embarcado no executável são conferidos. Arquivos intermediários de `dist/` ficam fora do Git.
-
-[Instalação e detalhes da correção R2](ModCarrerMode/docs/RELEASE_20261029_R2.md). Com FIFA/Server fechados, atualize o código e extraia o novo ZIP na raiz do jogo. Não copie saves ou bancos pessoais.
-
-## Entrega — 29/10/2026
-
-**Atualização conjunta: código desta branch + FIFA-Friends-Assets-Complementares-20261029.zip.** O novo ZIP é completo e substitui a sequência anterior de complementos; extraia depois de atualizar o código, com FIFA e Server fechados. Requer a base FIFA Friends instalada.
-
-- **Finanças:** gráficos/ícones com resolução maior, bilheteria apenas em casa e extrato por jogo, TV recalibrada, patrocínio, comissão técnica e custos, com switches e moeda da carreira. Migração preserva os lançamentos anteriores.
-- **Mercado de técnicos:** clubes/ligas, movimentações, livres, filtros e perfis, com contratos e histórico separados por carreira. O perfil do técnico usa a miniface do vínculo atual.
-- **Visual:** integração do Robson, abertura GOAT, fundos dourados, transparências, tema central `#B9A274`, ocultação EA/Q e correção das fontes de `globalcomponents` copiadas pelo Server. IDs do calendário preservados.
-- **Cards:** mercado e técnicos em Transferências; finanças/empréstimos no Escritório; Vestiário em segundo no Meu time; Ver clubes próprio na Temporada e estatísticas agrupadas.
-- **Server16:** auxiliar sincronizado também no executável pronto, com log próprio para o mercado de técnicos. Os demais módulos embarcados foram preservados.
-- **Entrega:** o Git leva lógica, catálogo público, binários e telas próprias. O ZIP reúne os assets externos anteriores, 851 minifaces e a integração visual; não contém saves, SQL pessoal, runtimes ou caches.
-
-[Changelog, instalação e limites](ModCarrerMode/docs/RELEASE_20261029.md) · [Manifesto dos assets do ZIP](ModCarrerMode/data/catalogs/asset_complement.json) · [Organização dos cards](ModCarrerMode/docs/CAREER_HUB_ORGANIZATION.md).
-
-## Entrega — 28/10/2026
-
-### Revisão de finanças e vestiário
-
-- **Finanças do clube:** painel no Escritório com receitas/despesas, gráficos mensais, jogadores, transferências, dívidas e switches com confirmação na própria tela. TV por partida, bilheteria estimada e salário mensal do técnico integram o serviço de empréstimos, com opções por carreira/clube.
-- **Carregamento da carreira:** captura médica aguarda o núcleo concluir seu preflight, preservando a compatibilidade de memória necessária aos saves existentes.
-- **Vestiário:** jogador afastado da mesa, escudo único, luz interna ajustável, teto modular e suportes dos cabides. Câmera livre com teclado, mouse e controle, eixos corrigidos, caminhada/corrida, balanço de passos e colisão contínua.
-- **Câmeras internas:** corte próximo reduzido em todas as vistas do vestiário, incluindo cenas e elenco. Corrigidas duas colisões decorativas que bloqueavam a sala do treinador; paredes, porta e móveis permanecem sólidos.
-
-Os novos assets próprios estão no complemento **FIFA-Friends-Assets-Delta-Vestiario-20261028.zip**, extraído na raiz do jogo após os complementos anteriores. Escudos, uniformes e imagens originais continuam sendo lidos do FIFA. As fontes, DLLs e interfaces desta revisão ficam no Git. [Regras, testes e limites](ModCarrerMode/docs/REVISAO_FINANCAS_VESTIARIO_20261028.md).
-
-### Entrega anterior do mesmo dia
-
-- **Competições da carreira:** tabelas dinâmicas, grupos navegáveis e chaveamento ampliado de copas, com zoom, movimentação, ida, volta e agregado.
-- **Estatísticas:** carrossel de artilheiros/assistências, time do campeonato por notas reais, escudos na faixa das notas e indicadores circulares de **ÚLTIMAS 5**.
-- **Clubes e vestiário:** perfil/modelo do técnico, acesso ao elenco do clube pelo vestiário, navegação e legendas originais do FIFA.
-- **Renderização:** estado gráfico separado para os cards e o overlay do Server16, com preservação dos materiais e liberação do backbuffer no modo janela.
-- **Empréstimos:** recuperação da interface sem parar cobranças; preservação do contrato durante Salvar como e leituras transitórias do novo slot.
-- **Entrega:** fontes, DLLs, interfaces, exportador e animações publicados nesta branch; a correção compartilhada do overlay também está na branch `fifa-friends` do Server16.
-
-Atualize com FIFA/Server fechados. Os complementos de assets de 25/10 e da pose de 26/10 continuam válidos; esta revisão não exige um novo ZIP. As novas animações pequenas estão no Git. Não copie saves, SQL ou caches de outra máquina. [Notas, testes e limites da entrega](ModCarrerMode/docs/RELEASE_20261028.md).
-
-## Entrega — 27/10/2026
-
-- **Jogadores do time:** elenco dinâmico por clube, filtros, atributos, desempenho e detalhes; jogador animado no estádio, com órbita e zoom.
-- **Renderização:** corrigidas as piscadas pretas e o retorno breve à pose original; buffers próprios com WRITE_DISCARD, preservando os recursos nativos do FIFA.
-- **Uniformes e vestiário:** nomes/números com os assets e as regras atuais do clube, evitando fontes de kits clássicos.
-- **Regressões:** testes de animação/GPU, câmera, navegação, estado gráfico e troca de jogador/clube.
-
-**Para o Robson:** atualize esta branch e extraia somente **FIFA-Friends-Assets-Delta-20261027.zip** na raiz do jogo, com FIFA/Server fechados. O ZIP acrescenta apenas a animação individual. Mantenha os complementos de 25/10 e da pose de 26/10 já instalados. O Server16 permanece em **0.2.19**. [Instalação, changelog e validação](ModCarrerMode/docs/RELEASE_20261027.md).
-
-## Entrega — 26/10/2026
-
-- **Server16 0.2.19:** overlay, câmeras e propostas carregados pelo host nativo do jogo; o executável auxiliar `cgfs16_inject.exe` foi retirado da distribuição. Não há alteração de exclusões do antivírus.
-- **Vestiário:** comandos de Cenas pela fila nativa validada por sessão/clube, sem varredura demorada da RAM. Abrir o menu mantém a câmera em movimento; quadro mais próximo e nítido, com iluminação ambiente ajustada.
-- **Próxima partida:** estádio respeita o nome personalizado/FSW. Escalações em três colunas com competição, logo, data, hora e histórico disponível do save. Sem estimar clima ou vento.
-- **Onze titulares:** pose autoral da revisão `(15)`, aplicada ao elenco atual do clube, cache identificado pelo conteúdo e alerta para complemento ausente/desatualizado. Exportador e definição editável versionados.
-- **Bancada de cenas:** editor externo com jogadores, 400 ossos, FK/IK em punhos e pés, desfazer/refazer e exportação JSON/RX3. IA local de múltiplas pessoas por imagem, mapa de 133 pontos, correções e prévia 3D. [Fontes e instruções](ModCarrerMode/source/scene_studio/LEIA-ME-PORTATIL.md).
-
-**Instalação:** atualize esta branch e extraia **FIFA-Friends-Assets-Delta-20261026.zip** na raiz do FIFA, com FIFA/Server fechados. O delta contém somente a pose nova (cerca de 86 KB) e exige o complemento completo de **25/10/2026** já instalado. Os 650 assets anteriores não mudaram e não precisam ser enviados novamente. O Server16 pronto, as DLLs, as interfaces e os fontes vêm desta branch. A bancada de cenas/IA é opcional e roda numa pasta separada, fora do jogo.
-
-[Changelog, testes e limites desta entrega](ModCarrerMode/docs/RELEASE_20261026.md). Os mods de placares, cenas de técnico/mascote e cabine de campo continuam presentes; a sala experimental do VAR continua excluída.
-
-### Revisão local de áudio e texturas — 25/10/2026
-
-O hino de gol usa a fase nativa da partida para distinguir comemoração/replay da volta ao jogo. O relógio lento da comemoração não encerra mais o áudio. Pausar preserva a posição; voltar ao jogo encerra o hino com fade. Torcida visitante vem ativa no INI de distribuição e nas configurações sem essa opção; um desligamento manual salvo continua sendo respeitado.
-
-Os estádios recebem um conjunto de modelo e texturas identificado pelo conteúdo, com caminhos próprios para a engine. O conjunto e sua rota são publicados antes da troca do ID; a rota confere mandante e visitante e é limpa ao encerrar a partida. Pacotes sem texturas são recusados; um pacote que traz apenas dia ou noite usa essa textura nos dois horários. Os testes cobrem trocas consecutivas, iluminação, falha de publicação e restauração. A validação visual desta revisão entre duas partidas ainda está pendente. Os placares nativos permanecem iguais à versão confirmada.
-
-### Revisão de estabilidade, empréstimos e placares — 25/10/2026
-
-Também foi revisado o [carregamento de Próxima partida e Mercado](ModCarrerMode/source/docs/CAREER_VIEWS_20261025.md): espera por publicação da carreira atual, carrossel no analógico esquerdo, recuperação de escalações prováveis desatualizadas e eliminação do retorno indevido à cobertura de carregamento do Mercado. Próxima partida agora abre pela fila nativa de navegação, corrigindo o evento que o controlador do calendário ignorava; escalações, estádio, resultados e troca de páginas foram confirmados no FIFA aberto. Os cabeçalhos das escalações têm a largura do campo e ficam encostados nele. Testes da interface gerada e do consumidor nativo estão incluídos nos fontes.
-
-O erro `failed to open archive file` ocorria antes do Python: o carregador não conseguia reabrir o próprio Server16 durante a extração. O carregador passa a repetir essa leitura por até cinco segundos. O pacote dispensa pip e caches de desenvolvimento da ponte x86, mantendo seus módulos de execução; os demais módulos embutidos foram preservados byte a byte. Aberturas isoladas e simultâneas, leitura da base pela ponte x86 e preparação dos titulares foram verificadas.
-
-O auxiliar dos titulares inicia ao abrir a visualização e recupera até duas falhas de inicialização do carregador, preservando clube e pedido. Não prepara modelos no mapa. Saves, contratos, texturas e demais mods mantêm seus fluxos existentes.
-
-As notícias nativas de gols mostram placares dos jogos simulados em paralelo, sem filtro adicional por liga ou idioma da narração. A leitura respeita o relógio, aguarda o painel anterior e descarta repetições. A exibição em partida foi confirmada pelo usuário nesta revisão.
-
-Empréstimos passam a usar a moeda escolhida no save e a formatação monetária do próprio FIFA, inclusive nos e-mails. Novas propostas têm uma chance simulada de recusa que varia por banco, exposição financeira e prazo. A decisão é fixada no pedido e guardada no SQLite; reabrir telas ou carregar o mesmo estado não sorteia novamente. Contratos e pedidos anteriores mantêm suas condições. [Testes, limites da cobertura e entrega](ModCarrerMode/docs/RELEASE_20261025.md).
-
-### Correções de vestiário e auxiliares — 25/10/2026
-
-O vestiário tinha os modelos prontos, mas sua câmera ignorava o estado 13 de um estádio carregado. Agora aceita os estados 1 e 13, mantendo a validação da projeção e a restauração da câmera. A recuperação foi confirmada pelo usuário na sessão aberta; modelos, texturas e os demais mods foram preservados.
-
-O auxiliar dos titulares inicia com ambiente congelado independente e herda somente seus canais de entrada/saída. O Server grava a saída de cada auxiliar em `service.log`, evitando que um stdout inválido encerre a preparação. A tela detecta quando o auxiliar termina e permite tentar novamente. Erros do exportador preservam saída e código de encerramento.
-
-O complemento de 36 assets continua o mesmo; esta revisão altera código, DLLs e Server16. A visualização dos titulares no PC do Robson ainda precisa de validação. Para comparar os computadores, use `ModCarrerMode/tools/Coletar-Diagnostico-Carreira.ps1`: ele gera um ZIP de logs e hashes, sem copiar saves, contratos SQL, modelos ou executáveis.
-
-### Correção de primeira inicialização — 24/10/2026
-
-Auxiliares iniciados diretamente por plugins agora preparam o runtime antes de executar sua entrada. Isso corrige `FileNotFoundError` em `ModCarrerMode/runtime/club_environment/preview/prepare.py` quando o supervisor ainda não iniciou ou a cópia gerada foi removida. A sincronização preserva contratos e dados da carreira.
-
-Atualize o Server16Python.exe e a pasta ModCarrerMode/source pela branch FIFA Friends V12, com jogo e Server fechados. O ZIP complementar de assets continua o mesmo. Se também faltar `ModCarrerMode/source/club_environment/preview/prepare.py`, a atualização do código está incompleta: o ZIP de modelos não substitui os fontes do GitHub.
-
-Teste da revisão: o executável congelado criou os runtimes ausentes e executou as entradas de vestiário, banco e próxima partida em três pastas novas com nomes Unicode, sem iniciar FIFA nem instalar drivers. Testes de recuperação verificam também a preservação do livro financeiro. Os demais módulos e recursos embutidos foram preservados.
-
-## Atualização — 24/10/2026
-
-- **Empréstimos:** tela nativa com bancos e logotipos, contratos individuais, tabela de parcelas e até dois contratos ativos. Datas da solicitação/resposta ficam fixas no SQLite por carreira e clube; parcelas vencidas são processadas mesmo ao pular dias. Pedido, decisão e lembretes usam e-mails da carreira.
-- **Próxima partida:** contexto e calendário atualizam os campinhos, escalações e adversário após avançar pela Central ou pelo calendário, sem reutilizar a partida anterior.
-- **Vestiário:** revisão R62 com modelos e poses completos, ajuste de impressão dos kits, transição das cenas e preservação da visão 3D ao retornar.
-- **Estádio e panorâmica:** respeitam o estádio definido para o clube e a preferência de fundo, com preparação fora da thread de desenho.
-- **Mercado de Transferências:** novo item no carrossel Rede Mundial; dados ao vivo e carregamento automático, cinco abas e controles/legendas nativos.
-- **Ver clubes e onze titulares:** carrossel em Outras ligas, globo 8K com pontos fixos, imagens dos clubes lidas do FIFA e onze titulares em pose estática desenhados pela engine no estádio. Carregamento somente ao abrir Ver titulares; recursos isolados por seleção evitam misturar clubes.
-- **Server16 0.2.15:** compatibilidade ReShade API 17, controles genéricos opcionais e sincronização dos auxiliares. Executável atualizado incluído neste repositório; fontes canônicos na branch `fifa-friends` do [Server16](https://github.com/igor1043/CG-File-Server-16---Python-Port/tree/fifa-friends).
-
-**Para atualizar:** com FIFA/Server fechados, copie esta branch e extraia **FIFA-Friends-Assets-Complementares-20261025.zip** diretamente na pasta do FIFA. O complemento de 25/10 tem 650 assets, incluindo apresentações, mascotes, cabine de campo e iluminação dos titulares. Server16, DLLs, código e interfaces vêm desta branch. Não há instalador no ZIP. [Conteúdo e conferência](ModCarrerMode/docs/RELEASE_20261025.md).
-
-## Atualização — 21/10/2026
-
-- **Câmeras — revisão 14:** corrigido o arrasto dos cantos preservando a escala central, confirmado pelo usuário em RAM. A primeira pessoa busca a bola com mais suavidade e olha brevemente para os pés em condução. Sem posse, a terceira pessoa gira mais rápido. Os movimentos novos aguardam validação visual.
-
-- **Diagnóstico por sessão:** logs ativos zerados antes de abrir pelo Server e arquivos separados por mod. O ZIP da tentativa reúne arquivos/DLLs, última tela e dados do dump quando disponível. Fica em `runtime/diagnostics/`. [Como coletar e interpretar](ModCarrerMode/docs/DIAGNOSTICO_INICIALIZACAO.md).
-- **Câmeras — revisão 13:** lente da primeira pessoa mais leve e sem ampliação adicional, com nitidez confirmada em RAM; proteção da cabeça nas viradas rápidas. A terceira pessoa acompanha mais a bola sem a posse, preservando a órbita suave. Ajustes finais aguardam validação visual no jogo.
-
-- **Câmeras — revisão 12:** acompanhamento nas cobranças e reinícios, correção da pose após a transição nativa e flags de desfoque desligadas nos quadros modificados. A terceira pessoa reduz oscilações e limita as viradas; no modo de um jogador, o vínculo do atleta permanece fixo. Testes isolados aprovados; usuário relatou melhora significativa. Casos específicos ainda aguardam validação.
-- **Física de roupas:** começa desligada e mantém a escolha salva, inclusive ao atualizar a instalação.
-- **Layouts do Server16:** corrigidas as sobreposições no painel da carreira e no rodapé da fumaça; textos respeitam o espaço dos atalhos, switches e botões. A busca de estádio usa teclado QWERTY com fileiras escalonadas e navegação por posição. São 117 testes aprovados e 52 estados renderizados; conferência visual dentro do FIFA pendente.
-- **Ano de nascimento:** corrigida a prioridade da interface que removia o cadeado e listava 2006–2012. O instalador agora ativa essa tela no índice BH local, com backup, sem substituir o índice de outros mods. Desbloqueio e lista confirmados pelo usuário.
-- **Estádio de fundo:** pacote completo do módulo v11, preparador, scripts e interface nativa ajustada para o menu e a carreira. O recurso começa desligado; atualizações preservam as escolhas salvas. Os estádios continuam nos pacotes locais do usuário.
-- **Panorâmica:** módulo v5, revisão de tomadas 6, com 39 cenas. A órbita alta leva cerca de 99 segundos, com rotação mais lenta e o tempo de parada preservado. Há uma nova órbita a 65 m para ver o perfil do estádio e uma travessia completa dos 68 m da linha central.
-- **Pênaltis:** o Server mantém o placar durante a disputa, e a pirotecnia bloqueia os disparos nessa fase.
-- **Próxima partida:** os nomes usam `teams.teamid` da carreira, mantendo a identidade dos clubes junto aos escudos, inclusive nos times adicionados pelo mod. O teste do publicador reproduz a troca por nomes de países no código antigo e passa com a correção; conferência visual após reiniciar o FIFA pendente.
-- **Logo nos hubs:** troca da faixa online pela logo desativada para isolar o crash recorrente do Robson. A interface anterior foi restaurada; os arquivos modificados e seus fontes foram preservados.
-- **Instalação:** as DLLs atuais entram no Git; versões antigas, caches e diagnósticos locais ficam fora da distribuição. SubsOn acompanha o pacote no lugar do banco antigo.
-- **Cenas extras:** mod de técnicos e mascotes desativado e removido dos menus. Seu código permanece no desenvolvimento.
-- **Narração:** seleção de narrador, aplicação automática, progresso e aviso de narração aplicada ocultos nesta versão. O código e os recursos embarcados permanecem disponíveis para uma futura ativação.
-- **Complemento SubsOn:** `data/ant.cbac` acompanha um ZIP separado de 131 MB; o instalador verifica o arquivo já extraído no jogo. Veja as [instruções do complemento](ModCarrerMode/docs/COMPLEMENTO_SUBSON.md).
-
-## Atualização — 19/10/2026
-
-- **Carreira:** painel do Server16 para transferência de clube, proposta nativa de treinador, solicitação de verba e aposentadoria, com identificação automática da carreira aberta.
-- **Ícones:** calendário e cards usam a mesma imagem por competição. Foram corrigidos os DDS e os BIGs necessários ao calendário; o teste no jogo confirmou os ícones após reiniciar.
-- **Entradas e bolas:** prioridade da fase com herança da competição principal da base Robson 12.12 e tradução dos IDs de carreiras antigas. A exibição 3D ainda aguarda confirmação em partida.
-- **Público e estádio:** pesos por competição na ocupação automática e suporte à foto nativa do estádio no card.
-- **Técnico nativo:** ferramentas de conversão e reparo de braços, pesos e texturas para Eduardo Domingues/Atlético-MG. Os modelos ficam no pacote local; a estabilidade em partida continua pendente de teste.
-
-Veja a [lista de arquivos e recursos publicados](ModCarrerMode/docs/ATUALIZACAO_2026-10-19.md).
-
-## Aberturas — 18/10/2026
-
-- **Base Robson 12.12:** o pacote da fase tem prioridade; uma fase sem pacote próprio herda o modelo da competição principal. A identidade de carreiras antigas é traduzida para a base instalada.
-
-## Ícones por ID da competição — 18/10/2026
-
-Calendário, card Próxima Partida da Central e cards de Competições compartilham
-uma pasta de ícones.
-Use `<ID_DO_INI>.png`; o pacote já inclui as versões proporcionais para cada área.
-Carreiras antigas são resolvidas pela identidade da competição, preservando o
-mesmo logo em todos os meses. A DLL gera o BIG/APT e as texturas nativas de cada ícone ao iniciar.
-
-### Atualização sobre a base do Robson
-
-Com FIFA e Server fechados, copie os arquivos atualizados preservando os caminhos:
-
-- `dinput8.dll` e os módulos `career_ui_assets`, `entrance_props` e `multiball_visual` em `ModCarrerMode/mods/`.
-- A biblioteca `data/ui/imgAssets/careerCompetitionIcons/`, incluindo `calendar/`, `cards/` e `competitions.tsv`.
-- Os BIGs e DDS de `data/ui/artAssets/cmCalendarCompetitions/`, `data/ui/imgAssets/cmCalendarCompetitions/` e os novos arquivos `l100*.dds` de `data/ui/imgAssets/league/light/` e `dark/` que acompanham a atualização.
-
-Os BIGs do calendário são necessários; não os apague. A DLL os recria no próximo
-início se faltarem. Para trocar a arte, edite `<ID_DO_INI>.png`, como `1761.png`
-para a Série A e `1460.png` para a Libertadores nesta base. Confira os IDs aceitos
-em `COMPETICOES.txt`. O Server prepara as texturas antes da próxima abertura do FIFA.
-
-A atualização preserva os modelos de `entrance_props` e `standball` já instalados.
-Após reiniciar, confira calendário, Central e cards de Competições; depois confira
-a entrada e os suportes numa partida. Os ícones já tiveram confirmação visual
-nesta instalação; entradas e suportes ainda aguardam essa confirmação.
-
-## Câmeras do jogador — 18/10/2026
-
-O Server16 incluído no pacote traz **Primeira pessoa** e **Terceira pessoa · carreira**.
-No FIFA, escolha a câmera **Profissional**. Durante a partida, abra **Select + Start / F12 → Câmera**.
-Ativação, modo e campo de visão ficam salvos. A primeira pessoa permite ajustar de 75° até 150°;
-a terceira pessoa mantém a faixa de 60° a 90°. A abertura padrão é 85° nos dois modos, com suavização
-Forte e enquadramento de campo e bola fixos. O acompanhamento inclui a espera para
-reiniciar a jogada com a bola parada. Na terceira pessoa, Distância oferece Perto,
-Intermediária e Afastada, com escolha salva e transição suave. O módulo da câmera está embutido no executável
-do Server; o instalador do pacote distribui esse mesmo executável com os demais recursos.
-O acompanhamento em terceira pessoa suaviza a translação e as viradas, com entrada
-gradual dos movimentos e transição entre jogadores próximos.
-A recuperação da câmera salva aguarda a inicialização nativa do FIFA antes de
-consultar os ossos do jogador, evitando o crash durante a abertura do jogo.
-
-## Destaques desta atualização — 17/10/2026
-
-- **Base v12.11 com Honduras:** calendário e configuração sincronizados com o pacote oficial. Ícones e suportes reconhecem as identidades instaladas; as pastas de abertura foram alinhadas aos IDs atuais.
-
-- **Camisas e calções com movimento:** física de roupas 0.8.2, com dobras, ajuste na barra do calção e controle pelo Server. Sua escolha fica salva. O recurso é experimental e começa desligado.
-- **Goleiro com o uniforme correto:** corrigida a miniatura que aparecia branca no campo da aba Elenco e nas rotinas de escalação.
-- **Ícones das competições corrigidos:** vínculos ajustados ao calendário instalado, evitando associações antigas entre competições e fases.
-- **Novos ícones sem planilhas:** coloque uma imagem com o nome ou ID da competição; o Server atualizado prepara e cadastra o ícone automaticamente.
-- **Bolas de reposição e suportes:** seleção por competição, identificação da liga em amistosos e suportes com tamanho reduzido.
-- **Server com preferência de física salva e encerramento revisado:** mantém sua escolha e conclui a limpeza dos próprios recursos ao sair.
-- **Tiro de meta em desenvolvimento:** posicionamento e passe curto ajustados em um módulo experimental.
-
-## Melhorias disponíveis
-
-### Acompanhe sua carreira
-
-- **Próxima Partida:** adversário, competição, data, horário, estádio e estimativa de público, conforme os dados do jogo.
-- **Meu Time:** jogadores, informações do clube, estatísticas, cartões e lesões.
-- **Competição:** classificação, ligas, copas, fases e partidas.
-- **Calendário com identidade:** ícones próprios para competições e pré-temporada, com importação automática de novas imagens pelo Server.
-- **Gestão da carreira:** ferramentas de aposentadoria, idade e verba, seguindo as instruções exibidas no jogo.
-- **Criação de jogador:** intervalo de nascimento adaptado para 2006–2012.
-- **Compatibilidade de competições:** leitura das identidades e fases usadas pelos recursos da carreira.
-
-### Mais identidade em campo
-
-- **Física de roupas:** movimento de camisas e calções, com opção de ativar ou desativar antes e durante a partida.
-- **Mascotes dos clubes:** caminhada, apoio e comemoração do mascote do mandante.
-- **Abertura por competição:** arcos e placas do campeonato; em amistosos entre clubes da mesma liga, usa o conjunto dessa liga.
-- **Escudos dinâmicos:** escudos dos clubes aplicados aos objetos da apresentação.
-- **Bolas extras:** 13 bolas de reposição com o visual da bola da partida e suportes por competição.
-- **Cabine do VAR:** objeto visual na beira do gramado nas Séries A e B do Brasileirão.
-- **Pirotecnia:** fogos, fumaça e confete na abertura e nos gols do mandante, com cores do clube.
-- **Máquinas de fumaça:** 20 equipamentos acompanham os efeitos do estádio.
-- **Torcida:** uniformes dos clubes, estimativa de ocupação e ajuste de público pelo Server.
-
-### Mais opções na partida
-
-- **Banco com 12 reservas.**
-- **Até sete substituições.**
-- **Saída de bola moderna:** primeiro passe para trás e organização dos jogadores em volta do círculo central.
-- **Tiro de meta moderno — experimental:** reposicionamento e passe rasteiro curto para zagueiros próximos; ainda precisa de avaliação em partida.
-
-## Como começar
-
-1. Use a instalação compatível do **FIFA 16 para Windows, 64 bits** e os pacotes de imagens, modelos e áudio desejados. Para o banco de 12 reservas, extraia primeiro o [complemento SubsOn](ModCarrerMode/docs/COMPLEMENTO_SUBSON.md): ele entrega `data/ant.cbac` e a compdata; DLLs e configuração acompanham esta branch.
-2. Com os programas fechados, instale o pacote compilado: `ModCarrerMode/install-game.cmd -GameDirectory "C:\Seu FIFA 16" -UpdateCompetitionData`.
-3. Abra o **Server16 atualizado** e depois o FIFA.
-4. No pré-jogo, entre em **Configurações da partida**, escolha as opções e confirme em **Aplicar**. Durante a partida, use o painel de **F12**.
-
-Para ativar o movimento das roupas, escolha **Física de roupas > Aplicar** no Server. A opção controla camisa e calção juntos e fica salva para as próximas aberturas. Depois de atualizar o executável ou os módulos, reinicie o Server e o FIFA.
-
-## Colocar outro ícone ficou simples
-
-1. Com o FIFA fechado, coloque um **PNG ou JPG** em `data/ui/imgAssets/careerCompetitionIcons/`, dentro da pasta do jogo.
-2. Use o nome ou ID da competição. Nesta edição, por exemplo: **`1761.png`** para a Série A. O arquivo **`COMPETICOES.txt`**, criado pelo Server nessa pasta, lista os nomes aceitos.
-3. Abra o Server atualizado, aguarde alguns segundos e inicie o FIFA.
-
-O Server cuida do tamanho, do formato e do cadastro. **Não é preciso editar o index.tsv nem converter a imagem manualmente.** Para trocar um logo, substitua a imagem original. Prefira PNG com fundo transparente e mantenha apenas uma imagem por competição.
-
-Para instalar apenas os mods mantendo sua base atual, omita `-UpdateCompetitionData`. Essa opção instala a base oficial completa e guarda backup do DLC, settings.ini, banco e traduções substituídos. Consulte o [guia da base de competições](ModCarrerMode/docs/COMPDATA.md).
-
-## Pacotes e disponibilidade
-
-Os recursos visuais dependem dos respectivos modelos, texturas e imagens instalados. Mascotes, objetos de abertura, cabine do VAR, suportes das bolas e ícones são distribuídos em pacotes locais separados do código. Narração, músicas e vídeos também usam bibliotecas próprias. Sem um pacote visual válido, o objeto correspondente não aparece.
-
-A cabine do VAR é visual: não altera decisões de arbitragem. As bolas de reposição e seus suportes são elementos de cenário. A física de roupas e o tiro de meta moderno são experimentais; aparência e desempenho podem variar conforme a instalação.
-
-## Para quem desenvolve ou monta o pacote
-
-- [Guia técnico, instalação e estrutura dos arquivos](ModCarrerMode/docs/GUIA_TECNICO.md).
-- O índice dos módulos ativos e suas configurações está resumido nesta página.
-- [Catálogo completo das implementações](ModCarrerMode/docs/implementations.json).
-- Física de roupas: módulo experimental descrito na seção de módulos desta página.
-- [Server16: configuração, áudio e personalização](https://github.com/igor1043/CG-File-Server-16---Python-Port/tree/fifa-friends).
-
-A edição **New Experience** tem sua [própria branch](https://github.com/igor1043/fifa-mods/tree/fifa-friends-new-experience).
-
-## Atualização de 25/10/2026
-
-Server16 0.2.18: cenas nativas de técnico e mascote, cinco ângulos frontais,
-40% de chance por parada elegível e intervalo mínimo de 10 segundos. A tomada
-mantém o personagem nos fragmentos compatíveis da sequência e libera a câmera
-na retomada nativa. Cada personagem pode ser desligado nas Cenas extras.
-
-Também inclui revisão do hino/replay, torcida visitante ativa por padrão e
-isolamento das texturas de estádios entre partidas. O complemento de assets
-agora reúne vestiário, globo, SubsOn, mascotes e objetos de apresentação.
-
-- [Changelog completo e instalação para o Robson](ModCarrerMode/docs/RELEASE_20261025.md).
-- Cenas extras: módulo experimental no código nativo do Server16.
-- [Sala interna do VAR adiada: anotações para retomada](ModCarrerMode/source/docs/VAR_ROOM_DEFERRED_20261025.md).
-
-## Ultrawide e chute rasteiro — revisão local
-
-- **Ultrawide:** switch no Server16 → Módulos e no painel Select + Start. Nos menus e na carreira, abra Configurações visuais → Ultrawide; antes da partida, Configurações da partida → Ultrawide; durante a partida, Gráficos e jogabilidade → Ultrawide. A mudança é imediata e não depende de ativar o estádio personalizado. A cena 3D acompanha a largura da janela; menus e HUD permanecem centralizados em 16:9. O controle nativo fica em `ModCarrerMode/mods/ultrawide/ultrawide.ini`; não exige ReShade nem altera o executável no disco. A alteração usa a rotina de redimensionamento do FIFA; se a tela cheia exclusiva não atualizar imediatamente, alterne Alt + Enter.
-- **Fundo padrão e ultrawide:** os dois DDS editáveis ficam em `ModCarrerMode/data/ultrawide/`: `st_bootflow_standard.dds` (1920×1080) e `st_bootflow_ultrawide.dds` (2560×1080). O Server16 seleciona o arquivo conforme o switch, inclusive ao iniciar. A renderização reconhece somente essa arte de fundo e a mantém na largura da tela; os demais elementos da interface continuam em 16:9. As imagens são assets do complemento local.
-- **Revisão local 0.2.25:** o ajuste da interface nativa não é reaplicado aos desenhos próprios dos mods nem a uma área já centralizada. O mouse usa a transformação inversa da área central, tanto nas mensagens da janela quanto na leitura da posição, com a opção ligada ou desligada. O cursor do Windows não é movido. A revisão mantém os outros módulos do executável e atualiza apenas a ponte gráfica e a versão.
-- **Chute rasteiro:** `ModCarrerMode/mods/low_driven_shot/low_driven_shot.dll`, com switch independente. Segure o botão de chute para carregar, solte e dê o segundo toque em até 300 ms. A configuração recebida usa X/Quadrado; para B/Círculo, altere `shoot_button=B` em `low_driven_shot.ini`. É um filtro de controle durante a partida, não uma mudança permanente nos atributos ou na trajetória da bola. O filtro compartilha a captura de controles existente e não atua nas telas do mod.
-
-## Cenas extras — técnicos mandante e visitante
-
-As cutscenes adicionais podem mostrar o técnico do mandante ou do visitante, independentemente do lado controlado pelo jogador. O mascote continua sendo exclusivamente o do mandante, quando estiver instalado e carregado. Cada tomada mantém o mesmo personagem até terminar a sequência nativa. A frequência, os pesos e o intervalo configurados são preservados.
-
-Em `ModCarrerMode/config/extra_scenes.ini`, `coach_team=0` permite os dois técnicos (padrão); `1` restringe ao mandante e `2` ao visitante. Essas escolhas respeitam os switches existentes de técnico e mascote.
-
-## Rodapé contextual da carreira
-
-O rodapé mantém as ações da Central e mostra os comandos do card selecionado: analógico direito para trocar páginas/notícias e L2/R2 para alternar abas. Notícias longas preservam sua ajuda nativa de rolagem sem substituir Selecionar, Voltar, Salvar ou E-mails. Os ícones continuam sendo os do FIFA para o dispositivo de entrada ativo. Após instalar esta revisão, reabra o FIFA para recarregar a interface.
-
-## Elenco 3D — uniformes e rolagem
-
-- A preparação do jogador respeita áreas de impressão desativadas ou sem tamanho válido nos kits. Esses casos deixam de provocar `math domain error`; o modelo, a animação e as impressões válidas continuam carregando com os assets originais. A correção vale para qualquer clube e para o elenco do vestiário.
-- O elenco tem uma barra de rolagem com a cor principal do tema e indica o intervalo visível, por exemplo “1–7 de 32 jogadores”, para identificar o início e o fim da lista.
+Mods de carreira, apresentação e partidas para FIFA 16, integrados ao Server16.
+
+## Modo carreira
+
+| Mod | O que faz |
+| --- | --- |
+| Central da carreira | Mostra dados da próxima partida e um cabeçalho com treinador, aproveitamento e prestígio do clube. |
+| Próxima partida | Reúne escalações, dados do estádio, público previsto, bilheteria estimada e últimas partidas. |
+| Meu time | Reúne informações, histórico e estatísticas do clube da carreira. |
+| Competições | Exibe classificação, grupos, resultados e a situação das competições da carreira. |
+| Chaveamento de copas | Mostra confrontos de mata-mata e placares de ida e volta, com zoom e navegação. |
+| Estatísticas das competições | Reúne artilheiros, assistências, defesa, goleiros e o time do campeonato. |
+| Rankings mundiais | Classifica clubes, seleções e treinadores com base nos resultados da carreira. |
+| Ver clubes | Permite explorar clubes, seleções e ligas pelo globo 3D. |
+| 11 iniciais | Exibe o time titular em uma cena 3D no estádio. |
+| Jogadores do time | Lista o elenco com filtros, atributos, desempenho e visualização animada do jogador. |
+| Detalhes do jogador | Apresenta as informações individuais do jogador selecionado no elenco. |
+| Técnico do time | Exibe treinador, miniface, estatísticas e modelo 3D quando disponível. |
+| Ver mascote | Mostra o mascote instalado para o clube selecionado. |
+| Visualizar estádio | Carrega o estádio do clube com passeio panorâmico e exploração em primeira pessoa. |
+| Mercado de transferências | Organiza a consulta de jogadores, valores e movimentações do mercado. |
+| Mercado de técnicos | Gerencia técnicos livres, contratos, contratações, demissões e passagens pelos clubes. |
+| Técnicos à beira do campo | Usa o treinador vinculado ao clube; na carreira, acompanha as mudanças do mercado. |
+| Finanças do clube | Reúne receitas, despesas, transferências, salários, dívidas, orçamento e gráficos. |
+| Sistema financeiro | Acrescenta receitas de TV, bilheteria e patrocínio e despesas de técnico, comissão e operação dos jogos, conforme as opções ativadas. |
+| Empréstimos do clube | Permite contratar crédito, consultar contratos e acompanhar parcelas e juros. |
+| Aposentadoria | Oferece o fluxo de aposentadoria dentro do modo carreira. |
+| Outro clube | Oferece a navegação para mudança de clube na carreira. |
+| Verba do clube | Integra a solicitação de verba ao modo carreira. |
+| Histórico por carreira | Mantém os registros dos mods vinculados à carreira e ao seu salvamento, incluindo históricos anuais. |
+| Ícones das competições | Aplica os ícones do patch aos cards e ao calendário da carreira. |
+| Compatibilidade de competições | Ajusta a integração dos torneios do patch com os dados e telas da carreira. |
+| Criação de jogadores | Amplia o intervalo de anos de nascimento disponível na criação de jogadores. |
+
+## Vestiário, câmeras e interface
+
+| Mod | O que faz |
+| --- | --- |
+| Vestiário 3D | Monta o ambiente do clube com armários, uniformes, chuteiras, quadro da próxima partida e áreas auxiliares. |
+| Personalização do vestiário | Permite escolher composição, fundo e contorno dos armários, piso, posição do escudo e artes por clube. |
+| Elenco no vestiário | Permite consultar jogadores e atributos mantendo o vestiário ao fundo. |
+| Câmera livre | Permite caminhar pelo vestiário com mouse, teclado ou controle. |
+| Fundo da carreira | Permite usar imagem estática, estádio 3D ou vestiário 3D como fundo da carreira. |
+| Estádio de fundo | Carrega o estádio para os menus e para os fluxos de visualização dos clubes. |
+| Panorâmica de estádio | Acrescenta enquadramentos e movimentos de câmera pelo estádio. |
+| Primeira pessoa | Oferece visualização em primeira pessoa nas cenas compatíveis. |
+| Terceira pessoa | Oferece visualização em terceira pessoa nas cenas compatíveis. |
+| Cutscenes de técnico e mascote | Insere cenas ocasionais dos dois técnicos e do mascote do mandante, com seleção aleatória e intervalo entre ocorrências. |
+| Ultrawide | Amplia a área de visualização 3D nas resoluções compatíveis, mantendo os painéis centralizados. |
+| Tema visual | Aplica cards claros e a cor de destaque dourada `#B9A274` às telas dos mods. |
+| Identidade FIFA Friends | Aplica a marca do patch à abertura, aos menus e à carreira. |
+| Comandos no rodapé | Mostra os atalhos disponíveis no contexto da tela ou do card selecionado. |
+
+## Partidas e apresentação
+
+| Mod | O que faz |
+| --- | --- |
+| Torcida e público | Ajusta a ocupação das arquibancadas conforme o contexto da partida. |
+| Uniformes da torcida | Aplica as camisas dos clubes aos torcedores. |
+| Mascote em campo | Posiciona o mascote do mandante nas cenas compatíveis. |
+| Entrada dos times | Acrescenta elementos de apresentação e identificação dos clubes na entrada em campo. |
+| Escudos em campo | Seleciona os escudos usados nos elementos de apresentação de acordo com os clubes da partida. |
+| Bolas ao redor do campo | Posiciona bolas adicionais nas laterais do gramado. |
+| Cabine do VAR | Acrescenta a cabine visual do VAR junto à área de publicidade do estádio. |
+| Pirotecnia | Acrescenta efeitos de apresentação e comemoração conforme a configuração. |
+| Máquinas de fumaça | Controla os efeitos de fumaça na entrada e nos gols. |
+| Notícias de outros jogos | Mostra informações de gols de outras partidas no painel do jogo. |
+| Banco de reservas ampliado | Permite até 12 jogadores no banco nas situações compatíveis. |
+| Sete substituições | Amplia a quantidade de substituições nas regras compatíveis. |
+| Saída de bola moderna | Ajusta o posicionamento para a saída de bola. |
+| Tiro de meta curto | Permite a saída curta com os jogadores próximos à área. |
+| Chute rasteiro | Acrescenta o comando de finalização rasteira. |
+| Física de roupas | Acrescenta movimentação às malhas das roupas, com opção para ativar ou desativar. |
+
+## Áudio e Server16
+
+| Mod | O que faz |
+| --- | --- |
+| Hinos e cantos da torcida | Reproduz os áudios configurados para os clubes. |
+| Cantos da torcida visitante | Permite identificar e reproduzir os cantos do visitante. |
+| Música de gol | Reproduz a música de comemoração configurada para o clube. |
+| Música de substituição | Reproduz os áudios configurados para as substituições. |
+| Recursos da partida | Prepara os arquivos instalados de estádio, narração e apresentação, com indicação de carregamento. |
+| Configurações dentro do jogo | Abre os controles dos mods pelo atalho Select + Start ou F12. |
+| Seleção de estádio | Permite escolher o estádio e as opções de apresentação da partida. |
+| Mapeamento de controles | Permite ajustar os comandos usados pelos mods. |
+| Limpeza de logs | Limpa os registros de sessões anteriores ao iniciar o Server16 e oferece limpeza manual. |
+| Diagnóstico da inicialização | Registra o carregamento do jogo e dos módulos para investigar falhas. |
+
+## Configuração
+
+- [Módulos carregados pelo jogo](ModCarrerMode/mods/enabled.txt).
+- [Configurações dos mods](ModCarrerMode/config/).
+- [Cadastro de técnicos por ID](ModCarrerMode/data/manager_market/manager_registry.ini).

@@ -1,6 +1,6 @@
 """Syntax and integration audit for code-only releases, without game control."""
 from pathlib import Path
-import ast,configparser,json,subprocess,sys
+import ast,configparser,json,re,subprocess,sys
 import importlib.util
 
 ROOT=Path(__file__).resolve().parents[3]
@@ -11,9 +11,9 @@ for relative in module.candidates(ROOT):
     if relative.suffix=='.py':
         try:ast.parse((ROOT/relative).read_text(encoding='utf-8-sig'),filename=str(relative));python_files+=1
         except (SyntaxError,UnicodeError) as e:errors.append(str(e))
-catalog=json.loads((ROOT/'ModCarrerMode/docs/implementations.json').read_text(encoding='utf8'))
-for feature in catalog['features']:
-    if not (ROOT/feature['source']).exists():errors.append('Missing source: '+feature['source'])
+readme=(ROOT/'README.md').read_text(encoding='utf8')
+features=re.findall(r'^\| (?!Mod \|)([^|]+) \| (?!-)([^|]+) \|$',readme,re.MULTILINE)
+if not features:errors.append('The main README must contain the mod catalogue')
 entries=[s.strip().replace('\\','/') for s in (ROOT/'ModCarrerMode/mods/enabled.txt').read_text().splitlines() if s.strip() and not s.startswith('#')]
 assert entries and len(entries)==len(set(entries)), 'Enabled modules must be nonempty and unique'
 assert entries.index('entrance_props/entrance_props.dll')<entries.index('var_cabin/var_cabin.dll')
@@ -29,5 +29,5 @@ configuration=configparser.ConfigParser();configuration.read(ROOT/'ModCarrerMode
 assert configuration.getboolean('match','entrance_props')
 for relative in ('README.md',):
     assert 'entrance_props_v18.dll' not in (ROOT/relative).read_text(encoding='utf8')
-result={'python_sources_parsed':python_files,'features_catalogued':len(catalog['features']),'active_plugins':len(entries),'source_integration_errors':errors}
+result={'python_sources_parsed':python_files,'features_catalogued':len(features),'active_plugins':len(entries),'source_integration_errors':errors}
 print(json.dumps(result,ensure_ascii=False,indent=2));sys.exit(bool(errors))

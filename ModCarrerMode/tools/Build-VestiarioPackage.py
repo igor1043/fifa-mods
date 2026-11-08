@@ -117,14 +117,14 @@ Não inclui a implementação de ocultar o card online da EA.
 Não há instalador. Não contém saves, empréstimos contratados, caches de outra
 carreira, índices BH ou lista enabled.txt. A base V12 e seus arquivos originais
 continuam necessários. O mod já estava habilitado no diagnóstico do Robson.
-O manifesto em ModCarrerMode/docs/vestiario-package-manifest.json relaciona
+O manifesto em ModCarrerMode/data/catalogs/vestiario-package-manifest.json relaciona
 todos os arquivos de execução com seus tamanhos e hashes SHA256.
 '''
     target=output/f'FIFA-Friends-Vestiario-Corrigido-R61-{stamp}.zip';temp=target.with_suffix('.zip.new')
     with zipfile.ZipFile(temp,'w',zipfile.ZIP_DEFLATED,compresslevel=9) as archive:
         for relative,source in sorted(files.items()):archive.write(source,relative)
         archive.writestr('LEIA-ME-VESTIARIO.txt',readme.encode('utf8'))
-        archive.writestr('ModCarrerMode/docs/vestiario-package-manifest.json',json.dumps(manifest,ensure_ascii=False,indent=2).encode('utf8'))
+        archive.writestr('ModCarrerMode/data/catalogs/vestiario-package-manifest.json',json.dumps(manifest,ensure_ascii=False,indent=2).encode('utf8'))
     with zipfile.ZipFile(temp) as archive:
         assert archive.testzip() is None
         assert len(archive.namelist())==len(files)+2

@@ -19,6 +19,7 @@ function Get-Sha256([string]$LiteralPath) {
 $modSource = [IO.Path]::GetFullPath((Join-Path $PSScriptRoot '..\..'))
 $repoSource = [IO.Directory]::GetParent($modSource).FullName
 & (Join-Path $PSScriptRoot 'Verify-Package.ps1') -PackageRoot $repoSource | Out-Null
+$moves=Get-Content -LiteralPath (Join-Path $modSource 'data\catalogs\runtime-migration.json') -Raw | ConvertFrom-Json
 $game = (Resolve-Path -LiteralPath $GameDirectory).Path.TrimEnd('\')
 if (-not (Test-Path -LiteralPath (Join-Path $game 'FIFA16.exe'))) { throw 'A pasta selecionada nao contem FIFA16.exe.' }
 if ($game -eq $repoSource) { throw 'O destino nao pode ser a pasta Dev.' }
@@ -287,7 +288,6 @@ foreach($relative in $obsoletePaths) {
 }
 New-Item -ItemType Directory -Force -Path $gameMod | Out-Null
 foreach($folder in @('config','data\catalogs','logs','runtime')) { New-Item -ItemType Directory -Force -Path (Join-Path $gameMod $folder) | Out-Null }
-$moves=Get-Content -LiteralPath (Join-Path $modSource 'docs\runtime-migration-20261003.json') -Raw | ConvertFrom-Json
 foreach($item in $moves.PSObject.Properties) {
     $old=Join-Path $gameMod $item.Name;$new=Join-Path $gameMod $item.Value
     if (-not (Test-Path -LiteralPath $old -PathType Leaf)) { continue }

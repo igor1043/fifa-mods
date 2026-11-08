@@ -81,9 +81,8 @@ def main():
         install(ROOT/'tools'/relative,GAME/'ModCarrerMode/source/tools'/relative,GAME)
     for relative in ('tests/test_career_transfer_cards_layout.py',
         'native_mods/career_overlay/layout/careermanagerhubcfg.xml',
-        'tools/career_branding/originals/transferinfo.big','OVERLAY_CARREIRA.md'):
+        'tools/career_branding/originals/transferinfo.big'):
         install(ROOT/relative,GAME/'ModCarrerMode/source'/relative,GAME)
-    install(DEV/'ModCarrerMode/docs/OVERLAY_CARREIRA.md',GAME/'ModCarrerMode/docs/OVERLAY_CARREIRA.md',GAME)
     assert all(digest(Path(path))==sha for path,sha in executables.items())
     report={'passed':True,'installed_utc':stamp,'files':files,'top_rows':10,'latest_rows':10,
             'columns':2,'rows_per_column':5,'native_data_and_sorting_preserved':True,
