@@ -3,19 +3,23 @@ import finance_art as art
 from layout import INK,BLUE,MUTED,WHITE,PAPER,LIGHT
 
 def model(view):
+ from finance_report import composition
  year=(view.get('date') or 0)//10000
  rows={r['month']%100:r for r in view.get('months',[]) if r['month']//100==year}
  series=[]
  for month in range(1,13):
-  row=rows.get(month,{});income=sum(row.get(k,0) for k in ('tv','tickets','sponsor'))
-  expense=-sum(row.get(k,0) for k in ('coach','staff','facilities','match_costs','interest'))
+  income=sum(r['value'] for r in composition(view,'receipts',year*100+month))
+  expense=sum(r['value'] for r in composition(view,'expenses',year*100+month))
   series.append((income,expense,income-expense))
  tv=sum(r.get('tv',0) for r in rows.values());tickets=sum(r.get('tickets',0) for r in rows.values())
  coach=-sum(r.get('coach',0) for r in rows.values());interest=-sum(r.get('interest',0) for r in rows.values())
  sponsor=sum(r.get('sponsor',0) for r in rows.values());staff=-sum(r.get('staff',0) for r in rows.values());costs=-sum(r.get('match_costs',0) for r in rows.values())
  facilities=-sum(r.get('facilities',0) for r in rows.values())
+ members=sum(r.get('members',0) for r in rows.values())
+ revenues=composition(view,'receipts');expenses=composition(view,'expenses')
+ income=sum(r['value'] for r in revenues);expense=sum(r['value'] for r in expenses)
  return dict(year=year,series=series,tv=tv,tickets=tickets,coach=coach,interest=interest,sponsor=sponsor,staff=staff,match_costs=costs,
-  facilities=facilities,income=tv+tickets+sponsor,expense=coach+interest+staff+costs+facilities,result=tv+tickets+sponsor-coach-interest-staff-costs-facilities)
+  facilities=facilities,members=members,income=income,expense=expense,result=income-expense,revenue_rows=revenues,expense_rows=expenses)
 
 def budget_metrics(view):
  initial=view.get('budget_initial');current=view.get('budget');payroll=view.get('player_weekly');margin=view.get('wage_margin')
@@ -30,9 +34,9 @@ def summary(view,shell,money):
  def card(name,x,y,w,h):image(name,art.panel(w,h),x,y,w,h)
  for i,(label,value,kind,note,values) in enumerate((
   ('Orçamento disponível',view.get('budget',0),'wallet','Verba de transferências validada',[]),
-  ('Receitas extras',m['income'],'income','TV, bilheteria e patrocínio',[r[0] for r in m['series']]),
-  ('Despesas extras',m['expense'],'expense','Equipe, jogos, estrutura e juros',[r[1] for r in m['series']]),
-  ('Resultado do ano',m['result'],'result','Receitas menos despesas extras',[r[2] for r in m['series']]))):
+  ('Receitas registradas',m['income'],'income','Clube e negócios confirmados',[r[0] for r in m['series']]),
+  ('Despesas registradas',m['expense'],'expense','Clube e compras confirmadas',[r[1] for r in m['series']]),
+  ('Resultado do ano',m['result'],'result','Receitas menos despesas registradas',[r[2] for r in m['series']]))):
   x=100+i*432;card('kpi'+str(i),x,294,418,106);image('icon'+kind,art.icon(kind),x+18,309,34,34)
   s.text(x+67,307,328,27,label,23,INK);money(s,x+67,334,330,38,value,31,'#173951',0)
   s.text(x+18,376,294,21,note,17,MUTED)
@@ -52,12 +56,14 @@ def summary(view,shell,money):
   money(s,112,610-i*(131/3),67,22,round(high*i/3),13,MUTED,1,compact=True)
  card('distributionCard',1040,414,421,241);image('distributionIcon',art.glyph('budget',25,BLUE),1058,428,25,25);s.text(1091,426,348,30,'Distribuição das receitas',23,INK)
  s.text(1060,458,380,24,'Participação no total registrado',17,MUTED)
- image('distribution',art.donut((m['tv'],m['tickets'],m['sponsor'])),1055,483,164,164)
+ distribution=m['revenue_rows'][:5]
+ if len(m['revenue_rows'])>5:distribution=distribution+[dict(key='other',label='Outros',value=sum(r['value'] for r in m['revenue_rows'][5:]))]
+ image('distribution',art.donut([r['value'] for r in distribution],colors=[art.category_color(r['key']) for r in distribution]),1055,483,164,164)
  s.text(1080,548,114,27,'Total',19,MUTED,2)
  money(s,1070,576,136,26,m['income'],18,BLUE,2)
- for y,color,label,value in ((493,art.BLUE,'Direitos de TV',m['tv']),(542,art.GREEN,'Bilheteria',m['tickets']),(591,'#8672bc','Patrocínio',m['sponsor'])):
-  s.nodes.append(dict(type='dot',x=1230,y=y+7,w=9,h=9,color=color));s.text(1248,y,190,25,label,19,INK)
-  s.text(1248,y+24,190,23,str(round(value*100/m['income']))+'%' if m['income'] else 'Sem receita registrada',17,MUTED)
+ for i,row in enumerate(distribution):
+  y=486+i*27;value=row['value'];s.nodes.append(dict(type='dot',x=1230,y=y+7,w=8,h=8,color=art.category_color(row['key'])))
+  s.text(1245,y,145,24,row['label'],16,INK);s.text(1390,y,53,24,str(round(value*100/m['income']))+'%' if m['income'] else '0%',16,MUTED,1)
  metrics=budget_metrics(view)
  for key,y,title,kind,ratio,values in (
   ('budgetCard',414,'Orçamento da temporada','budget',metrics['budget_ratio'],(('Inicial',metrics['initial']),('Variação',metrics['variation']),('Disponível',metrics['current']))),
@@ -75,8 +81,8 @@ def summary(view,shell,money):
    else:s.text(xx,y+88,99,22,'—',17,MUTED)
  from finance_report import categories
  report=categories(view)
- for x,w,title,rows,target,tint in ((100,548,'Principais receitas',report['revenues'],'overview:details',art.GREEN),
-    (662,548,'Principais despesas',report['expenses'],'overview:details',art.RED)):
+ for x,w,title,rows,target,tint in ((100,548,'Principais receitas',m['revenue_rows'],'receipts',art.GREEN),
+    (662,548,'Principais despesas',m['expense_rows'],'expenses',art.RED)):
   entries=[(r['label'],r['value'],r['key']) for r in rows[:4]]
   total=sum(r['value'] or 0 for r in rows)
   card('table'+str(x),x,669,w,185);image('tableIcon'+str(x),art.icon('income' if tint==art.GREEN else 'expense',28),x+17,682,28,28);s.text(x+56,681,w-76,30,title,25,INK)
@@ -95,11 +101,11 @@ def summary(view,shell,money):
  from finance_pages import picture
  card('transferCard',1224,669,596,185);image('transferIcon',art.glyph('transfer',27,BLUE),1242,683,27,27);s.text(1282,681,320,30,'Transferências',25,INK)
  s.action(1648,680,150,31,'Ver todas','transfers',WHITE,BLUE,18)
- transfers=view.get('transfers',[])
- for j,row in enumerate(transfers[:3]):
-  yy=720+j*42;picture(s,assets,'head',row['player'],1243,yy,38,39)
+ transfers=sorted((r for r in view.get('transfers',[]) if r['date']//10000==m['year']),key=lambda r:r['date'],reverse=True)
+ for j,row in enumerate(transfers[:4]):
+  yy=716+j*33;picture(s,assets,'head',row['player'],1243,yy,31,32)
   s.text(1290,yy,262,25,row['name'],19,INK)
-  s.text(1290,yy+23,262,18,('Chegada' if row['direction']=='in' else 'Saída')+(' · Empréstimo' if row['loan'] else ''),15,MUTED)
+  s.text(1290,yy+19,262,15,('Chegada' if row['direction']=='in' else 'Saída')+(' · Empréstimo' if row['loan'] else ''),12,MUTED)
   picture(s,assets,'crest',row['other']['id'],1560,yy+3,29,31)
   money(s,1602,yy+6,195,31,row['fee'],21,art.RED if row['direction']=='in' else art.GREEN)
  if not transfers:s.text(1244,741,556,66,'Nenhum negócio confirmado para este clube no save.' if not view.get('transfer_error') else 'Aguardando os negócios deste save.',22,MUTED)

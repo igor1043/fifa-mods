@@ -7,7 +7,7 @@ from club_profile import read,spell
 
 class ClubProfileTest(unittest.TestCase):
  def setUp(self):
-  self.tmp=tempfile.TemporaryDirectory();self.root=Path(self.tmp.name);self.save=self.root/'saves/slot/DATA';self.save.parent.mkdir(parents=True);self.save.write_bytes(b'untouched');catalog(self.root/'catalog.db');self.m=Market(self.save.parent.parent/'server16_manager_market.sqlite3',self.root/'catalog.db');self.m.open_save('saved',self.save,context())
+  self.tmp=tempfile.TemporaryDirectory();self.root=Path(self.tmp.name);self.save=self.root/'saves/slot/DATA';self.save.parent.mkdir(parents=True);self.save.write_bytes(b'untouched');catalog(self.root/'catalog.db');self.m=Market(self.save.parent/'server16_manager_market.sqlite3',self.root/'catalog.db');self.m.open_save('saved',self.save,context())
   with self.m.db:self.m.advance(context(20260120,matches(5)))
   self.saved=dict(pid=10,process_created_100ns=20,path=str(self.save));self.profile=dict(context_address=30,context_epoch=2,club_id=3);self.runtime=self.root/'ModCarrerMode/runtime';self.state=self.runtime/'manager_market/state_ready.json';self.state.parent.mkdir(parents=True);self.io();self.ready()
  def tearDown(self):self.m.close();self.tmp.cleanup()

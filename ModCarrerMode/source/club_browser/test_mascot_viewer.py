@@ -45,7 +45,7 @@ class MascotViewerTests(unittest.TestCase):
    button=view.get('scene0').get('action4');vm.invoke(button.get('onRollOver'),button);vm.invoke(button.get('onRelease'),button)
    self.assertEqual(view.get('navPage'),6);self.assertEqual(view.get('hubIndex'),3)
    self.assertTrue(any(n=='SendSystemEvent' and list(a)==['Calendar','Server16ClubBrowser','mascot'] for n,a in calls))
-   self.assertEqual([x[0] for x in vm.invoke(view.get('getHelpContext'),view)],['ADVANCE','BACK','RAS_LR','L1R1','OPTION_TOP'])
+   self.assertEqual([x[0] for x in vm.invoke(view.get('getHelpContext'),view)],['OPTION_LEFT','BACK','RAS_LR','L1R1','OPTION_TOP'])
    before=len(calls);vm.invoke(view.get('LocalEventHandler'),view,[2,True])
    self.assertEqual(sum(n=='SendSystemEvent' and list(a)==['Calendar','Server16ClubBrowser','mascot_animate'] for n,a in calls[before:]),1)
    button=view.get('scene0').get('action5');self.assertTrue(button.get('_visible'));vm.invoke(button.get('onRelease'),button)

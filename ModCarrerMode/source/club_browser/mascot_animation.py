@@ -20,7 +20,8 @@ def prepare(model,clip_path,folder,cancel=None):
  if len(raw)!=31:raise ValueError('Esqueleto do mascote não possui 31 ossos')
  bind=np.asarray(raw,dtype=float).reshape(31,4,4).transpose(0,2,1)
  reference=np.asarray(clip['reference'],dtype=float).reshape(31,7)
- frames=np.asarray(clip['frames'],dtype=float).reshape(-1,31,7);times=clip['times'];duration=float(clip['duration'])
+ records=clip.get('clips') or [clip]
+ frames=np.asarray(records[0]['frames'],dtype=float).reshape(-1,31,7);times=records[0]['times'];duration=float(records[0]['duration'])
  if frames.shape!=(len(times),31,7) or not 0<duration<=18 or len(times)<2 or any(b<=a for a,b in zip(times,times[1:])):raise ValueError('Clipe de comemoração inválido')
  if not np.isfinite(bind).all() or not np.isfinite(frames).all():raise ValueError('Esqueleto não finito')
  ref=np.array([rotation(q) for q in reference[:,3:]])
@@ -57,13 +58,21 @@ def prepare(model,clip_path,folder,cancel=None):
   tracks.append((slot,p,n,uv,js,ws,np.concatenate(idx),initial,[]))
  vertices=sum(len(t[1]) for t in tracks);count=min(64,int((MAX_BYTES-24-8*len(tracks))//max(1,20*vertices)))
  if count<12:raise ValueError('Modelo excede o limite da comemoração')
- length=duration+.7
- for frame,time in enumerate(np.linspace(0,length,count)):
+ records=records[:max(1,count//12)];per=count//len(records);samples=[];ranges=[]
+ for record in records:
+  poses=np.asarray(record['frames'],dtype=float).reshape(-1,31,7);marks=record['times'];seconds=min(3.5,float(record['duration'])) if clip.get('clips') else float(record['duration']);length=seconds+.7
+  if poses.shape!=(len(marks),31,7) or not np.isfinite(poses).all() or seconds<=0 or any(b<=a for a,b in zip(marks,marks[1:])):raise ValueError('Clipe adicional inválido')
+  begin=len(samples)
+  samples.extend((i,float(t),poses,marks,seconds,length) for i,t in enumerate(np.linspace(0,length,per)))
+  ranges.append((begin,len(samples)-1,length,record.get('name','Comemoração')))
+ count=len(samples);duration=sum(r[2] for r in ranges)
+ if duration>20:raise ValueError('Biblioteca de comemorações excedeu a duração permitida')
+ for frame,time,frames,times,seconds,length in samples:
   if cancel and cancel():raise InterruptedError('Seleção do mascote alterada')
-  if frame in (0,count-1):
+  if frame in (0,per-1):
    for t in tracks:t[-1].append(t[-2])
    continue
-  time=float(time);source=max(0,min(duration,time-.35));hi=min(len(times)-1,max(1,bisect.bisect_right(times,source)));lo=hi-1
+  time=float(time);source=max(0,min(seconds,time-.35));hi=min(len(times)-1,max(1,bisect.bisect_right(times,source)));lo=hi-1
   alpha=max(0,min(1,(source-times[lo])/(times[hi]-times[lo])))
   envelope=min(1,time/.35,(length-time)/.35)
   delta=np.array([rotation(slerp(frames[lo,j,3:],frames[hi,j,3:],alpha))@ref[j].T for j in range(31)])
@@ -79,8 +88,9 @@ def prepare(model,clip_path,folder,cancel=None):
    out.append(encode(v,idx))
  target=folder/'animation.bin'
  with target.open('wb') as f:
-  f.write(struct.pack('<8sIIIf',b'FFPVTX01',len(tracks),count,0,length))
+  f.write(struct.pack('<8sIIIf',b'FFPVTX01',len(tracks),count,0,duration))
   for slot,p,n,uv,js,ws,idx,initial,out in tracks:f.write(struct.pack('<II',slot,len(p)));f.writelines(out)
- meta.update(celebration=1,animation_frames=count,animation_seconds=length,animation_bytes=target.stat().st_size)
+ (folder/'variants.tsv').write_text('S16MASCOTCLIPS 1 '+str(len(ranges))+'\n'+''.join(f'{start} {end} {seconds:.8f}\n' for start,end,seconds,name in ranges),encoding='ascii')
+ meta.update(celebration=1,animation_frames=count,animation_seconds=duration,animation_bytes=target.stat().st_size,animation_variants=[r[3] for r in ranges])
  (folder/'assets.json').write_text(json.dumps(meta,indent=2),encoding='utf8')
  return meta

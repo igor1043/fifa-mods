@@ -5,7 +5,7 @@ struct View{
  int club=0,career=0;uint64_t consumed=0,submitted=0;bool ready=false,celebrating=false;std::shared_ptr<clubanim::Clip> animation;std::string error;
  std::future<std::shared_ptr<clubanim::Clip>> staticClip;clubscene::Assets staticAssets;std::array<int,96>staticPages{};
  bool canAnimate()const{return ready&&animation&&!animation->constant&&error.empty();}
- void toggle(){if(canAnimate()){celebrating=!celebrating;clubanim::setPlaying(animation,celebrating);}}
+ void toggle(){if(canAnimate()){celebrating=!celebrating;if(celebrating)clubanim::chooseCelebration(animation,GetTickCount64()^uint64_t(club));clubanim::setPlaying(animation,celebrating);}}
  void enter(clublineup::View&worker,int id,int activeCareer){club=id;career=activeCareer;consumed=submitted=0;ready=false;celebrating=false;animation.reset();error.clear();clubscene::intent(false,0);clubanim::activate({});if(career>0){worker.career=career;worker.request(club,"mascot");}}
  void poll(clublineup::View&worker,ID3D11Device*device){
   if(staticClip.valid()&&staticClip.wait_for(std::chrono::milliseconds(0))==std::future_status::ready){

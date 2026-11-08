@@ -82,7 +82,9 @@ def bind_pending(market,game,current=None):
    # A real repeated save can have identical DATA bytes while SQL changed.
    # The newer explicit write wins; ordinary loads never overwrite snapshots.
    newer=market.db.execute('SELECT 1 FROM save_receipts WHERE save_hash=? AND created=? AND write_ms>?',(digest,created,tick)).fetchone()
-   if not newer:market.checkpoint(digest,save,replace=True,state=payload)
+   if not newer:
+    from save_database import store_receipt
+    store_receipt(market,save,digest,payload,(ident,digest,info['id'],info['game_date'],pid,created,tick,'native_write_v2'))
    market.db.execute('INSERT INTO save_receipts VALUES(?,?,?,?,?,?,?,?)',(ident,digest,info['id'],info['game_date'],pid,created,tick,'native_write_v2'))
    bound.append(dict(event=ident,digest=digest,branch=info['id'],date=info['game_date'],path=str(save)))
   except (OSError,ValueError,KeyError,TypeError,UnicodeError):continue

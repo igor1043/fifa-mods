@@ -4,6 +4,7 @@ import build_apt as browser
 native=browser.native;b=browser.b
 from build_preview import Code
 import native_roster_footer as footer
+import competitions_footer
 CLASS=('game','screens','career','server16','CareerCompetitions');FULL='.'.join(CLASS);PAGE='/'.join(CLASS)
 R=b.reg;T=b.this;P=b.prop;CALL=b.call;PATH=b.path;M=b.MANAGER;ION=b.ION
 
@@ -15,7 +16,7 @@ def script(data,dictionaries,scenes):
   a.op(89);a.reg(2);a.op(118);a.op(93)
   a.do(M('ScreenManager'),'SetOnExitScreenCallback',CALL(PATH('cafe','utility','Delegate'),'Create',R(1),T('OnExitScreen')))
   a.do(R(1),'Initialize',FULL,None,True);a.set(R(1),'staticData',CALL(ION,'GetScreenStaticData'));a.set(R(1),'navEvents',CALL(ION,'GetEvents','Navigation'))
-  a.set(R(1),'_visible',True);a.set(R(1),'_alpha',100);a.set(R(1),'expanded',False);a.set(R(1),'rounds',False);a.set(R(1),'onEnterFrame',T('Ready'));a.do(R(1),'Ready')
+  a.set(R(1),'_visible',True);a.set(R(1),'_alpha',100);a.set(R(1),'expanded',False);a.set(R(1),'rounds',False);a.set(R(1),'footerMode',0);a.set(R(1),'onEnterFrame',T('Ready'));a.do(R(1),'Ready')
  a.function(CLASS[-1],0,ctor,True);a.expr(PATH(*CLASS));a.expr(PATH('ion','screen','BaseScreen'));a.op(105)
  def ready(a):
   def bind(a):
@@ -33,6 +34,7 @@ def script(data,dictionaries,scenes):
   a.do(M('HelpManager'),'SetCustomSource',CALL(PATH('cafe','utility','Delegate'),'Create',R(1),T('getHelpContext')));a.do(M('HelpManager'),'Update');a.do(M('HelpManager'),'Show');footer.apply(a)
  a.function('RefreshHelp',0,refresh)
  def tick(a):
+  a.do(R(1),'competitionHelpPoll')
   a.when(T('helpDelay'),lambda a:(a.set(R(1),'helpDelay',('bin',11,T('helpDelay'),1)),a.when(('bin',17,b.equal(T('helpDelay'),87),('bin',17,b.equal(T('helpDelay'),60),b.equal(T('helpDelay'),0))),lambda a:a.do(R(1),'RefreshHelp'))))
  a.function('Tick',0,tick)
  def complete(a):
@@ -67,11 +69,7 @@ def script(data,dictionaries,scenes):
   # Swallow the underlying Calendar events, avoiding double changes of tab.
   a.ret(True)
  a.function('LocalEventHandler',2,event)
- def help(a):
-  # The native view owns the viewport and modal state for every input method.
-  # It draws a matching footer; no stale APT context remains over that row.
-  a.ret(('array',()))
- a.function('getHelpContext',0,help)
+ competitions_footer.emit(a)
  def shutdown(a):
   a.when(T('exiting'),lambda a:a.ret());a.set(R(1),'exiting',True);a.set(R(1),'onEnterFrame',None);footer.restore(a);a.do(M('InputManager'),'DisableCurrentLocalEventHandler');a.do(M('HelpManager'),'Clear');a.do(R(1),'Shutdown')
  a.function('OnExitScreen',0,shutdown);a.op(0);a.finish();a.align();registration=len(data);data.extend(dictionaries[1]);a.string(FULL);a.op(28);a.string(FULL);a.expr(2);a.expr(PATH('Object'));a.method('registerClass');a.op(23);a.op(0);a.finish();return start,registration

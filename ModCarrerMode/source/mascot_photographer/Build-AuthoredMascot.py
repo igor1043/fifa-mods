@@ -1,6 +1,6 @@
 """Preserve authored Mixamo skin, map to the audited FIFA rig, protect mascot head."""
 from pathlib import Path
-import bpy,sys,json,importlib.util,struct
+import bpy,sys,json,importlib.util,struct,hashlib,math
 from mathutils import Vector,Matrix,Quaternion
 from mathutils.kdtree import KDTree
 import argparse
@@ -12,6 +12,7 @@ parser.add_argument('--repair-unweighted',action='store_true',help='Fill only un
 parser.add_argument('--corinthians-body-review',action='store_true',help='Reviewed Corinthians cape attachment and chest/neck separation, club 1041 only')
 parser.add_argument('--review-body-weights',action='store_true',help='Separate upper chest from neck and strengthen the authored large-head region')
 parser.add_argument('--rigid-right-hand-prop',action='store_true',help='Reviewed Chapolin mallet: preserve authored right-hand region as a rigid held object')
+parser.add_argument('--source-rig-review',help='Inspected source-specific vertex weights and bone pivots, guarded by source SHA256 and club ID')
 args=parser.parse_args(sys.argv[sys.argv.index('--')+1:] if '--' in sys.argv else sys.argv[1:])
 ROOT=Path(args.output);ROOT.mkdir(parents=True,exist_ok=True)
 TOOLS=Path(args.tools);SRC=Path(args.source);CLIPS=Path(args.clips)
@@ -22,6 +23,16 @@ spec=importlib.util.spec_from_file_location('builder',builder_path);b=importlib.
 vertices,indices,name,unit=b.load_source_mesh(next(SRC.glob('*.fbx')))
 mesh=next(o for o in bpy.context.scene.objects if o.type=='MESH')
 arm=next(o for o in bpy.context.scene.objects if o.type=='ARMATURE')
+rig_review={}
+if args.source_rig_review:
+    rig_review=json.loads(Path(args.source_rig_review).read_text(encoding='utf8'))
+    source_hash=hashlib.sha256(next(SRC.glob('*.fbx')).read_bytes()).hexdigest()
+    if rig_review['clubId']!=args.club_id or rig_review['sourceSha256']!=source_hash:
+        raise ValueError('Rig review does not match this source and club')
+review_weights={int(i):{int(j):float(w) for j,w in values.items()} for i,values in rig_review.get('vertexWeights',{}).items()}
+for i,values in review_weights.items():
+    if i<0 or i>=len(mesh.data.vertices) or not values or any(j<0 or j>=31 or w<0 or not math.isfinite(w) for j,w in values.items()) or abs(sum(values.values())-1)>.00001:
+        raise ValueError('Invalid reviewed source vertex weights')
 if args.rigid_right_hand_prop and (args.club_id!=130248 or len(mesh.data.vertices)!=8701):
     raise ValueError('Held-prop review applies only to the inspected Chapolin mesh')
 repaired=[]
@@ -117,6 +128,7 @@ for vertex_index,v in enumerate(vertices):
         # origin. Attach the whole sheet to the chest so it retains its form
         # and does not follow the legs or the waving/clapping arms.
         raw={12:1}
+    if idx in review_weights:raw=review_weights[idx].copy()
     if y<hip_y and abs(x)>3:
         forbidden=set([3,4,5,6]) if x>0 else set([7,8,9,10])
         fixed_sides+=sum(k in forbidden and w>1e-5 for k,w in raw.items())
@@ -143,6 +155,10 @@ positions[15]=position(arm.matrix_world@arm.data.bones['mixamorig:Head'].tail_lo
 positions[20]=position(arm.matrix_world@arm.data.bones['mixamorig:LeftHand'].tail_local)
 positions[25]=position(arm.matrix_world@arm.data.bones['mixamorig:RightHand'].tail_local)
 positions[26]=positions[9].copy();positions[27]=positions[5].copy()
+for j,p in rig_review.get('bonePositions',{}).items():
+    j=int(j)
+    if j<0 or j>=31 or len(p)!=3 or not all(math.isfinite(float(v)) for v in p):raise ValueError('Invalid reviewed bone pivot')
+    positions[j]=(Vector(p)-center)*scale
 for i in (0,1,28,29,30):positions[i]=Vector((0,0,0))
 order=sorted({j for j,w in zip(joints,weights) if w})
 # Convert the source T rest pose to FIFA's asymmetric A rest pose once.
@@ -184,3 +200,5 @@ if args.review_body_weights:
     (ROOT/'body_weights_review.json').write_text(json.dumps(dict(clubId=args.club_id,chestBone=12,neckBone=13,headBone=14,rigidHeadVertices=head_count,method='Authored per-character Mixamo pivots; upper chest separated from neck, head region rigid, smooth neck junction, independent arm chains, normalized four-influence weights'),indent=2),encoding='utf8')
 if args.rigid_right_hand_prop:
     (ROOT/'held_prop_review.json').write_text(json.dumps(dict(clubId=args.club_id,bone=24,vertices=rigid_prop_vertices,method='Inspected authored right-hand region, including mallet; rigid wrist weights override head-height rule'),indent=2),encoding='utf8')
+if rig_review:
+    (ROOT/'source_rig_review_applied.json').write_text(json.dumps(rig_review,indent=2),encoding='utf8')

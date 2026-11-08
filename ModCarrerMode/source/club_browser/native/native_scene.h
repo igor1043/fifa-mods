@@ -12,6 +12,8 @@ namespace clubscene {
 constexpr int slots=96,opaqueSlots=64,maxTextures=96;
 struct Assets {uint64_t sequence=0;int club=0,career=0,pages=0,player=0;bool single=false;std::string hash;std::shared_ptr<clubanim::Clip> animation;};
 std::atomic<bool> singleView{false},rosterCamera{false},roomView{false},mascotCamera{false};std::atomic<float> playerAngle{0},playerZoom{1},playerPan{0},playerHeight{180};
+std::atomic<int> stadiumClub{0};std::atomic<float> stadiumOpacity{0};std::shared_ptr<const panorama::Pose> stadiumPose;
+inline void closeStadium(){stadiumClub=0;stadiumOpacity=0;std::atomic_store(&stadiumPose,std::shared_ptr<const panorama::Pose>{});}
 std::mutex jobsMutex;std::shared_ptr<const Assets> pending;
 std::atomic<bool> requested{false},installed{false},stopping{false},active{false};
 std::atomic<unsigned> phase{0},fault{0},draws{0},returns{0};
@@ -80,14 +82,25 @@ inline void retire(){contactShadowParts=0;hideDraw();if(!object)return;visibilit
 struct Camera {
  uintptr_t scene=0;unsigned char original[0x84]{},written[0x84]{};
  void restore(){if(scene&&scene==get<uintptr_t>(base+0x3517c10))for(auto r:std::array<std::array<unsigned,2>,4>{{{{0,64}},{{0x48,8}},{{0x70,1}},{{0x7c,8}}}}){unsigned char current[64]{};if(read(scene+0x40+r[0],current,r[1])&&!memcmp(current,written+r[0],r[1]))write(scene+0x40+r[0],original+r[0],r[1]);}scene=0;}
- void apply(){if(!sceneAvailable())return;auto s=get<uintptr_t>(base+0x3517c10);float x=get<float>(s+0x88),y=get<float>(s+0x8c);
-  float zoom=(std::max)(playerZoom.load(),clubs::rosterMinimumZoom(roomView.load())),angle=playerAngle.load(),height=playerHeight.load(),side=mascotCamera?0.f:-114/zoom,range=height*1.78f/zoom;float focus=height*(.52f+playerPan.load());float sa=std::sin(angle),ca=std::cos(angle);panorama::Pose pose=(rosterCamera||singleView)?panorama::Pose{{ca*side+sa*range,focus+height*.055f,-sa*side+ca*range},{ca*side,focus,-sa*side},40}:panorama::Pose{{0,145,430},{0,96,10},44};auto origin=clubs::rosterOrigin(roomView.load());pose.eye=pose.eye+panorama::Vec{origin.x,origin.y,origin.z};pose.target=pose.target+panorama::Vec{origin.x,origin.y,origin.z};float m[16];if(!panorama::matrix(pose,m))return;if(scene!=s){restore();if(!read(s+0x40,original,sizeof original))return;scene=s;}float Y=std::tan(pose.fov*.00872664626f),X=Y*(x/y),zero=0;unsigned char off=0;write(s+0x40,m,sizeof m);write(s+0x88,&X,4);write(s+0x8c,&Y,4);write(s+0xb0,&off,1);write(s+0xbc,&zero,4);write(s+0xc0,&zero,4);read(s+0x40,written,sizeof written);
+ void apply(){if(!sceneAvailable())return;auto tour=std::atomic_load(&stadiumPose);if(stadiumClub&&!tour)return;auto s=get<uintptr_t>(base+0x3517c10);float x=get<float>(s+0x88),y=get<float>(s+0x8c);
+  float zoom=(std::max)(playerZoom.load(),clubs::rosterMinimumZoom(roomView.load())),angle=playerAngle.load(),height=playerHeight.load(),side=mascotCamera?0.f:-114/zoom,range=height*1.78f/zoom;float focus=height*(.52f+playerPan.load());float sa=std::sin(angle),ca=std::cos(angle);panorama::Pose pose=(rosterCamera||singleView)?panorama::Pose{{ca*side+sa*range,focus+height*.055f,-sa*side+ca*range},{ca*side,focus,-sa*side},40}:panorama::Pose{{0,145,430},{0,96,10},44};if(stadiumClub&&tour)pose=*tour;else{auto origin=clubs::rosterOrigin(roomView.load());pose.eye=pose.eye+panorama::Vec{origin.x,origin.y,origin.z};pose.target=pose.target+panorama::Vec{origin.x,origin.y,origin.z};}float m[16];if(!panorama::matrix(pose,m))return;if(scene!=s){restore();if(!read(s+0x40,original,sizeof original))return;scene=s;}float Y=std::tan(pose.fov*.00872664626f),X=Y*(x/y),zero=0;unsigned char off=0;write(s+0x40,m,sizeof m);write(s+0x88,&X,4);write(s+0x8c,&Y,4);write(s+0xb0,&off,1);write(s+0xbc,&zero,4);write(s+0xc0,&zero,4);read(s+0x40,written,sizeof written);
  }
 }camera;
+// Borrow FIFA's existing scene transition alpha. This affects the 3D scene,
+// not the menu/UI layers, and restores only our own unchanged field value.
+struct StadiumFade {
+ uintptr_t scene=0;uint32_t original=0,written=0;
+ void restore(){if(scene&&scene==get<uintptr_t>(base+0x3517c10)&&get<uint32_t>(scene+0x225c)==written)write(scene+0x225c,&original,4);scene=0;}
+ void apply(){float opacity=stadiumOpacity.load();if(!stadiumClub||opacity<=0||!std::isfinite(opacity)||!sceneAvailable())return;
+  auto s=get<uintptr_t>(base+0x3517c10);auto native=get<uint32_t>(s+0x225c);if(native>255)return;
+  scene=s;original=native;written=(std::max)(native,uint32_t(std::lround(std::clamp(opacity,0.f,1.f)*255)));write(s+0x225c,&written,4);
+ }
+}stadiumFade;
 inline void fail(unsigned code){hideDraw();readySequence=0;phase=9;fault=code;failed=true;if(object)visibility(false);log("NATIVE_XI_DISABLED");}
 inline void tick(){
  ++frames;waiting=0;bool onPage=!stopping&&page(),show=requested&&onPage;if(!onPage){hideDraw();waiting=1;if(object)visibility(false);return;}
  if(!frameThread)frameThread=GetCurrentThreadId();if(frameThread!=GetCurrentThreadId()){fail(20);return;}
+ if(stadiumClub){hideDraw();if(object)visibility(false);if(std::atomic_load(&stadiumPose))camera.apply();else camera.restore();stadiumFade.apply();return;}
  if(rosterCamera&&sceneAvailable())camera.apply();
  if(failed){hideDraw();return;}
  if(object&&!validObject()){fail(5);return;}
@@ -109,13 +122,14 @@ inline void tick(){
 }
 inline void guardedTick(){__try{tick();}__except(EXCEPTION_EXECUTE_HANDLER){active=false;readySequence=0;phase=9;fault=GetExceptionCode();failed=true;}}
 inline void guardedRestore(){__try{camera.restore();}__except(EXCEPTION_EXECUTE_HANDLER){active=false;fault=GetExceptionCode();}}
+inline void guardedFadeRestore(){__try{stadiumFade.restore();}__except(EXCEPTION_EXECUTE_HANDLER){fault=GetExceptionCode();}}
 // Both XI and single-player views must set the camera before FIFA performs
 // visibility/culling. Applying the XI camera only after that work alternates
 // between the borrowed camera and the stadium camera across render passes.
 }
 #include "manager_model_bridge.h"
 namespace clubscene {
-inline void* __fastcall frame(){if(stopping||!page()||(!rosterCamera&&!requested))guardedRestore();else camera.apply();auto result=((void*(__fastcall*)())prior)();if(stopping)return result;managerBridge::guardedTick();try{guardedTick();}catch(...){active=false;readySequence=0;phase=9;fault=21;failed=true;}return result;}
+inline void* __fastcall frame(){guardedFadeRestore();if(stopping||!page()||(!stadiumClub&&!rosterCamera&&!requested)||(stadiumClub&&!std::atomic_load(&stadiumPose)))guardedRestore();else camera.apply();auto result=((void*(__fastcall*)())prior)();if(stopping)return result;managerBridge::guardedTick();try{guardedTick();}catch(...){active=false;readySequence=0;phase=9;fault=21;failed=true;}return result;}
 inline bool signatures(){
  const std::pair<uintptr_t,const char*> tests[]={{0x4ad80b0,"\x4c\x8b\x51\x20\x41\x8b\x00\x4c"},{0x4ac35e0,"\x48\x89\x5c\x24\x08\x48\x89\x74"},{0x4abfba0,"\x48\x8b\x05\xe9\x44\xb5\xfe\xc3"},{0x43c8be0,"\x48\x89\x5c\x24\x08\x48\x89\x74"},{0x4ac5450,"\x53\x41\x57\x48\x83\xec\x48\x0f"},{0x4ad7eb0,"\x48\x89\x5c\x24\x08\x57\x48\x83"},{0x4ad7d80,"\x48\x8b\x49\x20\xeb\x0a\xcc\xcc"},{0x4add100,"\x55\x53\x48\x8d\xac\x24\xd8\xfd"},{0x43c9960,"\x48\x8b\x41\x30\x41\x0f\x28\x00"},{0x43c8f20,"\x48\x8b\x01\x45\x31\xc0\xff\x60"}};
  for(auto t:tests){unsigned char b[8]{};if(!read(base+t.first,b,8)||memcmp(b,t.second,8))return false;}return true;

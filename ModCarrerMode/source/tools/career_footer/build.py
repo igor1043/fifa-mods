@@ -19,6 +19,7 @@ AND=lambda a,c:('bin',16,a,c)
 IDX=lambda o,i:('index',o,i)
 OLD='Server16CareerFooterOriginal';FLAG='Server16CareerFooterInstalled'
 ANIMATE='Server16CareerFooterAnimateOriginal';EXIT='Server16CareerFooterExitOriginal'
+REFRESH=('LoadComponents','UpdateButtonData','NavigatorHighlightCallback','NavigatorHelperChangedCallback','SetFocus')
 
 
 def career_hub(a):
@@ -26,12 +27,13 @@ def career_hub(a):
     # scouting wrapper replaced the prototype. The owned XML components are
     # a stable identity; do not depend on function pointer equality alone.
     helper=CALL(T('mcFluxNavigator'),'GetDataHelper')
+    a.when(AND(P(helper,'constructor'),EQ(P(helper,'constructor'),b.path('game','fluxHelpers','CareerHubDataHelper'))),lambda a:a.ret(True))
     a.when(AND(P(HELPER,'ProcessData'),EQ(P(helper,'ProcessData'),P(HELPER,'ProcessData'))),lambda a:a.ret(True))
-    a.when(b.G('Server16CareerBrandOwner'),lambda a:a.ret(True))
+    # Do not use a lingering global header owner from the previous screen.
     register(a,3,0);loop,done=a.uid(),a.uid();a.label(loop)
     a.expr(AND(('bin',72,R(3),P(T('m_arrComponentData'),'length')),('bin',72,R(3),32)));a.op(18);a.branch(done)
     item=IDX(T('m_arrComponentData'),R(3));path=P(item,'PATH')
-    a.when(OR(EQ(path,'game/components/CareerComponents/CareerHubWidget.swf'),EQ(path,'game/components/careercomponents/careerhubwidget.swf')),lambda a:a.ret(True))
+    a.when(path,lambda a:a.when(('bin',103,CALL(CALL(path,'toLowerCase'),'indexOf','careerhubwidget'),-1),lambda a:a.ret(True)))
     register(a,3,('bin',71,R(3),1));a.branch(loop,False);a.label(done);a.ret(False)
 
 
@@ -39,11 +41,19 @@ def bind_help(a):
     a.do(R(1),ANIMATE)
     a.when(EQ(T('onEnterFrame'),T('Server16FrontendFrame')),lambda a:None,lambda a:(a.set(R(1),'Server16FrontendOriginalFrame',T('onEnterFrame')),a.set(R(1),'onEnterFrame',T('Server16FrontendFrame'))))
     a.set(R(1),'Server16FrontendFrames',0)
+    # The native helper/components can arrive after AnimateInComplete.
+    # Retain this hub's lifetime and recheck scope after provider callbacks.
+    a.set(R(1),'Server16CareerFooterActive',True)
     a.when(CALL(R(1),'Server16IsCareerHub'),lambda a:None,lambda a:(a.set(b.GLOBAL,'Server16ActiveCareerClubId',None),a.set(b.GLOBAL,'Server16ActiveCareerClubName',None),a.ret()))
+    a.do(R(1),'Server16RefreshCareerHelp')
+
+
+def refresh_help(a):
+    a.when(AND(T('Server16CareerFooterActive'),CALL(R(1),'Server16IsCareerHub')),lambda a:None,lambda a:a.ret())
     a.do(R(1),'Server16CaptureCareerClub')
     # A custom view may have owned HelpManager immediately before this hub.
     # Explicitly claim our contextual delegate when this hub becomes active.
-    a.set(R(1),'Server16CareerFooterDelegate',CALL(b.path('cafe','utility','Delegate'),'Create',R(1),T('getHelpContext')))
+    a.when(T('Server16CareerFooterDelegate'),lambda a:None,lambda a:a.set(R(1),'Server16CareerFooterDelegate',CALL(b.path('cafe','utility','Delegate'),'Create',R(1),T('getHelpContext'))))
     a.do(b.MANAGER('HelpManager'),'SetCustomSource',T('Server16CareerFooterDelegate'))
     a.do(b.MANAGER('HelpManager'),'Update');a.do(b.MANAGER('HelpManager'),'Show')
 
@@ -60,6 +70,7 @@ def frontend_frame(a):
 
 
 def unbind_help(a):
+    a.set(R(1),'Server16CareerFooterActive',False)
     a.when(EQ(T('onEnterFrame'),T('Server16FrontendFrame')),lambda a:a.set(R(1),'onEnterFrame',T('Server16FrontendOriginalFrame')))
     a.set(R(1),'Server16FrontendOriginalFrame',None)
     manager=b.MANAGER('HelpManager')
@@ -101,7 +112,9 @@ def append_items(a):
         scan,end=a.uid(),a.uid();a.label(scan)
         a.expr(('bin',72,R(6),P(T('Server16FooterItems'),'length')));a.op(18);a.branch(end)
         current=IDX(T('Server16FooterItems'),R(6))
-        same=OR(EQ(current,R(4)),AND(P(R(4),'icon'),EQ(P(current,'icon'),P(R(4),'icon'))))
+        # Real FIFA HelpItem members are Icon/TickerText, not icon/text.
+        icon=P(R(4),'Icon');current_icon=P(current,'Icon')
+        same=OR(EQ(current,R(4)),AND(icon,EQ(current_icon,icon)))
         a.when(same,lambda a:register(a,5,True))
         register(a,6,('bin',71,R(6),1));a.branch(scan,False);a.label(end)
         a.when(('not',R(5)),lambda a:a.do(T('Server16FooterItems'),'push',R(4)))
@@ -122,6 +135,7 @@ def help_context(a):
     # contextual help, not stale Save/Back callouts from the previous idle state.
     a.when(T('m_bLockNavigation'),lambda a:a.ret(CALL(R(1),OLD)))
     a.set(R(1),'Server16FooterItems',ARRAY())
+    a.do(R(1),'Server16AppendHubHelp',CALL(R(1),OLD))
     a.do(R(1),'Server16AppendHubHelp',T('m_arrHubHelpItems'))
     a.do(R(1),'Server16AppendHubHelp',CALL(R(3),'GetHelpContext'))
     a.do(R(1),'Server16AppendHubHelp',CALL(T('mcFluxNavigator'),'GetHelpContext'))
@@ -160,12 +174,22 @@ def generate(source,destination):
         data.extend(apt.entry.original[block[0].end:block[-1].offset])
         a.set(PROTO,OLD,P(PROTO,'getHelpContext'))
         a.set(PROTO,ANIMATE,P(PROTO,'AnimateInComplete'));a.set(PROTO,EXIT,P(PROTO,'OnExitScreen'))
+        for name in REFRESH:a.set(PROTO,'Server16FooterOriginal'+name,P(PROTO,name))
         a.function('Server16IsCareerHub',0,career_hub)
         a.function('Server16FrontendFrame',0,frontend_frame)
         a.function('Server16CaptureCareerClub',0,capture_club)
+        a.function('Server16RefreshCareerHelp',0,refresh_help)
         a.function('Server16AppendHubHelp',1,append_items)
         a.function('getHelpContext',0,help_context)
         a.function('AnimateInComplete',0,bind_help);a.function('OnExitScreen',0,unbind_help)
+        for name in REFRESH:
+            def context_changed(a,name=name):
+                a.do(R(1),'Server16FooterOriginal'+name,R(2))
+                # Components and providers arrive asynchronously after animate-in.
+                # Reclaim the hub context after they publish, including on return
+                # from a custom career view. Never replace native input handlers.
+                a.do(R(1),'Server16RefreshCareerHelp')
+            a.function(name,1,context_changed)
         a.set(PROTO,FLAG,True);a.label(skip);a.op(0);a.finish()
     finally:b.CLASS=old
     references=[at for at in range(0,len(apt.entry.original)-7,8) if apt.entry.original[at:at+8]==struct.pack('<Q',start)]
@@ -178,7 +202,7 @@ def generate(source,destination):
         if name!=apt.entry.name:assert result.big.entries[name].data==entry.original
     report=dict(source=str(source),file=str(destination),sha256=hashlib.sha256(destination.read_bytes()).hexdigest(),
                 native_handlers_preserved=True,imports_exports_preserved=True,footer_scope='CareerHubDataHelper',
-                resources_preserved=True,new_methods=7)
+                resources_preserved=True,new_methods=13)
     return report
 
 

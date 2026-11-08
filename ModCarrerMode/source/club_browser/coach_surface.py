@@ -11,13 +11,13 @@ import numpy as np
 from PIL import Image,ImageFilter
 from native_assets import decode
 
-VERSION=4
+VERSION=5
 CLUBS={1039,1035,1598,517,112476,1041,111044,568,1043,567,1629,1048,113163,383,123921,130026,1053,598,569,1719}
 
 def manager(rig):
     if not (100000000<int(rig.get('id',0))<102000000 and len(rig['bones'])==31):return False
     if int(rig['id'])-100000000 in CLUBS:return True
-    return any(re.fullmatch(r'data/sceneassets/manager_market/(?:[1-9]|1[0-9]|20)/model_0\.rx3',p.get('asset','')) for p in rig.get('parts',[]))
+    return any(re.fullmatch(r'data/sceneassets/(?:manager_market/[1-9][0-9]{0,5}/model_0|slc/specificmanager_[1-9][0-9]{0,5}_0_0)\.rx3',p.get('asset','')) for p in rig.get('parts',[]))
 
 def hair_charts(v,tri):
     parent=np.arange(len(v))
@@ -61,12 +61,18 @@ def _color_key(rgb):
     mask=Image.fromarray(np.rint(coverage*255).astype('u1')).filter(ImageFilter.MaxFilter(3)).filter(ImageFilter.GaussianBlur(.4))
     return np.array(mask)
 
-def hair_matte(image,charts=None,layout='strand-charts'):
+def hair_matte(image,charts=None,layout='strand-charts',preserve_authored=False):
     data=np.array(image.convert('RGBA')).copy();h,w=data.shape[:2];alpha=np.full((h,w),255,dtype=np.uint8)
     y0=round(h*5/6);x0=round(w/3)
     if charts is None:charts=[(np.array([1/3+k/12,5/6]),np.array([1/3+(k+1)/12,1])) for k in range(8)]
     if not charts:charts=[(np.array([1/3,5/6]),np.array([1,1]))]
-    if layout=='color-key':
+    authored=data[y0:,x0:,3]
+    has_authored=bool(preserve_authored and (authored<220).mean()>.01 and (authored>240).mean()>.01)
+    if has_authored:
+        # Some native packages supply a real cutout. Keep its fibers; applying
+        # a generated matte over those cards would thin the hair a second time.
+        alpha[y0:,x0:]=authored
+    elif layout=='color-key':
         lo=np.min([lo for lo,hi in charts],axis=0);hi=np.max([hi for lo,hi in charts],axis=0);left=max(x0,int(lo[0]*w));right=min(w,int(np.ceil(hi[0]*w)));top=max(y0,int(lo[1]*h));bottom=min(h,int(np.ceil(hi[1]*h)))
         if right>left and bottom>top:alpha[top:bottom,left:right]=_color_key(data[top:bottom,left:right,:3])
     else:
@@ -77,7 +83,7 @@ def hair_matte(image,charts=None,layout='strand-charts'):
             seen.add(key);mask=_strands(right-left,bottom-top,round(float(lo[0])*100))
             alpha[top:bottom,left:right]=np.maximum(alpha[top:bottom,left:right],mask)
     data[:,:,3]=alpha
-    return data,{'hairMatteTexels':int((alpha<255).sum()),'nonHairAlphaOpaque':bool(np.all(alpha[:y0]==255)),'layout':layout,'denseRoots':True,'twoSidedCards':True,'sourceContainsAuthoredAlpha':False,'approximateMask':True}
+    return data,{'hairMatteTexels':int((alpha<255).sum()),'nonHairAlphaOpaque':bool(np.all(alpha[:y0]==255)),'layout':layout,'denseRoots':True,'twoSidedCards':True,'sourceContainsAuthoredAlpha':has_authored,'approximateMask':not has_authored}
 
 def prepare(rig):
     if not manager(rig):return rig,None
@@ -92,7 +98,8 @@ def prepare(rig):
         texture=part['texture']
         charts,layout=hair_charts(v,tri[is_hair])
         if texture not in textures:
-            rgba,info=hair_matte(decode(rig['textures'][texture]),charts,layout);h,w=rgba.shape[:2];textures[texture]=len(rig['textures']);rig['textures'].append((w,h,3,rgba.tobytes()));reports.append(info)
+            native_id=re.search(r'/(?:manager_market/([0-9]+)/|slc/specificmanager_([0-9]+)_0_0)',part.get('asset',''));source_id=int(next(x for x in native_id.groups() if x)) if native_id else 0;preserve_authored=(200<=source_id<=211 or 190200<=source_id<=190211)
+            rgba,info=hair_matte(decode(rig['textures'][texture]),charts,layout,preserve_authored=preserve_authored);h,w=rgba.shape[:2];textures[texture]=len(rig['textures']);rig['textures'].append((w,h,3,rgba.tobytes()));reports.append(info)
         for mask,hair in [(~is_hair,False),(is_hair,True)]:
             if not mask.any():continue
             ids,inverse=np.unique(tri[mask].reshape(-1),return_inverse=True);p=dict(part);p['v']=v[ids].copy();p['idx']=inverse.astype('<u4');p['name']='manager_hair_cards' if hair else 'manager_opaque_body'

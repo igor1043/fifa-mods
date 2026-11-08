@@ -5,6 +5,10 @@ from PIL import Image
 from coach_surface import hair_matte,prepare,manager
 
 class CoachSurface(unittest.TestCase):
+ def test_new_native_id_and_authored_hair_alpha_are_preserved(self):
+  self.assertTrue(manager({'id':100000999,'bones':[{}]*31,'parts':[{'asset':'data/sceneassets/manager_market/211/model_0.rx3'}]}))
+  a=np.full((120,120,4),255,dtype='u1');a[100:,45:65,3]=0;a[20:30,20:30,3]=0
+  image,report=hair_matte(Image.fromarray(a),preserve_authored=True);np.testing.assert_array_equal(image[100:,40:,3],a[100:,40:,3]);self.assertTrue(report['sourceContainsAuthoredAlpha']);self.assertFalse(report['approximateMask']);self.assertTrue(np.all(image[:100,:,3]==255))
  def test_alpha_is_restricted_to_hair_strip(self):
   a=np.full((120,120,4),[150,150,150,255],dtype='u1');a[102:110,45:52,:3]=20
   image,report=hair_matte(Image.fromarray(a));self.assertTrue(report['nonHairAlphaOpaque']);self.assertTrue(np.all(image[:100,:,3]==255));self.assertTrue(np.all(image[100:,:40,3]==255));self.assertGreater(np.count_nonzero(image[100:,40:,3]<255),0)
@@ -13,7 +17,7 @@ class CoachSurface(unittest.TestCase):
  def test_compact_rig_and_audited_id_required(self):
   self.assertTrue(manager({'id':100001043,'bones':[{}]*31}));self.assertFalse(manager({'id':100001043,'bones':[{}]*43}));self.assertFalse(manager({'id':100000001,'bones':[{}]*31}))
  def test_registered_career_coach_keeps_surface_on_another_club(self):
-  rig={'id':100000001,'bones':[{}]*31,'parts':[{'asset':'data/sceneassets/manager_market/14/model_0.rx3'}]};self.assertTrue(manager(rig));rig['bones']=[{}]*400;self.assertFalse(manager(rig));rig['bones']=[{}]*31;rig['id']=1234;self.assertFalse(manager(rig))
+  rig={'id':100000001,'bones':[{}]*31,'parts':[{'asset':'data/sceneassets/slc/specificmanager_14_0_0.rx3'}]};self.assertTrue(manager(rig));rig['bones']=[{}]*400;self.assertFalse(manager(rig));rig['bones']=[{}]*31;rig['id']=1234;self.assertFalse(manager(rig))
  def test_alpha_does_not_change_color(self):
   a=np.random.default_rng(10).integers(0,256,(120,120,4),dtype='u1');a[:,:,3]=255;image,_=hair_matte(Image.fromarray(a));np.testing.assert_array_equal(a[:,:,:3],image[:,:,:3])
  def test_dark_and_gray_hair_keep_dense_roots_and_cut_strand_tips(self):

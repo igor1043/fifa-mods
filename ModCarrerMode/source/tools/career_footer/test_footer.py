@@ -24,7 +24,8 @@ class FooterTests(unittest.TestCase):
         self.calls=[]
         def native(name,owner,args):
             self.calls.append((name,args))
-            if name=='CreateHelpTickerItem':return Object(dict(icon=args[0],text=args[1]))
+            if name=='CreateHelpTickerItem':return Object(dict(Icon=args[0],TickerText=args[1]))
+            if name=='indexOf':return owner.find(args[0])
             if name=='ltxt':
                 self.assertIs(owner,vm.global_,'ltxt must be called on the actual global, not an uninitialized register')
                 return {'Select':'Selecionar','Back':'Voltar','CM_Settings_Save':'Salvar','CM_Hub_Callout_Inbox':'Caixa de e-mails'}[args[0]]
@@ -35,11 +36,14 @@ class FooterTests(unittest.TestCase):
             if name=='Create':return (args[0],args[1])
             if name=='SetCustomSource':owner.set('m_cbCustomSource',args[0])
         vm=NativeVM(native)
+        get=vm.get
+        vm.get=lambda owner,key:Native('indexOf') if isinstance(owner,str) and key=='indexOf' else get(owner,key)
         for block in self.actions.cache.values():
             if block[0].op==136:vm.run(block,vm.global_,vm.global_)
         proto=vm.path('.'.join(build.CLASS)+'.prototype')
         proto.set(build.OLD,Native('original'))
         proto.set(build.ANIMATE,Native('animateNative'));proto.set(build.EXIT,Native('exitNative'))
+        for name in build.REFRESH:proto.set('Server16FooterOriginal'+name,Native('original'+name))
         helper_method=Native('helper')
         self.helper=Object(dict(GetHelpContext=helper_method,ProcessData=Native('careerData' if career else 'otherData')))
         game=vm.global_.get('game')
@@ -50,27 +54,27 @@ class FooterTests(unittest.TestCase):
         vm.global_.set('cafe',Object(dict(utility=Object(dict(Delegate=Object(dict(Create=Native('Create'))))))))
         hub=Object(dict(mcFluxNavigator=Object(dict(GetDataHelper=Native('GetDataHelper'),GetHelpContext=Native('nav'))),
                         m_arrHubHelpItems=base,m_isAnimatedIn=animated,m_bLockNavigation=locked),proto)
-        self.vm,self.hub,self.proto=vm,hub,proto;self.original=['native unchanged']
+        self.vm,self.hub,self.proto=vm,hub,proto;self.original=[]
         return vm,hub
-    def callouts(self,*icons):return [Object(dict(icon=i,text=i)) for i in icons]
+    def callouts(self,*icons):return [Object(dict(Icon=i,TickerText=i)) for i in icons]
     def result(self):return self.vm.invoke(self.proto.get('getHelpContext'),self.hub)
     def test_central_empty_helper_retains_save_back_inbox_and_navigation(self):
         self.setup_vm(self.callouts('BACK','OPTION_LEFT','OPTION_TOP'),[],self.callouts('RAS_UD'))
-        items=self.result();self.assertEqual([i.get('icon') for i in items],['BACK','OPTION_LEFT','OPTION_TOP','RAS_UD','ADVANCE'])
-        self.assertEqual(items[-1].get('text'),'Selecionar')
+        items=self.result();self.assertEqual([i.get('Icon') for i in items],['BACK','OPTION_LEFT','OPTION_TOP','RAS_UD','ADVANCE'])
+        self.assertEqual(items[-1].get('TickerText'),'Selecionar')
     def test_helper_only_pages_does_not_replace_hub_commands(self):
         self.setup_vm(self.callouts('BACK','OPTION_LEFT','OPTION_TOP'),self.callouts('L2R2'),[])
-        self.assertEqual([i.get('icon') for i in self.result()],['BACK','OPTION_LEFT','OPTION_TOP','L2R2','ADVANCE'])
+        self.assertEqual([i.get('Icon') for i in self.result()],['BACK','OPTION_LEFT','OPTION_TOP','L2R2','ADVANCE'])
     def test_all_career_tabs_keep_contextual_actions_after_switching_tiles(self):
         self.setup_vm(self.callouts('BACK','OPTION_LEFT','OPTION_TOP'),[],[])
         for tab in range(7):
             self.hub.set('m_nCurrentFocus',tab%2)
             items=self.result()
-            self.assertEqual([i.get('icon') for i in items],['BACK','OPTION_LEFT','OPTION_TOP','ADVANCE'])
+            self.assertEqual([i.get('Icon') for i in items],['BACK','OPTION_LEFT','OPTION_TOP','ADVANCE'])
     def test_duplicate_native_and_helper_icons_are_not_shown_twice(self):
         base=self.callouts('BACK','OPTION_LEFT','ADVANCE')
         self.setup_vm(base,base,self.callouts('BACK','L2R2','ADVANCE'))
-        self.assertEqual([i.get('icon') for i in self.result()],['BACK','OPTION_LEFT','ADVANCE','L2R2','OPTION_TOP'])
+        self.assertEqual([i.get('Icon') for i in self.result()],['BACK','OPTION_LEFT','ADVANCE','L2R2','OPTION_TOP'])
         self.assertEqual(len(base),3)
     def test_other_hubs_and_tournaments_keep_exact_native_behavior(self):
         self.setup_vm(self.callouts('BACK'),[],[],career=False)
@@ -81,11 +85,47 @@ class FooterTests(unittest.TestCase):
     def test_no_footer_before_animation_and_missing_providers_are_safe(self):
         self.setup_vm(None,None,None,animated=False);self.assertEqual(self.result(),[])
         self.hub.set('m_isAnimatedIn',True)
-        self.assertEqual([i.get('icon') for i in self.result()],['ADVANCE','BACK','OPTION_LEFT','OPTION_TOP'])
+        self.assertEqual([i.get('Icon') for i in self.result()],['ADVANCE','BACK','OPTION_LEFT','OPTION_TOP'])
     def test_wrapped_instance_is_identified_by_its_actual_career_components(self):
         self.setup_vm(self.callouts('BACK'),[],[],career=False)
         self.hub.set('m_arrComponentData',[Object(dict(PATH='game/components/CareerComponents/CareerHubWidget.swf'))])
-        self.assertEqual([i.get('icon') for i in self.result()],['BACK','ADVANCE','OPTION_LEFT','OPTION_TOP'])
+        self.assertEqual([i.get('Icon') for i in self.result()],['BACK','ADVANCE','OPTION_LEFT','OPTION_TOP'])
+    def test_helper_arriving_after_animate_in_still_binds_footer(self):
+        self.setup_vm(self.callouts('BACK'),[],[],career=False)
+        self.vm.invoke(self.proto.get('AnimateInComplete'),self.hub)
+        self.assertIsNone(self.hub.get('Server16CareerFooterDelegate'))
+        self.hub.set('m_arrComponentData',[Object(dict(PATH='data/ui/game/components/CareerComponents/CareerHubWidget.swf'))])
+        self.vm.invoke(self.proto.get('LoadComponents'),self.hub,[[]])
+        self.assertIsNotNone(self.hub.get('Server16CareerFooterDelegate'))
+        self.assertEqual({i.get('Icon') for i in self.result()},{'ADVANCE','BACK','OPTION_LEFT','OPTION_TOP'})
+
+    def test_full_asset_path_case_is_supported(self):
+        self.setup_vm([],[],[],career=False)
+        self.hub.set('m_arrComponentData',[Object(dict(PATH='data/UI/game/components/CAREERCOMPONENTS/CareerHubWidget.swf'))])
+        self.assertEqual([i.get('Icon') for i in self.result()],['ADVANCE','BACK','OPTION_LEFT','OPTION_TOP'])
+    def test_previous_header_owner_cannot_brand_other_hubs_as_career(self):
+        self.setup_vm([],[],[],career=False)
+        self.vm.global_.set('Server16CareerBrandOwner',Object())
+        self.assertIs(self.result(),self.original)
+    def test_native_notification_and_carousel_help_are_retained(self):
+        self.setup_vm(self.callouts('BACK'),self.callouts('L3'),self.callouts('LAS_LR'))
+        self.original=self.callouts('RAS_UD','BACK')
+        self.assertEqual([i.get('Icon') for i in self.result()],['RAS_UD','BACK','L3','LAS_LR','ADVANCE','OPTION_LEFT','OPTION_TOP'])
+    def test_all_tab_provider_updates_reclaim_the_hub_context(self):
+        self.setup_vm(self.callouts('BACK'),[],[])
+        manager=self.vm.path('game.globalClasses.HelpManager')
+        self.vm.invoke(self.proto.get('AnimateInComplete'),self.hub)
+        delegate=self.hub.get('Server16CareerFooterDelegate')
+        for tab in range(7):
+            manager.set('m_cbCustomSource',None)
+            self.vm.invoke(self.proto.get('UpdateButtonData'),self.hub,[Object(dict(tab=tab))])
+            self.assertIs(manager.get('m_cbCustomSource'),delegate)
+            self.assertEqual({i.get('Icon') for i in self.vm.invoke(delegate,None)},{'ADVANCE','BACK','OPTION_LEFT','OPTION_TOP'})
+        self.assertEqual(sum(n=='originalUpdateButtonData' for n,_ in self.calls),7)
+        self.vm.invoke(self.proto.get('OnExitScreen'),self.hub)
+        self.vm.invoke(self.proto.get('SetFocus'),self.hub,[0])
+        self.assertIsNone(manager.get('m_cbCustomSource'))
+
     def test_hub_reclaims_context_after_custom_view_and_releases_only_its_own_delegate(self):
         self.setup_vm(self.callouts('BACK'),[],[])
         manager=self.vm.path('game.globalClasses.HelpManager');manager.set('m_cbCustomSource',Native('previousScreen'))

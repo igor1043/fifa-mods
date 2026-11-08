@@ -27,7 +27,7 @@ PREFIX = 'data/sceneassets/server16_dressing_room_v3/'
 CONFIG = 'ModCarrerMode/data/club_environment/room/locker-system-v3.json'
 ACTIVE = 'ModCarrerMode/data/club_environment/room/active-version.txt'
 CAPACITY = 38
-REVISION = 9
+REVISION = 10
 CEILING_Y = 1338.
 DEPTH = 84.
 MAIN_END = 1543.6
@@ -166,7 +166,7 @@ def trim_lockers(source, target, remove_floor_crest=False):
 
 def bay_groups():
     """One complete cabinet, in the same local frame as the native hanging kit."""
-    groups = {key: [] for key in ('wood', 'niche', 'accent', 'cushion', 'linen', 'light')}
+    groups = {key: [] for key in ('wood', 'niche', 'accent', 'cushion', 'linen', 'light', 'safe', 'safe_metal')}
     add = lambda key, lo, hi: groups[key].append(box(lo, hi))
     add('wood', (-45, 3, -2), (45, 9, 98))
     add('wood', (-45, 9, -2), (45, 286, 1))
@@ -178,6 +178,13 @@ def bay_groups():
     add('wood', (-45, 263, 95), (45, 283, 98))
     groups['niche'].append(panel([0, 140, 2.5], 81.2, 188, (0, 0, 1)))
     add('wood', (-22, 239, 95), (22, 259, 98))
+    # Compact right-aligned safe; its face art is supplied separately per club.
+    add('safe', (2, 240, 69), (21, 258, 100))
+    add('safe_metal', (2, 240, 99.5), (21, 241.5, 101.8))
+    add('safe_metal', (2, 256.5, 99.5), (21, 258, 101.8))
+    add('safe_metal', (2, 241.5, 99.5), (3.5, 256.5, 101.8))
+    add('safe_metal', (19.5, 241.5, 99.5), (21, 256.5, 101.8))
+    add('safe_metal', (19, 248, 101.8), (20.4, 250, 103))
     add('wood', (-45, 45, -2), (45, 48, 98))
     groups['cushion'].append(cushion((-41, 48, 4), (41, 55, 95)))
     for x in (-45., 41.8):
@@ -442,6 +449,7 @@ def stage(game, output):
     raise_main_ceiling(output/'room_roles.rx3')
     refine_front_wall(output/'room_roles.rx3',output/'crest_surfaces.rx3')
     lower_board(output/'room_roles.rx3');lower_board(output/'scenery.rx3')
+    extend_board_frame_down(output/'room_roles.rx3')
     template = original / 'locker_support_r68.rx3'
     report['bay_bindings'] = write_groups(template, bay_groups(), output / 'locker_bay.rx3')
     report['band_bindings'] = write_groups(template, band_groups(), output / 'fascia.rx3')
@@ -449,7 +457,7 @@ def stage(game, output):
         binding['width_cm']=width;binding['banner_index']=index
     report['joinery_bindings'] = write_groups(template, joinery_groups(), output/'joinery.rx3')
     report['ceiling_bindings'] = write_groups(template, ceiling_groups(), output/'ceiling_details.rx3')
-    crests = {'bay': [panel([0, 249, DEPTH+.5], 17, 17, (0, 0, 1))],
+    crests = {'bay': [panel([11.5, 249, DEPTH+4.0], 14, 14, (0, 0, 1))],
               'ceiling': [ceiling_crest()], 'floor':[floor_crest()],
               'feature_wall':[panel([0,FEATURE_CREST_Y,-588.6],58,58,(0,0,1))],
               'corner':[panel([sign*710.8,1238,-470.8],44,44,(-sign/math.sqrt(2),0,1/math.sqrt(2))) for sign in (-1,1)]}
@@ -478,7 +486,7 @@ def stage(game, output):
         (output/hashed).write_bytes(data);report['model_files'][name]=hashed
     from room_loading_r81 import stage as loading_stage
     report['loading']=loading_stage(game,output)
-    for path in output.glob('loading_*_r81.rx3'):report['model_files'][path.name]=path.name
+    for path in output.glob('loading_*_r8[12].rx3'):report['model_files'][path.name]=path.name
     (output / 'manifest.json').write_text(json.dumps(report, indent=2), encoding='utf8')
     return report
 
@@ -499,6 +507,20 @@ def lower_board(path):
         board=(abs(p[:,0])<=125.6)&(p[:,2]>=-561)&(p[:,2]<=-479)&(p[:,1]>=1114)
         v['p'][board,1]-=BOARD_DROP
         replace_mesh(rx,slot,v,ids)
+    path.write_bytes(rx.build())
+
+
+def extend_board_frame_down(path):
+    """Lower only the physical bottom rail; keep the generated board image fixed."""
+    rx=Rx3(path.read_bytes())
+    slot=19  # room_part_20 is the screen frame and stand
+    vertices,indices=read_mesh(rx,slot);p=vertices['p']
+    rail=((np.abs(p[:,0])<=123.6)&(p[:,1]>=1107.5)&(p[:,1]<=1111.4)&
+          (p[:,2]>=-518.3)&(p[:,2]<=-513.7))
+    if int(rail.sum())<40:
+        raise ValueError('Next-match physical lower frame rail was not found; board left unchanged')
+    p[rail,1]-=14.0
+    replace_mesh(rx,slot,vertices,indices)
     path.write_bytes(rx.build())
 
 
@@ -699,7 +721,8 @@ def prepare(context, game, add, identity):
     build = build_manifest(str(game))
     asset=lambda name:PREFIX+build.get('model_files',{}).get(name,name)
     materials = {'wood': style['panel'], 'niche': style['niche'], 'accent': style['primary'],
-                 'cushion': style['cushion'], 'metal': '#9BA1A7', 'linen': '#ECEDE9', 'light': '#F1F5F5'}
+                 'cushion': style['cushion'], 'metal': '#9BA1A7', 'linen': '#ECEDE9', 'light': '#F1F5F5',
+                 'safe': '#272B2F', 'safe_metal': '#AEB5B8'}
 
     poses = []
     for origin, yaw in slot_frames(CAPACITY, spec['layout']):
@@ -741,8 +764,11 @@ def prepare(context, game, add, identity):
             tex=texture(game,im,group+'_'+key)
             add('v3_'+group+'_'+key,asset(group+'.rx3'),tex,'v3_cm',identity,submesh=binding['submesh'])
     crest = f'data/ui/imgassets/crest/light/l{context["club"]}.dds'
+    safe_face = appearance.asset(game, context['club'], 'locker_box_front')
+    safe_texture = texture(game, editable_image(safe_face), 'locker_box_front') if safe_face else crest
     for matrix in poses:
-        add('v3_bay_crest', asset('crests.rx3'), crest, '', matrix, True, build['crest_bindings'][0]['submesh'])
+        add('v3_bay_safe_front', asset('crests.rx3'), safe_texture,
+            'v3_cm' if safe_face else '', matrix, True, build['crest_bindings'][0]['submesh'])
     if prefs['logo']=='ceiling':
         add('v3_ceiling_crest', asset('crests.rx3'), crest, '', identity, True, build['crest_bindings'][1]['submesh'])
     else:add('v3_floor_crest',asset('crests.rx3'),crest,'',identity,True,build['crest_bindings'][2]['submesh'])

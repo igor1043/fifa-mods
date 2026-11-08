@@ -1,0 +1,43 @@
+﻿TREINADORES IMPORTADOS — 07/11/2026
+
+Integração pela identidade/nome do treinador, preservando os IDs e os vínculos definidos no mod.
+
+Andoni Iraola
+  ID estável da pessoa: COACH-d95d84f62c3e2082
+  Vínculo inicial: Liverpool (ID 9)
+  Arquivo 3D próprio: source_slc_club_id = 190212
+  Perfil anterior: preservado; modelo acrescentado
+Ange Postecoglou
+  ID estável da pessoa: COACH-16ba02831853de3a
+  Vínculo inicial: Sem vínculo inicial no cadastro do mod
+  Arquivo 3D próprio: source_slc_club_id = 190213
+  Perfil anterior: novo perfil cadastrado
+Carlo Ancelotti
+  ID estável da pessoa: COACH-e1751e306ea4b6b4
+  Vínculo inicial: Brazil (ID 1370)
+  Arquivo 3D próprio: source_slc_club_id = 190214
+  Perfil anterior: preservado; modelo acrescentado
+Jürgen Klopp
+  ID estável da pessoa: COACH-e64c9bba7004f255
+  Vínculo inicial: Sem vínculo inicial no cadastro do mod
+  Arquivo 3D próprio: source_slc_club_id = 190215
+  Perfil anterior: novo perfil cadastrado
+
+Nenhum ID de pessoa, clube, vínculo ou regra existente foi alterado.
+Iraola permanece no Liverpool (9); o número 1943 do arquivo de origem não foi usado para transferi-lo.
+Ancelotti permanece na Seleção Brasileira (1370).
+Postecoglou não substitui o técnico do Manchester City (10).
+Klopp não substitui o técnico da Alemanha (1337).
+Carreiras existentes mantêm suas contratações e demissões. Os novos modelos acompanham o técnico contratado.
+
+Revisão: quatro rigs nativos de 31 ossos; três poses por personagem; 84 instantes de animação avaliados.
+Conversão completa do visualizador validada para os quatro: 92 quadros em arquivos de animação nativa.
+Pesos mediais das pernas revisados em Iraola e Klopp; peso de Postecoglou e Ancelotti preservado.
+Acessórios sem pintura removidos do Klopp; cabelo, rosto, UVs, bind e pesos da cabeça preservados.
+Últimos níveis BC3 reconstruídos nos quatro pacotes; as imagens principais foram preservadas.
+As fotos existentes de Iraola e Ancelotti permanecem. Para os dois novos perfis foram gerados retratos a partir dos próprios modelos 3D.
+O ZIP de Ancelotti dentro da pasta de Postecoglou não foi instalado novamente.
+
+Aplicado no jogo, no desenvolvimento e no backup de modelos.
+Verificação visual na partida ainda pendente; feche e reabra FIFA/Server16 se já estiverem abertos.
+Sem commit ou push.

@@ -61,7 +61,9 @@ def read(game,saved,profile,today,club,digest):
  """Never guess a branch by date, club, newest file or latest SQLite row."""
  game=Path(game);publication=game/'ModCarrerMode/runtime/manager_market/state_ready.json'
  try:
-  raw=publication.read_bytes();state=json.loads(raw);path=Path(saved['path']);database=Path(str(path.parent.parent/'server16_manager_market.sqlite3').removeprefix('\\\\?\\'))
+  try:from .save_database import database_path
+  except ImportError:from save_database import database_path
+  raw=publication.read_bytes();state=json.loads(raw);path=Path(saved['path']);database=database_path(path)
   expected=dict(schema=1,pid=saved['pid'],created=saved['process_created_100ns'],context=profile['context_address'],epoch=profile['context_epoch'],club=profile['club_id'],date=today,digest=digest)
   if any(state.get(k)!=v for k,v in expected.items()) or not same_path(state['save'],path) or not same_path(state['database'],database) or state.get('io')!=io_token(game,saved):return None
   with closing(sqlite3.connect(database.as_uri()+'?mode=ro',uri=True,timeout=1)) as db:

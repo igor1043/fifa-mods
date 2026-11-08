@@ -53,6 +53,9 @@ def asset(game,club,key):
     folder=club_folder(game,club).resolve()
     assets=custom_profile(game,club).get('assets',{})
     value=assets.get(key) if isinstance(assets,dict) else None
+    # Optional per-club safe artwork uses a predictable filename; a profile
+    # may override it when an existing pack uses a different asset name.
+    if key=='locker_box_front' and not isinstance(value,str):value='locker-box-front.png'
     if not isinstance(value,str):return None
     path=(folder/value).resolve()
     if not path.is_relative_to(folder) or path.suffix.lower() not in ('.png','.dds') or not path.is_file():return None

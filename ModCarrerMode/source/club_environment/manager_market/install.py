@@ -26,7 +26,7 @@ def main():
   blob=source.read_bytes();temp=target.with_name(target.name+'.manager-new');temp.write_bytes(blob);os.replace(temp,target)
   files.append(dict(target=str(target),before=before,after=sha(target),backup=str(backup) if backup else None,bytes=len(blob)))
  protected=[game/'data/db/fifa_ng_db.db',game/'data/db/fifa_ng_db-meta.xml'];protected_before={str(x):sha(x) for x in protected}
- source_files=list((env/'manager_market').glob('*.py'))+[env/'manager_market/README.md',env/'market/companion.py',env/'market/native_screen.py',env/'prepared_views.py',env/'preview/prepare.py',repo/'ModCarrerMode/source/server16_py/club_environment.py']
+ source_files=list((env/'manager_market').glob('*.py'))+[env/'market/companion.py',env/'market/native_screen.py',env/'prepared_views.py',env/'preview/prepare.py',repo/'ModCarrerMode/source/server16_py/club_environment.py']
  if a.native_refresh:source_files+=[repo/'ModCarrerMode/source/career_native/src/host/career_prepared_views.inc',repo/'ModCarrerMode/source/career_native/tests/providers/test_prepared_views.c',repo/'dinput8.dll']
  source_files+=list((repo/'ModCarrerMode/data/manager_market').rglob('*'))
  for source in source_files:

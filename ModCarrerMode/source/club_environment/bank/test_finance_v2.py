@@ -58,7 +58,7 @@ class FinanceV2(unittest.TestCase):
   big=context();big['club_profile']=dict(base_budget=28_000_000,prestige=20)
   a=f.commercial(small,p);b=f.commercial(big,p)
   self.assertLess(a['sponsor_annual'],b['sponsor_annual']);self.assertLess(a['staff_annual'],b['staff_annual'])
-  self.assertEqual(b['sponsor_annual'],9_100_000);self.assertEqual(b['staff_annual'],11_200_000)
+  self.assertEqual(b['sponsor_annual']+b['members_annual'],9_100_000);self.assertEqual(b['staff_annual'],11_200_000)
  def test_season_rollover_does_not_lose_unprocessed_previous_months(self):
   s,b,_=self.apply(empty(1043,20260511),20260511)
   ctx=context(20270131,season=20270101);ctx['club_profile']=dict(base_budget=28_000_000,prestige=20)
@@ -90,13 +90,14 @@ class FinanceV2(unittest.TestCase):
   self.assertEqual(f.match_terms(old,20261122)['per_match'],150000)
  def test_new_switches_proportion_days_and_match_costs_follow_tickets(self):
   s,b,_=self.apply(empty(1043,20260511),20260511)
-  for k in ('sponsor','staff','tickets'):s=f.toggle(s,k,False,20260511)
+  for k in ('sponsor','members','staff','tickets'):s=f.toggle(s,k,False,20260511)
   s,b,events=self.apply(s,20260531,[match()],b)
   self.assertEqual([e['kind'] for e in events],['tv','coach','facilities'])
   self.assertTrue(all(e['status']=='disabled' for e in s['finance']['entries'] if e['kind'] in ('tickets','match_costs','staff','sponsor')))
  def test_pending_expense_is_only_applied_once_when_cash_returns(self):
   s,b,_=self.apply(empty(1043,20260511),20260511)
   s=f.toggle(s,'sponsor',False,20260511)
+  s=f.toggle(s,'members',False,20260511)
   s,b,events=self.apply(s,20260531,budget=0)
   self.assertFalse(events);self.assertTrue(any(e['kind']=='staff' and e['status']=='pending' for e in s['finance']['entries']))
   s,b,events=self.apply(s,20260601,budget=5_000_000)

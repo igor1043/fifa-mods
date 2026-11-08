@@ -2,15 +2,12 @@
 def scenes(model,assets,shell,card,text,image,action,pager,club_xy,*,INK,MUTED,LIGHT):
     from profile_art import STATUS_TONES
     clubs=shell(model,'clubHistory','Histórico do clube')
-    for y,label,name,left,right in ((294,'PAÍS / REGIÃO','country',10,11),(450,'LIGA','league',20,21)):
-        clubs.image('card',96,y,366,144);clubs.text(118,y+16,230,24,label,18,MUTED)
-        text(clubs,name+'Count',350,y+16,92,24,'',16,MUTED)
-        action(clubs,108,y+67,36,40,left,'‹');action(clubs,420,y+67,30,40,right,'›')
-    text(clubs,'countryName',209,365,205,37,'',24);text(clubs,'leagueName',220,511,190,47,'',20);text(clubs,'leagueLevel',220,560,190,25,'',16,MUTED)
+    from manager_layout import country_league_selector
+    country_league_selector(clubs)
     text(clubs,'clubCount',110,622,330,32,'',22,MUTED)
     for key in assets:
         if key.startswith('flag_'):image(clubs,key,'country_'+key,151,365,48,30)
-        elif key.startswith('league_'):image(clubs,key,'league_'+key,147,511,60,68)
+        elif key.startswith('league_'):image(clubs,key,'league_'+key,147,523,60,68)
         elif key.startswith('crest_'):image(clubs,key,'hc_'+key,0,0,96,100)
     for i in range(6):
         x,y=club_xy(i);card(clubs,x,y,654,180,40+i);text(clubs,'historyClub'+str(i),x+150,y+33,478,42,'',27)
@@ -32,6 +29,9 @@ def scenes(model,assets,shell,card,text,image,action,pager,club_xy,*,INK,MUTED,L
         text(timeline,'tlDates'+str(i),290,y+59,1440,27,'',20,MUTED)
         text(timeline,'tlNumbers'+str(i),290,y+98,1100,29,'',22)
         text(timeline,'tlTitles'+str(i),1470,y+106,270,29,'',22)
+        text(timeline,'tlEfficiency'+str(i),290,y+132,350,24,'',18,MUTED)
+        image(timeline,'track','tlTrack'+str(i),640,y+143,760,7)
+        image(timeline,'accent','tlBar'+str(i),640,y+143,760,7)
     text(timeline,'timelineEmpty',160,530,1600,60,'Nenhum vínculo registrado para este clube.',27,MUTED)
     text(timeline,'timelineCount',170,929,1350,30,'',19,MUTED)
     action(timeline,1620,921,65,37,581,'‹',size=25);action(timeline,1713,921,65,37,582,'›',size=25)
@@ -49,7 +49,7 @@ def emit(a,model,scenes,*,R,T,P,ix,add,sub,mul,div,lt,EQ,both,clamp,CALL,PATH,ar
         loop(a,'i',P(T('historyClubs'),'length'),lambda a:a.when(EQ(ix(ix(T('historyClubs'),T('i')),3),T('league')),lambda a:a.do(T('filtered'),'push',ix(T('historyClubs'),T('i')))))
         pages(a,T('filtered'),'page',6)
         for name,value in (('countryName',ix(ix(T('countries'),T('country')),0)),('countryCount',add(add(add(T('country'),1),' / '),P(T('countries'),'length'))),('leagueName',ix(l,1)),('leagueCount',add(add(add(T('leagueIndex'),1),' / '),P(T('leagueRows'),'length'))),('leagueLevel',add(ix(l,3),'ª divisão')),('clubCount',add(P(T('filtered'),'length'),' clubes'))):field(a,root,name,value)
-        show(a,root,add('country_',ix(ix(T('countries'),T('country')),1)),151,365);show(a,root,add('league_',ix(l,4)),147,511)
+        show(a,root,add('country_',ix(ix(T('countries'),T('country')),1)),151,365);show(a,root,add('league_',ix(l,4)),147,523)
         for i in range(6):
             idx=add(mul(T('page'),6),i);r=ix(T('filtered'),idx);present=lt(idx,P(T('filtered'),'length'));x,y=club_xy(i)
             field(a,root,'historyClub'+str(i),ix(r,0),present)
@@ -60,26 +60,36 @@ def emit(a,model,scenes,*,R,T,P,ix,add,sub,mul,div,lt,EQ,both,clamp,CALL,PATH,ar
     a.function('RefreshHistoryClubs',0,picker)
     def request(a):
         a.set(R(1),'clubTimeline',True);a.set(R(1),'timelinePage',0)
-        a.when(EQ(R(2),(model.get('clubHistory') or {}).get('club',-1)),lambda a:(a.set(R(1),'historyPending',False),a.ret()))
+        a.when(EQ(R(2),T('historyLoadedClub')),lambda a:(a.set(R(1),'historyPending',False),a.ret()))
+        a.set(R(1),'requestedHistoryClub',R(2));a.set(R(1),'historyRetry',0)
         a.set(R(1),'historyPending',True)
         wire=add('S16MGRH1|'+model.get('profileToken','')+'|',R(2))
         for key in ('country','league','page','focus'):wire=add(add(wire,'|'),T(key))
         wire=add(wire,'|END');a.do(PATH('ION_CareerMode'),'SendSystemEvent',P(T('staticData'),'SCREEN_CONTROLLER_ID'),'Server16ClubHistory',wire)
     a.function('RequestClubHistory',1,request)
+    from live_payload import emit as live_emit
+    def received(a,payload):
+        data=P(payload,'data')
+        for key,source in (('timelineRows','rows'),('historyClubName','name'),('historyClubCrest','crest'),('historyLoadedClub','club')):a.set(R(1),key,P(data,source))
+        a.set(R(1),'historyPending',False);a.set(R(1),'timelinePage',0);a.set(R(1),'focus',540);a.do(R(1),'Refresh')
+    live_emit(a,'history','managerhistory',lambda d:both(both(EQ(P(d,'kind'),'history'),EQ(P(d,'token'),model.get('profileToken',''))),both(EQ(P(d,'club'),T('requestedHistoryClub')),EQ(P(d,'date'),model['date']))),received,interval=6)
     def timeline(a):
         from manager_layout import TAB_STEP
         root=T('scene7');data=model.get('clubHistory') or {};rows=T('timelineRows');length=P(rows,'length')
-        show(a,root,'tabMark4',96+4*TAB_STEP,203)
+        show(a,root,'tabMark3',96+3*TAB_STEP,203)
         pages(a,rows,'timelinePage',1);a.set(R(1),'timelinePageCount',CALL(PATH('Math'),'max',1,sub(length,2)));a.set(R(1),'timelinePage',clamp(T('timelinePage'),0,sub(T('timelinePageCount'),1)))
-        field(a,root,'timelineClub',data.get('name','Clube'));field(a,root,'timelineCaption','Técnicos que comandaram o clube · Todos os anos desta carreira')
-        if data.get('crest'):show(a,root,'history_'+data['crest'],96,275)
+        field(a,root,'timelineClub',T('historyClubName'));field(a,root,'timelineCaption','Técnicos que comandaram o clube · Todos os anos desta carreira')
+        a.when(T('historyClubCrest'),lambda a:show(a,root,add('history_',T('historyClubCrest')),96,275))
         field(a,root,'timelineEmpty','Nenhum vínculo registrado para este clube.',EQ(length,0))
         a.when(lt(T('focus'),540),lambda a:a.set(R(1),'focus',540))
         a.when(EQ(length,0),lambda a:a.set(R(1),'focus',583))
         for i in range(3):
             row=ix(rows,add(T('timelinePage'),i));present=lt(add(T('timelinePage'),i),length);y=365+i*179
-            for name,value in (('tlName',ix(row,0)),('tlDates',add(ix(row,2),add(' · ',ix(row,3)))),('tlStatus',ix(row,4)),('tlNumbers',add(add(add(add(add(add(add(ix(row,5),' jogos  ·  '),ix(row,6)),' V  ·  '),ix(row,7)),' E  ·  '),ix(row,8)),add(' D  ·  Aproveitamento ',ix(row,9)))),('tlTitles',add(ix(row,10),' títulos'))):field(a,root,name+str(i),value,present)
+            for name,value in (('tlName',ix(row,0)),('tlDates',add(ix(row,2),add(' - ',ix(row,3)))),('tlStatus',ix(row,4)),('tlNumbers',add(add(add(add(add(add(add(ix(row,5),' jogos  ·  '),ix(row,6)),' V  ·  '),ix(row,7)),' E  ·  '),ix(row,8)),' D')),('tlTitles',add(ix(row,10),' títulos'))):field(a,root,name+str(i),value,present)
             a.when(present,lambda a,row=row,i=i,y=y:show(a,root,add('tl'+str(i)+'_',ix(row,1)),142,y+18))
+            field(a,root,'tlEfficiency'+str(i),add('Aproveitamento ',ix(row,9)),present)
+            for name in ('tlTrack','tlBar'):a.set(P(root,name+str(i)),'_visible',present)
+            a.set(P(root,'tlBar'+str(i)),'_width',mul(7.6,clamp(ix(row,12),0,100)))
             for label,tone in STATUS_TONES.items():a.when(both(present,EQ(ix(row,4),label)),lambda a,i=i,tone=tone,y=y:show(a,root,'timelineBadge'+str(i)+'_'+tone,1454,y+16))
             a.when(both(present,EQ(ix(row,10),'1')),lambda a,i=i:field(a,root,'tlTitles'+str(i),'1 título'))
         a.set(R(1),'focusable',arr([583,581,582]))

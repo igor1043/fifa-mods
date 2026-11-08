@@ -34,13 +34,6 @@ for index,root in enumerate((Path(r'U:\fifa 16'),Path(r'U:\mods\FIFA Friends V12
             dst.rename(target);shutil.copy2(src,dst)
         assert src.read_bytes()==dst.read_bytes()
         manifest.append({'path':str(dst),'sha256':hashlib.sha256(dst.read_bytes()).hexdigest()})
-    readme=root/'ModCarrerMode/mods/smoke_machine/README.txt'
-    if readme.exists():
-        saved=backup/str(index)/'README.txt';shutil.copy2(readme,saved)
-        text=readme.read_text(encoding='utf8').replace('18 maquinas: seis laterais','20 maquinas: oito laterais')
-        text=text.replace('59.922 triangulos','66.580 triangulos')
-        if '14 metros' not in text:text+='\nQuatro maquinas internas laterais a -14/+14 metros; nenhuma no meio-campo. Afastamento adicional de 50 cm preservado.\n'
-        readme.write_text(text,encoding='utf8')
     assert all(hashlib.sha256(p.read_bytes()).hexdigest()==h for p,h in hashes.items())
 for src in (R/'launch_sites.h',R/'verify.py',R/'prepare_native.py',R/'smoke_machine.cpp',P/'stadium_pyrotechnics.cpp',P/'prepare.py',P/'ending.h',R/'validation.json'):
     shutil.copy2(src,study/src.name)

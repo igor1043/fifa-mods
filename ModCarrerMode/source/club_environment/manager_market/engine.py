@@ -10,6 +10,8 @@ try:from .hiring_fit import DEFAULTS as HIRING_DEFAULTS,offer as hiring_offer
 except ImportError:from hiring_fit import DEFAULTS as HIRING_DEFAULTS,offer as hiring_offer
 try:from .coach_approach import DEFAULTS as APPROACH_DEFAULTS
 except ImportError:from coach_approach import DEFAULTS as APPROACH_DEFAULTS
+try:from .coach_registry import load as load_coach_registry, market_rows as registry_market_rows
+except ImportError:from coach_registry import load as load_coach_registry, market_rows as registry_market_rows
 
 DEFAULTS=dict(max_dismissals_year=3,min_tenure_days=60,min_tenure_games=8,review_gap_days=5,
  pressure_threshold=20,max_dismissal_bps=6000,resignation_bps=4,poach_bps=800,dismissal_slope_bps=190,
@@ -26,11 +28,12 @@ CREATE TABLE IF NOT EXISTS market_cycles(branch TEXT,slot INT,last_review INT,ca
 CREATE TABLE IF NOT EXISTS market_review_pending(branch TEXT,club_id INT,changed_date INT,PRIMARY KEY(branch,club_id));
 CREATE TABLE IF NOT EXISTS branches(id TEXT PRIMARY KEY,career TEXT NOT NULL,start_date INT NOT NULL,game_date INT NOT NULL,season INT NOT NULL,user_club INT NOT NULL,seed TEXT NOT NULL,kind TEXT NOT NULL);
 CREATE TABLE IF NOT EXISTS save_checkpoints(save_hash TEXT PRIMARY KEY,save_path TEXT NOT NULL,branch TEXT NOT NULL,game_date INT NOT NULL,state BLOB);
-CREATE TABLE IF NOT EXISTS coaches(branch TEXT,coach_id TEXT,name TEXT,nationality TEXT,birth_date TEXT,reputation REAL,salary INT,style TEXT,image TEXT,eligible INT,fictional INT,PRIMARY KEY(branch,coach_id));
+CREATE TABLE IF NOT EXISTS coaches(branch TEXT,coach_id TEXT,name TEXT,nationality TEXT,birth_date TEXT,birthplace TEXT,reputation REAL,salary INT,style TEXT,image TEXT,eligible INT,fictional INT,PRIMARY KEY(branch,coach_id));
 CREATE TABLE IF NOT EXISTS clubs(branch TEXT,club_id INT,name TEXT,league_id INT,league_name TEXT,country TEXT,region TEXT,reputation REAL,budget INT,level INT,PRIMARY KEY(branch,club_id));
 CREATE TABLE IF NOT EXISTS appointments(branch TEXT,id TEXT,coach_id TEXT,club_id INT,start_date INT,end_date INT,end_reason TEXT,monthly_wage INT,contract_end INT,origin TEXT,PRIMARY KEY(branch,id));
 CREATE UNIQUE INDEX IF NOT EXISTS one_active_club ON appointments(branch,club_id) WHERE end_date IS NULL;
 CREATE UNIQUE INDEX IF NOT EXISTS one_active_coach ON appointments(branch,coach_id) WHERE end_date IS NULL;
+CREATE INDEX IF NOT EXISTS appointment_coach_history ON appointments(branch,coach_id,start_date);
 CREATE TABLE IF NOT EXISTS movements(branch TEXT,id TEXT,game_date INT,coach_id TEXT,club_id INT,from_club INT,to_club INT,kind TEXT,reason TEXT,old_salary INT,new_salary INT,pressure REAL,PRIMARY KEY(branch,id));
 CREATE TABLE IF NOT EXISTS results(branch TEXT,match_key TEXT,season INT,root INT,competition_id INT,stage INT,game_date INT,home INT,away INT,hg INT,ag INT,home_coach TEXT,away_coach TEXT,home_appointment TEXT,away_appointment TEXT,PRIMARY KEY(branch,match_key));
 CREATE INDEX IF NOT EXISTS result_home_coach ON results(branch,home_coach);
@@ -41,9 +44,12 @@ CREATE INDEX IF NOT EXISTS result_date ON results(branch,game_date);
 CREATE INDEX IF NOT EXISTS result_home_coach_date ON results(branch,home_coach,game_date);
 CREATE INDEX IF NOT EXISTS result_away_coach_date ON results(branch,away_coach,game_date);
 CREATE INDEX IF NOT EXISTS movement_club_kind_date ON movements(branch,club_id,kind,game_date);
+CREATE INDEX IF NOT EXISTS movement_coach_history ON movements(branch,coach_id,game_date);
 CREATE INDEX IF NOT EXISTS appointment_deadline ON appointments(branch,contract_end) WHERE end_date IS NULL;
 CREATE INDEX IF NOT EXISTS appointment_history_date ON appointments(branch,club_id,start_date);
 CREATE TABLE IF NOT EXISTS honours(branch TEXT,coach_id TEXT,club_id INT,season INT,competition_id INT,root INT,game_date INT,name TEXT,PRIMARY KEY(branch,season,root,club_id));
+CREATE INDEX IF NOT EXISTS honour_coach_history ON honours(branch,coach_id,game_date);
+CREATE INDEX IF NOT EXISTS honour_club_history ON honours(branch,club_id,game_date);
 CREATE TABLE IF NOT EXISTS reviews(branch TEXT,club_id INT,game_date INT,pressure REAL,position INT,expected_position INT,reason TEXT,decision TEXT,PRIMARY KEY(branch,club_id,game_date));
 CREATE INDEX IF NOT EXISTS review_date ON reviews(branch,game_date);
 CREATE TABLE IF NOT EXISTS cup_exits(branch TEXT,root INT,club_id INT,game_date INT,prestige INT,PRIMARY KEY(branch,root,club_id,game_date));
@@ -61,7 +67,7 @@ CREATE TABLE IF NOT EXISTS save_receipts(event_id TEXT PRIMARY KEY,save_hash TEX
 CREATE TABLE IF NOT EXISTS reputation_events(branch TEXT,appointment TEXT,month INT,game_date INT,coach_id TEXT,club_id INT,games INT,percentage REAL,expected REAL,delta REAL,PRIMARY KEY(branch,appointment,month));
 CREATE TABLE IF NOT EXISTS approaches(branch TEXT,id TEXT,game_date INT,club_id INT,source_club INT,coach_id TEXT,appointment TEXT,status TEXT,fee INT,offered_wage INT,chance INT,reason TEXT,PRIMARY KEY(branch,id));
 CREATE INDEX IF NOT EXISTS approach_cooldown ON approaches(branch,club_id,coach_id,game_date);
-PRAGMA user_version=4;
+PRAGMA user_version=5;
 '''
 TABLES=('coaches','clubs','appointments','movements','results','honours','reviews','cup_exits','competition_policies','market_rules','salary_events','progress','performance_evidence','appointment_baselines','appointment_campaigns','annual_campaigns','reputation_events','approaches','market_cycles','market_review_pending')
 
@@ -113,14 +119,17 @@ class Market:
  def __init__(self,path,catalog):
   self.path=Path(path);self.path.parent.mkdir(parents=True,exist_ok=True)
   self.db=sqlite3.connect(self.path,timeout=15,factory=Connection);self.db.row_factory=sqlite3.Row
+  if not self.db.execute('PRAGMA user_version').fetchone()[0]:self.db.execute('PRAGMA auto_vacuum=INCREMENTAL')
   version=self.db.execute('PRAGMA user_version').fetchone()[0]
-  if version not in (0,1,2,3,4):raise ValueError('Versão do mercado de técnicos não suportada')
+  if version not in (0,1,2,3,4,5):raise ValueError('Versão do mercado de técnicos não suportada')
   self.db.executescript(SCHEMA)
+  coach_columns={r[1] for r in self.db.execute('PRAGMA table_info(coaches)')}
+  if 'birthplace' not in coach_columns:self.db.execute('ALTER TABLE coaches ADD COLUMN birthplace TEXT')
   if 'state' not in {r[1] for r in self.db.execute('PRAGMA table_info(save_checkpoints)')}:self.db.execute('ALTER TABLE save_checkpoints ADD COLUMN state BLOB')
   columns={r[1] for r in self.db.execute('PRAGMA table_info(results)')}
   for name in ('home_appointment','away_appointment'):
    if name not in columns:self.db.execute('ALTER TABLE results ADD COLUMN '+name+' TEXT')
-  self.catalog=Path(catalog);self.branch=None;self.restored_through=0
+  self.catalog=Path(catalog);self.registry=self.catalog.with_name('manager_registry.ini');self.branch=None;self.restored_through=0
   try:from .snapshot_journal import Journal
   except ImportError:from snapshot_journal import Journal
   self.journal=Journal(self.db,TABLES)
@@ -159,14 +168,33 @@ class Market:
    self.branch=uuid.uuid4().hex;today=context.get('saved_date',context['date']);career=uuid.uuid4().hex;seed_context=dict(context,date=today,club=context.get('saved_club',context['club']))
    self.db.execute('INSERT INTO branches VALUES(?,?,?,?,?,?,?,?)',(self.branch,career,today,today,context['season'],context['club'],career,'live'))
    cat=sqlite3.connect(self.catalog);cat.row_factory=sqlite3.Row
-   for table in ('coaches','clubs'):
-    for r in cat.execute('SELECT * FROM '+table):self.add(table,dict(r))
+   for r in cat.execute('SELECT * FROM coaches'):
+    coach=dict(r);coach.setdefault('birthplace',None);self.add('coaches',coach)
+   # The editable registry is initial roster data. These club assignments are
+   # consumed only while creating this new career branch, never on restore.
+   for coach_id,coach in registry_market_rows(self.registry).items():
+    existing=self.one('coaches','coach_id',coach_id)
+    if existing:
+     fields=tuple(coach)
+     self.db.execute('UPDATE coaches SET '+','.join(k+'=?' for k in fields)+' WHERE branch=? AND coach_id=?',
+                     (*(coach[k] for k in fields),self.branch,coach_id))
+    else:self.add('coaches',coach)
+   for r in cat.execute('SELECT * FROM clubs'):self.add('clubs',dict(r))
    catalog_policy={r[0]:r[1] for r in cat.execute('SELECT key,value FROM rules')};policy=dict(DEFAULTS);policy.update(catalog_policy)
    policy['market_policy_version']=catalog_policy.get('market_policy_version',1)
    for k,v in policy.items():self.add('market_rules',dict(key=k,value=v))
    self.sync_clubs(context)
-   for r in cat.execute('SELECT * FROM club_seed ORDER BY priority DESC,club_id'):
-    club=self.one('clubs','club_id',r['club_id']);coach=self.one('coaches','coach_id',r['coach_id'])
+   seeds={int(r['club_id']):(int(r['priority']),r['coach_id']) for r in cat.execute('SELECT * FROM club_seed ORDER BY priority DESC,club_id')}
+   for coach_id,coach in load_coach_registry(self.registry).items():
+    target=int(coach['default_club_id'])
+    if target and not self.one('clubs','club_id',target):continue
+    for club_id,(_,seeded_coach) in list(seeds.items()):
+     if seeded_coach==coach_id:seeds.pop(club_id)
+    if target:
+     priority=seeds.get(target,(0,''))[0]
+     seeds[target]=(priority,coach_id)
+   for club_id,(_,coach_id) in sorted(seeds.items(),key=lambda item:(-item[1][0],item[0])):
+    club=self.one('clubs','club_id',club_id);coach=self.one('coaches','coach_id',coach_id)
     if club and coach and not self.active(coach=coach['coach_id']):self.appoint(coach,club,today,'initial',initial=True,started=context.get('career_start_date'))
    cat.close();self.ensure_user(seed_context,today)
    # Existing results predate the observed appointment, so do not assign them
@@ -199,7 +227,10 @@ class Market:
  def checkpoint(self,digest,path,replace=False,state=None):
   if not replace and self.db.execute('SELECT 1 FROM save_checkpoints WHERE save_hash=?',(digest,)).fetchone():return False
   state=self.snapshot() if state is None else self.journal.materialize(state);info=json.loads(zlib.decompress(state))['info']
-  self.db.execute('INSERT OR REPLACE INTO save_checkpoints VALUES(?,?,?,?,?)',(digest,str(path),info['id'],info['game_date'],state));return True
+  self.db.execute('INSERT OR REPLACE INTO save_checkpoints VALUES(?,?,?,?,?)',(digest,str(path),info['id'],info['game_date'],state))
+  try:from .save_database import retain_checkpoints
+  except ImportError:from save_database import retain_checkpoints
+  retain_checkpoints(self,path);return True
  def capture_session(self,pid,created,context,epoch,captured_ms,observed_ms=None):
   state=self.journal.capture(self.info());digest=hashlib.sha256(state).hexdigest()
   last=self.db.execute('SELECT state_hash,epoch FROM session_states WHERE pid=? AND created=? AND context=? ORDER BY captured_ms DESC LIMIT 1',(pid,created,context)).fetchone()
@@ -208,10 +239,10 @@ class Market:
   self.db.execute('INSERT OR REPLACE INTO session_observations VALUES(?,?,?,?,?)',(pid,created,context,captured_ms,captured_ms if observed_ms is None else observed_ms))
   # Saved checkpoints retain their own complete copy. This rolling journal
   # only bridges busy UI compilation and saves received between helper polls.
-  self.db.execute('DELETE FROM session_states WHERE pid=? AND created=? AND captured_ms NOT IN (SELECT captured_ms FROM session_states WHERE pid=? AND created=? ORDER BY captured_ms DESC LIMIT 128)',(pid,created,pid,created))
-  self.db.execute('DELETE FROM session_observations WHERE pid=? AND created=? AND captured_ms NOT IN (SELECT captured_ms FROM session_states WHERE pid=? AND created=?)',(pid,created,pid,created))
+  self.db.execute('DELETE FROM session_states WHERE rowid NOT IN (SELECT rowid FROM session_states ORDER BY created DESC,captured_ms DESC LIMIT 128)')
+  self.db.execute('DELETE FROM session_observations WHERE NOT EXISTS (SELECT 1 FROM session_states s WHERE s.pid=session_observations.pid AND s.created=session_observations.created AND s.context=session_observations.context AND s.captured_ms=session_observations.captured_ms)')
   self.journal_captures=getattr(self,'journal_captures',0)+1
-  if self.journal_captures%128==0:self.journal.stats['unused_objects_removed']=self.journal.collect(limit=128)
+  if self.journal_captures%16==0:self.journal.stats['unused_objects_removed']=self.journal.collect(limit=512)
   return digest
  def one(self,table,key,value):return next(iter(self.rows(table,key+'=?',(value,))),None)
  def status_counts(self,today):
@@ -249,21 +280,32 @@ class Market:
   def stamp(path):
    try:s=path.stat();return s.st_ino,s.st_size,s.st_mtime_ns
    except OSError:return None
-  catalog_stamp=(stamp(self.catalog),stamp(Path(str(self.catalog)+'-wal')))
+  catalog_stamp=(stamp(self.catalog),stamp(Path(str(self.catalog)+'-wal')),stamp(self.registry))
   signature=(self.branch,self.db.versions.get('coaches',0),catalog_stamp)
   if getattr(self,'catalog_synced',None)==signature:return
-  present={c['coach_id']:c for c in self.rows('coaches')};db=sqlite3.connect(self.catalog);db.row_factory=sqlite3.Row
+  present={c['coach_id']:c for c in self.rows('coaches')}
+  registry_rows=registry_market_rows(self.registry)
+  registry_ids=set(registry_rows)
+  db=sqlite3.connect(self.catalog);db.row_factory=sqlite3.Row
   try:
+   imported=set()
    for row in db.execute('SELECT * FROM coaches'):
     c=dict(row)
+    c.setdefault('birthplace',None)
     if re.fullmatch(r'MGR[-_].*',str(c['name']),re.I):
      alias=db.execute("SELECT name FROM aliases WHERE coach_id=? AND name NOT LIKE 'MGR%' LIMIT 1",(c['coach_id'],)).fetchone()
      c['name']=alias[0] if alias else 'Treinador não identificado'
      if not alias:c['eligible']=0
-    if c['coach_id'] not in present:self.add('coaches',dict(c))
-    else:
+    if c['coach_id'] not in present:
+     self.add('coaches',c);imported.add(c['coach_id'])
+    elif c['coach_id'] not in registry_ids:
      fields=('name','nationality','birth_date','style','image','eligible','fictional')
      if any(c[f]!=present[c['coach_id']][f] for f in fields):self.db.execute('UPDATE coaches SET '+','.join(f+'=?' for f in fields)+' WHERE branch=? AND coach_id=?',(*(c[f] for f in fields),self.branch,c['coach_id']))
+   # Registry changes may introduce new coach IDs in an existing career, but
+   # the career database owns existing profiles and every active appointment.
+   # In particular, default_club_id is never applied after branch creation.
+   for coach_id,c in registry_rows.items():
+    if coach_id not in present and coach_id not in imported:self.add('coaches',c)
   finally:db.close()
   self.catalog_synced=(self.branch,self.db.versions.get('coaches',0),catalog_stamp)
  def sync_clubs(self,context):
@@ -376,17 +418,18 @@ class Market:
    if r['home_coach']==coach and (club is None or r['home']==club):home.append((r['hg'],r['ag']))
    if r['away_coach']==coach and (club is None or r['away']==club):away.append((r['ag'],r['hg']))
   return dict(total=score(home+away),home=score(home),away=score(away))
- def appointment_performance(self,appointment,today):
+ def appointment_performance(self,appointment,today,competition=None):
   if not appointment:return dict(games=0,losses=0,percentage=0)
   games=[]
   year=today//10000;start_date=max(appointment['start_date'],year*10000+101)
-  for r in self.rows('results','game_date BETWEEN ? AND ? AND ((home=? AND home_coach=?) OR (away=? AND away_coach=?))',(start_date,today,appointment['club_id'],appointment['coach_id'],appointment['club_id'],appointment['coach_id'])):
+  fixture_filter=' AND competition_id=?' if competition is not None else '';asset_filter=' AND asset=?' if competition is not None else '';extra=(competition,) if competition is not None else ()
+  for r in self.rows('results','game_date BETWEEN ? AND ? AND ((home=? AND home_coach=?) OR (away=? AND away_coach=?))'+fixture_filter,(start_date,today,appointment['club_id'],appointment['coach_id'],appointment['club_id'],appointment['coach_id'],*extra)):
    if r['home']==appointment['club_id'] and r['home_coach']==appointment['coach_id']:games.append((r['hg'],r['ag']))
    elif r['away']==appointment['club_id'] and r['away_coach']==appointment['coach_id']:games.append((r['ag'],r['hg']))
   samples=[score(games)]
   totals=[0]*6
-  aggregate=self.rows('annual_campaigns','appointment=? AND year=? AND game_date<=?',(appointment['id'],year,today))
-  if not aggregate and appointment['start_date']//10000==year:aggregate=self.rows('appointment_campaigns','appointment=? AND game_date<=?',(appointment['id'],today))
+  aggregate=self.rows('annual_campaigns','appointment=? AND year=? AND game_date<=?'+asset_filter,(appointment['id'],year,today,*extra))
+  if not aggregate and appointment['start_date']//10000==year:aggregate=self.rows('appointment_campaigns','appointment=? AND game_date<=?'+asset_filter,(appointment['id'],today,*extra))
   for r in aggregate:
    start=json.loads(r['baseline']);end=json.loads(r['counters'])
    values=[max(0,end[i]-start[i]) for i in range(6)]
@@ -399,7 +442,16 @@ class Market:
   return campaign['games']>=6 and (campaign['percentage']>=65 or campaign['losses']==0)
  def dismissal_risk(self,club,appointment,today,pressure,policy):
   from market_balance import dismissal_risk
-  return dismissal_risk(dismissal_probability(club,pressure,policy),club,self.appointment_performance(appointment,today))
+  campaign=self.appointment_performance(appointment,today)
+  if nationalities(club.get('country'))&nationalities('Brasil'):
+   # Pressure already comes from the league table. Use the same competition's
+   # appointment-owned results once they form a meaningful sample: a strong
+   # state tournament must not hide a sustained poor national-league campaign.
+   league=self.appointment_performance(appointment,today,club['league_id'])
+   if league['games']>=6:
+    weight=max(0,min(1,policy.get('brazil_league_campaign_weight',.6)))
+    campaign=dict(league,percentage=league['percentage']*weight+campaign['percentage']*(1-weight))
+  return dismissal_risk(dismissal_probability(club,pressure,policy),club,campaign)
  def update_reputation(self,club,appointment,today,expected_position,league_size):
   from market_balance import reputation_delta
   campaign=self.appointment_performance(appointment,today)

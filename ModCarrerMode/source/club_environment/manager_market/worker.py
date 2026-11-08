@@ -12,7 +12,7 @@ from server16_py.memory_access import Memory
 from inputs import Inputs
 from engine import Market
 from model import project
-from screen import UI_SIGNATURE,build,waiting
+from screen import UI_SIGNATURE,build,waiting,profile_payload
 from live_leagues import read as read_live_leagues
 from save_sync import bind_pending,pending_checkpoint
 from asset_cache import revision as artwork_revision
@@ -70,6 +70,7 @@ class Service:
   self.executor=render_executor if render_executor is not None else ThreadPoolExecutor(max_workers=1,thread_name_prefix='manager-presentation') if background else None
   self.pending=None;self.latest_request=None;self.published_key=None;self.presentation_scope=None;self.model_revision=None;self.model_cache=None;self.render_retry=0;self.load_serial=0
   self.progress=None
+  self.detail_responder=None
   self.profile_serial=0;self.profile_input=None;self.profile_cache=OrderedDict();self.settings_input=None;self.history_input=None;self.history_cache=OrderedDict()
  def stage(self,index):
   if self.progress:self.progress.set(index)
@@ -85,6 +86,7 @@ class Service:
    capture(self.market.path,self.market.branch,snapshot,self.digest or '',checkpoint=checkpoint);self.monthly_key=key
   except Exception as error:log('monthly_awards_waiting',error=str(error))
  def close(self):
+  if self.detail_responder:self.detail_responder.close()
   if getattr(self,'sampler',None):self.sampler.close()
   if self.market:self.market.close()
   if self.executor:self.executor.shutdown(wait=False,cancel_futures=True)
@@ -113,22 +115,26 @@ class Service:
   self.publication=revision;self.published_key=request['key'];prepared_views.publish(ROOT/'view_ready.tsv',saved,observed['profile'],context['date'],revision)
   log('published',date=context['date'],clubs=len(request['model']['clubRows']),free=len(request['model']['freeRows']),dismissals=len(request['model']['moveRows']),seconds=round(time.perf_counter()-request['started'],3),input_engine_seconds=round(request['input_seconds'],3),model_seconds=round(request['model_seconds'],3),build_seconds=round(build_seconds,3),package_cached=cached,background_build=self.executor is not None)
  def service_history(self,observed):
+  if getattr(self,'detail_responder',None):return
   if not self.market or not self.market.branch or not self.model_cache or not self.latest_request:return
+  if self.latest_request.get('observed_scope')!=view_scope(observed):return
   base=self.model_cache[0]
-  if base['date']!=observed.get('date'):return
+  if base['date']!=observed.get('date') or self.market.info()['game_date']!=base['date']:return
   from club_history import request,build as history
   try:click=request(ROOT/'history_request.tsv',observed,base,prepared_views.ticks())
   except (OSError,ValueError,KeyError,TypeError):return
   if click['identity']==self.history_input:return
-  self.history_input=click['identity'];started=time.perf_counter();identity=(self.market.branch,base['date'],click['club'])
+  started=time.perf_counter();identity=(self.market.branch,base['date'],click['club']);cached=identity in self.history_cache
   if identity not in self.history_cache:
    with self.market.db.read_batch():self.history_cache[identity]=history(self.market,click['club'],base['people'])
    while len(self.history_cache)>8:self.history_cache.popitem(last=False)
   self.history_cache.move_to_end(identity)
-  model=dict(base,clubHistory=self.history_cache[identity],resume=click['resume']);key=package_key(model,UI_SIGNATURE,artwork_revision(GAME,model))
-  self.model_cache=(model,key);self.profile_serial+=1
-  self.latest_request=dict(self.latest_request,model=model,key=key,package=ROOT/'packages'/('managers_'+key+'.big'),profile_serial=self.profile_serial,started=started,model_seconds=time.perf_counter()-started,input_seconds=0)
-  log('club_history_requested',club=click['club'],spells=len(model['clubHistory']['rows']),seconds=round(time.perf_counter()-started,3))
+  data=self.history_cache[identity]
+  from live_payload import publish as publish_data
+  publish_data(GAME,ROOT,'managerhistory',dict(kind='history',token=base.get('profileToken',''),club=click['club'],date=base['date'],data=data))
+  self.model_cache=(dict(base,clubHistory=data),self.model_cache[1])
+  self.history_input=click['identity']
+  log('club_history_requested',club=click['club'],spells=len(data['rows']),cached=cached,seconds=round(time.perf_counter()-started,3))
  def service_settings(self,observed):
   if not self.market or not self.market.branch or not self.model_cache or not self.latest_request:return
   base=self.model_cache[0]
@@ -143,7 +149,7 @@ class Service:
    # are replayed when the user changes frequency or re-enables the market.
    with self.market.db:
     value=change['value'];self.market.db.execute('INSERT OR REPLACE INTO market_cycles VALUES(?,0,?,?,?)',(self.market.branch,self.market.info()['game_date'],value['cadence'],int(value['enabled'])))
-    value=write(self.market.path.with_name('server16_manager_market_settings.json'),value)
+    value=write(getattr(self.market,'preferences_path',self.market.path.with_name('server16_manager_market_settings.json')),value)
    self.market.simulation_settings=value
    log('market_settings_saved',**value)
   except OSError as exc:
@@ -153,28 +159,40 @@ class Service:
   key=package_key(model,UI_SIGNATURE,artwork_revision(GAME,model));self.model_cache=(model,key);self.profile_serial+=1
   self.latest_request=dict(self.latest_request,model=model,key=key,package=ROOT/'packages'/('managers_'+key+'.big'),profile_serial=self.profile_serial,started=time.perf_counter(),model_seconds=0,input_seconds=0)
  def service_profile(self,observed):
+  if getattr(self,'detail_responder',None):return
   if not self.market or not self.model_cache or not self.latest_request:return
+  if self.latest_request.get('observed_scope')!=view_scope(observed):return
   base=self.model_cache[0]
   if not base.get('lazyProfiles') or base['date']!=observed.get('date') or self.market.info()['game_date']!=base['date']:return
   from profile_request import read
   try:request=read(ROOT/'profile_request.tsv',observed,base,prepared_views.ticks())
   except (OSError,ValueError,KeyError,TypeError):return
   if request['identity']==self.profile_input:return
-  self.profile_input=request['identity'];self.profile_serial+=1;started=time.perf_counter()
+  started=time.perf_counter()
   person=request['person'];coach=request['coach']
+  if not coach:
+   self.profile_input=request['identity'];return
+  cached=coach in self.profile_cache
   if coach and coach not in self.profile_cache:
+   from profile_query import build as query_profile
    with self.market.db.read_batch():
-    detail=project(self.market,user_confidence=self.context.get('user_confidence'),lightweight=True,detail_coach=coach)
-   selected=detail['people'][person]
+    selected=query_profile(self.market,base['people'][person],user_confidence=self.context.get('user_confidence'))
    if selected['id']!=coach:raise ValueError('Catálogo mudou durante a consulta do perfil')
    self.profile_cache[coach]=selected
    while len(self.profile_cache)>8:self.profile_cache.popitem(last=False)
   if coach:self.profile_cache.move_to_end(coach)
-  people=[self.profile_cache.get(p['id'],p) for p in base['people']]
-  model=dict(base,people=people,resume=request['resume'])
-  key=package_key(model,UI_SIGNATURE,artwork_revision(GAME,model));seconds=time.perf_counter()-started
-  self.latest_request=dict(model=model,key=key,package=ROOT/'packages'/('managers_'+key+'.big'),scope=self.presentation_scope,observed_scope=view_scope(observed),context=self.context,started=started,input_seconds=0,model_seconds=seconds,profile_serial=self.profile_serial)
-  log('profile_requested' if coach else 'profile_return',coach=coach,date=base['date'],seconds=round(seconds,3),cached_profiles=len(self.profile_cache))
+  from live_payload import publish as publish_data
+  from profile_media import describe
+  publish_data(GAME,ROOT,'managerprofile',dict(kind='profile',token=base.get('profileToken',''),person=person,date=base['date'],encoded=profile_payload(self.profile_cache[coach]),artwork=describe(dict(base['people'][person],**self.profile_cache[coach]),base.get('artworkRevision',''))))
+  self.profile_input=request['identity']
+  log('profile_requested',coach=coach,date=base['date'],seconds=round(time.perf_counter()-started,3),cached=cached,cached_profiles=len(self.profile_cache),live_data=True)
+ def detail_context(self):
+  # Publish immutable references only; the responder owns its SQL connection.
+  request=self.latest_request;market=self.market;model=self.model_cache;context=self.context
+  if not request or not market or not market.branch or not model or not context:return None
+  if request['model'] is not model[0]:return None
+  return dict(generation=(request['key'],market.branch),scope=request['observed_scope'],base=model[0],
+              path=market.path,catalog=market.catalog,branch=market.branch,user_confidence=context.get('user_confidence'))
  def service_render(self,observed,memory):
   if self.market and self.publication and not self.pending and getattr(self,'cleanup_pending',False) and time.monotonic()>=self.cleanup_at:
    with self.market.db:removed=self.market.discard_abandoned(protected_branches(self.market),limit=1)
@@ -210,6 +228,10 @@ class Service:
   except (OSError,ValueError,KeyError,TypeError):return False
  def update(self,observed,memory):
   started=time.perf_counter()
+  # A click scoped to the already-published career/date can be answered before
+  # reading/hashing another complete native calendar publication.
+  self.service_history(observed)
+  self.service_profile(observed)
   saved=observed['save'];io=io_event(saved)
   if self.progress:self.progress.begin(observed,io)
   if io.get('operation') not in ('read','write'):raise ValueError('Aguardando identificação nativa do save')
@@ -259,9 +281,7 @@ class Service:
   signature=contract_signature(observed,snapshot,token,live_leagues,derived_rows)
   # Drain a completed view before doing another calendar transaction. A new
   # native publication must not leave an already finished render waiting here.
-  self.service_history(observed)
   self.service_settings(observed)
-  if signature==self.last_signature:self.service_profile(observed)
   self.service_render(observed,memory)
   if signature==self.last_signature:
    self.capture_monthly(observed,memory)
@@ -282,21 +302,40 @@ class Service:
    from live_sampler import calendar_context
    context=calendar_context(self.context,calendar_snapshot,live_leagues['rows'] if live_leagues else [])
   else:context=self.inputs.read(observed,memory,**options)
-  path=Path(saved['path']);db_path=path.parent.parent/'server16_manager_market.sqlite3';digest=context['digest']
+  from save_database import database_path,settings_path,import_checkpoint
+  path=Path(saved['path']);db_path=database_path(path);digest=context['digest']
   observed_ms=prepared_views.ticks()
   self.stage(2)
   fresh=self.market is None or self.market.path!=db_path
+  carried=False
   if fresh:
-   if self.market:self.market.close()
-   self.market=Market(db_path,GAME/'ModCarrerMode/data/manager_market/catalog.sqlite3')
+   previous=self.market;previous_database=previous.path if previous else None
+   if previous:
+    with previous.db:bind_pending(previous,GAME)
+   replacement=Market(db_path,GAME/'ModCarrerMode/data/manager_market/catalog.sqlite3')
+   try:
+    with replacement.db:
+     if previous and previous.branch and owner==self.owner and io.get('operation')=='write' and previous.info()['game_date']<=context['date']:
+      from save_database import import_live
+      import uuid
+      import_live(replacement,previous.path,previous.branch,path,new_branch=uuid.uuid4().hex);carried=True
+     else:import_checkpoint(replacement,path,digest,previous_database)
+   except Exception:
+    replacement.close();raise
+   self.market=replacement
+   if previous:previous.close()
+   self.market.preferences_path=settings_path(path)
    from market_settings import read as read_preferences
-   try:self.market.simulation_settings=read_preferences(db_path.with_name('server16_manager_market_settings.json'))
+   try:self.market.simulation_settings=read_preferences(self.market.preferences_path)
    except (OSError,ValueError,TypeError,KeyError):
     log('market_settings_read_failed');self.market.simulation_settings=dict(enabled=True,cadence=1)
+  if fresh and not carried:
+   from save_database import recover_pending
+   recover_pending(self.market,GAME,path,context)
   unloaded=self.market.branch is None or not self.market.db.execute('SELECT 1 FROM branches WHERE id=?',(self.market.branch,)).fetchone()
   with self.market.db:
    receipts=bind_pending(self.market,GAME)
-   resumed=self.resume_handoff(observed,context,token) if fresh else False
+   resumed=carried or (self.resume_handoff(observed,context,token) if fresh else False)
    # A season rollover may replace the native context while the last DATA
    # receipt still describes last year's save. Only a matching saved date
    # plus a real read can restore an existing market; rollover carries it on.
@@ -360,7 +399,7 @@ class Service:
   else:
    with self.market.db.read_batch():model=project(self.market,user_confidence=context.get('user_confidence'),lightweight=True)
    model.update(lazyProfiles=True,profileToken=hashlib.sha256((state_revision+repr(scope)+UI_SIGNATURE).encode()).hexdigest())
-   token_hash=package_key(model,UI_SIGNATURE,artwork_revision(GAME,model));self.model_cache=(model,token_hash);self.model_revision=model_revision
+   model['artworkRevision']=artwork_revision(GAME,model);token_hash=package_key(model,UI_SIGNATURE,model['artworkRevision']);self.model_cache=(model,token_hash);self.model_revision=model_revision
    self.profile_serial+=1;self.profile_input=None;self.profile_cache.clear();self.history_cache.clear();self.history_input=None
   prepared=time.perf_counter()
   package=ROOT/'packages'/('managers_'+token_hash+'.big')
@@ -401,6 +440,10 @@ def main():
  try:
   from presentation_process import PresentationExecutor
   service=Service(background=True,render_executor=PresentationExecutor(GAME,process.pid))
+  from detail_service import DetailResponder
+  from live_payload import publish as detail_publish
+  service.detail_responder=DetailResponder(ROOT,GAME,process,service.detail_context,observe,attach,prepared_views.ticks,detail_publish,log)
+  service.detail_responder.start()
   from loading_progress import Progress
   service.progress=Progress(ROOT/'progress.json')
   environment=dict(os.environ)
@@ -429,7 +472,14 @@ def main():
   if service:
    if service.market and not process.is_running():
     with service.market.db:service.market.discard_session(service.market.branch)
+   save_root=service.market.path.parent.parent if service.market else None
    service.close()
+   if not process.is_running():
+    from live_payload import cleanup_profile_media
+    cleanup_profile_media(GAME)
+   if save_root and not process.is_running():
+    from save_database import quarantine_deleted
+    for folder in quarantine_deleted(save_root):log('deleted_save_data_quarantined',folder=folder)
   memory.close();kernel.CloseHandle(lock);log('stopped',pid=os.getpid())
 
 if __name__=='__main__':main()

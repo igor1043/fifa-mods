@@ -1,6 +1,6 @@
 {
   "version": 3,
-  "revision": 9,
+  "revision": 10,
   "capacity": 38,
   "sources": {
     "room_roles_r77.rx3": "1bbf9808fa6056ca87d96a33224d0a475bc078b1f395c5a175ffd4d18bd42ede",
@@ -96,6 +96,14 @@
     {
       "material": "light",
       "submesh": "room_part_6"
+    },
+    {
+      "material": "safe",
+      "submesh": "room_part_7"
+    },
+    {
+      "material": "safe_metal",
+      "submesh": "room_part_8"
     }
   ],
   "band_bindings": [
@@ -285,29 +293,38 @@
     "collision_layout"
   ],
   "model_files": {
-    "room_roles.rx3": "room_roles_42309461bad76f.rx3",
+    "room_roles.rx3": "room_roles_36d2db6f7c57e2.rx3",
     "scenery.rx3": "scenery_c874ddac663808.rx3",
     "crest_surfaces.rx3": "crest_surfaces_89d255cf1eceb1.rx3",
     "interior.rx3": "interior_7d46205a2329de.rx3",
-    "locker_bay.rx3": "locker_bay_87e9b8dc7e48e7.rx3",
+    "locker_bay.rx3": "locker_bay_09054265a958d4.rx3",
     "fascia.rx3": "fascia_24a0328bc06a21.rx3",
-    "crests.rx3": "crests_63759b772adbd1.rx3",
+    "crests.rx3": "crests_cf4f02b6e0746c.rx3",
     "joinery.rx3": "joinery_e71c06e31745b4.rx3",
     "ceiling_details.rx3": "ceiling_details_5d9e89477022af.rx3",
     "logo_mount.rx3": "logo_mount_a2ebc9ad5dd548.rx3",
     "feature_wall.rx3": "feature_wall_383424509b5185.rx3",
     "furniture_wood.rx3": "furniture_wood_e8b75a0f6e0460.rx3",
-    "loading_error_texture_r81.rx3": "loading_error_texture_r81.rx3",
-    "loading_panel_r81.rx3": "loading_panel_r81.rx3",
-    "loading_panel_texture_r81.rx3": "loading_panel_texture_r81.rx3",
-    "loading_progress_r81.rx3": "loading_progress_r81.rx3",
-    "loading_progress_texture_r81.rx3": "loading_progress_texture_r81.rx3"
+    "loading_backdrop_r82.rx3": "loading_backdrop_r82.rx3",
+    "loading_backdrop_texture_r82.rx3": "loading_backdrop_texture_r82.rx3",
+    "loading_badge_r82.rx3": "loading_badge_r82.rx3",
+    "loading_error_texture_r82.rx3": "loading_error_texture_r82.rx3",
+    "loading_panel_r82.rx3": "loading_panel_r82.rx3",
+    "loading_panel_texture_r82.rx3": "loading_panel_texture_r82.rx3",
+    "loading_progress_r82.rx3": "loading_progress_r82.rx3",
+    "loading_progress_texture_r82.rx3": "loading_progress_texture_r82.rx3",
+    "loading_ring_r82.rx3": "loading_ring_r82.rx3",
+    "loading_ring_texture_r82.rx3": "loading_ring_texture_r82.rx3"
   },
   "loading": {
-    "revision": 81,
+    "revision": 82,
     "bar_x": -318.75,
     "bar_width": 637.5,
     "bar_y": 1098.21875,
+    "badge_x": -283.59375,
+    "badge_y": 1270.71875,
+    "badge_size": 44.0625,
+    "backdrop": "overscan, behind card, all supported camera aspect ratios",
     "progress": "loaded native resources / requested native resources"
   }
 }

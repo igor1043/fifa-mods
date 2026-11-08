@@ -9,6 +9,33 @@ from engine import Market
 from save_sync import bind_pending
 
 class SaveSyncTest(unittest.TestCase):
+ def test_save_as_carries_world_before_calendar_catchup_without_seeding(self):
+  from save_database import database_path,import_live
+  self.capture(date=20260110);revision=self.m.db.execute('SELECT state_hash FROM session_states ORDER BY captured_ms DESC LIMIT 1').fetchone()[0]
+  other=self.root/'slots/slot2/DATA';other.parent.mkdir();other.write_bytes(self.save.read_bytes());(other.parent/'INDEX').write_bytes(b'index')
+  self.event(path=str(other),market_revision=revision,market_context='1e',market_date=20260110,market_club=self.saved_club)
+  target=Market(database_path(other),self.root/'cat.db')
+  fake=SimpleNamespace(tables={'career_calendar':{},'career_users':{}},rows=lambda name,fields:[{'currdate':self.saved_date}] if name=='career_calendar' else [{'clubteamid':self.saved_club}])
+  try:
+   with target.db:
+    import_live(target,self.m.path,self.m.branch,other,new_branch='independent-world')
+    target.advance(context(20260120,matches(5)))
+    current=dict(pid=10,created=20,context=30,epoch=2,date=20260120,club=3,digest=self.digest,io=['write','200',str(other)],branch=target.branch)
+    with patch('lineup_data.databases',return_value=[fake]):self.assertEqual(1,len(bind_pending(target,self.root,current)))
+   self.assertEqual(20260110,self.m.info()['game_date']);target.open_save(self.digest,other,context(20260120));self.assertEqual(5,len(target.rows('results')))
+  finally:target.close()
+ def test_save_as_while_helper_is_stopped_recovers_the_exact_source_revision(self):
+  from save_database import database_path,recover_pending
+  self.capture();branch=self.m.branch;revision=self.m.db.execute('SELECT state_hash FROM session_states ORDER BY captured_ms DESC LIMIT 1').fetchone()[0]
+  self.m.close();self.m.path.replace(database_path(self.save));self.m=Market(database_path(self.save),self.root/'cat.db');self.m.branch=branch
+  other=self.root/'slots/slot2/DATA';other.parent.mkdir();other.write_bytes(self.save.read_bytes());(other.parent/'INDEX').write_bytes(b'index')
+  self.event(path=str(other),market_revision=revision,market_context='1e',market_date=self.saved_date,market_club=self.saved_club)
+  target=Market(database_path(other),self.root/'cat.db')
+  fake=SimpleNamespace(tables={'career_calendar':{},'career_users':{}},rows=lambda name,fields:[{'currdate':self.saved_date}] if name=='career_calendar' else [{'clubteamid':self.saved_club}])
+  try:
+   with patch('lineup_data.databases',return_value=[fake]):self.assertEqual(1,len(recover_pending(target,self.root,other,dict(date=self.saved_date,club=self.saved_club))))
+   target.open_save(self.digest,other,context(self.saved_date));self.assertEqual(5,len(target.rows('results')))
+  finally:target.close()
  def setUp(self):
   self.tmp=tempfile.TemporaryDirectory();self.root=Path(self.tmp.name);catalog(self.root/'cat.db');self.m=Market(self.root/'market.db',self.root/'cat.db');self.m.open_save('initial','DATA',context());self.events=self.root/'ModCarrerMode/runtime/manager_market/save_events';self.events.mkdir(parents=True);self.save=self.root/'slots/slot1/DATA';self.save.parent.mkdir(parents=True);(self.save.parent/'INDEX').write_bytes(b'index')
   raw=bytearray(160)+b'unique saved career';raw[116:132]=b'SaveType_Career\0';raw[136:140]=(56).to_bytes(4,'little');raw[132:136]=zlib.crc32(raw[160:]).to_bytes(4,'little');self.save.write_bytes(raw);self.digest=hashlib.sha256(raw).hexdigest();self.crc=zlib.crc32(raw[160:]);self.saved_date=20260120;self.saved_club=3

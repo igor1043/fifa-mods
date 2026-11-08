@@ -33,8 +33,9 @@ inline int resolve(int club){
  auto runtime=clubscene::game/L"ModCarrerMode/runtime";Mapping mapping;if(!parse(contents(runtime/L"manager_market/models_ready.tsv"),mapping))return 0;
  Fields latest;uint64_t tick=0;for(auto name:{L"career_save_source.tsv",L"career_active_save.tsv"}){Fields candidate;if(fields(contents(runtime/name),candidate)&&event(candidate,live)&&value(candidate,"access_tick_ms")>tick){latest=std::move(candidate);tick=value(latest,"access_tick_ms");}}
  if(!tick||!matches(mapping,live,latest))return 0;auto row=mapping.clubs.find(club);if(row==mapping.clubs.end()||row->second<=0)return 0;
- auto folder=clubscene::game/L"data/sceneassets/manager_market"/std::to_wstring(row->second);
- for(auto name:{L"model_0.rx3",L"model_0_textures.rx3",L"model_1.rx3",L"model_1_textures.rx3"}){std::error_code ec;if(!std::filesystem::is_regular_file(folder/name,ec))return 0;}
+ auto folder=clubscene::game/L"data/sceneassets/slc";
+ auto prefix=L"specificmanager_"+std::to_wstring(row->second)+L"_0_";
+ for(auto name:{prefix+L"0.rx3",prefix+L"0_textures.rx3",prefix+L"1.rx3",prefix+L"1_textures.rx3"}){std::error_code ec;if(!std::filesystem::is_regular_file(folder/name,ec))return 0;}
  return row->second;
 }
 inline int __cdecl callback(uintptr_t L){

@@ -25,6 +25,23 @@ def visual_data(profile):
  remaining=(str(years_left)+' ano'+('s' if years_left!=1 else '')+(' e '+str(months_left)+' meses' if months_left else '')) if years_left else str(months_left)+' meses' if months_left else str(contract.get('days',0))+' dias'
  return notes+[venue_detail(rich[k]) for k in ('total','home','away')]+[rich['recent'][k] for k in ('all','home','away')]+[last['club'] if last else 'Nenhuma passagem registrada',last['crest'] if last else '',('Desde ' if last and last['current'] else 'Início: ')+last['since'] if last else '',('Atual' if last['current'] else 'Encerrada') if last else '']+[str(last['total'][k]) if last else '—' for k in ('games','wins','draws','losses','gf','ga')]+[profile['style'],profile['secondaryStyle'] or 'Preferência complementar não cadastrada',profile['formation'],last['duration'] if last else 'Aguardando primeiro vínculo','profile_pitch_'+profile['formation'].replace('-','_').replace('–','_') if formation(profile['formation']) else 'profile_pitch_empty']+['Até '+MONTHS[end//100%100-1][:3].lower()+'/'+str(end//10000) if end else 'Sem contrato',remaining if end else 'Livre','Desde '+stamp(contract['start']) if end else 'Disponível para propostas','Vínculo ativo · renovação ao término' if end else 'Sem vínculo com um clube']
 
+def enrich_profile(profile,p,visits,results,honours,reviews,clubs,today,campaigns=(),movements=(),annual=(),user_confidence=None):
+ """One enrichment path for both the full catalogue and a single lazy CV."""
+ ident=p['coach_id'];current=next((a for a in sorted(visits,key=lambda a:a['start_date'],reverse=True) if a['end_date'] is None),None);club=clubs.get(current['club_id'],{}) if current else {}
+ rich=career_profile(p,visits,results,honours,reviews,clubs,today,stamp,campaigns,movements);s=rich['total'];hs=rich['home'];aws=rich['away'];current_spell=next((v for v in rich['spells'] if v['current']),None);confidence=current_spell['confidence'] if current_spell else dict(value=-1,label='Sem vínculo atual')
+ if ident.startswith('USER-') and type(user_confidence)==int and 0<=user_confidence<=100:confidence=dict(value=user_confidence,label='Avaliação da diretoria no FIFA')
+ profile.update(career=rich,confidence=confidence,overview=[s[k] for k in ('games','wins','draws','losses','gf','ga')]+[s['percentage'],hs['percentage'],aws['percentage'],brief(hs),brief(aws),rich['clubs'],len(rich['spells']),len(rich['titles']),('Contrato até '+stamp(current['contract_end'])+' · '+str(max(0,elapsed(today,current['contract_end'])))+' dias restantes') if current else 'Sem vínculo · Livre no mercado',club.get('name','Livre no mercado'),'crest_'+str(club['club_id']) if club else '',confidence['value'],confidence['label'],stamp(current['start_date']) if current else 'Sem contrato'],spellCards=[[v['club'],v['crest'],v['dates'],v['duration']+' · Contrato até '+stamp(v['contractEnd']),v['status'],f"{v['total']['games']} jogos   ·   {v['total']['wins']} vitórias   ·   {v['total']['draws']} empates   ·   {v['total']['losses']} derrotas   ·   Gols {v['total']['gf']}–{v['total']['ga']}",v['total']['percentage'],summary(v['home']),v['home']['percentage'],summary(v['away']),v['away']['percentage'],str(v['titles'])+' títulos confirmados',f"{v['total']['percentage']:.1f}%".replace('.',',')] for v in rich['spells']],titleCards=[[v['name'],v['competitionArt'],v['club'],v['crest'],v['year'],v['date']] for v in rich['titles']])
+ for card,visit in zip(profile['spellCards'],rich['spells']):
+  card[11]=card[11].replace(' títulos confirmados',' títulos');card.extend(str(visit['total'][k]) for k in ('games','wins','draws','losses','gf','ga'))
+ profile['overview'] += [f"{v['percentage']:.1f}".replace('.',',')+'%' for v in (s,hs,aws)]
+ profile['overview'].append(f"{rich['clubs']} "+('clube' if rich['clubs']==1 else 'clubes')+f" · {len(rich['spells'])} "+('passagem' if len(rich['spells'])==1 else 'passagens')+f" · {len(rich['titles'])} "+('título confirmado' if len(rich['titles'])==1 else 'títulos confirmados'))
+ profile['contract']=dict(start=current['start_date'],end=current['contract_end'],days=max(0,elapsed(today,current['contract_end'])),salary=current['monthly_wage']) if current else {}
+ profile['visualData']=visual_data(profile)
+ from annual_campaigns import project as annual_profile,cards as annual_cards
+ history_years=annual_profile(visits,results,annual,clubs,today)
+ rich['years']=history_years;profile['yearCards']=annual_cards(history_years,today)
+ return profile
+
 def project(market,user_confidence=None,lightweight=False,detail_coach=None):
  labels=Labels(market.catalog)
  import json
@@ -86,18 +103,7 @@ def project(market,user_confidence=None,lightweight=False,detail_coach=None):
   if lightweight and ident!=detail_coach:
    profiles[-1].update(profilePending=True,history=[],titles=[],details=['']*6)
    continue
-  rich=career_profile(p,history.get(ident,[]),coach_results.get(ident,[]),honours.get(ident,[]),reviews,clubs,today,stamp,campaigns_by_person.get(ident,[]),movements_by_coach.get(ident,[]));s=rich['total'];hs=rich['home'];aws=rich['away'];current_spell=next((v for v in rich['spells'] if v['current']),None);confidence=current_spell['confidence'] if current_spell else dict(value=-1,label='Sem vínculo atual')
-  if ident.startswith('USER-') and type(user_confidence)==int and 0<=user_confidence<=100:confidence=dict(value=user_confidence,label='Avaliação da diretoria no FIFA')
-  profiles[-1].update(career=rich,confidence=confidence,overview=[s[k] for k in ('games','wins','draws','losses','gf','ga')]+[s['percentage'],hs['percentage'],aws['percentage'],brief(hs),brief(aws),rich['clubs'],len(rich['spells']),len(rich['titles']),('Contrato até '+stamp(current['contract_end'])+' · '+str(max(0,elapsed(today,current['contract_end'])))+' dias restantes') if current else 'Sem vínculo · Livre no mercado',club.get('name','Livre no mercado'),'crest_'+str(club['club_id']) if club else '',confidence['value'],confidence['label'],stamp(current['start_date']) if current else 'Sem contrato'],spellCards=[[v['club'],v['crest'],v['dates'],v['duration']+' · Contrato até '+stamp(v['contractEnd']),v['status'],f"{v['total']['games']} jogos   ·   {v['total']['wins']} vitórias   ·   {v['total']['draws']} empates   ·   {v['total']['losses']} derrotas   ·   Gols {v['total']['gf']}–{v['total']['ga']}",v['total']['percentage'],summary(v['home']),v['home']['percentage'],summary(v['away']),v['away']['percentage'],str(v['titles'])+' títulos confirmados',f"{v['total']['percentage']:.1f}%".replace('.',',')] for v in rich['spells']],titleCards=[[v['name'],v['competitionArt'],v['club'],v['crest'],v['year'],v['date']] for v in rich['titles']])
-  for card,visit in zip(profiles[-1]['spellCards'],rich['spells']):
-   card[11]=card[11].replace(' títulos confirmados',' títulos');card.extend(str(visit['total'][k]) for k in ('games','wins','draws','losses','gf','ga'))
-  profiles[-1]['overview'] += [f"{v['percentage']:.1f}".replace('.',',')+'%' for v in (s,hs,aws)]
-  profiles[-1]['overview'].append(f"{rich['clubs']} "+('clube' if rich['clubs']==1 else 'clubes')+f" · {len(rich['spells'])} "+('passagem' if len(rich['spells'])==1 else 'passagens')+f" · {len(rich['titles'])} "+('título confirmado' if len(rich['titles'])==1 else 'títulos confirmados'))
-  profiles[-1]['contract']=dict(start=current['start_date'],end=current['contract_end'],days=max(0,elapsed(today,current['contract_end'])),salary=current['monthly_wage']) if current else {}
-  profiles[-1]['visualData']=visual_data(profiles[-1])
-  from annual_campaigns import project as annual_profile,cards as annual_cards
-  history_years=annual_profile(history.get(ident,[]),coach_results.get(ident,[]),annual_by_person.get(ident,[]),clubs,today)
-  rich['years']=history_years;profiles[-1]['yearCards']=annual_cards(history_years,today)
+  enrich_profile(profiles[-1],p,history.get(ident,[]),coach_results.get(ident,[]),honours.get(ident,[]),reviews,clubs,today,campaigns_by_person.get(ident,[]),movements_by_coach.get(ident,[]),annual_by_person.get(ident,[]),user_confidence)
  def row_for(club,a):
   i=indices[a['coach_id']];p=profiles[i]
   spell=next((s for s in p.get('career',{}).get('spells',[]) if s['current'] and s['clubId']==club['club_id']),None)
@@ -129,7 +135,7 @@ def project(market,user_confidence=None,lightweight=False,detail_coach=None):
  for c in clubs.values():
   if c['club_id'] not in active:continue
   lid=c['league_id'];meta=labels.leagues.get(lid,{});country=labels.countries.get(meta.get('country_id'),{})
-  name,nid=(country['name'],country['nation_id']) if country else labels.country(c['country'])
+  name,nid=labels.country(country['name'] if country else c['country'])
   leagues[lid]=dict(id=lid,name=meta.get('name',c['league_name']),country=name,countryId=nid,level=meta.get('level',c['level']),image='league_'+str(lid))
  leagues=sorted(leagues.values(),key=lambda l:(alphabetical(l['country']),l['level'],alphabetical(l['name'])));countries=sorted({(l['country'],l['countryId']) for l in leagues},key=lambda r:(alphabetical(r[0]),r[1]))
  countries=[dict(name=name,id=nid,flag='flag_'+str(nid)) for name,nid in countries];mine=clubs.get(info['user_club'],{});mine_l=mine.get('league_id',0);mine_country=leagues[next((i for i,l in enumerate(leagues) if l['id']==mine_l),0)]['country'] if leagues else ''

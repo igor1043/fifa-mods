@@ -3,7 +3,7 @@
 #include "competitions_layout.h"
 std::atomic<int> competitionPresentation{0};
 struct CompetitionView{
- bool padHints=true;
+ clubcomp::FooterPublication helpPublication;
  clubcomp::BracketScene bracketScene;clubcomp::BracketCamera viewport;bool bracketDirty=true,bracketDrag=false;int bracketPhase=-1;float bracketMouseX=0,bracketMouseY=0;uint64_t bracketLast=0;
  clubcomp::DashboardNavigation nav;bool controlReady=false,leftTriggerHeld=false,rightTriggerHeld=false;bool keyState[256]{};WORD previousPad=0;int repeatDirection=0,detailDirection=0;uint64_t repeatAt=0,detailAt=0;
  clubcomp::Data data;int selected=0,group=0,round=0,scroll=0,stat=0,statScroll=0;bool bracket=false,ready=false,expanded=false;float canvasZoom=1,canvasPanX=0,canvasPanY=0,canvasCenterX=0,canvasCenterY=0;ID3D11RasterizerState*canvasClip=nullptr;uint64_t submitted=0,retry=0,checked=0;int currentClub=0,mixedScroll=0;fs::file_time_type publication{};
@@ -11,7 +11,7 @@ struct CompetitionView{
  struct CachedText{clubgfx::Texture texture;uint64_t used=0;};std::map<std::wstring,CachedText>textCache;size_t textBytes=0;uint64_t textFrame=0,textMisses=0;
  void clearTextures(){clubgfx::release(canvasClip);for(auto&t:labels)t.clear();for(auto&it:images)it.second.clear();images.clear();for(auto&it:textCache)it.second.texture.clear();textCache.clear();textBytes=0;device=nullptr;}
  void resetSelection(){group=round=scroll=statScroll=mixedScroll=0;nav.reset();bracket=false;if(data.competitions.empty())return;auto&c=data.competitions[selected];for(size_t i=0;i<c.groups.size();++i)for(auto&t:c.groups[i].rows)if(t.id==data.club)group=int(i);bracket=c.groups.empty();for(size_t i=0;i<c.rounds.size();++i)for(auto&t:c.rounds[i].ties)if(t.home==data.club||t.away==data.club)round=int(i);int latest=0;for(size_t i=0;i<c.matchdays.size();++i)for(auto&m:c.matchdays[i].matches)if(m.played&&m.date>=latest){latest=m.date;nav.matchday=int(i);}}
- void enter(int club){data={};selected=0;ready=false;expanded=false;controlReady=false;nav.reset();currentClub=club;submitted=retry=checked=0;clearTextures();request();}
+ void enter(int club){data={};selected=0;ready=false;expanded=false;controlReady=false;nav.reset();helpPublication.reset();currentClub=club;submitted=retry=checked=0;clearTextures();request();}
  void request(){if(currentClub<=0)return;lineup.request(currentClub,"competitions");submitted=lineup.sequence;retry=GetTickCount64()+3000;}
  void poll(){
   auto now=GetTickCount64();int liveClub=careerClub();if(liveClub>0&&liveClub!=currentClub){enter(liveClub);return;}if(!submitted&&!ready){if(liveClub){currentClub=liveClub;request();}return;}if(submitted)lineup.poll(renderer.device);

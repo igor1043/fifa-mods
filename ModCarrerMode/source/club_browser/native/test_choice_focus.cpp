@@ -10,15 +10,20 @@ int main(){
  store(nodes[1]+192,(uintptr_t)nodes[2]);store(nodes[2]+136,(uintptr_t)nodes[3]);store(nodes[3]+472,(uintptr_t)pageName);
  roomEntry=false;clubPage=ClubPage::Map;hubFocus=1;enterChoice();
  for(int pass=0;pass<200;++pass){
-  int index=pass%4;const char*names[]={"focus_xi","focus_roster","focus_coach","focus_mascot"};
+  int index=pass%5;const char*names[]={"focus_xi","focus_roster","focus_coach","focus_mascot","focus_stadium"};
   assert(Fifa16ClubBrowserCommand(names[index]));drainClubCommands();assert(hubFocus==index);
-  clubPage=index==0?ClubPage::XI:index==1?ClubPage::Roster:index==2?ClubPage::Coach:ClubPage::Mascot;
+  clubPage=index==0?ClubPage::XI:index==1?ClubPage::Roster:index==2?ClubPage::Coach:index==3?ClubPage::Mascot:ClubPage::Stadium;
   assert(Fifa16ClubBrowserCommand("back"));assert(Fifa16ClubBrowserCommand(names[index]));
-  drainClubCommands();assert(clubPage==ClubPage::Choice&&hubFocus==index);
+  drainClubCommands();assert(clubPage==ClubPage::Choice&&hubFocus==index);assert(!clubscene::stadiumClub);
   // Absolute APT focus recovers from any legacy/stale native index.
-  hubFocus=(index+1)%4;assert(Fifa16ClubBrowserCommand(names[index]));drainClubCommands();assert(hubFocus==index);
+  hubFocus=(index+1)%5;assert(Fifa16ClubBrowserCommand(names[index]));drainClubCommands();assert(hubFocus==index);
  }
  assert(Fifa16ClubBrowserCommand("back"));drainClubCommands();assert(clubPage==ClubPage::Map);
+ model.rows.push_back({});model.rows[0].id=1043;clubPage=ClubPage::Choice;
+ assert(Fifa16ClubBrowserCommand("stadium"));drainClubCommands();
+ assert(clubPage==ClubPage::Stadium&&clubscene::stadiumClub==1043&&Fifa16ClubBrowserStadiumClub()==1043);
+ assert(!clubscene::requested&&!clubscene::rosterCamera&&!clubscene::mascotCamera);
+ assert(Fifa16ClubBrowserCommand("back"));drainClubCommands();assert(!Fifa16ClubBrowserStadiumClub());
  executable=0;VirtualFree(fake,0,MEM_RELEASE);
- std::cout<<"PASS native choice focus: XI/roster/coach returns and absolute resynchronization across 200 cycles\n";
+ std::cout<<"PASS native choice focus: XI/roster/coach/mascot/stadium returns and absolute resynchronization across 200 cycles\n";
 }

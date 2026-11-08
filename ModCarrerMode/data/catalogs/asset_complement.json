@@ -1,6 +1,6 @@
 {
   "schema": 1,
-  "release": "FIFA Friends V12 / 2026-11-06 / official V3",
+  "release": "FIFA Friends V12 / 2026-11-08 / oficial V3",
   "purpose": "Cumulative public static assets; incremental package over 04 November. No saves or generated career caches.",
   "room_version": 3,
   "legacy_room_active": false,
@@ -145,11 +145,11 @@
     "data/ui/imgAssets/tileicons/ti_teamstats_small_nonactive.DDS"
   ],
   "groups": {
-    "existing_base": 1083,
-    "room_art": 213,
+    "existing_base": 1274,
+    "room_art": 208,
     "manager_interface": 3,
-    "manager_minifaces": 1527,
-    "room_v3": 106
+    "manager_minifaces": 1534,
+    "room_v3": 119
   },
   "files": [
     {
@@ -399,28 +399,28 @@
     },
     {
       "path": "ModCarrerMode/data/club_environment/current_dressing_room/custom/1043/corner-panel.png",
-      "bytes": 16746,
-      "sha256": "959f886c71b798d4300890a4e49c81b2c9c4cfd37005bd3568304b53487b3d9b"
+      "bytes": 2098176,
+      "sha256": "c58b7d865738c35cd27e8a50537cd9230a3a9e8463c3f4f67342815bc36c3687"
     },
     {
       "path": "ModCarrerMode/data/club_environment/current_dressing_room/custom/1043/fascia-back-left.png",
-      "bytes": 116672,
-      "sha256": "815ee08e2c469dc9b0cef2216f147582f92c9b0eaa10b4e2e4844ca311a47804"
+      "bytes": 74194,
+      "sha256": "e5ab5b6ffe472bb07a671261a9998a670f468a3b8ab81686d4c7b08696da1a1b"
     },
     {
       "path": "ModCarrerMode/data/club_environment/current_dressing_room/custom/1043/fascia-back-right.png",
-      "bytes": 107071,
-      "sha256": "4057b077e8202a6f0a61d626a530bfedb42bd8f6c57a5cbdeadfed28fc6aeaba"
+      "bytes": 67948,
+      "sha256": "e9a3983bb745155f33eae0dd76070c2f4981d608be8994422337259ed34daf4a"
     },
     {
       "path": "ModCarrerMode/data/club_environment/current_dressing_room/custom/1043/fascia-left.png",
-      "bytes": 166061,
-      "sha256": "e5de4f075ef63f01dc0bc316e7d3909a97a9798ca4840236ceff69be5a48ed7e"
+      "bytes": 105654,
+      "sha256": "856a8857c7621595ac9e29c3de39118add81a9bfdeb35d7a1d69854b90d7c856"
     },
     {
       "path": "ModCarrerMode/data/club_environment/current_dressing_room/custom/1043/fascia-right.png",
-      "bytes": 149486,
-      "sha256": "c22bbfd7da1a782407fa884b29a4247f58b9a8bfc7386a585be744c2cce214a5"
+      "bytes": 94468,
+      "sha256": "4c4fa7012538b454e7c724b7b6500341c182be8a1d604df31c636e802131ed5b"
     },
     {
       "path": "ModCarrerMode/data/club_environment/current_dressing_room/custom/1043/feature-wall.png",
@@ -434,13 +434,13 @@
     },
     {
       "path": "ModCarrerMode/data/club_environment/current_dressing_room/custom/1043/locker-backing.png",
-      "bytes": 2188233,
-      "sha256": "9f5c72981b66631f1e90a32f27333467c3bc97cadc627c35e2a0e390d302e714"
+      "bytes": 1824105,
+      "sha256": "c5a0a47051051d7e39099bc9404043a2770a4abeb5995631783fc19ee4703961"
     },
     {
       "path": "ModCarrerMode/data/club_environment/current_dressing_room/custom/1043/locker-frame.png",
-      "bytes": 627397,
-      "sha256": "cc46f070178b37c228af02cf6c18f34983e2dbe7a51dba1027be8b06c1d3769b"
+      "bytes": 1146191,
+      "sha256": "2ecf08d98de730efd49fb0b0eb039fb21163b80139950858a93339558771bff1"
     },
     {
       "path": "ModCarrerMode/data/club_environment/current_dressing_room/custom/1043/wall-mural.png",
@@ -1094,23 +1094,23 @@
     },
     {
       "path": "ModCarrerMode/data/club_environment/current_dressing_room/custom/567/fascia-back-left.png",
-      "bytes": 131752,
-      "sha256": "7fcbfc39e2b82551d48bf7cd8926f1955e9e56666946e96bbb1c71a4677ca45e"
+      "bytes": 604478,
+      "sha256": "7a42360df76949383fc8d5b0e0060bbdc00a201342369dcf86dd12f900e97c43"
     },
     {
       "path": "ModCarrerMode/data/club_environment/current_dressing_room/custom/567/fascia-back-right.png",
-      "bytes": 132444,
-      "sha256": "2cb7c3edec79df701b8a1aa5b5936ec87584829ec1474de2f503912f81dc6817"
+      "bytes": 533137,
+      "sha256": "26d7f050ae16222ee83cee05d927a2adf61cad47f54b703b27b83cffa5e100ac"
     },
     {
       "path": "ModCarrerMode/data/club_environment/current_dressing_room/custom/567/fascia-left.png",
-      "bytes": 111947,
-      "sha256": "052a98e851040fe063612623a467d9653b47b0bdd24e30d0b1f92ee7ef8e6775"
+      "bytes": 1285747,
+      "sha256": "add8929f05b7d3808be51c79b549b149aef3269869867cff7c8aa6794392a3d3"
     },
     {
       "path": "ModCarrerMode/data/club_environment/current_dressing_room/custom/567/fascia-right.png",
-      "bytes": 181705,
-      "sha256": "ab22faf74bf6ebd552c0a9d75f7ae4c0c23232b84498ad5e8bd114ee4cbec4e7"
+      "bytes": 1251887,
+      "sha256": "b164e96cb64465fe0bdd8a60d4e4312695464d4dd76edbd09b7eeed842038e60"
     },
     {
       "path": "ModCarrerMode/data/club_environment/current_dressing_room/custom/567/feature-wall.png",
@@ -1119,8 +1119,8 @@
     },
     {
       "path": "ModCarrerMode/data/club_environment/current_dressing_room/custom/567/locker-backing.png",
-      "bytes": 2213646,
-      "sha256": "a6bc892f2c942bd14bbab58d83284e4a7f2b6bbde7663806cbbb5ab2b9f0899c"
+      "bytes": 2029949,
+      "sha256": "1ba8451b15ced8c9524253cb3153edfbeaf8e18425dce438ba08eea7598185cf"
     },
     {
       "path": "ModCarrerMode/data/club_environment/current_dressing_room/custom/567/locker-frame.png",
@@ -1399,8 +1399,8 @@
     },
     {
       "path": "ModCarrerMode/data/manager_market/minifaces/000012.png",
-      "bytes": 2082653,
-      "sha256": "d2a806f7114b7d2bfb8fd0a623b84532cd19fc635b9fa6ce57cd545eb8f25fd2"
+      "bytes": 2612655,
+      "sha256": "219b2266e06536137f04fedc21efbc9afbbe91aa44e0b13ae9970fc5d851bbb3"
     },
     {
       "path": "ModCarrerMode/data/manager_market/minifaces/000013.png",
@@ -3769,8 +3769,8 @@
     },
     {
       "path": "ModCarrerMode/data/manager_market/minifaces/COACH-14edd40b26e8200b.png",
-      "bytes": 206954,
-      "sha256": "2562de0e89aa4ba2a9db4e7806c6f3fe49bd87d606e4edab6e8d7b19e6fc8de9"
+      "bytes": 85071,
+      "sha256": "81fac5c0a35c4f0c2b2135e8c792427db9ae02ddb74166a1f68b2e95e7608245"
     },
     {
       "path": "ModCarrerMode/data/manager_market/minifaces/COACH-14f9a050ab9abba6.png",
@@ -4849,8 +4849,8 @@
     },
     {
       "path": "ModCarrerMode/data/manager_market/minifaces/COACH-46aea447731ed57e.png",
-      "bytes": 216543,
-      "sha256": "305635a9a6199f423bf0ead97e64c9501617222e6cf5b0b94c12e8a070d1221f"
+      "bytes": 86371,
+      "sha256": "60b74247d2130f99048c9abd7f8c66da389f28bb153c3d15b8ddc425518ea92a"
     },
     {
       "path": "ModCarrerMode/data/manager_market/minifaces/COACH-473a79fc72f028dd.png",
@@ -5499,8 +5499,8 @@
     },
     {
       "path": "ModCarrerMode/data/manager_market/minifaces/COACH-62b2e09f97f55cdd.png",
-      "bytes": 193463,
-      "sha256": "b45523ca0816fd0657f0a714e8f4df84658b9dff686d50bb0dd756d7b1ddb4c3"
+      "bytes": 92801,
+      "sha256": "86969955cc62d2434b7f9210ee5b376414913b06bb217da22bd63aee419d2a57"
     },
     {
       "path": "ModCarrerMode/data/manager_market/minifaces/COACH-6340d80892a2e11a.png",
@@ -6309,8 +6309,8 @@
     },
     {
       "path": "ModCarrerMode/data/manager_market/minifaces/COACH-86e49d21bd6a76c8.png",
-      "bytes": 176760,
-      "sha256": "35b18a151eeb1bc8ba4926e28040d834f1a8f8db7c2b6ecd6065b5a9a14c32e0"
+      "bytes": 112119,
+      "sha256": "afb97f682e42450a1c081014e8a30bd24ba8c0963fcdd874d599092cd3722121"
     },
     {
       "path": "ModCarrerMode/data/manager_market/minifaces/COACH-871a395a85a19c0d.png",
@@ -6444,8 +6444,8 @@
     },
     {
       "path": "ModCarrerMode/data/manager_market/minifaces/COACH-8cf7416de8455193.png",
-      "bytes": 188102,
-      "sha256": "09948d32920456ff1e1624252ba6d421c20d06799e30d2643b34471917ff8762"
+      "bytes": 92597,
+      "sha256": "ac822463e0d119272136cd8764eb39e671d907b62217d6b391a026425f49d45a"
     },
     {
       "path": "ModCarrerMode/data/manager_market/minifaces/COACH-8d6bfd7cbb7a1475.png",
@@ -7199,8 +7199,8 @@
     },
     {
       "path": "ModCarrerMode/data/manager_market/minifaces/COACH-b11386858366c910.png",
-      "bytes": 233803,
-      "sha256": "2bb726c9efdf9898c2fa8d33d12ced596c804f1173ec4c7ace6fb63001671759"
+      "bytes": 94381,
+      "sha256": "5f8156428596299ff73502141f844b8a231dd4555fa1674eb8a50946aa4ff6cc"
     },
     {
       "path": "ModCarrerMode/data/manager_market/minifaces/COACH-b12ca5b0bdceba7e.png",
@@ -7969,8 +7969,8 @@
     },
     {
       "path": "ModCarrerMode/data/manager_market/minifaces/COACH-d5442d482d82f841.png",
-      "bytes": 234029,
-      "sha256": "7f16227936dfcd2785957ca3d805ff14a9742feda692182eca452052cb790e04"
+      "bytes": 99093,
+      "sha256": "268ece6b6efd48a33bbab0851ed0fec15a55278e24db2c9daa99620e2db9e756"
     },
     {
       "path": "ModCarrerMode/data/manager_market/minifaces/COACH-d5f6584483d43c08.png",
@@ -11939,18 +11939,18 @@
     },
     {
       "path": "data/sceneassets/mascot/130045/model.rx3",
-      "bytes": 407200,
-      "sha256": "585f985088527812c2e8c67470b71573bd0cff81fe122f729da6b20d16d63032"
+      "bytes": 408432,
+      "sha256": "5c8c7e03e64ee34331c8edc5521b477f766f0f3b3b531622a5706edb462c336b"
     },
     {
       "path": "data/sceneassets/mascot/130045/model_animated.rx3",
-      "bytes": 407200,
-      "sha256": "585f985088527812c2e8c67470b71573bd0cff81fe122f729da6b20d16d63032"
+      "bytes": 408432,
+      "sha256": "5c8c7e03e64ee34331c8edc5521b477f766f0f3b3b531622a5706edb462c336b"
     },
     {
       "path": "data/sceneassets/mascot/130045/textures.rx3",
       "bytes": 4173184,
-      "sha256": "08327f7165f713888ca83fbad3b521beb9b740f400102442906191faa0d8070f"
+      "sha256": "5cbf33966b14c4dbbb2bce99fc427c63e34097a711b8768fb320bd10bbfc799c"
     },
     {
       "path": "data/sceneassets/mascot/130046/locomotion_feet.bin",
@@ -14811,6 +14811,1036 @@
       "path": "data/ui/pow/components/powexperience.big",
       "bytes": 23342,
       "sha256": "e8bee7f4879816ae06d02add6c6076ec6c58c872106adbbfc89f89952b56b388"
+    },
+    {
+      "path": "data/sceneassets/mascot/1/model.rx3",
+      "bytes": 411280,
+      "sha256": "4cb76972b4b1eeb5c83cc14b28e7d5444126edb727d865303e455eb022c33d00"
+    },
+    {
+      "path": "data/sceneassets/mascot/1/model_animated.rx3",
+      "bytes": 411280,
+      "sha256": "4cb76972b4b1eeb5c83cc14b28e7d5444126edb727d865303e455eb022c33d00"
+    },
+    {
+      "path": "data/sceneassets/mascot/1/textures.rx3",
+      "bytes": 4173184,
+      "sha256": "33838e91b45013f25e3cb8095eccb084b5187903365328bf7a3142dc785ae7fc"
+    },
+    {
+      "path": "data/sceneassets/mascot/10/model.rx3",
+      "bytes": 392816,
+      "sha256": "ac67b1f829dea5db0f50c013d75b24a70a56d67677f430e81c6667c8811b8fb6"
+    },
+    {
+      "path": "data/sceneassets/mascot/10/model_animated.rx3",
+      "bytes": 392816,
+      "sha256": "ac67b1f829dea5db0f50c013d75b24a70a56d67677f430e81c6667c8811b8fb6"
+    },
+    {
+      "path": "data/sceneassets/mascot/10/textures.rx3",
+      "bytes": 4173184,
+      "sha256": "f6940c1f5ed82a7a4fd14b6e7bb6e6b1b762dfa8c5a87de1b0c3e49bb99e1a40"
+    },
+    {
+      "path": "data/sceneassets/mascot/1043/model_animation_test.rx3",
+      "bytes": 792400,
+      "sha256": "b831960046ebcb5bf20d080b6d2def7df0c8952d22d3ccb542a33d9eddae259b"
+    },
+    {
+      "path": "data/sceneassets/mascot/11/model.rx3",
+      "bytes": 411904,
+      "sha256": "53d56cc00cbf87c083bc02908ec17877e353bf565119e7ff59d4345e648aa002"
+    },
+    {
+      "path": "data/sceneassets/mascot/11/model_animated.rx3",
+      "bytes": 411904,
+      "sha256": "53d56cc00cbf87c083bc02908ec17877e353bf565119e7ff59d4345e648aa002"
+    },
+    {
+      "path": "data/sceneassets/mascot/11/textures.rx3",
+      "bytes": 4173184,
+      "sha256": "226ccc2845974971a39f9a4b8c6901ae1230c96f43bb5845a451ac056f06ded6"
+    },
+    {
+      "path": "data/sceneassets/mascot/14/model.rx3",
+      "bytes": 394528,
+      "sha256": "fed08bf98c1a241b7b46b538cc57d5b30d6e2a28b8e02e34a4cd8f6394868ddf"
+    },
+    {
+      "path": "data/sceneassets/mascot/14/model_animated.rx3",
+      "bytes": 394528,
+      "sha256": "fed08bf98c1a241b7b46b538cc57d5b30d6e2a28b8e02e34a4cd8f6394868ddf"
+    },
+    {
+      "path": "data/sceneassets/mascot/14/textures.rx3",
+      "bytes": 4173184,
+      "sha256": "d47157d944c87fd3a7445542831d77df46a516dd03c2c2d0257758c8fcf29b98"
+    },
+    {
+      "path": "data/sceneassets/mascot/1896/model.rx3",
+      "bytes": 405472,
+      "sha256": "f67081169500c43d0ef568a6e7920942a2aa7f56ba2d00ddd85f4eae007a83b9"
+    },
+    {
+      "path": "data/sceneassets/mascot/1896/model_animated.rx3",
+      "bytes": 405472,
+      "sha256": "f67081169500c43d0ef568a6e7920942a2aa7f56ba2d00ddd85f4eae007a83b9"
+    },
+    {
+      "path": "data/sceneassets/mascot/1896/textures.rx3",
+      "bytes": 4173184,
+      "sha256": "d4ae41b98d99a374fcd91b31dfba1114bd88e1819bbe300a14433070d291ef27"
+    },
+    {
+      "path": "data/sceneassets/mascot/2/model.rx3",
+      "bytes": 404928,
+      "sha256": "0586393eab733e07f011e02955b4d17ae870ce15a3b1a9bb5d5f8c33a15ec2ee"
+    },
+    {
+      "path": "data/sceneassets/mascot/2/model_animated.rx3",
+      "bytes": 404928,
+      "sha256": "0586393eab733e07f011e02955b4d17ae870ce15a3b1a9bb5d5f8c33a15ec2ee"
+    },
+    {
+      "path": "data/sceneassets/mascot/2/textures.rx3",
+      "bytes": 4173184,
+      "sha256": "671f33d96357633ee6216d895bcbce8994420d39ba48b9cbe5aeb51f86e7e2bf"
+    },
+    {
+      "path": "data/sceneassets/mascot/21/model.rx3",
+      "bytes": 410304,
+      "sha256": "37ee02eea30ded35a7df2439fd588d3f07a3f831b87deaec85b7842a7d3c3d11"
+    },
+    {
+      "path": "data/sceneassets/mascot/21/model_animated.rx3",
+      "bytes": 410304,
+      "sha256": "37ee02eea30ded35a7df2439fd588d3f07a3f831b87deaec85b7842a7d3c3d11"
+    },
+    {
+      "path": "data/sceneassets/mascot/21/textures.rx3",
+      "bytes": 4173184,
+      "sha256": "47ec3211f922be91c3eb973a6def7f2c6bf7c056da191c416334d6d797ab3cac"
+    },
+    {
+      "path": "data/sceneassets/mascot/219/model.rx3",
+      "bytes": 404016,
+      "sha256": "b5189bff8e8be77ad947a0995c080ce6e44fd7f879f9e1b6a9556a89d9c64a2a"
+    },
+    {
+      "path": "data/sceneassets/mascot/219/model_animated.rx3",
+      "bytes": 404016,
+      "sha256": "b5189bff8e8be77ad947a0995c080ce6e44fd7f879f9e1b6a9556a89d9c64a2a"
+    },
+    {
+      "path": "data/sceneassets/mascot/219/textures.rx3",
+      "bytes": 4173184,
+      "sha256": "ffb49f6d0b078109a532b233b10d2dcb55849f87c21397172daff0b11c0bbc5a"
+    },
+    {
+      "path": "data/sceneassets/mascot/22/model.rx3",
+      "bytes": 418464,
+      "sha256": "32795d7917bab6441cc0f116463aad2986c2a0945fcd63d151bc34869e52188c"
+    },
+    {
+      "path": "data/sceneassets/mascot/22/model_animated.rx3",
+      "bytes": 418464,
+      "sha256": "32795d7917bab6441cc0f116463aad2986c2a0945fcd63d151bc34869e52188c"
+    },
+    {
+      "path": "data/sceneassets/mascot/22/textures.rx3",
+      "bytes": 4173184,
+      "sha256": "11f510df19cdc7f875ae55fcab18179a13430ed13abcf1c12c96b1a735e6bd4b"
+    },
+    {
+      "path": "data/sceneassets/mascot/234/model.rx3",
+      "bytes": 450608,
+      "sha256": "e9307ed21e1dd57fd6da1633807bff04540698ef47eb2e05a9792cc01fee198a"
+    },
+    {
+      "path": "data/sceneassets/mascot/234/model_animated.rx3",
+      "bytes": 450608,
+      "sha256": "e9307ed21e1dd57fd6da1633807bff04540698ef47eb2e05a9792cc01fee198a"
+    },
+    {
+      "path": "data/sceneassets/mascot/234/textures.rx3",
+      "bytes": 4173184,
+      "sha256": "abcd4ce2e171a245c819ef53f6063b17b251c49b5e0a10476c16ed7aae5239c3"
+    },
+    {
+      "path": "data/sceneassets/mascot/236/model.rx3",
+      "bytes": 398080,
+      "sha256": "4dcec2b0b9b50865c73d5ca26dd4e4bca7fa21dfb3edd336916373bbdc424c74"
+    },
+    {
+      "path": "data/sceneassets/mascot/236/model_animated.rx3",
+      "bytes": 398080,
+      "sha256": "4dcec2b0b9b50865c73d5ca26dd4e4bca7fa21dfb3edd336916373bbdc424c74"
+    },
+    {
+      "path": "data/sceneassets/mascot/236/textures.rx3",
+      "bytes": 4173184,
+      "sha256": "aeeb5806d015c4fb5c725c410088f42c2e14021bb6a3e5a37d05d6fa57c0d5fd"
+    },
+    {
+      "path": "data/sceneassets/mascot/237/model.rx3",
+      "bytes": 419376,
+      "sha256": "fca3c91028f1687171469114b2a91a33a8a724b671b127453725d14cbc0472bb"
+    },
+    {
+      "path": "data/sceneassets/mascot/237/model_animated.rx3",
+      "bytes": 419376,
+      "sha256": "fca3c91028f1687171469114b2a91a33a8a724b671b127453725d14cbc0472bb"
+    },
+    {
+      "path": "data/sceneassets/mascot/237/textures.rx3",
+      "bytes": 4173184,
+      "sha256": "84bc8fbd3f4b7924d6671abdc5b1e4a9b6c2f9654ad5f0d5ec84516d7ace311b"
+    },
+    {
+      "path": "data/sceneassets/mascot/240/model.rx3",
+      "bytes": 407728,
+      "sha256": "bf07cb251b881339c694f32ea254ec7c8609210ff4b202e507d637a527d509f9"
+    },
+    {
+      "path": "data/sceneassets/mascot/240/model_animated.rx3",
+      "bytes": 407728,
+      "sha256": "bf07cb251b881339c694f32ea254ec7c8609210ff4b202e507d637a527d509f9"
+    },
+    {
+      "path": "data/sceneassets/mascot/240/textures.rx3",
+      "bytes": 4173184,
+      "sha256": "62c6cb07fe34915102a22b3c0ba47ac372c0b7ca4828f35077e170574d049bb1"
+    },
+    {
+      "path": "data/sceneassets/mascot/241/model.rx3",
+      "bytes": 410928,
+      "sha256": "3e1dbcf1dd7d13de58f667548671975a43acf1eecd0af815c62de04922e5d192"
+    },
+    {
+      "path": "data/sceneassets/mascot/241/model_animated.rx3",
+      "bytes": 410928,
+      "sha256": "3e1dbcf1dd7d13de58f667548671975a43acf1eecd0af815c62de04922e5d192"
+    },
+    {
+      "path": "data/sceneassets/mascot/241/textures.rx3",
+      "bytes": 4173184,
+      "sha256": "e74183aef29ef45eca8c8dbca5dd92cfef748d3b5314869554ae4184daf34dda"
+    },
+    {
+      "path": "data/sceneassets/mascot/243/model.rx3",
+      "bytes": 429936,
+      "sha256": "dfe95f538211d4c04e317fd57e98ce00e442af5c1b7b42a912da9eb7564b1e65"
+    },
+    {
+      "path": "data/sceneassets/mascot/243/model_animated.rx3",
+      "bytes": 429936,
+      "sha256": "dfe95f538211d4c04e317fd57e98ce00e442af5c1b7b42a912da9eb7564b1e65"
+    },
+    {
+      "path": "data/sceneassets/mascot/243/textures.rx3",
+      "bytes": 4173184,
+      "sha256": "fb0f2dade183ffef1edf1d1e2f39272a2fb143b9c38690725c312f4af4ce2289"
+    },
+    {
+      "path": "data/sceneassets/mascot/28/model.rx3",
+      "bytes": 426432,
+      "sha256": "d78f362ccc90004765b2df08b98bcfa59b7613e9e812388c8d5e1dda6c881a2f"
+    },
+    {
+      "path": "data/sceneassets/mascot/28/model_animated.rx3",
+      "bytes": 426432,
+      "sha256": "d78f362ccc90004765b2df08b98bcfa59b7613e9e812388c8d5e1dda6c881a2f"
+    },
+    {
+      "path": "data/sceneassets/mascot/28/textures.rx3",
+      "bytes": 4173184,
+      "sha256": "9fcd6c5f673f142ec96a5b216c1522c639df60c150673746f9e642b4740db6fb"
+    },
+    {
+      "path": "data/sceneassets/mascot/383/model_animation_test.rx3",
+      "bytes": 782608,
+      "sha256": "164e67480237b1c61ed87fefb044e5098210e3c409f05711966044b366c3b542"
+    },
+    {
+      "path": "data/sceneassets/mascot/44/model.rx3",
+      "bytes": 388576,
+      "sha256": "60ca59cdf19ef6e54b8f54ff6840608b3c847bdbddcc3f20ae2e15dd7ae3a54d"
+    },
+    {
+      "path": "data/sceneassets/mascot/44/model_animated.rx3",
+      "bytes": 388576,
+      "sha256": "60ca59cdf19ef6e54b8f54ff6840608b3c847bdbddcc3f20ae2e15dd7ae3a54d"
+    },
+    {
+      "path": "data/sceneassets/mascot/44/textures.rx3",
+      "bytes": 4173184,
+      "sha256": "6c066e9b6950be95fc56c75c35c50d6dc76e5b1b5c2762ddf2f059fd3a51fc4d"
+    },
+    {
+      "path": "data/sceneassets/mascot/45/model.rx3",
+      "bytes": 403232,
+      "sha256": "216eb8c23b10511476d96f5b89035a723b5d72d4d2ddb389748e109b55edd670"
+    },
+    {
+      "path": "data/sceneassets/mascot/45/model_animated.rx3",
+      "bytes": 403232,
+      "sha256": "216eb8c23b10511476d96f5b89035a723b5d72d4d2ddb389748e109b55edd670"
+    },
+    {
+      "path": "data/sceneassets/mascot/45/textures.rx3",
+      "bytes": 4173184,
+      "sha256": "4dc589ede57a6da2c18005afe06d411ec140b990c1fd218ef3a79fc9e7520aaa"
+    },
+    {
+      "path": "data/sceneassets/mascot/47/model.rx3",
+      "bytes": 414992,
+      "sha256": "9e69c7fcdf4ff01a3cee68bb06c6cca5238313526fb3c768f6a22c8222d0f9ef"
+    },
+    {
+      "path": "data/sceneassets/mascot/47/model_animated.rx3",
+      "bytes": 414992,
+      "sha256": "9e69c7fcdf4ff01a3cee68bb06c6cca5238313526fb3c768f6a22c8222d0f9ef"
+    },
+    {
+      "path": "data/sceneassets/mascot/47/textures.rx3",
+      "bytes": 4173184,
+      "sha256": "efb2389520073bec06945fa307ef565d1a31f7720fca6d7f30c3e466c8a7d748"
+    },
+    {
+      "path": "data/sceneassets/mascot/48/model.rx3",
+      "bytes": 421520,
+      "sha256": "b49ecf15477b635e812fdbc9780f0419c86d845f5def2ebda25934d3bc720ca1"
+    },
+    {
+      "path": "data/sceneassets/mascot/48/model_animated.rx3",
+      "bytes": 421520,
+      "sha256": "b49ecf15477b635e812fdbc9780f0419c86d845f5def2ebda25934d3bc720ca1"
+    },
+    {
+      "path": "data/sceneassets/mascot/48/textures.rx3",
+      "bytes": 4173184,
+      "sha256": "f6ac7830304204290c68058b7a215b593e1be620a9dc191091c826f071acc9d0"
+    },
+    {
+      "path": "data/sceneassets/mascot/5/model.rx3",
+      "bytes": 445216,
+      "sha256": "acbd7e76c5a25171b54d4cd4167a85b7314f1240f2ab72e0b5e16a17e30c59ed"
+    },
+    {
+      "path": "data/sceneassets/mascot/5/model_animated.rx3",
+      "bytes": 445216,
+      "sha256": "acbd7e76c5a25171b54d4cd4167a85b7314f1240f2ab72e0b5e16a17e30c59ed"
+    },
+    {
+      "path": "data/sceneassets/mascot/5/textures.rx3",
+      "bytes": 4173184,
+      "sha256": "5f89c8818b4b92b7c5ca659d5a8b56c3c29070c5b7a99fd1dcf857bb0468ffc6"
+    },
+    {
+      "path": "data/sceneassets/mascot/66/model.rx3",
+      "bytes": 437040,
+      "sha256": "0de2a071648ae98b3628fd65b8d27a94fd2f5cb145ad37474891c3caca28afcf"
+    },
+    {
+      "path": "data/sceneassets/mascot/66/model_animated.rx3",
+      "bytes": 437040,
+      "sha256": "0de2a071648ae98b3628fd65b8d27a94fd2f5cb145ad37474891c3caca28afcf"
+    },
+    {
+      "path": "data/sceneassets/mascot/66/textures.rx3",
+      "bytes": 4173184,
+      "sha256": "776ed8c87cb01e16840c0b54a83fb569f9aa0211707addab18142328629d92cc"
+    },
+    {
+      "path": "data/sceneassets/mascot/73/model.rx3",
+      "bytes": 403440,
+      "sha256": "492ef4bf94151b6350aba1383d44afd1ede956ef9f23e80f1f6ba21f7c2818cc"
+    },
+    {
+      "path": "data/sceneassets/mascot/73/model_animated.rx3",
+      "bytes": 403440,
+      "sha256": "492ef4bf94151b6350aba1383d44afd1ede956ef9f23e80f1f6ba21f7c2818cc"
+    },
+    {
+      "path": "data/sceneassets/mascot/73/textures.rx3",
+      "bytes": 4173184,
+      "sha256": "c66b4e53a84123792d9ef06db662aa13af7a23ab909ebe410d440186a777c95e"
+    },
+    {
+      "path": "data/sceneassets/mascot/9/model.rx3",
+      "bytes": 398224,
+      "sha256": "7ebf2a72719fe0c28b17702c726ef990d19818d6daf825114d5c58874535bacc"
+    },
+    {
+      "path": "data/sceneassets/mascot/9/model_animated.rx3",
+      "bytes": 398224,
+      "sha256": "7ebf2a72719fe0c28b17702c726ef990d19818d6daf825114d5c58874535bacc"
+    },
+    {
+      "path": "data/sceneassets/mascot/9/textures.rx3",
+      "bytes": 4173184,
+      "sha256": "e48fa909c9dad5ea02d1fc760d951b89beb87371e525dce6e20eaa869d98096e"
+    },
+    {
+      "path": "data/sceneassets/server16_dressing_room_v3/crests_cf4f02b6e0746c.rx3",
+      "bytes": 2080,
+      "sha256": "cf4f02b6e0746cfe6987b8f647d59972bad78b8b53f876e9975c0a7d490a4d22"
+    },
+    {
+      "path": "data/sceneassets/server16_dressing_room_v3/loading_backdrop_r82.rx3",
+      "bytes": 464,
+      "sha256": "1238ac6471f8d6fa6f634706cdc5756c9e484edb421abeba056c91bd1fe21d55"
+    },
+    {
+      "path": "data/sceneassets/server16_dressing_room_v3/loading_backdrop_texture_r82.rx3",
+      "bytes": 336,
+      "sha256": "ba7f9a40015056a959052d5561d8456555cf9c091076bd71da45bd9672e9811b"
+    },
+    {
+      "path": "data/sceneassets/server16_dressing_room_v3/loading_badge_r82.rx3",
+      "bytes": 464,
+      "sha256": "6d10275e27dc1cb3ef28f9ec0e61dcf4abb2491cf11becead820ca8d61840336"
+    },
+    {
+      "path": "data/sceneassets/server16_dressing_room_v3/loading_error_texture_r82.rx3",
+      "bytes": 2766560,
+      "sha256": "88b341a42ef1b89ff1d4cf0cd5a538e6be376349ce7334bca5b19cb70280a05a"
+    },
+    {
+      "path": "data/sceneassets/server16_dressing_room_v3/loading_panel_r82.rx3",
+      "bytes": 464,
+      "sha256": "1a01729ce5efbee233623ae9fcf27d0f599604e599f688b1f5e54361468bf693"
+    },
+    {
+      "path": "data/sceneassets/server16_dressing_room_v3/loading_panel_texture_r82.rx3",
+      "bytes": 2766560,
+      "sha256": "97672a3f8c50b2ec47bfb25bab25c889c0fb528f4501a9eefda85b7548b44e43"
+    },
+    {
+      "path": "data/sceneassets/server16_dressing_room_v3/loading_progress_r82.rx3",
+      "bytes": 464,
+      "sha256": "3a64deb4a0bb31e7e5f697b261e9ca14b26baf08c111a16d55f124a1705dae02"
+    },
+    {
+      "path": "data/sceneassets/server16_dressing_room_v3/loading_progress_texture_r82.rx3",
+      "bytes": 336,
+      "sha256": "470036542101f1d8a89e658af4e8b29c2b3e1403cfa9bb4ef8211080429e372f"
+    },
+    {
+      "path": "data/sceneassets/server16_dressing_room_v3/loading_ring_r82.rx3",
+      "bytes": 464,
+      "sha256": "be392fbde9f673be64ba03a7d4ac0195179a91e257755c5cce8a74b72e461114"
+    },
+    {
+      "path": "data/sceneassets/server16_dressing_room_v3/loading_ring_texture_r82.rx3",
+      "bytes": 349872,
+      "sha256": "fbf04f2384a50c224aee1553390431830d00703353e7cebdf1b68f968a245fe4"
+    },
+    {
+      "path": "data/sceneassets/server16_dressing_room_v3/locker_bay_09054265a958d4.rx3",
+      "bytes": 21632,
+      "sha256": "09054265a958d4ff6e2100df98ef3fd077953520f5b9d831379e2566523cee98"
+    },
+    {
+      "path": "data/sceneassets/server16_dressing_room_v3/room_roles_36d2db6f7c57e2.rx3",
+      "bytes": 972032,
+      "sha256": "36d2db6f7c57e20bc32bca985453fce06a2453cb2a8f6320f078eb7f06d6be48"
+    },
+    {
+      "path": "ModCarrerMode/data/manager_market/minifaces/COACH-377c33f57964542a.png",
+      "bytes": 86913,
+      "sha256": "bd814b220fadf6ae75cbbebf0c768cecc429822a4a60e3efe1ae4323daa484f2"
+    },
+    {
+      "path": "ModCarrerMode/data/manager_market/minifaces/COACH-48629daeb5026ceb.png",
+      "bytes": 84368,
+      "sha256": "8981d3a4dcd0ffa6df5e8e67b5a94a89f87058891264bdb12057ce625ad928c5"
+    },
+    {
+      "path": "ModCarrerMode/data/manager_market/minifaces/COACH-7cc3bea62191dab5.png",
+      "bytes": 87425,
+      "sha256": "9c6e8d72c0b2b21f627fa6b3e8b35eaec2ebbb3911718560d267a924c969be93"
+    },
+    {
+      "path": "ModCarrerMode/data/manager_market/minifaces/COACH-c6d57564f9bc8621.png",
+      "bytes": 115857,
+      "sha256": "750252b2cdcac5178b268502f72e5e7e3dd70e9abec0566153d9e901fcb897de"
+    },
+    {
+      "path": "ModCarrerMode/data/manager_market/minifaces/COACH-cbf30fde263907fe.png",
+      "bytes": 83786,
+      "sha256": "832220680e81d40e644e59bcfb6adbbb44359db1f62d11289a767c3f6d1c2ab4"
+    },
+    {
+      "path": "ModCarrerMode/data/manager_market/minifaces/native_COACH-16ba02831853de3a.png",
+      "bytes": 223688,
+      "sha256": "2dddc0798cb6999266ae054b04500aac247f222b40b77c2a9daf3089d7b7acda"
+    },
+    {
+      "path": "ModCarrerMode/data/manager_market/minifaces/native_COACH-e64c9bba7004f255.png",
+      "bytes": 220830,
+      "sha256": "129ec4f9dbabb57eb42f1790cc4d37ffee0da8d0651a4f13d05b17c8d759e0b4"
+    },
+    {
+      "path": "data/sceneassets/slc/specificmanager_1318_0_0.rx3",
+      "bytes": 1516832,
+      "sha256": "17125c274e3bc07a4f208f4cba841f6792fd4d592cc94bb67a0817a9a4ef6ff9"
+    },
+    {
+      "path": "data/sceneassets/slc/specificmanager_1318_0_0_textures.rx3",
+      "bytes": 37749584,
+      "sha256": "8944af6911f0f7cb8c416877cd3fe1066fceb40a1f5f4b4d64d04f106579d503"
+    },
+    {
+      "path": "data/sceneassets/slc/specificmanager_1318_0_1.rx3",
+      "bytes": 1516832,
+      "sha256": "17125c274e3bc07a4f208f4cba841f6792fd4d592cc94bb67a0817a9a4ef6ff9"
+    },
+    {
+      "path": "data/sceneassets/slc/specificmanager_1318_0_1_textures.rx3",
+      "bytes": 37749584,
+      "sha256": "8944af6911f0f7cb8c416877cd3fe1066fceb40a1f5f4b4d64d04f106579d503"
+    },
+    {
+      "path": "data/sceneassets/slc/specificmanager_1362_0_0.rx3",
+      "bytes": 1658832,
+      "sha256": "cd8b5c63c06cd30887c3245b4bb1deede249084e7b86ef40b3e5b59532545dd0"
+    },
+    {
+      "path": "data/sceneassets/slc/specificmanager_1362_0_0_textures.rx3",
+      "bytes": 37749584,
+      "sha256": "cf266b11f4ebe1c44793d8442d228f60337c5bb155f190a0661a17409797261d"
+    },
+    {
+      "path": "data/sceneassets/slc/specificmanager_1362_0_1.rx3",
+      "bytes": 1658832,
+      "sha256": "cd8b5c63c06cd30887c3245b4bb1deede249084e7b86ef40b3e5b59532545dd0"
+    },
+    {
+      "path": "data/sceneassets/slc/specificmanager_1362_0_1_textures.rx3",
+      "bytes": 37749584,
+      "sha256": "cf266b11f4ebe1c44793d8442d228f60337c5bb155f190a0661a17409797261d"
+    },
+    {
+      "path": "data/sceneassets/slc/specificmanager_1370_0_0.rx3",
+      "bytes": 2192672,
+      "sha256": "be291c41f7fa14d0c05e4e5d5c48c0f94fee808e5957de946deecd8585e1c8ad"
+    },
+    {
+      "path": "data/sceneassets/slc/specificmanager_1370_0_0_textures.rx3",
+      "bytes": 37749584,
+      "sha256": "3bb94db2a708a03ca20c22ba9926c5107e7d7aa83ebd5d22a73545fad60160f3"
+    },
+    {
+      "path": "data/sceneassets/slc/specificmanager_1370_0_1.rx3",
+      "bytes": 2192672,
+      "sha256": "be291c41f7fa14d0c05e4e5d5c48c0f94fee808e5957de946deecd8585e1c8ad"
+    },
+    {
+      "path": "data/sceneassets/slc/specificmanager_1370_0_1_textures.rx3",
+      "bytes": 37749584,
+      "sha256": "3bb94db2a708a03ca20c22ba9926c5107e7d7aa83ebd5d22a73545fad60160f3"
+    },
+    {
+      "path": "data/sceneassets/slc/specificmanager_1377_0_0.rx3",
+      "bytes": 1951584,
+      "sha256": "8c304e13347c6a3e42d1459c8b1bbdc31bffd9e65df6d1cb8fc61655a8ee5a2a"
+    },
+    {
+      "path": "data/sceneassets/slc/specificmanager_1377_0_0_textures.rx3",
+      "bytes": 37749584,
+      "sha256": "25500239d2d6419d99a109689edcf91f57562047c6c6393c96b10ae6d62bfc1d"
+    },
+    {
+      "path": "data/sceneassets/slc/specificmanager_1377_0_1.rx3",
+      "bytes": 1951584,
+      "sha256": "8c304e13347c6a3e42d1459c8b1bbdc31bffd9e65df6d1cb8fc61655a8ee5a2a"
+    },
+    {
+      "path": "data/sceneassets/slc/specificmanager_1377_0_1_textures.rx3",
+      "bytes": 37749584,
+      "sha256": "25500239d2d6419d99a109689edcf91f57562047c6c6393c96b10ae6d62bfc1d"
+    },
+    {
+      "path": "data/sceneassets/slc/specificmanager_1386_0_0.rx3",
+      "bytes": 2114528,
+      "sha256": "fa445bc0783901850cdedfa3ed34f82797bd5512a62c2f1065f3014e6dbb40a6"
+    },
+    {
+      "path": "data/sceneassets/slc/specificmanager_1386_0_0_textures.rx3",
+      "bytes": 37749584,
+      "sha256": "a8ffe11643a8d780e641a79918485fbcda8bab9ba2cb87739d55aa45fb0f7038"
+    },
+    {
+      "path": "data/sceneassets/slc/specificmanager_1386_0_1.rx3",
+      "bytes": 2114528,
+      "sha256": "fa445bc0783901850cdedfa3ed34f82797bd5512a62c2f1065f3014e6dbb40a6"
+    },
+    {
+      "path": "data/sceneassets/slc/specificmanager_1386_0_1_textures.rx3",
+      "bytes": 37749584,
+      "sha256": "a8ffe11643a8d780e641a79918485fbcda8bab9ba2cb87739d55aa45fb0f7038"
+    },
+    {
+      "path": "data/sceneassets/slc/specificmanager_190200_0_0.rx3",
+      "bytes": 830256,
+      "sha256": "4a8ea63beab647a67102af9ec5f3cfa9e74616de67e2378d9e16d960fba34bc4"
+    },
+    {
+      "path": "data/sceneassets/slc/specificmanager_190200_0_0_textures.rx3",
+      "bytes": 37749584,
+      "sha256": "e923f4612a2be80df26e9725754c25be426abcfb189c98f5b36d92fd25921d55"
+    },
+    {
+      "path": "data/sceneassets/slc/specificmanager_190200_0_1.rx3",
+      "bytes": 830256,
+      "sha256": "4a8ea63beab647a67102af9ec5f3cfa9e74616de67e2378d9e16d960fba34bc4"
+    },
+    {
+      "path": "data/sceneassets/slc/specificmanager_190200_0_1_textures.rx3",
+      "bytes": 37749584,
+      "sha256": "e923f4612a2be80df26e9725754c25be426abcfb189c98f5b36d92fd25921d55"
+    },
+    {
+      "path": "data/sceneassets/slc/specificmanager_190201_0_0.rx3",
+      "bytes": 1080528,
+      "sha256": "80be04fbf41f0dcf63e537c11c55a7d25c17c949d6a331b0514f467f3c3eb80f"
+    },
+    {
+      "path": "data/sceneassets/slc/specificmanager_190201_0_0_textures.rx3",
+      "bytes": 37749584,
+      "sha256": "b455c608cf48c4c4c543a4c128bf915c76d00bad615694256fca2f8909da0bda"
+    },
+    {
+      "path": "data/sceneassets/slc/specificmanager_190201_0_1.rx3",
+      "bytes": 1080528,
+      "sha256": "80be04fbf41f0dcf63e537c11c55a7d25c17c949d6a331b0514f467f3c3eb80f"
+    },
+    {
+      "path": "data/sceneassets/slc/specificmanager_190201_0_1_textures.rx3",
+      "bytes": 37749584,
+      "sha256": "b455c608cf48c4c4c543a4c128bf915c76d00bad615694256fca2f8909da0bda"
+    },
+    {
+      "path": "data/sceneassets/slc/specificmanager_190202_0_0.rx3",
+      "bytes": 1543968,
+      "sha256": "5ede04c8916ddda4496344d2034b6818cd8bb201ad4a7c831876311e8e5cecd9"
+    },
+    {
+      "path": "data/sceneassets/slc/specificmanager_190202_0_0_textures.rx3",
+      "bytes": 37749584,
+      "sha256": "bb117932f01190323eef575f6c92d8e429ba1458436a0a427c5c5c2fcf1a96ea"
+    },
+    {
+      "path": "data/sceneassets/slc/specificmanager_190202_0_1.rx3",
+      "bytes": 1543968,
+      "sha256": "5ede04c8916ddda4496344d2034b6818cd8bb201ad4a7c831876311e8e5cecd9"
+    },
+    {
+      "path": "data/sceneassets/slc/specificmanager_190202_0_1_textures.rx3",
+      "bytes": 37749584,
+      "sha256": "bb117932f01190323eef575f6c92d8e429ba1458436a0a427c5c5c2fcf1a96ea"
+    },
+    {
+      "path": "data/sceneassets/slc/specificmanager_190203_0_0.rx3",
+      "bytes": 1516832,
+      "sha256": "17125c274e3bc07a4f208f4cba841f6792fd4d592cc94bb67a0817a9a4ef6ff9"
+    },
+    {
+      "path": "data/sceneassets/slc/specificmanager_190203_0_0_textures.rx3",
+      "bytes": 37749584,
+      "sha256": "8944af6911f0f7cb8c416877cd3fe1066fceb40a1f5f4b4d64d04f106579d503"
+    },
+    {
+      "path": "data/sceneassets/slc/specificmanager_190203_0_1.rx3",
+      "bytes": 1516832,
+      "sha256": "17125c274e3bc07a4f208f4cba841f6792fd4d592cc94bb67a0817a9a4ef6ff9"
+    },
+    {
+      "path": "data/sceneassets/slc/specificmanager_190203_0_1_textures.rx3",
+      "bytes": 37749584,
+      "sha256": "8944af6911f0f7cb8c416877cd3fe1066fceb40a1f5f4b4d64d04f106579d503"
+    },
+    {
+      "path": "data/sceneassets/slc/specificmanager_190204_0_0.rx3",
+      "bytes": 1658832,
+      "sha256": "cd8b5c63c06cd30887c3245b4bb1deede249084e7b86ef40b3e5b59532545dd0"
+    },
+    {
+      "path": "data/sceneassets/slc/specificmanager_190204_0_0_textures.rx3",
+      "bytes": 37749584,
+      "sha256": "cf266b11f4ebe1c44793d8442d228f60337c5bb155f190a0661a17409797261d"
+    },
+    {
+      "path": "data/sceneassets/slc/specificmanager_190204_0_1.rx3",
+      "bytes": 1658832,
+      "sha256": "cd8b5c63c06cd30887c3245b4bb1deede249084e7b86ef40b3e5b59532545dd0"
+    },
+    {
+      "path": "data/sceneassets/slc/specificmanager_190204_0_1_textures.rx3",
+      "bytes": 37749584,
+      "sha256": "cf266b11f4ebe1c44793d8442d228f60337c5bb155f190a0661a17409797261d"
+    },
+    {
+      "path": "data/sceneassets/slc/specificmanager_190205_0_0.rx3",
+      "bytes": 1522512,
+      "sha256": "1cf0a0225db06aa8ae72fae00d34cc0527d11d4da27153e232704da1f2450854"
+    },
+    {
+      "path": "data/sceneassets/slc/specificmanager_190205_0_0_textures.rx3",
+      "bytes": 37749584,
+      "sha256": "2406c72ff38a47f2574e1b54004a45d21143c60acaada3577b9086b27ead4c82"
+    },
+    {
+      "path": "data/sceneassets/slc/specificmanager_190205_0_1.rx3",
+      "bytes": 1522512,
+      "sha256": "1cf0a0225db06aa8ae72fae00d34cc0527d11d4da27153e232704da1f2450854"
+    },
+    {
+      "path": "data/sceneassets/slc/specificmanager_190205_0_1_textures.rx3",
+      "bytes": 37749584,
+      "sha256": "2406c72ff38a47f2574e1b54004a45d21143c60acaada3577b9086b27ead4c82"
+    },
+    {
+      "path": "data/sceneassets/slc/specificmanager_190206_0_0.rx3",
+      "bytes": 2114528,
+      "sha256": "3817facb262a4bec5118b215665e5efa40973a391d3b4e1f2d276861f09bc3b7"
+    },
+    {
+      "path": "data/sceneassets/slc/specificmanager_190206_0_0_textures.rx3",
+      "bytes": 37749584,
+      "sha256": "b5b2e2ce34681c5ac681472b81edd9ce7ca71cb75fb8861f71fd196b3c4410b3"
+    },
+    {
+      "path": "data/sceneassets/slc/specificmanager_190206_0_1.rx3",
+      "bytes": 2114528,
+      "sha256": "3817facb262a4bec5118b215665e5efa40973a391d3b4e1f2d276861f09bc3b7"
+    },
+    {
+      "path": "data/sceneassets/slc/specificmanager_190206_0_1_textures.rx3",
+      "bytes": 37749584,
+      "sha256": "b5b2e2ce34681c5ac681472b81edd9ce7ca71cb75fb8861f71fd196b3c4410b3"
+    },
+    {
+      "path": "data/sceneassets/slc/specificmanager_190207_0_0.rx3",
+      "bytes": 2114528,
+      "sha256": "d4fcad409409a8fe019f7c1726a30b730727e0ada1fbeb1ccbf66098f743fccc"
+    },
+    {
+      "path": "data/sceneassets/slc/specificmanager_190207_0_0_textures.rx3",
+      "bytes": 37749584,
+      "sha256": "228ba136c81e69d5eb1fd5ffbfd11ed74832f39dfc0e4f9e653f14151c6ca7d8"
+    },
+    {
+      "path": "data/sceneassets/slc/specificmanager_190207_0_1.rx3",
+      "bytes": 2114528,
+      "sha256": "d4fcad409409a8fe019f7c1726a30b730727e0ada1fbeb1ccbf66098f743fccc"
+    },
+    {
+      "path": "data/sceneassets/slc/specificmanager_190207_0_1_textures.rx3",
+      "bytes": 37749584,
+      "sha256": "228ba136c81e69d5eb1fd5ffbfd11ed74832f39dfc0e4f9e653f14151c6ca7d8"
+    },
+    {
+      "path": "data/sceneassets/slc/specificmanager_190208_0_0.rx3",
+      "bytes": 2114528,
+      "sha256": "482c836cbee99d6ea6d7011ca44d3e1230067f9c2f47a3b076e30a55029f4569"
+    },
+    {
+      "path": "data/sceneassets/slc/specificmanager_190208_0_0_textures.rx3",
+      "bytes": 37749584,
+      "sha256": "bf81ecb2d6344a86ab645d3abde54c05308b66432d996749734d9ece6ce5903e"
+    },
+    {
+      "path": "data/sceneassets/slc/specificmanager_190208_0_1.rx3",
+      "bytes": 2114528,
+      "sha256": "482c836cbee99d6ea6d7011ca44d3e1230067f9c2f47a3b076e30a55029f4569"
+    },
+    {
+      "path": "data/sceneassets/slc/specificmanager_190208_0_1_textures.rx3",
+      "bytes": 37749584,
+      "sha256": "bf81ecb2d6344a86ab645d3abde54c05308b66432d996749734d9ece6ce5903e"
+    },
+    {
+      "path": "data/sceneassets/slc/specificmanager_190209_0_0.rx3",
+      "bytes": 2114528,
+      "sha256": "fa445bc0783901850cdedfa3ed34f82797bd5512a62c2f1065f3014e6dbb40a6"
+    },
+    {
+      "path": "data/sceneassets/slc/specificmanager_190209_0_0_textures.rx3",
+      "bytes": 37749584,
+      "sha256": "a8ffe11643a8d780e641a79918485fbcda8bab9ba2cb87739d55aa45fb0f7038"
+    },
+    {
+      "path": "data/sceneassets/slc/specificmanager_190209_0_1.rx3",
+      "bytes": 2114528,
+      "sha256": "fa445bc0783901850cdedfa3ed34f82797bd5512a62c2f1065f3014e6dbb40a6"
+    },
+    {
+      "path": "data/sceneassets/slc/specificmanager_190209_0_1_textures.rx3",
+      "bytes": 37749584,
+      "sha256": "a8ffe11643a8d780e641a79918485fbcda8bab9ba2cb87739d55aa45fb0f7038"
+    },
+    {
+      "path": "data/sceneassets/slc/specificmanager_190210_0_0.rx3",
+      "bytes": 1380496,
+      "sha256": "202b7893641fb446a81bd7ec3d2fd8ceba74a6bdf29b0878b08529f7b8ee28bd"
+    },
+    {
+      "path": "data/sceneassets/slc/specificmanager_190210_0_0_textures.rx3",
+      "bytes": 37749584,
+      "sha256": "0db100b09c96a2e5bc39f4812bfcb7e74f9a34ea5989402a95ff255293929648"
+    },
+    {
+      "path": "data/sceneassets/slc/specificmanager_190210_0_1.rx3",
+      "bytes": 1380496,
+      "sha256": "202b7893641fb446a81bd7ec3d2fd8ceba74a6bdf29b0878b08529f7b8ee28bd"
+    },
+    {
+      "path": "data/sceneassets/slc/specificmanager_190210_0_1_textures.rx3",
+      "bytes": 37749584,
+      "sha256": "0db100b09c96a2e5bc39f4812bfcb7e74f9a34ea5989402a95ff255293929648"
+    },
+    {
+      "path": "data/sceneassets/slc/specificmanager_190211_0_0.rx3",
+      "bytes": 1951584,
+      "sha256": "8c304e13347c6a3e42d1459c8b1bbdc31bffd9e65df6d1cb8fc61655a8ee5a2a"
+    },
+    {
+      "path": "data/sceneassets/slc/specificmanager_190211_0_0_textures.rx3",
+      "bytes": 37749584,
+      "sha256": "25500239d2d6419d99a109689edcf91f57562047c6c6393c96b10ae6d62bfc1d"
+    },
+    {
+      "path": "data/sceneassets/slc/specificmanager_190211_0_1.rx3",
+      "bytes": 1951584,
+      "sha256": "8c304e13347c6a3e42d1459c8b1bbdc31bffd9e65df6d1cb8fc61655a8ee5a2a"
+    },
+    {
+      "path": "data/sceneassets/slc/specificmanager_190211_0_1_textures.rx3",
+      "bytes": 37749584,
+      "sha256": "25500239d2d6419d99a109689edcf91f57562047c6c6393c96b10ae6d62bfc1d"
+    },
+    {
+      "path": "data/sceneassets/slc/specificmanager_190212_0_0.rx3",
+      "bytes": 1516832,
+      "sha256": "99628cc730266aad9a5c64ee300053fdc5c3f949920bb9a1d03768beef500672"
+    },
+    {
+      "path": "data/sceneassets/slc/specificmanager_190212_0_0_textures.rx3",
+      "bytes": 37749584,
+      "sha256": "2ba19040e7f7539c91d63e98cc95b82d1a54000b55bb0b285130e423ea918a2b"
+    },
+    {
+      "path": "data/sceneassets/slc/specificmanager_190212_0_1.rx3",
+      "bytes": 1516832,
+      "sha256": "99628cc730266aad9a5c64ee300053fdc5c3f949920bb9a1d03768beef500672"
+    },
+    {
+      "path": "data/sceneassets/slc/specificmanager_190212_0_1_textures.rx3",
+      "bytes": 37749584,
+      "sha256": "2ba19040e7f7539c91d63e98cc95b82d1a54000b55bb0b285130e423ea918a2b"
+    },
+    {
+      "path": "data/sceneassets/slc/specificmanager_190213_0_0.rx3",
+      "bytes": 2192672,
+      "sha256": "0952cbe97e9596554fafe762ce589d36911fb2ae1be039a18facd4061ca08191"
+    },
+    {
+      "path": "data/sceneassets/slc/specificmanager_190213_0_0_textures.rx3",
+      "bytes": 37749584,
+      "sha256": "f216d0c861e2e4fba73974cffbff5e7a1acb584fa777af7b4177455de8ea7fa9"
+    },
+    {
+      "path": "data/sceneassets/slc/specificmanager_190213_0_1.rx3",
+      "bytes": 2192672,
+      "sha256": "0952cbe97e9596554fafe762ce589d36911fb2ae1be039a18facd4061ca08191"
+    },
+    {
+      "path": "data/sceneassets/slc/specificmanager_190213_0_1_textures.rx3",
+      "bytes": 37749584,
+      "sha256": "f216d0c861e2e4fba73974cffbff5e7a1acb584fa777af7b4177455de8ea7fa9"
+    },
+    {
+      "path": "data/sceneassets/slc/specificmanager_190214_0_0.rx3",
+      "bytes": 2192672,
+      "sha256": "be291c41f7fa14d0c05e4e5d5c48c0f94fee808e5957de946deecd8585e1c8ad"
+    },
+    {
+      "path": "data/sceneassets/slc/specificmanager_190214_0_0_textures.rx3",
+      "bytes": 37749584,
+      "sha256": "3bb94db2a708a03ca20c22ba9926c5107e7d7aa83ebd5d22a73545fad60160f3"
+    },
+    {
+      "path": "data/sceneassets/slc/specificmanager_190214_0_1.rx3",
+      "bytes": 2192672,
+      "sha256": "be291c41f7fa14d0c05e4e5d5c48c0f94fee808e5957de946deecd8585e1c8ad"
+    },
+    {
+      "path": "data/sceneassets/slc/specificmanager_190214_0_1_textures.rx3",
+      "bytes": 37749584,
+      "sha256": "3bb94db2a708a03ca20c22ba9926c5107e7d7aa83ebd5d22a73545fad60160f3"
+    },
+    {
+      "path": "data/sceneassets/slc/specificmanager_190215_0_0.rx3",
+      "bytes": 1558208,
+      "sha256": "cd78fbaad9228ee184eb3cba66f5d99658536f16521f5011054f8cc973f9244a"
+    },
+    {
+      "path": "data/sceneassets/slc/specificmanager_190215_0_0_textures.rx3",
+      "bytes": 37749584,
+      "sha256": "69e1cefd71b33820a1b911641018dc4198bc90882086cdf90ed5e2cc087c8a01"
+    },
+    {
+      "path": "data/sceneassets/slc/specificmanager_190215_0_1.rx3",
+      "bytes": 1558208,
+      "sha256": "cd78fbaad9228ee184eb3cba66f5d99658536f16521f5011054f8cc973f9244a"
+    },
+    {
+      "path": "data/sceneassets/slc/specificmanager_190215_0_1_textures.rx3",
+      "bytes": 37749584,
+      "sha256": "69e1cefd71b33820a1b911641018dc4198bc90882086cdf90ed5e2cc087c8a01"
+    },
+    {
+      "path": "data/sceneassets/slc/specificmanager_1_0_0.rx3",
+      "bytes": 1080528,
+      "sha256": "80be04fbf41f0dcf63e537c11c55a7d25c17c949d6a331b0514f467f3c3eb80f"
+    },
+    {
+      "path": "data/sceneassets/slc/specificmanager_1_0_0_textures.rx3",
+      "bytes": 37749584,
+      "sha256": "b455c608cf48c4c4c543a4c128bf915c76d00bad615694256fca2f8909da0bda"
+    },
+    {
+      "path": "data/sceneassets/slc/specificmanager_1_0_1.rx3",
+      "bytes": 1080528,
+      "sha256": "80be04fbf41f0dcf63e537c11c55a7d25c17c949d6a331b0514f467f3c3eb80f"
+    },
+    {
+      "path": "data/sceneassets/slc/specificmanager_1_0_1_textures.rx3",
+      "bytes": 37749584,
+      "sha256": "b455c608cf48c4c4c543a4c128bf915c76d00bad615694256fca2f8909da0bda"
+    },
+    {
+      "path": "data/sceneassets/slc/specificmanager_21_0_0.rx3",
+      "bytes": 830256,
+      "sha256": "4a8ea63beab647a67102af9ec5f3cfa9e74616de67e2378d9e16d960fba34bc4"
+    },
+    {
+      "path": "data/sceneassets/slc/specificmanager_21_0_0_textures.rx3",
+      "bytes": 37749584,
+      "sha256": "e923f4612a2be80df26e9725754c25be426abcfb189c98f5b36d92fd25921d55"
+    },
+    {
+      "path": "data/sceneassets/slc/specificmanager_21_0_1.rx3",
+      "bytes": 830256,
+      "sha256": "4a8ea63beab647a67102af9ec5f3cfa9e74616de67e2378d9e16d960fba34bc4"
+    },
+    {
+      "path": "data/sceneassets/slc/specificmanager_21_0_1_textures.rx3",
+      "bytes": 37749584,
+      "sha256": "e923f4612a2be80df26e9725754c25be426abcfb189c98f5b36d92fd25921d55"
+    },
+    {
+      "path": "data/sceneassets/slc/specificmanager_240_0_0.rx3",
+      "bytes": 2114528,
+      "sha256": "d4fcad409409a8fe019f7c1726a30b730727e0ada1fbeb1ccbf66098f743fccc"
+    },
+    {
+      "path": "data/sceneassets/slc/specificmanager_240_0_0_textures.rx3",
+      "bytes": 37749584,
+      "sha256": "228ba136c81e69d5eb1fd5ffbfd11ed74832f39dfc0e4f9e653f14151c6ca7d8"
+    },
+    {
+      "path": "data/sceneassets/slc/specificmanager_240_0_1.rx3",
+      "bytes": 2114528,
+      "sha256": "d4fcad409409a8fe019f7c1726a30b730727e0ada1fbeb1ccbf66098f743fccc"
+    },
+    {
+      "path": "data/sceneassets/slc/specificmanager_240_0_1_textures.rx3",
+      "bytes": 37749584,
+      "sha256": "228ba136c81e69d5eb1fd5ffbfd11ed74832f39dfc0e4f9e653f14151c6ca7d8"
+    },
+    {
+      "path": "data/sceneassets/slc/specificmanager_9_0_0.rx3",
+      "bytes": 1516832,
+      "sha256": "99628cc730266aad9a5c64ee300053fdc5c3f949920bb9a1d03768beef500672"
+    },
+    {
+      "path": "data/sceneassets/slc/specificmanager_9_0_0_textures.rx3",
+      "bytes": 37749584,
+      "sha256": "2ba19040e7f7539c91d63e98cc95b82d1a54000b55bb0b285130e423ea918a2b"
+    },
+    {
+      "path": "data/sceneassets/slc/specificmanager_9_0_1.rx3",
+      "bytes": 1516832,
+      "sha256": "99628cc730266aad9a5c64ee300053fdc5c3f949920bb9a1d03768beef500672"
+    },
+    {
+      "path": "data/sceneassets/slc/specificmanager_9_0_1_textures.rx3",
+      "bytes": 37749584,
+      "sha256": "2ba19040e7f7539c91d63e98cc95b82d1a54000b55bb0b285130e423ea918a2b"
+    },
+    {
+      "path": "data/ui/imgAssets/stadium/stadium_BRA - Arena Conda.dds",
+      "bytes": 202928,
+      "sha256": "91b680b00331405362f54e8ffbe80848268221099ef1feae793229bee7b84777"
+    },
+    {
+      "path": "data/ui/imgAssets/stadium/stadium_BRA - Estadio Presidente Vargas RS.dds",
+      "bytes": 202928,
+      "sha256": "3d6f2bf4f368e094d53e21dd876a63886fc1c550d75758c829048f9f49b86fc1"
+    },
+    {
+      "path": "data/ui/imgAssets/stadium/stadium_BRA - Nabi Abi Chedid - Bragantino.dds",
+      "bytes": 202928,
+      "sha256": "0ffbe46fd8d53ca92b716439f58ea2738b59dc516f11f14468c355ff66ffab38"
+    },
+    {
+      "path": "data/ui/imgAssets/stadium/stadium_USA - Chase Stadium - Inter Miami.dds",
+      "bytes": 202928,
+      "sha256": "21b7d29465cf0dca5a8123573aa5d1fe66b6ffb47d9b63373914c449e9c7ad8a"
+    },
+    {
+      "path": "data/ui/imgAssets/stadium/stadium_USA - New England Revolution - Gillette Stadium.dds",
+      "bytes": 202928,
+      "sha256": "887e88dd7ce220d3bd187596617e60008ddea5ca7fb733b0017049692e46a0b4"
+    },
+    {
+      "path": "ModCarrerMode/data/ultrawide/notfound_standard.dds",
+      "bytes": 2073728,
+      "sha256": "0960d2a9459e3c6ef27b75817895b4602b509a23a76dc5a01f3711a6704389e4"
+    },
+    {
+      "path": "ModCarrerMode/data/ultrawide/notfound_ultrawide.dds",
+      "bytes": 2764928,
+      "sha256": "43458a56986d36a1a37ec08f9cda1ecb42b31ebfa77be5e3c197004e3435a3ee"
+    },
+    {
+      "path": "ModCarrerMode/data/ultrawide/pressstart_standard.big",
+      "bytes": 5615744,
+      "sha256": "43688ed9ef9cdf8efc21f0bb5e17a77c8f3237914d59ea8a648d152c27f3814d"
+    },
+    {
+      "path": "ModCarrerMode/data/ultrawide/pressstart_ultrawide.big",
+      "bytes": 5615744,
+      "sha256": "4b04747f200411a65d6950c8d5fd9acc724c5774ff97cf0bf346a15b10bdeecd"
+    },
+    {
+      "path": "ModCarrerMode/data/ultrawide/st_bootflow_standard.dds",
+      "bytes": 2073728,
+      "sha256": "2ef82e78e5cb324503ad4c251c6666c1c62d59f115b6680c8e23b971aae5b816"
+    },
+    {
+      "path": "ModCarrerMode/data/ultrawide/st_bootflow_ultrawide.dds",
+      "bytes": 2764928,
+      "sha256": "23adc29be3db1d2cbec524e357aa8eaf304adf694c889e0bedf4557febffef68"
+    },
+    {
+      "path": "data/ui/imgAssets/backgroundstadiums/st_server16_frontend_clear.dds",
+      "bytes": 144,
+      "sha256": "e33dea1f78fab3f467d1cb36c1abe91ba0912391de31b3623c2ad78361ce9ab2"
     }
   ]
 }

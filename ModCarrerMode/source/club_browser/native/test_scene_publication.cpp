@@ -13,7 +13,7 @@ static void* __fastcall engineFrameProbe(){
 int main(){
  _set_error_mode(_OUT_TO_STDERR);using namespace clubscene;auto fake=(unsigned char*)VirtualAlloc(nullptr,0x4b00000,MEM_COMMIT|MEM_RESERVE,PAGE_READWRITE);assert(fake);base=(uintptr_t)fake;
  unsigned char nodes[4][512]{};const char*name="game/screens/career/server16/ClubBrowser";auto store=[](void*p,uintptr_t v){memcpy(p,&v,8);};store(fake+0x3809030,(uintptr_t)nodes[0]);store(nodes[0]+232,(uintptr_t)nodes[1]);store(nodes[1]+192,(uintptr_t)nodes[2]);store(nodes[2]+136,(uintptr_t)nodes[3]);store(nodes[3]+472,(uintptr_t)name);
- alignas(16)unsigned char scene[0xd0]{},lua[0x90]{},obj[0x38]{},impl[0x40]{},ctx[0x10]{};
+ alignas(16)unsigned char scene[0x2300]{},lua[0x90]{},obj[0x38]{},impl[0x40]{},ctx[0x10]{};
  store(fake+0x3517c10,(uintptr_t)scene);store(fake+0x3613fd0,(uintptr_t)lua);*(int*)(lua+0x80)=5;*(int*)(scene+0x3c)=13;*(float*)(scene+0x88)=1;*(float*)(scene+0x8c)=.5625f;
  object=(uintptr_t)obj;store(obj,(uintptr_t)vtable);store(obj+0x20,(uintptr_t)impl);store(obj+0x30,(uintptr_t)ctx);store(ctx+8,object);*(unsigned*)(impl+0x38)=1;
  // The isolated callback stubs replace only this test allocation, never FIFA.
@@ -30,6 +30,15 @@ int main(){
  }
  stopping=false;rosterCamera=false;singleView=false;requested=true;camera.apply();
  requested=false;expectCamera=false;assert(frame()==(void*)0x1234);assert(!camera.scene);
+ stopping=false;requested=false;stadiumClub=1043;
+ std::atomic_store(&stadiumPose,std::make_shared<const panorama::Pose>(panorama::Pose{{0,170,0},{1000,170,0},70}));
+ expectCamera=true;assert(frame()==(void*)0x1234);assert(*(float*)(scene+0x40+52)==170);camera.restore();
+ std::atomic_store(&stadiumPose,std::shared_ptr<const panorama::Pose>{});stopping=false;expectCamera=false;
+ assert(frame()==(void*)0x1234);assert(!camera.scene); // FIFA owns native windows.
+ *(uint32_t*)(scene+0x225c)=12;stadiumOpacity=.5f;stadiumFade.apply();assert(*(uint32_t*)(scene+0x225c)==128);
+ stadiumFade.restore();assert(*(uint32_t*)(scene+0x225c)==12);stadiumFade.apply();*(uint32_t*)(scene+0x225c)=200;
+ stadiumFade.restore();assert(*(uint32_t*)(scene+0x225c)==200);*(uint32_t*)(scene+0x225c)=0;
+ closeStadium();assert(stadiumOpacity==0);stopping=false;expectCamera=false;assert(frame()==(void*)0x1234);assert(!camera.scene);
  stopping=false;requested=true;prior=0;
  careerReader=[](){return 1043;};rosterCamera=true;singleView=true;playerAngle=.7f;playerZoom=1.6f;playerPan=.1f;playerHeight=185;camera.apply();unsigned char fixed[64];memcpy(fixed,scene+0x40,64);camera.restore();requested=false;tick();assert(camera.scene&&memcmp(scene+0x40,fixed,64)==0);camera.restore();auto loaded=loading;loading.reset();tick();assert(camera.scene&&memcmp(scene+0x40,fixed,64)==0);camera.restore();loading=loaded;rosterCamera=false;singleView=false;
  careerReader=[](){return 1043;};requested=false;tick();assert(!active&&!drawObject&&!displayedClub);camera.restore();requested=true;tick();assert(active&&drawObject==object);camera.restore();

@@ -50,8 +50,9 @@ def generate(game,folder,req,memory,projection_cache=None):
  paths=package(game,req['club'])
  if paths is None:return ready(actor=0)
  model,texture=[p.read_bytes() for p in paths]
- clip=Path(game)/'ModCarrerMode/data/club_browser/mascot_celebration.json'
- identity=hashlib.sha256(b'mascot-viewer-v3-celebration\0'+str(req['club']).encode()+model+texture+(clip.read_bytes() if clip.is_file() else b'')).hexdigest()
+ clip=Path(game)/'ModCarrerMode/data/club_browser/mascot_celebrations.json'
+ if not clip.is_file():clip=Path(game)/'ModCarrerMode/data/club_browser/mascot_celebration.json'
+ identity=hashlib.sha256(b'mascot-viewer-v4-random-crowd\0'+str(req['club']).encode()+model+texture+(clip.read_bytes() if clip.is_file() else b'')).hexdigest()
  cache=Path(game)/'ModCarrerMode/cache/club_browser/mascot'/identity
  target=Path(game)/'data/sceneassets/server16_club_xi'/str(req['pid'])/identity
  ensure(game,portable_paths.read_asset)

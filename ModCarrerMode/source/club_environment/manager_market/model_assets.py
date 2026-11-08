@@ -1,67 +1,122 @@
-"""Career coach identity -> immutable, installed model pair; no club rewrites."""
+"""Resolve career coaches to their original FIFA SLC manager models."""
 from pathlib import Path
-import hashlib,json,re,struct
+import struct
 
-KEY=re.compile(r'COACH-[0-9a-f]{16}\Z')
-_cache={}
+try:
+    from .coach_registry import load as load_registry
+except ImportError:
+    from coach_registry import load as load_registry
+
+_cache = {}
+
 
 def catalog(game):
-    path=Path(game)/'ModCarrerMode/data/manager_market/manager_models.json'
+    """Load the editable roster; its model IDs point into FIFA's native SLC."""
+    path = Path(game) / 'ModCarrerMode/data/manager_market/manager_registry.ini'
+    result = {}
+    for key, row in load_registry(path).items():
+        if not row['model_enabled'] or not row['source_slc_club_id']:
+            continue
+        result[key] = dict(row, coachId=key, assetId=row['source_slc_club_id'])
+    return result
+
+
+def installed(game, row):
+    """Check all native weather/model-texture variants without copying them."""
+    if not row or not row.get('model_enabled'):
+        return False
     try:
-        data=json.loads(path.read_text(encoding='utf8'))
-        if data.get('schema')!=2 or data.get('runtimeOverrideEnabled') is not True:return {}
-        rows=data['coaches'];result={};ids=set()
-        for row in rows:
-            key=row['coachId'];number=row['assetId']
-            if not KEY.fullmatch(key) or type(number)!=int or not 1<=number<=200000 or key in result or number in ids:return {}
-            result[key]=row;ids.add(number)
-        return result
-    except (OSError,ValueError,KeyError,TypeError):return {}
+        slc_id = int(row['source_slc_club_id'])
+        if not 0 < slc_id <= 200000:
+            return False
+        folder = Path(game) / 'data/sceneassets/slc'
+        paths = [folder / f'specificmanager_{slc_id}_0_{weather}{suffix}.rx3'
+                 for weather in (0, 1) for suffix in ('', '_textures')]
+        stats = tuple((p.stat().st_size, p.stat().st_mtime_ns) for p in paths)
+        signature = (str(folder.resolve()), slc_id, stats)
+        if signature in _cache:
+            return _cache[signature]
+        valid = all(size >= 32 for size, _ in stats)
+        if valid:
+            for path in paths:
+                with path.open('rb') as source:
+                    if source.read(4) not in (b'RX3l', b'RX3b'):
+                        valid = False
+                        break
+        _cache[signature] = valid
+        return valid
+    except (OSError, ValueError, TypeError, KeyError):
+        return False
 
-def installed(game,row):
-    if not row:return False
-    try:
-        base=Path(game)/'data/sceneassets/manager_market'/str(row['assetId']);paths=[base/f'model_{weather}{suffix}.rx3' for weather in (0,1) for suffix in ('','_textures')]
-        expected=row['files'];signature=(str(base),tuple((p.stat().st_size,p.stat().st_mtime_ns,expected[p.name]) for p in paths))
-        if signature in _cache:return _cache[signature]
-        # This registry is generated only from structurally validated native
-        # SLC pairs. Check immutable payload hashes before allowing either
-        # geometry or textures; never mix a new coach with a predecessor.
-        valid=all(hashlib.sha256(p.read_bytes()).hexdigest()==expected[p.name] for p in paths)
-        _cache[signature]=valid;return valid
-    except (OSError,KeyError,ValueError,TypeError):return False
 
-def actor(game,market):
-    if not market:return None
-    key=market.get('coach',{}).get('coach_id','');row=catalog(game).get(key)
-    if not installed(game,row):return None
-    return dict(coachId=key,assetId=row['assetId'],appointment=market['appointment']['id'],base=f'data/sceneassets/manager_market/{row["assetId"]}/model_0')
+def actor(game, market):
+    if not market:
+        return None
+    key = market.get('coach', {}).get('coach_id', '')
+    row = catalog(game).get(key)
+    if not installed(game, row):
+        return None
+    slc_id = row['source_slc_club_id']
+    return dict(coachId=key, assetId=slc_id,
+                appointment=market['appointment']['id'],
+                base=f'data/sceneassets/slc/specificmanager_{slc_id}_0_0')
 
-def fixture(original,selected):
-    magic,club,*colors=struct.unpack('<8s4I',original)
-    if magic!=b'FFCOACH1' or not 0<club<=200000:raise ValueError('Invalid coach fixture')
-    return struct.pack('<8s5I',b'FFCOACH2',club,*colors,selected['assetId'])
 
-def publication(game,db,state):
-    """Called after the exact market branch has committed for this owner/save."""
+def fixture(original, selected):
+    magic, club, *colors = struct.unpack('<8s4I', original)
+    if magic != b'FFCOACH1' or not 0 < club <= 200000:
+        raise ValueError('Invalid coach fixture')
+    slc_id = int(selected['assetId'])
+    if not 0 < slc_id <= 200000:
+        raise ValueError('Invalid source SLC manager ID')
+    return struct.pack('<8s5I', b'FFCOACH2', club, *colors, slc_id)
+
+
+def publication(game, db, state):
+    """Publish only the committed career branch's active club -> SLC map."""
     from preview_files import atomic
-    branch=db.execute('SELECT game_date,user_club FROM branches WHERE id=?',(state['branch'],)).fetchone()
-    if branch is None or int(branch['game_date'])!=state['date'] or int(branch['user_club'])!=state['club']:raise ValueError('Uncommitted manager branch')
-    choices=catalog(game);rows=db.execute('SELECT club_id,coach_id FROM appointments WHERE branch=? AND end_date IS NULL AND start_date<=? ORDER BY club_id',(state['branch'],state['date'])).fetchall();seen=set();mapping=[]
+    branch = db.execute('SELECT game_date,user_club FROM branches WHERE id=?',
+                        (state['branch'],)).fetchone()
+    if (branch is None or int(branch['game_date']) != state['date']
+            or int(branch['user_club']) != state['club']):
+        raise ValueError('Uncommitted manager branch')
+    choices = catalog(game)
+    rows = db.execute(
+        'SELECT club_id,coach_id FROM appointments WHERE branch=? AND end_date IS NULL AND start_date<=? ORDER BY club_id',
+        (state['branch'], state['date'])).fetchall()
+    seen = set()
+    mapping = []
     for row in rows:
-        club=int(row['club_id']);key=row['coach_id']
-        if club in seen:raise ValueError('Ambiguous current coach')
-        if not 0<club<=200000:continue
-        seen.add(club);entry=choices.get(key);mapping.append((club,entry['assetId'] if installed(game,entry) else 0))
-    operation,tick,path=state['io'];fields=dict(schema=1,pid=state['pid'],created=state['created'],context=state['context'],epoch=state['epoch'],club=state['club'],date=state['date'],operation=operation,access_tick_ms=tick,path=path,branch=state['branch'],digest=state['digest'],revision=state['revision'])
-    if operation not in ('read','write') or not str(tick).isdigit():raise ValueError('Incomplete native save event')
-    lines=['S16MGR1']
-    for key,value in fields.items():
-        value=str(value)
-        if any(c in value for c in '\r\n\t'):raise ValueError('Invalid model scope')
-        lines.append(key+'='+value)
-    lines.extend(f'row={club}|{asset}' for club,asset in mapping);blob=('\n'.join(lines)+'\n').encode('utf8');path=Path(game)/'ModCarrerMode/runtime/manager_market/models_ready.tsv'
+        club = int(row['club_id'])
+        key = row['coach_id']
+        if club in seen:
+            raise ValueError('Ambiguous current coach')
+        if not 0 < club <= 200000:
+            continue
+        seen.add(club)
+        entry = choices.get(key)
+        slc_id = entry['source_slc_club_id'] if installed(game, entry) else 0
+        mapping.append((club, slc_id))
+    operation, tick, path_value = state['io']
+    fields = dict(schema=2, pid=state['pid'], created=state['created'],
+                  context=state['context'], epoch=state['epoch'], club=state['club'],
+                  date=state['date'], operation=operation, access_tick_ms=tick,
+                  path=path_value, branch=state['branch'], digest=state['digest'],
+                  revision=state['revision'])
+    if operation not in ('read', 'write') or not str(tick).isdigit():
+        raise ValueError('Incomplete native save event')
+    lines = ['S16MGR2']
+    for key, value in fields.items():
+        value = str(value)
+        if any(char in value for char in '\r\n\t'):
+            raise ValueError('Invalid model scope')
+        lines.append(key + '=' + value)
+    lines.extend(f'row={club}|{slc_id}' for club, slc_id in mapping)
+    blob = ('\n'.join(lines) + '\n').encode('utf8')
+    target = Path(game) / 'ModCarrerMode/runtime/manager_market/models_ready.tsv'
     try:
-        if path.read_bytes()==blob:return
-    except OSError:pass
-    atomic(path,blob)
+        if target.read_bytes() == blob:
+            return
+    except OSError:
+        pass
+    atomic(target, blob)

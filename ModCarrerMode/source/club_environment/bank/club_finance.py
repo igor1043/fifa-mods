@@ -18,11 +18,12 @@ DEFAULT_RULES={**PREVIOUS_RULES,'tv_match_bps':100,'match_cost_bps':6500,
  'sponsor_annual_bps':3250,'staff_annual_bps':4000,'facilities_annual_bps':3000,
  'tv_home_bps':11000,'tv_away_bps':6500,'tv_neutral_bps':8000,
  'tv_league_bps':10000,'tv_cup_bps':12500,'tv_continental_bps':15000,
- 'tv_regional_bps':2500,'tv_supercup_bps':9000,'tv_world_bps':16000}
-ECONOMY_VERSION=4
+ 'tv_regional_bps':2500,'tv_supercup_bps':9000,'tv_world_bps':16000,
+ 'members_share_min_bps':1000,'members_share_max_bps':3000}
+ECONOMY_VERSION=5
 # Preserve the first five wire indexes used by existing loan/finance requests.
-SWITCHES=('enabled','tv','tickets','coach','loans','sponsor','staff','match_costs','facilities')
-MONTHLY_KINDS=('coach','sponsor','staff','facilities')
+SWITCHES=('enabled','tv','tickets','coach','loans','sponsor','staff','match_costs','facilities','members')
+MONTHLY_KINDS=('coach','sponsor','staff','facilities','members')
 
 def packed(day):return day.year*10000+day.month*100+day.day
 
@@ -34,7 +35,8 @@ def rules(values=None):
  for key,v in out.items():
   if key not in DEFAULT_RULES or type(v) is not int or not 0<=v<=10_000_000:raise ValueError('Parâmetro financeiro inválido: '+key)
  if (out['tv_min']>out['tv_max'] or not 0<=out['occupancy_min_bps']<=out['occupancy_max_bps']<=10000
-     or out['match_cost_bps']>10000 or any(out[k]>20000 for k in out if k.endswith('_bps') and k not in ('match_cost_bps','occupancy_max_bps','occupancy_min_bps'))):raise ValueError('Faixas financeiras inválidas')
+     or out['match_cost_bps']>10000 or not 0<=out['members_share_min_bps']<=out['members_share_max_bps']<=10000
+     or any(out[k]>20000 for k in out if k.endswith('_bps') and k not in ('match_cost_bps','occupancy_max_bps','occupancy_min_bps'))):raise ValueError('Faixas financeiras inválidas')
  return out
 
 def fixture_key(season,match):
@@ -125,7 +127,13 @@ def commercial(context,policy):
  strength=40+prestige*3
  factor=league_factor(profile)
  annual=lambda key:int(budget*policy[key]*strength/1_000_000*(factor if key=='sponsor_annual_bps' else math.sqrt(factor)))
- return dict(base_budget=budget,prestige=prestige,league_factor=round(factor,4),sponsor_annual=annual('sponsor_annual_bps'),
+ # Split the existing commercial envelope: no new windfall is added on top
+ # of sponsorship. Prestige and league strength already scale that envelope.
+ commercial_total=annual('sponsor_annual_bps')
+ share=policy['members_share_min_bps']+(policy['members_share_max_bps']-policy['members_share_min_bps'])*(prestige-1)//19
+ members=commercial_total*share//10000
+ return dict(base_budget=budget,prestige=prestige,league_factor=round(factor,4),sponsor_annual=commercial_total-members,
+  members_annual=members,members_share_bps=share,commercial_annual=commercial_total,
   staff_annual=annual('staff_annual_bps'),facilities_annual=annual('facilities_annual_bps'),
   source='Estimativa do mod · orçamento-base e reputação do clube')
 
@@ -149,6 +157,7 @@ def ticket_operation_cost(gross,policy=None):
 
 def upgrade(book,today,context,policy):
  """Prospective only: never reprice paid entries, old matches or elapsed months."""
+ membership_upgrade=book.get('economy_version',0)<5
  if book.get('schema',1)==1:
   book.update(schema=2,expanded_start=today,rules=deepcopy(policy))
   for key in SWITCHES:
@@ -165,12 +174,21 @@ def upgrade(book,today,context,policy):
   # A calendar jump still settles unprocessed days under the previous rules.
   # The new policy starts after the last observed career day, never rewrites it.
   start=max(packed(parse_date(book['last_date'])+timedelta(days=1)),today//10000*10000+101 if today//10000>book['last_date']//10000 else 0)
+  # Installing the membership feature must not allocate it to days already
+  # elapsed before this update, including an unprocessed calendar jump.
+  commercial_start=max(start,packed(parse_date(today)+timedelta(days=1))) if membership_upgrade else start
   profiles={p['root']:p for p in context['competitions']}
   for contract in book['agreements'].values():
    if contract['season']==context['season'] and contract['root'] in profiles:
     revised=agreement(profiles[contract['root']],contract['season'],start,policy,context.get('club_profile'))
     contract.setdefault('revisions',[]).append({k:v for k,v in revised.items() if k not in ('id','revisions')})
-  book.setdefault('commercial',{})[str(start)]=dict(start=start,**commercial(context,policy))
+  allocation=commercial(context,policy);book.setdefault('commercial',{})
+  if membership_upgrade and commercial_start>start:
+   # Existing staff/facilities policy keeps its original prospective boundary.
+   # Only the new membership split waits until after the installation day.
+   legacy=dict(allocation,sponsor_annual=allocation['commercial_annual'],members_annual=0,members_share_bps=0)
+   book['commercial'][str(start)]=dict(start=start,**legacy)
+  book['commercial'][str(commercial_start)]=dict(start=commercial_start,**allocation)
   book['economy_version']=ECONOMY_VERSION;book['economy_profile']=signature
   book['rules']=deepcopy(policy)
   missing={k:True for k in SWITCHES if k not in book['settings']}
@@ -179,7 +197,10 @@ def upgrade(book,today,context,policy):
  book.setdefault('commercial',{})
  key=str(context['season'])
  if key not in book['commercial']:
-  book['commercial'][key]=dict(start=max(book['expanded_start'],context['season']),**commercial(context,policy))
+  allocation=commercial(context,policy);start=max(book['expanded_start'],context['season'])
+  if membership_upgrade and start<today:
+   allocation.update(sponsor_annual=allocation['commercial_annual'],members_annual=0,members_share_bps=0)
+  book['commercial'][key]=dict(start=start,**allocation)
  # Some imported agreements already use schema 2 but predate match costs.
  # Version only the absent field from the next day; explicit SQL zero/custom
  # rates and all historical terms/postings remain unchanged.
@@ -264,7 +285,7 @@ def apply(state,*,club,today,budget,context,policy=None):
     proposed.append(dict(id=key,kind='coach',date=due,amount=-amount,status='pending',
      description='Salário do técnico',enabled_days=enabled_days,month_days=last.day))
     known.add(key)
-  for kind in ('sponsor','staff','facilities'):
+  for kind in ('sponsor','staff','facilities','members'):
    key=f'{kind}:{cursor.year}{cursor.month:02d}'
    if due>today or key in known or due<book['expanded_start']:continue
    days=0;annual_days=0
@@ -274,8 +295,8 @@ def apply(state,*,club,today,budget,context,policy=None):
     if not allocations or not active(book,kind,day):continue
     allocation=max(allocations,key=lambda v:v['start']);days+=1;annual_days+=allocation.get(kind+'_annual',0)
    amount=(annual_days+6*last.day)//(12*last.day)
-   proposed.append(dict(id=key,kind=kind,date=due,amount=amount if kind=='sponsor' else -amount,status='pending',
-    description={'sponsor':'Patrocínio do clube','staff':'Comissão técnica','facilities':'Manutenção e estrutura'}[kind],enabled_days=days,month_days=last.day,estimated=True))
+   proposed.append(dict(id=key,kind=kind,date=due,amount=amount if kind in ('sponsor','members') else -amount,status='pending',
+    description={'sponsor':'Patrocínio do clube','members':'Sócio-torcedor','staff':'Comissão técnica','facilities':'Manutenção e estrutura'}[kind],enabled_days=days,month_days=last.day,estimated=True))
    known.add(key)
   cursor=(last+timedelta(days=1)).replace(day=1)
  book['entries'].extend(proposed);events=[]
@@ -304,7 +325,7 @@ def monthly(state,*,settlement=False):
  """Cash totals are derived, never another payment trigger."""
  result={}
  def add(day,kind,amount):
-  row=result.setdefault(day//100,dict(month=day//100,tv=0,tickets=0,coach=0,sponsor=0,staff=0,facilities=0,match_costs=0,loans=0,loan_credit=0,interest=0))
+  row=result.setdefault(day//100,dict(month=day//100,tv=0,tickets=0,coach=0,sponsor=0,members=0,staff=0,facilities=0,match_costs=0,loans=0,loan_credit=0,interest=0))
   row[kind]+=amount
  for e in state.get('finance',{}).get('entries',[]):
   if e['status']=='applied':add(e['paid_date'] if settlement else e['date'],e['kind'],e['amount'])
@@ -313,7 +334,7 @@ def monthly(state,*,settlement=False):
   for p in contract['payments'][:contract['paid']]:
    add(p['paid_date'] if settlement else p['date'],'loans',-p['amount']);add(p['paid_date'] if settlement else p['date'],'interest',-p['interest'])
  for row in result.values():
-  row['income']=row['tv']+row['tickets']+row['sponsor'];row['expenses']=-row['coach']-row['staff']-row['facilities']-row['match_costs']-row['loans']
+  row['income']=row['tv']+row['tickets']+row['sponsor']+row['members'];row['expenses']=-row['coach']-row['staff']-row['facilities']-row['match_costs']-row['loans']
   row['cash_result']=row['income']+row['loan_credit']-row['expenses']
   row['operating_result']=row['income']+row['coach']+row['staff']+row['facilities']+row['match_costs']+row['interest']
  return sorted(result.values(),key=lambda r:r['month'],reverse=True)

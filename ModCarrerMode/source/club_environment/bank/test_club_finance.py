@@ -57,6 +57,7 @@ class ClubFinanceTests(unittest.TestCase):
   self.assertEqual(payroll['amount'],-round(38000*52/12*16/31))
  def test_pending_salary_waits_for_balance_and_is_not_marked_paid(self):
   disabled=f.toggle(self.state,'sponsor',False,20260511)
+  disabled=f.toggle(disabled,'members',False,20260511)
   disabled=f.toggle(disabled,'staff',False,20260511)
   disabled=f.toggle(disabled,'facilities',False,20260511)
   s,b,e=step(disabled,20260531,0)

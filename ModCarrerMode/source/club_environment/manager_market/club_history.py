@@ -15,7 +15,7 @@ def request(path,observed,model,now):
     if any(v<0 or v>200000 for v in values):raise ValueError('Navegação inválida')
     club,country,league,page,focus=values
     if club not in ({r[2] for r in model['historyClubRows']} if 'historyClubRows' in model else {int(r[4].split('_')[1]) for r in model['clubRows']}):raise ValueError('Clube fora do catálogo')
-    return dict(identity=(int(fields['captured_tick']),fields['wire']),club=club,resume=dict(tab=4,country=country,league=league,page=page,focus=540,clubTimeline=True,profile=False,timelinePage=0))
+    return dict(identity=(int(fields['captured_tick']),fields['wire']),club=club,resume=dict(tab=3,country=country,league=league,page=page,focus=540,clubTimeline=True,profile=False,timelinePage=0))
 
 def build(market,club_id,people):
     from career_profile import build as career
@@ -29,7 +29,7 @@ def build(market,club_id,people):
     ids={a['id'] for a in appointments};coaches={a['coach_id'] for a in appointments}
     people_index={p['id']:(i,p) for i,p in enumerate(people)}
     persons={p['coach_id']:p for p in market.rows('coaches','coach_id IN ('+','.join('?' for _ in coaches)+')',tuple(coaches))}
-    results=market.rows('results','home=? OR away=?',(club_id,club_id));honours=market.rows('honours','club_id=?',(club_id,))
+    results=market.rows('results','(home=? OR away=?)',(club_id,club_id));honours=market.rows('honours','club_id=?',(club_id,))
     moves=market.rows('movements','club_id=?',(club_id,));renewals={m['id'] for m in moves if m['kind']=='renewal'}
     for a in appointments:a['renewal']=a['id'] in renewals
     campaigns=market.rows('appointment_campaigns','appointment IN ('+','.join('?' for _ in ids)+')',tuple(ids))
@@ -42,7 +42,7 @@ def build(market,club_id,people):
         rich=career(persons[coach],appointments,results,honours,reviews,{club_id:club},market.info()['game_date'],stamp,campaigns,moves)
         for spell in rich['spells']:
             stats=spell['total']
-            row=[person['name'],person['head'],spell['dates'],spell['duration'],spell['status'],str(stats['games']),str(stats['wins']),str(stats['draws']),str(stats['losses']),f"{stats['percentage']:.1f}%".replace('.',','),str(spell['titles']),index]
+            row=[person['name'],person['head'],spell['dates'],spell['duration'],spell['status'],str(stats['games']),str(stats['wins']),str(stats['draws']),str(stats['losses']),f"{stats['percentage']:.1f}%".replace('.',','),str(spell['titles']),index,float(stats['percentage'])]
             spells.append((spell['start'],coach,row))
     result['rows']=[r for _,_,r in sorted(spells,key=lambda r:(-r[0],r[2][4]!='Atual',r[1]))]
     return result

@@ -7,34 +7,11 @@ stamp=datetime.datetime.now().strftime('%Y%m%d_%H%M%S_%f')
 backup=study/('backup_'+stamp);backup.mkdir()
 block=(R/'smoke_machine.lua').read_bytes()
 assert block.count(b'FIFA16_SMOKE_MACHINE_LUA_V1=true')==1
-readme='''Maquina de fumaca / lancador de pirotecnia
-
-Modelo FBX fornecido convertido para RX3 estatico, sem esqueleto.
-Texturas de cor e normal preservadas, com mipmaps e acabamento nativo.
-Altura aproximada: 55 cm, base centralizada no chao com elevacao de 2 cm.
-20 maquinas: oito laterais e doze atras dos gols, cobrindo todos os pontos atuais de emissao.
-As duas centrais foram substituidas por quatro a -14m/+14m; nao ha maquina no meio-campo.
-Maquinas e pontos de emissao afastados mais 50 cm para fora do campo.
-Malha otimizada: 3.329 triangulos por maquina, 66.580 triangulos no conjunto completo.
-Uma malha e um pacote de texturas compartilhados entre as instancias.
-
-DLL unica: smoke_machine.dll. Configuracao local: smoke_machine.ini.
-Segue [match] pyrotechnics do controle do Server16 e [pyro] enabled do modulo de fogos.
-Nao aparece na previa KickOffHub ou selecao de equipes; conserva a maquina durante pausa/replay da partida.
-O modulo adiciona os equipamentos fisicos; disparos e cores continuam sob responsabilidade de stadium_pyrotechnics.dll.
-Nao depende de clube, estadio ou competicao.
-
-Feche e abra o FIFA para carregar a DLL e os assets novos.
-Log: ModCarrerMode/logs/smoke_machine.log.
-Validacoes de conversao, Lua 5.1, pontos de emissao e compilacao passaram.
-A visualizacao dentro do FIFA precisa ser confirmada no jogo.
-'''
 package=R/'package'
 mod=package/'ModCarrerMode/mods/smoke_machine';mod.mkdir(parents=True,exist_ok=True)
 shutil.copy2(R/'build/smoke_machine.dll',mod/'smoke_machine.dll')
 shutil.copy2(R/'smoke_machine.lua',mod/'smoke_machine.lua')
 (mod/'smoke_machine.ini').write_text('[smoke_machine]\nenabled=1\nground_lift_cm=2\n',encoding='utf8')
-(mod/'README.txt').write_text(readme,encoding='utf8')
 manifest=[]
 for root in (Path(r'U:\fifa 16'),Path(r'U:\mods\FIFA Friends V12')):
     scope=backup/('game' if root.name=='fifa 16' else 'mod');scope.mkdir()

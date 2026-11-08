@@ -7,7 +7,7 @@ from layout import Scene
 from ui_theme import ACCENT
 from profile_layout import profile_scene
 from profile_art import pitch,formation,panel,glyph
-TABS=('Clubes e ligas','Movimentações','Livres no mercado','Configurações','Histórico do clube');MAIN=(0,3,4,5,6)
+TABS=('Clubes e ligas','Movimentações','Livres no mercado','Histórico do clube','Configurações');MAIN=(0,3,4,6,5)
 TAB_W=338;TAB_STEP=350
 PAGE_SIZE=6
 PAGER_Y=921
@@ -121,12 +121,15 @@ def pager(s,prefix='',start=1100,left=50,right=51,base=100,text_x=490,text_w=595
   image(s,'pageDotOff',prefix+'pageDotOff'+str(index),start+index*19,PAGER_Y+2,11,11);image(s,'pageDotOn',prefix+'pageDotOn'+str(index),start+index*19,PAGER_Y+2,11,11)
  if not prefix:text(s,'pageText',text_x,PAGER_Y-1,text_w,28,'',18,MUTED)
 
-def scenes_for(model,assets):
- s=shell(model,'clubs','Clubes e ligas')
+def country_league_selector(s):
  s.image('card',96,294,366,144);s.text(114,306,270,25,'PAÍS / REGIÃO',19,MUTED);text(s,'countryCount',363,308,80,23,'',17,MUTED)
  action(s,108,357,32,45,10,fill='#ffffff');action(s,416,357,32,45,11,fill='#ffffff');s.image('nav_left',116,370,16,20);s.image('nav_right',424,370,16,20);text(s,'countryName',210,358,204,47,'',29)
  s.image('card',96,454,366,167);s.text(114,468,260,25,'LIGA',19,MUTED);text(s,'leagueCount',363,470,80,23,'',17,MUTED)
  action(s,108,523,32,48,20,fill='#ffffff');action(s,416,523,32,48,21,fill='#ffffff');s.image('nav_left',116,538,16,20);s.image('nav_right',424,538,16,20);text(s,'leagueName',211,510,202,67,'',22);text(s,'leagueLevel',211,578,202,28,'',17,MUTED)
+
+def scenes_for(model,assets):
+ s=shell(model,'clubs','Clubes e ligas')
+ country_league_selector(s)
  text(s,'clubCount',114,651,325,45,'',30);s.text(490,278,1300,31,'CLUBES · TÉCNICO · REPUTAÇÃO · SALÁRIO MENSAL',22,INK)
  for i in range(PAGE_SIZE):
   x,y=club_xy(i);card(s,x,y,654,180,40+i);s.rect(x+511,y+18,1,142,LIGHT)
@@ -146,7 +149,7 @@ def scenes_for(model,assets):
  if 'track' not in assets:assets['track']=Image.new('RGBA',(4,4),'#dbe5eb')
  if 'accent' not in assets:assets['accent']=Image.new('RGBA',(4,4),ACCENT)
  if 'card' not in assets:assets['card']=Image.new('RGBA',(8,8),'white')
- p=profile_scene(assets)
+ p=profile_scene(assets,external_art=bool(model.get('lazyProfiles')))
  loading=Scene('loading','Carregando o mercado');loading.rect(60,90,1800,828,PAPER);loading.text(100,125,1680,64,'MERCADO DE TÉCNICOS',39,INK);loading.text(100,360,1680,52,'Carregando o mercado desta carreira...',30,INK);text(loading,'progress',100,426,1660,44,'Preparando os dados...',24,MUTED)
 
  moves=shell(model,'movements','Demissões e contratações')

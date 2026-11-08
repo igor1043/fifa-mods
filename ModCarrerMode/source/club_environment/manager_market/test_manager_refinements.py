@@ -54,7 +54,7 @@ class RefinementsTest(unittest.TestCase):
   self.populate_history();model=project(self.market,lightweight=True);data=history(self.market,1,model['people']);self.assertEqual(2,len(data['rows']));self.assertEqual(['Atual','Demitido'],[r[4] for r in data['rows']]);self.assertEqual('5',data['rows'][1][5]);self.assertEqual('1',data['rows'][0][10]);self.assertIn('2026',data['rows'][1][2]);self.assertNotIn('Treinador 2',[r[0] for r in data['rows']])
   self.market.checkpoint('saved','DATA');self.market.open_save('saved','DATA',context(20270111));self.assertEqual(data,history(self.market,1,project(self.market,lightweight=True)['people']))
  def test_native_club_picker_requests_one_club_and_timeline_supports_back_and_profiles(self):
-  self.populate_history();base=dict(project(self.market,lightweight=True),lazyProfiles=True,profileToken='a'*64);vm,s,calls=self.native(base);vm.invoke(s.get('Command'),s,(4,));self.assertTrue(s.get('scene6').get('_visible'));vm.invoke(s.get('Command'),s,(40,));self.assertTrue(s.get('historyPending'))
+  self.populate_history();base=dict(project(self.market,lightweight=True),lazyProfiles=True,profileToken='a'*64);vm,s,calls=self.native(base);vm.invoke(s.get('Command'),s,(3,));self.assertTrue(s.get('scene6').get('_visible'));vm.invoke(s.get('Command'),s,(40,));self.assertTrue(s.get('historyPending'))
   wire=next(a[-1] for n,a in calls if n=='SendSystemEvent' and 'Server16ClubHistory' in a);fields=dict(schema=1,pid=10,created=20,club=3,context='1e',epoch=2,date=20270111,captured_tick=1000,wire=wire);path=self.root/'request.tsv';path.write_text(''.join(f'{k}={v}\n' for k,v in fields.items()))
   observed=dict(save=dict(pid=10,process_created_100ns=20),profile=dict(club_id=3,context_address=30,context_epoch=2),date=20270111);click=history_request(path,observed,base,1100)
   loaded=dict(base,clubHistory=history(self.market,click['club'],base['people']),resume=click['resume']);vm,s,calls=self.native(loaded);self.assertTrue(s.get('scene7').get('_visible'));self.assertEqual(2,len(s.get('timelineRows')));vm.invoke(s.get('Move'),s,(3,));self.assertEqual(541,s.get('focus'));vm.invoke(s.get('Command'),s,(60,));self.assertTrue(s.get('scene6').get('_visible'));self.assertFalse(vm.errors)
@@ -65,7 +65,7 @@ class RefinementsTest(unittest.TestCase):
  def test_current_coach_comes_first_when_predecessor_left_on_same_start_day(self):
   data=history(self.market,3,project(self.market,lightweight=True)['people']);self.assertEqual('Atual',data['rows'][0][4]);self.assertEqual('Substituído',data['rows'][1][4])
  def test_long_timeline_supports_controller_scrolling_and_mouse_track(self):
-  model=project(self.market);data=history(self.market,3,model['people']);data['rows']=data['rows']*3;model.update(clubHistory=data,resume=dict(tab=4,clubTimeline=True,focus=540))
+  model=project(self.market);data=history(self.market,3,model['people']);data['rows']=data['rows']*3;model.update(clubHistory=data,resume=dict(tab=3,clubTimeline=True,focus=540))
   vm,s,_=self.native(model);self.assertEqual(4,s.get('timelinePageCount'))
   for _ in range(3):vm.invoke(s.get('Move'),s,(3,))
   self.assertEqual(1,s.get('timelinePage'));s.set('frames',s.get('frames')+6);vm.invoke(s.get('LocalEventHandler'),s,(9,None));self.assertEqual(2,s.get('timelinePage'))

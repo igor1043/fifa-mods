@@ -1,0 +1,98 @@
+﻿TREINADORES — IMPORTAÇÃO DE 06/11/2026
+
+12 MODELOS NOVOS CADASTRADOS (origem -> ID SLC do mod)
+200 -> 190200: Vincent Kompany
+  coach_id: COACH-8cf7416de8455193
+  Vínculo inicial do catálogo: Bayern München
+  Perfil já existia: sim
+201 -> 190201: Mikel Arteta
+  coach_id: COACH-46aea447731ed57e
+  Vínculo inicial do catálogo: Arsenal
+  Perfil já existia: sim
+202 -> 190202: Michael Carrick
+  coach_id: COACH-cbf30fde263907fe
+  Vínculo inicial do catálogo: Sem vínculo inicial; disponível no mercado
+  Perfil já existia: não; cadastrado nesta importação
+203 -> 190203: Thomas Tuchel
+  coach_id: COACH-d5442d482d82f841
+  Vínculo inicial do catálogo: England
+  Perfil já existia: sim
+204 -> 190204: Luis de la Fuente
+  coach_id: COACH-14edd40b26e8200b
+  Vínculo inicial do catálogo: Spain
+  Perfil já existia: sim
+205 -> 190205: Pep Guardiola
+  coach_id: COACH-c6d57564f9bc8621
+  Vínculo inicial do catálogo: Sem vínculo inicial; disponível no mercado
+  Perfil já existia: não; cadastrado nesta importação
+206 -> 190206: Massimiliano Allegri
+  coach_id: COACH-48629daeb5026ceb
+  Vínculo inicial do catálogo: Sem vínculo inicial; disponível no mercado
+  Perfil já existia: não; cadastrado nesta importação
+207 -> 190207: Diego Simeone
+  coach_id: COACH-62b2e09f97f55cdd
+  Vínculo inicial do catálogo: Atlético de Madrid
+  Perfil já existia: sim
+208 -> 190208: Zinedine Zidane
+  coach_id: COACH-377c33f57964542a
+  Vínculo inicial do catálogo: Sem vínculo inicial; disponível no mercado
+  Perfil já existia: não; cadastrado nesta importação
+209 -> 190209: Javier Aguirre
+  coach_id: COACH-86e49d21bd6a76c8
+  Vínculo inicial do catálogo: Mexico
+  Perfil já existia: sim
+210 -> 190210: Álvaro Arbeloa
+  coach_id: COACH-7cc3bea62191dab5
+  Vínculo inicial do catálogo: Sem vínculo inicial; disponível no mercado
+  Perfil já existia: não; cadastrado nesta importação
+211 -> 190211: Marcelo Bielsa
+  coach_id: COACH-b11386858366c910
+  Vínculo inicial do catálogo: Uruguay
+  Perfil já existia: sim
+
+20 MODELOS JÁ EXISTENTES — PRESERVADOS
+1: Odair Hellmann
+2: Eduardo DomÃ­nguez
+3: RogÃ©rio Ceni
+4: Tite
+5: Rafael Lacerda
+6: Clarence Seedorf
+7: Fernando Seabra
+8: Artur Jorge
+9: Leonardo Jardim
+10: MarcÃ£o
+11: Renato GaÃºcho
+12: Eduardo Baptista
+13: Rafael Guanaes
+14: Abel Ferreira
+15: VÃ¡gner Mancini
+16: Thiago Carpini
+17: Cuca
+18: Dorival JÃºnior
+19: Pedro Emanuel
+20: Jair Ventura
+
+RETRATOS
+32 retratos fornecidos aplicados aos IDs correspondentes.
+Preferência pela subpasta coaches; Eduardo Domínguez veio da pasta individual, pois coaches/2 está vazia.
+
+REVISÃO 3D
+Todos têm esqueleto nativo de 31 ossos. Geometria, UVs, formato de cabeça/queixo e bind preservados.
+Revisão localizada da parte interna da calça em 10 modelos; Kompany e Bielsa mantêm os pesos originais.
+Superfícies cinzas sem textura removidas do Arteta e Arbeloa. Pele oculta sob a roupa do Arbeloa removida após verificação por raios.
+36 níveis finais de textura reconstruídos: a fonte armazenava blocos BC3 incompletos. Textura principal preservada.
+Nomes das texturas normalizados para cm/nm/coeff, sem sufixo .dds no RX3.
+Transparência original dos cabelos preservada quando presente nos novos arquivos.
+
+FUNCIONAMENTO
+Cadastro principal: ModCarrerMode/data/manager_market/manager_registry.ini
+Arquivos 3D: data/sceneassets/slc/specificmanager_<source_slc_club_id>_0_<0 ou 1>.rx3 e respectivos _textures.rx3.
+Os contratos das carreiras existentes continuam pertencendo ao save. A importação não transfere nem demite técnicos.
+Sete atribuições fixas já existentes no catálogo receberam o novo visual. Os outros cinco não recebem clube inventado.
+Reinicie FIFA e Server16 para recarregar os auxiliares e os novos assets.
+
+VALIDAÇÃO
+12 modelos exportados pelo renderizador do mod e avaliados em três clipes (252 instantes de animação).
+Conversão completa do visualizador validada nos 12 modelos: 276 quadros nos arquivos nativos de animação.
+Prévia offline das três poses e closes de cabeça conferidos. Render offline não substitui teste visual na partida.
+Não foi realizado commit ou push.

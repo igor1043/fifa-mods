@@ -1,4 +1,4 @@
-"""Sharp, compact native loading slate and a separate live progress surface."""
+"""Native loading card, overscan backing, club badge and animated activity ring."""
 from pathlib import Path
 import json
 from PIL import Image,ImageDraw,ImageFont
@@ -16,31 +16,37 @@ BAR_LEFT=280;BAR_RIGHT=1640;BAR_TOP=716;BAR_BOTTOM=730
 BAR_WIDTH=(BAR_RIGHT-BAR_LEFT)*WIDTH/1920
 BAR_X=(BAR_LEFT-960)*WIDTH/1920
 BAR_Y=CENTER_Y+(540-(BAR_TOP+BAR_BOTTOM)/2)*HEIGHT/1080
+BADGE_X=(355-960)*WIDTH/1920
+BADGE_Y=CENTER_Y+(540-355)*HEIGHT/1080
+BADGE_SIZE=94*WIDTH/1920
+REVISION=82
 
 
 def artwork(error=False):
-    im=Image.new('RGBA',(1920,1080),(24,39,48,255));d=ImageDraw.Draw(im)
-    ink=(22,49,63);muted=(104,127,143);gold=rgba(ACCENT)[:3]
+    # Keep the loading state legible over the full-screen native backing. The
+    # old navy backdrop and pale card made the scene feel dim before the room
+    # had even finished loading.
+    im=Image.new('RGBA',(1920,1080),(247,249,250,255));d=ImageDraw.Draw(im)
+    ink=(25,48,60);muted=(94,117,130);gold=rgba(ACCENT)[:3]
     def text(pos,value,size,fill=ink):
         d.text(pos,value,font=ImageFont.truetype(str(portable.FONTS/'arialbd.ttf'),size),fill=fill)
-    d.rectangle((0,0,1919,9),fill=gold)
-    d.rounded_rectangle((170,235,1750,870),radius=24,fill=(255,255,255),outline=(218,227,233),width=2)
-    d.rounded_rectangle((260,300,344,384),radius=16,fill=(242,236,222))
-    # Locker silhouette uses clean lines instead of another raster logo.
-    d.rounded_rectangle((282,316,323,371),radius=4,outline=gold,width=4)
-    d.line((302,318,302,369),fill=gold,width=3)
-    for y in (326,333):d.line((287,y,297,y),fill=gold,width=2);d.line((308,y,318,y),fill=gold,width=2)
-    text((370,302),'VESTIÁRIO 3D',24,muted)
-    text((370,345),'Não foi possível preparar a cena' if error else 'Preparando o vestiário',56)
+    # Soft card shadow, crisp white surface, and a restrained gold header.
+    d.rounded_rectangle((178,244,1758,882),radius=27,fill=(218,225,229))
+    d.rounded_rectangle((170,232,1750,870),radius=27,fill=(255,255,255),outline=(218,227,233),width=2)
+    d.rounded_rectangle((170,232,1750,244),radius=6,fill=gold)
+    d.rounded_rectangle((280,280,430,430),radius=30,fill=(250,250,248),outline=(231,225,211),width=3)
+    text((480,292),'VESTIÁRIO 3D',23,muted)
+    text((480,337),'Falha ao preparar a cena' if error else 'Preparando o vestiário',54)
     text((280,443),'Volte e entre novamente para tentar carregar os recursos.' if error else 'Organizando o elenco e os recursos visuais do clube.',29,muted)
     labels=('Recursos do clube','Modelos e texturas','Montagem da cena')
     for i,label in enumerate(labels):
         x=280+i*470
-        d.rounded_rectangle((x,540,x+420,645),radius=12,fill=(246,248,250),outline=(229,235,239),width=2)
-        d.ellipse((x+20,566,x+68,614),fill=(242,236,222))
+        d.rounded_rectangle((x,540,x+420,645),radius=14,fill=(249,250,251),outline=(220,229,234),width=2)
+        d.rounded_rectangle((x,540,x+420,548),radius=4,fill=(238,232,219))
+        d.ellipse((x+20,566,x+68,614),fill=(242,236,222),outline=(225,214,190),width=2)
         text((x+35,574),str(i+1),24,gold);text((x+86,577),label,25)
-    d.rounded_rectangle((BAR_LEFT,BAR_TOP,BAR_RIGHT,BAR_BOTTOM),radius=7,fill=(224,232,237))
-    text((280,768),'Use Voltar para sair desta tela.' if error else 'A cena abre automaticamente quando todos os recursos estiverem prontos.',25,muted)
+    d.rounded_rectangle((BAR_LEFT,BAR_TOP,BAR_RIGHT,BAR_BOTTOM),radius=7,fill=(227,233,236))
+    text((280,768),'Use Voltar para sair desta tela.' if error else 'A entrada será automática quando a cena estiver pronta.',25,muted)
     return im
 
 
@@ -48,13 +54,25 @@ def stage(game,output):
     game,output=Path(game),Path(output);output.mkdir(parents=True,exist_ok=True)
     template=game/(PREFIX+'shared/loading_slate_r56.rx3')
     for name,shape in (
-        ('loading_panel_r81.rx3',panel([0,CENTER_Y,400],WIDTH,HEIGHT)),
-        ('loading_progress_r81.rx3',panel([BAR_WIDTH/2,BAR_Y,400.2],BAR_WIDTH,(BAR_BOTTOM-BAR_TOP)*HEIGHT/1080))):
+        ('loading_backdrop_r82.rx3',panel([0,CENTER_Y,399],4000,2500)),
+        ('loading_panel_r82.rx3',panel([0,CENTER_Y,400],WIDTH,HEIGHT)),
+        ('loading_badge_r82.rx3',panel([0,0,0],BADGE_SIZE,BADGE_SIZE)),
+        ('loading_ring_r82.rx3',panel([0,0,0],144*WIDTH/1920,144*HEIGHT/1080)),
+        ('loading_progress_r82.rx3',panel([BAR_WIDTH/2,BAR_Y,400.2],BAR_WIDTH,(BAR_BOTTOM-BAR_TOP)*HEIGHT/1080))):
         rx=Rx3(template.read_bytes());replace_mesh(rx,0,*shape);(output/name).write_bytes(rx.build())
-    for name,error in (('loading_panel_texture_r81.rx3',False),('loading_error_texture_r81.rx3',True)):
+    for name,error in (('loading_panel_texture_r82.rx3',False),('loading_error_texture_r82.rx3',True)):
         im=artwork(error);texture_package(im,output/name,'slate_cm')
-    texture_package(Image.new('RGBA',(8,8),rgba(ACCENT)),output/'loading_progress_texture_r81.rx3','slate_cm')
-    return dict(revision=81,bar_x=BAR_X,bar_width=BAR_WIDTH,bar_y=BAR_Y,progress='loaded native resources / requested native resources')
+    texture_package(Image.new('RGBA',(8,8),(247,249,250,255)),output/'loading_backdrop_texture_r82.rx3','slate_cm')
+    texture_package(Image.new('RGBA',(8,8),rgba(ACCENT)),output/'loading_progress_texture_r82.rx3','slate_cm')
+    ring=Image.new('RGBA',(512,512));d=ImageDraw.Draw(ring)
+    d.ellipse((26,26,486,486),outline=(222,228,231,255),width=18)
+    d.arc((26,26,486,486),-90,65,fill=rgba(ACCENT),width=22)
+    d.ellipse((36,36,476,476),outline=(255,255,255,110),width=2)
+    texture_package(ring,output/'loading_ring_texture_r82.rx3','slate_cm')
+    return dict(revision=REVISION,bar_x=BAR_X,bar_width=BAR_WIDTH,bar_y=BAR_Y,
+                badge_x=BADGE_X,badge_y=BADGE_Y,badge_size=BADGE_SIZE,
+                backdrop='overscan, behind card, all supported camera aspect ratios',
+                progress='loaded native resources / requested native resources')
 
 
 if __name__=='__main__':

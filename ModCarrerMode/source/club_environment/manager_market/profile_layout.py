@@ -4,7 +4,7 @@ from profile_art import assets as profile_assets,pitch
 INK='#102f46';MUTED='#718797';LIGHT='#eaf0f4';PAPER='#f3f7fa'
 TAB_X=(490,757,1024,1291,1558);TAB_W=251
 
-def profile_scene(assets):
+def profile_scene(assets,external_art=False):
  assets.update(profile_assets());p=Scene('profile','Perfil do técnico')
  def text(name,x,y,w,h,value='',size=22,color=INK,section=None):
   p.text(x,y,w,h,value,size,color);p.nodes[-1]['name']=name
@@ -19,7 +19,7 @@ def profile_scene(assets):
  image('profile_identity','identityCard',96,190,366,719)
  # The team-coloured portrait is the only photograph background.
  for n in range(11):image('stars_'+str(n),'rating'+str(n),286,390,154,30)
- for key in list(assets):
+ for key in ([] if external_art else list(assets)):
   if key.startswith('head_'):image(key,'img_'+key,112,218,160,160)
   elif key.startswith('flag_'):image(key,'img_'+key,286,219,28,19)
   elif key.startswith('crest_'):image(key,'current_'+key,286,294,36,40)
@@ -62,7 +62,7 @@ def profile_scene(assets):
  for i in range(3):
   y=315+i*182;image('profile_entry','entryCard'+str(i),490,y,1320,166)
   image('profile_dot','titleTimelineDot'+str(i),483,y+34,22,22,2)
-  for key in list(assets):
+  for key in ([] if external_art else list(assets)):
    if key.startswith('crest_'):image(key,'entry'+str(i)+'_'+key,510,y+18,74,74)
    elif key.startswith('competition_'):image(key,'trophy'+str(i)+'_'+key,510,y+18,86,90)
    elif key.startswith('cup_'):image(key,'cup'+str(i)+'_'+key,1668,y+61,100,100)

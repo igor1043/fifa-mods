@@ -7,4 +7,10 @@ int main(){
  p=progress(true,4,9,0);assert(p.scale==.5f);
  p=progress(true,9,9,0);assert(p.scale==1.f);
  p=progress(true,50,9,0);assert(p.scale==1.f);
+ for(unsigned t=0;t<30000;t+=17){
+  auto a=room_loading::activity(t);assert(std::isfinite(a.cosine)&&std::isfinite(a.sine));
+  assert(std::abs(a.cosine*a.cosine+a.sine*a.sine-1.f)<.0001f);
+  assert(a.badgeScale>=1.f&&a.badgeScale<=1.03001f);
+ }
+ auto a=room_loading::activity(2400),b=room_loading::activity(0);assert(a.cosine==b.cosine&&a.sine==b.sine);
 }

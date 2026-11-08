@@ -850,6 +850,7 @@ static int native_game_manager_fallback(int team_id,char *name,size_t size) {
     fclose(file);
     return 0;
 }
+#include "next_match_manager.inc"
 static int native_next_match_stadium(const FceFixture *fixture,int competition_id,
     char *out,size_t size,char *label,size_t label_size,
     char *detail,size_t detail_size) {
@@ -944,8 +945,8 @@ static void publish_next_match_card(void *provider) {
     publish_visibility_field(provider,"MYTEAM_NEXT_AWAY_NAME",value[0]!=0);
     publish_string_field(provider,"MYTEAM_NEXT_AWAY_NAME",value);
     home_manager[0]=0; away_manager[0]=0;
-    native_game_manager_fallback(g_next_match_fixture.home,home_manager,sizeof(home_manager));
-    native_game_manager_fallback(g_next_match_fixture.away,away_manager,sizeof(away_manager));
+    native_next_match_manager_name(g_next_match_fixture.home,home_manager,sizeof(home_manager));
+    native_next_match_manager_name(g_next_match_fixture.away,away_manager,sizeof(away_manager));
     if(home_manager[0]) {
         snprintf(value,sizeof(value),"TECNICO: %s",home_manager);
         lstrcpynA(home_manager,value,(int)sizeof(home_manager));
@@ -2528,6 +2529,7 @@ static void native_publish_competition_tabs(void *provider) {
         }
     }
 }
+#include "header_metrics.inc"
 static void publish_coach_record(void *provider) {
     char record[160], efficiency[96], home_efficiency[32], away_efficiency[32];
     int total, wins_slots, draws_slots, losses_slots, i;
@@ -3378,6 +3380,7 @@ static void native_publish(void *provider) {
     publish_trophy_room(provider);
     native_publish_competition_stats(provider);
     publish_coach_record(provider);
+    publish_header_metrics(provider);
     publish_upcoming_rows(provider); publish_next_match_card(provider);
     publish_club_previous_rows(provider); publish_round_rows(provider);
     publish_competitions(provider); native_publish_competition_tabs(provider); publish_bridge_status(provider);

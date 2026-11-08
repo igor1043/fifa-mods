@@ -17,7 +17,7 @@ Copy-Item -LiteralPath $enabled -Destination (Join-Path $backupRoot 'enabled.txt
 if ((Get-FileHash -LiteralPath $enabled).Hash -ne (Get-FileHash -LiteralPath (Join-Path $backupRoot 'enabled.txt')).Hash) { throw 'Backup mismatch.' }
 $destination = Join-Path $modsRoot 'vp8_compat'
 New-Item -ItemType Directory -Path $destination -Force | Out-Null
-foreach ($name in @('vp8_compat.dll','test_1080p_high.vp8','README.md','disable.ps1')) {
+foreach ($name in @('vp8_compat.dll','test_1080p_high.vp8','disable.ps1')) {
     $sourceFile = Join-Path $package $name
     if (!(Test-Path -LiteralPath $sourceFile)) { continue }
     $targetFile = Join-Path $destination $name

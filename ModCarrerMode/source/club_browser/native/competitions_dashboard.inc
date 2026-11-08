@@ -8,8 +8,6 @@
   bool lt=pad.Gamepad.bLeftTrigger>120,rt=pad.Gamepad.bRightTrigger>120,leftTrigger=controlReady&&lt&&!leftTriggerHeld,rightTrigger=controlReady&&rt&&!rightTriggerHeld;leftTriggerHeld=lt;rightTriggerHeld=rt;
   if(!controlReady){controlReady=true;repeatDirection=detailDirection=0;wheelDelta.exchange(0);return;}if(!ready||data.competitions.empty())return;
   auto&c=data.competitions[selected];auto now=GetTickCount64();POINT p{};GetCursorPos(&p);ScreenToClient(window,&p);float fit=(std::min)(w/1600,h/900);if(fit<=0)return;float mx=(p.x-(w-1600*fit)/2)/fit,my=(p.y-(h-900*fit)/2)/fit;
-  if(edges||std::abs(int(pad.Gamepad.sThumbLX))>16000||std::abs(int(pad.Gamepad.sThumbLY))>16000||std::abs(int(pad.Gamepad.sThumbRX))>14000||std::abs(int(pad.Gamepad.sThumbRY))>14000)padHints=true;
-  for(bool pressed:edge)if(pressed)padHints=false;
   if(edge[VK_LBUTTON]&&my>=25&&my<105&&mx>=1470&&(expanded||nav.rounds||nav.fullList>=0)){command("comp_close");return;}
   if(expanded&&nav.fullList<0){bracketControls(window,w,h,edge,edges,pad.Gamepad);return;}
   int direction=(held[VK_LEFT]||(buttons&XINPUT_GAMEPAD_DPAD_LEFT)||pad.Gamepad.sThumbLX< -16000)?1:(held[VK_RIGHT]||(buttons&XINPUT_GAMEPAD_DPAD_RIGHT)||pad.Gamepad.sThumbLX>16000)?2:(held[VK_UP]||(buttons&XINPUT_GAMEPAD_DPAD_UP)||pad.Gamepad.sThumbLY>16000)?3:(held[VK_DOWN]||(buttons&XINPUT_GAMEPAD_DPAD_DOWN)||pad.Gamepad.sThumbLY< -16000)?4:0;
@@ -48,7 +46,7 @@
    }
   }
   if(held[VK_LBUTTON]&&mx>=1545&&mx<1558&&my>=166&&my<=779){float track=603,thumb=track*clubcomp::detailViewportHeight/clubcomp::detailContentHeight;nav.detail=int(std::clamp((my-171-thumb/2)/(track-thumb),0.f,1.f)*clubcomp::detailMaximumScroll);}
-  if(wheel&&mx>=60&&mx<1558&&my>=155&&my<790){padHints=false;nav.scrollPage(wheel>0?-82:82);}
+  if(wheel&&mx>=60&&mx<1558&&my>=155&&my<790){nav.scrollPage(wheel>0?-82:82);}
  }
  void leaderCards(ID3D11DeviceContext*c,clubcomp::Competition&comp){
   auto&r=renderer;for(int kind=0;kind<2;++kind){const auto box=kind?clubcomp::assistsArea:clubcomp::goalsArea;panel(c,box.x,box.y,box.w,box.h);
@@ -88,15 +86,6 @@
   unsigned focus=uitheme::accent();r.line(c,box.x+2,box.y+2,box.x+box.w-2,box.y+2,focus);r.line(c,box.x+2,box.y+2,box.x+2,box.y+box.h-2,focus);r.line(c,box.x+box.w-2,box.y+2,box.x+box.w-2,box.y+box.h-2,focus);r.line(c,box.x+2,box.y+box.h-2,box.x+box.w-2,box.y+box.h-2,focus);
   r.top=oldTop;c->RSSetState(r.raster);c->RSSetScissorRects(count,old);
   float track=603,thumb=track*clubcomp::detailViewportHeight/clubcomp::detailContentHeight;rounded(c,1548,171,5,track,2.5f,0xffdce6ee);rounded(c,1548,171+(track-thumb)*nav.detail/clubcomp::detailMaximumScroll,5,thumb,2.5f,uitheme::accent());
- }
- void drawFooter(ID3D11DeviceContext*c){
-  std::vector<std::pair<std::string,std::string>>items;
-  if(!ready)items={{padHints?"B":"Esc","Voltar"}};
-  else if(nav.fullList>=0)items={{padHints?"B":"Esc","Voltar"},{padHints?"LB/RB":"X/C","Ranking"},{padHints?"LS":"↑/↓","Jogadores"},{padHints?"RS":"PgUp/PgDn","Rolar lista"}};
-  else if(expanded)items={{padHints?"B":"Esc","Voltar"},{padHints?"A":"Enter","Ajustar"},{padHints?"LS":"↑/↓/←/→","Mover"},{padHints?"RS":"W/E","Fases"},{padHints?"LT/RT":"+ / −","Zoom"}};
-  else if(nav.rounds)items={{padHints?"B":"Esc","Voltar"},{padHints?"LT/RT":"W/E","Rodadas"},{padHints?"LS":"↑/↓","Jogos"},{padHints?"RS":"PgUp/PgDn","Rolar lista"}};
-  else items={{padHints?"A":"Enter","Selecionar"},{padHints?"B":"Esc","Voltar"},{padHints?"LB/RB":"X/C","Competições"},{padHints?"X":"R","Rodadas / chaves"},{padHints?"LS":"↑/↓/←/→","Cards"},{padHints?"RS":"PgUp/PgDn","Rolar tela"}};
-  float x=64,slot=1480.f/items.size();for(auto&item:items){float icon=item.first.size()>5?90:item.first.size()>2?61:34;rounded(c,x,838,icon,29,7,0xe52e414c);text(c,item.first,x+2,840,int(icon)-4,25,item.first.size()>5?12:16,RGB(255,255,255),true);text(c,item.second,x+icon+10,839,int(slot-icon-18),28,17,RGB(255,255,255));x+=slot;}
  }
  void drawMatchdays(ID3D11DeviceContext*c,clubcomp::Competition&comp){
   auto&r=renderer;r.rectangle(c,40,20,1520,790,0xfff8fbfe);image(c,"comp",comp.asset,81,45,56,54);text(c,"RESULTADOS POR RODADA",154,42,1180,36,29);text(c,comp.name,155,82,1160,25,17,RGB(109,132,152));text(c,"×",1470,39,65,44,31,uitheme::accentInk(),true);

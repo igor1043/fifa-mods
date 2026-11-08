@@ -6,16 +6,27 @@
 struct NativeRoomComponent {
  std::string key,type,model,submesh,texture,textureName;
  int medicalPage=-1,medicalPages=0,medicalBank=0;
- bool alpha=false,loaded=false,attempted=false,failed=false;uintptr_t object=0;
+ bool alpha=false,loaded=false,attempted=false,failed=false,castsRoomShadow=false;uintptr_t object=0;
  std::vector<std::array<float,16>> matrices;
  std::array<float,4> overlay{};
 };
 std::vector<std::unique_ptr<NativeRoomComponent>> components,retiredComponents;
-NativeRoomComponent loadingSlate,errorSlate,loadingProgress;
+NativeRoomComponent loadingSlate,errorSlate,loadingProgress,loadingBackdrop,loadingRing,loadingBadge;
+unsigned loadingBadgeClub=0,loadingBadgeRevision=0;
 room_cinema::Tour roomTour;unsigned roomTourVersion=0;uint64_t roomTourFingerprint=0;
 uintptr_t componentVtable[29]{};
+std::atomic<uintptr_t> roomBoardShadowObject{0};
+std::atomic<unsigned> roomBoardFlatShadowPasses{0},roomBoardSelfShadowPasses{0},roomBoardShadowLinkAttempts{0};
+std::atomic<bool> roomBoardShadowLinked{false};
+bool roomComponentCastsShadow(const NativeRoomComponent&c){
+ return roomV3&&!c.alpha&&c.key=="role_board_23";
+}
 void __fastcall componentDraw(void*self,int pass){
- const bool slate=self==(void*)loadingSlate.object||self==(void*)errorSlate.object||self==(void*)loadingProgress.object;
+ if(reinterpret_cast<uintptr_t>(self)==roomBoardShadowObject.load(std::memory_order_relaxed)){
+  if(pass==2)++roomBoardFlatShadowPasses;
+  if(pass==4)++roomBoardSelfShadowPasses;
+ }
+ const bool slate=self==(void*)loadingSlate.object||self==(void*)errorSlate.object||self==(void*)loadingProgress.object||self==(void*)loadingBackdrop.object||self==(void*)loadingRing.object||self==(void*)loadingBadge.object;
  if(stopping||!page()||(slate?!roomLoading.load():!active.load()||!ready.load()))return;
  __try {if(indoorEnabled&&pass==1)nativeIndoorDraw(self);else ((void(__fastcall*)(void*,int))(image+0x43c8f20))(self,pass);}
  __except(EXCEPTION_EXECUTE_HANDLER){indoorEnabled=false;++indoorFailures;log("INDOOR_LIGHTING_DISABLED_FALLBACK_NATIVE");}
@@ -93,14 +104,14 @@ bool loadComponents(){
   if(c->model.rfind("data/sceneassets/",0)!=0||c->texture.rfind("data/",0)!=0||c->key.size()>64)return false;
   if(version==3&&(!(f>>c->medicalPage>>c->medicalPages>>c->medicalBank)||c->medicalPages<0||c->medicalPages>6||c->medicalPage< -1||c->medicalPage>=std::max(1,c->medicalPages)||c->medicalBank<0||c->medicalBank>1))return false;
   for(float&v:c->overlay)if(!(f>>v)||!std::isfinite(v)||v<0||v>1)return false;
-  c->alpha=alpha!=0;c->matrices.resize(instances);
+  c->alpha=alpha!=0;c->castsRoomShadow=roomV3&&roomComponentCastsShadow(*c);c->matrices.resize(instances);
   for(auto&m:c->matrices)for(float&v:m)if(!(f>>v)||!std::isfinite(v)||std::abs(v)>1000000.f)return false;
   c->type="server16_native_room_r60_"+std::to_string(generation)+"_"+std::to_string(i);prepared.push_back(std::move(c));
  }
  hideComponents();
  for(auto&next:prepared)for(auto&old:components){
   if(old&&old->key==next->key&&old->model==next->model&&old->submesh==next->submesh&&old->texture==next->texture&&old->textureName==next->textureName&&old->alpha==next->alpha&&!old->failed){
-   old->matrices=std::move(next->matrices);old->overlay=next->overlay;old->medicalPage=next->medicalPage;old->medicalPages=next->medicalPages;old->medicalBank=next->medicalBank;next=std::move(old);break;
+   old->matrices=std::move(next->matrices);old->overlay=next->overlay;old->medicalPage=next->medicalPage;old->medicalPages=next->medicalPages;old->medicalBank=next->medicalBank;old->castsRoomShadow=next->castsRoomShadow;next=std::move(old);break;
   }
  }
  for(auto&c:components)if(c)retiredComponents.push_back(std::move(c));components=std::move(prepared);componentGeneration=generation;componentClub=club;
@@ -127,8 +138,16 @@ bool createComponent(NativeRoomComponent&c){
  script+="gr:AddAsset(o,lod,'coverage','data/sceneassets/server16_dressing_room_v3/shared/room_white_r49.rx3');";
  script+="gr:CreateMaterialFromAttribulator(o,lod,part,'prop_material',"+luaString(c.alpha?"prop_alpha":"prop_plastic")+");gr:SetSubMesh(o,lod,part,"+luaString(c.submesh)+");";
  script+="gr:SetTexture(o,lod,part,'textures','diffuseTexture','color',"+luaString(c.textureName)+");gr:SetTexture(o,lod,part,'textures','normalMap','aux','_nm');gr:SetTexture(o,lod,part,'textures','coeffMap','aux','_coeff');";
- script+="gr:SetTexture(o,lod,part,'textures','envDiffuseTexture','charcmn','envd_');gr:SetTexture(o,lod,part,'textures','envSpecTexture','charcmn','envs_');gr:SetTexture(o,lod,part,'textures','coverageMap','coverage','white_cm');gr:SetDBInt(o,'server16_room_revision',1);gr:Reload(o,1);ContextAddRenderable('gameplayprops',o,1,{}) end);if not ok then S16RoomComponentError=tostring(err) end end";
+ script+="gr:SetTexture(o,lod,part,'textures','envDiffuseTexture','charcmn','envd_');gr:SetTexture(o,lod,part,'textures','envSpecTexture','charcmn','envs_');gr:SetTexture(o,lod,part,'textures','coverageMap','coverage','white_cm');gr:SetDBInt(o,'server16_room_revision',1);gr:Reload(o,1);ContextAddRenderable('gameplayprops',o,1,{}) end);if not ok then S16RoomComponentError=tostring(err) end ";
+ if(c.castsRoomShadow)script+="local owner=S16NativeDressingRoom;local shadowOk,shadowErr=pcall(function() assert(owner and owner.flat_shadow and owner.self_shadow,'FIFA global shadow groups unavailable');gr:AddSubObject(owner.flat_shadow,o,2);gr:AddSubObject(owner.self_shadow,o,4) end);if owner then owner.last_room_shadow_link=shadowOk;owner.board_shadow_linked=shadowOk;owner.room_shadow_link_error=tostring(shadowErr) end;";
+ script+="end";
  if(!execute(script.c_str()))return false;
+ if(c.castsRoomShadow){
+  ++roomBoardShadowLinkAttempts;
+  const auto linked=roomField("last_room_shadow_link");const bool ok=linked.type==1&&linked.value;
+  roomBoardShadowLinked=ok;roomBoardShadowObject=ok?c.object:0;
+  log(ok?"NATIVE_BOARD_SHADOW_LINKED_TO_FIFA_GLOBAL_GROUPS":"NATIVE_BOARD_SHADOW_GLOBAL_LINK_FAILED");
+ }
  ((void(__fastcall*)(void*,bool))(image+0x4ad7e50))((void*)c.object,true);log(("NATIVE_COMPONENT_REQUEST: "+c.key+" model="+c.model+" texture="+c.texture).c_str());return true;
 }
 void pollComponents(bool requested){
@@ -151,16 +170,50 @@ bool roomComponentsReady(){
 }
 bool roomComponentsFailed(){for(auto&c:components)if(c->failed)return true;return false;}
 void showComponents(bool visible){for(auto&c:components)componentVisibility(*c,visible);}
+void loadingDecoration(NativeRoomComponent&c,const char*key,const char*model,const char*texture,bool alpha,bool visible){
+ if(!visible){componentVisibility(c,false);return;}
+ if(!c.attempted){c.key=key;c.type=std::string("server16_room_")+key+"_r82";c.model=model;c.submesh="room_part_1";c.texture=texture;c.textureName="slate_cm";c.alpha=alpha;c.matrices.push_back({1,0,0,0,0,1,0,0,0,0,1,0,100000,0,0,1});if(!createComponent(c))c.failed=true;}
+ if(c.object&&!c.failed&&!c.loaded&&componentReady(c.object))c.loaded=true;
+ componentVisibility(c,visible);
+}
+void loadingBrand(bool show,bool error){
+ loadingDecoration(loadingBackdrop,"loading_backdrop","data/sceneassets/server16_dressing_room_v3/loading_backdrop_r82.rx3","data/sceneassets/server16_dressing_room_v3/loading_backdrop_texture_r82.rx3",false,show);
+ loadingDecoration(loadingRing,"loading_ring","data/sceneassets/server16_dressing_room_v3/loading_ring_r82.rx3","data/sceneassets/server16_dressing_room_v3/loading_ring_texture_r82.rx3",true,show&&!error);
+ if(!show){componentVisibility(loadingBadge,false);return;}
+ const unsigned club=validCareerClub.load();
+ if(loadingBadgeClub!=club){
+  componentVisibility(loadingBadge,false);
+  // The engine may still retain the renderable; retain its backing strings,
+  // but never display the previous save's crest during the next preparation.
+  if(loadingBadge.object)retiredComponents.push_back(std::make_unique<NativeRoomComponent>(std::move(loadingBadge)));
+  loadingBadge=NativeRoomComponent{};loadingBadgeClub=club;
+ }
+ if(club&&!loadingBadge.attempted){
+  auto&c=loadingBadge;c.key="loading_badge";c.type="server16_room_loading_badge_r82_"+std::to_string(club)+"_"+std::to_string(++loadingBadgeRevision);c.model="data/sceneassets/server16_dressing_room_v3/loading_badge_r82.rx3";c.submesh="room_part_1";c.texture="data/ui/imgassets/crest/light/l"+std::to_string(club)+".dds";c.alpha=true;c.matrices.push_back({1,0,0,0,0,1,0,0,0,0,1,0,100000,0,0,1});
+  if(!fs::exists(game/c.texture))c.texture="data/ui/imgassets/crest/dark/l"+std::to_string(club)+".dds";
+  if(!createComponent(c))c.failed=true;
+ }
+ if(loadingBadge.object&&!loadingBadge.failed&&!loadingBadge.loaded&&componentReady(loadingBadge.object))loadingBadge.loaded=true;
+ const auto activity=room_loading::activity(GetTickCount64()-roomLoadBegan);
+ if(!loadingRing.matrices.empty()){
+  auto&m=loadingRing.matrices[0];m[0]=activity.cosine;m[1]=activity.sine;m[4]=-activity.sine;m[5]=activity.cosine;m[12]=roomOriginX-283.59375f;m[13]=1270.71875f;m[14]=400.3f;
+ }
+ if(!loadingBadge.matrices.empty()){
+  auto&m=loadingBadge.matrices[0];m[0]=m[5]=activity.badgeScale;m[12]=roomOriginX-283.59375f;m[13]=1270.71875f;m[14]=400.4f;
+ }
+ componentVisibility(loadingRing,show&&!error);componentVisibility(loadingBadge,show&&loadingBadgeClub==club);
+}
 void pollSlate(bool show,bool error){
+ loadingBrand(show,error);
  for(int i=0;i<2;++i){auto&c=i?errorSlate:loadingSlate;
   if(!show){if(c.object)componentVisibility(c,false);continue;}
-  if(!c.attempted){c.key=i?"loading_error":"loading_slate";c.type=i?"server16_room_error_r81":"server16_room_loading_r81";c.model="data/sceneassets/server16_dressing_room_v3/loading_panel_r81.rx3";c.submesh="room_part_1";c.texture=i?"data/sceneassets/server16_dressing_room_v3/loading_error_texture_r81.rx3":"data/sceneassets/server16_dressing_room_v3/loading_panel_texture_r81.rx3";c.textureName="slate_cm";c.matrices.push_back({1,0,0,0,0,1,0,0,0,0,1,0,100000,0,0,1});if(!createComponent(c))c.failed=true;}
+  if(!c.attempted){c.key=i?"loading_error":"loading_slate";c.type=i?"server16_room_error_r82":"server16_room_loading_r82";c.model="data/sceneassets/server16_dressing_room_v3/loading_panel_r82.rx3";c.submesh="room_part_1";c.texture=i?"data/sceneassets/server16_dressing_room_v3/loading_error_texture_r82.rx3":"data/sceneassets/server16_dressing_room_v3/loading_panel_texture_r82.rx3";c.textureName="slate_cm";c.matrices.push_back({1,0,0,0,0,1,0,0,0,0,1,0,100000,0,0,1});if(!createComponent(c))c.failed=true;}
   if(c.object&&!c.failed&&!c.loaded&&componentReady(c.object))c.loaded=true;
   componentVisibility(c,show&&(i?error:!error));
  }
  auto&bar=loadingProgress;
  if(!show||error){componentVisibility(bar,false);return;}
- if(!bar.attempted){bar.key="loading_progress";bar.type="server16_room_loading_progress_r81";bar.model="data/sceneassets/server16_dressing_room_v3/loading_progress_r81.rx3";bar.submesh="room_part_1";bar.texture="data/sceneassets/server16_dressing_room_v3/loading_progress_texture_r81.rx3";bar.textureName="slate_cm";bar.matrices.push_back({1,0,0,0,0,1,0,0,0,0,1,0,100000,0,0,1});if(!createComponent(bar))bar.failed=true;}
+ if(!bar.attempted){bar.key="loading_progress";bar.type="server16_room_loading_progress_r82";bar.model="data/sceneassets/server16_dressing_room_v3/loading_progress_r82.rx3";bar.submesh="room_part_1";bar.texture="data/sceneassets/server16_dressing_room_v3/loading_progress_texture_r82.rx3";bar.textureName="slate_cm";bar.matrices.push_back({1,0,0,0,0,1,0,0,0,0,1,0,100000,0,0,1});if(!createComponent(bar))bar.failed=true;}
  if(bar.object&&!bar.failed&&!bar.loaded&&componentReady(bar.object))bar.loaded=true;
  unsigned loadedCount=0;for(auto&c:components)if(c->loaded&&!c->failed)++loadedCount;
  const auto p=room_loading::progress(ready.load(),loadedCount,componentClub==validCareerClub?static_cast<unsigned>(components.size()):0,GetTickCount64()-roomLoadBegan);

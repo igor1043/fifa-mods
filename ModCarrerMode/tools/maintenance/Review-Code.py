@@ -27,7 +27,7 @@ assert (ROOT/'ModCarrerMode/mods/var_cabin/var_cabin.lua').read_bytes()==(ROOT/'
 assert (ROOT/'ModCarrerMode/mods/smoke_machine/smoke_machine.lua').read_bytes()==(ROOT/'ModCarrerMode/source/smoke_machine/smoke_machine.lua').read_bytes()
 configuration=configparser.ConfigParser();configuration.read(ROOT/'ModCarrerMode/config/match_presentation.ini')
 assert configuration.getboolean('match','entrance_props')
-for relative in ('README.md','ModCarrerMode/source/entrance_props/README.md','ModCarrerMode/source/var_cabin/README.md'):
+for relative in ('README.md',):
     assert 'entrance_props_v18.dll' not in (ROOT/relative).read_text(encoding='utf8')
 result={'python_sources_parsed':python_files,'features_catalogued':len(catalog['features']),'active_plugins':len(entries),'source_integration_errors':errors}
 print(json.dumps(result,ensure_ascii=False,indent=2));sys.exit(bool(errors))

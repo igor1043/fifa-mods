@@ -14,5 +14,5 @@ def read(path,observed,model,now):
  values=[int(v) for v in parts[2:-1]];person=values[0];resume=dict(zip(RESUME,values[1:]))
  if person< -1 or person>=len(model['people']):raise ValueError('Técnico fora do catálogo')
  if any(v<0 or v>200000 for v in resume.values()) or resume['tab']>4:raise ValueError('Navegação inválida')
- resume.update(profile=person>=0,person=max(0,person),profileTab=0,profileVenue=0,historyPage=0)
+ resume.update(profile=person>=0,person=max(0,person),profileTab=0,profileVenue=0,historyPage=0,clubTimeline=resume['tab']==3 and bool(model.get('clubHistory')))
  return dict(identity=(captured,fields['wire']),person=person,coach=model['people'][person]['id'] if person>=0 else None,resume=resume)

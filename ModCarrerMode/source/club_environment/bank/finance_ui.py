@@ -14,7 +14,7 @@ from loans import parse_date
 
 CLASS=('game','screens','career','server16','ClubFinance');FULL='.'.join(CLASS);PAGE='/'.join(CLASS)
 TABS=(('overview','Visão geral'),('receipts','Receitas'),('expenses','Despesas'),('transfers','Transferências'),('salaries','Salários'),('loans','Dívidas'),('budget','Orçamento'),('settings','Configurações'))
-ROOT_TABS={'contracts':'receipts','tickets':'receipts','tv':'receipts','sponsors':'receipts','statement':'budget','monthly':'overview','history':'overview','year':'overview'}
+ROOT_TABS={'contracts':'receipts','tickets':'receipts','tv':'receipts','sponsors':'receipts','members':'receipts','statement':'budget','monthly':'overview','history':'overview','year':'overview'}
 
 def root_tab(key):return ROOT_TABS.get(key.split(':')[0],key.split(':')[0])
 R=b.reg;T=b.this;P=b.prop;EQ=b.equal;CALL=b.call;M=b.MANAGER;ION=b.ION
@@ -32,7 +32,7 @@ def shell(view,key,tab):
  s.text(102,182,1420,34,f"{view.get('club_name','Clube')} · {day(view.get('date'))} · Acompanhamento desde {day(view.get('start'))}",23,MUTED)
  for i,(target,label) in enumerate(TABS):s.action(100+i*216,234,208,50,label,target,ACCENT if target==tab else LIGHT,ACCENT_TEXT if target==tab else INK,22)
  if key=='overview':s.action(1560,178,255,38,'Histórico anual','history',LIGHT,INK,20)
- s.text(100,876,1715,30,view.get('message','Receitas adicionais do mod · Valores aplicados à verba de transferências.'),19,MUTED)
+ s.text(100,876,1715,30,view.get('message','Valores na moeda da carreira · Negócios nativos são informativos e não geram pagamento duplicado.'),19,MUTED)
  return s
 
 def scenes(view):
@@ -62,11 +62,11 @@ def scenes(view):
  for page in range(pages):
   key='statement' if page==0 else 'statement:'+str(page);s=shell(view,key,'budget')
   s.text(120,310,1700,40,'EXTRATO DE CAIXA · MÊS EM QUE OS VALORES FORAM APLICADOS',28)
-  for x,w,label in ((120,150,'MÊS'),(285,230,'TV'),(530,230,'BILHETERIA'),(775,230,'PATROCÍNIO'),(1020,230,'EQUIPE'),(1265,230,'JOGOS'),(1510,290,'PARCELAS')):s.text(x,366,w,30,label,20,MUTED,0 if x==120 else 1)
+  for x,w,label in ((120,150,'MÊS'),(285,230,'TV'),(530,230,'BILHETERIA'),(775,230,'COMERCIAL'),(1020,230,'EQUIPE'),(1265,230,'JOGOS'),(1510,290,'PARCELAS')):s.text(x,366,w,30,label,20,MUTED,0 if x==120 else 1)
   for i,row in enumerate(months[page*7:page*7+7]):
    y=410+i*53;s.rect(100,y,1720,47,WHITE if i%2==0 else LIGHT)
    text=str(row['month']);s.text(120,y+6,150,34,text[4:]+'/'+text[:4],22)
-   for x,w,value in ((285,230,row.get('tv',0)),(530,230,row.get('tickets',0)),(775,230,row.get('sponsor',0)),(1020,230,row.get('coach',0)+row.get('staff',0)+row.get('facilities',0)),(1265,230,row.get('match_costs',0)),(1510,290,row.get('loans',0))):money(s,x,y+6,w,35,value,22)
+   for x,w,value in ((285,230,row.get('tv',0)),(530,230,row.get('tickets',0)),(775,230,row.get('sponsor',0)+row.get('members',0)),(1020,230,row.get('coach',0)+row.get('staff',0)+row.get('facilities',0)),(1265,230,row.get('match_costs',0)),(1510,290,row.get('loans',0))):money(s,x,y+6,w,35,value,22)
   if not months:s.text(120,450,1640,65,'Ainda não há lançamentos. Acompanhe após disputar jogos e avançar o calendário.',25,MUTED)
   if pages>1:
    s.action(100,811,155,42,'‹','statement' if page<=1 else 'statement:'+str(page-1));s.action(270,811,155,42,'›','statement:'+str(page+1) if page+1<pages else key)
@@ -74,7 +74,7 @@ def scenes(view):
  import finance_art as art
  s=shell(view,'settings','settings');assets={}
  s.text(120,308,1670,42,'MODO FINANCEIRO · OPÇÕES DESTA CARREIRA E CLUBE',28)
- labels=('Sistema financeiro · chave geral','Receitas de TV por partida','Bilheteria dos jogos em casa','Salário mensal do técnico','Cobrança automática dos empréstimos','Patrocínio do clube','Comissão técnica','Custos de operação da bilheteria','Manutenção e estrutura do clube')
+ labels=('Sistema financeiro · chave geral','Receitas de TV por partida','Bilheteria dos jogos em casa','Salário mensal do técnico','Cobrança automática dos empréstimos','Patrocínio do clube','Comissão técnica','Custos de operação da bilheteria','Manutenção e estrutura do clube','Sócio-torcedor')
  descriptions=('Controla os acréscimos e débitos do sistema financeiro.',
   'Recebe o contrato da competição por partida concluída.',
   'Receita adicional calculada para jogos como mandante.',
@@ -83,12 +83,13 @@ def scenes(view):
   'Um contrato por clube e temporada, proporcional à reputação.',
   'Equipe de apoio estimada pelo porte do clube, descontada ao mês.',
   'Percentual da renda bruta dos próximos jogos em casa; histórico preservado.',
-  'Manutenção do CT e administração; estimativa mensal proporcional ao porte do clube.')
+  'Manutenção do CT e administração; estimativa mensal proporcional ao porte do clube.',
+  'Receita mensal conforme o prestígio do clube e a força da liga.')
  for i,(kind,label) in enumerate(zip(SWITCHES,labels)):
-  enabled=view.get('settings',{}).get(kind,True);y=354+i*49
-  s.action(100,y,1720,46,'','toggle:'+kind,WHITE,INK,25)
+  enabled=view.get('settings',{}).get(kind,True);y=354+i*44
+  s.action(100,y,1720,42,'','toggle:'+kind,WHITE,INK,25)
   s.actions[-1].update(setting=i,value=not enabled)
-  s.text(125,y+1,1270,25,label,22);s.text(125,y+25,1270,20,descriptions[i],16,MUTED)
+  s.text(125,y,1270,24,label,21);s.text(125,y+23,1270,18,descriptions[i],15,MUTED)
   s.text(1420,y+12,230,30,'Ativado' if enabled else 'Desativado',22,BLUE if enabled else MUTED,1);s.nodes[-1]['name']='switchState'+str(i)
   for state in (False,True):
    asset='switch'+str(int(state));assets[asset]=art.switch(state)

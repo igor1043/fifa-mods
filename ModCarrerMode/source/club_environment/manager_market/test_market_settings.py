@@ -73,10 +73,10 @@ class SettingsTest(unittest.TestCase):
   assets={'head_NOTFOUND_DEFAULT':Image.new('RGBA',(64,64),'gray'),**{'stars_'+str(i):stars(i) for i in range(11)}}
   path=self.root/'settings.big';native_screen.build(test_screen.GAME,path,scenes_for(model,assets),assets,script_factory=script_factory(model,assets),full_name=FULL)
   vm,s,_,calls=open_native(path,full=FULL);test_screen.load_data(vm,s)
-  vm.invoke(s.get('Command'),s,(3,));self.assertTrue(s.get('scene5').get('_visible'));vm.invoke(s.get('Move'),s,(3,));self.assertEqual(400,s.get('focus'))
+  vm.invoke(s.get('Command'),s,(4,));self.assertTrue(s.get('scene5').get('_visible'));vm.invoke(s.get('Move'),s,(3,));self.assertEqual(400,s.get('focus'))
   s.set('_xmouse',1620);s.set('_ymouse',430);vm.invoke(s.get('onMouseDown'),s);self.assertFalse(s.get('marketEnabled'))
   events=[a for n,a in calls if n=='SendSystemEvent' and 'Server16ManagerSettings' in a];self.assertEqual(1,len(events));self.assertIn('|0|0|1|END',events[0][-1])
   vm.invoke(s.get('Move'),s,(3,));self.assertEqual(403,s.get('focus'));vm.invoke(s.get('Command'),s,(402,));self.assertEqual(1,s.get('cadenceIndex'))
-  vm.invoke(s.get('Move'),s,(2,));self.assertEqual(400,s.get('focus'));vm.invoke(s.get('Move'),s,(2,));self.assertEqual(3,s.get('focus'));self.assertFalse(vm.errors)
+  vm.invoke(s.get('Move'),s,(2,));self.assertEqual(400,s.get('focus'));vm.invoke(s.get('Move'),s,(2,));self.assertEqual(4,s.get('focus'));self.assertFalse(vm.errors)
 
 if __name__=='__main__':unittest.main()

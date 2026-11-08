@@ -32,6 +32,12 @@ class Labels:
      for name in (r['name'],r['source_name']):self.aliases[key(name)]=r
    if 'league_catalog' in tables:self.leagues={r['league_id']:dict(r) for r in db.execute('SELECT * FROM league_catalog')}
    if 'coach_preferences' in tables:self.preferences={r['coach_id']:dict(r) for r in db.execute('SELECT * FROM coach_preferences')}
+  # Imported catalogues can contain Brazil and Brasil, or regional labels.
+  # Resolve all of them to the actual national entry, never a second flag_0.
+  brazil=next((dict(r,name='Brasil') for r in self.countries.values() if key(r['source_name'])=='brazil'),None)
+  if brazil:
+   self.countries[brazil['nation_id']]=brazil
+   self.aliases['brasil']=self.aliases['brazil']=brazil
   for alias,name in ALIASES.items():
    if key(name) in self.aliases:self.aliases[alias]=self.aliases[key(name)]
  def nationality(self,value):
@@ -43,12 +49,13 @@ class Labels:
     if 'Reino Unido' not in names:names.append('Reino Unido');flags.append('flag_uk')
     continue
    # Regional Brazilian leagues are not different coach nationalities.
-   if part.startswith('Brasil '):part='Brasil'
+   if key(part).startswith(('brasil ','brazil ')):part='Brasil'
    row=self.aliases.get(key(part));label=row['name'] if row else TRANSLATIONS.get(part,part)
    if label not in names:names.append(label);flags.append('flag_'+str(row['nation_id']) if row else 'flag_0')
   # The catalogue may retain several source countries. Display/filter by the
   # primary registered nationality, not a concatenation of those countries.
   return (names[0] if names else 'Não informada',flags[0] if flags else 'flag_0')
  def country(self,value):
+  if key(value).startswith(('brasil ','brazil ')):value='Brasil'
   row=self.aliases.get(key(value))
   return (row['name'],row['nation_id']) if row else (TRANSLATIONS.get(value,value) or 'Outros países',0)

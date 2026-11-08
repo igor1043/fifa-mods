@@ -145,27 +145,9 @@ def pages(view,shell,money):
     money(s,x,y+10,w,36,value,26,color)
   s.text(120,792,1240,25,'Mês de origem dos lançamentos. Pagamentos atrasados mantêm a data efetiva de aplicação no histórico.',18,MUTED)
   pager(s,'monthly',page,count,observed,6);result.append(pack(s,assets))
- # Revenue and expense pages keep operating income distinct from financing.
- for root,title,fields in (('receipts','RECEITAS ADICIONAIS',(('tv','Direitos de TV'),('tickets','Bilheteria bruta'),('sponsor','Patrocínio'))),
-                            ('expenses','DESPESAS ADICIONAIS',(('coach','Técnico'),('staff','Comissão técnica'),('match_costs','Custos dos jogos'),('facilities','Manutenção e estrutura'),('interest','Juros')))):
-  count=max(1,(len(months)+6)//7)
-  for page in range(count):
-   key=root if page==0 else root+':'+str(page);s=shell(view,key,root);assets={}
-   s.text(120,302,1250,36,title,27)
-   if root=='receipts':s.action(1480,300,320,42,'Contratos de TV','contracts',LIGHT,BLUE,22)
-   cw=1720/len(fields)
-   for j,(field,label) in enumerate(fields):
-    x=100+j*cw;panel(s,assets,'total'+field,x,353,int(cw-12),88)
-    if root=='receipts':s.action(x,353,cw-12,88,'',{'tv':'tv','tickets':'tickets','sponsor':'sponsors'}[field],WHITE,BLUE,22)
-    s.text(x+20,362,cw-45,28,label,22);money(s,x+20,397,cw-45,35,m[field],27,art.GREEN if root=='receipts' else art.RED,0)
-   sw=1420/len(fields);s.text(120,464,220,30,'MÊS',22,MUTED)
-   for j,(field,label) in enumerate(fields):s.text(380+j*sw,464,sw-25,30,label,21,MUTED,1)
-   for i,r in enumerate(months[page*7:page*7+7]):
-    y=506+i*40;s.rect(100,y,1720,37,WHITE if i%2==0 else LIGHT)
-    stamp=str(r['month']);s.text(120,y+4,320,31,stamp[4:]+'/'+stamp[:4],22)
-    for j,(field,_) in enumerate(fields):money(s,380+j*sw,y+4,sw-25,31,abs(r.get(field,0)),22)
-   if not months:s.text(120,540,1600,70,'Nenhum lançamento adicional registrado. Os valores surgem após a ativação do mod.',25,MUTED)
-   pager(s,root,page,count,len(months),7);result.append(pack(s,assets))
+ # Shared period dashboards retain all existing drill-down destinations.
+ from finance_period_ui import pages as period_pages
+ result+=period_pages(view,shell,money)
  # Matchday receipts: only home fixtures, paged without rebuilding the UI.
  rows=ticket_rows(view);count=max(1,(len(rows)+3)//4)
  estimated=any(r['cost_estimated'] for r in rows);rate=int(view.get('rules',{}).get('match_cost_bps',4000))/100

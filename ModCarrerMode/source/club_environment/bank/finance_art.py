@@ -68,6 +68,10 @@ def glyph(kind,size=28,color='#163e67'):
   d.rounded_rectangle((12,23,84,70),6,outline=c,width=7);d.line((36,12,48,23,60,12),fill=c,width=5);d.line((48,70,48,82,28,82,68,82),fill=c,width=5)
  elif kind=='ticket':
   d.rounded_rectangle((12,23,84,73),6,fill=c);d.ellipse((4,39,25,58),fill=(0,0,0,0));d.ellipse((71,39,92,58),fill=(0,0,0,0));d.line((61,30,61,67),fill='white',width=3)
+ elif kind=='members':
+  for x,y,r in ((33,29,12),(65,31,11)):
+   d.ellipse((x-r,y-r,x+r,y+r),fill=c);d.rounded_rectangle((x-15,y+17,x+15,78),8,fill=c)
+  d.rounded_rectangle((53,58,89,85),4,fill='white',outline=c,width=4);d.line((61,67,81,67),fill=c,width=3);d.line((61,75,76,75),fill=c,width=3)
  elif kind in ('coach','salary','staff'):
   d.ellipse((35,12,61,38),fill=c);d.rounded_rectangle((26,44,70,82),9,fill=c)
   if kind in ('salary','staff'):
@@ -93,12 +97,20 @@ def glyph(kind,size=28,color='#163e67'):
   d.rounded_rectangle((15,27,81,75),6,outline=c,width=6);d.rectangle((52,40,85,61),fill=c)
  return im.resize((max(96,size*3),max(96,size*3)),Image.Resampling.LANCZOS)
 
-def donut(values,size=170):
+def category_color(key):
+ return {'tv':BLUE,'ticket':GREEN,'sponsor':'#8672bc','members':'#dfad40',
+  'transfer':'#238bc2','loan_players':'#667b91','prize':'#e27b42','coach':'#ef476f',
+  'staff':'#b95e92','match_costs':'#e59b38','facilities':'#6475b1','interest':'#6d8b92',
+  'salary':'#a75864'}.get(key,'#8296a5')
+
+def donut(values,size=170,colors=None):
  scale=3;im=Image.new('RGBA',(size*scale,size*scale));d=ImageDraw.Draw(im);box=(7*scale,7*scale,(size-7)*scale,(size-7)*scale)
  d.ellipse(box,outline='#e6edf5',width=25*scale);total=sum(max(0,v) for v in values)
  if total:
   angle=-90
-  for value,color in zip(values,(BLUE,GREEN,'#8672bc')):
+  palette=colors or (BLUE,GREEN,'#8672bc','#dfad40','#238bc2','#667b91','#e27b42','#b95e92','#6d8b92')
+  for i,value in enumerate(values):
+   color=palette[i%len(palette)]
    end=angle+max(0,value)*360/total
    if end>angle:d.arc(box,start=angle,end=end,fill=color,width=25*scale)
    angle=end

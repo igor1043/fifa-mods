@@ -13,7 +13,16 @@ class CompetitionsNavigation(unittest.TestCase):
    self.assertTrue(view.get('screenReady'))
    def press(code):return vm.invoke(view.get('LocalEventHandler'),view,(code,True))
    def sent(command):return any(n=='SendSystemEvent' and list(args)==['Calendar','Server16ClubBrowser',command] for n,args in calls)
-   self.assertEqual(vm.invoke(view.get('getHelpContext'),view),[],'Native renderer owns contextual hints and visible scrolled hit areas')
+   self.assertEqual(vm.invoke(view.get('getHelpContext'),view),[('BACK','Voltar')])
+   from apt_vm import Object
+   from competitions_footer import MODES
+   for mode,items in enumerate(MODES):
+    child=Object(dict(payloadReady=True,payload=Object(dict(kind='competition_help',mode=mode))))
+    view.set('competitionHelpHolder',Object(dict(content=child)));view.set('competitionHelpRetry',12)
+    before=len(calls);vm.invoke(view.get('competitionHelpPoll'),view)
+    self.assertEqual(mode,view.get('footerMode'));self.assertEqual([(key,label.encode('utf8').decode('latin1')) for key,label in items],vm.invoke(view.get('getHelpContext'),view))
+    self.assertFalse(any(n in ('BeginAnimateIn','Initialize','SendEvent') for n,args in calls[before:]))
+   view.set('footerMode',0)
    for code in (5,6,10,11,12,15,16,17):
     count=len(calls);press(code);self.assertFalse(any(n=='SendSystemEvent' for n,args in calls[count:]),'Native edges own navigation; do not dispatch twice')
    for _ in range(3):

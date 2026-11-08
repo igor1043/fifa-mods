@@ -71,33 +71,32 @@ def scene(stage,elapsed,detail=None,error=None):
  from manager_layout import PAPER,INK,MUTED,LIGHT,text
  stage=max(0,min(4,stage));s=Scene('loading','Carregando o mercado')
  s.rect(60,90,1800,828,PAPER);s.text(110,130,1680,64,'MERCADO DE TÉCNICOS',39,INK)
- s.text(180,330,1550,52,STAGES[stage],31,INK)
- s.rect(180,415,1550,20,LIGHT)
- if stage:s.rect(180,415,1550*stage/5,20,ACCENT)
- # A narrow moving marker says the current stage is active. The filled part
- # advances only when a real stage finishes, never on a cosmetic timer.
- s.rect(180+1550*stage/5,411,8,28,ACCENT)
- s.text(180,462,1040,38,f'Etapa {stage+1} de 5 · {stage*20}% das etapas concluídas',25,INK)
+ text(s,'stageLabel',180,330,1550,52,STAGES[stage],31,INK)
+ s.image('progressTrack',180,415,1550,20)
+ s.image('progressAccent',180,415,max(1,1550*stage/5),20);s.nodes[-1]['name']='progressFill'
+ text(s,'stagePercent',180,462,1040,38,f'Etapa {stage+1} de 5 · {stage*20}% das etapas concluídas',25,INK)
  s.text(1270,462,460,38,'Em segundo plano',25,MUTED,1)
  s.text(180,515,1550,34,'A barra acompanha etapas reais; o tempo restante varia conforme os dados da carreira.',21,MUTED)
  for i,label in enumerate(STAGES):
   y=598+i*46;s.rect(184,y+8,12,12,ACCENT if i<=stage else LIGHT)
-  s.text(218,y,850,32,('Concluído · ' if i<stage else 'Em andamento · ' if i==stage else '')+label,22,INK if i==stage else MUTED)
+  text(s,'stageRow'+str(i),218,y,850,32,('Concluído · ' if i<stage else 'Em andamento · ' if i==stage else '')+label,22,INK if i==stage else MUTED)
  d=detail or {}
  def formatted(value):
   t=str(value);return t[6:8]+'/'+t[4:6]+'/'+t[:4] if len(t)==8 else 'Aguardando dados'
+ period='Aguardando o período de processamento desta carreira'
  if d:
   from datetime import date
   def day(v):return date(v//10000,v//100%100,v%100)
   total=max(0,(day(d['last'])-day(d['first'])).days);done=max(0,min(total,(day(d['through'])-day(d['first'])).days))
-  s.text(180,254,1550,35,'Período: '+formatted(d['first'])+' até '+formatted(d['last'])+' · '+str(done)+' / '+str(total)+' dias alcançados'+(' · '+str(d['clubs'])+' clubes' if d.get('clubs') else ''),24,MUTED)
-  for i,(label,value) in enumerate([('DATA EM PROCESSAMENTO',formatted(d['current'])),('CONTRATAÇÕES / SAÍDAS',str(d['hires'])+' / '+str(d['exits'])),('RENOVAÇÕES',str(d['renewals']))]):
-   y=584+i*82;s.rect(1105,y,620,72,'#ffffff');s.rect(1105,y,4,72,ACCENT);s.text(1125,y+7,570,23,label,16,MUTED);s.text(1125,y+32,570,35,value,27,INK)
- else:s.text(1110,613,590,110,'Preparando os indicadores do processamento desta carreira...',23,MUTED)
+  period='Período: '+formatted(d['first'])+' até '+formatted(d['last'])+' · '+str(done)+' / '+str(total)+' dias alcançados'+(' · '+str(d['clubs'])+' clubes' if d.get('clubs') else '')
+ text(s,'periodLabel',180,254,1550,35,period,24,MUTED)
+ values=[('DATA EM PROCESSAMENTO',formatted(d.get('current'))),('CONTRATAÇÕES / SAÍDAS',str(d.get('hires',0))+' / '+str(d.get('exits',0))),('RENOVAÇÕES',str(d.get('renewals',0)))]
+ for i,(label,value) in enumerate(values):
+  y=584+i*82;s.rect(1105,y,620,72,'#ffffff');s.rect(1105,y,4,72,ACCENT);s.text(1125,y+7,570,23,label,16,MUTED);text(s,'detailValue'+str(i),1125,y+32,570,35,value,27,INK)
  text(s,'marketInsight',180,850,1550,39,error or 'Dica · As movimentações mantêm a data da carreira e o histórico de cada técnico.',21,'#a63036' if error else MUTED)
  return [s.pack()]
 
-def build(game,path,stage,elapsed,detail=None,error=None):
+def build(game,path,stage,elapsed,detail=None,error=None,owner=None):
  import build_screen as b
  import native_screen as native
  from build_preview import Code
@@ -119,13 +118,23 @@ def build(game,path,stage,elapsed,detail=None,error=None):
    a.do(M('ScreenManager'),'BeginAnimateIn',CALL(PATH('cafe','utility','Delegate'),'Create',R(1),T('OnAnimateInComplete')));a.do(R(1),'OnAnimateInComplete')
   a.function('Ready',0,ready)
   def insight_tick(a):
-   if error:return
+   a.do(R(1),'progressPoll')
+   a.when(T('progressError'),lambda a:a.ret())
    a.set(R(1),'tipFrames',('bin',71,T('tipFrames'),1))
    tips=('Dica · Sem opções livres adequadas, um clube pode sondar um técnico empregado.','Dica · Bom desempenho e tempo mínimo no cargo protegem o treinador de uma demissão.','Dica · A frequência do mercado pode ser alterada na aba Configurações.','Dica · Contratos e movimentações acompanham os salvamentos da carreira.')
    for i,tip in enumerate(tips):
     a.when(b.equal(T('tipFrames'),1+i*240),lambda a,tip=tip:a.set(P(T('scene0'),'marketInsight'),'text',tip))
    a.when(b.equal(T('tipFrames'),len(tips)*240),lambda a:a.set(R(1),'tipFrames',0))
   a.function('InsightTick',0,insight_tick)
+  from live_payload import emit as live_emit
+  def received(a,payload):
+   fields=P(payload,'fields')
+   for name in ('stageLabel','stagePercent','periodLabel','detailValue0','detailValue1','detailValue2','marketInsight',*(('stageRow'+str(i)) for i in range(5))):a.set(P(T('scene0'),name),'text',P(fields,name))
+   a.set(P(T('scene0'),'progressFill'),'_width',('bin',12,P(payload,'stage'),310))
+   a.set(R(1),'progressError',P(payload,'error'))
+  token=json.dumps(owner,separators=(',',':'))
+  live_emit(a,'progress','managerprogress',lambda d:('bin',16,b.equal(P(d,'kind'),'progress'),b.equal(P(d,'token'),token)),received)
+
   a.function('OnAnimateInComplete',0,lambda a:(a.do(ION,'SendEvent',P(T('staticData'),'SCREEN_CONTROLLER_ID'),'SCREEN_READY',''),a.do(ION,'SendSystemEvent',P(T('staticData'),'SCREEN_CONTROLLER_ID'),'DONE_LOADING','')))
   def local(a):
    a.when(b.equal(R(2),P(M('InputCodes'),'BACK')),lambda a:a.do(ION,'SendEvent',P(T('staticData'),'SCREEN_CONTROLLER_ID'),P(T('navEvents'),'BACK'),''));a.ret(True)
@@ -134,4 +143,12 @@ def build(game,path,stage,elapsed,detail=None,error=None):
   def shutdown(a):
    a.set(R(1),'onEnterFrame',None);a.do(M('InputManager'),'DisableCurrentLocalEventHandler');a.do(M('HelpManager'),'Clear');a.do(R(1),'Shutdown')
   a.function('OnExitScreen',0,shutdown);a.op(0);a.finish();a.align();registration=len(data);data.extend(dictionaries[1]);a.string(FULL);a.op(28);a.string(FULL);a.expr(2);a.expr(PATH('Object'));a.method('registerClass');a.op(23);a.op(0);a.finish();return start,registration
- return native.build(game,path,scene(stage,elapsed,detail,error),{},script_factory=script,full_name=FULL,compression_level=1)
+ from PIL import Image
+ from ui_theme import ACCENT
+ assets={'progressTrack':Image.new('RGBA',(4,4),'#e6edf2'),'progressAccent':Image.new('RGBA',(4,4),ACCENT)}
+ return native.build(game,path,scene(stage,elapsed,detail,error),assets,script_factory=script,full_name=FULL,compression_level=1)
+
+
+def payload(owner,stage,elapsed,detail=None,error=None):
+ fields={n['name']:n.get('text',n.get('value','')) for n in scene(stage,elapsed,detail,error)[0]['nodes'] if n.get('type')=='text' and n.get('name')}
+ return dict(kind='progress',token=json.dumps(owner,separators=(',',':')),stage=max(0,min(4,int(stage))),fields=fields,error=bool(error))
