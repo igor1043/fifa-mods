@@ -32,6 +32,11 @@ class FooterTests(unittest.TestCase):
             if name=='helper':return helper
             if name=='GetDataHelper':return self.helper
             if name=='nav':return nav
+            if name=='GetHighlightedIndex':return 0
+            if name=='GetTile':return self.tile
+            if name=='GetNumberOfTabs':return 8
+            if name=='IsInSubpanelMode':return False
+            if name=='GetCustomHelpContext':return self.callouts('L3')
             if name=='original':return self.original
             if name=='Create':return (args[0],args[1])
             if name=='SetCustomSource':owner.set('m_cbCustomSource',args[0])
@@ -55,6 +60,7 @@ class FooterTests(unittest.TestCase):
         hub=Object(dict(mcFluxNavigator=Object(dict(GetDataHelper=Native('GetDataHelper'),GetHelpContext=Native('nav'))),
                         m_arrHubHelpItems=base,m_isAnimatedIn=animated,m_bLockNavigation=locked),proto)
         self.vm,self.hub,self.proto=vm,hub,proto;self.original=[]
+        self.tile=None
         return vm,hub
     def callouts(self,*icons):return [Object(dict(Icon=i,TickerText=i)) for i in icons]
     def result(self):return self.vm.invoke(self.proto.get('getHelpContext'),self.hub)
@@ -111,6 +117,72 @@ class FooterTests(unittest.TestCase):
         self.setup_vm(self.callouts('BACK'),self.callouts('L3'),self.callouts('LAS_LR'))
         self.original=self.callouts('RAS_UD','BACK')
         self.assertEqual([i.get('Icon') for i in self.result()],['RAS_UD','BACK','L3','LAS_LR','ADVANCE','OPTION_LEFT','OPTION_TOP'])
+
+    def focus_tile(self,tile,focused=True,loading=False):
+        self.tile=tile
+        nav=self.hub.get('mcFluxNavigator')
+        for key,value in dict(m_bIsFocused=focused,m_isPanelLoading=loading,
+                              GetHighlightedIndex=Native('GetHighlightedIndex'),GetTile=Native('GetTile')).items():nav.set(key,value)
+
+    def test_actual_nested_count_adds_carousel_help_without_hiding_hub_actions(self):
+        self.setup_vm(self.callouts('BACK'),[],self.callouts('ADVANCE'))
+        tile=Object(dict(m_nLength=4,NextSubtile=Native('NextSubtile'),PreviousSubtile=Native('PreviousSubtile')))
+        self.focus_tile(tile)
+        items=self.result()
+        self.assertEqual([i.get('Icon') for i in items],['BACK','ADVANCE','RAS_LR','OPTION_LEFT','OPTION_TOP'])
+        # The bounded APT decoder exposes raw UTF-8 strings as Latin-1.
+        label=next(i for i in items if i.get('Icon')=='RAS_LR').get('TickerText')
+        self.assertEqual(label.encode('latin1').decode('utf-8'),'Páginas do card')
+        for count in (0,1):
+            tile.set('m_nLength',count)
+            self.assertNotIn('RAS_LR',[i.get('Icon') for i in self.result()])
+
+    def test_no_carousel_hint_on_unfocused_loading_or_plain_tile(self):
+        self.setup_vm([],[],[])
+        tile=Object(dict(m_nLength=4,NextSubtile=Native('NextSubtile'),PreviousSubtile=Native('PreviousSubtile')))
+        for focused,loading in ((False,False),(True,True)):
+            self.focus_tile(tile,focused,loading)
+            self.assertNotIn('RAS_LR',[i.get('Icon') for i in self.result()])
+        self.focus_tile(Object(dict(m_nLength=4)))
+        self.assertNotIn('RAS_LR',[i.get('Icon') for i in self.result()])
+
+    def test_long_news_keeps_native_scroll_callout_with_carousel_and_hub_commands(self):
+        self.setup_vm(self.callouts('BACK'),[],[])
+        news=Object(dict(m_isNeedAScroll=True,GetCustomHelpContext=Native('GetCustomHelpContext')))
+        tile=Object(dict(m_nLength=3,NextSubtile=Native('NextSubtile'),PreviousSubtile=Native('PreviousSubtile'),m_oCurrentSubtile=news))
+        self.focus_tile(tile)
+        self.assertEqual({i.get('Icon') for i in self.result()},{'RAS_LR','L3','ADVANCE','BACK','OPTION_LEFT','OPTION_TOP'})
+        news.set('m_isNeedAScroll',False)
+        self.assertNotIn('L3',[i.get('Icon') for i in self.result()])
+        tile.set('m_oCurrentSubtile',tile)
+        self.assertLess(len(self.result()),10)
+
+    def test_news_timer_delegate_cannot_replace_the_hub_commands(self):
+        self.setup_vm(self.callouts('BACK'),[],[])
+        news=Object(dict(m_isNeedAScroll=True,GetCustomHelpContext=Native('GetCustomHelpContext')))
+        self.focus_tile(Object(dict(m_nLength=2,NextSubtile=Native('NextSubtile'),PreviousSubtile=Native('PreviousSubtile'),m_oCurrentSubtile=news)))
+        self.vm.invoke(self.proto.get('AnimateInComplete'),self.hub)
+        self.result() # Native HelpManager.Update consumes the newly bound delegate.
+        expected={'RAS_LR','L3','ADVANCE','BACK','OPTION_LEFT','OPTION_TOP'}
+        for _ in range(5):
+            self.assertEqual({i.get('Icon') for i in self.vm.invoke(news.get('GetCustomHelpContext'),news)},expected)
+        self.focus_tile(Object())
+        self.assertEqual({i.get('Icon') for i in self.vm.invoke(news.get('GetCustomHelpContext'),news)},{'ADVANCE','BACK','OPTION_LEFT','OPTION_TOP'})
+        self.vm.invoke(self.proto.get('OnExitScreen'),self.hub)
+        self.assertIsNone(self.vm.global_.get('Server16CareerFooterOwner'))
+        self.assertEqual([i.get('Icon') for i in self.vm.invoke(news.get('GetCustomHelpContext'),news)],['L3'])
+
+    def test_tabs_are_described_only_when_the_native_tab_menu_is_available(self):
+        self.setup_vm([],[],[])
+        menu=Object(dict(GetNumberOfTabs=Native('GetNumberOfTabs'),IsInSubpanelMode=Native('IsInSubpanelMode')))
+        self.hub.set('mcToggleMenu',menu)
+        self.assertEqual(next(i for i in self.result() if i.get('Icon')=='L2R2').get('TickerText'),'Abas')
+        self.hub.set('mcToggleMenu',None)
+        self.assertNotIn('L2R2',[i.get('Icon') for i in self.result()])
+
+    def test_installed_revision_rejects_repeated_wrapping(self):
+        with self.assertRaisesRegex(ValueError,'already installed'):
+            build.generate(self.output,Path(self.temp.name)/'repeat.big')
     def test_all_tab_provider_updates_reclaim_the_hub_context(self):
         self.setup_vm(self.callouts('BACK'),[],[])
         manager=self.vm.path('game.globalClasses.HelpManager')

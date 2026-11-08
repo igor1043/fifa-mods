@@ -19,6 +19,7 @@ AND=lambda a,c:('bin',16,a,c)
 IDX=lambda o,i:('index',o,i)
 OLD='Server16CareerFooterOriginal';FLAG='Server16CareerFooterInstalled'
 ANIMATE='Server16CareerFooterAnimateOriginal';EXIT='Server16CareerFooterExitOriginal'
+REVISION='Server16CareerFooterRevision2'
 REFRESH=('LoadComponents','UpdateButtonData','NavigatorHighlightCallback','NavigatorHelperChangedCallback','SetFocus')
 
 
@@ -45,11 +46,13 @@ def bind_help(a):
     # Retain this hub's lifetime and recheck scope after provider callbacks.
     a.set(R(1),'Server16CareerFooterActive',True)
     a.when(CALL(R(1),'Server16IsCareerHub'),lambda a:None,lambda a:(a.set(b.GLOBAL,'Server16ActiveCareerClubId',None),a.set(b.GLOBAL,'Server16ActiveCareerClubName',None),a.ret()))
+    a.set(b.GLOBAL,'Server16CareerFooterOwner',R(1))
     a.do(R(1),'Server16RefreshCareerHelp')
 
 
 def refresh_help(a):
     a.when(AND(T('Server16CareerFooterActive'),CALL(R(1),'Server16IsCareerHub')),lambda a:None,lambda a:a.ret())
+    a.set(b.GLOBAL,'Server16CareerFooterOwner',R(1))
     a.do(R(1),'Server16CaptureCareerClub')
     # A custom view may have owned HelpManager immediately before this hub.
     # Explicitly claim our contextual delegate when this hub becomes active.
@@ -71,6 +74,7 @@ def frontend_frame(a):
 
 def unbind_help(a):
     a.set(R(1),'Server16CareerFooterActive',False)
+    a.when(EQ(b.G('Server16CareerFooterOwner'),R(1)),lambda a:a.set(b.GLOBAL,'Server16CareerFooterOwner',None))
     a.when(EQ(T('onEnterFrame'),T('Server16FrontendFrame')),lambda a:a.set(R(1),'onEnterFrame',T('Server16FrontendOriginalFrame')))
     a.set(R(1),'Server16FrontendOriginalFrame',None)
     manager=b.MANAGER('HelpManager')
@@ -122,6 +126,47 @@ def append_items(a):
     register(a,3,('bin',71,R(3),1));a.branch(loop,False);a.label(done)
 
 
+def tile_help(a):
+    # Native ToggleMenu handles L2/R2, including while the tile grid has focus.
+    menu=T('mcToggleMenu')
+    a.when(AND(P(menu,'GetNumberOfTabs'),('bin',103,CALL(menu,'GetNumberOfTabs'),1)),lambda a:a.when(
+        ('not',CALL(menu,'IsInSubpanelMode')),lambda a:a.do(R(1),'Server16AppendHubHelp',ARRAY(
+            CALL(b.path('ion','manager','HelpItem'),'CreateHelpTickerItem','L2R2','Abas')))))
+    nav=T('mcFluxNavigator')
+    a.when(AND(P(nav,'m_bIsFocused'),('not',P(nav,'m_isPanelLoading'))),lambda a:None,lambda a:a.ret())
+    a.when(AND(P(nav,'GetHighlightedIndex'),P(nav,'GetTile')),lambda a:None,lambda a:a.ret())
+    register(a,2,CALL(nav,'GetTile',CALL(nav,'GetHighlightedIndex')))
+    # FluxTile_Nested delegates GetHelpContext to its current subtile and loses
+    # the RAS_LEFT/RAS_RIGHT command it handles itself. Inspect the live count,
+    # not the XML count, since the career provider can add/remove news pages.
+    carousel=AND(('bin',103,P(R(2),'m_nLength'),1),AND(P(R(2),'NextSubtile'),P(R(2),'PreviousSubtile')))
+    a.when(carousel,lambda a:a.do(R(1),'Server16AppendHubHelp',ARRAY(
+        CALL(b.path('ion','manager','HelpItem'),'CreateHelpTickerItem','RAS_LR','Páginas do card'))))
+    # Long news has a separate, native L3 help source. Include it without
+    # dropping the hub actions or showing it for short, unscrollable articles.
+    register(a,3,0);loop,done=a.uid(),a.uid();a.label(loop)
+    a.expr(AND(R(2),('bin',72,R(3),8)));a.op(18);a.branch(done)
+    def news_help(a):
+        # Native updateBodyLarge installs its own help delegate on each news
+        # update. Compose that delegate too, otherwise its next timer tick
+        # replaces the hub commands with only the news-scroll action again.
+        a.when(P(R(2),'Server16CareerNewsHelpOriginal'),lambda a:None,lambda a:(
+            a.set(R(2),'Server16CareerNewsHelpOriginal',P(R(2),'GetCustomHelpContext')),
+            a.set(R(2),'GetCustomHelpContext',T('Server16NewsHelpContext'))))
+        a.do(R(1),'Server16AppendHubHelp',CALL(R(2),'Server16CareerNewsHelpOriginal'))
+    a.when(AND(P(R(2),'GetCustomHelpContext'),P(R(2),'m_isNeedAScroll')),news_help)
+    register(a,2,P(R(2),'m_oCurrentSubtile'))
+    register(a,3,('bin',71,R(3),1));a.branch(loop,False);a.label(done)
+
+
+def news_help_context(a):
+    # Invoked with the news tile as 'this', including native interval callbacks.
+    register(a,2,b.G('Server16CareerFooterOwner'))
+    a.when(AND(P(R(2),'Server16CareerFooterActive'),CALL(R(2),'Server16IsCareerHub')),
+           lambda a:a.ret(CALL(R(2),'getHelpContext')))
+    a.ret(CALL(R(1),'Server16CareerNewsHelpOriginal'))
+
+
 def help_context(a):
     # Retain native behavior in main menu, tournaments, FUT and every other hub.
     register(a,3,CALL(T('mcFluxNavigator'),'GetDataHelper'))
@@ -139,13 +184,14 @@ def help_context(a):
     a.do(R(1),'Server16AppendHubHelp',T('m_arrHubHelpItems'))
     a.do(R(1),'Server16AppendHubHelp',CALL(R(3),'GetHelpContext'))
     a.do(R(1),'Server16AppendHubHelp',CALL(T('mcFluxNavigator'),'GetHelpContext'))
+    a.do(R(1),'Server16AppendTileHelp')
     # The advance-calendar tile returns an empty help list. The hub's native
     # ADVANCE handler still selects whichever actionable tile has focus.
     # This zero-argument wrapper has no preloaded global in R2. Native
     # UpdateButtonData uses flags 297, but our generated method uses 41.
     # Address the actual global so localization cannot abort all callouts.
     for icon,key in (('ADVANCE','Select'),('BACK','Back'),('OPTION_LEFT','CM_Settings_Save'),('OPTION_TOP','CM_Hub_Callout_Inbox')):
-        # These three hub actions are declared in careermanagerhubcfg.xml for
+        # These hub actions are declared in careermanagerhubcfg.xml for
         # every tab. Restore their descriptions when a temporary native DP
         # publishes only Back; retain any richer provider label already added.
         item=CALL(b.path('ion','manager','HelpItem'),'CreateHelpTickerItem',icon,CALL(b.GLOBAL,'ltxt',key))
@@ -158,8 +204,24 @@ def generate(source,destination):
     source,destination=Path(source),Path(destination)
     big=BigFile(source);apt=AptFile(big);actions=Actions(apt).read_all()
     if actions.errors:raise ValueError(actions.errors)
-    if FLAG in actions.constants or FLAG.encode() in apt.data:raise ValueError('Footer already patched; use rollback baseline')
     start,block=next((s,c) for s,c in actions.cache.items() if c[0].op==136 and any(i.value=='FluxHub' for i in c))
+    active_start=start
+    values=[i.value for i in block if isinstance(i.value,str)]
+    if REVISION in values:raise ValueError('This footer revision is already installed.')
+    if FLAG in values:
+        # Earlier revisions retain the untouched native initializer and method
+        # bodies. Upgrade that initializer, without stacking recursive wrappers
+        # or rolling back any other movie resource, import or native handler.
+        candidates=[]
+        for offset in range(0,start,8):
+            if apt.data[offset]!=136:continue
+            try:original=actions.decode(offset)
+            except (ValueError,IndexError,struct.error):continue
+            names=[i.value for i in original if isinstance(i.value,str)]
+            if 'FluxHub' in names and FLAG not in names and any(i.op==142 for i in original):
+                candidates.append((offset,original))
+        if len(candidates)!=1:raise ValueError('Cannot identify the preserved native career hub initializer.')
+        start,block=candidates[0]
     methods={block[i-1].value:i for i in range(1,len(block)) if block[i].op==142}
     assert 'getHelpContext' in methods and 'LocalEventHandler' in methods and block[-1].op==0
     old=b.CLASS;b.CLASS=CLASS
@@ -169,7 +231,7 @@ def generate(source,destination):
         # The existing class initializer executes exactly once; an APT reload
         # must not capture our own wrapper as the original native function.
         skip=a.uid()
-        a.when(P(PROTO,FLAG),lambda a:a.branch(skip,False))
+        a.when(P(PROTO,REVISION),lambda a:a.branch(skip,False))
         while len(data)%8:a.op(89);a.op(23)
         data.extend(apt.entry.original[block[0].end:block[-1].offset])
         a.set(PROTO,OLD,P(PROTO,'getHelpContext'))
@@ -180,6 +242,8 @@ def generate(source,destination):
         a.function('Server16CaptureCareerClub',0,capture_club)
         a.function('Server16RefreshCareerHelp',0,refresh_help)
         a.function('Server16AppendHubHelp',1,append_items)
+        a.function('Server16AppendTileHelp',0,tile_help)
+        a.function('Server16NewsHelpContext',0,news_help_context)
         a.function('getHelpContext',0,help_context)
         a.function('AnimateInComplete',0,bind_help);a.function('OnExitScreen',0,unbind_help)
         for name in REFRESH:
@@ -190,9 +254,9 @@ def generate(source,destination):
                 # from a custom career view. Never replace native input handlers.
                 a.do(R(1),'Server16RefreshCareerHelp')
             a.function(name,1,context_changed)
-        a.set(PROTO,FLAG,True);a.label(skip);a.op(0);a.finish()
+        a.set(PROTO,REVISION,True);a.set(PROTO,FLAG,True);a.label(skip);a.op(0);a.finish()
     finally:b.CLASS=old
-    references=[at for at in range(0,len(apt.entry.original)-7,8) if apt.entry.original[at:at+8]==struct.pack('<Q',start)]
+    references=[at for at in range(0,len(apt.entry.original)-7,8) if apt.entry.original[at:at+8]==struct.pack('<Q',active_start)]
     assert len(references)==1,references
     struct.pack_into('<Q',data,references[0],new_start)
     write_big(big,destination)
@@ -202,7 +266,7 @@ def generate(source,destination):
         if name!=apt.entry.name:assert result.big.entries[name].data==entry.original
     report=dict(source=str(source),file=str(destination),sha256=hashlib.sha256(destination.read_bytes()).hexdigest(),
                 native_handlers_preserved=True,imports_exports_preserved=True,footer_scope='CareerHubDataHelper',
-                resources_preserved=True,new_methods=13)
+                resources_preserved=True,new_methods=15,contextual_carousel=True,news_scroll_native=True)
     return report
 
 

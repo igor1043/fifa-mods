@@ -392,3 +392,7 @@ agora reúne vestiário, globo, SubsOn, mascotes e objetos de apresentação.
 As cutscenes adicionais podem mostrar o técnico do mandante ou do visitante, independentemente do lado controlado pelo jogador. O mascote continua sendo exclusivamente o do mandante, quando estiver instalado e carregado. Cada tomada mantém o mesmo personagem até terminar a sequência nativa. A frequência, os pesos e o intervalo configurados são preservados.
 
 Em `ModCarrerMode/config/extra_scenes.ini`, `coach_team=0` permite os dois técnicos (padrão); `1` restringe ao mandante e `2` ao visitante. Essas escolhas respeitam os switches existentes de técnico e mascote.
+
+## Rodapé contextual da carreira
+
+O rodapé mantém as ações da Central e mostra os comandos do card selecionado: analógico direito para trocar páginas/notícias e L2/R2 para alternar abas. Notícias longas preservam sua ajuda nativa de rolagem sem substituir Selecionar, Voltar, Salvar ou E-mails. Os ícones continuam sendo os do FIFA para o dispositivo de entrada ativo. Após instalar esta revisão, reabra o FIFA para recarregar a interface.
