@@ -65,7 +65,16 @@ def hotspots(rx):
  except (ValueError,IndexError,struct.error,UnicodeError):return {}
  return result
 
+def printable_rect(rect):
+ """Native kits may disable a print by collapsing either UV dimension."""
+ try:
+  l,t,r,b=rect
+  return all(math.isfinite(v) and -2<=v<=2 for v in rect) and abs(r-l)>1e-6 and abs(b-t)>1e-6
+ except (TypeError,ValueError):return False
+
+
 def stamp(name,font_bytes,color,rect):
+ if not printable_rect(rect):return None
  name=' '.join(name.upper().split());font=ImageFont.truetype(io.BytesIO(font_bytes),256);box=font.getbbox(name)
  if not name or box[2]<=box[0] or box[3]<=box[1]:return None
  glyph=Image.new('RGBA',(box[2]-box[0],box[3]-box[1]));ImageDraw.Draw(glyph).text((-box[0],-box[1]),name,font=font,fill=tuple(color)+(255,))
@@ -103,6 +112,7 @@ def texture_record(rx,name):
 
 def surface(shirt,rect,texture,label):
  """A skinned decal on the original UVs, leaving the jersey texture intact."""
+ if not printable_rect(rect):raise ValueError('Impressão sem área válida na UV da camisa')
  v=shirt['v'];tri=shirt['idx'].reshape(-1,3);uv=v['uv'][tri];a,b,c=uv[:,0],uv[:,1],uv[:,2]
  den=(b[:,1]-c[:,1])*(a[:,0]-c[:,0])+(c[:,0]-b[:,0])*(a[:,1]-c[:,1]);good=abs(den)>1e-9
  l,t,r,bottom=rect;nx,ny=16,8;vertices=[];indices=[]
@@ -156,15 +166,21 @@ def personalize(rig,player,read_asset):
   except FileNotFoundError:continue
   except (ValueError,IndexError,struct.error,OSError) as error:
    number_errors.append(dict(path=path,error=str(error)));continue
- printed=[];out=dict(rig,textures=list(rig['textures']),parts=list(rig['parts']));shirt=next(p for p in rig['parts'] if '/jersey_' in p['asset'].replace('\\','/').lower() and p['texture']>=0)
+ printed=[];skipped=[];out=dict(rig,textures=list(rig['textures']),parts=list(rig['parts']));shirt=next(p for p in rig['parts'] if '/jersey_' in p['asset'].replace('\\','/').lower() and p['texture']>=0)
  def add(image,rect,label):
-  texture=len(out['textures']);part=surface(shirt,rect,texture,label);out['textures'].append(image);out['parts'].append(part);printed.append(label)
+  texture=len(out['textures'])
+  try:part=surface(shirt,rect,texture,label)
+  except ValueError as error:
+   skipped.append(dict(print=label,reason=str(error)));return
+  out['textures'].append(image);out['parts'].append(part);printed.append(label)
  name_rect=uv.get('name');name=player.get('jersey_name') or player['name']
- if font and name_rect and abs(name_rect[3]-name_rect[1])>1e-6:
+ if name_rect is not None and not printable_rect(name_rect):skipped.append(dict(print='name',reason='Área desativada ou sem dimensão válida no kit original'))
+ if font and printable_rect(name_rect):
   glyph=stamp(name,font,base['name_color'],name_rect)
   if glyph is not None:add((glyph.width,glyph.height,3,glyph.tobytes()),name_rect,'name')
  number=str(player['number']) if 0<=player['number']<=99 else '';rect=uv.get('numberback')
- if digit_rx and number and rect:
+ if rect is not None and not printable_rect(rect):skipped.append(dict(print='number',reason='Área desativada ou sem dimensão válida no kit original'))
+ if digit_rx and number and printable_rect(rect):
   l,t,r,b=rect;mid=(l+r)/2;q=(r-l)/4;cells=[(mid-q,t,mid+q,b)] if len(number)==1 else [(l,t,mid,b),(mid,t,r,b)]
   for digit,cell in zip(number,cells):add(texture_record(digit_rx,digit_names[int(digit)]),cell,'number_'+digit)
- return out,dict(applied=bool(printed),name='name' in printed,number=any(p.startswith('number_') for p in printed),font=font_path,numbers=number_path,number_fallbacks=number_errors[:8],kit_type=typ,source='separate skinned decals; original jersey and native digit pixels unchanged')
+ return out,dict(applied=bool(printed),name='name' in printed,number=any(p.startswith('number_') for p in printed),font=font_path,numbers=number_path,number_fallbacks=number_errors[:8],skipped_prints=skipped,kit_type=typ,source='separate skinned decals; original jersey and native digit pixels unchanged')

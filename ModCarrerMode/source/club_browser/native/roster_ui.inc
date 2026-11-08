@@ -33,7 +33,15 @@ void drawRoster(ID3D11DeviceContext*c){auto&r=renderer;roster.poll(lineup,r.devi
  r.rectangle(c,60,159,442,650,0xfff1f5f5);r.rectangle(c,60,159,442,69,0xffdfe8ec);r.label(c,label++,L"ELENCO DO CLUBE",78,171,290,26,19,muted);r.label(c,label++,std::to_wstring(roster.players.size())+L" jogadores",78,198,400,26,19,ink);
  const wchar_t*sorts[]={L"Elenco",L"GER",L"Idade",L"Titulares"};for(int i=0;i<4;++i){float x=68.f+i*106;r.rectangle(c,x,230,102,32,roster.sortMode==i?uitheme::accent():0xffdce6ea);if(roster.sortFocus&&roster.sortMode==i){r.rectangle(c,x,229,102,3,uitheme::focus());r.rectangle(c,x,260,102,3,uitheme::focus());}r.label(c,label++,sorts[i],x+3,234,96,25,17,roster.sortMode==i?uitheme::selectedText():ink,true);}
  if(roster.ready){for(int i=0;i<7;++i){int at=roster.scroll+i;if(at>=int(roster.players.size()))break;auto&p=roster.players[at];float y=270+i*72;bool selected=at==roster.selected;r.rectangle(c,68,y,424,68,selected?uitheme::accent():0xffe4ecef);if(selected)r.rectangle(c,68,y,4,68,uitheme::focus());auto color=selected?uitheme::selectedText():ink;r.label(c,label++,p.overall<0?L"—":std::to_wstring(p.overall),79,y+8,42,30,27,color,true);r.label(c,label++,wide(p.position),79,y+41,42,20,13,color,true);gameImage(r.device,r.portraits[i],art,{"data/ui/imgAssets/heads/p"+std::to_string(p.id)+".dds"});containImage(c,r.portraits[i],128,y+2,54,64);r.label(c,label++,wide(p.name),197,y+9,281,30,p.name.size()>24?20:23,color);r.label(c,label++,(p.age>=0?std::to_wstring(p.age)+L" anos · ":L"")+L"Camisa "+std::to_wstring(p.number)+(p.starter==1?L" · Titular":L""),198,y+42,279,23,15,color);}
-  r.label(c,label++,std::to_wstring(roster.selected+1)+L" de "+std::to_wstring(roster.players.size())+L" jogadores",78,777,410,25,17,muted);
+  const int total=int(roster.players.size()),visible=(std::min)(7,total),maximum=(std::max)(0,total-visible);
+  const int first=std::clamp(roster.scroll,0,maximum);
+  if(total>0){
+   const float trackY=270.f,trackHeight=500.f,thumbHeight=(std::max)(28.f,trackHeight*float(visible)/float(total));
+   const float thumbY=trackY+(maximum>0?(trackHeight-thumbHeight)*float(first)/float(maximum):0.f);
+   r.rectangle(c,495,trackY,4,trackHeight,0xffd2dfe6);
+   r.rectangle(c,495,thumbY,4,thumbHeight,uitheme::accent());
+  }
+  r.label(c,label++,std::to_wstring(total?first+1:0)+L"–"+std::to_wstring(first+visible)+L" de "+std::to_wstring(total)+L" jogadores",78,777,410,25,17,muted);
  }else r.label(c,label++,wide(roster.error.empty()?"Lendo o elenco desta carreira...":roster.error),82,300,397,120,23,ink,true);
  }
  r.rectangle(c,520,159,460,650,0xfff2f5f5);r.rectangle(c,520,159,460,4,uitheme::accent());

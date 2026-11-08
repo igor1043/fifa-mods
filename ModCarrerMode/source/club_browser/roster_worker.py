@@ -28,7 +28,7 @@ def generate(game,folder,req,memory,exporter,projection_cache):
  except (OSError,ValueError,TypeError,struct.error):pass
  tool=game/'ModCarrerMode/tools/club_browser/generate_lineup.exe';clip=select_animation(folder,req,game/'ModCarrerMode/data/club_browser/animations')
  kit_identity=json.dumps({k:player[k] for k in ('club','league','jersey_name','number','kit_rules')},sort_keys=True,ensure_ascii=False).encode('utf8')
- identity=hashlib.sha256(player['fixture']+clip.name.encode('ascii')+clip.read_bytes()+kit_identity+b'actor-native-stream-v6-idle-choices-source-hair-coverage'+str((tool.stat().st_size,tool.stat().st_mtime_ns)).encode()).hexdigest()
+ identity=hashlib.sha256(player['fixture']+clip.name.encode('ascii')+clip.read_bytes()+kit_identity+b'actor-native-stream-v7-safe-kit-print-hotspots'+str((tool.stat().st_size,tool.stat().st_mtime_ns)).encode()).hexdigest()
  cache=game/'ModCarrerMode/cache/club_browser/player/prepared'/identity;target=game/'data/sceneassets/server16_club_xi'/str(req['pid'])/identity
  ensure(game,portable_paths.read_asset)
  ensure_contact(game,portable_paths.read_asset)

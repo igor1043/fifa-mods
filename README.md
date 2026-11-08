@@ -426,3 +426,8 @@ Em `ModCarrerMode/config/extra_scenes.ini`, `coach_team=0` permite os dois técn
 ## Rodapé contextual da carreira
 
 O rodapé mantém as ações da Central e mostra os comandos do card selecionado: analógico direito para trocar páginas/notícias e L2/R2 para alternar abas. Notícias longas preservam sua ajuda nativa de rolagem sem substituir Selecionar, Voltar, Salvar ou E-mails. Os ícones continuam sendo os do FIFA para o dispositivo de entrada ativo. Após instalar esta revisão, reabra o FIFA para recarregar a interface.
+
+## Elenco 3D — uniformes e rolagem
+
+- A preparação do jogador respeita áreas de impressão desativadas ou sem tamanho válido nos kits. Esses casos deixam de provocar `math domain error`; o modelo, a animação e as impressões válidas continuam carregando com os assets originais. A correção vale para qualquer clube e para o elenco do vestiário.
+- O elenco tem uma barra de rolagem com a cor principal do tema e indica o intervalo visível, por exemplo “1–7 de 32 jogadores”, para identificar o início e o fim da lista.
