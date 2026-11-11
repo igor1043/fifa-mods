@@ -19,21 +19,28 @@ AND=lambda a,c:('bin',16,a,c)
 IDX=lambda o,i:('index',o,i)
 OLD='Server16CareerFooterOriginal';FLAG='Server16CareerFooterInstalled'
 ANIMATE='Server16CareerFooterAnimateOriginal';EXIT='Server16CareerFooterExitOriginal'
-REVISION='Server16CareerFooterRevision2'
+REVISION='Server16CareerFooterRevision7'
 REFRESH=('LoadComponents','UpdateButtonData','NavigatorHighlightCallback','NavigatorHelperChangedCallback','SetFocus')
+HUB_COMMANDS=(('ADVANCE','Selecionar'),('BACK','Voltar'),('OPTION_LEFT','Salvar'),
+              ('OPTION_TOP','Caixa de e-mails'),('L2R2','Abas'),('LAS','Navegar'),
+              ('RAS_LR','Páginas dos cards'))
 
 
 def career_hub(a):
     # ProcessData may have been copied to an existing instance before a
     # scouting wrapper replaced the prototype. The owned XML components are
     # a stable identity; do not depend on function pointer equality alone.
-    helper=CALL(T('mcFluxNavigator'),'GetDataHelper')
-    a.when(AND(P(helper,'constructor'),EQ(P(helper,'constructor'),b.path('game','fluxHelpers','CareerHubDataHelper'))),lambda a:a.ret(True))
-    a.when(AND(P(HELPER,'ProcessData'),EQ(P(helper,'ProcessData'),P(HELPER,'ProcessData'))),lambda a:a.ret(True))
-    # Do not use a lingering global header owner from the previous screen.
+    a.when(T('Server16CareerFooterScope'),lambda a:a.ret(True))
+    a.when(P(T('mcFluxNavigator'),'GetDataHelper'),lambda a:register(a,2,CALL(T('mcFluxNavigator'),'GetDataHelper')))
+    a.when(AND(R(2),AND(P(R(2),'constructor'),EQ(P(R(2),'constructor'),b.path('game','fluxHelpers','CareerHubDataHelper')))),lambda a:a.ret(True))
+    a.when(AND(R(2),AND(P(HELPER,'ProcessData'),EQ(P(R(2),'ProcessData'),P(HELPER,'ProcessData')))),lambda a:a.ret(True))
+    # LoadComponents receives the actual XML component list for this hub.
     register(a,3,0);loop,done=a.uid(),a.uid();a.label(loop)
     a.expr(AND(('bin',72,R(3),P(T('m_arrComponentData'),'length')),('bin',72,R(3),32)));a.op(18);a.branch(done)
     item=IDX(T('m_arrComponentData'),R(3));path=P(item,'PATH')
+    for name in ('game/components/CareerComponents/CareerHubWidget.swf',
+                 'data/ui/game/components/CareerComponents/CareerHubWidget.swf'):
+        a.when(EQ(path,name),lambda a:a.ret(True))
     a.when(path,lambda a:a.when(('bin',103,CALL(CALL(path,'toLowerCase'),'indexOf','careerhubwidget'),-1),lambda a:a.ret(True)))
     register(a,3,('bin',71,R(3),1));a.branch(loop,False);a.label(done);a.ret(False)
 
@@ -52,6 +59,7 @@ def bind_help(a):
 
 def refresh_help(a):
     a.when(AND(T('Server16CareerFooterActive'),CALL(R(1),'Server16IsCareerHub')),lambda a:None,lambda a:a.ret())
+    a.set(R(1),'Server16CareerFooterScope',True)
     a.set(b.GLOBAL,'Server16CareerFooterOwner',R(1))
     a.do(R(1),'Server16CaptureCareerClub')
     # A custom view may have owned HelpManager immediately before this hub.
@@ -70,10 +78,18 @@ def frontend_frame(a):
     a.when(('bin',72,T('Server16FrontendFrames'),15),lambda a:a.ret())
     a.set(R(1),'Server16FrontendFrames',0)
     a.when(P(b.ION,'SendSystemEvent'),lambda a:a.do(b.ION,'SendSystemEvent','Calendar','Server16FrontendTick','tick'))
+    # A provider can install its own source after UpdateButtonData. Recover
+    # the footer only on the still-active, unlocked hub and leave modals alone.
+    manager=b.MANAGER('HelpManager')
+    a.when(AND(T('Server16CareerFooterActive'),AND(T('m_isAnimatedIn'),('not',T('m_bLockNavigation')))),
+           lambda a:a.when(AND(('not',P(P(manager,'m_arrCustomSourceStack'),'length')),
+                               ('not',EQ(P(manager,'m_cbCustomSource'),T('Server16CareerFooterDelegate')))),
+                           lambda a:a.do(R(1),'Server16RefreshCareerHelp')))
 
 
 def unbind_help(a):
     a.set(R(1),'Server16CareerFooterActive',False)
+    a.set(R(1),'Server16CareerFooterScope',False)
     a.when(EQ(b.G('Server16CareerFooterOwner'),R(1)),lambda a:a.set(b.GLOBAL,'Server16CareerFooterOwner',None))
     a.when(EQ(T('onEnterFrame'),T('Server16FrontendFrame')),lambda a:a.set(R(1),'onEnterFrame',T('Server16FrontendOriginalFrame')))
     a.set(R(1),'Server16FrontendOriginalFrame',None)
@@ -104,46 +120,14 @@ def write_big(big,path):
     path.write_bytes(chunk_wrap(content,big.wrapper) if big.wrapper else content)
 
 
-def append_items(a):
-    # Parameters are source; R1 is the hub; scratch registers are local to
-    # this call so helper/nav loops cannot overwrite the caller's iteration.
-    a.when(R(2),lambda a:None,lambda a:a.ret())
-    register(a,3,0);loop,done=a.uid(),a.uid();a.label(loop)
-    a.expr(('bin',72,R(3),P(R(2),'length')));a.op(18);a.branch(done)
-    register(a,4,IDX(R(2),R(3)))
-    def item(a):
-        register(a,5,False);register(a,6,0)
-        scan,end=a.uid(),a.uid();a.label(scan)
-        a.expr(('bin',72,R(6),P(T('Server16FooterItems'),'length')));a.op(18);a.branch(end)
-        current=IDX(T('Server16FooterItems'),R(6))
-        # Real FIFA HelpItem members are Icon/TickerText, not icon/text.
-        icon=P(R(4),'Icon');current_icon=P(current,'Icon')
-        same=OR(EQ(current,R(4)),AND(icon,EQ(current_icon,icon)))
-        a.when(same,lambda a:register(a,5,True))
-        register(a,6,('bin',71,R(6),1));a.branch(scan,False);a.label(end)
-        a.when(('not',R(5)),lambda a:a.do(T('Server16FooterItems'),'push',R(4)))
-    a.when(R(4),item)
-    register(a,3,('bin',71,R(3),1));a.branch(loop,False);a.label(done)
-
-
 def tile_help(a):
-    # Native ToggleMenu handles L2/R2, including while the tile grid has focus.
-    menu=T('mcToggleMenu')
-    a.when(AND(P(menu,'GetNumberOfTabs'),('bin',103,CALL(menu,'GetNumberOfTabs'),1)),lambda a:a.when(
-        ('not',CALL(menu,'IsInSubpanelMode')),lambda a:a.do(R(1),'Server16AppendHubHelp',ARRAY(
-            CALL(b.path('ion','manager','HelpItem'),'CreateHelpTickerItem','L2R2','Abas')))))
-    nav=T('mcFluxNavigator')
-    a.when(AND(P(nav,'m_bIsFocused'),('not',P(nav,'m_isPanelLoading'))),lambda a:None,lambda a:a.ret())
-    a.when(AND(P(nav,'GetHighlightedIndex'),P(nav,'GetTile')),lambda a:None,lambda a:a.ret())
-    register(a,2,CALL(nav,'GetTile',CALL(nav,'GetHighlightedIndex')))
-    # FluxTile_Nested delegates GetHelpContext to its current subtile and loses
-    # the RAS_LEFT/RAS_RIGHT command it handles itself. Inspect the live count,
-    # not the XML count, since the career provider can add/remove news pages.
-    carousel=AND(('bin',103,P(R(2),'m_nLength'),1),AND(P(R(2),'NextSubtile'),P(R(2),'PreviousSubtile')))
-    a.when(carousel,lambda a:a.do(R(1),'Server16AppendHubHelp',ARRAY(
-        CALL(b.path('ion','manager','HelpItem'),'CreateHelpTickerItem','RAS_LR','Páginas do card'))))
-    # Long news has a separate, native L3 help source. Include it without
-    # dropping the hub actions or showing it for short, unscrollable articles.
+    # Long news can replace HelpManager's source, including when the user is
+    # on another card. Inspect the navigator's current panel, not its focus.
+    register(a,4,P(T('mcFluxNavigator'),'m_arrTiles'))
+    register(a,5,0)
+    panel_loop,panel_done=a.uid(),a.uid();a.label(panel_loop)
+    a.expr(AND(('bin',72,R(5),P(R(4),'length')),('bin',72,R(5),32)));a.op(18);a.branch(panel_done)
+    register(a,2,IDX(R(4),R(5)))
     register(a,3,0);loop,done=a.uid(),a.uid();a.label(loop)
     a.expr(AND(R(2),('bin',72,R(3),8)));a.op(18);a.branch(done)
     def news_help(a):
@@ -153,10 +137,14 @@ def tile_help(a):
         a.when(P(R(2),'Server16CareerNewsHelpOriginal'),lambda a:None,lambda a:(
             a.set(R(2),'Server16CareerNewsHelpOriginal',P(R(2),'GetCustomHelpContext')),
             a.set(R(2),'GetCustomHelpContext',T('Server16NewsHelpContext'))))
-        a.do(R(1),'Server16AppendHubHelp',CALL(R(2),'Server16CareerNewsHelpOriginal'))
+        register(a,6,IDX(CALL(R(2),'Server16CareerNewsHelpOriginal'),0))
+        a.when(AND(('not',T('Server16FooterNewsAdded')),R(6)),lambda a:(
+            a.do(T('Server16FooterItems'),'push',R(6)),
+            a.set(R(1),'Server16FooterNewsAdded',True)))
     a.when(AND(P(R(2),'GetCustomHelpContext'),P(R(2),'m_isNeedAScroll')),news_help)
     register(a,2,P(R(2),'m_oCurrentSubtile'))
     register(a,3,('bin',71,R(3),1));a.branch(loop,False);a.label(done)
+    register(a,5,('bin',71,R(5),1));a.branch(panel_loop,False);a.label(panel_done)
 
 
 def news_help_context(a):
@@ -169,33 +157,19 @@ def news_help_context(a):
 
 def help_context(a):
     # Retain native behavior in main menu, tournaments, FUT and every other hub.
-    register(a,3,CALL(T('mcFluxNavigator'),'GetDataHelper'))
     # ProcessData is specific to this helper (and may include our scouting
     # carousel wrapper). GetHelpContext can be inherited by unrelated hubs.
     own=CALL(R(1),'Server16IsCareerHub')
     a.when(own,lambda a:None,lambda a:a.ret(CALL(R(1),OLD)))
     a.do(R(1),'Server16CaptureCareerClub')
     a.when(T('m_isAnimatedIn'),lambda a:None,lambda a:a.ret(ARRAY()))
-    # When the game locks navigation (advance calendar/dialog), use its exact
-    # contextual help, not stale Save/Back callouts from the previous idle state.
-    a.when(T('m_bLockNavigation'),lambda a:a.ret(CALL(R(1),OLD)))
-    a.set(R(1),'Server16FooterItems',ARRAY())
-    a.do(R(1),'Server16AppendHubHelp',CALL(R(1),OLD))
-    a.do(R(1),'Server16AppendHubHelp',T('m_arrHubHelpItems'))
-    a.do(R(1),'Server16AppendHubHelp',CALL(R(3),'GetHelpContext'))
-    a.do(R(1),'Server16AppendHubHelp',CALL(T('mcFluxNavigator'),'GetHelpContext'))
+    # The hub owns one complete legend. Native providers continue to own
+    # action dispatch, but their parallel legends must not be concatenated.
+    items=[CALL(b.path('ion','manager','HelpItem'),'CreateHelpTickerItem',icon,label)
+           for icon,label in HUB_COMMANDS]
+    a.set(R(1),'Server16FooterItems',ARRAY(*items))
+    a.set(R(1),'Server16FooterNewsAdded',False)
     a.do(R(1),'Server16AppendTileHelp')
-    # The advance-calendar tile returns an empty help list. The hub's native
-    # ADVANCE handler still selects whichever actionable tile has focus.
-    # This zero-argument wrapper has no preloaded global in R2. Native
-    # UpdateButtonData uses flags 297, but our generated method uses 41.
-    # Address the actual global so localization cannot abort all callouts.
-    for icon,key in (('ADVANCE','Select'),('BACK','Back'),('OPTION_LEFT','CM_Settings_Save'),('OPTION_TOP','CM_Hub_Callout_Inbox')):
-        # These hub actions are declared in careermanagerhubcfg.xml for
-        # every tab. Restore their descriptions when a temporary native DP
-        # publishes only Back; retain any richer provider label already added.
-        item=CALL(b.path('ion','manager','HelpItem'),'CreateHelpTickerItem',icon,CALL(b.GLOBAL,'ltxt',key))
-        a.do(R(1),'Server16AppendHubHelp',ARRAY(item))
     a.do(T('Server16FooterItems'),'sort',P(b.MANAGER('HelpManager'),'CompareHelpItemsOrder'))
     a.ret(T('Server16FooterItems'))
 
@@ -241,7 +215,6 @@ def generate(source,destination):
         a.function('Server16FrontendFrame',0,frontend_frame)
         a.function('Server16CaptureCareerClub',0,capture_club)
         a.function('Server16RefreshCareerHelp',0,refresh_help)
-        a.function('Server16AppendHubHelp',1,append_items)
         a.function('Server16AppendTileHelp',0,tile_help)
         a.function('Server16NewsHelpContext',0,news_help_context)
         a.function('getHelpContext',0,help_context)
@@ -266,7 +239,7 @@ def generate(source,destination):
         if name!=apt.entry.name:assert result.big.entries[name].data==entry.original
     report=dict(source=str(source),file=str(destination),sha256=hashlib.sha256(destination.read_bytes()).hexdigest(),
                 native_handlers_preserved=True,imports_exports_preserved=True,footer_scope='CareerHubDataHelper',
-                resources_preserved=True,new_methods=15,contextual_carousel=True,news_scroll_native=True)
+                resources_preserved=True,new_methods=14,contextual_carousel=True,news_scroll_native=True)
     return report
 
 

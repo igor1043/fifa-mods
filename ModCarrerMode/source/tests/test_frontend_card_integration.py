@@ -12,7 +12,7 @@ class FrontendCardIntegration(unittest.TestCase):
  def setUpClass(cls):
   fixtures=Path(__file__).parent/'fixtures'
   cls.career=(SOURCE.parents[1]/mod.CAREER).read_bytes()
-  cls.donor=(fixtures/'robson_transfer_cards.xml').read_bytes()
+  cls.donor=(fixtures/'layout_transfer_cards.xml').read_bytes()
   cls.front=(fixtures/'frontend_personalize_before.xml').read_bytes()
  def test_visual_merge_preserves_all_career_routes_and_calendar_ids(self):
   old=E.fromstring(self.career);new=E.fromstring(mod.merge_career(self.career,self.donor))

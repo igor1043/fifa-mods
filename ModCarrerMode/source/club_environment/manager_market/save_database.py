@@ -31,7 +31,8 @@ def readonly(path):
 def import_checkpoint(target,save,digest,previous=None):
  """Import only an exact saved world; never choose by date, club or newest row."""
  if target.db.execute('SELECT 1 FROM save_checkpoints WHERE save_hash=?',(digest,)).fetchone():return False
- sources=[previous,normal(save).parent.parent/NAME]
+ from durable_store import sources as durable_sources
+ sources=[previous,normal(save).parent.parent/NAME,*durable_sources(save)]
  seen={normal(target.path)}
  for path in sources:
   if not path:continue
@@ -92,7 +93,10 @@ This exceptional load-time handoff never consults/re-simulates other worlds.
  try:from .engine import Market
  except ImportError:from engine import Market
  found=[]
- for path in normal(save).parent.parent.glob('*/'+NAME):
+ from durable_store import sources as durable_sources
+ candidates=[*normal(save).parent.parent.glob('*/'+NAME),*durable_sources(save),
+             *normal(save).parent.parent.parent.glob('server16_deleted_save_data/*/'+NAME)]
+ for path in dict.fromkeys(candidates):
   if normal(path)==normal(target.path):continue
   with closing(readonly(path)) as db:
    owned=any(db.execute('SELECT 1 FROM session_states WHERE pid=? AND created=? AND epoch=? AND state_hash=? AND context=? LIMIT 1',v).fetchone() for v in revisions)
@@ -120,7 +124,9 @@ Caller stops the worker and owns the destination transaction.
   if row is None:raise ValueError('Mundo ativo não encontrado')
   info=dict(row);info['id']=destination
   target.db.execute('INSERT INTO branches VALUES(?,?,?,?,?,?,?,?)',tuple(info.values()))
+  available={r[0] for r in db.execute("SELECT name FROM sqlite_master WHERE type='table'")}
   for table in TABLES:
+   if table in ('trophy_history','trophy_national_tenures') and table not in available:continue
    rows=db.execute('SELECT * FROM '+table+' WHERE branch=?',(branch,)).fetchall()
    if rows:
     # Older schemas added birthplace at the end; SELECT * is not portable

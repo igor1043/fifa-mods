@@ -34,6 +34,30 @@ class PreviewFiles(unittest.TestCase):
    root=Path(temp);winner=root/'cache';winner.mkdir();(winner/'assets.json').write_text('{}');source=root/'new';source.mkdir();(source/'assets.json').write_text('{"new":true}')
    with patch.object(files.os,'rename',side_effect=AssertionError('loaded cache was renamed')):files.publish_directory(source,winner)
    self.assertEqual((winner/'assets.json').read_text(),'{}');self.assertTrue(source.exists())
+ def test_empty_directory_left_by_cleanup_can_be_republished_on_windows(self):
+  with TemporaryDirectory() as temp:
+   root=Path(temp);target=root/'cache';target.mkdir();source=root/'new';source.mkdir()
+   (source/'assets.json').write_text('{"ready":true}');(source/'geometry.rx3').write_bytes(b'complete model')
+   files.publish_directory(source,target)
+   self.assertEqual((target/'geometry.rx3').read_bytes(),b'complete model');self.assertTrue((target/'assets.json').is_file());self.assertFalse(source.exists())
+ def test_nonempty_incomplete_directory_is_never_deleted_or_replaced(self):
+  with TemporaryDirectory() as temp:
+   root=Path(temp);target=root/'cache';target.mkdir();(target/'geometry.rx3').write_bytes(b'possibly open')
+   source=root/'new';source.mkdir();(source/'assets.json').write_text('{}')
+   with self.assertRaises(OSError):files.publish_directory(source,target)
+   self.assertEqual((target/'geometry.rx3').read_bytes(),b'possibly open');self.assertTrue(source.is_dir())
+ def test_concurrent_directory_publishers_reuse_a_single_complete_winner(self):
+  with TemporaryDirectory() as temp:
+   root=Path(temp);target=root/'cache';target.mkdir();sources=[]
+   for i in range(8):
+    source=root/str(i);source.mkdir();(source/'assets.json').write_text(str(i));(source/'geometry.rx3').write_bytes(bytes([i])*100);sources.append(source)
+   with ThreadPoolExecutor(max_workers=8) as pool:list(pool.map(lambda source:files.publish_directory(source,target),sources))
+   winner=int((target/'assets.json').read_text());self.assertEqual((target/'geometry.rx3').read_bytes(),bytes([winner])*100)
+ def test_incomplete_source_is_not_published(self):
+  with TemporaryDirectory() as temp:
+   root=Path(temp);source=root/'new';source.mkdir();target=root/'cache'
+   with self.assertRaises(FileNotFoundError):files.publish_directory(source,target)
+   self.assertFalse(target.exists())
  @unittest.skipUnless(os.name=='nt','Windows sharing semantics')
  def test_cache_survives_real_fifa_style_open_handle(self):
   from ctypes import wintypes

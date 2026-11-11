@@ -10,6 +10,19 @@ from apt_vm import Object,Native
 from apt_test_vm import NativeVM
 
 SOURCE=Path(os.environ['SERVER16_FOOTER_BASELINE'])
+COMMANDS={icon for icon,_ in build.HUB_COMMANDS}
+HELP_ICON=Native('Icon')
+HELP_TEXT=Native('TickerText')
+ICON_NAMES={
+    'ADVANCE':'A','BACK':'B','OPTION_LEFT':'X','OPTION_TOP':'Y',
+    'L1R1':'LTRT','L2R2':'LBRB','L1':'LT','L2':'LB','R1':'RT','R2':'RB',
+}
+
+
+def help_item(icon,label):
+    # FIFA's HelpItem exposes shared methods, not data properties. Every
+    # instance inherits the same Icon function and stores its own mIcon.
+    return Object(dict(mIcon=icon,mTickerText=label,Icon=HELP_ICON,TickerText=HELP_TEXT))
 
 
 class FooterTests(unittest.TestCase):
@@ -24,7 +37,10 @@ class FooterTests(unittest.TestCase):
         self.calls=[]
         def native(name,owner,args):
             self.calls.append((name,args))
-            if name=='CreateHelpTickerItem':return Object(dict(Icon=args[0],TickerText=args[1]))
+            if name=='CreateHelpTickerItem':return help_item(args[0],args[1])
+            if name=='Icon':return owner.get('mIcon')
+            if name=='TickerText':return owner.get('mTickerText')
+            if name=='GetIconName':return ICON_NAMES.get(args[0],args[0])
             if name=='indexOf':return owner.find(args[0])
             if name=='ltxt':
                 self.assertIs(owner,vm.global_,'ltxt must be called on the actual global, not an uninitialized register')
@@ -53,7 +69,7 @@ class FooterTests(unittest.TestCase):
         self.helper=Object(dict(GetHelpContext=helper_method,ProcessData=Native('careerData' if career else 'otherData')))
         game=vm.global_.get('game')
         game.set('fluxHelpers',Object(dict(CareerHubDataHelper=Object(dict(prototype=Object(dict(GetHelpContext=helper_method,ProcessData=Native('careerData'))))))))
-        game.set('globalClasses',Object(dict(HelpManager=Object(dict(CompareHelpItemsOrder=Native('sortHelp'))))))
+        game.set('globalClasses',Object(dict(HelpManager=Object(dict(CompareHelpItemsOrder=Native('sortHelp'),GetIconName=Native('GetIconName'))))))
         vm.global_.set('ion',Object(dict(manager=Object(dict(HelpItem=Object(dict(CreateHelpTickerItem=Native('CreateHelpTickerItem'))))))))
         vm.global_.set('ltxt',Native('ltxt'))
         vm.global_.set('cafe',Object(dict(utility=Object(dict(Delegate=Object(dict(Create=Native('Create'))))))))
@@ -62,40 +78,85 @@ class FooterTests(unittest.TestCase):
         self.vm,self.hub,self.proto=vm,hub,proto;self.original=[]
         self.tile=None
         return vm,hub
-    def callouts(self,*icons):return [Object(dict(Icon=i,TickerText=i)) for i in icons]
+    def callouts(self,*icons):return [help_item(i,i) for i in icons]
+    def icon(self,item):return self.vm.invoke(item.get('Icon'),item)
+    def label(self,item):return self.vm.invoke(item.get('TickerText'),item)
     def result(self):return self.vm.invoke(self.proto.get('getHelpContext'),self.hub)
+    def assert_commands(self,items,*extra):
+        icons=[ICON_NAMES.get(self.icon(i),self.icon(i)) for i in items]
+        self.assertEqual(set(icons),{ICON_NAMES.get(i,i) for i in COMMANDS|set(extra)})
+        self.assertEqual(len(icons),len(set(icons)))
+
     def test_central_empty_helper_retains_save_back_inbox_and_navigation(self):
         self.setup_vm(self.callouts('BACK','OPTION_LEFT','OPTION_TOP'),[],self.callouts('RAS_UD'))
-        items=self.result();self.assertEqual([i.get('Icon') for i in items],['BACK','OPTION_LEFT','OPTION_TOP','RAS_UD','ADVANCE'])
-        self.assertEqual(items[-1].get('TickerText'),'Selecionar')
+        items=self.result();self.assert_commands(items)
+        self.assertEqual(self.label(next(i for i in items if self.icon(i)=='ADVANCE')),'Selecionar')
     def test_helper_only_pages_does_not_replace_hub_commands(self):
         self.setup_vm(self.callouts('BACK','OPTION_LEFT','OPTION_TOP'),self.callouts('L2R2'),[])
-        self.assertEqual([i.get('Icon') for i in self.result()],['BACK','OPTION_LEFT','OPTION_TOP','L2R2','ADVANCE'])
+        self.assert_commands(self.result())
     def test_all_career_tabs_keep_contextual_actions_after_switching_tiles(self):
         self.setup_vm(self.callouts('BACK','OPTION_LEFT','OPTION_TOP'),[],[])
         for tab in range(7):
             self.hub.set('m_nCurrentFocus',tab%2)
             items=self.result()
-            self.assertEqual([i.get('Icon') for i in items],['BACK','OPTION_LEFT','OPTION_TOP','ADVANCE'])
+            self.assert_commands(items)
     def test_duplicate_native_and_helper_icons_are_not_shown_twice(self):
         base=self.callouts('BACK','OPTION_LEFT','ADVANCE')
         self.setup_vm(base,base,self.callouts('BACK','L2R2','ADVANCE'))
-        self.assertEqual([i.get('Icon') for i in self.result()],['BACK','OPTION_LEFT','ADVANCE','L2R2','OPTION_TOP'])
+        self.assert_commands(self.result())
         self.assertEqual(len(base),3)
+    def test_native_button_names_and_action_names_share_one_displayed_command(self):
+        base=[help_item('B','Voltar'),help_item('X','Salvar'),help_item('Y','Caixa de e-mails')]
+        self.setup_vm(base,self.callouts('BACK','OPTION_LEFT','OPTION_TOP'),self.callouts('BACK','OPTION_LEFT','OPTION_TOP'))
+        for tab in range(7):
+            self.hub.set('m_nCurrentFocus',tab%2)
+            items=self.result();self.assert_commands(items)
+            self.assertFalse(any(item in base for item in items))
+    def test_every_native_icon_alias_is_represented_once(self):
+        for action,button in ICON_NAMES.items():
+            with self.subTest(action=action,button=button):
+                first=help_item(button,'Native label')
+                self.setup_vm([first],self.callouts(action),[])
+                items=self.result();self.assert_commands(items)
+                self.assertNotIn(first,items)
+    def test_platform_callouts_with_the_same_caption_are_not_repeated(self):
+        # Platform-specific raw codes must not add a parallel native legend.
+        base=[help_item('native_select','Selecionar'),help_item('native_back','Voltar'),
+              help_item('native_save','Salvar'),help_item('native_inbox','Caixa de e-mails')]
+        self.setup_vm(base,[],[])
+        items=self.result()
+        self.assertEqual(len(items),7)
+        self.assertFalse(any(item in base for item in items))
+        labels=[self.label(i).lower().replace(' ','') for i in items]
+        self.assertEqual(len(labels),len(set(labels)))
+    def test_caption_formatting_cannot_create_a_second_save_callout(self):
+        first=help_item('native_save',' SALVAR ')
+        self.setup_vm([first],[],[])
+        items=self.result()
+        self.assertNotIn(first,items)
+        self.assertEqual([self.icon(i) for i in items].count('OPTION_LEFT'),1)
+
+    def test_parallel_legends_are_not_queried_or_modified(self):
+        base=self.callouts('A','B','X','Y','ADVANCE','BACK','OPTION_LEFT','OPTION_TOP')
+        self.setup_vm(base,base,base)
+        for _ in range(10):
+            self.assert_commands(self.result())
+        self.assertFalse(any(name in ('helper','nav') for name,_ in self.calls))
+        self.assertEqual(len(base),8)
     def test_other_hubs_and_tournaments_keep_exact_native_behavior(self):
         self.setup_vm(self.callouts('BACK'),[],[],career=False)
         self.assertIs(self.result(),self.original)
-    def test_calendar_lock_retains_native_context_without_stale_save(self):
+    def test_calendar_refresh_keeps_the_full_legend(self):
         self.setup_vm(self.callouts('BACK','OPTION_LEFT'),[],[],locked=True)
-        self.assertIs(self.result(),self.original)
+        self.assert_commands(self.result())
     def test_no_footer_before_animation_and_missing_providers_are_safe(self):
         self.setup_vm(None,None,None,animated=False);self.assertEqual(self.result(),[])
         self.hub.set('m_isAnimatedIn',True)
-        self.assertEqual([i.get('Icon') for i in self.result()],['ADVANCE','BACK','OPTION_LEFT','OPTION_TOP'])
+        self.assert_commands(self.result())
     def test_wrapped_instance_is_identified_by_its_actual_career_components(self):
         self.setup_vm(self.callouts('BACK'),[],[],career=False)
         self.hub.set('m_arrComponentData',[Object(dict(PATH='game/components/CareerComponents/CareerHubWidget.swf'))])
-        self.assertEqual([i.get('Icon') for i in self.result()],['BACK','ADVANCE','OPTION_LEFT','OPTION_TOP'])
+        self.assert_commands(self.result())
     def test_helper_arriving_after_animate_in_still_binds_footer(self):
         self.setup_vm(self.callouts('BACK'),[],[],career=False)
         self.vm.invoke(self.proto.get('AnimateInComplete'),self.hub)
@@ -103,57 +164,58 @@ class FooterTests(unittest.TestCase):
         self.hub.set('m_arrComponentData',[Object(dict(PATH='data/ui/game/components/CareerComponents/CareerHubWidget.swf'))])
         self.vm.invoke(self.proto.get('LoadComponents'),self.hub,[[]])
         self.assertIsNotNone(self.hub.get('Server16CareerFooterDelegate'))
-        self.assertEqual({i.get('Icon') for i in self.result()},{'ADVANCE','BACK','OPTION_LEFT','OPTION_TOP'})
+        self.assert_commands(self.result())
 
     def test_full_asset_path_case_is_supported(self):
         self.setup_vm([],[],[],career=False)
         self.hub.set('m_arrComponentData',[Object(dict(PATH='data/UI/game/components/CAREERCOMPONENTS/CareerHubWidget.swf'))])
-        self.assertEqual([i.get('Icon') for i in self.result()],['ADVANCE','BACK','OPTION_LEFT','OPTION_TOP'])
+        self.assert_commands(self.result())
     def test_previous_header_owner_cannot_brand_other_hubs_as_career(self):
         self.setup_vm([],[],[],career=False)
         self.vm.global_.set('Server16CareerBrandOwner',Object())
         self.assertIs(self.result(),self.original)
     def test_native_notification_and_carousel_help_are_retained(self):
         self.setup_vm(self.callouts('BACK'),self.callouts('L3'),self.callouts('LAS_LR'))
-        self.original=self.callouts('RAS_UD','BACK')
-        self.assertEqual([i.get('Icon') for i in self.result()],['RAS_UD','BACK','L3','LAS_LR','ADVANCE','OPTION_LEFT','OPTION_TOP'])
+        self.focus_tile(Object(dict(m_isNeedAScroll=True,GetCustomHelpContext=Native('GetCustomHelpContext'))))
+        self.assert_commands(self.result(),'L3')
 
     def focus_tile(self,tile,focused=True,loading=False):
         self.tile=tile
         nav=self.hub.get('mcFluxNavigator')
+        nav.set('m_arrTiles',[tile])
         for key,value in dict(m_bIsFocused=focused,m_isPanelLoading=loading,
                               GetHighlightedIndex=Native('GetHighlightedIndex'),GetTile=Native('GetTile')).items():nav.set(key,value)
 
-    def test_actual_nested_count_adds_carousel_help_without_hiding_hub_actions(self):
+    def test_carousel_legend_survives_focus_on_a_single_page_card(self):
         self.setup_vm(self.callouts('BACK'),[],self.callouts('ADVANCE'))
         tile=Object(dict(m_nLength=4,NextSubtile=Native('NextSubtile'),PreviousSubtile=Native('PreviousSubtile')))
         self.focus_tile(tile)
         items=self.result()
-        self.assertEqual([i.get('Icon') for i in items],['BACK','ADVANCE','RAS_LR','OPTION_LEFT','OPTION_TOP'])
+        self.assert_commands(items)
         # The bounded APT decoder exposes raw UTF-8 strings as Latin-1.
-        label=next(i for i in items if i.get('Icon')=='RAS_LR').get('TickerText')
-        self.assertEqual(label.encode('latin1').decode('utf-8'),'Páginas do card')
+        label=self.label(next(i for i in items if self.icon(i)=='RAS_LR'))
+        self.assertEqual(label.encode('latin1').decode('utf-8'),'Páginas dos cards')
         for count in (0,1):
             tile.set('m_nLength',count)
-            self.assertNotIn('RAS_LR',[i.get('Icon') for i in self.result()])
+            self.assert_commands(self.result())
 
-    def test_no_carousel_hint_on_unfocused_loading_or_plain_tile(self):
+    def test_legend_is_present_on_unfocused_loading_and_plain_tiles(self):
         self.setup_vm([],[],[])
         tile=Object(dict(m_nLength=4,NextSubtile=Native('NextSubtile'),PreviousSubtile=Native('PreviousSubtile')))
         for focused,loading in ((False,False),(True,True)):
             self.focus_tile(tile,focused,loading)
-            self.assertNotIn('RAS_LR',[i.get('Icon') for i in self.result()])
+            self.assert_commands(self.result())
         self.focus_tile(Object(dict(m_nLength=4)))
-        self.assertNotIn('RAS_LR',[i.get('Icon') for i in self.result()])
+        self.assert_commands(self.result())
 
     def test_long_news_keeps_native_scroll_callout_with_carousel_and_hub_commands(self):
         self.setup_vm(self.callouts('BACK'),[],[])
         news=Object(dict(m_isNeedAScroll=True,GetCustomHelpContext=Native('GetCustomHelpContext')))
         tile=Object(dict(m_nLength=3,NextSubtile=Native('NextSubtile'),PreviousSubtile=Native('PreviousSubtile'),m_oCurrentSubtile=news))
         self.focus_tile(tile)
-        self.assertEqual({i.get('Icon') for i in self.result()},{'RAS_LR','L3','ADVANCE','BACK','OPTION_LEFT','OPTION_TOP'})
+        self.assert_commands(self.result(),'L3')
         news.set('m_isNeedAScroll',False)
-        self.assertNotIn('L3',[i.get('Icon') for i in self.result()])
+        self.assertNotIn('L3',[self.icon(i) for i in self.result()])
         tile.set('m_oCurrentSubtile',tile)
         self.assertLess(len(self.result()),10)
 
@@ -163,22 +225,22 @@ class FooterTests(unittest.TestCase):
         self.focus_tile(Object(dict(m_nLength=2,NextSubtile=Native('NextSubtile'),PreviousSubtile=Native('PreviousSubtile'),m_oCurrentSubtile=news)))
         self.vm.invoke(self.proto.get('AnimateInComplete'),self.hub)
         self.result() # Native HelpManager.Update consumes the newly bound delegate.
-        expected={'RAS_LR','L3','ADVANCE','BACK','OPTION_LEFT','OPTION_TOP'}
+        expected=COMMANDS|{'L3'}
         for _ in range(5):
-            self.assertEqual({i.get('Icon') for i in self.vm.invoke(news.get('GetCustomHelpContext'),news)},expected)
+            self.assertEqual({self.icon(i) for i in self.vm.invoke(news.get('GetCustomHelpContext'),news)},expected)
         self.focus_tile(Object())
-        self.assertEqual({i.get('Icon') for i in self.vm.invoke(news.get('GetCustomHelpContext'),news)},{'ADVANCE','BACK','OPTION_LEFT','OPTION_TOP'})
+        self.assert_commands(self.vm.invoke(news.get('GetCustomHelpContext'),news))
         self.vm.invoke(self.proto.get('OnExitScreen'),self.hub)
         self.assertIsNone(self.vm.global_.get('Server16CareerFooterOwner'))
-        self.assertEqual([i.get('Icon') for i in self.vm.invoke(news.get('GetCustomHelpContext'),news)],['L3'])
+        self.assertEqual([self.icon(i) for i in self.vm.invoke(news.get('GetCustomHelpContext'),news)],['L3'])
 
-    def test_tabs_are_described_only_when_the_native_tab_menu_is_available(self):
+    def test_tabs_are_described_during_provider_initialization(self):
         self.setup_vm([],[],[])
         menu=Object(dict(GetNumberOfTabs=Native('GetNumberOfTabs'),IsInSubpanelMode=Native('IsInSubpanelMode')))
         self.hub.set('mcToggleMenu',menu)
-        self.assertEqual(next(i for i in self.result() if i.get('Icon')=='L2R2').get('TickerText'),'Abas')
+        self.assertEqual(self.label(next(i for i in self.result() if self.icon(i)=='L2R2')),'Abas')
         self.hub.set('mcToggleMenu',None)
-        self.assertNotIn('L2R2',[i.get('Icon') for i in self.result()])
+        self.assert_commands(self.result())
 
     def test_installed_revision_rejects_repeated_wrapping(self):
         with self.assertRaisesRegex(ValueError,'already installed'):
@@ -192,7 +254,7 @@ class FooterTests(unittest.TestCase):
             manager.set('m_cbCustomSource',None)
             self.vm.invoke(self.proto.get('UpdateButtonData'),self.hub,[Object(dict(tab=tab))])
             self.assertIs(manager.get('m_cbCustomSource'),delegate)
-            self.assertEqual({i.get('Icon') for i in self.vm.invoke(delegate,None)},{'ADVANCE','BACK','OPTION_LEFT','OPTION_TOP'})
+            self.assert_commands(self.vm.invoke(delegate,None))
         self.assertEqual(sum(n=='originalUpdateButtonData' for n,_ in self.calls),7)
         self.vm.invoke(self.proto.get('OnExitScreen'),self.hub)
         self.vm.invoke(self.proto.get('SetFocus'),self.hub,[0])

@@ -5,6 +5,7 @@
 #include "room_free_camera.h"
 #include "room_scene_command.h"
 int main(int argc,char**argv){
+ _set_error_mode(_OUT_TO_STDERR);_set_abort_behavior(0,_WRITE_ABORT_MSG|_CALL_REPORTFAULT);
  room_cinema::Tour tour; // Wall plus central furniture, units are centimetres.
  tour.obstacles={{{-500,0,-500},{500,320,-490}},{{-40,0,-40},{40,110,40}}};
  tour.path={{{0,165,250},{0,165,-200},70}};
@@ -76,7 +77,7 @@ int main(int argc,char**argv){
  }
  room_command::Request request;
  for(int code:{-4,-5}){std::string wire="S16ROOM2|1043|0123456789abcdef|7|"+std::to_string(code)+"|ENDROOM";assert(room_command::parse(wire.c_str(),request)&&request.code==code);}
- assert(!room_command::parse("S16ROOM2|1043|0123456789abcdef|7|-6|ENDROOM",request));
+ assert(!room_command::parse("S16ROOM2|1043|0123456789abcdef|7|-8|ENDROOM",request)); // -6/-7 now pause/resume the personalization overlay
  std::cout<<"PASS free camera: native movement axes, footsteps, 30/120 FPS, continuous capsule/thin furniture, real coach doorway entry/exit, solid walls/door leaf and scoped commands\n";
  // The longer room must be reachable, with its new outer bound retained.
  {room_free::Walk expanded;room_cinema::Tour clear;

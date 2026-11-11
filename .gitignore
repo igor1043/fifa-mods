@@ -82,11 +82,11 @@ ModCarrerMode/mods/cloth_motion/runtime_state.txt
 
 # Local update rollbacks, runtime preferences and per-machine provenance.
 .codex-test-backups/
-*.before-base-robson-*
-*.before-robson1212-fix*
+*.before-*
+*.before-*-fix*
 ModCarrerMode/mods/cloth_motion/runtime_state.txt.*.tmp
-ModCarrerMode/docs/BASE_ROBSON.json
-ModCarrerMode/docs/CORRECAO_ICONES_ENTRADAS_ROBSON.md
+ModCarrerMode/docs/BASE_*.json
+ModCarrerMode/docs/CORRECAO_ICONES_ENTRADAS_*.md
 desktop.ini
 
 # Rejected camera experiments are not release components.
@@ -148,7 +148,7 @@ runtime/diagnostics/
 /data/ui/game/components/fluxcomponents/career/transferinfo.big
 /data/ui/game/widgets/mainhubwidget.big
 /data/ui/pow/components/easfcwidget.big
-# Robson's shared UI artwork is delivered by the complete asset complement.
+# Shared UI artwork is delivered by the complete asset complement.
 /data/ui/game/components/careercomponents/breadcrumbswidget.big
 /data/ui/game/components/careercomponents/emailnotification.big
 /data/ui/game/components/careercomponents/playerattributes.big
@@ -213,7 +213,7 @@ runtime/diagnostics/
 /data/ui/pow/components/news/
 /data/ui/pow/components/powcurrency.big
 /data/ui/pow/components/powexperience.big
-/LEIA-ME-ROBSON-ASSETS.txt
+/LEIA-ME-*-ASSETS.txt
 /ModCarrerMode/source/dist/
 # Installed career coach RX3 payloads are distributed with the game assets.
 /data/sceneassets/manager_market/
@@ -252,3 +252,17 @@ runtime/diagnostics/
 /ModCarrerMode/source/runtime/
 /ModCarrerMode/mods/ultrawide/runtime_state.txt
 /ModCarrerMode/mods/ultrawide/ultrawide.ini
+
+# Trophy gallery artwork and models are delivered in the runtime asset ZIP.
+/ModCarrerMode/data/trophy_room/**/*.png
+/data/sceneassets/server16_trophy_room/**/*.rx3
+/data/sceneassets/server16_trophy_room/**/*.png
+/data/sceneassets/server16_trophy_room/appearance/
+/data/sceneassets/server16_trophy_room/thumbnails/
+/data/sceneassets/server16_trophy_room/[0-9]*/
+/data/sceneassets/server16_dressing_room_v3/**/*.ff3d
+/data/sceneassets/server16_dressing_room_v3/**/*.npz
+
+# Authored room templates and external stadium photos belong to the asset ZIP.
+/ModCarrerMode/data/trophy_room/*.rx3
+/data/ui/imgAssets/stadium/stadium_*.dds

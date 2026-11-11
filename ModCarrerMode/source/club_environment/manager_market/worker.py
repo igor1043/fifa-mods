@@ -278,7 +278,13 @@ class Service:
    supplement=json.loads((GAME/'ModCarrerMode/runtime/career_derived_standings.json').read_text(encoding='utf8'))
    derived_rows=supplement.get('rows',[]) if supplement.get('pid')==saved['pid'] and supplement.get('date')==observed['date'] and supplement.get('epoch')==observed['profile'].get('context_epoch') else []
   except (OSError,ValueError):derived_rows=[]
-  signature=contract_signature(observed,snapshot,token,live_leagues,derived_rows)
+  national_job=None
+  if memory is not None:
+   try:
+    from national_title_context import live_team
+    national_job=dict(date=observed['date'],team=live_team(memory,observed['profile']),source='live_context')
+   except (OSError,RuntimeError,ValueError,KeyError):pass
+  signature=contract_signature(observed,snapshot,token,live_leagues,derived_rows)+(national_job['team'] if national_job else None,)
   # Drain a completed view before doing another calendar transaction. A new
   # native publication must not leave an already finished render waiting here.
   self.service_settings(observed)
@@ -302,6 +308,9 @@ class Service:
    from live_sampler import calendar_context
    context=calendar_context(self.context,calendar_snapshot,live_leagues['rows'] if live_leagues else [])
   else:context=self.inputs.read(observed,memory,**options)
+  if national_job:
+   jobs=context.get('national_jobs',[])
+   if not jobs or jobs[-1]['team']!=national_job['team']:context=dict(context,national_jobs=[*jobs,national_job])
   from save_database import database_path,settings_path,import_checkpoint
   path=Path(saved['path']);db_path=database_path(path);digest=context['digest']
   observed_ms=prepared_views.ticks()
@@ -366,6 +375,15 @@ class Service:
    receipts.extend(bind_pending(self.market,GAME,current=dict(pid=saved['pid'],created=saved['process_created_100ns'],context=observed['profile']['context_address'],epoch=observed['profile'].get('context_epoch',0),date=context['date'],club=context['club'],digest=digest,io=list(token),branch=self.market.branch)))
   # Simulation/persistence commits before rendering. A failed or stale UI build
   # must not replay this load and restore an earlier market on the next poll.
+  # A native Save As can remove the old slot before this helper processes its
+  # completed-write receipt. Preserve the advertised immutable revision first.
+  from durable_store import persist as persist_durable
+  durable=True;durable_started=time.perf_counter()
+  try:
+   durable_counts=persist_durable(self.market,path,state_revision,checkpoints=fresh or bool(receipts) or io.get('operation')=='write' and token!=self.last_io,keep_open=True)
+   if any(durable_counts.values()):log('durable_revision',revision=state_revision,seconds=round(time.perf_counter()-durable_started,4),**durable_counts)
+  except Exception as exc:
+   durable=False;log('durable_revision_failed',error=str(exc));(ROOT/'save_state.tsv').unlink(missing_ok=True)
   self.digest=digest;self.capture_monthly(observed,memory,checkpoint=io.get('operation')=='write' and token!=self.last_io)
   self.context=context;self.digest=digest;self.last_io=token;self.owner=owner
   reload_save=token!=getattr(self,'presentation_io',None) and io.get('operation')=='read'
@@ -383,7 +401,7 @@ class Service:
   # The native completed-write hook copies this immutable SQL revision into
   # its durable receipt. It never opens SQLite or invokes FIFA from I/O.
   marker=dict(schema=1,pid=saved['pid'],created=saved['process_created_100ns'],context=format(observed['profile']['context_address'],'x'),epoch=epoch,date=context['date'],club=context['club'],revision=state_revision)
-  atomic(ROOT/'save_state.tsv',''.join(f'{k}={v}\n' for k,v in marker.items()).encode('ascii'))
+  if durable:atomic(ROOT/'save_state.tsv',''.join(f'{k}={v}\n' for k,v in marker.items()).encode('ascii'))
   if getattr(self,'sampler',None):self.sampler.discard_committed(context['date'])
   publish_model_assets(GAME,self.market.db,state);self.model_asset_scope=state
   engine_status=dict(date=context['date'],branch=self.market.branch,tracking_start=self.market.info()['start_date'],coverage=context.get('coverage',{}),protected_club=context['club'],**self.market.status_counts(context['date']),journal=self.market.journal.stats)

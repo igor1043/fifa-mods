@@ -1476,6 +1476,12 @@
               "targets": [
                 "Server16CareerRetirement"
               ]
+            },
+            {
+              "event": "Server16EnterTrophyRoom",
+              "targets": [
+                "Server16TrophyRoom"
+              ]
             }
           ]
         },
@@ -3463,6 +3469,15 @@
           "outputs": {
             "back": "MainMenuHub",
             "Back": "MainMenuHub"
+          }
+        },
+        {
+          "name": "Server16TrophyRoom",
+          "type": "external",
+          "file": "/careerMode/server16TrophyRoomFlow.nav",
+          "outputs": {
+            "Back": "MainMenuHub",
+            "back": "MainMenuHub"
           }
         }
       ]

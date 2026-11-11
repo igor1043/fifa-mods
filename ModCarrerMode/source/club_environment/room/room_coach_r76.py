@@ -67,7 +67,7 @@ def uv(cell):
     return region(cell,(0,0,1024,512) if cell==6 else (0,0,2048,960) if cell==7 else (0,0,2048,1024))
 
 
-def geometry():
+def geometry(furniture=True):
     groups={k:[] for k in ('primary','secondary','dark','metal','light','floor','ceiling','panels')};obstacles=[]
     def add(key,shape):groups[key].append(shape)
     def solid(name,lo,hi):obstacles.append(dict(name='Sala do treinador R76 / '+name,lo=[lo[0],lo[1]-1000,lo[2]],hi=[hi[0],hi[1]-1000,hi[2]]))
@@ -88,52 +88,53 @@ def geometry():
         for z in (1710,2070,2430):
             add('metal',box((x-30,1317.9,z-30),(x+30,1319.4,z+30)))
             add('light',box((x-28,1317.5,z-28),(x+28,1317.9,z+28)))
-    # Desk and integrated drawer pedestals, facing into the room.
-    add('dark',box((40,1080,2070),(320,1086,2165)))
-    add('secondary',box((42,1076,2072),(318,1080,2163)))
-    for x in (60,255):
-        add('primary',box((x,1003,2084),(x+45,1077,2155)))
-        for y in (1024,1049):add('secondary',box((x+2,y,2083.5),(x+43,y+1.5,2084)))
-        for y in (1015,1040,1065):add('metal',box((x+15,y,2082),(x+31,y+2,2084)))
-    add('primary',box((103,1028,2085),(258,1076,2089)))
-    solid('mesa',(40,1003,2070),(320,1086,2165))
-    # Three actual chairs, with legs, arm rests, padded seats and backs.
-    def chair(x,z,coach=False):
-        add('dark',cushion((x-31,1043,z-30),(x+31,1050,z+30)))
-        back=z+27 if coach else z-33
-        add('dark',cushion((x-30,1058,back),(x+30,1147 if coach else 1128,back+7)))
-        if coach:
-            add('primary',box((x-28,1133,back-1),(x+28,1162,back+8)))
-            add('metal',lathe([x,1004,z],[(0,0),(0,4),(37,4),(37,0)],20))
-            for angle in np.linspace(0,2*np.pi,5,endpoint=False):
-                part,ids=box((-3,1003,0),(3,1007,33));p=part['p'];xx=p[:,0].copy();zz=p[:,2].copy();p[:,0]=x+xx*np.cos(angle)+zz*np.sin(angle);p[:,2]=z-xx*np.sin(angle)+zz*np.cos(angle);add('metal',(part,ids))
-        else:
-            for xx in (x-25,x+25):
-                for zz in (z-23,z+23):add('metal',box((xx-1.5,1001,zz-1.5),(xx+1.5,1044,zz+1.5)))
-        for xx in (x-34,x+31):
-            add('metal',box((xx,1040,z-16),(xx+3,1069,z+17)));add('dark',box((xx-2,1069,z-21),(xx+5,1073,z+22)))
-        solid('cadeira',(x-36,1000,z-35),(x+36,1162 if coach else 1128,z+36))
-    chair(180,2265,True);chair(95,1975);chair(265,1975)
-    # Laptop, auxiliary tablet, tactical clipboard, papers, pens and squeeze.
-    add('dark',box((111,1086,2098),(176,1088.5,2141)))
-    add('dark',box((110,1088,2099),(177,1134,2103)))
-    add('panels',panel([143.5,1111,2103.2],63,39,(0,0,1),uv(6)))
-    add('dark',box((234,1086,2112),(282,1088,2146)))
-    add('panels',horizontal([258,1088.2,2129],43,29,6))
-    add('secondary',box((188,1086,2082),(229,1088,2136)))
-    add('panels',horizontal([208,1088.2,2109],37,49,7))
-    add('metal',box((202,1088.4,2083),(215,1089,2087)))
-    for i in range(3):add('panels',horizontal([82+i*.7,1086.8+i*.3,2110+i*.8],25,37,7))
-    for x in (241,246,251):add('metal',box((x,1086.2,2081),(x+1,1087,2101)))
-    add('secondary',lathe([303,1086.2,2138],[(0,0),(0,4.5),(16,4.5),(20,2.5),(23,2.5),(23,0)],24))
-    add('primary',lathe([303,1109.2,2138],[(0,0),(0,2.8),(2,2.8),(2,0)],24))
-    # Low storage and archive trays along the left wall, not across the doorway.
-    add('dark',box((-315,1000.5,1800),(-266,1087,2290)));solid('armário de apoio',(-315,1000.5,1800),(-266,1087,2290))
-    for z in range(1803,2290,81):
-        add('secondary',box((-265.8,1008,z),(-264,1080,min(z+76,2288))))
-        add('metal',box((-263.5,1061,z+25),(-262,1064,z+53)))
-    for z in (1850,1910,2150):
-        add('primary',box((-307,1087,z),(-278,1112,z+43)));add('panels',horizontal([-291,1112.2,z+21],25,37,7))
+    if furniture:
+        # Desk and integrated drawer pedestals, facing into the room.
+        add('dark',box((40,1080,2070),(320,1086,2165)))
+        add('secondary',box((42,1076,2072),(318,1080,2163)))
+        for x in (60,255):
+            add('primary',box((x,1003,2084),(x+45,1077,2155)))
+            for y in (1024,1049):add('secondary',box((x+2,y,2083.5),(x+43,y+1.5,2084)))
+            for y in (1015,1040,1065):add('metal',box((x+15,y,2082),(x+31,y+2,2084)))
+        add('primary',box((103,1028,2085),(258,1076,2089)))
+        solid('mesa',(40,1003,2070),(320,1086,2165))
+        # Three actual chairs, with legs, arm rests, padded seats and backs.
+        def chair(x,z,coach=False):
+            add('dark',cushion((x-31,1043,z-30),(x+31,1050,z+30)))
+            back=z+27 if coach else z-33
+            add('dark',cushion((x-30,1058,back),(x+30,1147 if coach else 1128,back+7)))
+            if coach:
+                add('primary',box((x-28,1133,back-1),(x+28,1162,back+8)))
+                add('metal',lathe([x,1004,z],[(0,0),(0,4),(37,4),(37,0)],20))
+                for angle in np.linspace(0,2*np.pi,5,endpoint=False):
+                    part,ids=box((-3,1003,0),(3,1007,33));p=part['p'];xx=p[:,0].copy();zz=p[:,2].copy();p[:,0]=x+xx*np.cos(angle)+zz*np.sin(angle);p[:,2]=z-xx*np.sin(angle)+zz*np.cos(angle);add('metal',(part,ids))
+            else:
+                for xx in (x-25,x+25):
+                    for zz in (z-23,z+23):add('metal',box((xx-1.5,1001,zz-1.5),(xx+1.5,1044,zz+1.5)))
+            for xx in (x-34,x+31):
+                add('metal',box((xx,1040,z-16),(xx+3,1069,z+17)));add('dark',box((xx-2,1069,z-21),(xx+5,1073,z+22)))
+            solid('cadeira',(x-36,1000,z-35),(x+36,1162 if coach else 1128,z+36))
+        chair(180,2265,True);chair(95,1975);chair(265,1975)
+        # Laptop, auxiliary tablet, tactical clipboard, papers, pens and squeeze.
+        add('dark',box((111,1086,2098),(176,1088.5,2141)))
+        add('dark',box((110,1088,2099),(177,1134,2103)))
+        add('panels',panel([143.5,1111,2103.2],63,39,(0,0,1),uv(6)))
+        add('dark',box((234,1086,2112),(282,1088,2146)))
+        add('panels',horizontal([258,1088.2,2129],43,29,6))
+        add('secondary',box((188,1086,2082),(229,1088,2136)))
+        add('panels',horizontal([208,1088.2,2109],37,49,7))
+        add('metal',box((202,1088.4,2083),(215,1089,2087)))
+        for i in range(3):add('panels',horizontal([82+i*.7,1086.8+i*.3,2110+i*.8],25,37,7))
+        for x in (241,246,251):add('metal',box((x,1086.2,2081),(x+1,1087,2101)))
+        add('secondary',lathe([303,1086.2,2138],[(0,0),(0,4.5),(16,4.5),(20,2.5),(23,2.5),(23,0)],24))
+        add('primary',lathe([303,1109.2,2138],[(0,0),(0,2.8),(2,2.8),(2,0)],24))
+        # Low storage and archive trays along the left wall, not across the doorway.
+        add('dark',box((-315,1000.5,1800),(-266,1087,2290)));solid('armário de apoio',(-315,1000.5,1800),(-266,1087,2290))
+        for z in range(1803,2290,81):
+            add('secondary',box((-265.8,1008,z),(-264,1080,min(z+76,2288))))
+            add('metal',box((-263.5,1061,z+25),(-262,1064,z+53)))
+        for z in (1850,1910,2150):
+            add('primary',box((-307,1087,z),(-278,1112,z+43)));add('panels',horizontal([-291,1112.2,z+21],25,37,7))
     # Each physical panel maps to one sharp 2048 x 1024 atlas cell.
     boards=[(0,[120,1192,2587],380,190,(0,0,-1)),(1,[540,1180,2587],300,150,(0,0,-1)),
             (2,[-200,1180,2587],210,145,(0,0,-1)),(3,[746,1182,2260],300,150,(-1,0,0)),
@@ -143,7 +144,7 @@ def geometry():
         n=np.array(normal);add('dark',panel((np.array(center)-n*.8).tolist(),width+6,height+6,normal))
         add('panels',panel(center,width,height,normal,uv(cell)))
     from room_coach_decor_r76 import decorate
-    decorate(add,solid,region)
+    if furniture:decorate(add,solid,region)
     return groups,obstacles
 
 
@@ -199,17 +200,44 @@ def stage(game,output):
 def prepare(context,read_asset,add,identity):
     from room_coach_art_r76 import paint
     live=portable.GAME/PREFIX;spec=json.loads((live/'coach_room_r76.json').read_text(encoding='utf8'))
+    from room_pes_office import specification
+    from room_v3 import enabled
+    office=specification(portable.GAME) if enabled(portable.GAME) else None
+    if office:spec=dict(spec,bindings=office['shell_bindings'])
     primary,secondary=selected_palette(context,portable.GAME)
     def color(c):return (18,18,18) if max(c)<=8 else c
     images={k:Image.new('RGBA',(8,8),color(v)+(255,)) for k,v in dict(primary=primary,secondary=secondary,dark=(28,33,37),metal=(142,152,158),light=(245,247,241)).items()}
     art_context=dict(context,colors=[[v/255 for v in c] for c in (primary,secondary)])
+    if office and office.get('palette_style')=='coach_neutral':
+        images['primary']=Image.new('RGBA',(8,8),tuple(office.get('neutral_wall_rgb',[232,229,222]))+(255,))
+        images['secondary']=Image.new('RGBA',(8,8),primary+(255,))
+        from room_v3 import finish_image
+        images['wood']=finish_image(portable.GAME,context['club'],office.get('wood_finish','wood_light'),'cabinet')
+        if any(b['material']=='rug' for b in spec['bindings']):
+            from room_coach_rug import texture as rug_texture
+            images['rug']=rug_texture(primary)
+        if any(b['material']=='shirts' for b in spec['bindings']):
+            from room_coach_shirts import texture as shirt_texture
+            images['shirts']=shirt_texture(context['club'],read_asset)
+        art_context['neutral_office']=True
     images['panels']=paint(art_context,read_asset)
     for binding in spec['bindings']:
         key=binding['material']
+        if key=='crest':
+            crest=f'data/ui/imgassets/crest/light/l{context["club"]}.dds'
+            try:read_asset(crest)
+            except (OSError,ValueError,FileNotFoundError):continue
+            add('coach_crest',PREFIX+'coach_room_r76.rx3',crest,'',identity,True,submesh=binding['submesh'])
+            continue
         if key in ('floor','ceiling'):
             texture=PREFIX+('floor_textures_r44.rx3' if key=='floor' else 'ceiling_r72.rx3');name='floor_cm' if key=='floor' else 'ceiling_cm'
         else:
-            image=images[key];tag=hashlib.sha256(image.tobytes()).hexdigest()[:18];filename=f'coach_{key}_{context["club"]}_{tag}_r76.rx3';path=live/filename
-            if not path.exists():texture_package(image,path,'coach_cm')
+            image=images[key];salt=b'coach-panel-bc1-v1' if key=='panels' else b'coach-rug-bc1-v1' if key=='rug' else b'coach-shirts-bc1-v1' if key=='shirts' else b''
+            tag=hashlib.sha256(salt+image.tobytes()).hexdigest()[:18];filename=f'coach_{key}_{context["club"]}_{tag}_r76.rx3';path=live/filename
+            if not path.exists():texture_package(image,path,'coach_cm',opaque=key in ('panels','rug','shirts'))
             texture=PREFIX+filename;name='coach_cm'
         add('coach_'+key,PREFIX+'coach_room_r76.rx3',texture,name,identity,submesh=binding['submesh'])
+
+    if office:
+        from room_pes_office import prepare as imported_furniture
+        imported_furniture(portable.GAME,add,identity)

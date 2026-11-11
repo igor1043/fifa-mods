@@ -4,11 +4,11 @@
 uintptr_t roomPhotoPrevious=0,roomPhotoView=0;void*roomPhotoRelay=nullptr;
 LONG64 roomPhotoBefore=0,roomPhotoAfter=0;bool roomPhotoInstalled=false,roomWasVisible=false,roomReturnPending=false;
 unsigned roomReturnFrames=0,roomReturnRefreshes=0;
-bool roomEntryPending=false;unsigned roomEntryFrames=0;
+bool roomEntryPending=false,roomCoverReady=false;unsigned roomEntryFrames=0;
 bool roomHubPage(){
  auto p=get<uintptr_t>(image+0x3809030);for(unsigned o:{232u,192u,136u,472u})p=get<uintptr_t>(p+o);
  char name[128]{};if(!read(p,name,127))return false;for(auto&c:name)if(c>='A'&&c<='Z')c+=('a'-'A');
- const auto leaf=strrchr(name,'/');return leaf&&!strcmp(leaf,"/fluxhub");
+ const auto leaf=strrchr(name,'/');return leaf&&(!strcmp(leaf,"/fluxhub")||!strcmp(leaf,"/stadiumpan"));
 }
 void* __fastcall roomPhotoHook(void*self){
  auto result=((void*(__fastcall*)(void*))roomPhotoPrevious)(self);
@@ -16,7 +16,9 @@ void* __fastcall roomPhotoHook(void*self){
  if(get<uintptr_t>(vt+0x38)==image+0x408d1d0&&get<uintptr_t>(p+8))roomPhotoView=p;
  // The room owns its transparent cover independently of the stadium setting.
  // This factory is already running on the native UI owner thread.
- if(result&&roomVisiblePage())((void(__fastcall*)(void*,const char*,const char*))(image+0x4c174d0))(result,"Param","server16_frontend_clear");
+ // The frontend owns the career background route. Writing its Param a second
+ // time here creates another native string allocation in the same factory.
+ if(result&&roomVisiblePage()&&!backgroundClub)((void(__fastcall*)(void*,const char*,const char*))(image+0x4c174d0))(result,"Param",active?"server16_frontend_clear":"BOOTFLOW");
  return result;
 }
 bool roomPhotoExchange(LONG64 from,LONG64 to){
@@ -40,7 +42,11 @@ bool installRoomPhoto(){
 }
 void roomReturnTick(bool visible){
  if(visible){
-  if(!roomWasVisible){roomEntryPending=true;roomEntryFrames=0;}
+  // No synthetic provider rebuild at entry while the genuine menu/stadium
+  // loader is still constructing BackgroundDP on another FIFA UI thread.
+  if(!active){roomWasVisible=true;roomCoverReady=false;roomEntryPending=false;return;}
+  const bool ready=active;
+  if(!roomWasVisible||ready!=roomCoverReady){roomEntryPending=true;roomEntryFrames=0;roomCoverReady=ready;}
   roomWasVisible=true;roomReturnPending=false;roomReturnFrames=0;
   if(!roomEntryPending||++roomEntryFrames<3)return;
   auto self=roomPhotoView,vt=get<uintptr_t>(self);

@@ -8,6 +8,7 @@
 #include "../common/scene_lua.h"
 #include "../common/scene_resource_cycle.h"
 #include "../common/scene_startup.h"
+#include "../common/field_prop_shadow.h"
 using BuildFn=void(__fastcall*)(void*);
 static uintptr_t image;
 static BuildFn nextBuild;
@@ -19,6 +20,7 @@ static SceneStartupProbe startupRecovery;
 static uint64_t nextCreate=0;
 static LONG sceneContentions;
 static SceneResourceCycle modelCycle,shadowCycle;
+static fieldshadow::Caster cabinCaster("var_cabin");
 static uintptr_t owner=0,prototype=0,shadow=0,prototypeState=0;
 static float xCm=800,zCm=-3800,yCm=2,yaw=0;
 static uint64_t nextConfig=0,nextDiagnostic=0;
@@ -235,6 +237,9 @@ static void __fastcall buildHook(void* self){
             }
         }
         nextBuild(self);
+        const auto shadowPose=fieldshadow::transform(xCm,yCm,zCm,yaw);
+        const float shadowBounds[8]={-70,-2,-60,1,70,205,60,1};
+        fieldshadow::update(cabinCaster,image,(uintptr_t)self,scene_lua_snapshot(image),"data/sceneassets/var_cabin/model.rx3","var_cabin_",&shadowPose,1,swapped&&submitted> -1000,event,shadowBounds);
     }__finally{
         if(swapped){
             if(normalBytes)memcpy((void*)saved.begin,scratch,normalBytes);

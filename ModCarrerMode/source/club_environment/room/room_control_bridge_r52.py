@@ -17,7 +17,7 @@ class Region(C.Structure):
 def request_patterns(pid,nonce,club):
     prefixes=[f'S16ROOM1|{pid}|{nonce}|'.encode()]
     if club is not None:prefixes.append(f'S16ROOM2|{club}|{nonce}|'.encode())
-    return [(prefix,re.compile(re.escape(prefix)+rb'([0-9]{1,9})\|(-?[0-9]{1,3})\|ENDROOM')) for prefix in prefixes]
+    return [(prefix,re.compile(re.escape(prefix)+rb'([0-9]{1,16})\|(-?[0-9]{1,3})\|ENDROOM')) for prefix in prefixes]
 
 def decode_requests(data,pid,nonce,club=None):
     result=[];samples=[data]
@@ -27,7 +27,7 @@ def decode_requests(data,pid,nonce,club=None):
     for raw in samples:
         for prefix,pattern in request_patterns(pid,nonce,club):
             if prefix in raw:result.extend((int(m[1]),int(m[2])) for m in pattern.finditer(raw))
-    return [(seq,code) for seq,code in result if seq>0 and -5<=code<128]
+    return [(seq,code) for seq,code in result if 0<seq<=9007199254740991 and -7<=code<256]
 
 def arena_chunks(base,size,hit):
     """Warm the adjacent APT allocations while keeping every read <=512KiB."""

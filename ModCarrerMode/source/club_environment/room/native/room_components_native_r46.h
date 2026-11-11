@@ -8,18 +8,23 @@ struct NativeRoomComponent {
  int medicalPage=-1,medicalPages=0,medicalBank=0;
  bool alpha=false,loaded=false,attempted=false,failed=false;uintptr_t object=0;
  std::vector<std::array<float,16>> matrices;
- std::array<float,4> overlay{};
+ std::array<float,4> overlay{};room_light_probe::Probe lightProbe;
 };
 std::vector<std::unique_ptr<NativeRoomComponent>> components,retiredComponents;
-NativeRoomComponent loadingSlate,errorSlate,loadingProgress,loadingBackdrop,loadingRing,loadingBadge;
+NativeRoomComponent loadingSlate,errorSlate,loadingProgress,loadingBackdrop,loadingRing,loadingBadge,loadingDots,loadingStage,loadingSweep;
+room_loading::Motion loadingMotion;
 unsigned loadingBadgeClub=0,loadingBadgeRevision=0;
 room_cinema::Tour roomTour;unsigned roomTourVersion=0;uint64_t roomTourFingerprint=0;
 uintptr_t componentVtable[29]{};
 void __fastcall componentDraw(void*self,int pass){
- const bool slate=self==(void*)loadingSlate.object||self==(void*)errorSlate.object||self==(void*)loadingProgress.object||self==(void*)loadingBackdrop.object||self==(void*)loadingRing.object||self==(void*)loadingBadge.object;
+ const bool slate=self==(void*)loadingSlate.object||self==(void*)errorSlate.object||self==(void*)loadingProgress.object||self==(void*)loadingBackdrop.object||self==(void*)loadingRing.object||self==(void*)loadingBadge.object||self==(void*)loadingDots.object||self==(void*)loadingStage.object||self==(void*)loadingSweep.object;
  if(stopping||!roomVisiblePage()||(slate?!roomLoading.load():!active.load()||!ready.load()))return;
- __try {if(indoorEnabled&&pass==1)nativeIndoorDraw(self);else ((void(__fastcall*)(void*,int))(image+0x43c8f20))(self,pass);}
- __except(EXCEPTION_EXECUTE_HANDLER){indoorEnabled=false;++indoorFailures;log("INDOOR_LIGHTING_DISABLED_FALLBACK_NATIVE");}
+ bool caster=false;unsigned casterFlags=0;const room_light_probe::Probe* probe=nullptr;
+ if(!slate&&pass==1)for(const auto& component:components)if(component&&component->object==uintptr_t(self)){
+  caster=room_shadow_bridge::depthCaster(component->key.c_str(),component->alpha);if(!room_shadow_bridge::caster(component->key.c_str(),component->alpha))casterFlags|=room_shadow_bridge::Structure;probe=&component->lightProbe;break;
+ }
+ __try {if(indoorEnabled&&pass==1)nativeIndoorDraw(self,caster,probe,casterFlags);else ((void(__fastcall*)(void*,int))(image+0x43c8f20))(self,pass);}
+ __except(EXCEPTION_EXECUTE_HANDLER){room_prop_bridge::end(false);indoorEnabled=false;++indoorFailures;log("INDOOR_LIGHTING_DISABLED_FALLBACK_NATIVE");}
 }
 unsigned componentGeneration=0,componentClub=0;uint64_t componentNextCheck=0;
 std::atomic<unsigned> validCareerClub{0};
@@ -84,7 +89,7 @@ bool loadTour(unsigned generation,unsigned club){
 }
 bool loadComponents(){
  std::ifstream f(folder/L"runtime/native_components_v2.txt");std::string magic;unsigned version=0,pid=0,club=0,generation=0,count=0;
- if(!(f>>magic>>version>>pid>>club>>generation>>count)||magic!="S16NATIVE"||(version!=2&&version!=3)||pid!=GetCurrentProcessId()||club!=validCareerClub||count==0)return false;
+ if(!(f>>magic>>version>>pid>>club>>generation>>count)||magic!="S16NATIVE"||(version!=2&&version!=3&&version!=4)||pid!=GetCurrentProcessId()||club!=validCareerClub||count==0)return false;
  if(count>256){log("NATIVE_COMPONENT_GROUP_LIMIT_EXCEEDED: max=256");return false;}
  if(generation==componentGeneration&&club==componentClub)return true;
  std::vector<std::unique_ptr<NativeRoomComponent>> prepared;
@@ -92,8 +97,12 @@ bool loadComponents(){
   auto c=std::make_unique<NativeRoomComponent>();unsigned alpha=0,instances=0;
   if(!(f>>std::quoted(c->key)>>std::quoted(c->model)>>std::quoted(c->submesh)>>std::quoted(c->texture)>>std::quoted(c->textureName)>>alpha>>instances)||instances<1||instances>64)return false;
   if(c->model.rfind("data/sceneassets/",0)!=0||c->texture.rfind("data/",0)!=0||c->key.size()>64)return false;
-  if(version==3&&(!(f>>c->medicalPage>>c->medicalPages>>c->medicalBank)||c->medicalPages<0||c->medicalPages>6||c->medicalPage< -1||c->medicalPage>=std::max(1,c->medicalPages)||c->medicalBank<0||c->medicalBank>1))return false;
+  if(version>=3&&(!(f>>c->medicalPage>>c->medicalPages>>c->medicalBank)||c->medicalPages<0||c->medicalPages>6||c->medicalPage< -1||c->medicalPage>=std::max(1,c->medicalPages)||c->medicalBank<0||c->medicalBank>1))return false;
   for(float&v:c->overlay)if(!(f>>v)||!std::isfinite(v)||v<0||v>1)return false;
+  if(version>=4){
+   for(float& value:c->lightProbe.local)if(!(f>>value)||!std::isfinite(value)||std::abs(value)>100000)return false;
+   if(c->lightProbe.local[3]<0)return false;c->lightProbe.valid=true;
+  }
   c->alpha=alpha!=0;c->matrices.resize(instances);
   for(auto&m:c->matrices)for(float&v:m)if(!(f>>v)||!std::isfinite(v)||std::abs(v)>1000000.f)return false;
   c->type="server16_native_room_r60_"+std::to_string(generation)+"_"+std::to_string(i);prepared.push_back(std::move(c));
@@ -101,7 +110,7 @@ bool loadComponents(){
  hideComponents();
  for(auto&next:prepared)for(auto&old:components){
   if(old&&old->key==next->key&&old->model==next->model&&old->submesh==next->submesh&&old->texture==next->texture&&old->textureName==next->textureName&&old->alpha==next->alpha&&!old->failed){
-   old->matrices=std::move(next->matrices);old->overlay=next->overlay;old->medicalPage=next->medicalPage;old->medicalPages=next->medicalPages;old->medicalBank=next->medicalBank;next=std::move(old);break;
+   old->matrices=std::move(next->matrices);old->overlay=next->overlay;old->medicalPage=next->medicalPage;old->medicalPages=next->medicalPages;old->medicalBank=next->medicalBank;old->lightProbe=next->lightProbe;next=std::move(old);break;
   }
  }
  for(auto&c:components)if(c)retiredComponents.push_back(std::move(c));components=std::move(prepared);componentGeneration=generation;componentClub=club;
@@ -154,14 +163,14 @@ bool roomComponentsFailed(){for(auto&c:components)if(c->failed)return true;retur
 void showComponents(bool visible){for(auto&c:components)componentVisibility(*c,visible);}
 void loadingDecoration(NativeRoomComponent&c,const char*key,const char*model,const char*texture,bool alpha,bool visible){
  if(!visible){componentVisibility(c,false);return;}
- if(!c.attempted){c.key=key;c.type=std::string("server16_room_")+key+"_r82";c.model=model;c.submesh="room_part_1";c.texture=texture;c.textureName="slate_cm";c.alpha=alpha;c.matrices.push_back({1,0,0,0,0,1,0,0,0,0,1,0,100000,0,0,1});if(!createComponent(c))c.failed=true;}
+ if(!c.attempted){c.key=key;c.type=std::string("server16_room_")+key+"_r83";c.model=model;c.submesh="room_part_1";c.texture=texture;c.textureName="slate_cm";c.alpha=alpha;c.matrices.push_back({1,0,0,0,0,1,0,0,0,0,1,0,100000,0,0,1});if(!createComponent(c))c.failed=true;}
  if(c.object&&!c.failed&&!c.loaded&&componentReady(c.object))c.loaded=true;
  componentVisibility(c,visible);
 }
 void loadingBrand(bool show,bool error){
- loadingDecoration(loadingBackdrop,"loading_backdrop","data/sceneassets/server16_dressing_room_v3/loading_backdrop_r82.rx3","data/sceneassets/server16_dressing_room_v3/loading_backdrop_texture_r82.rx3",false,show);
- loadingDecoration(loadingRing,"loading_ring","data/sceneassets/server16_dressing_room_v3/loading_ring_r82.rx3","data/sceneassets/server16_dressing_room_v3/loading_ring_texture_r82.rx3",true,show&&!error);
- if(!show){componentVisibility(loadingBadge,false);return;}
+ loadingDecoration(loadingBackdrop,"loading_backdrop","data/sceneassets/server16_dressing_room_v3/loading_backdrop_r83.rx3","data/sceneassets/server16_dressing_room_v3/loading_backdrop_texture_r83.rx3",false,show);
+ loadingDecoration(loadingRing,"loading_ring","data/sceneassets/server16_dressing_room_v3/loading_ring_r83.rx3","data/sceneassets/server16_dressing_room_v3/loading_ring_texture_r83.rx3",true,show&&!error);
+ if(!show){componentVisibility(loadingBadge,false);componentVisibility(loadingDots,false);return;}
  const unsigned club=backgroundClub?backgroundClub.load():validCareerClub.load();
  if(loadingBadgeClub!=club){
   componentVisibility(loadingBadge,false);
@@ -171,34 +180,48 @@ void loadingBrand(bool show,bool error){
   loadingBadge=NativeRoomComponent{};loadingBadgeClub=club;
  }
  if(club&&!loadingBadge.attempted){
-  auto&c=loadingBadge;c.key="loading_badge";c.type="server16_room_loading_badge_r82_"+std::to_string(club)+"_"+std::to_string(++loadingBadgeRevision);c.model="data/sceneassets/server16_dressing_room_v3/loading_badge_r82.rx3";c.submesh="room_part_1";c.texture="data/ui/imgassets/crest/light/l"+std::to_string(club)+".dds";c.alpha=true;c.matrices.push_back({1,0,0,0,0,1,0,0,0,0,1,0,100000,0,0,1});
+  auto&c=loadingBadge;c.key="loading_badge";c.type="server16_room_loading_badge_r83_"+std::to_string(club)+"_"+std::to_string(++loadingBadgeRevision);c.model="data/sceneassets/server16_dressing_room_v3/loading_badge_r83.rx3";c.submesh="room_part_1";c.texture="data/ui/imgassets/crest/light/l"+std::to_string(club)+".dds";c.alpha=true;c.matrices.push_back({1,0,0,0,0,1,0,0,0,0,1,0,100000,0,0,1});
   if(!fs::exists(game/c.texture))c.texture="data/ui/imgassets/crest/dark/l"+std::to_string(club)+".dds";
   if(!createComponent(c))c.failed=true;
  }
  if(loadingBadge.object&&!loadingBadge.failed&&!loadingBadge.loaded&&componentReady(loadingBadge.object))loadingBadge.loaded=true;
- const auto activity=room_loading::activity(GetTickCount64()-roomLoadBegan);
+ const auto activity=room_loading::activity(GetTickCount64()-loadingMotion.began);
  if(!loadingRing.matrices.empty()){
   auto&m=loadingRing.matrices[0];m[0]=activity.cosine;m[1]=activity.sine;m[4]=-activity.sine;m[5]=activity.cosine;m[12]=roomOriginX-283.59375f;m[13]=1270.71875f;m[14]=400.3f;
  }
  if(!loadingBadge.matrices.empty()){
-  auto&m=loadingBadge.matrices[0];m[0]=m[5]=activity.badgeScale;m[12]=roomOriginX-283.59375f;m[13]=1270.71875f;m[14]=400.4f;
+  auto&m=loadingBadge.matrices[0];m[0]=m[5]=error?1:activity.badgeScale;m[12]=roomOriginX-283.59375f;m[13]=1270.71875f+(error?0:activity.badgeLift);m[14]=400.4f;
  }
  componentVisibility(loadingRing,show&&!error);componentVisibility(loadingBadge,show&&loadingBadgeClub==club);
+ loadingDecoration(loadingDots,"loading_dots","data/sceneassets/server16_dressing_room_v3/loading_dot_r83.rx3","data/sceneassets/server16_dressing_room_v3/loading_dot_texture_r83.rx3",true,show&&!error);
+ if(show&&!error&&loadingDots.attempted){
+  if(loadingDots.matrices.size()!=3){const auto initial=loadingDots.matrices.front();loadingDots.matrices.resize(3,initial);}
+  for(unsigned i=0;i<3;++i){auto a=room_loading::dot(GetTickCount64()-loadingMotion.began,i);auto&m=loadingDots.matrices[i];m[0]=m[5]=a.scale;m[12]=roomOriginX+253.125f+11.25f*i;m[13]=1270.71875f+a.lift;m[14]=400.5f;}
+  componentVisibility(loadingDots,true);
+ }
+
 }
 void pollSlate(bool show,bool error){
- loadingBrand(show,error);
+ loadingMotion.tick(show,GetTickCount64());loadingBrand(show,error);
  for(int i=0;i<2;++i){auto&c=i?errorSlate:loadingSlate;
   if(!show){if(c.object)componentVisibility(c,false);continue;}
-  if(!c.attempted){c.key=i?"loading_error":"loading_slate";c.type=i?"server16_room_error_r82":"server16_room_loading_r82";c.model="data/sceneassets/server16_dressing_room_v3/loading_panel_r82.rx3";c.submesh="room_part_1";c.texture=i?"data/sceneassets/server16_dressing_room_v3/loading_error_texture_r82.rx3":"data/sceneassets/server16_dressing_room_v3/loading_panel_texture_r82.rx3";c.textureName="slate_cm";c.matrices.push_back({1,0,0,0,0,1,0,0,0,0,1,0,100000,0,0,1});if(!createComponent(c))c.failed=true;}
+  if(!c.attempted){c.key=i?"loading_error":"loading_slate";c.type=i?"server16_room_error_r83":"server16_room_loading_r83";c.model="data/sceneassets/server16_dressing_room_v3/loading_panel_r83.rx3";c.submesh="room_part_1";c.texture=i?"data/sceneassets/server16_dressing_room_v3/loading_error_texture_r83.rx3":"data/sceneassets/server16_dressing_room_v3/loading_panel_texture_r83.rx3";c.textureName="slate_cm";c.matrices.push_back({1,0,0,0,0,1,0,0,0,0,1,0,100000,0,0,1});if(!createComponent(c))c.failed=true;}
   if(c.object&&!c.failed&&!c.loaded&&componentReady(c.object))c.loaded=true;
   componentVisibility(c,show&&(i?error:!error));
  }
  auto&bar=loadingProgress;
- if(!show||error){componentVisibility(bar,false);return;}
- if(!bar.attempted){bar.key="loading_progress";bar.type="server16_room_loading_progress_r82";bar.model="data/sceneassets/server16_dressing_room_v3/loading_progress_r82.rx3";bar.submesh="room_part_1";bar.texture="data/sceneassets/server16_dressing_room_v3/loading_progress_texture_r82.rx3";bar.textureName="slate_cm";bar.matrices.push_back({1,0,0,0,0,1,0,0,0,0,1,0,100000,0,0,1});if(!createComponent(bar))bar.failed=true;}
+ if(!show||error){componentVisibility(bar,false);componentVisibility(loadingStage,false);componentVisibility(loadingSweep,false);return;}
+ if(!bar.attempted){bar.key="loading_progress";bar.type="server16_room_loading_progress_r83";bar.model="data/sceneassets/server16_dressing_room_v3/loading_progress_r83.rx3";bar.submesh="room_part_1";bar.texture="data/sceneassets/server16_dressing_room_v3/loading_progress_texture_r83.rx3";bar.textureName="slate_cm";bar.matrices.push_back({1,0,0,0,0,1,0,0,0,0,1,0,100000,0,0,1});if(!createComponent(bar))bar.failed=true;}
  if(bar.object&&!bar.failed&&!bar.loaded&&componentReady(bar.object))bar.loaded=true;
  unsigned loadedCount=0;for(auto&c:components)if(c->loaded&&!c->failed)++loadedCount;
- const auto p=room_loading::progress(ready.load(),loadedCount,componentClub==validCareerClub?static_cast<unsigned>(components.size()):0,GetTickCount64()-roomLoadBegan);
+ const unsigned total=componentClub==validCareerClub?static_cast<unsigned>(components.size()):0;
+ const auto p=loadingMotion.smooth(room_loading::progress(ready.load(),loadedCount,total,GetTickCount64()-loadingMotion.began));
  bar.matrices[0][0]=p.scale;bar.matrices[0][12]=roomOriginX-318.75f+p.offset*637.5f;
  componentVisibility(bar,show&&!error&&p.scale>0);
+ loadingDecoration(loadingStage,"loading_stage","data/sceneassets/server16_dressing_room_v3/loading_stage_r83.rx3","data/sceneassets/server16_dressing_room_v3/loading_progress_texture_r83.rx3",false,true);
+ if(!loadingStage.matrices.empty()){auto&m=loadingStage.matrices[0];m[12]=roomOriginX-220.3125f+220.3125f*loadingMotion.focus(room_loading::stage(ready.load(),loadedCount,total));m[13]=1137.125f;m[14]=400.5f;componentVisibility(loadingStage,true);}
+ const auto sweep=room_loading::sweep(p,GetTickCount64()-loadingMotion.began);
+ loadingDecoration(loadingSweep,"loading_sweep","data/sceneassets/server16_dressing_room_v3/loading_progress_r83.rx3","data/sceneassets/server16_dressing_room_v3/loading_sweep_texture_r83.rx3",true,sweep.scale>0);
+ if(!loadingSweep.matrices.empty()){auto&m=loadingSweep.matrices[0];m[0]=sweep.scale;m[12]=roomOriginX-318.75f+sweep.offset*637.5f;m[14]=.15f;componentVisibility(loadingSweep,sweep.scale>0);}
+
 }

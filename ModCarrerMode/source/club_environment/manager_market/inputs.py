@@ -17,7 +17,7 @@ class Inputs:
    if len(found)>1:raise ValueError('Tabela ambígua: '+name)
    if name not in db.tables:return []
    available=db.tables[name]['fields'];return db.rows(name,[f for f in fields if f in available])
-  calendar=rows('career_calendar',['startdate','currdate']);users=rows('career_users',['userid','clubteamid','firstname','surname']);user=users[0] if len(users)==1 else {}
+  calendar=rows('career_calendar',['startdate','currdate']);users=rows('career_users',['userid','clubteamid','firstname','surname','nationalteamid','seasoncount']);user=users[0] if len(users)==1 else {}
   from derived_campaigns import augment
   if calendar_snapshot is not None:
    if calendar_snapshot.get('date')!=today:raise ValueError('Campanha de outra data')
@@ -32,22 +32,12 @@ class Inputs:
    from saved_competitions import read as read_saved_competitions
    snapshot=augment(game,path,raw,read_saved_competitions(raw,calendar[0]['currdate']),today,saved.get('pid'),saved.get('process_created_100ns'),observed['profile'].get('context_epoch'))
   if memory is not None and snapshot.get('source') not in ('save_bound_native','live_league_only','live_calendar'):raise ValueError('Aguardando publicação consistente da carreira em RAM')
-  season=calendar[0]['startdate'];formats=read_formats(game);fixtures={m['id']:m for m in read_schedule(raw,formats)};nodes={r[0]:r for r in snapshot['nodes']}
-  def root(n):
-   seen=set()
-   while n in nodes and n not in seen:
-    seen.add(n);r=nodes[n]
-    if r[2]==3:return r[0],r[3]
-    n=r[1]
-   return None
-  for f in snapshot['fixtures']:
-   if len(f)<10:continue
-   comp=root(f[1])
-   if not comp:continue
-   old=fixtures.get(f[0]);stage=old['stage'] if old and (old['home'],old['away'],old['root'])==(f[5],f[6],comp[0]) else f[2]
-   fixtures[f[0]]=dict(id=f[0],root=comp[0],asset=comp[1],stage=stage,stageKind=formats.get(stage,{}).get('kind',old.get('stageKind',0) if old else 0),date=f[3],home=f[5],away=f[6],homeScore=f[7] if f[9]==1 else None,awayScore=f[8] if f[9]==1 else None,played=f[9]==1)
+  season=calendar[0]['startdate'];formats=read_formats(game)
+  from title_evidence import career_start,merge_scores,completed_titles
+  title_start=career_start(calendar[0],user)
+  fixtures=merge_scores(read_schedule(raw,formats),snapshot,title_start)
   result=[]
-  for m in fixtures.values():
+  for m in fixtures:
    if m['date']<season or m['home']<=0 or m['away']<=0 or m['home']==m['away']:continue
    hg,ag=m.get('homeScore'),m.get('awayScore');played=bool(m['played'] and hg is not None and ag is not None and 0<=hg<100 and 0<=ag<100)
    result.append(dict(id=m['id'],root=m['root'],asset=m['asset'],stage=m['stage'],kind=m.get('stageKind',0),date=m['date'],home=m['home'],away=m['away'],hg=hg,ag=ag,played=played,season=season))
@@ -90,11 +80,12 @@ class Inputs:
    participants={m[t] for m in result if m['root']==rt for t in ('home','away')};reps=[c['reputation'] for c in clubs if c['club_id'] in participants];league_count=len({c['league_id'] for c in clubs if c['club_id'] in participants})
    prestige=max(1,min(10,round((sum(reps)/len(reps) if reps else 4)+(2 if league_count>1 else 0))))
    exits.append(dict(root=rt,asset=asset,club=lose,date=last,prestige=prestige))
-   if legs[0]['kind']==10:titles.append(dict(root=rt,asset=asset,club=win,date=last,season=season,name=comp_name(asset)))
-  for lid,table in tables.items():
-   matches=[m for m in result if m['asset']==int(lid)];members={r['club'] for r in table}
-   if len(members)>=4 and matches and all(m['played'] and m['date']<=today for m in matches) and min((r['played'] for r in table),default=0)>=len(members)-1:
-    titles.append(dict(root=matches[0]['root'],asset=int(lid),club=table[0]['club'],date=max(m['date'] for m in matches),season=season,name=league_defs[int(lid)]['leaguename']))
-  managers=rows('career_managerinfo',['userid','clubteamid','wage','boardconfidence']);user_manager=next((r for r in managers if r.get('userid')==user.get('userid') and r.get('clubteamid')==observed['profile']['club_id']),{});wage=user_manager.get('wage',0)
+  evidence=fixtures
+  leagues={int(lid):dict(members={c['club_id'] for c in clubs if c['league_id']==int(lid)}) for lid in tables}
+  titles=[dict(t,asset=t['competition']) for t in completed_titles(evidence,formats,leagues,today,title_start,comp_name)]
+  managers=rows('career_managerinfo',['userid','clubteamid','wage','boardconfidence','internationalteamid']);user_manager=next((r for r in managers if r.get('userid')==user.get('userid') and r.get('clubteamid')==observed['profile']['club_id']),{});wage=user_manager.get('wage',0)
+  from national_title_context import observations
+  national_teams={r['teamid'] for r in base.rows('teamnationlinks',['teamid'])}
+  national_jobs=observations(user,user_manager,calendar[0]['currdate'],today,national_teams,memory,observed['profile'])
   if path.stat().st_mtime_ns!=before.st_mtime_ns:raise ValueError('Save alterado durante leitura dos técnicos')
-  return dict(club=observed['profile']['club_id'],saved_club=user.get('clubteamid',observed['profile']['club_id']),saved_date=calendar[0]['currdate'],career_start_date=calendar[0]['startdate'],userid=user.get('userid',0),user_name=' '.join(str(user.get(k) or '') for k in ('firstname','surname')).strip(),user_wage=wage,user_confidence=user_manager.get('boardconfidence'),date=today,season=season,clubs=clubs,fixtures=result,tables=tables,club_tables=global_data['club_tables'],performance=global_data['performance'],table_dates=global_data['table_dates'],coverage=global_data['coverage'],titles=titles,cup_exits=exits,competitions=list(competition_profiles.values()),digest=hashlib.sha256(raw).hexdigest())
+  return dict(title_start=title_start,title_fixtures=evidence,national_teams=sorted(national_teams),national_jobs=national_jobs,title_formats=formats,title_labels={m['asset']:comp_name(m['asset']) for m in fixtures},club=observed['profile']['club_id'],saved_club=user.get('clubteamid',observed['profile']['club_id']),saved_date=calendar[0]['currdate'],career_start_date=calendar[0]['startdate'],userid=user.get('userid',0),user_name=' '.join(str(user.get(k) or '') for k in ('firstname','surname')).strip(),user_wage=wage,user_confidence=user_manager.get('boardconfidence'),date=today,season=season,clubs=clubs,fixtures=result,tables=tables,club_tables=global_data['club_tables'],performance=global_data['performance'],table_dates=global_data['table_dates'],coverage=global_data['coverage'],titles=titles,cup_exits=exits,competitions=list(competition_profiles.values()),digest=hashlib.sha256(raw).hexdigest())

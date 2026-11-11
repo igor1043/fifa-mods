@@ -14,7 +14,12 @@ def paint(context,read_asset):
     pages=[]
     def new(title,subtitle):
         im=Image.new('RGBA',(W,H),BG+(255,));d=ImageDraw.Draw(im)
-        d.rectangle((0,0,W,132),fill=primary);d.text((55,30),title,font=font(64),fill=ink)
+        if context.get('neutral_office'):
+            d.rectangle((0,0,W,132),fill=(247,246,242))
+            d.rectangle((0,0,W,10),fill=primary);d.rectangle((0,128,W,132),fill=secondary)
+            d.text((55,30),title,font=font(64),fill=TEXT)
+        else:
+            d.rectangle((0,0,W,132),fill=primary);d.text((55,30),title,font=font(64),fill=ink)
         d.text((58,158),subtitle,font=font(30),fill=MUTED);pages.append(im);return im,d
     def text(d,xy,value,size=35,color=TEXT):d.text(xy,str(value),font=font(size),fill=color)
     def fit(d,xy,label,width,size=36,color=TEXT):
@@ -102,6 +107,10 @@ def paint(context,read_asset):
     im,d=new('PLANEJAMENTO · COMISSÃO TÉCNICA','Prancheta de trabalho · '+context['club_name'])
     for i,label in enumerate(['Análise do adversário','Organização defensiva','Transição e construção','Bolas paradas','Controle de carga e recuperação']):
         y=270+i*130;d.rectangle((75,y,120,y+45),outline=MUTED,width=4);text(d,(160,y-3),label,43);d.line((160,y+80,1940,y+80),fill=(182,196,203),width=2)
+
+    if context.get('neutral_office'):
+        from room_coach_dashboards import enhance
+        pages=enhance(context,pages,read_asset)
 
     # Share unused page space with the physical decor. These are real club
     # assets, not extra permanent textures/material groups in the scene.

@@ -46,6 +46,12 @@ static int read_card_scope(uintptr_t at,void *out,size_t size) {
 #include "../../src/host/career_context_read.inc"
 #include "../../src/host/career_bank_mail.inc"
 #include "../../src/host/career_relay_page.h"
+static uintptr_t background_menu_view(void) {return 0;}
+static uintptr_t background_room_view(void) {return 0;}
+static int frontend_ui_is_owner(void) {return 0;}
+static void drain_frontend_ui_tick(void) {}
+static void drain_background_refresh(void) {}
+static void competition_back_request(void) {}
 #include "../../src/host/career_bank_input.inc"
 #include "../../src/host/career_preview_refresh.inc"
 static int reloads;
@@ -182,6 +188,9 @@ static void bank_input_test(void) {
      * plugin is harmless and never invokes the Calendar stock handler. */
     assert(bank_input_event(&bridge,"Calendar","Server16RoomScene","S16ROOM2|1629|0123456789abcdef|1|-2|ENDROOM")==0);
     assert(original_events==1);
+    assert(bank_input_event(&bridge,"Calendar","Server16TrophyRoom","camera")==0);
+    assert(bank_input_event(&bridge,"OtherController","Server16TrophyRoom","style")==0);
+    assert(original_events==1); /* Missing gallery never leaks its event to FIFA. */
     /* Execute a tiny ABI-equivalent caller through the installed six-byte
      * call-site patch. All 17 existing DLL exports remain untouched. */
     assert(VirtualAlloc(g_module_base+0x4502000,4096,MEM_COMMIT,PAGE_EXECUTE_READWRITE));

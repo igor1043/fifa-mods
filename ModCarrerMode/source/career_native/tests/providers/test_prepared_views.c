@@ -103,6 +103,13 @@ int main(void){
      before=calls;tick();assert(calls==before+1 && !strcmp(queued_event,""));tick();assert(calls==before+1);
      /* The same prepared screen does not reload after every re-entry. */
      strcpy(mock_page,"game/screens/fluxHub/FluxHub");tick();strcpy(mock_page,"game/screens/career/server16/DressingRoom");tick();assert(calls==before+1);
+     /* A new package ready in the background opens directly, without a
+      * second screen transition; an actual later revision still refreshes. */
+     before=calls;memset(good.revision,'7',64);good.captured=GetTickCount64();write_ready(room,&good);
+     g_prepared_room_probe=0;strcpy(mock_page,"game/screens/fluxHub/FluxHub");tick();
+     assert(!strcmp(g_prepared_room_warm,good.revision));
+     strcpy(mock_page,"game/screens/career/server16/DressingRoom");tick();assert(calls==before);
+     memset(good.revision,'8',64);write_ready(room,&good);tick();assert(calls==before+1);tick();assert(calls==before+1);
      DeleteFileA(room);*strrchr(room,'\\')=0;assert(RemoveDirectoryA(room));*strrchr(room,'\\')=0;assert(RemoveDirectoryA(room));
     }
     {char finance[MAX_PATH];

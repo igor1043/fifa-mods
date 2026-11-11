@@ -7,7 +7,7 @@ from PIL import Image
 import build_screen as b
 import native_roster_footer as roster_footer
 R=b.reg;T=b.this;P=b.prop;CALL=b.call;PATH=b.path;M=b.MANAGER;EQ=b.equal
-ACTION_Y=930
+from room_pointer_ui import ACTION_Y
 
 def graphics(apt,data,append,addchar,place,bitmap,scope,read_asset):
     from PIL import ImageDraw
@@ -44,15 +44,14 @@ def graphics(apt,data,append,addchar,place,bitmap,scope,read_asset):
     def action_button(label,width):
         focus=clip([place(selected,1,0,0,width/64,.75)])
         return clip([place(neutral,1,0,0,width/64,.75),place(focus,2,0,0,label='highlight'),place(text(label,width-30,42,25),3,16,4,label='label')])
-    result=[place(modal,100,1260,212,label='sceneModal',color=0x00ffffff),place(action_button('Cenas',180),101,1030,ACTION_Y,label='sceneButton'),place(action_button('Jogadores do time',300),102,1230,ACTION_Y,label='playersButton'),place(action_button('Câmera livre',280),103,1550,ACTION_Y,label='freeButton'),place(text('WASD: andar · Mouse direito: olhar · Shift: acelerar · Q / R3: personalização',1700,32,22,0xffffffff),104,109,870,label='freeHint')]
+    result=[place(modal,100,1260,212,label='sceneModal',color=0x00ffffff),place(action_button('Cenas',180),101,1030,ACTION_Y,label='sceneButton'),place(action_button('Jogadores do time',300),102,1230,ACTION_Y,label='playersButton'),place(action_button('Câmera livre',280),103,1550,ACTION_Y,label='freeButton'),place(text('WASD: andar · Botão esquerdo + arrastar: olhar · Shift: acelerar · Esc: voltar · Q / R3: personalização',1700,32,22,0xffffffff),104,109,870,label='freeHint')]
     if scope.get('room_version')==3:
         result.append(place(action_button('Personalização do vestiário',355),105,650,ACTION_Y,label='settingsButton'))
         arrow=clip([place(neutral,1,0,0,.75,.6),place(text('',44,38,28),2,12,0,label='label')])
         focus=clip([place(selected,1,0,0,10.25,1.12)])
         setting=clip([place(neutral,1,0,0,10.25,1.12),place(focus,2,0,0,label='highlight'),place(text('',510,25,17),3,72,5,label='title'),place(text('',510,38,26),4,72,30,label='value'),place(arrow,5,10,26,label='previous'),place(arrow,6,595,26,label='next')])
-        parts=[place(panel,1,0,0,11,10.15),place(text('PERSONALIZAÇÃO DO VESTIÁRIO',656,40,27),2,24,17)]
-        for i in range(len(scope.get('settings',[]))):parts.append(place(setting,10+i,24,76+i*78,label='setting'+str(i)))
-        parts.extend([place(action_button('Voltar',308),20,24,578,label='close'),place(action_button('Aplicar',308),21,372,578,label='apply'),place(text('As alterações serão usadas ao aplicar.',656,25,18),22,24,548)])
+        from room_settings_ui import graphics as settings_graphics
+        parts=settings_graphics(scope,place,clip,text,setting,arrow,action_button,panel,neutral,selected)
         result.append(place(clip(parts),106,1080,180,label='roomSettings',color=0x00ffffff))
     return result
 
@@ -72,7 +71,7 @@ def methods(a,scope):
     def init(a):
         for key,value in (('modalOpen',False),('sceneFocus',0),('sceneGroup',-1),('sceneItems',root_items),('roomActionFocus',0),('openingPlayers',False),('roomPlayersOpen',False),('roomPlayersDetail',False),('freeCameraOpen',False)):a.set(R(1),key,value)
         a.set(T('roomHeader'),'_visible',False);a.set(T('roomHeader'),'_alpha',0)
-        a.set(R(1),'settingsOpen',False);a.set(R(1),'settingsFocus',0)
+        a.set(R(1),'settingsOpen',False);a.set(R(1),'settingsFocus',0);a.set(R(1),'settingsOffset',0);a.set(R(1),'settingsDragging',False)
         if v3:
             mapping='S16ROOM_INPUT_MAP|'
             for name in ('R3','L1','L2'):
@@ -82,21 +81,25 @@ def methods(a,scope):
             for i,row in enumerate(settings):
                 a.set(R(1),'settingIndex'+str(i),row['selected']);a.set(R(1),'appliedSettingIndex'+str(i),row['selected']);a.set(R(1),'customSettingIndex'+str(i),row.get('custom_selected',row['selected']));a.set(R(1),'appliedCustomSettingIndex'+str(i),row.get('custom_selected',row['selected']))
         a.set(T('freeHint'),'_visible',False);a.set(T('sceneModal'),'_visible',False);a.set(T('sceneModal'),'_alpha',0);a.set(T('sceneButton'),'owner',R(1));a.set(T('sceneButton'),'onRelease',T('SceneButtonClick'));a.set(R(1),'onEnterFrame',T('WaitForSceneClips'))
-        a.when(b.G('Server16RoomSequence'),lambda a:None,lambda a:a.set(b.GLOBAL,'Server16RoomSequence',0));a.do(R(1),'PublishScene',-1)
+        # The native director initializes on real scene entry. Rebuilding an
+        # appearance package must never issue an automatic-camera reset.
+        a.when(b.G('Server16RoomSequence'),lambda a:None,lambda a:a.set(b.GLOBAL,'Server16RoomSequence',0))
         a.do(R(1),'PublishRoster','room_close');a.do(PATH('Key'),'addListener',R(1))
+        a.set(R(1),'roomPointerCycle',False);a.set(R(1),'roomPointerHandled',False);a.set(R(1),'onMouseMove',T('RoomMouseMove'))
+        a.when(PATH('Mouse'),lambda a:a.do(PATH('Mouse'),'addListener',R(1)))
     a.function('InitSceneControl',0,init)
     def identity(a):
         valid=('bin',16,EQ(b.G('Server16ActiveCareerClubId'),scope['club']),('bin',16,('not',T('roomPlayersOpen')),('not',T('freeCameraOpen'))))
         a.set(T('roomHeader'),'_visible',valid);a.set(T('roomHeader'),'_alpha',0)
         a.when(valid,lambda a:a.set(T('roomHeader'),'_alpha',100))
     a.function('RefreshRoomIdentity',0,identity)
-    a.function('SceneButtonClick',0,lambda a:a.do(P(R(1),'owner'),'OpenScenes'))
-    a.function('PlayersButtonClick',0,lambda a:a.do(P(R(1),'owner'),'OpenPlayers'))
+    a.function('SceneButtonClick',0,lambda a:a.do(P(R(1),'owner'),'ActivateRoomPointer',0))
+    a.function('PlayersButtonClick',0,lambda a:a.do(P(R(1),'owner'),'ActivateRoomPointer',1))
     a.function('SceneButtonOver',0,lambda a:(a.set(P(R(1),'owner'),'roomActionFocus',0),a.do(P(R(1),'owner'),'RefreshRoomActions')))
     a.function('PlayersButtonOver',0,lambda a:(a.set(P(R(1),'owner'),'roomActionFocus',1),a.do(P(R(1),'owner'),'RefreshRoomActions')))
-    a.function('FreeButtonClick',0,lambda a:a.do(P(R(1),'owner'),'OpenFreeCamera'))
+    a.function('FreeButtonClick',0,lambda a:a.do(P(R(1),'owner'),'ActivateRoomPointer',2))
     a.function('FreeButtonOver',0,lambda a:(a.set(P(R(1),'owner'),'roomActionFocus',2),a.do(P(R(1),'owner'),'RefreshRoomActions')))
-    a.function('SettingsButtonClick',0,lambda a:a.do(P(R(1),'owner'),'OpenRoomSettings'))
+    a.function('SettingsButtonClick',0,lambda a:a.do(P(R(1),'owner'),'ActivateRoomPointer',3))
     a.function('SettingsButtonOver',0,lambda a:(a.set(P(R(1),'owner'),'roomActionFocus',3),a.do(P(R(1),'owner'),'RefreshRoomActions')))
     def refresh_actions(a):
         buttons=[(0,'sceneButton','SceneButtonClick','SceneButtonOver'),(1,'playersButton','PlayersButtonClick','PlayersButtonOver'),(2,'freeButton','FreeButtonClick','FreeButtonOver')]
@@ -110,7 +113,8 @@ def methods(a,scope):
     def roster_command(a):a.do(b.ION,'SendSystemEvent',P(T('staticData'),'SCREEN_CONTROLLER_ID'),'Server16ClubBrowser',R(2))
     a.function('PublishRoster',1,roster_command)
     def roster_help(a):
-        a.do(M('HelpManager'),'SetCustomSource',CALL(PATH('cafe','utility','Delegate'),'Create',R(1),T('getHelpContext')));a.do(M('HelpManager'),'Update');a.do(M('HelpManager'),'Show')
+        a.do(M('HelpManager'),'SetCustomSource',CALL(PATH('cafe','utility','Delegate'),'Create',R(1),T('getHelpContext')));a.do(M('HelpManager'),'Update')
+        a.when(('bin',16,T('freeCameraOpen'),('not',T('settingsOpen'))),lambda a:a.do(M('HelpManager'),'Hide'),lambda a:a.do(M('HelpManager'),'Show'))
         # Keep native input legends on their own bottom line in every mode,
         # including personalization/free camera, and restore only on exit.
         roster_footer.apply(a)
@@ -118,8 +122,7 @@ def methods(a,scope):
     def free_open(a):
         a.when(T('freeCameraOpen'),lambda a:a.ret());a.set(R(1),'freeCameraOpen',True);a.set(R(1),'modalOpen',False)
         for name in ('roomHeader','sceneModal')+action_names:a.set(T(name),'_visible',False)
-        a.set(T('freeHint'),'_visible',True)
-        if v3:a.set(T('settingsButton'),'_visible',True)
+        a.set(T('freeHint'),'_visible',False)
         a.do(R(1),'PublishScene',-4);a.do(R(1),'RefreshRosterHelp')
     a.function('OpenFreeCamera',0,free_open)
     def free_close(a):
@@ -155,21 +158,27 @@ def methods(a,scope):
         # FIFA's APT arithmetic rounds to float32. Keep the counter and the
         # six low digits as strings: counter * 1,000,000 loses option bits
         # after only 16 commands (notably the Default/Custom bit).
-        sequence=b.plus(b.plus('',b.G('Server16RoomSequence')),'000000') if v3 else b.G('Server16RoomSequence')
+        sequence=b.plus(b.plus('',b.G('Server16RoomSequence')),'0000000') if v3 else b.G('Server16RoomSequence')
         for part in (sequence,'|',R(2),'|ENDROOM'):value=b.plus(value,part)
         a.set(b.GLOBAL,'Server16RoomRequest',value)
         a.do(b.ION,'SendSystemEvent',P(T('staticData'),'SCREEN_CONTROLLER_ID'),'Server16RoomScene',value)
     a.function('PublishScene',1,publish)
     def publish_appearance(a):
+        import room_appearance as art
         a.set(b.GLOBAL,'Server16RoomSequence',b.plus(b.G('Server16RoomSequence'),1))
         packed=0
-        for i in range(len(settings)):packed=b.plus(packed,('bin',12,T('settingIndex'+str(i)),8**i))
+        multiplier=1
+        for i,row in enumerate(settings[:art.PACKED_ROWS]):
+            packed=b.plus(packed,('bin',12,T('settingIndex'+str(i)),multiplier))
+            multiplier*=len(row['options'])
         a.set(R(1),'appearancePacked',packed);a.set(R(1),'appearanceDigits','')
-        for divisor in (100000,10000,1000,100,10,1):
+        for divisor in (1000000,100000,10000,1000,100,10,1):
             digit=('bin',63,CALL(PATH('Math'),'floor',('bin',13,T('appearancePacked'),divisor)),10)
             a.set(R(1),'appearanceDigits',b.plus(T('appearanceDigits'),digit))
         sequence=b.plus(b.plus('',b.G('Server16RoomSequence')),T('appearanceDigits'))
-        value=b.plus(b.plus(f'S16ROOM2|{scope["club"]}|{scope["nonce"]}|',sequence),'|120|ENDROOM')
+        door=next((i for i,row in enumerate(settings) if row['key']=='door_finish'),None)
+        code=b.plus(art.DOOR_APPLY_BASE,T('settingIndex'+str(door))) if door is not None else art.GROUPED_APPLY_CODE
+        value=b.plus(b.plus(b.plus(b.plus(f'S16ROOM2|{scope["club"]}|{scope["nonce"]}|',sequence),'|'),code),'|ENDROOM')
         a.do(b.ION,'SendSystemEvent',P(T('staticData'),'SCREEN_CONTROLLER_ID'),'Server16RoomScene',value)
     a.function('PublishAppearance',0,publish_appearance)
     def refresh(a):
@@ -196,91 +205,33 @@ def methods(a,scope):
         a.do(M('HelpManager'),'Update')
     a.function('RefreshSceneModal',0,refresh)
     # Keep the cinematic moving while browsing; clear an older view's pause.
-    a.function('OpenScenes',0,lambda a:(a.set(R(1),'modalOpen',True),a.do(R(1),'PublishScene',-3),a.do(R(1),'RefreshSceneModal')))
-    def refresh_settings(a):
-        a.set(T('roomSettings'),'_visible',T('settingsOpen'));a.set(T('roomSettings'),'_alpha',100)
-        for i,row in enumerate(settings):
-            clip=P(T('roomSettings'),'setting'+str(i));options=('array',tuple(('map',v) for v in row['options']))
-            a.set(P(clip,'title'),'text',row['title']);a.set(P(clip,'value'),'text',P(('index',options,T('settingIndex'+str(i))),'label'))
-            a.set(P(clip,'highlight'),'_alpha',0)
-            a.when(EQ(T('settingsFocus'),i),lambda a,clip=clip:a.set(P(clip,'highlight'),'_alpha',55))
-            for name,delta,label in (('previous',-1,'‹'),('next',1,'›')):
-                button=P(clip,name);a.set(button,'owner',R(1));a.set(button,'row',i);a.set(button,'delta',delta)
-                a.set(P(button,'label'),'text',label);a.set(button,'onRelease',T('SettingsArrowClick'))
-        for offset,name,method in ((0,'close','SettingsCloseClick'),(1,'apply','SettingsApplyClick')):
-            button=P(T('roomSettings'),name);a.set(button,'owner',R(1));a.set(button,'onRelease',T(method))
-            a.set(P(button,'highlight'),'_alpha',0);a.set(P(button,'label'),'textColor',0x334b56)
-            a.when(EQ(T('settingsFocus'),len(settings)+offset),lambda a,button=button:(a.set(P(button,'highlight'),'_alpha',100),a.set(P(button,'label'),'textColor',rgb(ACCENT_TEXT))))
-        a.do(M('HelpManager'),'Update')
-    a.function('RefreshRoomSettings',0,refresh_settings)
-    def open_settings(a):
-        if not v3:a.ret();return
-        for i in range(len(settings)):
-            a.set(R(1),'settingIndex'+str(i),T('appliedSettingIndex'+str(i)));a.set(R(1),'customSettingIndex'+str(i),T('appliedCustomSettingIndex'+str(i)))
-        a.set(R(1),'settingsFocus',0)
-        a.set(R(1),'settingsOpen',True);a.set(R(1),'modalOpen',False);a.set(T('sceneModal'),'_visible',False)
-        a.do(R(1),'RefreshRoomSettings');a.do(R(1),'RefreshRosterHelp')
-    a.function('OpenRoomSettings',0,open_settings)
-    a.function('CloseRoomSettings',0,lambda a:(a.set(R(1),'settingsOpen',False),a.set(T('roomSettings'),'_visible',False),a.do(R(1),'RefreshRosterHelp')))
-    a.function('SettingsCloseClick',0,lambda a:a.do(P(R(1),'owner'),'CloseRoomSettings'))
-    def apply_settings(a):
-        a.set(R(1),'appearanceDirty',False)
-        for i in range(len(settings)):
-            a.when(('not',EQ(T('settingIndex'+str(i)),T('appliedSettingIndex'+str(i)))),lambda a:a.set(R(1),'appearanceDirty',True))
-        a.when(T('appearanceDirty'),lambda a:a.do(R(1),'PublishAppearance'))
-        for i in range(len(settings)):
-            a.set(R(1),'appliedSettingIndex'+str(i),T('settingIndex'+str(i)));a.set(R(1),'appliedCustomSettingIndex'+str(i),T('customSettingIndex'+str(i)))
-        a.do(R(1),'CloseRoomSettings')
-    a.function('ApplyRoomSettings',0,apply_settings)
-    a.function('SettingsApplyClick',0,lambda a:a.do(P(R(1),'owner'),'ApplyRoomSettings'))
-    a.function('SettingsArrowClick',0,lambda a:a.do(P(R(1),'owner'),'ShiftRoomSetting',P(R(1),'row'),P(R(1),'delta')))
-    def shift_setting(a):
-        for i,row in enumerate(settings):
-            def apply(a,i=i,row=row):
-                count=len(row['options']);name='settingIndex'+str(i)
-                a.set(R(1),'settingsFocus',i);a.set(R(1),name,('bin',63,b.plus(b.plus(T(name),R(3)),count),count))
-                options=('array',tuple(('map',v) for v in row['options']))
-                if row['key']!='style':
-                    a.when(EQ(P(('index',options,T(name)),'value'),'custom'),lambda a:a.set(R(1),'settingIndex0',1))
-                if row['key']=='style':
-                    def default_labels(a):
-                        for n,other in enumerate(settings):
-                            if other['key'] in ('finish','backs','floor'):a.set(R(1),'customSettingIndex'+str(n),T('settingIndex'+str(n)))
-                            for k,item in enumerate(other['options']):
-                                if other['key'] in ('finish','backs','floor') and item['value']=='custom':
-                                    a.when(EQ(T('settingIndex'+str(n)),k),lambda a,n=n:a.set(R(1),'settingIndex'+str(n),0))
-                    a.when(EQ(P(('index',options,T(name)),'value'),'default'),default_labels)
-                    def custom_labels(a):
-                        for n,other in enumerate(settings):
-                            if other['key'] in ('finish','backs','floor'):a.set(R(1),'settingIndex'+str(n),T('customSettingIndex'+str(n)))
-                    a.when(EQ(P(('index',options,T(name)),'value'),'custom'),custom_labels)
-            a.when(EQ(R(2),i),apply)
-        a.do(R(1),'RefreshRoomSettings')
-    a.function('ShiftRoomSetting',2,shift_setting)
+    a.function('OpenScenes',0,lambda a:(a.set(R(1),'modalOpen',True),a.do(R(1),'PublishScene',-3),a.do(R(1),'PublishScene',-6),a.do(R(1),'RefreshSceneModal')))
+    from room_settings_ui import methods as settings_methods
+    settings_methods(a,scope,settings)
     def close(a):
         def root_level(a):a.set(R(1),'sceneGroup',-1);a.set(R(1),'sceneFocus',0);a.set(R(1),'sceneItems',root_items)
-        a.when(('bin',103,T('sceneGroup'),-1),root_level,lambda a:(a.set(R(1),'modalOpen',False),a.do(R(1),'PublishScene',-3)));a.do(R(1),'RefreshSceneModal')
+        a.when(('bin',103,T('sceneGroup'),-1),root_level,lambda a:(a.set(R(1),'modalOpen',False),a.do(R(1),'PublishScene',-3),a.do(R(1),'PublishScene',-7)));a.do(R(1),'RefreshSceneModal')
     a.function('CloseScenes',0,close)
-    a.function('SceneBackButton',0,lambda a:a.do(P(R(1),'owner'),'CloseScenes'))
+    a.function('SceneBackButton',0,lambda a:a.do(P(R(1),'owner'),'ActivateRoomPointer',112))
     def shift(a):
         total=P(T('sceneItems'),'length');a.set(R(1),'sceneFocus',('bin',63,b.plus(b.plus(T('sceneFocus'),R(2)),total),total));a.do(R(1),'RefreshSceneModal')
     a.function('ShiftScene',1,shift)
-    a.function('PreviousScenePage',0,lambda a:a.do(P(R(1),'owner'),'ShiftScene',-5))
-    a.function('NextScenePage',0,lambda a:a.do(P(R(1),'owner'),'ShiftScene',5))
+    a.function('PreviousScenePage',0,lambda a:a.do(P(R(1),'owner'),'ActivateRoomPointer',110))
+    a.function('NextScenePage',0,lambda a:a.do(P(R(1),'owner'),'ActivateRoomPointer',111))
     def apply(a):
         code=P(('index',T('sceneItems'),T('sceneFocus')),'code');a.set(R(1),'sceneCode',code)
         def group(a):
             a.set(R(1),'sceneGroup',('bin',11,-101,T('sceneCode')));a.set(R(1),'sceneItems',('index',groups,T('sceneGroup')));a.set(R(1),'sceneFocus',0)
-        a.when(('bin',72,T('sceneCode'),-100),group,lambda a:(a.do(R(1),'PublishScene',T('sceneCode')),a.set(R(1),'modalOpen',False)));a.do(R(1),'RefreshSceneModal')
+        a.when(('bin',72,T('sceneCode'),-100),group,lambda a:(a.do(R(1),'PublishScene',T('sceneCode')),a.set(R(1),'modalOpen',False),a.do(R(1),'PublishScene',-7)));a.do(R(1),'RefreshSceneModal')
     a.function('ApplyScene',0,apply)
     def row_over(a):
         owner=P(R(1),'owner');index=b.plus(('bin',12,P(owner,'scenePage'),5),P(R(1),'slot'))
         a.when(('bin',72,index,P(P(owner,'sceneItems'),'length')),lambda a:(a.set(owner,'sceneFocus',index),a.do(owner,'RefreshSceneModal')))
     a.function('RowOver',0,row_over)
-    a.function('RowClick',0,lambda a:(a.do(R(1),'onRollOver'),a.do(P(R(1),'owner'),'ApplyScene')))
+    a.function('RowClick',0,lambda a:a.do(P(R(1),'owner'),'ActivateRoomPointer',b.plus(100,P(R(1),'slot'))))
     def help(a):
-        a.when(T('settingsOpen'),lambda a:a.ret(('array',tuple(CALL(PATH('ion','manager','HelpItem'),'CreateHelpTickerItem',code,label) for code,label in [('LAS_UD','Itens'),('LAS_LR','Alterar'),('ADVANCE','Selecionar'),('BACK','Voltar')]))))
-        a.when(T('freeCameraOpen'),lambda a:a.ret(('array',tuple(CALL(PATH('ion','manager','HelpItem'),'CreateHelpTickerItem',code,label) for code,label in [('BACK','Voltar'),('LAS_UD','Andar'),('RAS_LR','Olhar'),('R3','Personalização')]))))
+        a.when(T('settingsOpen'),lambda a:a.ret(('array',tuple(CALL(PATH('ion','manager','HelpItem'),'CreateHelpTickerItem',code,label) for code,label in [('L1R1','Grupos'),('LAS_UD','Itens'),('LAS_LR','Alterar'),('ADVANCE','Selecionar'),('BACK','Voltar')]))))
+        a.when(T('freeCameraOpen'),lambda a:a.ret(('array',())))
         def roster_items(a,details=False):
             items=[('BACK','Voltar'),('L2R2','Abas'),('RAS_LR','Girar'),('L1R1','Zoom')]
             if not details:items=[('ADVANCE','Detalhes'),('BACK','Voltar'),('LAS_UD','Elenco')]+items[1:]
@@ -292,14 +243,18 @@ def methods(a,scope):
     def key(a):
         def setting_keys(a):
             a.when(EQ(R(2),P(M('InputCodes'),'BACK')),lambda a:(a.do(R(1),'CloseRoomSettings'),a.ret(True)))
-            for name,delta in (('UP',-1),('UI_UP',-1),('LAS_UP',-1),('DOWN',1),('UI_DOWN',1),('LAS_DOWN',1)):
-                a.when(('bin',16,P(M('InputCodes'),name),EQ(R(2),P(M('InputCodes'),name))),lambda a,delta=delta:(a.set(R(1),'settingsFocus',('bin',63,b.plus(b.plus(T('settingsFocus'),delta),len(settings)+2),len(settings)+2)),a.do(R(1),'RefreshRoomSettings'),a.ret(True)))
+            for name,delta in (('L1',-1),('R1',1)):
+                a.when(('bin',16,P(M('InputCodes'),name),EQ(R(2),P(M('InputCodes'),name))),lambda a,delta=delta:(a.do(R(1),'ShiftSettingsGroup',delta),a.ret(True)))
+            for name,delta in (('UP',-1),('UI_UP',-1),('LAS_UP',-1),('RAS_UP',-1),('DOWN',1),('UI_DOWN',1),('LAS_DOWN',1),('RAS_DOWN',1)):
+                a.when(('bin',16,P(M('InputCodes'),name),EQ(R(2),P(M('InputCodes'),name))),lambda a,delta=delta:(a.do(R(1),'MoveSettingFocus',delta),a.ret(True)))
             for name,delta in (('LEFT',-1),('UI_LEFT',-1),('LAS_LEFT',-1),('RIGHT',1),('UI_RIGHT',1),('LAS_RIGHT',1)):
                 def adjust(a,delta=delta):
+                    a.when(EQ(T('settingsFocus'),-1),lambda a:(a.do(R(1),'ShiftSettingsGroup',delta),a.ret(True)))
                     a.when(('bin',72,T('settingsFocus'),len(settings)),lambda a:a.do(R(1),'ShiftRoomSetting',T('settingsFocus'),delta),lambda a:(a.set(R(1),'settingsFocus',b.plus(len(settings),('bin',63,b.plus(b.plus(T('settingsFocus'),delta),2),2))),a.do(R(1),'RefreshRoomSettings')));a.ret(True)
                 a.when(('bin',16,P(M('InputCodes'),name),EQ(R(2),P(M('InputCodes'),name))),adjust)
             for name in ('PRIMARY_SELECT','ADVANCE'):
                 def select(a):
+                    a.when(EQ(T('settingsFocus'),-1),lambda a:(a.do(R(1),'ShiftSettingsGroup',1),a.ret(True)))
                     a.when(EQ(T('settingsFocus'),len(settings)),lambda a:a.do(R(1),'CloseRoomSettings'),lambda a:a.when(EQ(T('settingsFocus'),len(settings)+1),lambda a:a.do(R(1),'ApplyRoomSettings'),lambda a:a.do(R(1),'ShiftRoomSetting',T('settingsFocus'),1)));a.ret(True)
                 a.when(('bin',16,P(M('InputCodes'),name),EQ(R(2),P(M('InputCodes'),name))),select)
             a.ret(True)
@@ -340,3 +295,6 @@ def methods(a,scope):
         a.when(T('freeCameraOpen'),lambda a:a.ret())
         a.when(('bin',16,('bin',73,T('roomPlayersOpen'),False),EQ(CALL(PATH('Key'),'getCode'),9)),lambda a:a.when(T('modalOpen'),lambda a:a.do(R(1),'CloseScenes'),lambda a:a.do(R(1),'OpenScenes')))
     a.function('onKeyDown',0,keyboard)
+
+    from room_pointer_ui import methods as pointer_methods
+    pointer_methods(a,settings,v3)

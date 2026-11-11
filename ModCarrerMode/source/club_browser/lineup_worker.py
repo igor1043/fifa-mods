@@ -25,11 +25,18 @@ def request(path,pid):
     result={k:int(data[k]) for k in ('schema','pid','seq','club')}
     if result['schema']!=1 or result['pid']!=pid or not 0<result['seq']<2**63 or not 0<result['club']<500000:raise ValueError('Pedido de outra sessão.')
     if 'kind' in data:
-        if data['kind'] not in ('roster','player','coach','competitions','rankings','mascot'):raise ValueError('Tipo de visualização inválido.')
+        if data['kind'] not in ('roster','player','coach','competitions','rankings','mascot','manager_face'):raise ValueError('Tipo de visualização inválido.')
         result['kind']=data['kind']
+        if data['kind']=='manager_face':
+            import re
+            if not re.fullmatch(r'COACH-[A-Za-z0-9_-]{1,64}',data.get('coach','')):raise ValueError('Face inválida')
+            result['coach']=data['coach']
         if data['kind']=='player':
             result['player']=int(data['player'])
             if not 0<result['player']<200000000:raise ValueError('Jogador inválido.')
+            if 'presentation' in data:
+                if data['presentation'] not in ('room','classic'):raise ValueError('Apresentação inválida.')
+                result['presentation']=data['presentation']
     return result
 
 def observe(memory,game):
@@ -120,7 +127,10 @@ def main():
                     last=signature
                     if not refreshing:publish(folder,req,'loading')
                     if not last_wait or last_wait[0]!=req['seq']:print('REQUEST',json.dumps(req),flush=True)
-                    if req.get('kind')=='mascot':
+                    if req.get('kind')=='manager_face':
+                        from manager_face_worker import generate as prepare_face
+                        completed=prepare_face(game,folder,req,m,exporter)
+                    elif req.get('kind')=='mascot':
                         from mascot_worker import generate as prepare_mascot
                         completed=prepare_mascot(game,folder,req,m,projection_cache)
                     elif req.get('kind')=='rankings':

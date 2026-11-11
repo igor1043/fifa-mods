@@ -20,8 +20,8 @@ inline bool parse(const char*wire,Request&out){
  for(unsigned i=0;i<16;++i){const char c=*p++;if(!((c>='0'&&c<='9')||(c>='a'&&c<='f')))return false;next.nonce[i]=c;}
  if(*p++!='|'||!number(p,sequence,9007199254740991ull)||!sequence||*p++!='|')return false;
  const bool negative=*p=='-';if(negative)++p;
- if(!number(p,code,127)||std::strcmp(p,"|ENDROOM"))return false;
- if(negative&&(code<1||code>5))return false;
+ if(!number(p,code,255)||std::strcmp(p,"|ENDROOM"))return false;
+ if(negative&&(code<1||code>7))return false;
  next.club=static_cast<uint32_t>(club);next.sequence=sequence;next.code=negative?-static_cast<int>(code):static_cast<int>(code);
  out=next;return true;
 }

@@ -5,6 +5,7 @@ import portable_paths
 from lineup_worker import observe,atomic,publish,request
 from roster_data import project,tsv
 from player_animation import bake
+from native_assets import MATERIAL_REVISION
 from character_lighting import ensure
 from contact_shadow import ensure_optional as ensure_contact
 from season_stats import current as season_current
@@ -28,7 +29,8 @@ def generate(game,folder,req,memory,exporter,projection_cache):
  except (OSError,ValueError,TypeError,struct.error):pass
  tool=game/'ModCarrerMode/tools/club_browser/generate_lineup.exe';clip=select_animation(folder,req,game/'ModCarrerMode/data/club_browser/animations')
  kit_identity=json.dumps({k:player[k] for k in ('club','league','jersey_name','number','kit_rules')},sort_keys=True,ensure_ascii=False).encode('utf8')
- identity=hashlib.sha256(player['fixture']+clip.name.encode('ascii')+clip.read_bytes()+kit_identity+b'actor-native-stream-v7-safe-kit-print-hotspots'+str((tool.stat().st_size,tool.stat().st_mtime_ns)).encode()).hexdigest()
+ hair_profile='indoor' if req.get('presentation')=='room' else 'classic'
+ identity=hashlib.sha256(player['fixture']+clip.name.encode('ascii')+clip.read_bytes()+kit_identity+b'actor-native-stream-v7-safe-kit-print-hotspots'+MATERIAL_REVISION+hair_profile.encode('ascii')+str((tool.stat().st_size,tool.stat().st_mtime_ns)).encode()).hexdigest()
  cache=game/'ModCarrerMode/cache/club_browser/player/prepared'/identity;target=game/'data/sceneassets/server16_club_xi'/str(req['pid'])/identity
  ensure(game,portable_paths.read_asset)
  ensure_contact(game,portable_paths.read_asset)
@@ -36,7 +38,7 @@ def generate(game,folder,req,memory,exporter,projection_cache):
   with tempfile.TemporaryDirectory(prefix='player-',dir=folder) as temp:
    temp=Path(temp);fixture=temp/'player.bin';fixture.write_bytes(player['fixture']);model=temp/'player.ff3d';exporter.run(tool,game,fixture,model,timeout=45,pose=401)
    if not current():return False
-   bake(model,clip,temp/'native',portable_paths.read_asset,game/'ModCarrerMode/cache/club_browser/xi/materials',cancel=lambda:request(folder/'request.tsv',req['pid'])!=req,player=player)
+   bake(model,clip,temp/'native',portable_paths.read_asset,game/'ModCarrerMode/cache/club_browser/xi/materials',cancel=lambda:request(folder/'request.tsv',req['pid'])!=req,player=player,hair_profile=hair_profile)
    if not current():return False
    cache.parent.mkdir(parents=True,exist_ok=True);publish_directory(temp/'native',cache)
  if not (target/'assets.json').is_file():

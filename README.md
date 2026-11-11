@@ -39,6 +39,7 @@ Mods de carreira, apresentação e partidas para FIFA 16, integrados ao Server16
 | Mod | O que faz |
 | --- | --- |
 | Vestiário 3D | Monta o ambiente do clube com armários, uniformes, chuteiras, quadro da próxima partida e áreas auxiliares. |
+| Galeria e sala de troféus | Exibe as conquistas em galeria 2D ou sala 3D, separando o clube durante a passagem do treinador e toda a carreira do treinador, incluindo títulos por seleções. O histórico fica vinculado a cada save, com temporada, competição, data e equipe campeã; acompanha o salvamento e preserva as conquistas ao mudar de ano. Tem 30 pedestais, 15 por lado, com paginação, modelos e materiais originais do FIFA, ano e escudo da equipe vencedora, passeio automático, clique nas taças, visão de detalhe e câmera livre. Inclui banco estofado, porta no padrão do vestiário e murais próprios dos 20 clubes da Série A do patch. A parede é editável em `ModCarrerMode/data/trophy_room/custom/<ID do clube>/identity-wall.png` (1920 × 640); clubes sem imagem usam escudo e nome dinâmicos. Preserva o tamanho nativo das taças, reduzindo apenas modelos que excedem a vitrine. |
 | Personalização do vestiário | Permite escolher composição, fundo e contorno dos armários, piso, posição do escudo e artes por clube. |
 | Elenco no vestiário | Permite consultar jogadores e atributos mantendo o vestiário ao fundo. |
 | Câmera livre | Permite caminhar pelo vestiário com mouse, teclado ou controle. |

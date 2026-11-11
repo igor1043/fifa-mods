@@ -86,6 +86,7 @@ static int manager_market_capture(const char *wire,int mode)
 static void competition_back_request(void);
 static int frontend_ui_is_owner(void);
 static uintptr_t background_menu_view(void);
+static uintptr_t background_room_view(void);
 static void drain_frontend_ui_tick(void);
 static void drain_background_refresh(void);
 static uintptr_t bank_input_event(void *bridge,const char *controller,const char *event,const char *argument)
@@ -94,13 +95,23 @@ static uintptr_t bank_input_event(void *bridge,const char *controller,const char
     if(bank_mail_string(event,128)&&!strcmp(event,"Server16FrontendTick")){
         if(bank_mail_string(controller,64)&&!strcmp(controller,"Calendar")
             &&bank_mail_string(argument,16)&&!strcmp(argument,"tick")
-            &&frontend_ui_is_owner()&&background_menu_view()){
+            &&frontend_ui_is_owner()&&(background_menu_view()||background_room_view())){
             drain_frontend_ui_tick();drain_background_refresh();
         }
         return 0;
     }
     if(bank_mail_string(event,128)&&(!strcmp(event,"Server16ManagerProfile")||!strcmp(event,"Server16ManagerSettings")||!strcmp(event,"Server16ClubHistory"))) {
         if(bank_mail_string(controller,64)&&!strcmp(controller,"Calendar"))(void)manager_market_capture(argument,!strcmp(event,"Server16ClubHistory")?2:!strcmp(event,"Server16ManagerSettings"));
+        return 0;
+    }
+    if(bank_mail_string(event,128) && !strcmp(event,"Server16TrophyRoom")) {
+        if(bank_mail_string(controller,64) && !strcmp(controller,"Calendar")
+            && bank_mail_string(argument,32)) {
+            typedef BOOL (WINAPI *TrophyCommand)(const char *);
+            HMODULE module=GetModuleHandleW(L"trophy_room.dll");
+            TrophyCommand capture=module?(TrophyCommand)GetProcAddress(module,"Fifa16TrophyRoomCommand"):NULL;
+            if(capture)(void)capture(argument);
+        }
         return 0;
     }
     if(bank_mail_string(event,128) && !strcmp(event,"Server16RoomScene")) {
@@ -110,6 +121,15 @@ static uintptr_t bank_input_event(void *bridge,const char *controller,const char
             HMODULE module=GetModuleHandleW(L"native_dressing_room.dll");
             RoomCommand capture=module?(RoomCommand)GetProcAddress(module,"Fifa16RoomSceneCommand"):NULL;
             if(capture)(void)capture(argument);
+        }
+        return 0;
+    }
+    if(bank_mail_string(event,128) && !strcmp(event,"Server16ManagerFace")) {
+        if(bank_mail_string(controller,64) && !strcmp(controller,"ManagerPrefs") && bank_mail_string(argument,32)) {
+            typedef BOOL (WINAPI *FaceCommand)(const char *);
+            HMODULE module=GetModuleHandleW(L"club_browser.dll");
+            FaceCommand command=module?(FaceCommand)GetProcAddress(module,"Fifa16ManagerFaceCommand"):NULL;
+            if(command)(void)command(argument);
         }
         return 0;
     }

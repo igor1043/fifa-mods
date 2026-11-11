@@ -12,7 +12,8 @@ namespace fs=std::filesystem;
 struct View{
  fs::path folder,gameRoot;uint64_t sequence=0,lastPoll=0,retryAt=0;unsigned bootRetries=0;int club=0,career=0,player=0;std::string status="loading",message,kind;std::map<std::string,std::string> lastValues;HANDLE job=nullptr,child=nullptr;
  std::future<std::shared_ptr<clubanim::Clip>> staticClip;clubscene::Assets staticAssets;std::array<int,96>staticPages{};
- void configure(const fs::path& game){gameRoot=game;folder=game/L"ModCarrerMode/runtime/club_browser"/std::to_wstring(GetCurrentProcessId());std::error_code error;fs::create_directories(folder,error);}
+ std::wstring workerFlag=L"SERVER16_CLUB_BROWSER_WORKER=1";std::string lastCoach;
+ void configure(const fs::path& game){gameRoot=game;folder=game/(workerFlag==L"SERVER16_MANAGER_APPEARANCE_WORKER=1"?L"ModCarrerMode/runtime/user_manager":L"ModCarrerMode/runtime/club_browser")/std::to_wstring(GetCurrentProcessId());std::error_code error;fs::create_directories(folder,error);}
  bool running()const{return child&&WaitForSingleObject(child,0)==WAIT_TIMEOUT;}
  void launchLog(const char* event,DWORD error=0){std::ofstream out(folder/L"launcher.log",std::ios::app);out<<GetTickCount64()<<" "<<event<<" win32="<<error<<"\n";}
  bool startWorker(const fs::path& game){
@@ -23,7 +24,7 @@ struct View{
   // independent helper and must survive a closed/restarted Server session.
   auto inherited=room_helper::independentEnvironment();std::vector<std::wstring> entries;
   for(auto* p=inherited.data();*p;p+=wcslen(p)+1){if(_wcsnicmp(p,L"SERVER16_CLUB_BROWSER_WORKER=",29)==0||_wcsnicmp(p,L"SERVER16_TRANSFER_MARKET_WORKER=",32)==0)continue;entries.emplace_back(p);}
-  entries.emplace_back(L"SERVER16_CLUB_BROWSER_WORKER=1");std::sort(entries.begin(),entries.end(),[](const auto&a,const auto&b){return _wcsicmp(a.c_str(),b.c_str())<0;});std::vector<wchar_t> environment;
+  entries.emplace_back(workerFlag);std::sort(entries.begin(),entries.end(),[](const auto&a,const auto&b){return _wcsicmp(a.c_str(),b.c_str())<0;});std::vector<wchar_t> environment;
   for(const auto&entry:entries){environment.insert(environment.end(),entry.begin(),entry.end());environment.push_back(0);}environment.push_back(0);
   std::wstring command=L"\""+exe.wstring()+L"\" --club-environment-worker preview --game-root \""+game.wstring()+L"\" --pid "+std::to_wstring(GetCurrentProcessId());
   STARTUPINFOEXW startup{};startup.StartupInfo.cb=sizeof startup;startup.StartupInfo.dwFlags=STARTF_USESHOWWINDOW|STARTF_USESTDHANDLES;startup.StartupInfo.wShowWindow=SW_HIDE;
@@ -41,15 +42,16 @@ struct View{
   if(!ok&&job){CloseHandle(job);job=nullptr;}launchLog(ok?"WORKER_STARTED_INDEPENDENT":"WORKER_START_FAILED",error);return ok;
  }
  void stop(){if(job){CloseHandle(job);job=nullptr;}if(child){CloseHandle(child);child=nullptr;}}
- bool request(int id,const std::string& what="",int actor=0){
+ bool request(int id,const std::string& what="",int actor=0,const std::string& presentation="classic"){
   if(!running()&&!startWorker(gameRoot)){status="error";message="Não foi possível iniciar o auxiliar dos titulares. Consulte launcher.log.";return false;}
   club=id;kind=what;player=actor;lastValues.clear();sequence=(std::max)(sequence+1,GetTickCount64());status="loading";message.clear();lastPoll=retryAt=0;bootRetries=0;
-  return writeRequest();
+  lastPresentation=presentation;return writeRequest();
  }
+ std::string lastPresentation="classic";
  bool writeRequest(){
   std::error_code error;fs::create_directories(folder,error);if(error){status="error";message="Não foi possível preparar a visualização.";return false;}
   auto target=folder/L"request.tsv",temp=folder/L"request.new";{
-   std::ofstream out(temp,std::ios::binary);out<<"schema=1\npid="<<GetCurrentProcessId()<<"\nseq="<<sequence<<"\nclub="<<club<<"\n";if(!kind.empty())out<<"kind="<<kind<<"\nplayer="<<player<<"\n";if(!out){status="error";return false;}
+   std::ofstream out(temp,std::ios::binary);out<<"schema=1\npid="<<GetCurrentProcessId()<<"\nseq="<<sequence<<"\nclub="<<club<<"\n";if(!kind.empty())out<<"kind="<<kind<<"\nplayer="<<player<<"\n";if(kind=="player")out<<"presentation="<<lastPresentation<<"\n";if(kind=="manager_face")out<<"coach="<<lastCoach<<"\n";if(!out){status="error";return false;}
   }
   if(!MoveFileExW(temp.c_str(),target.c_str(),MOVEFILE_REPLACE_EXISTING|MOVEFILE_WRITE_THROUGH)){status="error";message="Não foi possível enviar o pedido de visualização.";return false;}return true;
  }

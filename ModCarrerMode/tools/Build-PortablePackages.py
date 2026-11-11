@@ -39,7 +39,7 @@ def build(root,out,stamp,reuse_archive=None):
         paths.add(relative.casefold())
         if path.suffix.casefold() not in ('.rx3','.npz','.cbac','.dds','.png','.bin','.ini','.pose','.big','.fsh','.db','.txt'):raise ValueError('Not a static asset: '+relative)
         if path.suffix.casefold()=='.db' and relative!='data/loc/por_br.db':raise ValueError('Private database is not an asset: '+relative)
-        if path.suffix.casefold()=='.txt' and relative!='LEIA-ME-ROBSON-ASSETS.txt':raise ValueError('Unexpected asset documentation: '+relative)
+        if path.suffix.casefold()=='.txt':raise ValueError('Unexpected asset documentation: '+relative)
         source=root/path
         if source.stat().st_size!=row['bytes'] or sha(source)!=row['sha256']:raise ValueError('Asset differs from manifest: '+relative)
     target=out/f'FIFA-Friends-Assets-Complementares-{stamp}.zip';temporary=target.with_suffix('.zip.new')

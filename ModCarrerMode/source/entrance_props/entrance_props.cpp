@@ -14,6 +14,7 @@
 #include "../common/scene_lua.h"
 #include "../common/scene_startup.h"
 #include "../common/scene_resource_cycle.h"
+#include "../common/field_prop_shadow.h"
 #include "../common/live_competition.h"
 
 // The native SLE builder is called after mascot selection. Its temporary
@@ -31,6 +32,7 @@ static LONG started,stopping,busy,luaGateReady;
 static SceneLuaLifecycle luaLifecycle;
 static SceneStartupProbe startupRecovery;
 static SceneResourceCycle modelCycle,shadowCycle;
+static fieldshadow::Caster entranceCaster("entrance");
 static LONG sceneContentions;
 static void refresh_lua_gate();
 static char logPath[MAX_PATH],configPath[MAX_PATH];
@@ -81,6 +83,7 @@ static unsigned selectedCompetition=0,selectedRound=0;
 static char selectionRequest[81]={};
 static FILETIME modelWrite{},textureWrite{},metadataWrite{};
 static unsigned selectedModelBytes=0,selectedTextureBytes=0;
+static char shadowModelFile[MAX_PATH]={};
 static char presentationPath[MAX_PATH]={},settingsPath[MAX_PATH]={},serverContextPath[MAX_PATH]={};
 using BoundsGatherFn=void(__fastcall*)(void*,int,float*,void*,void*,const float*,const float*,unsigned char,float);
 using BoundsCullFn=void(__fastcall*)(void*,float*,int,void*);
@@ -528,6 +531,7 @@ static bool fixture_atlas(){
     }else {event("club_atlas v18 generation_failed actor_not_requested");return false;}
     char script[1024];_snprintf_s(script,sizeof(script),_TRUNCATE,"FIFA16_ENTRANCE_MODEL_FILE='%s'; FIFA16_ENTRANCE_TEXTURE_FILE='%s'",modelFile,textureFile);
     ((void(__fastcall*)(const char*,size_t,const char*))(image+0x4ac35e0))(script,strlen(script),"entrance_competition_club_atlas");
+    strcpy_s(shadowModelFile,modelFile);
     atlasFixture=key;
     char message[384];_snprintf_s(message,sizeof(message),_TRUNCATE,"club_atlas v18 home=%u away=%u asset=%s slots=%u prepared=%u path=%s",home,away,selectedAsset.slug,selectedAsset.slots,(unsigned)prepared,textureFile);event(message);
     return true;
@@ -629,6 +633,7 @@ static void __fastcall build_hook(void* self){
             const char script[]="FIFA16_ENTRANCE_MODEL_FILE=nil; FIFA16_ENTRANCE_TEXTURE_FILE=nil";
             ((void(__fastcall*)(const char*,size_t,const char*))(image+0x4ac35e0))(script,sizeof(script)-1,"entrance_competition_disabled");
             atlasFixture=0;
+            shadowModelFile[0]=0;
         }
         submittedHeight=entrance_render_height(show&&!retireBeforeReload,heightCm);
         const char* deferReason="prototype_or_placement_unavailable";
@@ -696,6 +701,11 @@ static void __fastcall build_hook(void* self){
         const uintptr_t mascotToken=mascotBeforeBuild?mascotBeforeBuild(self):0;
         originalBuild(self);
         if(mascotToken&&mascotAfterBuild)mascotAfterBuild(self,mascotToken);
+        char shadowModel[MAX_PATH];_snprintf_s(shadowModel,sizeof(shadowModel),_TRUNCATE,"data/sceneassets/entrance_props/competitions/%s/model.rx3",selectedAsset.slug);
+        const auto shadowPose=fieldshadow::transform(0,submittedHeight,0);
+        const float shadowBounds[8]={selectedAsset.minimum[0],selectedAsset.minimum[1],selectedAsset.minimum[2],1,
+            selectedAsset.maximum[0],selectedAsset.maximum[1],selectedAsset.maximum[2],1};
+        fieldshadow::update(entranceCaster,image,(uintptr_t)self,scene_lua_snapshot(image),shadowModelFile[0]?shadowModelFile:shadowModel,"entrance_",&shadowPose,1,swapped&&selectionAvailable&&submittedHeight> -1000,event,shadowBounds);
     }__finally{
         activeBuildOwner=0;activeBuildThread=0;
         if(swapped){

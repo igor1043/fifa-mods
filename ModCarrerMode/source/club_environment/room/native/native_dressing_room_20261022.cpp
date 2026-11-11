@@ -20,8 +20,17 @@
 #include "room_free_camera.h"
 #include "room_camera_projection.h"
 #include "room_free_input.h"
+#include "../../../common/scene_lens.h"
+#include "room_lens_test.h"
+#include "../../../common/scene_loading.h"
+#include "room_startup.h"
 namespace fs=std::filesystem;
 namespace {
+scene_lens::Lease cleanLens;
+RoomLensTest lensTest;
+RoomStartup roomStartup;std::atomic<bool>roomStartupPermitted{false};unsigned roomWaitReason=0;
+std::atomic<unsigned> loadingTotal{0},loadingDone{0};
+std::atomic<uint64_t> loadingResourcesBegan{0};
 constexpr float roomOriginX=100000.f;
 constexpr char roomPage[]="game/screens/career/server16/DressingRoom";
 uintptr_t image=0,previousFrame=0,object=0,originalVtable=0,originalDraw=0;
@@ -29,8 +38,9 @@ uintptr_t allocatedNative=0;
 void*relay=nullptr;LONG beforeCall=0,oursCall=0;
 uintptr_t ownVtable[29]{};
 std::atomic<bool>started{false},stopping{false},installed{false},active{false},ready{false};
-std::atomic<bool>holdDrawing{false},roomLoading{false},componentsReadyStatus{false},roomRequested{false};
+std::atomic<bool>holdDrawing{false},roomLoading{false},componentsReadyStatus{false},roomRequested{false},roomPresentedReady{false};
 uint64_t roomLoadBegan=0;
+unsigned residentClub=0;
 std::atomic<unsigned>phase{0},fault{0},frames{0},draws{0},submissions{0};
 std::atomic<unsigned>roomSceneState{0};
 fs::path game,folder,logfile;uint64_t requestedAt=0;
@@ -45,7 +55,7 @@ template<class T>T get(uintptr_t at){T v{};read(at,&v,sizeof v);return v;}
 bool write(uintptr_t at,const void*data,size_t n){__try{memcpy((void*)at,data,n);return true;}__except(EXCEPTION_EXECUTE_HANDLER){return false;}}
 void log(const char*message){std::ofstream f(logfile,std::ios::app);f<<GetTickCount64()<<" pid="<<GetCurrentProcessId()<<" "<<message<<"\n";}
 bool page(){auto p=get<uintptr_t>(image+0x3809030);for(unsigned o:{232u,192u,136u,472u})p=get<uintptr_t>(p+o);char text[128]{};return read(p,text,127)&&!strcmp(text,roomPage);}
-std::atomic<unsigned>backgroundClub{0};
+std::atomic<unsigned>backgroundClub{0},roomOverlay{0};
 unsigned backgroundRequest(){
  using Query=DWORD(WINAPI*)();auto module=GetModuleHandleW(L"frontend_stadium_native_v11.dll");
  auto query=module?reinterpret_cast<Query>(GetProcAddress(module,"Fifa16FrontendRoomBackgroundClub")):nullptr;
@@ -94,10 +104,15 @@ struct BorrowedCamera {
  void restore(){projection.restore(get<uintptr_t>(image+0x3517c10),read,write);if(scene&&scene==get<uintptr_t>(image+0x3517c10)){
   for(auto r:room_projection::ownedRanges){unsigned char current[64]{};if(read(scene+0x40+r[0],current,r[1])&&!memcmp(current,written+r[0],r[1]))write(scene+0x40+r[0],original+r[0],r[1]);}
  }scene=0;}
- void apply(bool waiting=false){auto s=get<uintptr_t>(image+0x3517c10);const auto state=get<int>(s+0x3c);roomSceneState=state;if(state!=1&&state!=13)return;float x=get<float>(s+0x88),y=get<float>(s+0x8c);if(!std::isfinite(x)||!std::isfinite(y)||y<=0||x/y<.5f||x/y>4)return;
+ void apply(bool waiting=false){
+  // Preparation of a career backdrop does not own the camera. Keep FIFA's
+  // live stadium panorama until the already shared room is actually ready.
+  if(waiting&&backgroundClub){resetTour();return;}
+  auto s=get<uintptr_t>(image+0x3517c10);const auto state=get<int>(s+0x3c);roomSceneState=state;if(state!=1&&state!=13){input.reset();return;}float x=get<float>(s+0x88),y=get<float>(s+0x8c);if(!std::isfinite(x)||!std::isfinite(y)||y<=0||x/y<.5f||x/y>4){input.reset();return;}
   auto now=GetTickCount64();const double dt=tourTick?std::min(.1,double(now-tourTick)*.001):0.;tourTick=now;
   if(!director.initialized||director.generation!=roomTourVersion)director.reset(roomTour,roomTourVersion,GetCurrentProcessId()^roomTourVersion^static_cast<unsigned>(now));if(!backgroundClub)control();
-  auto pose=waiting?panorama::Pose{{0,187,750},{0,180,0},74}:walk.active?walk.tick(input.sample(static_cast<float>(dt)),static_cast<float>(dt),roomTour):director.tick(dt,roomTour);if(!waiting&&!walk.active&&!room_cinema::poseSafe(pose,roomTour))pose=lastSafe;else if(!waiting)lastSafe=pose;pose.eye=pose.eye+panorama::Vec{roomOriginX,1000,0};pose.target=pose.target+panorama::Vec{roomOriginX,1000,0};float m[16];if(!panorama::matrix(pose,m)||!read(s+0x40,original,sizeof original))return;scene=s;
+  if(waiting||roomOverlay)input.reset();
+  auto pose=waiting?panorama::Pose{{0,187,750},{0,180,0},74}:walk.active?walk.tick(roomOverlay?room_free::Input{}:input.sample(static_cast<float>(dt)),static_cast<float>(dt),roomTour):director.tick(dt,roomTour);if(!waiting&&!walk.active&&!room_cinema::poseSafe(pose,roomTour))pose=lastSafe;else if(!waiting)lastSafe=pose;pose.eye=pose.eye+panorama::Vec{roomOriginX,1000,0};pose.target=pose.target+panorama::Vec{roomOriginX,1000,0};float m[16];if(!panorama::matrix(pose,m)||!read(s+0x40,original,sizeof original))return;scene=s;
   float Y=std::tan(pose.fov*.00872664626f),X=Y*(x/y),zero=0;unsigned char off=0;write(s+0x40,m,sizeof m);write(s+0x88,&X,4);write(s+0x8c,&Y,4);write(s+0xb0,&off,1);write(s+0xbc,&zero,4);write(s+0xc0,&zero,4);read(s+0x40,written,sizeof written);applyNear();
  }
 }camera;
@@ -112,6 +127,8 @@ bool captureRoomSceneCommand(const char*argument){
  std::ifstream scope(folder/L"runtime/room_control_scope.txt");std::string magic,nonce;unsigned version=0,pid=0,club=0;
  if(scope>>magic>>version>>pid>>club>>nonce && magic=="S16ROOMSCOPE"&&version==1&&pid==GetCurrentProcessId()
     &&club==request.club&&club==validCareerClub&&nonce==request.nonce&&roomCommandReceipt.accepts(request)){
+  if(request.code==-6||request.code==-7){roomOverlay=request.code==-6?1:0;roomCommandReceipt.commit(request);ReleaseSRWLockExclusive(&roomCommandLock);return true;}
+  if(request.code>=-5&&request.code<=-1)roomOverlay=0;
   if(roomV3&&request.code>=122&&request.code<=127){
    const char*keys[]={"backs","backs","floor","floor","finish","finish"};
    const char*values[]={"plain","message","light","dark","light","dark"};
@@ -210,10 +227,25 @@ void poll(){
  if(backdrop!=priorBackdrop){camera.resetTour();camera.controlSequence=0;}
  // Calendar and other career pages must not allocate or reload room props.
  // Hide once on exit; retained FIFA objects stay untouched while the room is idle.
- if(!requested){roomLoading=false;roomLoadBegan=0;
+ if(!requested){active=false;roomPresentedReady=false;roomStartup.gate.reset();roomStartupPermitted=false;roomWaitReason=0;room_prop_bridge::state(false,0,0);roomOverlay=0;roomLoading=false;roomLoadBegan=0;loadingResourcesBegan=0;loadingTotal=0;loadingDone=0;
   if(wasRequested){if(object)visibility(false);hideComponents();pollSlate(false,false);log("ROOM_ASSETS_IDLE: calendar and other pages do not load room resources");}return;}
  if(!wasRequested)componentNextCheck=0;
- if(!roomLoadBegan)roomLoadBegan=GetTickCount64();roomLoading=true;pollSlate(true,false);
+ roomLoading=true;
+ const unsigned target=backdrop?backdrop:validCareerClub.load();
+ if(!roomStartup.allow(game,image,target,read)){
+  active=false;roomPresentedReady=false;
+  if(roomStartupPermitted.exchange(false)){visibility(false);hideComponents();}
+  room_prop_bridge::state(false,0,0);loadingResourcesBegan=0;loadingTotal=0;loadingDone=0;
+  phase=1;roomLoadBegan=0;
+  if(roomWaitReason!=roomStartup.gate.reason){roomWaitReason=roomStartup.gate.reason;
+   const char*events[]={"","ROOM_START_WAIT_CAREER_CONTEXT","ROOM_START_WAIT_NATIVE_STADIUM","ROOM_START_WAIT_CURRENT_ROUTE","ROOM_START_WAIT_ROUTE_SETTLING"};log(events[std::min(roomWaitReason,4u)]);}
+  return;
+ }
+ if(!roomStartupPermitted.exchange(true))log("ROOM_START_PERMITTED: current career and native stadium route settled before prop allocation");roomWaitReason=0;
+ if(!roomLoadBegan)roomLoadBegan=GetTickCount64();
+ // The native HUD owns loading. Do not instantiate the obsolete 3D loading
+ // ring/cards while FIFA is constructing its menu image provider.
+ pollSlate(false,false);
  if(!creationAttempted){creationAttempted=true;requestedAt=GetTickCount64();phase=1;log("ROOM_CARD_ENTER: isolated native allocation, stadium retained");
   void*allocator=((void*(__fastcall*)())(image+0x4abfba0))();
   const auto allocate=get<uintptr_t>(get<uintptr_t>((uintptr_t)allocator)+0x10);
@@ -257,16 +289,23 @@ void poll(){
   }else if(!ready&&GetTickCount64()-requestedAt>45000){fault=8;phase=9;log("NATIVE_ASSET_TIMEOUT_NO_RETRY");}
  }
  pollComponents(true);
- componentsReadyStatus=roomComponentsReady();active=requested&&ready&&componentsReadyStatus&&(!backdrop||backdrop==componentClub)&&!fault&&!holdDrawing;roomLoading=requested&&!active;
+ loadingTotal=components.empty()?0:unsigned(components.size())+1;if(loadingTotal&&!loadingResourcesBegan)loadingResourcesBegan=GetTickCount64();unsigned finished=ready?1:0;for(const auto&c:components)if(c&&c->loaded)++finished;loadingDone=finished;
+ componentsReadyStatus=roomComponentsReady();if(componentsReadyStatus)residentClub=componentClub;
+ active=requested&&ready&&(componentsReadyStatus||(residentClub==componentClub&&componentClub==validCareerClub&&!roomComponentsFailed()))&&(!backdrop||backdrop==componentClub)&&!fault&&!holdDrawing;roomLoading=requested&&!active;
+ roomPresentedReady=active.load();
+ room_prop_bridge::state(active.load(),componentClub,componentGeneration,(backdrop?room_shadow_bridge::Background:0)|(roomOverlay?room_shadow_bridge::Overlay:0));
  visibility(active);showComponents(active);
  const bool preparationError=fault||roomComponentsFailed()||GetTickCount64()-roomLoadBegan>90000;
- pollSlate(roomLoading,preparationError);
+ pollSlate(false,preparationError);
+}
+void updateLens(){
+ cleanLens.update("dressing_room",roomVisiblePage()&&lensTest.clean(folder/L"runtime/lens_test.txt"),execute);
 }
 void*__fastcall frame(){
  camera.restore();void*result=((void*(__fastcall*)())previousFrame)();++frames;
  if(stopping)return result;
- __try{poll();if(active||roomLoading){if(!backgroundClub&&!roomLoading&&roomRosterCameraOwned()){camera.applyNear();camera.tourTick=0;camera.walk.active=false;camera.input.reset();}else camera.apply(roomLoading);}else camera.resetTour();roomReturnTick(roomVisiblePage());}
- __except(EXCEPTION_EXECUTE_HANDLER){fault=GetExceptionCode();phase=9;active=false;log("ROOM_MONITOR_EXCEPTION_DISABLED");}
+ __try{poll();if(roomStartupPermitted){if(!(backgroundClub&&roomLoading))updateLens();if(active||roomLoading){if(!backgroundClub&&!roomLoading&&roomRosterCameraOwned()){camera.applyNear();camera.tourTick=0;camera.walk.active=false;camera.input.reset();}else camera.apply(roomLoading);}}else{camera.resetTour();if(!roomVisiblePage()&&cleanLens.state>=0&&RoomStartup::loaderIdle(image,read))updateLens();}roomReturnTick(roomVisiblePage());}
+ __except(EXCEPTION_EXECUTE_HANDLER){fault=GetExceptionCode();phase=9;active=false;room_prop_bridge::state(false,0,0);log("ROOM_MONITOR_EXCEPTION_DISABLED");}
  return result;
 }
 bool exchange(LONG from,LONG to){auto*p=(volatile LONG*)(image+0x3a19f80);DWORD old;if(!VirtualProtect((void*)p,4,PAGE_EXECUTE_READWRITE,&old))return false;LONG seen=InterlockedCompareExchange(p,to,from);DWORD ignored;VirtualProtect((void*)p,4,old,&ignored);FlushInstructionCache(GetCurrentProcess(),(void*)(image+0x3a19f7f),5);return seen==from;}
@@ -283,7 +322,7 @@ bool install(){
  if(!relay){for(uintptr_t step=0x10000;step<0x70000000&&!relay;step+=0x10000)relay=VirtualAlloc((void*)(image+step),4096,MEM_COMMIT|MEM_RESERVE,PAGE_READWRITE);if(!relay)return false;unsigned char jump[14]={0xff,0x25,0,0,0,0};auto target=(uintptr_t)&frame;memcpy(jump+6,&target,8);memcpy(relay,jump,14);DWORD old;if(!VirtualProtect(relay,4096,PAGE_EXECUTE_READ,&old))return false;FlushInstructionCache(GetCurrentProcess(),relay,4096);}
  oursCall=LONG(intptr_t(relay)-intptr_t(image+0x3a19f84));return exchange(beforeCall,oursCall);
 }
-void status(){std::ofstream f(folder/L"runtime/native_status.json.tmp");f<<"{\"pid\":"<<GetCurrentProcessId()<<",\"installed\":"<<(installed?"true":"false")<<",\"background_club\":"<<backgroundClub<<",\"scene_state\":"<<roomSceneState<<",\"requested\":"<<(roomRequested?"true":"false")<<",\"active\":"<<(active?"true":"false")<<",\"ready\":"<<(ready?"true":"false")<<",\"loading\":"<<(roomLoading?"true":"false")<<",\"components_ready\":"<<(componentsReadyStatus?"true":"false")<<",\"phase\":"<<phase<<",\"error\":"<<fault<<",\"frames\":"<<frames<<",\"native_draw_callbacks\":"<<draws<<",\"native_draw_returns\":"<<submissions<<",\"flat_shadow_passes\":"<<flatShadowPasses<<",\"self_shadow_passes\":"<<selfShadowPasses<<",\"engine_shadow_registered\":"<<(engineShadowRegistered?"true":"false")<<",\"engine_shadow_contexts_registered\":"<<(engineShadowContextsRegistered?"true":"false")<<",\"object\":"<<object<<",\"indoor_uploads\":"<<indoorUploads<<",\"indoor_failures\":"<<indoorFailures<<",\"spot_power\":"<<indoorSpotPower.load()<<",\"spotlighted_draws\":"<<spotlightedDraws<<",\"return_background_refreshes\":"<<roomReturnRefreshes<<",\"return_background_hook\":"<<(roomPhotoInstalled?"true":"false")<<",\"roster_camera\":"<<(roomRosterCameraOwned()?"true":"false")<<",\"free_camera\":"<<(camera.walk.active?"true":"false")<<",\"camera_automatic\":"<<(camera.director.automatic?"true":"false")<<",\"camera_selected\":"<<camera.director.selected<<",\"camera_paused\":"<<(camera.director.paused?"true":"false")<<",\"camera_command_sequence\":"<<camera.controlSequence<<",\"stadium_reloads\":0,\"renderer\":\"FIFA native GameplayProp\",\"webview\":false}\n";f.close();MoveFileExW((folder/L"runtime/native_status.json.tmp").c_str(),(folder/L"runtime/native_status.json").c_str(),MOVEFILE_REPLACE_EXISTING);}
+void status(){std::ofstream f(folder/L"runtime/native_status.json.tmp");f<<"{\"pid\":"<<GetCurrentProcessId()<<",\"installed\":"<<(installed?"true":"false")<<",\"background_club\":"<<backgroundClub<<",\"scene_state\":"<<roomSceneState<<",\"requested\":"<<(roomRequested?"true":"false")<<",\"active\":"<<(active?"true":"false")<<",\"ready\":"<<(ready?"true":"false")<<",\"loading\":"<<(roomLoading?"true":"false")<<",\"components_ready\":"<<(componentsReadyStatus?"true":"false")<<",\"phase\":"<<phase<<",\"error\":"<<fault<<",\"frames\":"<<frames<<",\"native_draw_callbacks\":"<<draws<<",\"native_draw_returns\":"<<submissions<<",\"flat_shadow_passes\":"<<flatShadowPasses<<",\"self_shadow_passes\":"<<selfShadowPasses<<",\"engine_shadow_registered\":"<<(engineShadowRegistered?"true":"false")<<",\"engine_shadow_contexts_registered\":"<<(engineShadowContextsRegistered?"true":"false")<<",\"object\":"<<object<<",\"indoor_uploads\":"<<indoorUploads<<",\"indoor_failures\":"<<indoorFailures<<",\"native_lens_test\":"<<(lensTest.native?"true":"false")<<",\"spot_power\":"<<indoorSpotPower.load()<<",\"spotlighted_draws\":"<<spotlightedDraws<<",\"return_background_refreshes\":"<<roomReturnRefreshes<<",\"return_background_hook\":"<<(roomPhotoInstalled?"true":"false")<<",\"roster_camera\":"<<(roomRosterCameraOwned()?"true":"false")<<",\"free_camera\":"<<(camera.walk.active?"true":"false")<<",\"camera_automatic\":"<<(camera.director.automatic?"true":"false")<<",\"camera_selected\":"<<camera.director.selected<<",\"camera_paused\":"<<(camera.director.paused?"true":"false")<<",\"camera_command_sequence\":"<<camera.controlSequence<<",\"stadium_reloads\":0,\"renderer\":\"FIFA native GameplayProp\",\"webview\":false}\n";f.close();MoveFileExW((folder/L"runtime/native_status.json.tmp").c_str(),(folder/L"runtime/native_status.json").c_str(),MOVEFILE_REPLACE_EXISTING);}
 DWORD WINAPI worker(void*){
  const auto began=GetTickCount64();log("WAIT_NATIVE_CODE: delayed signature validation after executable unpack");
  while(!stopping){
@@ -301,10 +340,18 @@ DWORD WINAPI worker(void*){
   flushMedicalCapture();
   if(fs::exists(folder/L"runtime/STOP_NATIVE"))stopping=true;status();Sleep(500);
  }
- closeNativeAssetHelperMonitor();active=false;roomLoading=false;hideComponents();componentVisibility(loadingSlate,false);componentVisibility(errorSlate,false);componentVisibility(loadingProgress,false);componentVisibility(loadingBackdrop,false);componentVisibility(loadingRing,false);componentVisibility(loadingBadge,false);camera.restore();if(object){visibility(false);InterlockedCompareExchangePointer((void*volatile*)object,(void*)originalVtable,ownVtable);}if(installed)exchange(oursCall,beforeCall);if(roomPhotoInstalled)roomPhotoExchange(roomPhotoAfter,roomPhotoBefore);stopMedicalCapture();installed=false;log("STOPPED: prior render callback restored");status();return 0;
+ closeNativeAssetHelperMonitor();active=false;roomLoading=false;hideComponents();componentVisibility(loadingSlate,false);componentVisibility(errorSlate,false);componentVisibility(loadingProgress,false);componentVisibility(loadingBackdrop,false);componentVisibility(loadingRing,false);componentVisibility(loadingBadge,false);componentVisibility(loadingDots,false);componentVisibility(loadingStage,false);componentVisibility(loadingSweep,false);camera.restore();if(object){visibility(false);InterlockedCompareExchangePointer((void*volatile*)object,(void*)originalVtable,ownVtable);}if(installed)exchange(oursCall,beforeCall);if(roomPhotoInstalled)roomPhotoExchange(roomPhotoAfter,roomPhotoBefore);stopMedicalCapture();installed=false;log("STOPPED: prior render callback restored");status();return 0;
 }
 }
 extern "C" __declspec(dllexport) unsigned WINAPI Fifa16ModGetApiVersion(){return 1;}
+extern "C" __declspec(dllexport) BOOL WINAPI Fifa16RoomLoadingStatus(scene_loading::Status*out){
+ scene_loading::Status s;const unsigned expected=backgroundClub?backgroundClub.load():validCareerClub.load();s.club=expected?expected:componentClub;
+ const bool sameClub=s.club==componentClub;
+ // The owner callback briefly clears active while polling. A room which is
+ // already resident remains ready across that poll and the hub/card handoff.
+ s.visible=roomVisiblePage();s.ready=roomPresentedReady&&sameClub&&roomRequested&&!fault&&!holdDrawing;s.total=sameClub?loadingTotal.load():0;s.loaded=sameClub?loadingDone.load():0;s.error=fault;s.variant=backgroundClub?4:0;
+ const auto began=loadingResourcesBegan.load();s.elapsedMs=began?GetTickCount64()-began:0;return write(reinterpret_cast<uintptr_t>(out),&s,sizeof s)?TRUE:FALSE;
+}
 extern "C" __declspec(dllexport) BOOL WINAPI Fifa16RoomSceneCommand(const char*wire){return captureRoomSceneCommand(wire)?TRUE:FALSE;}
 extern "C" __declspec(dllexport) BOOL WINAPI Fifa16ModStart(const char*){
  if(started.exchange(true))return TRUE;image=(uintptr_t)GetModuleHandleW(nullptr);if(get<unsigned>(image+get<int>(image+0x3c)+8)!=0x577de45c){started=false;return FALSE;}

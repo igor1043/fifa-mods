@@ -30,13 +30,18 @@ inline int scope(Scope& out){
 inline std::string contents(const std::filesystem::path& file){std::error_code ec;auto n=std::filesystem::file_size(file,ec);if(ec||!n||n>524288)return {};std::ifstream f(file,std::ios::binary);std::string text(size_t(n),'\0');if(!f.read(text.data(),std::streamsize(n)))return {};return text;}
 inline int resolve(int club){
  Scope live;int active=scope(live);if(active<0)return -1;if(active==0||!club)return 0;
- auto runtime=clubscene::game/L"ModCarrerMode/runtime";Mapping mapping;if(!parse(contents(runtime/L"manager_market/models_ready.tsv"),mapping))return 0;
+ auto runtime=clubscene::game/L"ModCarrerMode/runtime";
  Fields latest;uint64_t tick=0;for(auto name:{L"career_save_source.tsv",L"career_active_save.tsv"}){Fields candidate;if(fields(contents(runtime/name),candidate)&&event(candidate,live)&&value(candidate,"access_tick_ms")>tick){latest=std::move(candidate);tick=value(latest,"access_tick_ms");}}
- if(!tick||!matches(mapping,live,latest))return 0;auto row=mapping.clubs.find(club);if(row==mapping.clubs.end()||row->second<=0)return 0;
+ if(!tick)return 0;int asset=0;bool found=false;
+ for(auto source:{L"user_manager/models_ready.tsv",L"manager_market/models_ready.tsv"}){
+  Mapping mapping;if(!parse(contents(runtime/source),mapping)||!matches(mapping,live,latest))continue;
+  auto row=mapping.clubs.find(club);if(row==mapping.clubs.end())continue;asset=row->second;found=true;break;
+ }
+ if(!found||asset<=0)return 0;
  auto folder=clubscene::game/L"data/sceneassets/slc";
- auto prefix=L"specificmanager_"+std::to_wstring(row->second)+L"_0_";
+ auto prefix=L"specificmanager_"+std::to_wstring(asset)+L"_0_";
  for(auto name:{prefix+L"0.rx3",prefix+L"0_textures.rx3",prefix+L"1.rx3",prefix+L"1_textures.rx3"}){std::error_code ec;if(!std::filesystem::is_regular_file(folder/name,ec))return 0;}
- return row->second;
+ return asset;
 }
 inline int __cdecl callback(uintptr_t L){
  int code=0;try{code=clubscene::stopping?-1:resolve(managerLua::argument(L,clubscene::read));}catch(...){code=0;}

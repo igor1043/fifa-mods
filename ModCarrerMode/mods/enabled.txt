@@ -39,3 +39,7 @@ first_person\server16_first_person_v14.dll
 career_jobs\career_jobs_runtime.dll
 low_driven_shot\low_driven_shot.dll
 cloth_motion\cloth_motion.dll
+
+# Native club trophy gallery.
+trophy_room\trophy_room.dll
+

@@ -1,0 +1,72 @@
+{
+  "schema": 1,
+  "units": "cm",
+  "bindings": [
+    {
+      "key": "medical_rehab_0",
+      "model": "data/sceneassets/server16_dressing_room_v3/rehab_equipment/rehabilitation_r2.rx3",
+      "texture": "data/sceneassets/server16_dressing_room_v3/rehab_equipment/palette.rx3",
+      "submesh": "gallery_part_1"
+    }
+  ],
+  "obstacles": [
+    {
+      "name": "Reabilitação / esteira",
+      "lo": [
+        -1083.99999881,
+        2.7000000000000455,
+        2554.9999931209777
+      ],
+      "hi": [
+        -952.00000119,
+        177.31307817820584,
+        2807.0000068790223
+      ]
+    },
+    {
+      "name": "Reabilitação / bicicleta",
+      "lo": [
+        -883.100000759,
+        2.7000000000000455,
+        2695.493392860728
+      ],
+      "hi": [
+        -830.8999992409999,
+        104.27313615876619,
+        2798.506607139272
+      ]
+    },
+    {
+      "name": "Reabilitação / espaldar",
+      "lo": [
+        -734.00000598,
+        2.7000000000000455,
+        2806.59374954
+      ],
+      "hi": [
+        -645.99999402,
+        185.69998959999998,
+        2827.40625046
+      ]
+    },
+    {
+      "name": "Reabilitação / banco_regulavel",
+      "lo": [
+        -592.749998,
+        2.7000000000000455,
+        2573.9399259
+      ],
+      "hi": [
+        -527.250002,
+        85.03615740000009,
+        2736.0600741
+      ]
+    }
+  ],
+  "medical_spec": "data/sceneassets/server16_dressing_room_v3/rehab_equipment/medical_room.json",
+  "medical_model": "data/sceneassets/server16_dressing_room_v3/rehab_equipment/medical_room_r77.rx3",
+  "required": [
+    "data/sceneassets/server16_dressing_room_v3/rehab_equipment/medical_room.json",
+    "data/sceneassets/server16_dressing_room_v3/rehab_equipment/medical_room_r77.rx3"
+  ]
+}

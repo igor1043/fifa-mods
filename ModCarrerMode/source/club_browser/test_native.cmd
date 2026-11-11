@@ -62,6 +62,28 @@ if not errorlevel 0 exit /b 1
 test_player_animation.exe
 if errorlevel 1 exit /b 1
 if not errorlevel 0 exit /b 1
+cl /nologo /O2 /W3 /EHsc /std:c++17 /utf-8 /MT "%CLUB_SOURCE%\test_roster_native_shadow.cpp" miniz_tinfl.obj /Fe:test_roster_native_shadow.exe /link user32.lib gdi32.lib ole32.lib d3d11.lib d3dcompiler.lib dxgi.lib windowscodecs.lib
+if errorlevel 1 exit /b 1
+test_roster_native_shadow.exe "%CLUB_GAME%"
+if errorlevel 1 exit /b 1
+cl /nologo /O2 /W3 /EHsc /std:c++17 /utf-8 /MT "%CLUB_SOURCE%\test_room_surface_shadow.cpp" miniz_tinfl.obj /Fe:test_room_surface_shadow.exe /link user32.lib gdi32.lib ole32.lib d3d11.lib d3dcompiler.lib dxgi.lib windowscodecs.lib
+if errorlevel 1 exit /b 1
+test_room_surface_shadow.exe "%CLUB_GAME%"
+if errorlevel 1 exit /b 1
+if not errorlevel 0 exit /b 1
+cl /nologo /O2 /W3 /EHsc /std:c++17 /utf-8 /MT "%CLUB_SOURCE%\test_actor_surface_normals.cpp" miniz_tinfl.obj /Fe:test_actor_surface_normals.exe /link user32.lib gdi32.lib ole32.lib d3d11.lib d3dcompiler.lib dxgi.lib windowscodecs.lib
+if errorlevel 1 exit /b 1
+test_actor_surface_normals.exe
+if errorlevel 1 exit /b 1
+cl /nologo /O2 /W3 /EHsc /std:c++17 /utf-8 /MT "%CLUB_SOURCE%\test_room_curved_shadow.cpp" miniz_tinfl.obj /Fe:test_room_curved_shadow.exe /link user32.lib gdi32.lib ole32.lib d3d11.lib d3dcompiler.lib dxgi.lib windowscodecs.lib
+if errorlevel 1 exit /b 1
+test_room_curved_shadow.exe "%CLUB_GAME%" "%CLUB_TEST_OUTPUT%\curved-shadow" actor
+if errorlevel 1 exit /b 1
+cl /nologo /O2 /W3 /EHsc /std:c++17 /utf-8 /MT "%CLUB_SOURCE%\test_room_background_shadow.cpp" miniz_tinfl.obj /Fe:test_room_background_shadow.exe /link user32.lib gdi32.lib ole32.lib d3d11.lib d3dcompiler.lib dxgi.lib windowscodecs.lib
+if errorlevel 1 exit /b 1
+test_room_background_shadow.exe "%CLUB_GAME%"
+if errorlevel 1 exit /b 1
+if not errorlevel 0 exit /b 1
 cl /nologo /O2 /W3 /EHsc /std:c++17 /utf-8 /MT "%CLUB_SOURCE%\test_coach_profile.cpp" /Fe:test_coach_profile.exe
 if errorlevel 1 exit /b 1
 if not errorlevel 0 exit /b 1

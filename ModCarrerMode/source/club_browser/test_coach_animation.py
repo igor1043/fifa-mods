@@ -22,5 +22,12 @@ class CoachAnimation(unittest.TestCase):
  def test_no_installed_clip_is_explicit(self):
   for name in CLIPS:(self.clips/name).unlink()
   with self.assertRaises(FileNotFoundError):select(self.root,self.req,self.clips)
+ def test_creation_selection_varies_independently_of_career_coach_preview(self):
+  career=self.root/'coach-animation-choice.json';career.write_text('{"unchanged":true}')
+  rng=random.Random(4);names=[]
+  for seq in range(1,31):
+   req=dict(self.req,seq=seq);clip=select(self.root,req,self.clips,rng,state_name='manager-face-animation-choice.json');names.append(clip.name)
+   self.assertEqual(clip,select(self.root,req,self.clips,rng,state_name='manager-face-animation-choice.json'))
+  self.assertEqual(set(names),set(CLIPS));self.assertTrue(all(a!=b for a,b in zip(names,names[1:])));self.assertEqual(career.read_text(),'{"unchanged":true}')
 
 if __name__=='__main__':unittest.main()

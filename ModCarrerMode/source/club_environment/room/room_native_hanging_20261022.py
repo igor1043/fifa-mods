@@ -11,12 +11,15 @@ R=scene.ROOT;LIVE=scene.LIVE
 TEMPLATE=portable.ROOM/"assets/texture_template.rx3"
 VERSION='r71'
 
-def texture_package(image,path,name,*,mipmaps=True):
- """Same RX3/DXT5/mipmap directory contract as the working entrance package."""
- image=image.convert('RGBA');w,h=image.size;rx=Rx3(TEMPLATE.read_bytes());head=rx.get(TEXTURE)[0][:16];raw=bytearray(head);raw[5]=2;mips=0
+def texture_package(image,path,name,*,mipmaps=True,opaque=False):
+ """Native mipmap directory, with BC1 available only for proven opaque art."""
+ image=image.convert('RGBA')
+ if opaque and image.getextrema()[3]!=(255,255):raise ValueError('BC1 office art must be fully opaque')
+ codec='DXT1' if opaque else 'DXT5';block=8 if opaque else 16
+ w,h=image.size;rx=Rx3(TEMPLATE.read_bytes());head=rx.get(TEXTURE)[0][:16];raw=bytearray(head);raw[5]=0 if opaque else 2;mips=0
  while True:
-  out=io.BytesIO();image.save(out,format='DDS',pixel_format='DXT5');dds=out.getvalue();assert dds[84:88]==b'DXT5'
-  pixels=dds[128:];pitch=max(1,(image.width+3)//4)*16;rows=max(1,(image.height+3)//4);assert len(pixels)==pitch*rows
+  out=io.BytesIO();image.save(out,format='DDS',pixel_format=codec);dds=out.getvalue();assert dds[84:88]==codec.encode()
+  pixels=dds[128:];pitch=max(1,(image.width+3)//4)*block;rows=max(1,(image.height+3)//4);assert len(pixels)==pitch*rows
   raw.extend(struct.pack('<4I',pitch,rows,len(pixels),0));raw.extend(pixels);mips+=1
   if not mipmaps or image.width==image.height==1:break
   image=image.resize((max(1,image.width//2),max(1,image.height//2)),Image.Resampling.LANCZOS)

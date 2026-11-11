@@ -24,7 +24,7 @@ int main(){
  std::istringstream catalog("1043|192|78838|Maracanã|custom|20|14\n243|2|81044|Santiago Bernabéu||20|20\nbad|1|2|Wrong||0|0\n4|261|4|AO VIVO||0|0\n");
  auto names=clubstadium::names(catalog);assert(names.size()==2&&names[1043]=="Maracanã"&&names[243]=="Santiago Bernabéu");
  clubstadium::View view;view.enter(1043);
- view.tick(.05f,{1,1,1,1,true});assert(view.position.x==0&&view.elapsed==0);view.toggle();assert(!view.walking);
+ view.tick(.05f,{1,1,1,1,true});assert(view.position.x==0&&view.elapsed==0);view.toggle();view.toggleFree();assert(!view.manual());
  view.ready=true;view.tick(.05f);assert(view.elapsed>0);auto shot=view.pose();float matrix[16]{};assert(panorama::matrix(shot,matrix));
  view.toggle();assert(view.walking&&view.position.x==0&&view.position.z==0&&view.position.y==170);
  view.tick(.05f,{1,0,1,0,false},false);assert(view.position.x==0&&view.heading==0);
@@ -32,10 +32,26 @@ int main(){
  view.tick(.05f,{0,1,0,0,false});assert(view.position.x==distance&&view.position.z>0);
  for(int i=0;i<20000;++i)view.tick(.05f,{1,1,0,1,true});
  assert(view.position.x<=5750&&view.position.z<=3900&&view.position.y==170&&view.tilt<=1.3f);
- assert(panorama::matrix(view.pose(),matrix));view.toggle();assert(!view.walking);
+ assert(panorama::matrix(view.pose(),matrix));view.toggle();assert(!view.manual());
+ const auto tourEye=view.pose().eye;
+ const float tourTime=view.elapsed;
+ view.toggleFree();assert(view.flying&&!view.walking&&view.ownsCamera()&&view.opacity()==0);
+ assert(view.position.x==tourEye.x&&view.position.y==tourEye.y&&view.position.z==tourEye.z);
+ view.tick(.05f,{0,0,0,0,false,1},false);assert(view.position.y==tourEye.y);
+ view.tick(.05f,{0,0,0,0,false,1});assert(view.position.y>tourEye.y&&view.elapsed==tourTime);
+ view.tick(.05f,{0,0,0,0,false,-1});assert(view.position.y==tourEye.y);
+ view.heading=view.tilt=0;
+ for(int i=0;i<2000;++i)view.tick(.05f,{1,1,0,0,true,1});
+ assert(view.position.x==view.flightRadius&&view.position.z==view.flightRadius&&view.position.y==view.flightCeiling);
+ for(int i=0;i<2000;++i)view.tick(.05f,{0,0,0,0,true,-1});
+ assert(view.position.y==view.flightFloor&&panorama::matrix(view.pose(),matrix));
+ view.toggleFree();view.tick(.05f);assert(!view.manual()&&view.elapsed>tourTime);
+ view.toggle();view.tick(.05f,{1,0,0,0,false});
+ const float walkingX=view.position.x;view.toggleFree();assert(view.flying&&view.position.x==walkingX&&view.position.y==170);
+ view.toggle();assert(view.walking&&!view.flying&&view.position.x==0);view.toggle();
  view.restartPanorama();view.ready=true;bool nativeWindow=false,returnToMod=false,transition=false;
  for(int i=0;i<1800;++i){view.tick(.2f,{},false);transition|=view.opacity()>0;if(!view.ownsCamera()&&view.opacity()==0)nativeWindow=true;if(nativeWindow&&view.ownsCamera()&&view.shot==37){returnToMod=true;break;}}
  assert(nativeWindow&&returnToMod&&transition);
- view.enter(131);assert(view.club==131&&!view.ready&&!view.walking&&view.elapsed==0);
- std::cout<<"PASS stadium tour: loading gate, panorama, full native/mod panorama cycle, real-time clock, centre start, local axes, sprint, bounds, pitch and club reset\n";
+ view.enter(131);assert(view.club==131&&!view.ready&&!view.manual()&&view.elapsed==0);
+ std::cout<<"PASS stadium tour: panorama, walking and free flight, loading gate, timing, position and bounds, focus and club reset\n";
 }

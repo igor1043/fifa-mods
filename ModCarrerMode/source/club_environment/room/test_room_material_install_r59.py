@@ -14,12 +14,16 @@ class MaterialInstall(unittest.TestCase):
    for level in range(mips):
     pitch,rows,size,_=struct.unpack_from('<4I',raw,at);self.assertEqual(pitch,max(1,(w+3)//4)*16);self.assertEqual(rows,max(1,(h+3)//4));self.assertEqual(size,pitch*rows);at+=16+size;w=max(1,w//2);h=max(1,h//2)
    self.assertEqual(at,len(raw));self.assertEqual((w,h),(1,1))
- def test_approved_r79_private_light_is_unchanged(self):
-  self.assertEqual(hashlib.sha256((portable.SOURCES/'room/native/room_lighting_r46.h').read_bytes()).hexdigest(),'92575ac1bfd788a9e82b6742a437b091a96f7323193a84e2eacbc06ed961c155')
+ def test_indoor_light_uses_private_buffer_and_world_space_probe(self):
+  source=(portable.SOURCES/'room/native/room_lighting_r46.h').read_text(encoding='utf8')
+  self.assertIn('uploadIndoor(args->buffer,args->lightingSphere.data())',source)
+  self.assertIn('args.lightingSphere=room_light_probe::sample(args.sphere)',source)
+  self.assertIn('nativeRef(args.view,false);nativeRef(args.buffer,false)',source)
+  self.assertIn('room_prop_bridge::end()',source)
  def test_replacement_module_has_its_own_native_component_types(self):
   source=(portable.SOURCES/'room/native/native_dressing_room_20261022.cpp').read_text(encoding='utf8');components=(portable.SOURCES/'room/native/room_components_native_r46.h').read_text(encoding='utf8')
   self.assertIn('server16_native_dressing_room_r60',source);self.assertIn('server16_native_room_r60_',components)
-  self.assertIn('server16_room_loading_r60',components);self.assertIn('server16_room_error_r60',components)
+  self.assertIn('server16_room_loading_r83',components);self.assertIn('server16_room_error_r83',components)
   self.assertNotIn('server16_native_room_r58_',components);self.assertIn('MISSING_INSTALLED_ROOM_ASSET',source)
 
 if __name__=='__main__':unittest.main(verbosity=2)

@@ -14,6 +14,7 @@ GROUPS = {
     'bank': ENVIRONMENT/'bank',
     'preview': ENVIRONMENT/'preview',
     'room': ENVIRONMENT/'room',
+    'trophies': ENVIRONMENT/'trophy_room',
     'market': ENVIRONMENT/'market',
     'managers': ENVIRONMENT/'manager_market',
     'browser': SOURCE/'club_browser',
@@ -100,6 +101,8 @@ def main():
             folder = GROUPS[group]
             env=python_environment(args.game_root,folder)
             modules=[name for name in unit_modules(folder) if args.audit_inactive or name not in INACTIVE]
+            if group=='trophies':
+                modules=['trophy_room.'+name for name in modules]
             if group=='room' and args.game_root.resolve()==ROOT.resolve():
                 modules.remove('test_kit_print_r61')
                 modules.append('test_kit_print_r61.KitPrint.test_absent_hotspot_cannot_fall_back_to_a_fixed_shirt_decal')

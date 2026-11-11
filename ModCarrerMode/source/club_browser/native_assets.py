@@ -12,12 +12,22 @@ from preview_files import read_bytes as shared_read,atomic as shared_atomic,stor
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]/'club_environment/vendor'))
 from rx3 import Rx3, FORMAT, VERTEX, INDEX, MESH, NAME, TEXTURE, align
 
-VERSION=5
+VERSION=9
+MATERIAL_REVISION=b'actor-original-hair-coverage-v9'
 SLOTS=96
 OPAQUE_SLOTS=64
 # Native exporter/WebGL layout: position(0), normal(12), UV(24).
 # Swapping normal and UV produces valid triangles with scrambled materials.
 STRIDE=np.dtype([('p','<f4',3),('n','<f4',3),('uv','<f4',2)])
+
+def hair_opacity(coverage):
+    """Keep the authored soft strand edges; never turn them into a solid sheet."""
+    return coverage
+
+def hair_core_opacity(coverage):
+    # Strong roots in the indoor preview, with actual zero-coverage gaps.
+    # The old opaque cap filled even the empty space between strands.
+    return coverage.point([round(255*min(1,value/24)**.5) for value in range(256)])
 
 def read_model(path):
     raw=Path(path).read_bytes();at=16
@@ -62,12 +72,17 @@ def packed(v):
     q=np.rint(np.clip(v,-1,1)*511).astype(np.int32)&1023
     return (q[:,0]|q[:,1]<<10|q[:,2]<<20).astype('<u4')
 
-def geometry(batches,template):
+def geometry(batches,template,*,preserve_winding=False):
     rx=Rx3(template);vbs=[];ibs=[]
     for v,indices in batches:
         p=v['p'];n=v['n'].copy();n/=np.maximum(np.linalg.norm(n,axis=1,keepdims=True),1e-8);uv=v['uv'];ids=indices.reshape(-1,3).copy()
-        sign=np.einsum('ij,ij->i',np.cross(p[ids[:,1]]-p[ids[:,0]],p[ids[:,2]]-p[ids[:,0]]),n[ids].mean(axis=1))
-        reverse=sign<-.00001;ids[reverse]=ids[reverse][:,[0,2,1]]
+        # Keep FIFA's authored triangle order. A smoothed normal can oppose a
+        # folded triangle (notably under the arms); reversing individual
+        # faces from that dot product punches visible holes under back culling.
+        # Unrelated static props keep their established conversion convention.
+        if not preserve_winding:
+            sign=np.einsum('ij,ij->i',np.cross(p[ids[:,1]]-p[ids[:,0]],p[ids[:,2]]-p[ids[:,0]]),n[ids].mean(axis=1))
+            reverse=sign<-.00001;ids[reverse]=ids[reverse][:,[0,2,1]]
         a,b,c=ids.T;e1=p[b]-p[a];e2=p[c]-p[a];d1=uv[b]-uv[a];d2=uv[c]-uv[a]
         det=d1[:,0]*d2[:,1]-d1[:,1]*d2[:,0];tangent=(e1*d2[:,1,None]-e2*d1[:,1,None])/np.where(abs(det)>1e-10,det,1)[:,None];tangent[abs(det)<=1e-10]=0
         acc=np.zeros_like(p)
@@ -125,7 +140,11 @@ def player_coefficient(template):
     return rx.build()
 
 
-def convert(model,output,read_asset,material_cache=None,*,animated=False):
+def material_blend(part,hair_profile):
+    return part['blend'] or part['hair']
+
+def convert(model,output,read_asset,material_cache=None,*,animated=False,hair_profile='indoor'):
+    if hair_profile not in ('indoor','classic'):raise ValueError('Invalid hair presentation')
     output=Path(output);output.mkdir(parents=True,exist_ok=True);parts,textures=read_model(model)
     keys={};groups=collections.defaultdict(list)
     for p in parts:
@@ -141,7 +160,7 @@ def convert(model,output,read_asset,material_cache=None,*,animated=False):
             if key not in coefficient_images:
                 coefficient_images[key]=decode(textures[coeff]).resize(size,Image.Resampling.LANCZOS).getchannel('R')
             return coefficient_images[key]
-    seed=hashlib.sha256(b'XI-material-v5-hair-coverage\0'+tex_template)
+    seed=hashlib.sha256(MATERIAL_REVISION+b'\0'+hair_profile.encode('ascii')+b'\0'+tex_template)
     fingerprints=[hashlib.sha256(struct.pack('<3I',*t[:3])+t[3]).digest() for t in textures] if material_cache else []
     if material_cache:material_cache=Path(material_cache);material_cache.mkdir(parents=True,exist_ok=True)
     def cache_file(entry):
@@ -163,7 +182,7 @@ def convert(model,output,read_asset,material_cache=None,*,animated=False):
         except (OSError,ValueError,struct.error):return False
     def prepare_texture(entry):
         (tex,coeff,color,alpha,blend,hair),i=entry
-        direct=tex>=0 and coeff<0 and tuple(color)==(1.,1.,1.) and alpha==1
+        direct=tex>=0 and coeff<0 and tuple(color)==(1.,1.,1.) and alpha==1 and not hair
         size=textures[tex][:2] if tex>=0 else (4,4);target=output/f'atlas_{i}.rx3';cached=cache_file(entry) if material_cache else None
         if cached and cached.is_file():
             # Validate the immutable cached object before the engine can see it.
@@ -179,17 +198,16 @@ def convert(model,output,read_asset,material_cache=None,*,animated=False):
             im=im.point(lut)
             if coeff>=0:
                 if hair:
-                    # The native player shader handles alphaA and alphaB in
-                    # two passes. A generic prop cannot emulate that by
-                    # discarding all soft texels from alphaA and all dense
-                    # texels from a DIFFERENT alphaB mesh. Custom heads often
-                    # have just one mesh. Keep the source coefficient opacity
-                    # continuously on every original hair part instead.
-                    im.putalpha(coverage(coeff,im.size))
+                    # Keep real gaps from the FIFA mask. Only the indoor core
+                    # strengthens roots; finishing strands keep soft coverage.
+                    mask=coverage(coeff,im.size)
+                    im.putalpha(hair_core_opacity(mask) if hair_profile=='indoor' and not blend else hair_opacity(mask))
                 else:
                     mask=[value if 21<=value<166 else 0 for value in range(256)] if blend else [255 if value>=166 else 0 for value in range(256)]
                     im.putalpha(coverage(coeff,im.size).point(mask))
-            elif blend:im.putalpha(im.getchannel('A').point(np.clip(np.arange(256,dtype='f4')*alpha,0,255).astype('u1').tolist()))
+            elif blend or hair:
+                opacity=im.getchannel('A').point(np.clip(np.arange(256,dtype='f4')*alpha,0,255).astype('u1').tolist())
+                im.putalpha(hair_opacity(opacity) if hair and hair_profile=='indoor' else opacity)
             else:im.putalpha(255)
             blob=texture(im,tex_template,'xi_cm');size=im.size
         # Different material slots may share a fingerprint. Never replace
@@ -205,7 +223,7 @@ def convert(model,output,read_asset,material_cache=None,*,animated=False):
     for p in parts:
         # Preserve original UVs and texture resolution. Only the mesh pose is
         # converted, never the FIFA kit/face layout.
-        groups[(p['tile'],p['blend'] or p['hair'])].append((p['v'],p['idx']))
+        groups[(p['tile'],material_blend(p,hair_profile))].append((p['v'],p['idx']))
     combined={False:[],True:[]}
     for key,items in sorted(groups.items()):
         vs=[];ids=[];n=0
@@ -221,12 +239,17 @@ def convert(model,output,read_asset,material_cache=None,*,animated=False):
         for batch,key in rows:used_slots.append(len(batches));batches.append(batch);bindings.append(key)
         for _ in range(limit-len(rows)):
             v=np.zeros(3,dtype=STRIDE);v['n']=[0,1,0];batches.append((v,np.array([0,1,2],dtype='<u4')));bindings.append((0,transparent))
-    (output/'geometry.rx3').write_bytes(geometry(batches,model_template))
+    (output/'geometry.rx3').write_bytes(geometry(batches,model_template,preserve_winding=animated))
     (output/'white.rx3').write_bytes(texture(Image.new('RGBA',(4,4),'white'),tex_template,'white_cm'))
     (output/'flat_normal.rx3').write_bytes(texture(Image.new('RGBA',(4,4),(128,128,255,255)),tex_template,'xi_nm'))
     coefficient=player_coefficient(tex_template) if animated else texture(Image.new('RGBA',(4,4),(0,0,0,255)),tex_template,'xi_coeff')
     (output/'neutral_coeff.rx3').write_bytes(coefficient)
     positions=np.concatenate([p['v']['p'] for p in parts]);bounds=np.r_[positions.min(axis=0),positions.max(axis=0)].tolist()
     result=dict(version=VERSION,parts=len(used_slots),used_slots=used_slots,slots=SLOTS,pages=len(keys),bindings=bindings,bounds=bounds,vertices=sum(len(p['v']) for p in parts),original_compressed_textures=copied,texture_sizes=sizes,texture_layout='original FIFA UVs',renderer='FIFA native GameplayProp')
+    if any(p['hair'] for p in parts):
+        hair_caps={p['tile'] for p in parts if p['hair'] and not p['blend']}
+        result['hair_opacity']='classic_coverage_v9' if hair_profile=='classic' else 'indoor_coverage_v9'
+        result['hair_cap_slots']=[i for i,(tile,blend) in enumerate(bindings) if i in used_slots and not blend and tile in hair_caps]
+    result['triangle_winding']='authored_fifa' if animated else 'native_normal_compatible'
     if animated:result['player_coefficient']='native_payload_all_mips_v1'
     (output/'assets.json').write_text(json.dumps(result,indent=2),encoding='utf8');return result

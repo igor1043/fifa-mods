@@ -2,11 +2,14 @@
 // materials, resource mapping and submissions still use FIFA's own pipeline.
 // No global stadium illumination or original game object's data is changed.
 #include "room_spotlight_r79.h"
+#include "room_light_probe.h"
+#include "room_prop_shadow_bridge.h"
 struct alignas(16) RoomDrawArgs {
  float color[4];uintptr_t object;int instance;unsigned padding;
- uintptr_t buffer,view;float sphere[4];
+ uintptr_t buffer,view;float sphere[4];std::array<float,4> lightingSphere;
 };
-static_assert(sizeof(RoomDrawArgs)==64);
+static_assert(sizeof(RoomDrawArgs)==80);
+static_assert(offsetof(RoomDrawArgs,sphere)==48&&offsetof(RoomDrawArgs,lightingSphere)==64);
 std::atomic<unsigned> indoorUploads{0},indoorFailures{0};
 std::atomic<unsigned> spotlightedDraws{0};
 std::atomic<unsigned> flatShadowPasses{0},selfShadowPasses{0};
@@ -45,27 +48,31 @@ void __fastcall indoorMesh(void*mesh,void*material,RoomDrawArgs*args){
  auto manager=((void*(__fastcall*)())(image+0x4405da0))();
  ((void(__fastcall*)(void*,const float*,uintptr_t*,uintptr_t*))(image+0x4405dc0))(manager,args->sphere,&buffer,&specular);
  // The original updater consumes its temporary buffer reference.
- if(indoorEnabled)uploadIndoor(args->buffer,args->sphere);
+ if(indoorEnabled)uploadIndoor(args->buffer,args->lightingSphere.data());
  ((void(__fastcall*)(void*,const char*,const char*,void*))(image+0x4acdd30))(material,"","INDIRECT_SPECULAR_TEXTURE",(void*)specular);
  ((void(__fastcall*)(void*,const char*,const char*,void*))(image+0x4acdba0))(material,"","in_sh_data",(void*)args->view);
  ((void(__fastcall*)(void*,const char*,const char*,const float*,int))(image+0x4ace000))(material,"","overlayColor",args->color,1);
  ((void(__fastcall*)(void*,int,int,void*))(image+0x4acbd90))(material,-1,0,nullptr);
  ((void(__fastcall*)(void*,void*,int,int,void*))(image+0x4ade9a0))(mesh,material,0,0,nullptr);nativeRef(specular,false);
 }
-void nativeIndoorDraw(void*self){
+void nativeIndoorDraw(void*self,bool castShadow=false,const room_light_probe::Probe* probe=nullptr,unsigned casterFlags=0){
  const auto o=(uintptr_t)self,vt=get<uintptr_t>(o),ctx=get<uintptr_t>(o+0x30);
  const int count=((int(__fastcall*)(void*))(image+0x4ad7a60))(self);
  if(count<0||count>64)return;
  for(int i=0;i<count;++i){
   auto instance=((uintptr_t(__fastcall*)(void*,int))get<uintptr_t>(vt+0xe0))(self,i);if(!instance)continue;
   ((void(__fastcall*)(void*))(image+0x4abe600))((void*)instance);
+  room_prop_bridge::begin(o,unsigned(i),instance,casterFlags|(castShadow?0:room_shadow_bridge::TextureOnly));
   RoomDrawArgs args{};read(get<uintptr_t>(ctx)+i*16,args.color,16);args.object=o;args.instance=i;
   args.buffer=get<uintptr_t>(ctx+0x18);args.view=get<uintptr_t>(ctx+0x20);read(instance+0x30,args.sphere,16);
+  args.lightingSphere=room_light_probe::sample(args.sphere);
+  if(probe&&probe->valid){float matrix[16]{};if(read(instance,matrix,sizeof matrix))args.lightingSphere=room_light_probe::sample(args.sphere,probe,matrix);}
   nativeRef(args.buffer,true);nativeRef(args.view,true);
   const int lods=((int(__fastcall*)(void*))(image+0x4ad7a00))(self);
   for(int lod=0;lod<lods&&lod<4;++lod){auto composite=((void*(__fastcall*)(void*,int))get<uintptr_t>(vt+0x88))(self,lod);
    ((void(__fastcall*)(void*,void*,RoomDrawArgs*))(image+0x4addc70))(composite,(void*)&indoorMesh,&args);
   }
   nativeRef(args.view,false);nativeRef(args.buffer,false);
+  room_prop_bridge::end();
  }
 }

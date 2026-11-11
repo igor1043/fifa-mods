@@ -7,6 +7,8 @@ typedef struct PreparedViewRecord {
 } PreparedViewRecord;
 typedef struct PreparedViewState {ULONGLONG next,entered;int inside;char applied[65];} PreparedViewState;
 static PreparedViewState g_prepared_views[5];
+static char g_prepared_room_warm[65];
+static ULONGLONG g_prepared_room_probe;
 static SRWLOCK g_competition_back_lock=SRWLOCK_INIT;
 static CareerContextRead g_competition_back_context;
 static ULONGLONG g_competition_back_until;
@@ -156,7 +158,22 @@ static void drain_prepared_views(void)
         ReleaseSRWLockExclusive(&g_competition_back_lock);
     }
     if(page==8)return;
-    if(!page){for(i=0;i<5;++i)g_prepared_views[i].inside=0;return;}
+    if(!page){
+        for(i=0;i<5;++i)g_prepared_views[i].inside=0;
+        /* A room package prepared in the backdrop is loaded by the normal
+         * navigation itself. Remember its validated identity before entry so
+         * the first owner tick does not unload and load that screen again. */
+        if(now>=g_prepared_room_probe && !g_current_stats_provider_owner && fce_runtime_is_stable()){
+            g_prepared_room_probe=now+500;
+            __try {
+                if(prepared_view_read(2,&record) && prepared_view_scope(&record,&captured)
+                    && now>=record.captured && now-record.captured<=12000)
+                    memcpy(g_prepared_room_warm,record.revision,sizeof(g_prepared_room_warm));
+                else g_prepared_room_warm[0]=0;
+            } __except(EXCEPTION_EXECUTE_HANDLER) {g_prepared_room_warm[0]=0;}
+        }
+        return;
+    }
     kind=page==7?4:page==6?3:page==5?2:page>2;waiting=page==2 || page==4;state=&g_prepared_views[kind];
     for(i=0;i<5;++i)if(i!=kind)g_prepared_views[i].inside=0;
     if(!state->inside){state->inside=1;state->entered=now;state->next=0;}
@@ -168,6 +185,9 @@ static void drain_prepared_views(void)
             || (waiting && record.captured<state->entered)
             || (!waiting && !strcmp(state->applied,record.revision))
             || (!kind && !prepared_view_fixture(&record)))return;
+        if(kind==2 && !strcmp(g_prepared_room_warm,record.revision)){
+            memcpy(state->applied,record.revision,sizeof(state->applied));return;
+        }
         if(prepared_view_page()!=page || Fifa16CareerContextRead.sequence!=captured.sequence
             || !prepared_view_queue(captured.registry,
                 kind==4?"Server16RefreshManagerMarket":kind==3?"Server16RefreshClubFinance":kind==2?"Server16RefreshDressingRoom":kind?"Server16RefreshTransferMarket":"Server16RefreshMatchPreview"))return;

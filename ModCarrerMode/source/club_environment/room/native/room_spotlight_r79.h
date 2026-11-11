@@ -13,14 +13,47 @@ inline constexpr float kInvSH1=0.4886025119f;
 inline constexpr float kOuterCos=0.50f; // 60 degree soft cone
 inline constexpr float kInnerCos=0.78f; // 38 degree full-strength cone
 inline constexpr float kRange=620.f;
-inline constexpr std::array<Source,15> kSources={{
- // The native room mesh is about 3.2 m high. Keep the emitters just below
- // that ceiling; the old 12.8 m positions never illuminated room geometry.
- {-500.f,300.f,-250.f},{0.f,300.f,-250.f},{500.f,300.f,-250.f},
- {-500.f,300.f,500.f},{0.f,300.f,500.f},{500.f,300.f,500.f},
- {-500.f,300.f,1250.f},{0.f,300.f,1250.f},{500.f,300.f,1250.f},
- {-500.f,300.f,2000.f},{0.f,300.f,2000.f},{500.f,300.f,2000.f},
- {-500.f,300.f,2700.f},{0.f,300.f,2700.f},{500.f,300.f,2700.f}
+inline constexpr std::array<Source,36> kSources={{
+ // Emit below the lowest retained ceiling skin, avoiding blocked room lights.
+ // Main room
+ {-450.f,310.f,-300.f},
+ {-450.f,310.f,240.f},
+ {-450.f,310.f,780.f},
+ {-450.f,310.f,1320.f},
+ {30.f,310.f,-300.f},
+ {30.f,310.f,240.f},
+ {30.f,310.f,780.f},
+ {30.f,310.f,1320.f},
+ {450.f,310.f,-300.f},
+ {450.f,310.f,240.f},
+ {450.f,310.f,780.f},
+ {450.f,310.f,1320.f},
+ // Medical recovery wing
+ {-960.f,315.f,1710.f},
+ {-960.f,315.f,1950.f},
+ {-960.f,315.f,2190.f},
+ {-960.f,315.f,2430.f},
+ {-960.f,315.f,2670.f},
+ {-720.f,315.f,1710.f},
+ {-720.f,315.f,1950.f},
+ {-720.f,315.f,2190.f},
+ {-720.f,315.f,2430.f},
+ {-720.f,315.f,2670.f},
+ {-480.f,315.f,1710.f},
+ {-480.f,315.f,1950.f},
+ {-480.f,315.f,2190.f},
+ {-480.f,315.f,2430.f},
+ {-480.f,315.f,2670.f},
+ // Coach office
+ {-150.f,315.f,1710.f},
+ {-150.f,315.f,2070.f},
+ {-150.f,315.f,2430.f},
+ {210.f,315.f,1710.f},
+ {210.f,315.f,2070.f},
+ {210.f,315.f,2430.f},
+ {570.f,315.f,1710.f},
+ {570.f,315.f,2070.f},
+ {570.f,315.f,2430.f},
 }};
 
 inline float smooth(float lo,float hi,float x){
@@ -74,7 +107,11 @@ inline std::array<float,28> coefficients(float ambient,float power,const float* 
  for(int channel=0;channel<3;++channel){
   const float tint=channel==0?1.f:channel==1?.99f:.97f;
   const int at=channel*9;
+  // A soft ceiling hemisphere and reflected floor/wall fill. These static
+  // room terms are isolated from stadium lighting and preserve useful contrast.
+  const float ceilingFill=ambient*.14f;
   sh[at]=ambient*tint/kInvSH0;
+  sh[at+2]=ceilingFill*tint/kInvSH1;
  }
  addToSH(sh,power,sphere);
  return sh;

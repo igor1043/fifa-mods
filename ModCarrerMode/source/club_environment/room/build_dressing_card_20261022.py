@@ -14,14 +14,16 @@ import native_roster_footer as roster_footer
 GAME=portable.GAME;CLASS=('game','screens','career','server16','DressingRoom');FULL='.'.join(CLASS);PAGE=FULL.replace('.','/')
 R=b.reg;T=b.this;P=b.prop;CALL=b.call;PATH=b.path;M=b.MANAGER;ION=b.ION
 XML='data/ui/layout/careermanagerhubcfg.xml';NAV='data/ui/nav/careermode/mainmenuhubflow.nav';FLOW='data/ui/nav/careermode/server16dressingroomflow.nav';BIG='data/ui/game/screens/career/server16/dressingroom.big'
-HEADER_REVISION=78
+HEADER_REVISION=86
 def screen(payload=None,asset_reader=None):
  if payload is None:payload=json.loads((ROOT/'runtime/room_context_r46.json').read_text(encoding='utf8'))
  club=int(payload['club']);club_name=payload['club_name'];assert club>=0 and club_name
  import room_scene_ui_r52 as scene_ui
  previous=json.loads((ROOT/'runtime/room_control_scope.json').read_text(encoding='utf8')) if (ROOT/'runtime/room_control_scope.json').exists() else {}
- nonce=previous.get('nonce') if previous.get('club')==club else secrets.token_hex(8)
- scope={'pid':payload['pid'],'club':club,'nonce':nonce,'scenes':payload['scene_catalog'],'room_version':payload.get('room_version',2),'settings':payload.get('room_settings',[])}
+ import room_appearance
+ appearance_scope=room_appearance.scope_key(GAME,club)
+ nonce=previous.get('nonce') if previous.get('club')==club and previous.get('appearance_scope')==appearance_scope and previous.get('appearance_protocol') in (2,3,4) else secrets.token_hex(8)
+ scope={'pid':payload['pid'],'club':club,'nonce':nonce,'scenes':payload['scene_catalog'],'room_version':payload.get('room_version',2),'settings':payload.get('room_settings',[]),'appearance_scope':appearance_scope,'appearance_protocol':4}
  (ROOT/'runtime/room_control_scope.json').write_text(json.dumps(scope,ensure_ascii=False,indent=2),encoding='utf8')
  (ROOT/'runtime/room_control_scope.txt').write_text(f'S16ROOMSCOPE 1 {payload["pid"]} {club} {nonce}\n')
  if asset_reader is None:asset_reader=lambda path:(GAME/path).read_bytes()
@@ -46,7 +48,7 @@ def screen(payload=None,asset_reader=None):
  except FileNotFoundError:crest=asset_reader(f'data/ui/imgassets/crest/dark/l{club}.dds')
  header_controls=[]
  symbol,width,height=bitmap(crest);scale=92/max(width,height);header_controls.append(place(symbol,1,109+(92-width*scale)/2,65+(110-height*scale)/2,scale,scale,'clubCrest'))
- for i,(name,value,x,y,w,h,size) in enumerate((('title','VESTIÁRIO',223,70,1260,58,46),('subtitle',club_name,223,132,1260,40,28))):
+ for i,(name,value,x,y,w,h,size) in enumerate((('title',club_name,223,70,1260,58,42),('subtitle','VESTIÁRIO',223,132,1260,40,28))):
   raw=bytearray(data[apt.characters[3].offset:apt.characters[3].offset+96]);struct.pack_into('<4f',raw,32,0,0,w,h);struct.pack_into('<If',raw,56,0xffffffff,size);struct.pack_into('<QQ',raw,80,append(value.encode('utf8')+b'\0'),0);cid=addchar(raw);header_controls.append(place(cid,i+2,x,y,label=name))
  # A bitmap/shape placement is not a scriptable MovieClip. Hide its enclosing
  # clip, so the original crest cannot remain under the roster's own header.
@@ -68,7 +70,7 @@ def screen(payload=None,asset_reader=None):
   a.do(R(1),'Initialize',FULL,None,True)
   a.do(M('ScreenManager'),'SetOnExitScreenCallback',CALL(PATH('cafe','utility','Delegate'),'Create',R(1),T('OnExitScreen')))
   a.set(R(1),'staticData',CALL(ION,'GetScreenStaticData'));a.set(R(1),'navEvents',CALL(ION,'GetEvents','Navigation'));a.set(R(1),'ready',False);a.do(R(1),'InitSceneControl')
-  for name,value in (('title','VESTIÁRIO'),('subtitle',club_name)):a.set(P(T('roomHeader'),name),'text',value);a.do(M('ScreenManager'),'AddItemToAnimateIn',P(T('roomHeader'),name))
+  for name,value in (('title',club_name),('subtitle','VESTIÁRIO')):a.set(P(T('roomHeader'),name),'text',value);a.do(M('ScreenManager'),'AddItemToAnimateIn',P(T('roomHeader'),name))
   a.do(M('ScreenManager'),'BeginAnimateIn',CALL(PATH('cafe','utility','Delegate'),'Create',R(1),T('OnAnimateInComplete')));a.do(R(1),'OnAnimateInComplete')
  a.function(CLASS[-1],0,ctor,True);a.expr(PATH(*CLASS));a.expr(PATH('ion','screen','BaseScreen'));a.op(105)
  scene_ui.methods(a,scope)
@@ -80,6 +82,7 @@ def screen(payload=None,asset_reader=None):
  def exit(a):
   a.when(T('exiting'),lambda a:a.ret());a.set(R(1),'exiting',True);a.set(R(1),'onEnterFrame',None);a.set(R(1),'onKeyDown',None);a.set(R(1),'onKeyUp',None)
   roster_footer.restore(a);a.do(R(1),'PublishRoster','room_close');a.do(PATH('Key'),'removeListener',R(1))
+  a.when(PATH('Mouse'),lambda a:a.do(PATH('Mouse'),'removeListener',R(1)));a.set(R(1),'onMouseMove',None)
   a.do(M('InputManager'),'DisableCurrentLocalEventHandler');a.do(M('HelpManager'),'Clear');a.do(R(1),'Shutdown')
  a.function('OnExitScreen',0,exit);a.op(0);a.finish();a.align();reg=len(data);data.extend(dictionaries[1]);a.string(FULL);a.op(28);a.string(FULL);a.expr(2);a.expr(PATH('Object'));a.method('registerClass');a.op(23);a.op(0);a.finish()
  for tag,target in ((apt.root_frames[0][1],start),(apt.root_frames[0][2],reg)):

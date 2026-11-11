@@ -7,6 +7,7 @@ typedef struct CareerBackgroundRefresh {
     void *registry;
     uintptr_t view;
     unsigned long context;
+    LONG64 factory;
     int room,frontend;
     ULONGLONG entered_at,deadline;
 } CareerBackgroundRefresh;
@@ -38,7 +39,9 @@ static uintptr_t background_room_view(void)
     for (i=0;i<3;++i) if (!node || !read_card_scope(node+offsets[i],&node,sizeof(node))) return 0;
     return node && read_card_scope(node+472,&page,sizeof(page)) && page
         && read_card_scope(page,name,sizeof(name)) && memchr(name,0,sizeof(name))
-        && !strcmp(name,"game/screens/career/server16/DressingRoom")
+        && (!_stricmp(name,"game/screens/career/server16/DressingRoom")
+            || !_stricmp(name,"game/screens/career/server16/TrophyRoom")
+            || !_stricmp(name,"game/screens/misc/StadiumPan"))
         && read_card_scope(node+472,&check,sizeof(check)) && check==page?node:0;
 }
 
@@ -53,7 +56,7 @@ static uintptr_t background_menu_view(void)
         ||!read_card_scope(node+472,&check,sizeof(check))||check!=page)return 0;
     {const char *leaf=strrchr(name,'/');leaf=leaf?leaf+1:name;
         return !_stricmp(leaf,"MainMenuWithStadium")||!_stricmp(leaf,"MainMenuHub")
-            ||!_stricmp(leaf,"FluxHub")?node:0;}
+            ||!_stricmp(leaf,"FluxHub")||!_stricmp(name,"game/screens/career/ManagerPreferences")?node:0;}
 }
 
 static int background_refresh_owner_valid(void *owner, void *vtable, void *registry)
@@ -72,15 +75,26 @@ __declspec(dllexport) BOOL WINAPI Fifa16CareerQueueBackgroundRefresh(void *owner
     CareerBackgroundRefresh request;
     uintptr_t registry = 0;
     memset(&request, 0, sizeof(request));
+    /* A real frontend callback owns the background even inside FluxHub.
+     * Choosing the card provider first incorrectly required two different
+     * native owner threads to agree, leaving a finished room under BOOTFLOW. */
     if(frontend_ui_dispatching()){request.view=background_menu_view();request.frontend=request.view!=0;}
     if(!request.view)request.view = current_card_hub_view();
-    if (!request.view) {request.view=background_room_view();request.room=request.view!=0;}
+    if (!request.view) {
+        request.view=background_room_view();request.room=request.view!=0;
+        /* Indoor screens borrow BackgroundDP, whose genuine UI factory may
+         * belong to a different thread from Career StatisticsData. A render
+         * producer only queues work; delivery still checks that exact factory
+         * revision, owner thread, registry, page, context and loader state. */
+        request.frontend=request.room && frontend_ui_factory()!=0;
+    }
     if (!request.view || !background_refresh_owner_valid(owner, vtable, NULL)
         || !read_card_scope((uintptr_t)owner + 8, &registry, sizeof(registry))) return FALSE;
     request.owner = owner;
     request.vtable = vtable;
     request.registry = (void *)registry;
     request.context = fce_runtime_context_epoch();
+    request.factory = frontend_ui_factory();
     request.entered_at=GetTickCount64();request.deadline = request.entered_at + 5000;
     AcquireSRWLockExclusive(&g_background_refresh_lock);
     g_background_refresh = request;
@@ -98,12 +112,18 @@ static void drain_background_refresh(void)
         ReleaseSRWLockExclusive(&g_background_refresh_lock);
         return;
     }
-    view = request.frontend?background_menu_view():request.room?background_room_view():current_card_hub_view();
+    view = request.room?background_room_view():request.frontend?background_menu_view():current_card_hub_view();
     if (!view || view != request.view || request.context != fce_runtime_context_epoch()
+        || request.factory != frontend_ui_factory()
         || GetTickCount64() > request.deadline) {
         memset(&g_background_refresh, 0, sizeof(g_background_refresh));
         ReleaseSRWLockExclusive(&g_background_refresh_lock);
         return;
+    }
+    /* A genuine factory can run on a different thread from the career
+     * provider. Both identities must agree before a synthetic refresh. */
+    if(request.factory && (DWORD)request.factory!=GetCurrentThreadId()) {
+        ReleaseSRWLockExclusive(&g_background_refresh_lock);return;
     }
     if(request.frontend){
         if(!frontend_ui_is_owner()||g_current_stats_provider_owner||GetTickCount64()<request.entered_at+80){
@@ -114,7 +134,10 @@ static void drain_background_refresh(void)
             || Fifa16CareerContextRead.sequence&1
             || Fifa16CareerContextRead.pid!=GetCurrentProcessId()
             || Fifa16CareerContextRead.epoch!=request.context
-            || Fifa16CareerContextRead.registry!=(uintptr_t)request.registry
+            /* Indoor views borrow the frontend BackgroundDP. Its registry
+             * differs from Career StatisticsData; retain the exact native
+             * owner/registry, view, epoch and factory/thread guards below. */
+            || (!request.room && Fifa16CareerContextRead.registry!=(uintptr_t)request.registry)
             || Fifa16CareerContextRead.owner_thread!=GetCurrentThreadId()
             || GetTickCount64()<request.entered_at+80) {
             ReleaseSRWLockExclusive(&g_background_refresh_lock);return;
@@ -134,7 +157,8 @@ static void drain_background_refresh(void)
     }
     memset(&g_background_refresh, 0, sizeof(g_background_refresh));
     ReleaseSRWLockExclusive(&g_background_refresh_lock);
-    if (!background_refresh_owner_valid(request.owner, request.vtable, request.registry)) return;
+    if (request.factory != frontend_ui_factory()
+        || !background_refresh_owner_valid(request.owner, request.vtable, request.registry)) return;
     /* No plugin lock is held across the native event/notification dispatch. */
     ((void (*)(void *, int, void *))(g_module_base + 0x4c15b20))(request.owner, 0x9c40, NULL);
     append_loader_log("career_background_refreshed_on_ui_owner");

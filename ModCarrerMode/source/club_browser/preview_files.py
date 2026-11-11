@@ -44,12 +44,25 @@ def store_immutable(path,blob):
         if temp.exists():retry(temp.unlink)
 
 def publish_directory(source,target):
-    """Reuse a concurrent winner rather than replacing a loaded directory."""
+    """Reuse complete models and recover only empty, abandoned directories.
+
+    Windows cannot rename a directory over an existing empty directory. A
+    cleanup or an interrupted preparation can leave such a shell behind.
+    Never recursively delete or replace a populated directory: FIFA may
+    still have its files open, or another publisher may have just won.
+    """
     source=Path(source);target=Path(target)
     def publish():
-        if (target/'assets.json').is_file():return
-        try:os.rename(source,target)
-        except OSError:
+        for attempt in range(3):
             if (target/'assets.json').is_file():return
-            raise
+            if not (source/'assets.json').is_file():raise FileNotFoundError('Modelo preparado sem assets.json: '+str(source))
+            try:os.rename(source,target);return
+            except OSError as error:
+                if (target/'assets.json').is_file():return
+                if attempt==2 or target.is_symlink() or target.is_junction():raise
+                try:target.rmdir()  # Empty only; a populated/racing target is preserved.
+                except FileNotFoundError:continue
+                except OSError:
+                    if (target/'assets.json').is_file():return
+                    raise error
     return retry(publish)

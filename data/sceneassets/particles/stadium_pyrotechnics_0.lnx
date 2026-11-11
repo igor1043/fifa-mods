@@ -288,13 +288,13 @@
 			<parameter name="iInstancing" index="0" value="0" />
 			<particleAction name="ParticleActionEmitBox" className="ParticleActionEmitBox">
 				<parameter name="iEmitRate" index="0" value="150" />
-				<parameter name="fSizeMean" index="0" value="380" />
-				<parameter name="fSizeSpread" index="0" value="100" />
+				<parameter name="fSizeMean" index="0" value="460" />
+				<parameter name="fSizeSpread" index="0" value="125" />
 				<parameter name="vDimensions" index="0" value="{ 0.0, 0.0, 0.0 }" />
 				<parameter name="vCenter" index="0" value="{ 0, 0, 0 }" />
 				<parameter name="iAgeSpreadMs" index="0" value="0" />
 				<parameter name="vVelocityMean" index="0" value="{ 0, 280, 15 }" />
-				<parameter name="vVelocitySpread" index="0" value="{ 60, 100, 40 }" />
+				<parameter name="vVelocitySpread" index="0" value="{ 85, 100, 60 }" />
 				<parameter name="vOrientationSpread" index="0" value="{ 6.28, 0, 0 }" />
 				<parameter name="vAngularVelocitySpread" index="0" value="{ 0.25, 0.0, 0.0 }" />
 				<parameter name="bInject" index="0" value="0" />
@@ -355,13 +355,13 @@
 			<parameter name="iInstancing" index="0" value="0" />
 			<particleAction name="ParticleActionEmitBox" className="ParticleActionEmitBox">
 				<parameter name="iEmitRate" index="0" value="150" />
-				<parameter name="fSizeMean" index="0" value="380" />
-				<parameter name="fSizeSpread" index="0" value="100" />
+				<parameter name="fSizeMean" index="0" value="460" />
+				<parameter name="fSizeSpread" index="0" value="125" />
 				<parameter name="vDimensions" index="0" value="{ 0.0, 0.0, 0.0 }" />
 				<parameter name="vCenter" index="0" value="{ 0, 0, 0 }" />
 				<parameter name="iAgeSpreadMs" index="0" value="0" />
 				<parameter name="vVelocityMean" index="0" value="{ 0, 280, 15 }" />
-				<parameter name="vVelocitySpread" index="0" value="{ 60, 100, 40 }" />
+				<parameter name="vVelocitySpread" index="0" value="{ 85, 100, 60 }" />
 				<parameter name="vOrientationSpread" index="0" value="{ 6.28, 0, 0 }" />
 				<parameter name="vAngularVelocitySpread" index="0" value="{ 0.25, 0.0, 0.0 }" />
 				<parameter name="bInject" index="0" value="0" />
@@ -422,13 +422,13 @@
 			<parameter name="iInstancing" index="0" value="0" />
 			<particleAction name="ParticleActionEmitBox" className="ParticleActionEmitBox">
 				<parameter name="iEmitRate" index="0" value="150" />
-				<parameter name="fSizeMean" index="0" value="380" />
-				<parameter name="fSizeSpread" index="0" value="100" />
+				<parameter name="fSizeMean" index="0" value="460" />
+				<parameter name="fSizeSpread" index="0" value="125" />
 				<parameter name="vDimensions" index="0" value="{ 0.0, 0.0, 0.0 }" />
 				<parameter name="vCenter" index="0" value="{ 0, 0, 0 }" />
 				<parameter name="iAgeSpreadMs" index="0" value="0" />
 				<parameter name="vVelocityMean" index="0" value="{ 0, 280, 15 }" />
-				<parameter name="vVelocitySpread" index="0" value="{ 60, 100, 40 }" />
+				<parameter name="vVelocitySpread" index="0" value="{ 85, 100, 60 }" />
 				<parameter name="vOrientationSpread" index="0" value="{ 6.28, 0, 0 }" />
 				<parameter name="vAngularVelocitySpread" index="0" value="{ 0.25, 0.0, 0.0 }" />
 				<parameter name="bInject" index="0" value="0" />
@@ -489,13 +489,13 @@
 			<parameter name="iInstancing" index="0" value="0" />
 			<particleAction name="ParticleActionEmitBox" className="ParticleActionEmitBox">
 				<parameter name="iEmitRate" index="0" value="150" />
-				<parameter name="fSizeMean" index="0" value="380" />
-				<parameter name="fSizeSpread" index="0" value="100" />
+				<parameter name="fSizeMean" index="0" value="460" />
+				<parameter name="fSizeSpread" index="0" value="125" />
 				<parameter name="vDimensions" index="0" value="{ 0.0, 0.0, 0.0 }" />
 				<parameter name="vCenter" index="0" value="{ 0, 0, 0 }" />
 				<parameter name="iAgeSpreadMs" index="0" value="0" />
 				<parameter name="vVelocityMean" index="0" value="{ 0, 280, 15 }" />
-				<parameter name="vVelocitySpread" index="0" value="{ 60, 100, 40 }" />
+				<parameter name="vVelocitySpread" index="0" value="{ 85, 100, 60 }" />
 				<parameter name="vOrientationSpread" index="0" value="{ 6.28, 0, 0 }" />
 				<parameter name="vAngularVelocitySpread" index="0" value="{ 0.25, 0.0, 0.0 }" />
 				<parameter name="bInject" index="0" value="0" />

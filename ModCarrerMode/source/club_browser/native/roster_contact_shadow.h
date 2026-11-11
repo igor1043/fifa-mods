@@ -12,6 +12,7 @@ inline bool indoorContactAvailable(){
 inline void bindIndoorContact(std::ostringstream& s,bool single){
  contactShadowParts=0;
  if(!single||!roomView||!indoorContactAvailable())return;
+ if(std::atomic_load(&roomshadow::shaderCode))return;
  s<<"gr:AddAsset(o,lod,'room_contact_color','data/sceneassets/server16_dressing_room_v3/shared/contact_shadow_r51.rx3');"
     "gr:AddAsset(o,lod,'room_contact_aux','data/sceneassets/prop/prop_102_textures.rx3');";
  for(int i=1;i<=2;++i){

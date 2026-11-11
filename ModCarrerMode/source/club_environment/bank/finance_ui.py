@@ -4,7 +4,13 @@ from pathlib import Path
 import json,sys
 import portable_paths as portable
 local_market=Path(__file__).resolve().parents[1]/'market'
-sys.path.insert(0,str(local_market if (local_market/'native_screen.py').is_file() else portable.SOURCES/'market'))
+# Runtime can contain an older, partial market helper. A lone native_screen.py
+# is not a complete UI package: it also imports layout.py. Prefer the shipped
+# source pair so the bank worker cannot loop forever on a missing dependency.
+market_source=next((p for p in (portable.SOURCES/'market',local_market)
+    if all((p/name).is_file() for name in ('native_screen.py','layout.py'))),None)
+if market_source is None:raise ImportError('Pacote da interface financeira incompleto: native_screen.py e layout.py')
+sys.path.insert(0,str(market_source))
 import build_screen as b
 from build_preview import Code
 from native_screen import build as build_native,neighbors,arr

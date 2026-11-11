@@ -31,6 +31,12 @@ static void native_refresh(void *owner, int command, void *data)
     ++calls;
 }
 static void menu_callback(void) {}
+static DWORD WINAPI register_factory(void *unused)
+{
+    (void)unused;
+    assert(Fifa16FrontendRegisterUiCallback(menu_callback));
+    return 0;
+}
 static void *owner[2];
 static uintptr_t vtable[10];
 static unsigned char stadium_service[0x80],stadium_object[0x40];
@@ -107,6 +113,10 @@ int main(void)
         *(void **)(nodes+232)=nodes+0x400;*(void **)(nodes+0x400+192)=nodes+0x800;
         *(void **)(nodes+0x800+136)=nodes+0xc00;*(void **)(nodes+0xc00+472)=nodes+0x1000;
         strcpy_s((char *)nodes+0x1000,128,"game/screens/career/server16/DressingRoom");
+        {uintptr_t room=background_room_view();assert(room);
+         strcpy_s((char *)nodes+0x1000,128,"game/screens/career/server16/TrophyRoom");
+         assert(background_room_view()==room);
+         strcpy_s((char *)nodes+0x1000,128,"game/screens/career/server16/DressingRoom");}
         active_view=0;g_pending_stats_provider_owner=NULL;vtable[7]=(uintptr_t)g_module_base+0x408d1d0;
         Fifa16CareerContextRead.pid=GetCurrentProcessId();Fifa16CareerContextRead.epoch=context;
         Fifa16CareerContextRead.registry=(uintptr_t)owner[1];Fifa16CareerContextRead.owner_thread=GetCurrentThreadId();
@@ -127,6 +137,20 @@ int main(void)
         g_current_stats_provider_owner=owner;drain_background_refresh();assert(calls==2);
         g_current_stats_provider_owner=NULL;drain_background_refresh();assert(calls==3);
         drain_background_refresh();assert(calls==3);
+
+        /* Reproduce Career entry with different StatisticsData and native
+         * background factory threads. A native rebuild supersedes the queue. */
+        render=CreateThread(NULL,0,register_factory,NULL,0,NULL);
+        assert(render&&WaitForSingleObject(render,5000)==WAIT_OBJECT_0);
+        CloseHandle(render);
+        assert(Fifa16CareerQueueBackgroundRefresh(owner,vtable));
+        g_background_refresh.entered_at=GetTickCount64()-100;
+        drain_background_refresh();assert(calls==3&&g_background_refresh.owner);
+        assert(Fifa16FrontendRegisterUiCallback(menu_callback));
+        drain_background_refresh();assert(calls==3&&!g_background_refresh.owner);
+        assert(Fifa16CareerQueueBackgroundRefresh(owner,vtable));
+        g_background_refresh.entered_at=GetTickCount64()-100;
+        drain_background_refresh();assert(calls==4&&!g_background_refresh.owner);
     }
     {
         unsigned char nodes[0x1500]={0};
@@ -140,10 +164,76 @@ int main(void)
         assert(!Fifa16CareerQueueBackgroundRefresh(owner,vtable));
         g_frontend_ui_running=1;assert(Fifa16CareerQueueBackgroundRefresh(owner,vtable));g_frontend_ui_running=0;
         assert(g_background_refresh.frontend);g_background_refresh.entered_at=GetTickCount64()-100;
-        drain_background_refresh();assert(calls==4);
+        drain_background_refresh();assert(calls==5);
         g_frontend_ui_running=1;assert(Fifa16CareerQueueBackgroundRefresh(owner,vtable));g_frontend_ui_running=0;
-        strcpy_s((char *)nodes+0x1000,128,"game/screens/online/OnlineHub");drain_background_refresh();assert(calls==4&&!g_background_refresh.owner);
+        strcpy_s((char *)nodes+0x1000,128,"game/screens/online/OnlineHub");drain_background_refresh();assert(calls==5&&!g_background_refresh.owner);
+        strcpy_s((char *)nodes+0x1000,128,"game/screens/career/ManagerPreferences");
+        assert(background_menu_view());
+        assert(!Fifa16CareerQueueBackgroundRefresh(owner,vtable));
+        g_frontend_ui_running=1;assert(Fifa16CareerQueueBackgroundRefresh(owner,vtable));g_frontend_ui_running=0;
+        g_background_refresh.entered_at=GetTickCount64()-100;drain_background_refresh();assert(calls==6&&!g_background_refresh.owner);
+        /* Career's card view exists, but its provider belongs to a different
+         * thread. The genuine Background factory callback takes precedence. */
+        strcpy_s((char *)nodes+0x1000,128,"game/screens/fluxHub/FluxHub");
+        active_view=0x5555;Fifa16CareerContextRead.owner_thread=0;stable=0;
+        g_frontend_ui_running=1;assert(Fifa16CareerQueueBackgroundRefresh(owner,vtable));g_frontend_ui_running=0;
+        assert(g_background_refresh.frontend&&!g_background_refresh.room);
+        assert(g_background_refresh.view==background_menu_view()&&g_background_refresh.view!=active_view);
+        g_background_refresh.entered_at=GetTickCount64()-100;
+        *(int *)(stadium_object+0x30)=14;drain_background_refresh();assert(calls==6&&g_background_refresh.owner);
+        *(int *)(stadium_object+0x30)=0;
+        g_current_stats_provider_owner=owner;drain_background_refresh();assert(calls==6&&g_background_refresh.owner);
+        g_current_stats_provider_owner=NULL;drain_background_refresh();assert(calls==7&&!g_background_refresh.owner);
+        drain_background_refresh();assert(calls==7);
+        g_frontend_ui_running=1;assert(Fifa16CareerQueueBackgroundRefresh(owner,vtable));g_frontend_ui_running=0;
+        g_background_refresh.entered_at=GetTickCount64()-100;
+        ++context;drain_background_refresh();assert(calls==7&&!g_background_refresh.owner);--context;
+        g_frontend_ui_running=1;assert(Fifa16CareerQueueBackgroundRefresh(owner,vtable));g_frontend_ui_running=0;
+        g_background_refresh.entered_at=GetTickCount64()-100;
+        strcpy_s((char *)nodes+0x1000,128,"game/screens/online/ManagerPreferences");assert(!background_menu_view());
+        drain_background_refresh();assert(calls==7&&!g_background_refresh.owner);
         drain_frontend_ui_tick();
+    }
+    {
+        /* Real galleries retain the native frontend BackgroundDP registry,
+         * not the active career StatisticsData registry. Do not confuse
+         * those two independently validated lifetimes. */
+        unsigned char nodes[0x1500]={0};unsigned i;int before=calls;
+        const char *pages[]={"game/screens/career/server16/TrophyRoom",
+                            "game/screens/career/server16/DressingRoom",
+                            "game/screens/misc/StadiumPan"};
+        *(void **)(g_module_base+0x3809030)=nodes;
+        *(void **)(nodes+232)=nodes+0x400;*(void **)(nodes+0x400+192)=nodes+0x800;
+        *(void **)(nodes+0x800+136)=nodes+0xc00;*(void **)(nodes+0xc00+472)=nodes+0x1000;
+        active_view=0;stable=1;g_current_stats_provider_owner=NULL;g_pending_stats_provider_owner=NULL;
+        Fifa16CareerContextRead.pid=GetCurrentProcessId();Fifa16CareerContextRead.epoch=context;
+        Fifa16CareerContextRead.sequence=0;Fifa16CareerContextRead.owner_thread=GetCurrentThreadId();
+        Fifa16CareerContextRead.registry=(uintptr_t)&context;owner[1]=&logs;
+        assert(Fifa16FrontendRegisterUiCallback(menu_callback));
+        for(i=0;i<sizeof(pages)/sizeof(*pages);++i){
+            strcpy_s((char *)nodes+0x1000,128,pages[i]);
+            assert(Fifa16CareerQueueBackgroundRefresh(owner,vtable)&&g_background_refresh.room&&g_background_refresh.frontend);
+            g_background_refresh.entered_at=GetTickCount64()-100;
+            drain_background_refresh();assert(calls==before+(int)i+1&&!g_background_refresh.owner);
+        }
+        before=calls;
+        assert(Fifa16CareerQueueBackgroundRefresh(owner,vtable));
+        g_background_refresh.entered_at=GetTickCount64()-100;
+        owner[1]=&context;drain_background_refresh();assert(calls==before&&!g_background_refresh.owner);owner[1]=&logs;
+        assert(Fifa16CareerQueueBackgroundRefresh(owner,vtable));g_background_refresh.entered_at=GetTickCount64()-100;
+        /* The previous implementation left a finished room under BOOTFLOW:
+         * the genuine UI factory was valid, but StatisticsData belonged to
+         * another thread (or had no current publication on the gallery). */
+        Fifa16CareerContextRead.owner_thread=0;stable=0;
+        drain_background_refresh();assert(calls==before+1&&!g_background_refresh.owner);++before;
+        Fifa16CareerContextRead.owner_thread=GetCurrentThreadId();stable=1;
+        assert(Fifa16CareerQueueBackgroundRefresh(owner,vtable));g_background_refresh.entered_at=GetTickCount64()-100;
+        ++context;drain_background_refresh();assert(calls==before&&!g_background_refresh.owner);--context;
+        /* Ordinary Hub delivery retains its original career registry guard. */
+        strcpy_s((char *)nodes+0x1000,128,"game/screens/career/MailBox");active_view=0x4444;
+        assert(Fifa16CareerQueueBackgroundRefresh(owner,vtable)&&!g_background_refresh.room);
+        g_background_refresh.entered_at=GetTickCount64()-100;drain_background_refresh();assert(calls==before&&g_background_refresh.owner);
+        g_background_refresh.deadline=GetTickCount64()-1;drain_background_refresh();assert(!g_background_refresh.owner);
     }
     assert(VirtualFree(g_module_base, 0, MEM_RELEASE));
     puts("PASS: render producer never invokes native UI; owner-thread delivery, coalescing, lifecycle/context/registry/expiry guards");

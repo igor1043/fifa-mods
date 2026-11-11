@@ -28,9 +28,14 @@ def generate(game,folder,req,memory,exporter,projection_cache):
  market_revision=refresh_key(game)
  projection_cache.load(game,Path(saved['path']))
  market=read_market_profile(game,saved,profile,snapshot['date'],req['club'],projection_cache.save_hash)
- if market is None:raise InterruptedError('Aguardando o vínculo atual do técnico desta carreira')
+ from manager_appearance import actor as user_actor
+ selected_user=user_actor(game,req['club'],dict(profile,pid=req['pid'],created=saved['process_created_100ns'],save_path=saved['path']))
+ if market is None and selected_user is None:raise InterruptedError('Aguardando o vínculo atual do técnico desta carreira')
  data=project(game,Path(saved['path']),req['club'],projection_cache,snapshot,live)
- attach_market(data,market,snapshot,game)
+ if selected_user is None:attach_market(data,market,snapshot,game)
+ else:
+  from manager_market.model_assets import catalog
+  data['fields']['portrait']=catalog(game)[selected_user['coachId']]['image']
  timings['profile_ms']=round((time.perf_counter()-began)*1000)
  def current():
   after,ctx=observe(memory,game)
@@ -38,7 +43,7 @@ def generate(game,folder,req,memory,exporter,projection_cache):
  if not current():return False
  blob=tsv(data);atomic(folder/'coach.tsv',blob);revision=hashlib.sha256(blob).hexdigest()
  def ready(**values):publish(folder,req,'ready',kind='coach',profile_revision=revision,**values)
- selected=market_actor(game,market)
+ selected=selected_user or market_actor(game,market)
  if selected is None:
   ready(actor=0,message='O técnico atual não possui modelo 3D instalado.' if market else 'Aguardando a identidade do mercado desta carreira.',career=context[2]);return True
  tool=game/'ModCarrerMode/tools/club_browser/generate_lineup.exe';animation_dir=game/'ModCarrerMode/data/club_browser/animations'
@@ -49,6 +54,7 @@ def generate(game,folder,req,memory,exporter,projection_cache):
  if not tool.is_file() or clip is None:
   ready(actor=0,message='O renderizador do técnico não está instalado.',career=context[2]);return True
  from coach_surface import VERSION as COACH_SURFACE_VERSION
+ from native_assets import MATERIAL_REVISION
  model_hashes=b''
  for suffix in ('.rx3','_textures.rx3'):
   asset=selected['base']+suffix
@@ -60,7 +66,7 @@ def generate(game,folder,req,memory,exporter,projection_cache):
   model_hashes+=hashlib.sha256(raw).digest()
  def identity_for(candidate):
   blob=f'coach-career-identity-v1/{COACH_SURFACE_VERSION}/{req["club"]}/{selected["coachId"]}/{candidate.name}/{tool.stat().st_size}/{tool.stat().st_mtime_ns}'.encode()+candidate.read_bytes()+fixture+model_hashes
-  return hashlib.sha256(blob).hexdigest()
+  return hashlib.sha256(blob+MATERIAL_REVISION).hexdigest()
  cache_root=game/'ModCarrerMode/cache/club_browser/coach'
  # Prefer any already prepared native idle for this exact coach/club/assets.
  # A new request used to pick an unprepared random idle and redo conversion.
@@ -89,8 +95,8 @@ def generate(game,folder,req,memory,exporter,projection_cache):
      atomic(exported,model.read_bytes())
     timings['export_ms']=round((time.perf_counter()-started)*1000);started=time.perf_counter()
     if not current():return False
-    if model.read_bytes()[:8]==b'FF3D0003':bake(model,clip,temp/'native',portable_paths.read_asset,game/'ModCarrerMode/cache/club_browser/xi/materials',cancel=lambda:not current())
-    else:convert(model,temp/'native',portable_paths.read_asset,game/'ModCarrerMode/cache/club_browser/xi/materials',animated=True)
+    if model.read_bytes()[:8]==b'FF3D0003':bake(model,clip,temp/'native',portable_paths.read_asset,game/'ModCarrerMode/cache/club_browser/xi/materials',cancel=lambda:not current(),hair_profile='classic')
+    else:convert(model,temp/'native',portable_paths.read_asset,game/'ModCarrerMode/cache/club_browser/xi/materials',animated=True,hair_profile='classic')
     timings['animation_ms']=round((time.perf_counter()-started)*1000)
     cache.parent.mkdir(parents=True,exist_ok=True);publish_directory(temp/'native',cache)
   if not current():return False

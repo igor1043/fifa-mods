@@ -103,14 +103,16 @@ def write_model(rig,vertices,path):
   f.write(b'FFMAT001'+struct.pack('<I',len(rig['parts'])))
   for p in rig['parts']:f.write(struct.pack('<Ii',int('/hair/' in p['asset'].lower()),p['coeff']))
 
-def encode(v,indices):
- p=v['p'];n=v['n'].copy();n/=np.maximum(np.linalg.norm(n,axis=1,keepdims=True),1e-8);uv=v['uv'];ids=indices.reshape(-1,3).copy();sign=np.einsum('ij,ij->i',np.cross(p[ids[:,1]]-p[ids[:,0]],p[ids[:,2]]-p[ids[:,0]]),n[ids].mean(axis=1));rev=sign<-.00001;ids[rev]=ids[rev][:,[0,2,1]]
+def encode(v,indices,*,preserve_winding=False):
+ p=v['p'];n=v['n'].copy();n/=np.maximum(np.linalg.norm(n,axis=1,keepdims=True),1e-8);uv=v['uv'];ids=indices.reshape(-1,3).copy()
+ if not preserve_winding:
+  sign=np.einsum('ij,ij->i',np.cross(p[ids[:,1]]-p[ids[:,0]],p[ids[:,2]]-p[ids[:,0]]),n[ids].mean(axis=1));reverse=sign<-.00001;ids[reverse]=ids[reverse][:,[0,2,1]]
  a,b,c=ids.T;e1=p[b]-p[a];e2=p[c]-p[a];d1=uv[b]-uv[a];d2=uv[c]-uv[a];det=d1[:,0]*d2[:,1]-d1[:,1]*d2[:,0];tg=(e1*d2[:,1,None]-e2*d1[:,1,None])/np.where(abs(det)>1e-10,det,1)[:,None];tg[abs(det)<=1e-10]=0;acc=np.zeros_like(p)
  for k in range(3):np.add.at(acc,ids[:,k],tg)
  acc-=n*np.sum(acc*n,axis=1,keepdims=True);bad=np.linalg.norm(acc,axis=1)<1e-8;axis=np.zeros_like(p);axis[:,0]=1;axis[abs(n[:,0])>.9]=[0,0,1];acc[bad]=np.cross(axis[bad],n[bad]);acc/=np.maximum(np.linalg.norm(acc,axis=1,keepdims=True),1e-8)
  out=np.zeros(len(p),dtype=[('p','<f2',4),('n','<u4'),('g','<u4'),('uv','<f2',2)]);out['p'][:,:3]=p;out['p'][:,3]=1;out['n']=packed(n);out['g']=packed(acc);out['uv']=uv;return out.tobytes()
 
-def bake(model,clip_path,output,read_asset,material_cache=None,cancel=None,player=None):
+def bake(model,clip_path,output,read_asset,material_cache=None,cancel=None,player=None,*,hair_profile='indoor'):
  rig=read_rig(model);kit_report=None
  from coach_surface import prepare as prepare_coach,manager as is_manager
  coach=is_manager(rig);rig,coach_report=prepare_coach(rig)
@@ -119,10 +121,11 @@ def bake(model,clip_path,output,read_asset,material_cache=None,cancel=None,playe
   rig,kit_report=personalize(rig,player,read_asset)
  anim=Animation(rig,json.loads(Path(clip_path).read_text(encoding='utf-8-sig')));initial=skin(rig,anim.pose(0));floor=min(v['p'][:,1].min() for v in initial);
  for v in initial:v['p'][:,1]-=floor
- intermediate=Path(output).parent/'player-static.ff3d';write_model(rig,initial,intermediate);report=convert(intermediate,output,read_asset,material_cache,animated=True)
+ intermediate=Path(output).parent/'player-static.ff3d';write_model(rig,initial,intermediate);report=convert(intermediate,output,read_asset,material_cache,animated=True,hair_profile=hair_profile)
+ from native_assets import material_blend
  parts,_=read_model(intermediate);keys={};groups=collections.defaultdict(list)
  for i,p in enumerate(parts):
-  key=(p['tex'],p['coeff'],tuple(p['tint'] if p['tex']>=0 else p['color']),p['alpha'],p['blend'],p['hair']);tile=keys.setdefault(key,len(keys));groups[(tile,p['blend'] or p['hair'])].append(i)
+  key=(p['tex'],p['coeff'],tuple(p['tint'] if p['tex']>=0 else p['color']),p['alpha'],p['blend'],p['hair']);tile=keys.setdefault(key,len(keys));groups[(tile,material_blend(p,hair_profile))].append(i)
  plans={False:[],True:[]}
  for key,indices in sorted(groups.items()):
   group=[];n=0
@@ -144,7 +147,7 @@ def bake(model,clip_path,output,read_asset,material_cache=None,cancel=None,playe
    contact=min(v['p'][:,1].min() for v in vertices)
    for v in vertices:v['p'][:,1]-=contact
   for slot,plan,idx,n,frames in tracks:
-   data=encode(np.concatenate([vertices[i] for i in plan]),idx)
+   data=encode(np.concatenate([vertices[i] for i in plan]),idx,preserve_winding=True)
    if frame==0 and data!=native[slot][16:16+len(data)]:raise ValueError('Layout de vértices diferente da geometria nativa.')
    frames.append(data)
  target=Path(output)/'animation.bin'

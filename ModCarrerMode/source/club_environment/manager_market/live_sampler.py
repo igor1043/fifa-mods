@@ -26,6 +26,7 @@ class Sampler:
    if not same_session(self.owner,owner):self.samples.clear();self.retained_revisions.clear()
    self.owner=owner
    row_revision=live.get('revision') or hashlib.sha256(json.dumps(live['rows'],sort_keys=True).encode()).hexdigest()
+   if live.get('national_job'):row_revision+=':nation:'+str(live['national_job']['team'])
    campaign_revision=hashlib.sha256(json.dumps(live['snapshot'],sort_keys=True).encode()).hexdigest() if live.get('snapshot') else None
    seen=self.retained_revisions.get(live['date'])
    old=self.samples.get(live['date'])
@@ -34,7 +35,10 @@ class Sampler:
     return
    self.retained_revisions[live['date']]=(row_revision,campaign_revision or (seen[1] if seen else None))
    previous=json.loads(zlib.decompress(old['payload'])) if old else {}
-   payload=dict(rows=live['rows'],snapshot=live.get('snapshot') or previous.get('snapshot'))
+   snapshot=live.get('snapshot') or previous.get('snapshot')
+   job=live.get('national_job') or previous.get('national_job')
+   if snapshot and job:snapshot=dict(snapshot,national_job=job)
+   payload=dict(rows=live['rows'],snapshot=snapshot,national_job=job)
    encoded=zlib.compress(json.dumps(payload,separators=(',',':')).encode(),1)
    files=journal or (old.get('journal',()) if old else ())
    self.samples[live['date']]=dict(date=live['date'],revision=live.get('revision'),payload=encoded,journal=files)
@@ -95,7 +99,12 @@ class Sampler:
      if io.get('operation') in ('read','write'):
       self.publish(self.root/'read_request.tsv',s,observed['profile'],observed['date'],'0'*64)
       self.capture_journal(observed,token)
-      live=self.read(self.root/'live_leagues.tsv',observed,self.ticks());self.retain(observed,token,live)
+      live=self.read(self.root/'live_leagues.tsv',observed,self.ticks())
+      try:
+       from national_title_context import live_team
+       live['national_job']=dict(date=observed['date'],team=live_team(memory,observed['profile']),source='live_context')
+      except (OSError,RuntimeError,ValueError,KeyError):pass
+      self.retain(observed,token,live)
     except (OSError,ValueError,KeyError,RuntimeError):pass
     self.stop.wait(.2)
   except (OSError,RuntimeError):pass
@@ -144,18 +153,20 @@ def calendar_context(context,snapshot,rows):
  evidence=project(snapshot,fixtures,members,rows,today,context['season'],today,'live_league')
  for row in evidence['performance']:
   if row['source']=='fce':row['source']='native_view'
- return dict(context,date=today,fixtures=fixtures,coverage=dict(evidence.get('coverage',{}),calendar_native=True),performance=evidence['performance'],tables=evidence['tables'],club_tables=evidence['club_tables'],table_dates=evidence['table_dates'])
+ from title_evidence import completed_titles,merge_scores
+ formats=context.get('title_formats',{});labels=context.get('title_labels',{})
+ leagues={lid:dict(members={c['club_id'] for c in context['clubs'] if c['league_id']==lid}) for lid in set(members.values())}
+ title_start=context.get('title_start',context['season'])
+ title_fixtures=merge_scores(context.get('title_fixtures',[dict(m,stageKind=m['kind'],homeScore=m['hg'],awayScore=m['ag']) for m in fixtures]),snapshot,title_start)
+ title_rows=completed_titles(title_fixtures,formats,leagues,today,title_start,lambda i:labels.get(i,'Competição '+str(i)))
+ titles=[dict(t,asset=t['competition']) for t in title_rows] if formats else context.get('titles',[])
+ jobs=[j for j in context.get('national_jobs',[]) if j['date']<=today]
+ if snapshot.get('national_job'):jobs.append(snapshot['national_job'])
+ return dict(context,date=today,national_jobs=jobs,fixtures=fixtures,titles=titles,title_fixtures=title_fixtures,coverage=dict(evidence.get('coverage',{}),calendar_native=True),performance=evidence['performance'],tables=evidence['tables'],club_tables=evidence['club_tables'],table_dates=evidence['table_dates'])
 
 
 def dated_fixtures(snapshot,known,season):
- nodes={r[0]:r for r in snapshot.get('nodes',[])};fixtures={m['id']:m for m in known}
- for f in snapshot.get('fixtures',[]):
-  node=f[1];seen=set();root=None
-  while node in nodes and node not in seen:
-   seen.add(node);r=nodes[node]
-   if r[2]==3:root=r;break
-   node=r[1]
-  if root is None or f[5]<=0 or f[6]<=0 or f[5]==f[6]:continue
-  old=fixtures.get(f[0],{});played=f[9]==1 and 0<=f[7]<100 and 0<=f[8]<100
-  fixtures[f[0]]=dict(id=f[0],root=root[0],asset=root[3],stage=f[2],kind=old.get('kind',0),date=f[3],home=f[5],away=f[6],hg=f[7] if played else None,ag=f[8] if played else None,played=played,season=season)
- return list(fixtures.values())
+ from title_evidence import merge_scores,season_of
+ source=[dict(m,stageKind=m['kind'],homeScore=m['hg'],awayScore=m['ag']) for m in known]
+ merged=merge_scores(source,snapshot,season)
+ return [dict(id=m['id'],root=m['root'],asset=m['asset'],stage=m['stage'],kind=m['stageKind'],date=m['date'],home=m['home'],away=m['away'],hg=m['homeScore'],ag=m['awayScore'],played=m['played'],season=season_of(m['date'],season)) for m in merged]

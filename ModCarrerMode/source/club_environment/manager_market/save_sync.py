@@ -13,8 +13,11 @@ def record(path):
 def pending_checkpoint(market,game,save,context=None):
  """A known native write must bind before any load may seed/restore its slot."""
  folder=Path(game)/'ModCarrerMode/runtime/manager_market/save_events';save=Path(save)
+ from durable_store import approved_reset
+ waived=approved_reset(game,save,context)
  def normal(path):return Path(str(path).removeprefix('\\\\?\\')).resolve()
  for path in folder.glob('*.tsv'):
+  if path.stem in waived:continue
   try:
    event=record(path)
    if not event.get('market_revision') or event.get('operation')!='write' or normal(event['path'])!=normal(save):continue

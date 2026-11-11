@@ -50,6 +50,10 @@ CREATE INDEX IF NOT EXISTS appointment_history_date ON appointments(branch,club_
 CREATE TABLE IF NOT EXISTS honours(branch TEXT,coach_id TEXT,club_id INT,season INT,competition_id INT,root INT,game_date INT,name TEXT,PRIMARY KEY(branch,season,root,club_id));
 CREATE INDEX IF NOT EXISTS honour_coach_history ON honours(branch,coach_id,game_date);
 CREATE INDEX IF NOT EXISTS honour_club_history ON honours(branch,club_id,game_date);
+CREATE TABLE IF NOT EXISTS trophy_history(branch TEXT,coach_id TEXT,club_id INT,season INT,competition_id INT,root INT,game_date INT,name TEXT,source TEXT,team_kind TEXT NOT NULL DEFAULT 'club',PRIMARY KEY(branch,season,root,competition_id,club_id));
+CREATE INDEX IF NOT EXISTS trophy_coach_history ON trophy_history(branch,coach_id,game_date);
+CREATE INDEX IF NOT EXISTS trophy_club_history ON trophy_history(branch,club_id,game_date);
+CREATE TABLE IF NOT EXISTS trophy_national_tenures(branch TEXT,coach_id TEXT,team_id INT,start_date INT,end_date INT,source TEXT,PRIMARY KEY(branch,coach_id,start_date,team_id));
 CREATE TABLE IF NOT EXISTS reviews(branch TEXT,club_id INT,game_date INT,pressure REAL,position INT,expected_position INT,reason TEXT,decision TEXT,PRIMARY KEY(branch,club_id,game_date));
 CREATE INDEX IF NOT EXISTS review_date ON reviews(branch,game_date);
 CREATE TABLE IF NOT EXISTS cup_exits(branch TEXT,root INT,club_id INT,game_date INT,prestige INT,PRIMARY KEY(branch,root,club_id,game_date));
@@ -69,7 +73,7 @@ CREATE TABLE IF NOT EXISTS approaches(branch TEXT,id TEXT,game_date INT,club_id 
 CREATE INDEX IF NOT EXISTS approach_cooldown ON approaches(branch,club_id,coach_id,game_date);
 PRAGMA user_version=5;
 '''
-TABLES=('coaches','clubs','appointments','movements','results','honours','reviews','cup_exits','competition_policies','market_rules','salary_events','progress','performance_evidence','appointment_baselines','appointment_campaigns','annual_campaigns','reputation_events','approaches','market_cycles','market_review_pending')
+TABLES=('coaches','clubs','appointments','movements','results','honours','trophy_history','trophy_national_tenures','reviews','cup_exits','competition_policies','market_rules','salary_events','progress','performance_evidence','appointment_baselines','appointment_campaigns','annual_campaigns','reputation_events','approaches','market_cycles','market_review_pending')
 
 def day(value):return date(value//10000,value//100%100,value%100)
 def packed(d):return d.year*10000+d.month*100+d.day
@@ -123,6 +127,7 @@ class Market:
   version=self.db.execute('PRAGMA user_version').fetchone()[0]
   if version not in (0,1,2,3,4,5):raise ValueError('Versão do mercado de técnicos não suportada')
   self.db.executescript(SCHEMA)
+  if 'team_kind' not in {r[1] for r in self.db.execute('PRAGMA table_info(trophy_history)')}:self.db.execute("ALTER TABLE trophy_history ADD COLUMN team_kind TEXT NOT NULL DEFAULT 'club'")
   coach_columns={r[1] for r in self.db.execute('PRAGMA table_info(coaches)')}
   if 'birthplace' not in coach_columns:self.db.execute('ALTER TABLE coaches ADD COLUMN birthplace TEXT')
   if 'state' not in {r[1] for r in self.db.execute('PRAGMA table_info(save_checkpoints)')}:self.db.execute('ALTER TABLE save_checkpoints ADD COLUMN state BLOB')
@@ -133,7 +138,10 @@ class Market:
   try:from .snapshot_journal import Journal
   except ImportError:from snapshot_journal import Journal
   self.journal=Journal(self.db,TABLES)
- def close(self):self.db.close()
+ def close(self):
+  mirror=getattr(self,'_durable_mirror',None)
+  if mirror:mirror.close();self._durable_mirror=None
+  self.db.close()
  def rows(self,table,where='',args=()):
   if table not in TABLES:raise ValueError('Tabela inválida')
   return self.db.rows(self.branch,table,where,args)
@@ -662,7 +670,10 @@ class Market:
   # Reopening a saved day restores its exact world. A richer publication of
   # that same day must not roll decisions/contracts again. History remains
   # intact across season/table resets; simulation resumes on the next day.
-  if today<=self.restored_through:return
+  if today<=self.restored_through:
+   from title_history import record as record_titles
+   record_titles(self,context)
+   return
   self.upgrade_policy();p=self.policy();self.import_new_coaches();self.sync_clubs(context);self.ensure_user(context,today)
   # One-time compatibility for the first catalogue: the user's requested
   # initial tenure starts at the native save's startdate, not the mod install.
@@ -733,6 +744,8 @@ class Market:
    if getattr(self,'market_progress',None):self.market_progress.market_day(current,complete=True)
   self.ingest(fixtures,today)
   self.review_global(context,current_policy)
+  from title_history import record as record_titles
+  record_titles(self,context)
   for title in context.get('titles',[]):
    if title['date']<info['start_date'] or title['date']>today:continue
    evidence=self.db.execute('SELECT home,home_coach,away_coach FROM results WHERE branch=? AND root=? AND competition_id=? AND game_date<=? AND (home=? OR away=?) ORDER BY game_date DESC LIMIT 1',(self.branch,title['root'],title['asset'],title['date'],title['club'],title['club'])).fetchone()

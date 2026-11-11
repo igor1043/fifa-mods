@@ -6,7 +6,7 @@ Dirty partitions are tracked by SQL triggers in the same transaction as facts.
 """
 import hashlib,json,zlib
 
-DATED={'results','reviews','movements','honours','cup_exits','salary_events','reputation_events','performance_evidence','appointment_campaigns','approaches'}
+DATED={'results','reviews','movements','honours','trophy_history','cup_exits','salary_events','reputation_events','performance_evidence','appointment_campaigns','approaches'}
 
 def partition(table,alias=''):
  prefix=alias+'.' if alias else ''

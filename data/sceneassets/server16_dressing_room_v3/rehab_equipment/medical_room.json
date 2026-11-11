@@ -1,0 +1,312 @@
+{
+  "revision": 1,
+  "bindings": [
+    {
+      "material": "dark",
+      "submesh": "room_part_1"
+    },
+    {
+      "material": "metal",
+      "submesh": "room_part_2"
+    },
+    {
+      "material": "white",
+      "submesh": "room_part_3"
+    },
+    {
+      "material": "padding",
+      "submesh": "room_part_4"
+    },
+    {
+      "material": "wood",
+      "submesh": "room_part_5"
+    },
+    {
+      "material": "atlas",
+      "submesh": "room_part_6"
+    },
+    {
+      "material": "glass",
+      "submesh": "room_part_7"
+    },
+    {
+      "material": "crest",
+      "submesh": "room_part_8"
+    }
+  ],
+  "obstacles": [
+    {
+      "name": "Departamento médico R77 / parede",
+      "lo": [
+        -1119,
+        0,
+        1545
+      ],
+      "hi": [
+        -1110,
+        320,
+        2844.0
+      ]
+    },
+    {
+      "name": "Departamento médico R77 / parede",
+      "lo": [
+        -341,
+        0,
+        1555
+      ],
+      "hi": [
+        -335,
+        320,
+        2844.0
+      ]
+    },
+    {
+      "name": "Departamento médico R77 / parede",
+      "lo": [
+        -1119,
+        0,
+        2832.0
+      ],
+      "hi": [
+        -335,
+        320,
+        2844.0
+      ]
+    },
+    {
+      "name": "Departamento médico R77 / parede",
+      "lo": [
+        -1110,
+        0,
+        1545
+      ],
+      "hi": [
+        -615,
+        320,
+        1555
+      ]
+    },
+    {
+      "name": "Departamento médico R77 / parede",
+      "lo": [
+        -475,
+        0,
+        1545
+      ],
+      "hi": [
+        -335,
+        320,
+        1555
+      ]
+    },
+    {
+      "name": "Departamento médico R77 / mesa de atendimento",
+      "lo": [
+        -1050,
+        2,
+        1775
+      ],
+      "hi": [
+        -815,
+        86,
+        1860
+      ]
+    },
+    {
+      "name": "Departamento médico R77 / cadeira",
+      "lo": [
+        -1026,
+        0,
+        1653
+      ],
+      "hi": [
+        -964,
+        133,
+        1717
+      ]
+    },
+    {
+      "name": "Departamento médico R77 / cadeira",
+      "lo": [
+        -901,
+        0,
+        1653
+      ],
+      "hi": [
+        -839,
+        133,
+        1717
+      ]
+    },
+    {
+      "name": "Departamento médico R77 / cadeira",
+      "lo": [
+        -961,
+        0,
+        1868
+      ],
+      "hi": [
+        -899,
+        133,
+        1932
+      ]
+    },
+    {
+      "name": "Departamento médico R77 / bancada",
+      "lo": [
+        -1107,
+        3,
+        1970
+      ],
+      "hi": [
+        -1035,
+        92,
+        2360
+      ]
+    },
+    {
+      "name": "Departamento médico R77 / maca",
+      "lo": [
+        -670,
+        0,
+        1788
+      ],
+      "hi": [
+        -446,
+        110,
+        1872
+      ]
+    },
+    {
+      "name": "Departamento médico R77 / carrinho",
+      "lo": [
+        -409,
+        0,
+        1726
+      ],
+      "hi": [
+        -354,
+        128,
+        1778
+      ]
+    },
+    {
+      "name": "Departamento médico R77 / banco giratório",
+      "lo": [
+        -749,
+        0,
+        1879
+      ],
+      "hi": [
+        -701,
+        55,
+        1927
+      ]
+    },
+    {
+      "name": "Departamento médico R77 / maca",
+      "lo": [
+        -670,
+        0,
+        2088
+      ],
+      "hi": [
+        -446,
+        110,
+        2172
+      ]
+    },
+    {
+      "name": "Departamento médico R77 / carrinho",
+      "lo": [
+        -409,
+        0,
+        2026
+      ],
+      "hi": [
+        -354,
+        128,
+        2078
+      ]
+    },
+    {
+      "name": "Departamento médico R77 / banco giratório",
+      "lo": [
+        -749,
+        0,
+        2179
+      ],
+      "hi": [
+        -701,
+        55,
+        2227
+      ]
+    },
+    {
+      "name": "Departamento médico R77 / maca",
+      "lo": [
+        -670,
+        0,
+        2388
+      ],
+      "hi": [
+        -446,
+        110,
+        2472
+      ]
+    },
+    {
+      "name": "Departamento médico R77 / carrinho",
+      "lo": [
+        -409,
+        0,
+        2326
+      ],
+      "hi": [
+        -354,
+        128,
+        2378
+      ]
+    },
+    {
+      "name": "Departamento médico R77 / banco giratório",
+      "lo": [
+        -749,
+        0,
+        2479
+      ],
+      "hi": [
+        -701,
+        55,
+        2527
+      ]
+    },
+    {
+      "name": "Departamento médico R77 / recipiente",
+      "lo": [
+        -1108,
+        0,
+        1902
+      ],
+      "hi": [
+        -1072,
+        49,
+        1938
+      ]
+    },
+    {
+      "name": "Departamento médico R77 / recipiente",
+      "lo": [
+        -408,
+        0,
+        2492
+      ],
+      "hi": [
+        -372,
+        49,
+        2528
+      ]
+    }
+  ]
+}

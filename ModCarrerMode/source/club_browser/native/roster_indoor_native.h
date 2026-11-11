@@ -1,13 +1,15 @@
 #pragma once
+#include "../../club_environment/room/native/room_light_probe.h"
 // Indoor light for the roster actor only. This is the same verified native
 // GameplayProp submission used by the room, with the actor's own SH buffer.
 // Textures, material parameters, mesh alpha and animation remain FIFA's.
 // Nothing is written to the stadium's lighting or another renderable.
 struct alignas(16) RoomDrawArgs {
  float color[4];uintptr_t object;int instance;unsigned padding;
- uintptr_t buffer,view;float sphere[4];
+ uintptr_t buffer,view;float sphere[4];std::array<float,4> lightingSphere;
 };
-static_assert(sizeof(RoomDrawArgs)==64);
+static_assert(sizeof(RoomDrawArgs)==80);
+static_assert(offsetof(RoomDrawArgs,sphere)==48&&offsetof(RoomDrawArgs,lightingSphere)==64);
 std::atomic<unsigned> indoorUploads{0},indoorFailures{0};
 bool indoorEnabled=true;
 std::atomic<float> indoorAmbient{clubs::rosterIndoorLightDefault};
@@ -18,7 +20,7 @@ void refreshIndoorLight(){
  if(f>>value)if(clubs::validRosterIndoorLight(value))indoorAmbient=value;
 }
 void nativeRef(uintptr_t p,bool add){if(p)((void(__fastcall*)(void*))get<uintptr_t>(get<uintptr_t>(p)+(add?0:8)))((void*)p);}
-bool uploadIndoor(uintptr_t buffer){
+bool uploadIndoor(uintptr_t buffer,const float* sphere){
  auto device=get<uintptr_t>(base+0x36140b0);if(!device||!buffer)return false;
  uintptr_t context=0;
  ((void(__fastcall*)(void*,uintptr_t*))get<uintptr_t>(get<uintptr_t>(device)+0x30))((void*)device,&context);
@@ -33,7 +35,7 @@ bool uploadIndoor(uintptr_t buffer){
  nativeRef(buffer,false);
  ok=mapped.data!=nullptr;
  if(ok){
-  const auto coefficients=clubs::rosterIndoorLight(indoorAmbient.load());
+  const auto coefficients=room_spotlight_r79::coefficients(indoorAmbient.load()*.38f,indoorAmbient.load()*.50f,sphere);
   ok=write((uintptr_t)mapped.data,coefficients.data(),sizeof(float)*coefficients.size());
   nativeRef(buffer,true);
   ((void(__fastcall*)(void*,void*,void*,Mapped*))get<uintptr_t>(get<uintptr_t>(context)+0x348))((void*)context,(void*)buffer,(void*)(base+0x35b0e80),&mapped);
@@ -48,7 +50,7 @@ void __fastcall indoorMesh(void*mesh,void*material,RoomDrawArgs*args){
  auto manager=((void*(__fastcall*)())(base+0x4405da0))();
  ((void(__fastcall*)(void*,const float*,uintptr_t*,uintptr_t*))(base+0x4405dc0))(manager,args->sphere,&buffer,&specular);
  // The original updater consumes its temporary buffer reference.
- if(indoorEnabled)uploadIndoor(args->buffer);
+ if(indoorEnabled)uploadIndoor(args->buffer,args->lightingSphere.data());
  ((void(__fastcall*)(void*,const char*,const char*,void*))(base+0x4acdd30))(material,"","INDIRECT_SPECULAR_TEXTURE",(void*)specular);
  ((void(__fastcall*)(void*,const char*,const char*,void*))(base+0x4acdba0))(material,"","in_sh_data",(void*)args->view);
  ((void(__fastcall*)(void*,const char*,const char*,const float*,int))(base+0x4ace000))(material,"","overlayColor",args->color,1);
@@ -62,8 +64,14 @@ void nativeIndoorDraw(void*self){
  for(int i=0;i<count;++i){
   auto instance=((uintptr_t(__fastcall*)(void*,int))get<uintptr_t>(vt+0xe0))(self,i);if(!instance)continue;
   ((void(__fastcall*)(void*))(base+0x4abe600))((void*)instance);
+  float model[16]{},viewProjection[16]{};
+  read(instance,model,sizeof model);read(base+0x3614180,viewProjection,sizeof viewProjection);
+  auto device=get<uintptr_t>(base+0x36140b0),native=get<uintptr_t>(device+0x758);
+  auto context=reinterpret_cast<ID3D11DeviceContext*>(get<uintptr_t>(native+0x3520));
+  roomshadow::CaptureScope shadow(context,readySequence.load(),model,viewProjection);
   RoomDrawArgs args{};read(get<uintptr_t>(ctx)+i*16,args.color,16);args.object=o;args.instance=i;
   args.buffer=get<uintptr_t>(ctx+0x18);args.view=get<uintptr_t>(ctx+0x20);read(instance+0x30,args.sphere,16);
+  args.lightingSphere=room_light_probe::sample(args.sphere);args.lightingSphere[1]+=90.f;args.lightingSphere[3]=95.f;
   nativeRef(args.buffer,true);nativeRef(args.view,true);
   const int lods=((int(__fastcall*)(void*))(base+0x4ad7a00))(self);
   for(int lod=0;lod<lods&&lod<4;++lod){auto composite=((void*(__fastcall*)(void*,int))get<uintptr_t>(vt+0x88))(self,lod);

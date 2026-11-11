@@ -26,6 +26,7 @@ inline std::shared_ptr<Clip>activeClip;
 inline std::atomic<bool>enabled{true},visible{false};
 inline std::atomic<uint64_t>drawTime{0};
 inline std::atomic<unsigned>drawUploads{0},drawUnavailable{0},drawMatches{0},drawRejected{0},drawRearms{0};
+inline std::atomic<void(*)(ID3D11DeviceContext*)> drawBindingObserver{nullptr};
 // FIFA expands RX3's two packed 3s10n vectors to half4, truncating the half
 // mantissa toward zero. Verified byte-for-byte against every mesh of a live
 // actor; position, UV and vertex order remain unchanged (20 -> 28 bytes).
@@ -90,26 +91,29 @@ if(!clip->paused&&clip->selectedRange<clip->ranges.size()&&clip->ranges.size()>1
  D3D11_MAPPED_SUBRESOURCE mapped{};if(FAILED(c->Map(buffer->animated,0,D3D11_MAP_WRITE_DISCARD,0,&mapped))){++drawUnavailable;return;}auto out=(unsigned char*)mapped.pData;memcpy(out,mix<.5?left:right,bytes);
  if(!clip->constant)for(unsigned v=0;v<t.vertices;++v)for(unsigned axis=0;axis<3;++axis){size_t offset=size_t(v)*buffer->stride+axis*2;uint16_t x,y;memcpy(&x,left+offset,2);memcpy(&y,right+offset,2);float X=DirectX::PackedVector::XMConvertHalfToFloat(x),Y=DirectX::PackedVector::XMConvertHalfToFloat(y);auto value=DirectX::PackedVector::XMConvertFloatToHalf(X+(Y-X)*mix);memcpy(out+offset,&value,2);}c->Unmap(buffer->animated,0);buffer->lastUpload=now;++clip->updates;++drawUploads;
 }
+inline thread_local bool staticSceneDraw=false;
 using Bind=void(STDMETHODCALLTYPE*)(ID3D11DeviceContext*,UINT,UINT,ID3D11Buffer*const*,const UINT*,const UINT*);
 struct ContextHook{void**table=nullptr;Bind bind=nullptr;};
 inline std::mutex contextMutex;inline std::vector<ContextHook>contexts;
 inline ContextHook original(ID3D11DeviceContext*c){auto vt=*reinterpret_cast<void***>(c);std::lock_guard<std::mutex>lock(contextMutex);for(auto&h:contexts)if(h.table==vt)return h;return {};}
 inline void STDMETHODCALLTYPE bindVertices(ID3D11DeviceContext*c,UINT first,UINT count,ID3D11Buffer*const*buffers,const UINT*strides,const UINT*offsets){
  auto h=original(c);if(!h.bind)return;ID3D11Buffer*changed[D3D11_IA_VERTEX_INPUT_RESOURCE_SLOT_COUNT]{};bool changedBinding=false;std::shared_ptr<PrivateBuffer>privateBuffer;
- try{if(enabled&&visible&&first==0&&count>0&&count<=D3D11_IA_VERTEX_INPUT_RESOURCE_SLOT_COUNT&&buffers&&buffers[0]&&strides&&offsets&&!offsets[0]){auto clip=std::atomic_load(&activeClip);if(clip){privateBuffer=verify(c,buffers[0],strides[0],clip);if(privateBuffer&&enabled&&visible&&std::atomic_load(&activeClip)==clip){auto now=drawTime.load();if(!now)now=GetTickCount64();upload(c,clip,privateBuffer,now);std::copy(buffers,buffers+count,changed);changed[0]=privateBuffer->animated;changedBinding=true;++drawMatches;}}}}catch(...){++drawUnavailable;}
+ try{if(!staticSceneDraw&&enabled&&visible&&first==0&&count>0&&count<=D3D11_IA_VERTEX_INPUT_RESOURCE_SLOT_COUNT&&buffers&&buffers[0]&&strides&&offsets&&!offsets[0]){auto clip=std::atomic_load(&activeClip);if(clip){privateBuffer=verify(c,buffers[0],strides[0],clip);if(privateBuffer&&enabled&&visible&&std::atomic_load(&activeClip)==clip){auto now=drawTime.load();if(!now)now=GetTickCount64();upload(c,clip,privateBuffer,now);std::copy(buffers,buffers+count,changed);changed[0]=privateBuffer->animated;changedBinding=true;++drawMatches;}}}}catch(...){++drawUnavailable;}
  // Keep the private animation stream bound. Restoring frame-zero geometry
  // after every draw caused visible pose swaps when D3D refreshed dispatch.
  // The native engine requests the next mesh normally; unrelated streams pass
  // through unchanged, and buffers returned by IAGet already refer to this copy.
  h.bind(c,first,count,changedBinding?changed:buffers,strides,offsets);
+ if(auto observer=drawBindingObserver.load())observer(c);
 }
 inline bool replace(void**slot,void*expected,void*replacement){if(*slot==replacement)return true;DWORD protection=0;if(!VirtualProtect(slot,sizeof(void*),PAGE_READWRITE,&protection))return false;auto seen=InterlockedCompareExchangePointer((void*volatile*)slot,replacement,expected);DWORD ignored=0;VirtualProtect(slot,sizeof(void*),protection,&ignored);return seen==expected||seen==replacement;}
 inline bool sameNativeCode(void*a,void*b){MEMORY_BASIC_INFORMATION left{},right{};return a&&b&&VirtualQuery(a,&left,sizeof left)&&VirtualQuery(b,&right,sizeof right)&&left.Type==MEM_IMAGE&&right.Type==MEM_IMAGE&&left.AllocationBase==right.AllocationBase;}
-inline bool armNativeDraw(ID3D11DeviceContext*c){
- if(!enabled||!c||!visible||!std::atomic_load(&activeClip))return false;if(c->GetType()!=D3D11_DEVICE_CONTEXT_IMMEDIATE){++drawUnavailable;return false;}auto vt=*reinterpret_cast<void***>(c);std::lock_guard<std::mutex>lock(contextMutex);ContextHook*h=nullptr;for(auto&item:contexts)if(item.table==vt)h=&item;
+inline bool armVertexObserver(ID3D11DeviceContext*c){
+ if(!c)return false;if(c->GetType()!=D3D11_DEVICE_CONTEXT_IMMEDIATE){++drawUnavailable;return false;}auto vt=*reinterpret_cast<void***>(c);std::lock_guard<std::mutex>lock(contextMutex);ContextHook*h=nullptr;for(auto&item:contexts)if(item.table==vt)h=&item;
  if(!h){if(contexts.size()>=8||vt[18]==(void*)&bindVertices){++drawUnavailable;return false;}contexts.push_back({vt,(Bind)vt[18]});h=&contexts.back();}
  if(vt[18]!=(void*)&bindVertices&&vt[18]!=(void*)h->bind){if(!sameNativeCode(vt[18],(void*)h->bind)){++drawUnavailable;return false;}h->bind=(Bind)vt[18];}bool changed=vt[18]!=(void*)&bindVertices;if(!replace(vt+18,(void*)h->bind,(void*)&bindVertices)){++drawUnavailable;return false;}if(changed)++drawRearms;return true;
 }
+inline bool armNativeDraw(ID3D11DeviceContext*c){return enabled&&visible&&std::atomic_load(&activeClip)&&armVertexObserver(c);}
 inline void prepareNativeDraw(ID3D11DeviceContext*c,uint64_t now){
  if(!armNativeDraw(c))return;drawTime=now;auto clip=std::atomic_load(&activeClip);std::vector<std::shared_ptr<PrivateBuffer>>buffers;{std::lock_guard<std::mutex>lock(cacheMutex);if(cache.clip==clip)buffers=cache.buffers;}for(auto&buffer:buffers)if(enabled&&visible&&std::atomic_load(&activeClip)==clip)upload(c,clip,buffer,now);
 }

@@ -158,8 +158,7 @@ foreach($file in Get-ChildItem -LiteralPath (Join-Path $modSource 'source\club_e
     if ($file.FullName -match '[\\/]__pycache__[\\/]' -or $file.Extension -in @('.obj','.lib','.exp','.pyc')) { continue }
     Add-File $file.FullName ('ModCarrerMode\source\club_environment\'+$file.FullName.Substring((Join-Path $modSource 'source\club_environment').Length+1))
 }
-Add-File (Join-Path $modSource 'tools\Install-ClubEnvironment.ps1') 'ModCarrerMode\tools\Install-ClubEnvironment.ps1'
-Add-File (Join-Path $modSource 'install-club-environment.cmd') 'ModCarrerMode\install-club-environment.cmd'
+# Installation scripts run from development; only runtime helpers belong in the game.
 $birthdateSource = Join-Path $modSource 'mods\career_birthdate_2006\payload\vpro_proinfo.big'
 $birthdateRelative = 'data\ui\game\screens\virtualpro\vpro_proinfo.big'
 $birthdateTarget = Join-Path $game $birthdateRelative
@@ -172,7 +171,6 @@ if (Test-Path -LiteralPath $birthdateTarget -PathType Leaf) {
 }
 Add-File $birthdateSource $birthdateRelative
 $birthyearUiHelper = Join-Path $PSScriptRoot 'Enable-BirthyearUI.ps1'
-Add-File $birthyearUiHelper 'ModCarrerMode\tools\maintenance\Enable-BirthyearUI.ps1'
 # Copying a loose APT is insufficient while the original BH entry is active.
 # Plan against the installed archives before changing any files. The payload
 # argument is the already validated source, which may not be installed yet.
@@ -198,7 +196,9 @@ foreach($file in $files) {
     $changes.Add($file)
 }
 $obsoletePaths = @('dinput8_career_chain.dll','ModCarrerMode\mods\bench12_global_limit_12_v2',
-    'ModCarrerMode\config\entrance_competitions.ini','ModCarrerMode\entrance_competitions.ini')
+    'ModCarrerMode\config\entrance_competitions.ini','ModCarrerMode\entrance_competitions.ini',
+    'ModCarrerMode\install-club-environment.cmd','ModCarrerMode\install-game.cmd',
+    'ModCarrerMode\tools\Install-ClubEnvironment.ps1','ModCarrerMode\tools\maintenance\Enable-BirthyearUI.ps1')
 if ($enabledPlugins -contains 'subson\subson_bridge.dll') { $obsoletePaths += 'ModCarrerMode\mods\bench_native12' }
 if (-not $liveMods) {
     $obsoletePaths += 'ModCarrerMode\mods\skip_server_shutdown_notice'

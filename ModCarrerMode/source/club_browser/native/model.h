@@ -5,7 +5,11 @@
 #include <fstream>
 #include <algorithm>
 #include <cmath>
+#include <atomic>
+#include <cstring>
 namespace clubs {
+inline std::atomic<bool> managerFacePreview{false};
+inline bool isManagerPreferences(const char* name){return name&&!std::strcmp(name,"game/screens/career/ManagerPreferences");}
 struct GlobeView{static constexpr float x=470,y=24,w=1130,h=800,camera=3.8f,focal=2.3f;};
 struct Point{float x=0,y=0;bool visible=false;};
 inline Point project(float latitude,float longitude,float yaw,float pitch,float zoom){float lat=latitude*.01745329252f,lon=longitude*.01745329252f,x=cosf(lat)*sinf(lon),y=sinf(lat),z=cosf(lat)*cosf(lon);float xx=cosf(yaw)*x+sinf(yaw)*z,zz=-sinf(yaw)*x+cosf(yaw)*z,yy=cosf(pitch)*y-sinf(pitch)*zz,depth=sinf(pitch)*y+cosf(pitch)*zz,eye=GlobeView::camera/zoom,d=eye-depth;Point p;p.visible=depth>1/eye&&d>.01f;p.x=GlobeView::x+(xx*GlobeView::focal/(GlobeView::w/GlobeView::h)/d+1)*GlobeView::w/2;p.y=GlobeView::y+(1-yy*GlobeView::focal/d)*GlobeView::h/2;return p;}

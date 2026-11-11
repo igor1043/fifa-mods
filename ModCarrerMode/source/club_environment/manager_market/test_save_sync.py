@@ -36,6 +36,36 @@ class SaveSyncTest(unittest.TestCase):
    with patch('lineup_data.databases',return_value=[fake]):self.assertEqual(1,len(recover_pending(target,self.root,other,dict(date=self.saved_date,club=self.saved_club))))
    target.open_save(self.digest,other,context(self.saved_date));self.assertEqual(5,len(target.rows('results')))
   finally:target.close()
+ def test_save_as_recovers_after_fifa_removes_the_original_slot_database(self):
+  from save_database import database_path,recover_pending
+  from durable_store import persist,path as durable_path
+  self.capture();expected=self.m.snapshot();revision=self.m.db.execute('SELECT state_hash FROM session_states ORDER BY captured_ms DESC LIMIT 1').fetchone()[0]
+  before=self.save.read_bytes();counts=persist(self.m,self.save,revision,checkpoints=True)
+  self.assertGreater(counts['states'],0);self.assertNotEqual(durable_path(self.save).parent,self.save.parent)
+  # The source slot SQL vanishes before the completed Save As is consumed.
+  original=self.m.path;self.m.close();original.unlink();self.m=Market(self.root/'empty.db',self.root/'cat.db')
+  other=self.root/'slots/slot2/DATA';other.parent.mkdir();other.write_bytes(self.save.read_bytes());(other.parent/'INDEX').write_bytes(b'index')
+  self.event(path=str(other),market_revision=revision,market_context='1e',market_date=self.saved_date,market_club=self.saved_club)
+  target=Market(database_path(other),self.root/'cat.db')
+  fake=SimpleNamespace(tables={'career_calendar':{},'career_users':{}},rows=lambda name,fields:[{'currdate':self.saved_date}] if name=='career_calendar' else [{'clubteamid':self.saved_club}])
+  try:
+   with patch('lineup_data.databases',return_value=[fake]):self.assertEqual(1,len(recover_pending(target,self.root,other,dict(date=self.saved_date,club=self.saved_club))))
+   target.open_save(self.digest,other,context(self.saved_date))
+   actual=json.loads(zlib.decompress(target.snapshot()));want=json.loads(zlib.decompress(expected));actual['info'].update(id=want['info']['id'],kind=want['info']['kind'])
+   self.assertEqual(want,actual);self.assertEqual(before,self.save.read_bytes())
+  finally:target.close()
+ def test_approved_missing_snapshot_reset_is_limited_to_one_save_digest(self):
+  from durable_store import approved_reset
+  from save_database import normal
+  from save_sync import pending_checkpoint
+  revision='0'*64;self.event(market_revision=revision,market_context='1e',market_date=self.saved_date,market_club=self.saved_club)
+  key=hashlib.sha256(str(normal(self.save)).encode('utf8')).hexdigest();folder=self.root/'ModCarrerMode/runtime/manager_market/recovery_resets';folder.mkdir()
+  (folder/(key+'.json')).write_text(json.dumps(dict(schema=1,save=str(self.save),digest=self.digest,receipts=['save'])))
+  current=dict(context(self.saved_date),digest=self.digest)
+  self.assertFalse(pending_checkpoint(self.m,self.root,self.save,current))
+  self.assertTrue(pending_checkpoint(self.m,self.root,self.save,dict(current,digest='different')))
+  self.event(name='other',market_revision=revision,market_context='1e',market_date=self.saved_date,market_club=self.saved_club)
+  self.assertTrue(pending_checkpoint(self.m,self.root,self.save,current))
  def setUp(self):
   self.tmp=tempfile.TemporaryDirectory();self.root=Path(self.tmp.name);catalog(self.root/'cat.db');self.m=Market(self.root/'market.db',self.root/'cat.db');self.m.open_save('initial','DATA',context());self.events=self.root/'ModCarrerMode/runtime/manager_market/save_events';self.events.mkdir(parents=True);self.save=self.root/'slots/slot1/DATA';self.save.parent.mkdir(parents=True);(self.save.parent/'INDEX').write_bytes(b'index')
   raw=bytearray(160)+b'unique saved career';raw[116:132]=b'SaveType_Career\0';raw[136:140]=(56).to_bytes(4,'little');raw[132:136]=zlib.crc32(raw[160:]).to_bytes(4,'little');self.save.write_bytes(raw);self.digest=hashlib.sha256(raw).hexdigest();self.crc=zlib.crc32(raw[160:]);self.saved_date=20260120;self.saved_club=3

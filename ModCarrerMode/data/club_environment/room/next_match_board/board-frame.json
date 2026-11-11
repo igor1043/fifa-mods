@@ -1,0 +1,271 @@
+{
+  "schema": 1,
+  "units": "cm",
+  "dynamic_image": {
+    "lo": [
+      -117.5,
+      1094,
+      -512.55
+    ],
+    "hi": [
+      117.5,
+      1242,
+      -512.55
+    ]
+  },
+  "parts": [
+    {
+      "prefix": "part_0",
+      "name": "Board marker",
+      "group": "markers",
+      "color_linear": [
+        0.02500000037252903,
+        0.03999999910593033,
+        0.05999999865889549
+      ],
+      "triangles": 92
+    },
+    {
+      "prefix": "part_1",
+      "name": "Board marker.001",
+      "group": "markers",
+      "color_linear": [
+        0.014999999664723873,
+        0.07000000029802322,
+        0.25999999046325684
+      ],
+      "triangles": 92
+    },
+    {
+      "prefix": "part_2",
+      "name": "Board marker.002",
+      "group": "markers",
+      "color_linear": [
+        0.25,
+        0.02500000037252903,
+        0.019999999552965164
+      ],
+      "triangles": 92
+    },
+    {
+      "prefix": "part_3",
+      "name": "Bottom frame",
+      "group": "metal",
+      "color_linear": [
+        0.3199999928474426,
+        0.3799999952316284,
+        0.4000000059604645
+      ],
+      "triangles": 188
+    },
+    {
+      "prefix": "part_4",
+      "name": "Caster fork",
+      "group": "dark",
+      "color_linear": [
+        0.02500000037252903,
+        0.03200000151991844,
+        0.03799999877810478
+      ],
+      "triangles": 188
+    },
+    {
+      "prefix": "part_5",
+      "name": "Caster fork.001",
+      "group": "dark",
+      "color_linear": [
+        0.02500000037252903,
+        0.03200000151991844,
+        0.03799999877810478
+      ],
+      "triangles": 188
+    },
+    {
+      "prefix": "part_6",
+      "name": "Caster fork.002",
+      "group": "dark",
+      "color_linear": [
+        0.02500000037252903,
+        0.03200000151991844,
+        0.03799999877810478
+      ],
+      "triangles": 188
+    },
+    {
+      "prefix": "part_7",
+      "name": "Caster fork.003",
+      "group": "dark",
+      "color_linear": [
+        0.02500000037252903,
+        0.03200000151991844,
+        0.03799999877810478
+      ],
+      "triangles": 188
+    },
+    {
+      "prefix": "part_8",
+      "name": "Full white backing",
+      "group": "white",
+      "color_linear": [
+        0.8199999928474426,
+        0.8399999737739563,
+        0.8199999928474426
+      ],
+      "triangles": 188
+    },
+    {
+      "prefix": "part_9",
+      "name": "Left frame",
+      "group": "metal",
+      "color_linear": [
+        0.3199999928474426,
+        0.3799999952316284,
+        0.4000000059604645
+      ],
+      "triangles": 188
+    },
+    {
+      "prefix": "part_10",
+      "name": "Locking caster",
+      "group": "rubber",
+      "color_linear": [
+        0.014000000432133675,
+        0.01600000075995922,
+        0.017999999225139618
+      ],
+      "triangles": 124
+    },
+    {
+      "prefix": "part_11",
+      "name": "Locking caster.001",
+      "group": "rubber",
+      "color_linear": [
+        0.014000000432133675,
+        0.01600000075995922,
+        0.017999999225139618
+      ],
+      "triangles": 124
+    },
+    {
+      "prefix": "part_12",
+      "name": "Locking caster.002",
+      "group": "rubber",
+      "color_linear": [
+        0.014000000432133675,
+        0.01600000075995922,
+        0.017999999225139618
+      ],
+      "triangles": 124
+    },
+    {
+      "prefix": "part_13",
+      "name": "Locking caster.003",
+      "group": "rubber",
+      "color_linear": [
+        0.014000000432133675,
+        0.01600000075995922,
+        0.017999999225139618
+      ],
+      "triangles": 124
+    },
+    {
+      "prefix": "part_14",
+      "name": "Right frame",
+      "group": "metal",
+      "color_linear": [
+        0.3199999928474426,
+        0.3799999952316284,
+        0.4000000059604645
+      ],
+      "triangles": 188
+    },
+    {
+      "prefix": "part_15",
+      "name": "Rigid rear body",
+      "group": "dark",
+      "color_linear": [
+        0.02500000037252903,
+        0.03200000151991844,
+        0.03799999877810478
+      ],
+      "triangles": 188
+    },
+    {
+      "prefix": "part_16",
+      "name": "Stable foot -1",
+      "group": "metal",
+      "color_linear": [
+        0.3199999928474426,
+        0.3799999952316284,
+        0.4000000059604645
+      ],
+      "triangles": 188
+    },
+    {
+      "prefix": "part_17",
+      "name": "Stable foot 1",
+      "group": "metal",
+      "color_linear": [
+        0.3199999928474426,
+        0.3799999952316284,
+        0.4000000059604645
+      ],
+      "triangles": 188
+    },
+    {
+      "prefix": "part_18",
+      "name": "Support post -1",
+      "group": "metal",
+      "color_linear": [
+        0.3199999928474426,
+        0.3799999952316284,
+        0.4000000059604645
+      ],
+      "triangles": 188
+    },
+    {
+      "prefix": "part_19",
+      "name": "Support post 1",
+      "group": "metal",
+      "color_linear": [
+        0.3199999928474426,
+        0.3799999952316284,
+        0.4000000059604645
+      ],
+      "triangles": 188
+    },
+    {
+      "prefix": "part_20",
+      "name": "Top frame",
+      "group": "metal",
+      "color_linear": [
+        0.3199999928474426,
+        0.3799999952316284,
+        0.4000000059604645
+      ],
+      "triangles": 188
+    },
+    {
+      "prefix": "part_21",
+      "name": "Tray bottom",
+      "group": "metal",
+      "color_linear": [
+        0.3199999928474426,
+        0.3799999952316284,
+        0.4000000059604645
+      ],
+      "triangles": 188
+    },
+    {
+      "prefix": "part_22",
+      "name": "Tray outer lip",
+      "group": "metal",
+      "color_linear": [
+        0.3199999928474426,
+        0.3799999952316284,
+        0.4000000059604645
+      ],
+      "triangles": 188
+    }
+  ]
+}

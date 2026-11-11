@@ -4,6 +4,21 @@ from unittest.mock import patch
 from live_sampler import Sampler
 
 class CalendarRetentionTests(unittest.TestCase):
+    def test_calendar_replay_keeps_last_season_titles_after_startdate_rollover(self):
+        from live_sampler import calendar_context
+        final=dict(id=1,root=10,asset=28,stage=11,stageKind=10,date=20261101,home=1370,away=1318,homeScore=2,awayScore=1,played=True)
+        context=dict(clubs=[],fixtures=[],season=20270108,title_start=20260101,title_fixtures=[final],title_formats={11:dict(mode='KO1LEG')},title_labels={28:'Copa'})
+        snapshot=dict(date=20270103,nodes=[[10,0,3,28,0],[11,10,4,-1,10]],fixtures=[[1,10,11,20271101,2000,1370,1318,0,0,0,1]],standings=[])
+        result=calendar_context(context,snapshot,[])
+        self.assertEqual([(28,1370,20261101)],[(r['asset'],r['club'],r['date']) for r in result['titles']])
+    def test_national_job_is_retained_even_when_league_rows_do_not_change(self):
+        sampler=Sampler(None,None,None,None,None,None,None,None,lambda:0)
+        observed=dict(date=20260102,save=dict(pid=1,process_created_100ns=2,path='DATA'),profile=dict(context_address=3,context_epoch=4,club_id=5))
+        token=('read','1','DATA')
+        for nation in (0,1370):
+            sampler.retain(observed,token,dict(date=20260102,rows=[],revision='unchanged',snapshot={'date':20260102},national_job=dict(date=20260102,team=nation,source='live_context')))
+        with patch.object(sampler,'capture_journal'):rows=sampler.drain(observed,token,20260101)
+        self.assertEqual(1370,rows[0]['snapshot']['national_job']['team'])
     def test_drain_keeps_files_until_sql_commit_then_keeps_current_day(self):
         with tempfile.TemporaryDirectory() as temp:
             root=Path(temp)

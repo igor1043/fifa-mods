@@ -15,6 +15,10 @@ for %%T in (test_stadium_view test_choice_focus test_scene_publication) do (
  %%T.exe
  if errorlevel 1 exit /b 1
 )
+cl /nologo /O2 /W3 /EHsc /std:c++17 /utf-8 /MT "%STADIUM_SOURCE%\..\..\common\test_native_scene_vignette.cpp" /Fe:test_native_scene_vignette.exe
+if errorlevel 1 exit /b 1
+test_native_scene_vignette.exe
+if errorlevel 1 exit /b 1
 cl /nologo /O2 /W3 /EHsc /std:c++17 /utf-8 /MT /LD "%STADIUM_SOURCE%\render.cpp" miniz_tinfl.obj /Fe:club_browser.dll /link user32.lib gdi32.lib ole32.lib d3d11.lib d3dcompiler.lib dxgi.lib psapi.lib windowscodecs.lib bcrypt.lib
 if errorlevel 1 exit /b 1
 popd

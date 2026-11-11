@@ -17,17 +17,64 @@ def open_personalization():
         return original(payload,asset)
     with patch.object(card,'screen',side_effect=build):vm,screen,calls,scope,apt=open_room()
     modal=screen.get('roomSettings')
-    for i in range(6):
+    for i in range(len(art.CATALOG)):
         modal.set('setting'+str(i),Object({key:Object({'label':Object()}) for key in ('title','value','highlight','previous','next')}))
     for key in ('close','apply'):modal.set(key,Object({'highlight':Object(),'label':Object()}))
+    modal.set('scrollTrack',Object());modal.set('scrollThumb',Object())
+    modal.set('settingsHint',Object())
+    modal.set('groupTitle',Object())
+    for name in ('previousGroup','nextGroup'):modal.set(name,Object({'label':Object()}))
     codes=vm.path('game.globalClasses.InputCodes');codes.set('L1',50);codes.set('OPTION_TOP',51);codes.set('R3',52)
     return vm,screen,calls,scope
 
 
-def commands(calls):return [args[-1] for name,args in calls if name=='SendSystemEvent' and args[1]=='Server16RoomScene']
+def commands(calls):
+    # Overlay visibility is a rendering signal, not an appearance edit.
+    return [args[-1] for name,args in calls if name=='SendSystemEvent' and args[1]=='Server16RoomScene' and args[-1].split('|')[-2] not in ('-6','-7')]
 
 
 class PersonalizationTests(unittest.TestCase):
+    def test_free_camera_is_clear_but_q_and_back_keep_working(self):
+        vm,s,calls,_=open_personalization();vm.invoke(s.get('OpenFreeCamera'),s)
+        for name in ('roomHeader','freeHint','sceneButton','playersButton','freeButton','settingsButton'):
+            self.assertFalse(s.get(name).get('_visible'),name)
+        self.assertEqual(vm.invoke(s.get('getHelpContext'),s),[])
+        vm.invoke(s.get('LocalEventHandler'),s,[52,True]);self.assertTrue(s.get('settingsOpen'))
+        vm.invoke(s.get('CloseRoomSettings'),s);self.assertTrue(s.get('freeCameraOpen'));self.assertFalse(s.get('settingsButton').get('_visible'))
+        vm.invoke(s.get('LocalEventHandler'),s,[1,True]);self.assertFalse(s.get('freeCameraOpen'))
+
+    def test_scroll_keeps_five_rows_and_fixed_apply_controls(self):
+        vm,s,calls,_=open_personalization();vm.invoke(s.get('OpenRoomSettings'),s)
+        vm.invoke(s.get('ScrollRoomSettings'),s,[99]);self.assertEqual(s.get('settingsOffset'),1)
+        self.assertFalse(s.get('roomSettings').get('setting0').get('_visible'));self.assertTrue(s.get('roomSettings').get('setting6').get('_visible'))
+        vm.invoke(s.get('onMouseWheel'),s,[len(art.CATALOG)]);self.assertEqual(s.get('settingsOffset'),0)
+        self.assertTrue(s.get('roomSettings').get('setting0').get('_visible'));self.assertFalse(s.get('roomSettings').get('setting7').get('_visible'))
+
+    def test_each_save_preserves_its_visuals_and_legacy_baseline(self):
+        with tempfile.TemporaryDirectory() as folder:
+            game=Path(folder);runtime=game/'ModCarrerMode/runtime';runtime.mkdir(parents=True)
+            snapshot=runtime/'career_fce_snapshot.json';legacy=game/art.PREFERENCES/'99999.json';legacy.parent.mkdir(parents=True)
+            legacy.write_text(json.dumps({'floor':'dark'}));baseline=legacy.read_bytes()
+            def career(path,pid=42):snapshot.write_text(json.dumps(dict(pid=pid,club=99999,savePath=path,fceContextEpoch=2)))
+            career(r'C:\Careers\first\DATA');first=art.preference_scope(game,99999,42)
+            values=art.preferences(game,99999);self.assertEqual(values['floor'],'dark');values['floor']='graphite'
+            (runtime/'club_environment/room/runtime').mkdir(parents=True)
+            self.assertTrue(art.write_preferences(game,42,99999,'scope',1,120,values))
+            career(r'C:\Careers\second\DATA');self.assertNotEqual(art.preference_scope(game,99999,42),first)
+            self.assertEqual(art.preferences(game,99999)['floor'],'dark')
+            career(r'c:\CAREERS\FIRST\data');self.assertEqual(art.preference_scope(game,99999,42),first)
+            self.assertEqual(art.preferences(game,99999)['floor'],'graphite');self.assertEqual(legacy.read_bytes(),baseline)
+            self.assertIsNone(art.preference_scope(game,99999,41))
+
+    def test_overlay_visibility_is_scoped_and_keeps_the_actual_appearance_edit(self):
+        vm,s,calls,scope=open_personalization()
+        start=len(calls);vm.invoke(s.get('OpenRoomSettings'),s)
+        vm.invoke(s.get('ShiftRoomSetting'),s,[1,1]);vm.invoke(s.get('ApplyRoomSettings'),s)
+        wires=[args[-1].split('|') for name,args in calls[start:] if name=='SendSystemEvent' and args[1]=='Server16RoomScene']
+        self.assertEqual([wire[-2] for wire in wires],['-6',str(art.DOOR_APPLY_BASE),'-7'])
+        self.assertTrue(all(wire[2]==scope['nonce'] for wire in wires))
+        self.assertEqual(len(commands(calls)),1) # Applying never resets the camera.
+
     def test_native_help_stays_below_actions_in_every_room_mode_and_restores_on_exit(self):
         vm,s,calls,_=open_personalization()
         holder=Object({'_y':930});scroller=Object({'_y':930})
@@ -48,18 +95,21 @@ class PersonalizationTests(unittest.TestCase):
             return native_text(value)
         vm,s,calls,_=open_personalization()
         for counter in (0,15,16,28,29,127,9999):
-            for indices in ([1,1,4,1,0,0],[1,5,4,0,0,1],[0,1,0,0,0,0]):
+            for indices in ([1,1,4,1,0,0,0,2],[1,5,4,0,0,1,7,2],[0,1,0,0,0,0,1,1]):
                 vm.invoke(s.get('OpenRoomSettings'),s)
                 for i,index in enumerate(indices):
                     s.set('settingIndex'+str(i),index);s.set('appliedSettingIndex'+str(i),-1)
                 vm.global_.set('Server16RoomSequence',counter)
                 with patch.object(apt_vm,'text',side_effect=fifa_text):vm.invoke(s.get('ApplyRoomSettings'),s)
                 sequence=int(commands(calls)[-1].split('|')[3])
-                self.assertEqual(sequence,(counter+1)*art.SEQUENCE_STRIDE+sum(n*8**i for i,n in enumerate(indices)))
-                decoded=art.decode_draft(card.GAME,1043,sequence)
+                factor=1;packed=0
+                for index,row in zip(indices,art.rows(card.GAME,1043)):
+                    packed+=index*factor;factor*=len(row['options'])
+                self.assertEqual(sequence,(counter+1)*art.SEQUENCE_STRIDE+packed)
+                decoded=art.decode_draft(card.GAME,1043,sequence,art.GROUPED_APPLY_CODE)
                 self.assertEqual(decoded['style'],'custom' if indices[0] else 'default')
                 with patch.object(apt_vm,'text',side_effect=fifa_text):vm.invoke(s.get('PublishScene'),s,[-4])
-                self.assertEqual(int(commands(calls)[-1].split('|')[3]),(counter+2)*art.SEQUENCE_STRIDE)
+                self.assertEqual(int(commands(calls)[-1].split('|')[3]),(counter+3)*art.SEQUENCE_STRIDE)
 
     def test_default_custom_roundtrip_keeps_black_cabinets_and_custom_backs(self):
         vm,s,calls,_=open_personalization();vm.invoke(s.get('OpenRoomSettings'),s)
@@ -69,7 +119,7 @@ class PersonalizationTests(unittest.TestCase):
         vm.invoke(s.get('ShiftRoomSetting'),s,[0,1])
         self.assertEqual([s.get('settingIndex'+str(i)) for i in (0,1,2)],[1,1,4])
         vm.invoke(s.get('ApplyRoomSettings'),s)
-        seq=int(commands(calls)[-1].split('|')[3]);decoded=art.decode_draft(card.GAME,1043,seq)
+        seq=int(commands(calls)[-1].split('|')[3]);decoded=art.decode_draft(card.GAME,1043,seq,art.GROUPED_APPLY_CODE)
         self.assertEqual((decoded['style'],decoded['finish'],decoded['backs']),('custom','dark','custom'))
 
     def test_draft_does_not_publish_and_back_cancels(self):
@@ -83,11 +133,14 @@ class PersonalizationTests(unittest.TestCase):
     def test_apply_publishes_one_full_draft_and_noop_publishes_nothing(self):
         vm,s,calls,scope=open_personalization();before=len(commands(calls))
         vm.invoke(s.get('OpenRoomSettings'),s);vm.invoke(s.get('ShiftRoomSetting'),s,[3,1]);vm.invoke(s.get('ShiftRoomSetting'),s,[5,1])
-        expected=[int(s.get('settingIndex'+str(i))) for i in range(6)]
+        expected=[int(s.get('settingIndex'+str(i))) for i in range(len(art.CATALOG))]
         vm.invoke(s.get('ApplyRoomSettings'),s)
         self.assertEqual(len(commands(calls)),before+1);self.assertFalse(s.get('settingsOpen'))
-        wire=commands(calls)[-1].split('|');self.assertEqual(wire[-2],'120');seq=int(wire[3]);packed=seq%art.SEQUENCE_STRIDE
-        self.assertEqual([(packed//8**i)%8 for i in range(6)],expected)
+        wire=commands(calls)[-1].split('|');self.assertEqual(wire[-2],str(art.DOOR_APPLY_BASE));seq=int(wire[3]);packed=seq%art.SEQUENCE_STRIDE
+        actual=[]
+        for row in art.rows(card.GAME,1043)[:art.PACKED_ROWS]:packed,index=divmod(packed,len(row['options']));actual.append(index)
+        actual.append(int(wire[-2])-art.DOOR_APPLY_BASE)
+        self.assertEqual(actual,expected)
         vm.invoke(s.get('OpenRoomSettings'),s);vm.invoke(s.get('ApplyRoomSettings'),s)
         self.assertEqual(len(commands(calls)),before+1)
         vm.invoke(s.get('PublishScene'),s,[-4]);self.assertGreater(int(commands(calls)[-1].split('|')[3]),seq)
@@ -111,20 +164,21 @@ class PersonalizationTests(unittest.TestCase):
     def test_bottom_buttons_are_reachable_by_controller(self):
         vm,s,calls,_=open_personalization();codes=vm.path('game.globalClasses.InputCodes');codes.set('LAS_DOWN',71)
         vm.invoke(s.get('OpenRoomSettings'),s)
-        for _ in range(7):vm.invoke(s.get('LocalEventHandler'),s,[71,True])
-        self.assertEqual(s.get('settingsFocus'),7)
+        for _ in range(len(art.GROUPS[0][1])):vm.invoke(s.get('LocalEventHandler'),s,[71,True])
+        self.assertEqual(s.get('settingsFocus'),len(art.CATALOG))
         vm.invoke(s.get('LocalEventHandler'),s,[2,True]);self.assertFalse(s.get('settingsOpen'))
 
     def test_atomic_mailbox_is_scoped_validated_and_idempotent(self):
         with tempfile.TemporaryDirectory() as folder:
             root=Path(folder);runtime=root/'ModCarrerMode/runtime/club_environment/room/runtime';runtime.mkdir(parents=True)
             runtime.joinpath('room_control_scope.txt').write_text('S16ROOMSCOPE 1 42 99999 0123456789abcdef')
+            snap=root/'ModCarrerMode/runtime/career_fce_snapshot.json';snap.write_text(json.dumps(dict(pid=42,club=99999,savePath=r'C:\Careers\one\DATA',fceContextEpoch=1)))
             # Generic club has five/six options but no custom image choices.
             indices=[0,1,1,2,2,1];seq=art.SEQUENCE_STRIDE+sum(n*8**i for i,n in enumerate(indices))
             wire=f'S16ROOM 1 42 99999 0123456789abcdef {seq} 120'
             self.assertFalse(art.save_command(root,99,wire));self.assertTrue(art.save_command(root,42,wire))
             prefs=art.preferences(root,99999);self.assertEqual(prefs['finish'],'dark');self.assertEqual(prefs['logo'],'ceiling')
-            p=root/art.PREFERENCES/'99999.json';stamp=p.stat().st_mtime_ns
+            p=art.preference_scope(root,99999);stamp=p.stat().st_mtime_ns
             self.assertFalse(art.save_command(root,42,wire));self.assertEqual(stamp,p.stat().st_mtime_ns)
             self.assertFalse(art.save_command(root,42,f'S16ROOM 1 42 99999 0123456789abcdef {2*art.SEQUENCE_STRIDE+7} 120'))
             self.assertEqual(stamp,p.stat().st_mtime_ns)

@@ -18,8 +18,8 @@ BAR_X=(BAR_LEFT-960)*WIDTH/1920
 BAR_Y=CENTER_Y+(540-(BAR_TOP+BAR_BOTTOM)/2)*HEIGHT/1080
 BADGE_X=(355-960)*WIDTH/1920
 BADGE_Y=CENTER_Y+(540-355)*HEIGHT/1080
-BADGE_SIZE=94*WIDTH/1920
-REVISION=82
+BADGE_SIZE=116*WIDTH/1920
+REVISION=83
 
 
 def artwork(error=False):
@@ -34,10 +34,11 @@ def artwork(error=False):
     d.rounded_rectangle((178,244,1758,882),radius=27,fill=(218,225,229))
     d.rounded_rectangle((170,232,1750,870),radius=27,fill=(255,255,255),outline=(218,227,233),width=2)
     d.rounded_rectangle((170,232,1750,244),radius=6,fill=gold)
-    d.rounded_rectangle((280,280,430,430),radius=30,fill=(250,250,248),outline=(231,225,211),width=3)
+    d.rounded_rectangle((256,256,454,454),radius=38,fill=(250,250,248),outline=(231,225,211),width=2)
     text((480,292),'VESTIÁRIO 3D',23,muted)
     text((480,337),'Falha ao preparar a cena' if error else 'Preparando o vestiário',54)
-    text((280,443),'Volte e entre novamente para tentar carregar os recursos.' if error else 'Organizando o elenco e os recursos visuais do clube.',29,muted)
+    if not error:text((1320,342),'CARREGANDO',19,muted)
+    text((280,485),'Volte e entre novamente para tentar carregar os recursos.' if error else 'Organizando o elenco e os recursos visuais do clube.',29,muted)
     labels=('Recursos do clube','Modelos e texturas','Montagem da cena')
     for i,label in enumerate(labels):
         x=280+i*470
@@ -54,21 +55,28 @@ def stage(game,output):
     game,output=Path(game),Path(output);output.mkdir(parents=True,exist_ok=True)
     template=game/(PREFIX+'shared/loading_slate_r56.rx3')
     for name,shape in (
-        ('loading_backdrop_r82.rx3',panel([0,CENTER_Y,399],4000,2500)),
-        ('loading_panel_r82.rx3',panel([0,CENTER_Y,400],WIDTH,HEIGHT)),
-        ('loading_badge_r82.rx3',panel([0,0,0],BADGE_SIZE,BADGE_SIZE)),
-        ('loading_ring_r82.rx3',panel([0,0,0],144*WIDTH/1920,144*HEIGHT/1080)),
-        ('loading_progress_r82.rx3',panel([BAR_WIDTH/2,BAR_Y,400.2],BAR_WIDTH,(BAR_BOTTOM-BAR_TOP)*HEIGHT/1080))):
+        ('loading_backdrop_r83.rx3',panel([0,CENTER_Y,399],4000,2500)),
+        ('loading_panel_r83.rx3',panel([0,CENTER_Y,400],WIDTH,HEIGHT)),
+        ('loading_badge_r83.rx3',panel([0,0,0],BADGE_SIZE,BADGE_SIZE)),
+        ('loading_ring_r83.rx3',panel([0,0,0],188*WIDTH/1920,188*HEIGHT/1080)),
+        ('loading_progress_r83.rx3',panel([BAR_WIDTH/2,BAR_Y,400.2],BAR_WIDTH,(BAR_BOTTOM-BAR_TOP)*HEIGHT/1080)),
+        ('loading_dot_r83.rx3',panel([0,0,0],12*WIDTH/1920,12*HEIGHT/1080)),
+        ('loading_stage_r83.rx3',panel([0,0,0],420*WIDTH/1920,7*HEIGHT/1080))):
         rx=Rx3(template.read_bytes());replace_mesh(rx,0,*shape);(output/name).write_bytes(rx.build())
-    for name,error in (('loading_panel_texture_r82.rx3',False),('loading_error_texture_r82.rx3',True)):
+    for name,error in (('loading_panel_texture_r83.rx3',False),('loading_error_texture_r83.rx3',True)):
         im=artwork(error);texture_package(im,output/name,'slate_cm')
-    texture_package(Image.new('RGBA',(8,8),(247,249,250,255)),output/'loading_backdrop_texture_r82.rx3','slate_cm')
-    texture_package(Image.new('RGBA',(8,8),rgba(ACCENT)),output/'loading_progress_texture_r82.rx3','slate_cm')
+    texture_package(Image.new('RGBA',(8,8),(247,249,250,255)),output/'loading_backdrop_texture_r83.rx3','slate_cm')
+    texture_package(Image.new('RGBA',(8,8),rgba(ACCENT)),output/'loading_progress_texture_r83.rx3','slate_cm')
     ring=Image.new('RGBA',(512,512));d=ImageDraw.Draw(ring)
     d.ellipse((26,26,486,486),outline=(222,228,231,255),width=18)
     d.arc((26,26,486,486),-90,65,fill=rgba(ACCENT),width=22)
     d.ellipse((36,36,476,476),outline=(255,255,255,110),width=2)
-    texture_package(ring,output/'loading_ring_texture_r82.rx3','slate_cm')
+    texture_package(ring,output/'loading_ring_texture_r83.rx3','slate_cm')
+    dot=Image.new('RGBA',(128,128));ImageDraw.Draw(dot).ellipse((8,8,120,120),fill=rgba(ACCENT))
+    texture_package(dot,output/'loading_dot_texture_r83.rx3','slate_cm')
+    sweep=Image.new('RGBA',(256,16));draw=ImageDraw.Draw(sweep)
+    for x in range(256):draw.line((x,0,x,15),fill=(255,255,255,round(150*(1-abs(x-127.5)/127.5))))
+    texture_package(sweep,output/'loading_sweep_texture_r83.rx3','slate_cm')
     return dict(revision=REVISION,bar_x=BAR_X,bar_width=BAR_WIDTH,bar_y=BAR_Y,
                 badge_x=BADGE_X,badge_y=BADGE_Y,badge_size=BADGE_SIZE,
                 backdrop='overscan, behind card, all supported camera aspect ratios',

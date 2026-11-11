@@ -12,7 +12,7 @@ import re
 import copy
 from functools import lru_cache
 import numpy as np
-from PIL import Image, ImageDraw, ImageFont
+from PIL import Image, ImageDraw, ImageFont, ImageOps
 
 from rx3 import Rx3, VERTEX
 from room_visual_r68 import VERT, packed, box, join, read_mesh, replace_mesh
@@ -27,7 +27,9 @@ PREFIX = 'data/sceneassets/server16_dressing_room_v3/'
 CONFIG = 'ModCarrerMode/data/club_environment/room/locker-system-v3.json'
 ACTIVE = 'ModCarrerMode/data/club_environment/room/active-version.txt'
 CAPACITY = 38
-REVISION = 10
+REVISION = 20
+FLOOR_TILE_CM = 60.
+TOE_KICK_BOTTOM, TOE_KICK_TOP, TOE_KICK_RECESS = 1000.5, 1002.5, .4
 CEILING_Y = 1338.
 DEPTH = 84.
 MAIN_END = 1543.6
@@ -50,6 +52,8 @@ def enabled(game):
 def stamp(game, club=0):
     return tuple((p.stat().st_mtime_ns, p.stat().st_size) if p.is_file() else None
                  for p in (Path(game) / ACTIVE, Path(game) / CONFIG,
+                           Path(game) / 'data/sceneassets/server16_dressing_room_v3/pes_office/office.json',
+                           Path(game) / 'data/sceneassets/server16_dressing_room_v3/rehab_equipment/equipment.json',
                            *(setting_path(game, club, key) for key in ('finish', 'floor', 'backs'))))+appearance.stamp(game,club)
 
 
@@ -87,12 +91,28 @@ def rotation(yaw):
 
 def camera_layout(layout):
     result=copy.deepcopy(layout)
-    result['room']['camera_bounds']['half_width']+=100
+    from room_fitted_shell import SIDE_SHIFT,BACK_SHIFT
+    result['room']['camera_bounds']['half_width']+=100-SIDE_SHIFT
+    result['room']['camera_bounds']['back']+=BACK_SHIFT
     for pose in result['medical'].get('navigation',[])+[s['pose'] for s in result['medical'].get('scenes',[])]:
         for i in (0,3):
             if pose[i+2]<=1543.6:
                 if pose[i]>=690:pose[i]+=100
                 elif pose[i]<=-690:pose[i]-=100
+    # Narrow, straight approach anchors let the camera's near plane fit the
+    # real door openings. The old angled/wide medical approach was unreachable
+    # even though a first-person body could already walk through the doorway.
+    from room_annex_doors import DOORS
+    navigation=result['medical'].setdefault('navigation',[])
+    for _,x in DOORS:
+        for z in (1440.,1725.):
+            pose=[x,180.,z,x,180.,z+400.,52.]
+            if pose not in navigation:navigation.append(pose)
+    # Pass the coach's desk along its open right-hand aisle, rather than
+    # interpolating through the desk on the way to the far wall displays.
+    for z in (2070.,2400.):
+        pose=[440.,180.,z,440.,180.,z+400.,60.]
+        if pose not in navigation:navigation.append(pose)
     return result
 
 
@@ -117,7 +137,9 @@ def obstacles(items):
     # The table is rendered at x ±160, z 77..213, height 86.5 cm. Camera
     # collision uses room-local coordinates; do not add the render origin.
     result.append({'name':'Current Dressing Room / central table','lo':[-160,3,77],'hi':[160,86.5,213]})
-    return result
+    from room_annex_doors import obstacles as door_obstacles
+    from room_fitted_shell import obstacles as fitted_obstacles
+    return fitted_obstacles(door_obstacles(result))
 
 
 def locker_vertices(points):
@@ -166,7 +188,7 @@ def trim_lockers(source, target, remove_floor_crest=False):
 
 def bay_groups():
     """One complete cabinet, in the same local frame as the native hanging kit."""
-    groups = {key: [] for key in ('wood', 'niche', 'accent', 'cushion', 'linen', 'light', 'safe', 'safe_metal')}
+    groups = {key: [] for key in ('wood', 'niche', 'accent', 'cushion', 'linen', 'safe', 'safe_metal', 'linen_seam')}
     add = lambda key, lo, hi: groups[key].append(box(lo, hi))
     add('wood', (-45, 3, -2), (45, 9, 98))
     add('wood', (-45, 9, -2), (45, 286, 1))
@@ -176,31 +198,37 @@ def bay_groups():
     add('wood', (-45, 259, -2), (45, 261, 98))
     add('wood', (-45, 285, -2), (45, 287, 98))
     add('wood', (-45, 263, 95), (45, 283, 98))
-    groups['niche'].append(panel([0, 140, 2.5], 81.2, 188, (0, 0, 1)))
-    add('wood', (-22, 239, 95), (22, 259, 98))
-    # Compact right-aligned safe; its face art is supplied separately per club.
-    add('safe', (2, 240, 69), (21, 258, 100))
-    add('safe_metal', (2, 240, 99.5), (21, 241.5, 101.8))
-    add('safe_metal', (2, 256.5, 99.5), (21, 258, 101.8))
-    add('safe_metal', (2, 241.5, 99.5), (3.5, 256.5, 101.8))
-    add('safe_metal', (19.5, 241.5, 99.5), (21, 256.5, 101.8))
-    add('safe_metal', (19, 248, 101.8), (20.4, 250, 103))
+    groups['niche'].append(panel([0, 140.5, 2.5], 81.2, 189, (0, 0, 1)))
     add('wood', (-45, 45, -2), (45, 48, 98))
     groups['cushion'].append(cushion((-41, 48, 4), (41, 55, 95)))
     for x in (-45., 41.8):
         add('accent', (x, 9., 98.8), (x + 3.2, 287., 99.4))
     # No metal runners intersect the boot shelf. Their former top faces were
     # coplanar with the base and produced two flashing, bright stripes.
-    add('light', (-34, 233.6, 4), (34, 234, 40))
-    for y in (249, 252, 255):
-        add('linen', (-36, y, 15), (-14, y + 2, 54))
-    for y in (55, 58):
-        add('linen', (-32, y, 57), (-4, y + 2, 88))
+    # No pale plate under this shelf: it protruded above the shirt backing.
+    # FIFA's scene lights remain independent of this decorative mesh.
     for parts in groups.values():
         for vertices,_ in parts:vertices['p'][:,2]*=DEPTH/98.
+    from room_linen import folded_towel
+    groups['linen'],groups['linen_seam']=folded_towel()
+    # Dimensions below are final room-space cm, matching the approved render.
+    # One 81.2 cm row: open left half and a fitted drawer in the right half.
+    add('wood', (-.8, 237, 1.8), (.8, 259, 83.5))
+    add('safe', (1.4, 237.7, 81.3), (40.6, 258.3, 84.2))
+    add('safe_metal', (34.8, 244.4, 84.25), (38.5, 251.2, 84.4))
     for key in ('wood','accent'):
         for vertices,_ in groups[key]:project_wood(vertices)
     return groups
+
+
+def crest_groups():
+    """Keep existing material slots stable; custom drawer art uses its own UVs."""
+    return {'bay': [panel([20.6, 248, DEPTH+.55], 14, 14, (0, 0, 1))],
+            'ceiling': [ceiling_crest()], 'floor': [floor_crest()],
+            'feature_wall': [panel([0, FEATURE_CREST_Y, -588.6], 58, 58, (0, 0, 1))],
+            'corner': [panel([sign*710.8, 1238, -470.8], 44, 44,
+                             (-sign/math.sqrt(2), 0, 1/math.sqrt(2))) for sign in (-1, 1)],
+            'bay_custom': [panel([20.6, 248, DEPTH+.55], 38, 19, (0, 0, 1))]}
 
 
 def project_wood(vertices):
@@ -238,7 +266,7 @@ def band_specs():
 
 
 def joinery_groups():
-    groups = {'body': [], 'edge': [], 'light': [], 'cabinet': []}
+    groups = {'body': [], 'edge': [], 'cabinet': []}
     for key, center, width, normal in fascia_specs():
         front = np.array(center)
         n = np.array(normal)
@@ -248,18 +276,35 @@ def joinery_groups():
             lo, hi = np.min(points,axis=0), np.max(points,axis=0)
             lo[1], hi[1] = y0, y1
             return box(lo,hi)
-        # One shared cornice and toe kick bridges every bay along this run.
+        # Shared cornice, plus a recessed toe kick below the individual bases.
         groups['body'].append(cuboid(-width/2,width/2,FASCIA_BOTTOM,FASCIA_TOP,-DEPTH,-1.2))
         groups['edge'].append(cuboid(-width/2,width/2,FASCIA_TOP,FASCIA_TOP+2.5,-DEPTH-1,-.8))
         groups['body'].append(cuboid(-width/2,width/2,FASCIA_TOP+2.5,CEILING_Y,-DEPTH,-1.2))
         groups['edge'].append(cuboid(-width/2,width/2,FASCIA_BOTTOM-1.8,FASCIA_BOTTOM,-DEPTH-1,-.8))
-        groups['body'].append(cuboid(-width/2,width/2,1001,1008,-DEPTH,-1.2))
-        groups['light'].append(cuboid(-width/2+3,width/2-3,FASCIA_BOTTOM-2.1,FASCIA_BOTTOM-1.85,-4,-1))
+        # Bases start at y=1003. The old y=1001..1008 beam intersected them:
+        # its pale end caps shared the dark base planes and flickered white.
+        groups['body'].append(cuboid(-width/2+TOE_KICK_RECESS,width/2-TOE_KICK_RECESS,
+                                      TOE_KICK_BOTTOM,TOE_KICK_TOP,
+                                      -DEPTH+TOE_KICK_RECESS,-1.2-TOE_KICK_RECESS))
+        # The former pale decorative strip above each name plate made a white
+        # seam across every dark bay. It was not a physical FIFA light.
     # Equal 45-degree corner infills connect the rear bank to each side run.
     for sign in (-1,1):
         points=[(sign*x,z) for x,z in [(675,-592),(832,-592),(832,-435),(748,-435),(675,-508)]]
         groups['cabinet'].append(prism(points,1003,1287))
         groups['body'].append(prism(points,FASCIA_BOTTOM,CEILING_Y))
+    # These are internal contact faces: cabinet caps meet the cornice at
+    # y=1287 and its top meets the ceiling. Drawing the opposing coloured
+    # caps on those same planes caused the green/white flashing at the board.
+    for key, levels in [('body',(FASCIA_BOTTOM,FASCIA_TOP,FASCIA_TOP+2.5,CEILING_Y)),
+                        ('edge',(FASCIA_BOTTOM,))]:
+        clipped=[]
+        for vertices,indices in groups[key]:
+            tri=indices.reshape(-1,3);ys=vertices['p'][tri][:,:,1]
+            hidden=np.zeros(len(tri),dtype=bool)
+            for y in levels:hidden|=(np.abs(ys-y)<.005).all(1)
+            clipped.append((vertices,tri[~hidden].reshape(-1).astype('<u2')))
+        groups[key]=clipped
     return groups
 
 
@@ -302,6 +347,24 @@ def widen_main(path):
         p[main&(p[:,0]<=-690),0]-=100
         replace_mesh(rx,slot,v,ids)
     path.write_bytes(rx.build())
+
+
+def align_floor_uv(path):
+    """Keep one straight 60 cm floor grid after every room expansion.
+
+    Retaining the old UVs while widening/clipping the room shears the grid
+    differently in adjacent triangles. Use the final world X/Z coordinates
+    for every floor piece, including the medical and coach annexes. Only UV
+    bytes change; positions, winding, normals and all other meshes survive.
+    """
+    path=Path(path);rx=Rx3(path.read_bytes());slot=2
+    vertices,_=read_mesh(rx,slot);points=vertices['p'].astype(float)
+    if not np.isfinite(points).all() or points[:,1].min()<999 or points[:,1].max()>1001:
+        raise ValueError('Unexpected V3 floor geometry; no texture coordinates changed')
+    section=[s for s in rx.sections if s[0]==VERTEX][slot]
+    raw=bytearray(section[1]);view=np.frombuffer(raw,dtype=VERT,count=len(vertices),offset=16)
+    view['uv']=points[:,[0,2]]/FLOOR_TILE_CM
+    section[1]=bytes(raw);path.write_bytes(rx.build())
 
 
 def split_at_z(vertices,indices,plane):
@@ -360,36 +423,33 @@ def raise_main_ceiling(path):
 
 
 def ceiling_groups():
-    groups = {'paint': [], 'metal': [], 'diffuser': [], 'vent': []}
-    # Luminaires fit a 60 cm tile grid. Recessed louvers add real silhouette.
-    for x in (-450.,30.,450.):
-        for z in (-300.,240.,780.,1320.):
-            groups['paint'].append(box((x-31,1354,z-61),(x+31,1360,z+61)))
-            groups['metal'].append(box((x-28.8,1353.5,z-58.8),(x+28.8,1354,z+58.8)))
-            groups['diffuser'].append(box((x-26.5,1353.2,z-56.5),(x+26.5,1353.6,z+56.5)))
-            for dz in np.linspace(-48,48,9):
-                groups['metal'].append(box((x-26.5,1352.3,z+dz-.45),(x+26.5,1353.2,z+dz+.45)))
-            groups['metal'].append(box((x-.45,1352.3,z-56.5),(x+.45,1353.2,z+56.5)))
-    # Recessed ventilation grilles, mounted on the same ceiling grid.
-    for x,z in ((-210.,30.),(270.,930.),(-210.,1290.)):
-        groups['paint'].append(box((x-32,1355,z-47),(x+32,1360,z+47)))
-        groups['vent'].append(box((x-28,1354.7,z-43),(x+28,1355.1,z+43)))
-        for dz in np.linspace(-40,40,15):
-            groups['metal'].append(box((x-27,1354.1,z+dz-.45),(x+27,1354.7,z+dz+.45)))
-    # A shallow plaque physically supports the larger, original club crest.
-    # Cover the height step above the annexes without touching their doors.
-    groups['paint'].append(box((-856,1320,1541.5),(856,1360,1543.5)))
-    for lo,hi in [((-856,1352,-600),(-844,1360,1542)),((844,1352,-600),(856,1360,1542)),
-                  ((-856,1352,-600),(856,1360,-588)),((-856,1352,1530),(856,1360,1542))]:
+    from room_ceiling import geometry
+    groups=geometry(CEILING_Y)
+    # Perimeter moulding ends below the roof instead of sharing its plane.
+    groups['paint'].append(box((-856,1320,1541.5),(856,CEILING_Y-.8,1543.5)))
+    for lo,hi in [((-856,CEILING_Y-6,-600),(-844,CEILING_Y-.8,1542)),
+                  ((844,CEILING_Y-6,-600),(856,CEILING_Y-.8,1542)),
+                  ((-856,CEILING_Y-6,-600),(856,CEILING_Y-.8,-588)),
+                  ((-856,CEILING_Y-6,1530),(856,CEILING_Y-.8,1542))]:
         groups['paint'].append(box(lo,hi))
-    # An intentionally plain wall beside hydration; no old bench or panels.
-    groups['paint'].append(panel([848.1,1180,1115],720,360,(-1,0,0)))
-    # Move the fittings with the roof; keep lower wall/annex anchors fixed.
-    for parts in groups.values():
-        for vertices,_ in parts:
-            upper=vertices['p'][:,1]>=1340
-            vertices['p'][upper,1]+=CEILING_Y-1360.
+    groups['wall']=plain_wall_panels()
+    from room_fitted_shell import returns
+    groups['wall'].extend(returns())
     return groups
+
+
+def plain_wall_panels():
+    """Cover the full two end walls; no club stripe or partial overlay seams."""
+    from room_exit_door import CENTER_Z
+    parts=[]
+    def face(x,lo,hi,bottom,top,normal):
+        parts.append(panel([x,(bottom+top)/2,(lo+hi)/2],hi-lo,top-bottom,normal))
+    # The closed exit and its frame stay in front, with a matching opening.
+    for lo,hi in ((735.,CENTER_Z-85.),(CENTER_Z+85.,MAIN_END)):
+        face(-847.7,lo,hi,1000.,CEILING_Y,(1,0,0))
+    face(-847.7,CENTER_Z-85.,CENTER_Z+85.,1242.,CEILING_Y,(1,0,0))
+    face(847.7,735.,MAIN_END,1000.,CEILING_Y,(-1,0,0))
+    return parts
 
 
 def logo_mount_groups():
@@ -446,25 +506,48 @@ def stage(game, output):
             (output/name).write_bytes(rx.build())
         else:report['removed_triangles'][source] = trim_lockers(path, output / name, 'crest' in source)
         widen_main(output/name)
+    from room_fitted_shell import geometry as fit_shell,specification as shell_specification
+    for name,kind in [('room_roles.rx3','roles'),('interior.rx3','interior')]:
+        rx=Rx3((output/name).read_bytes());fit_shell(rx,kind)
+        (output/name).write_bytes(rx.build())
+    report['fitted_shell']=shell_specification()
     raise_main_ceiling(output/'room_roles.rx3')
+    from room_ceiling import replace_main_ceiling, specification as ceiling_specification
+    ceiling_rx=Rx3((output/'room_roles.rx3').read_bytes())
+    report['ceiling_removed_triangles']=replace_main_ceiling(ceiling_rx,CEILING_Y,MAIN_END)
+    (output/'room_roles.rx3').write_bytes(ceiling_rx.build())
+    report['ceiling']=ceiling_specification(CEILING_Y)
     refine_front_wall(output/'room_roles.rx3',output/'crest_surfaces.rx3')
     lower_board(output/'room_roles.rx3');lower_board(output/'scenery.rx3')
     extend_board_frame_down(output/'room_roles.rx3')
+    align_floor_uv(output/'room_roles.rx3')
     template = original / 'locker_support_r68.rx3'
+    from room_exit_door import geometry as exit_geometry, replace_old_fixture, CENTER_Z, RIGHT_SHIFT_CM
+    exit_interior=Rx3((output/'interior.rx3').read_bytes())
+    removed_exit=replace_old_fixture(exit_interior)
+    (output/'interior.rx3').write_bytes(exit_interior.build())
+    report['exit_door_bindings']=write_groups(template,exit_geometry(),output/'exit_door.rx3')
+    from room_annex_doors import strip_old_fixtures, specification as door_specification
+    for name,kind in [('interior.rx3','interior'),('room_roles.rx3','roles')]:
+        rx=Rx3((output/name).read_bytes());strip_old_fixtures(rx,kind)
+        (output/name).write_bytes(rx.build())
+    report['annex_doors']=door_specification()
+    report['exit_door']={'revision':1,'center_native_cm':[-846,1118,CENTER_Z],
+                         'right_shift_cm':RIGHT_SHIFT_CM,'leaf_finish':'door_finish','custom_asset':'exit-door.png',
+                         'closed':True,'panic_bar_height_cm':105,'unrelated_triangles_preserved':True,
+                         'removed_old_fixture_triangles':removed_exit}
     report['bay_bindings'] = write_groups(template, bay_groups(), output / 'locker_bay.rx3')
     report['band_bindings'] = write_groups(template, band_groups(), output / 'fascia.rx3')
     for binding, (_,_,width,_,index) in zip(report['band_bindings'],band_specs()):
         binding['width_cm']=width;binding['banner_index']=index
     report['joinery_bindings'] = write_groups(template, joinery_groups(), output/'joinery.rx3')
     report['ceiling_bindings'] = write_groups(template, ceiling_groups(), output/'ceiling_details.rx3')
-    crests = {'bay': [panel([11.5, 249, DEPTH+4.0], 14, 14, (0, 0, 1))],
-              'ceiling': [ceiling_crest()], 'floor':[floor_crest()],
-              'feature_wall':[panel([0,FEATURE_CREST_Y,-588.6],58,58,(0,0,1))],
-              'corner':[panel([sign*710.8,1238,-470.8],44,44,(-sign/math.sqrt(2),0,1/math.sqrt(2))) for sign in (-1,1)]}
-    report['crest_bindings'] = write_groups(template, crests, output / 'crests.rx3')
+    report['crest_bindings'] = write_groups(template, crest_groups(), output / 'crests.rx3')
     report['mount_bindings']=write_groups(template,logo_mount_groups(),output/'logo_mount.rx3')
     report['feature_bindings']=write_groups(template,{'wall':[panel([0,(1000+CEILING_Y)/2,-589],268,CEILING_Y-1000,(0,0,1))]},output/'feature_wall.rx3')
     report['furniture_bindings']=extract_table_wood(game,output/'scenery.rx3',template,output/'furniture_wood.rx3')
+    from room_next_match_board import stage as board_stage
+    report['next_match_board']=board_stage(game,output)
     report['scenery_bindings']=[{'submesh':'room_part_1','atlas':0,'alpha':False},
                                {'submesh':'room_part_2','atlas':0,'alpha':True},
                                {'submesh':'room_part_3','atlas':1,'alpha':False}]
@@ -481,12 +564,12 @@ def stage(game, output):
     report['preserved'] = ['next_match_board', 'coach_room', 'medical_department', 'all_doorways', 'exit_paths', 'collision_layout']
     # Content-addressed paths force fresh native resources on a room re-entry.
     report['model_files']={}
-    for name in list(MODELS.values())+['locker_bay.rx3','fascia.rx3','crests.rx3','joinery.rx3','ceiling_details.rx3','logo_mount.rx3','feature_wall.rx3','furniture_wood.rx3']:
+    for name in list(MODELS.values())+['locker_bay.rx3','fascia.rx3','crests.rx3','joinery.rx3','ceiling_details.rx3','logo_mount.rx3','feature_wall.rx3','furniture_wood.rx3','exit_door.rx3']:
         data=(output/name).read_bytes();hashed=Path(name).stem+'_'+hashlib.sha256(data).hexdigest()[:14]+'.rx3'
         (output/hashed).write_bytes(data);report['model_files'][name]=hashed
     from room_loading_r81 import stage as loading_stage
     report['loading']=loading_stage(game,output)
-    for path in output.glob('loading_*_r8[12].rx3'):report['model_files'][path.name]=path.name
+    for path in output.glob('loading_*_r8[123].rx3'):report['model_files'][path.name]=path.name
     (output / 'manifest.json').write_text(json.dumps(report, indent=2), encoding='utf8')
     return report
 
@@ -546,7 +629,8 @@ def extract_table_wood(game,source,template,target):
             replace_mesh(rx,slot,v,tri[~selected].reshape(-1).astype('<u2'))
     assert parts,'Central-table wood not found; refuse to modify unrelated furniture'
     source.write_bytes(rx.build())
-    return write_groups(template,{'walnut':parts},target)
+    from room_table import split as split_table
+    return write_groups(template,split_table(parts),target)
 
 
 def model_path(model, game):
@@ -633,8 +717,8 @@ def finish_image(game,club,choice,custom_key):
     if choice=='custom':
         path=appearance.asset(game,club,custom_key)
         if path:return editable_image(path)
-    if choice in ('wood','wood_light','dark'):
-        filename={'wood':'walnut.png','wood_light':'oak_light.png','dark':'ash_black.png'}[choice]
+    if choice in ('wood','wood_light','dark','ash','slate'):
+        filename={'wood':'walnut.png','wood_light':'oak_light.png','dark':'ash_black.png','ash':'ash_natural.png','slate':'slate_charcoal.png'}[choice]
         path=Path(game)/appearance.ROOT/'generic/materials'/filename
         if path.is_file():return editable_image(path)
     rgb={'light':(238,239,236),'dark':(29,31,33),'gray':(119,123,126)}.get(choice,(29,31,33))
@@ -722,7 +806,7 @@ def prepare(context, game, add, identity):
     asset=lambda name:PREFIX+build.get('model_files',{}).get(name,name)
     materials = {'wood': style['panel'], 'niche': style['niche'], 'accent': style['primary'],
                  'cushion': style['cushion'], 'metal': '#9BA1A7', 'linen': '#ECEDE9', 'light': '#F1F5F5',
-                 'safe': '#272B2F', 'safe_metal': '#AEB5B8'}
+                 'safe': '#272B2F', 'safe_metal': '#121517', 'linen_seam': '#D8D6CD'}
 
     poses = []
     for origin, yaw in slot_frames(CAPACITY, spec['layout']):
@@ -737,6 +821,8 @@ def prepare(context, game, add, identity):
             image=finish_image(game,context['club'],prefs['finish'],'cabinet')
         elif key=='niche':image=finish_image(game,context['club'],prefs['backs'],'backing')
         elif key=='accent':image=trim_image(game,context,prefs['trim'])
+        elif key=='linen':image=__import__('room_linen').fabric_image()
+        elif key=='linen_seam':image=__import__('room_linen').seam_image()
         else:
             image = Image.new('RGBA', (8, 8), rgb + (255,))
         tex = texture(game, image, 'custom' if key in ('wood','niche') and prefs['finish' if key=='wood' else 'backs']=='custom' else key)
@@ -749,12 +835,20 @@ def prepare(context, game, add, identity):
         key,center,physical_width,normal=bank
         from room_fascia import render as render_fascia
         count,_=room_image_panels.layout(physical_width,height)
-        fascia_image=render_fascia(game,context['club'],style['banner'],index,count*1024,physical_width,banner)
+        choice=prefs.get('fascia','custom' if custom else 'name')
+        if choice=='custom':fascia_image=render_fascia(game,context['club'],style['banner'],index,count*1024,physical_width,banner)
+        elif choice=='name':
+            spec={'base':style['primary'],'accent':style['secondary'],'lines':[context.get('club_name','Clube').upper()]}
+            fascia_image=render_fascia(game,context['club'],spec,index,count*1024,physical_width,banner)
+        elif choice in ('primary','secondary','light','gray'):
+            fill=style[choice] if choice in ('primary','secondary') else '#EEEEEB' if choice=='light' else '#777C80'
+            fascia_image=Image.new('RGBA',(1024,256),color(fill)+(255,))
+        else:fascia_image=finish_image(game,context['club'],'dark' if choice=='dark' else 'wood','cabinet')
         tiled=room_image_panels.atlas(fascia_image,physical_width,height)
         tex=texture(game,tiled,'image_fascia')
         add('v3_image_band_'+key,image_model,tex,'v3_cm',identity,submesh=binding['submesh'])
     for group,bindings,colors in [('joinery',build['joinery_bindings'],{'body':style['banner']['base'],'edge':'#151719','light':'#EDF1EC','cabinet':'#282A2C'}),
-                                  ('ceiling_details',build['ceiling_bindings'],{'paint':'#E8E9E6','metal':'#AEB5B8','diffuser':'#F4F7F6','vent':'#292D31'})]:
+                                  ('ceiling_details',build['ceiling_bindings'],{'paint':'#E8E9E6','metal':'#AEB5B8','diffuser':'#F4F7F6','vent':'#292D31','sprinkler_glass':'#AF2937','wall':'#F3F4F0'})]:
         for binding in bindings:
             key=binding['material']
             if key=='cabinet':
@@ -764,11 +858,13 @@ def prepare(context, game, add, identity):
             tex=texture(game,im,group+'_'+key)
             add('v3_'+group+'_'+key,asset(group+'.rx3'),tex,'v3_cm',identity,submesh=binding['submesh'])
     crest = f'data/ui/imgassets/crest/light/l{context["club"]}.dds'
-    safe_face = appearance.asset(game, context['club'], 'locker_box_front')
-    safe_texture = texture(game, editable_image(safe_face), 'locker_box_front') if safe_face else crest
-    for matrix in poses:
-        add('v3_bay_safe_front', asset('crests.rx3'), safe_texture,
-            'v3_cm' if safe_face else '', matrix, True, build['crest_bindings'][0]['submesh'])
+    front = drawer_front(game, context['club'], prefs)
+    if front is not None:
+        safe_texture, texname, material = front
+        binding = next(item for item in build['crest_bindings'] if item['material']==material)
+        for matrix in poses:
+            add('v3_bay_safe_front', asset('crests.rx3'), safe_texture,
+                texname, matrix, True, binding['submesh'])
     if prefs['logo']=='ceiling':
         add('v3_ceiling_crest', asset('crests.rx3'), crest, '', identity, True, build['crest_bindings'][1]['submesh'])
     else:add('v3_floor_crest',asset('crests.rx3'),crest,'',identity,True,build['crest_bindings'][2]['submesh'])
@@ -778,17 +874,37 @@ def prepare(context, game, add, identity):
         add('v3_feature_wall',asset('feature_wall.rx3'),texture(game,wall_image,'feature_wall'),'v3_cm',identity,submesh=binding['submesh'])
     add('v3_feature_crest',asset('crests.rx3'),crest,'',identity,True,build['crest_bindings'][3]['submesh'])
     add('v3_corner_crest',asset('crests.rx3'),crest,'',identity,True,build['crest_bindings'][4]['submesh'])
-    wood=editable_image(game/appearance.ROOT/'generic/materials/oak_light.png')
+    from room_table import image as table_image
     for binding in build.get('furniture_bindings',[]):
-        add('v3_table_wood',asset('furniture_wood.rx3'),texture(game,wood,'table_wood'),'v3_cm',identity,submesh=binding['submesh'])
+        part=binding['material'];choice=prefs.get('table_'+part,'default')
+        image=table_image(game,context,part,choice)
+        material_key='wood_' if choice in ('default','walnut','oak') else ''
+        add('v3_table_'+material_key+part,asset('furniture_wood.rx3'),texture(game,image,'table_finish'),'v3_cm',identity,submesh=binding['submesh'])
     for binding in build['scenery_bindings']:
         page=binding['atlas'];original=game/OLD/f'scenery_textures_{page}_r72.rx3'
         wood=game/appearance.ROOT/'generic/materials/walnut.png'
         tex=scenery_texture(str(game),page,original.stat().st_mtime_ns,wood.stat().st_mtime_ns)
         add('v3_static_'+binding['submesh'],asset('scenery.rx3'),tex,'v3_cm',identity,binding['alpha'],binding['submesh'])
+    from room_next_match_board import prepare as prepare_match_board
+    prepare_match_board(build,add,identity)
+    from room_exit_door import prepare as prepare_exit_door
+    prepare_exit_door(build,context,game,add,identity,prefs)
     context['room_version'] = 3
     context['locker_system_v3'] = profile
     return profile
+
+
+def drawer_front(game, club, prefs):
+    """A missing custom image stays blank, never silently restores the badge."""
+    choice=prefs.get('drawer_art','crest')
+    if choice=='none':return None
+    if choice=='crest':return f'data/ui/imgassets/crest/light/l{club}.dds', '', 'bay'
+    source=appearance.asset(game,club,'locker_box_front')
+    if not source:return None
+    image=Image.new('RGBA',(1024,512),(0,0,0,0))
+    fitted=ImageOps.contain(editable_image(source),(1024,512),Image.Resampling.LANCZOS)
+    image.alpha_composite(fitted,((image.width-fitted.width)//2,(image.height-fitted.height)//2))
+    return texture(game,image,'locker_box_front'), 'v3_cm', 'bay_custom'
 
 
 def trim_image(game,context,choice):

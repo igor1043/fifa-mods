@@ -1,6 +1,7 @@
 #pragma once
 #include <future>
 #include <set>
+#include "roster_camera_input.h"
 namespace clubroster {
 struct Player {int id=0,number=0,overall=-1,height=0,weight=0,age=-1,starter=-1,ordinal=0;std::string name,position,foot,nation;std::array<int,34> attributes{};std::array<int,4> performance{{-1,-1,-1,-1}};std::array<std::string,3> secondary;};
 inline int integer(const std::string&s,int low,int high,int fallback=-1){try{size_t n;int v=std::stoi(s,&n);return n==s.size()&&v>=low&&v<=high?v:fallback;}catch(...){return fallback;}}
@@ -14,14 +15,15 @@ inline bool parse(std::istream& input,int club,std::string& name,std::vector<Pla
 struct View{
  std::vector<Player> players;std::string name,error;int club=0,selected=0,tab=0,scroll=0,sortMode=0;uint64_t consumed=0,selectedAt=0,submitted=0;bool ready=false,pending=false,sortFocus=false;std::future<std::shared_ptr<clubanim::Clip>> loadingClip;clubscene::Assets loadingAssets;std::array<int,96> loadingPages{};
  void clear(){players.clear();name.clear();error.clear();club=0;selected=tab=scroll=sortMode=0;consumed=submitted=0;ready=pending=sortFocus=false;}
- void request(clublineup::View& worker,int id,int career){clear();club=id;worker.career=career;worker.request(id,"roster");clubscene::intent(false,0);}
+ bool indoor=false;
+ void request(clublineup::View& worker,int id,int career,bool inRoom=false){clear();club=id;indoor=inRoom;worker.career=career;worker.request(id,"roster");clubscene::intent(false,0);}
  const Player* player()const{return ready&&selected>=0&&size_t(selected)<players.size()?&players[selected]:nullptr;}
- void choose(int index){if(players.empty())return;selected=(index+int(players.size()))%int(players.size());scroll=std::clamp(scroll,0,(std::max)(0,int(players.size())-7));if(selected<scroll)scroll=selected;if(selected>=scroll+7)scroll=selected-6;if(!submitted)clubscene::playerHeight=float(player()?player()->height:180);selectedAt=GetTickCount64();pending=true;error.clear();clubscene::intent(false,0);}
+ void choose(int index){if(players.empty())return;selected=(index+int(players.size()))%int(players.size());scroll=std::clamp(scroll,0,(std::max)(0,int(players.size())-7));if(selected<scroll)scroll=selected;if(selected>=scroll+7)scroll=selected-6;selectedAt=GetTickCount64();pending=true;error.clear();clubscene::intent(false,0);}
  void setSort(int mode){if(players.empty())return;int keep=player()?player()->id:0;sortMode=(mode+4)%4;std::stable_sort(players.begin(),players.end(),[&](const Player&a,const Player&b){if(sortMode==1&&a.overall!=b.overall)return a.overall>b.overall;if(sortMode==2&&a.age!=b.age)return a.age<0?false:b.age<0?true:a.age<b.age;if(sortMode==3&&a.starter!=b.starter)return a.starter>b.starter;return a.ordinal<b.ordinal;});for(size_t i=0;i<players.size();++i)if(players[i].id==keep)selected=int(i);scroll=std::clamp(selected-3,0,(std::max)(0,int(players.size())-7));}
  void navigate(int direction){if(!ready)return;if(sortFocus){if(direction>0)sortFocus=false;return;}if(direction<0&&selected==0){sortFocus=true;return;}choose(std::clamp(selected+direction,0,int(players.size())-1));}
  void horizontal(int direction){if(sortFocus)setSort(sortMode+direction);}
  void poll(clublineup::View& worker,ID3D11Device* dev){
-  if(pending&&GetTickCount64()-selectedAt>=120&&player()){pending=false;worker.request(club,"player",player()->id);}
+  if(pending&&GetTickCount64()-selectedAt>=120&&player()){pending=false;worker.request(club,"player",player()->id,indoor?"room":"classic");}
   worker.poll(dev);
   if(worker.status=="error"){error=worker.message;return;}
   if(worker.status=="ready"&&worker.sequence!=consumed&&worker.club==club){

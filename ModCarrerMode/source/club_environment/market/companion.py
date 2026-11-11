@@ -9,6 +9,9 @@ import os,runpy,subprocess,sys
 FLAG='SERVER16_TRANSFER_MARKET_WORKER'
 
 def dispatch(portable):
+    if os.environ.get('SERVER16_MANAGER_APPEARANCE_WORKER')=='1':
+        source=portable.SOURCES.parent/'club_browser';sys.path.insert(0,str(source))
+        runpy.run_path(str(source/'manager_face_service.py'),run_name='__main__');return True
     if os.environ.get('SERVER16_MANAGER_RENDER_WORKER')=='1':
         source=portable.SOURCES/'manager_market';sys.path.insert(0,str(source))
         from presentation_process import run

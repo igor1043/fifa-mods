@@ -4,7 +4,7 @@ from pathlib import Path
 import sys
 
 
-def build(context, snapshot, roster, rows, game, saved_tables):
+def build(context, snapshot, roster, rows, game, saved_tables,scouting=None,names=None):
     # The native publication already belongs to the validated active save.
     # Join its derived counters by slot + competition + club, never by name.
     snapshot=dict(snapshot);slots={r[0]:r for r in snapshot.get('standings',[]) if len(r)==10}
@@ -75,7 +75,9 @@ def build(context, snapshot, roster, rows, game, saved_tables):
         pos=p['position'];label='Goleiros' if pos==0 else 'Defensores' if pos<=8 else 'Meio-campo' if pos<=19 else 'Ataque'
         groups[label].append(p)
     coverage=[dict(name=k,count=len(v),overall=round(sum(p['overall'] for p in v)/len(v),1)) for k,v in groups.items()]
+    from room_coach_scouting import from_tables,enrich
+    scouting=enrich(context,rows,saved_tables,scouting if scouting is not None else from_tables(rows,saved_tables,players),names or {})
     from competition_names_r57 import competition_name
     return dict(stats=stats,table=table,league=league,leagueName=competition_name(league,rows),season=season,recent=own[-8:],squad=squad,
                 coverage=coverage,contracts=[p for p in squad if now<=p['contract']<=now+1],
-                tableDate=evidence.get('table_dates',{}).get(str(league)),source='shared_career_results')
+                tableDate=evidence.get('table_dates',{}).get(str(league)),source='shared_career_results',scouting=scouting)

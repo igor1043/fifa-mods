@@ -11,6 +11,7 @@
 #include "stand_assets.h"
 #include "../common/scene_lua.h"
 #include "../common/scene_resource_cycle.h"
+#include "../common/field_prop_shadow.h"
 #include "../common/competition_identity.h"
 #include "../common/live_competition.h"
 #include "../stadium_pyrotechnics/presentation.h"
@@ -25,6 +26,14 @@ static bool enabled=true,visible=false,fault=false,placed=false,retiring=false;
 static const char* requiredBuilder=nullptr;
 static uintptr_t owner=0,prototype=0,shadow=0,prototypeState=0;
 static SceneResourceCycle modelCycle,shadowCycle;
+static fieldshadow::Caster supportCaster("stands"),ballCaster("balls");
+static LONG shadowBallScale=0;
+alignas(8) static LONG64 shadowBallTick=0;
+extern "C" void standball_ball_shadow_frame(float scale,int shown){
+ const bool valid=shown&&isfinite(scale)&&scale>=.5f&&scale<=2.f;
+ InterlockedExchange(&shadowBallScale,valid?(LONG)lroundf(scale*10000):0);
+ InterlockedExchange64(&shadowBallTick,(LONG64)GetTickCount64());
+}
 static SceneLuaLifecycle luaLifecycle;
 static PyroMatchSession session;
 static int desired=-1,loaded=-1;
@@ -203,6 +212,22 @@ static bool ready(uintptr_t p,SceneResourceCycle& cycle,bool model){
   const bool complete=initNow&&lods&&((Ready)(image+0x43b4520))((void*)p)!=0;cycle.complete(initNow,complete);return complete;
  }__except(EXCEPTION_EXECUTE_HANDLER){fault=true;ground();event("native_resource_fault supports_disabled_for_scene");return false;}
 }
+static void updateFieldShadows(void* sceneOwner,bool supportsVisible){
+ const auto context=scene_lua_snapshot(image);fieldshadow::Matrix supports[SPARE_BALLS],balls[SPARE_BALLS];
+ const float scale=InterlockedCompareExchange(&shadowBallScale,0,0)/10000.f;
+ const auto tick=(uint64_t)InterlockedCompareExchange64(&shadowBallTick,0,0);
+ const bool ballsVisible=visible&&!stopping&&scale>=.5f&&GetTickCount64()-tick<500;
+ const float height=standball_height();
+ for(unsigned i=0;i<SPARE_BALLS;++i){
+  supports[i]=fieldshadow::transform(ball_positions[i][0],0,ball_positions[i][2],stand_yaw(i));
+  balls[i]=fieldshadow::transform(ball_positions[i][0],height,ball_positions[i][2],0,ballsVisible?scale:1);
+ }
+ char model[MAX_PATH],mesh[96];const char* slug=loaded>=0?standAssets[loaded].slug:"generic1";
+ _snprintf_s(model,sizeof(model),_TRUNCATE,"data/sceneassets/standball/%s/model.rx3",slug);_snprintf_s(mesh,sizeof(mesh),_TRUNCATE,"standball_%s_",slug);
+ const float standBounds[8]={-30,-2,-30,1,30,50,30,1},ballBounds[8]={-16,-16,-16,1,16,16,16,1};
+ fieldshadow::update(supportCaster,image,(uintptr_t)sceneOwner,context,model,mesh,supports,SPARE_BALLS,supportsVisible,event,standBounds);
+ fieldshadow::update(ballCaster,image,(uintptr_t)sceneOwner,context,"data/sceneassets/ball/ball_23.rx3","ball_",balls,SPARE_BALLS,ballsVisible,event,ballBounds);
+}
 static void __fastcall buildHook(void* self){
  if(InterlockedCompareExchange(&busy,1,0)){nextBuild(self);return;}
  Vector saved{},temporary{};size_t n=0,normalBytes=0;unsigned mask=0;bool swapped=false,maskSaved=false,show=false;
@@ -229,6 +254,9 @@ static void __fastcall buildHook(void* self){
    }
   }
   if(!swapped)ground();nextBuild(self);
+  bool bound=swapped&&show;
+  if(bound)for(unsigned i=0;i<SPARE_BALLS;++i){uint16_t value=0xffff;memcpy(&value,scratch+normalBytes+i*0x50+0x40,2);bound=bound&&value!=0xffff;}
+  updateFieldShadows(self,bound);
  }__finally{
   if(swapped){
    if(normalBytes)memcpy((void*)saved.begin,scratch,normalBytes);bool bound=true;

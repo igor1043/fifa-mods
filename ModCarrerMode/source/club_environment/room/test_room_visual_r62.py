@@ -67,9 +67,9 @@ class VisualRoomTests(unittest.TestCase):
         self.assertEqual(screen.get('roomActionFocus'),2)
         vm.invoke(screen.get('LocalEventHandler'),screen,[2,True])
         self.assertTrue(screen.get('freeCameraOpen'));self.assertFalse(screen.get('roomPlayersOpen'))
-        self.assertTrue(screen.get('freeHint').get('_visible'))
+        self.assertFalse(screen.get('freeHint').get('_visible'))
         self.assertFalse(screen.get('roomHeader').get('_visible'))
-        self.assertIn(('RAS_LR','Olhar'),vm.invoke(screen.get('getHelpContext'),screen))
+        self.assertEqual(vm.invoke(screen.get('getHelpContext'),screen),[])
         self.assertEqual(decode_requests(vm.global_.get('Server16RoomRequest').encode(),42,scope['nonce'],1043)[-1][1],-4)
         vm.invoke(screen.get('LocalEventHandler'),screen,[14,True]);self.assertEqual(screen.get('roomActionFocus'),2)
         vm.invoke(screen.get('LocalEventHandler'),screen,[1,True])
@@ -97,11 +97,11 @@ class VisualRoomTests(unittest.TestCase):
             command=vm.global_.get('Server16RoomRequest')
             decoded=decode_requests(command.encode(),42,scope['nonce'],1043)
             self.assertTrue(decoded)
-            self.assertTrue(all(code==-3 for seq,code in decoded))
+            self.assertTrue(all(code==-6 for seq,code in decoded))
             self.assertTrue(screen.get('modalOpen'))
             vm.invoke(screen.get('CloseScenes'),screen)
             self.assertFalse(screen.get('modalOpen'))
-            self.assertTrue(all(code==-3 for seq,code in decode_requests(vm.global_.get('Server16RoomRequest').encode(),42,scope['nonce'],1043)))
+            self.assertTrue(all(code==-7 for seq,code in decode_requests(vm.global_.get('Server16RoomRequest').encode(),42,scope['nonce'],1043)))
 
     def test_room_actions_select_roster_with_arrows_and_keep_scenes_independent(self):
         vm,screen,calls,scope,_=open_room()
@@ -181,7 +181,7 @@ class VisualRoomTests(unittest.TestCase):
         self.assertEqual(plate.getpixel((200,200)),(255,255,255,255))
 
     def test_player_cards_show_the_face_of_the_selected_real_player(self):
-        vm,screen,_,scope,_=open_room()
+        vm,screen,calls,scope,_=open_room()
         vm.invoke(screen.get('OpenScenes'),screen);screen.set('sceneFocus',2);vm.invoke(screen.get('ApplyScene'),screen)
         self.assertEqual(screen.get('sceneGroup'),1)
         first=screen.get('sceneModal').get('row0')
@@ -193,7 +193,8 @@ class VisualRoomTests(unittest.TestCase):
         vm.invoke(first.get('onRelease'),first)
         self.assertFalse(screen.get('modalOpen'))
         command=vm.global_.get('Server16RoomRequest')
-        self.assertIn((3,1),decode_requests(command.encode(),42,scope['nonce'],1043))
+        requests=[args[-1] for name,args in calls if name=='SendSystemEvent' and args[1]=='Server16RoomScene']
+        self.assertTrue(any(code==1 for request in requests for seq,code in decode_requests(request.encode(),42,scope['nonce'],1043)))
 
     def test_native_input_uses_original_help_and_stops_auto_for_manual_selection(self):
         vm,screen,calls,scope,_=open_room()

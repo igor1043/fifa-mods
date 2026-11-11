@@ -5,10 +5,10 @@
 int main(){
  using namespace room_command;Request request;Receipt receipt;
  auto wire=[](unsigned sequence,int code){return "S16ROOM2|1629|0123456789abcdef|"+std::to_string(sequence)+"|"+std::to_string(code)+"|ENDROOM";};
- for(int code=-3;code<128;++code){assert(parse(wire(7,code).c_str(),request));assert(request.club==1629&&request.sequence==7&&request.code==code);}
+ for(int code=-7;code<256;++code){assert(parse(wire(7,code).c_str(),request));assert(request.club==1629&&request.sequence==7&&request.code==code);}
  for(const char*bad:{"","S16ROOM2|0|0123456789abcdef|1|0|ENDROOM","S16ROOM2|1629|wrong|1|0|ENDROOM",
- "S16ROOM2|1629|0123456789abcdef|0|0|ENDROOM","S16ROOM2|1629|0123456789abcdef|1|-4|ENDROOM",
- "S16ROOM2|1629|0123456789abcdef|1|128|ENDROOM","S16ROOM2|1629|0123456789abcdef|1|0|ENDROOM\n",
+ "S16ROOM2|1629|0123456789abcdef|0|0|ENDROOM","S16ROOM2|1629|0123456789abcdef|1|-8|ENDROOM",
+ "S16ROOM2|1629|0123456789abcdef|1|256|ENDROOM","S16ROOM2|1629|0123456789abcdef|1|0|ENDROOM\n",
  "S16ROOM2|1629|0123456789abcdef|1|0|ENDROOMextra","S16ROOM2|99999999999999999999|0123456789abcdef|1|0|ENDROOM"})assert(!parse(bad,request));
  // Re-entering does not start another heap inventory or impose a time gate.
  for(unsigned entry=0;entry<6;++entry){

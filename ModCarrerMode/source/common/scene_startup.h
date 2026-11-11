@@ -1,40 +1,24 @@
 #pragma once
-#include "scene_lua.h"
-#include "scene_startup_recovery.h"
-
-struct SceneStartupSample { bool known=false,opening=false,suspended=false; };
-inline SceneStartupSample scene_startup_sample(uintptr_t image) {
-    uintptr_t state=0,vtable=0,stats=0,pagePointer=0;
-    unsigned char ready=0,replay=0;int sports=-1,clock=-1;
-    if(!scene_lua_read(image+0x3517c10,state)||
-       !scene_lua_read(state,vtable)||vtable!=image+0x20ff390||
-       !scene_lua_read(state+8,ready)||!scene_lua_read(state+0x39,replay)||
-       !scene_lua_read(state+0x3c,sports)||
-       !scene_lua_read(image+56299464,stats)||!stats||
-       !scene_lua_read(stats+5500,clock)||clock<0||clock>100000000)return {};
-    if(!scene_lua_read(image+58757168,pagePointer)||!pagePointer)return {};
-    const unsigned offsets[]={232,192,136,472};
-    for(unsigned offset:offsets)
-        if(!scene_lua_read(pagePointer+offset,pagePointer)||!pagePointer)return {};
-    char page[64]{};
-    if(!scene_lua_read(pagePointer,page)||!std::memchr(page,0,sizeof(page)))return {};
-    for(char& c:page)if(c>='A'&&c<='Z')c=(char)(c+32);
-    const bool suspended=replay||std::strstr(page,"game/screens/pause/")||
-        std::strstr(page,"game/screens/instantreplay/")||
-        !std::strcmp(page,"game/screens/fluxhub/fluxhub");
-    const bool matchPage=!page[0]||!std::strncmp(page,"game/screens/tv/",16)||
-        !std::strcmp(page,"game/screens/misc/stadiumpan");
-    return {true,ready!=0&&sports==2&&clock==0&&matchPage,suspended};
-}
-struct SceneStartupProbe {
-    SceneStartupRecovery recovery;
-    uint64_t nextSample=0;
-    bool poll(uintptr_t image,uint64_t now) {
-        if(now<nextSample)return false;
-        nextSample=now+250;
-        const auto sample=scene_startup_sample(image);
-        return recovery.poll(now,sample.known,sample.opening,sample.suspended);
-    }
-    bool confirm(bool ready){return recovery.confirm(ready);}
-    bool take_timeout(){const bool result=recovery.expired;recovery.expired=false;return result;}
+#include <cstdint>
+namespace scene_startup {
+struct Sample {
+ unsigned club=0,epoch=0,request=0,slot=0;
+ uintptr_t service=0,registry=0;
+ bool context=false,loaderIdle=false,routeRequired=false,routeCurrent=false;
+ int phase=0;
 };
+struct Gate {
+ Sample previous{};uint64_t since=0;unsigned reason=0;
+ void reset(){previous={};since=0;reason=0;}
+ bool allow(const Sample&s,uint64_t now){
+  const bool route=!s.routeRequired||(s.routeCurrent&&(s.phase==3||s.phase==4||s.phase==-1));
+  reason=!s.context||!s.club||!s.epoch?1:!s.loaderIdle?2:!route?3:0;
+  if(reason){since=0;previous=s;return false;}
+  if(!since||s.club!=previous.club||s.epoch!=previous.epoch||s.service!=previous.service||s.registry!=previous.registry||s.request!=previous.request||s.slot!=previous.slot){since=now;previous=s;}
+  // Observe a completed route, not just the first frame of a new Hub. The
+  // camera must remain native until FIFA has rendered/finished that route.
+  if(now-since<750){reason=4;return false;}
+  return true;
+ }
+};
+}

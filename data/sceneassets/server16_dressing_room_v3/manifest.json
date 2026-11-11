@@ -1,6 +1,6 @@
 {
   "version": 3,
-  "revision": 10,
+  "revision": 20,
   "capacity": 38,
   "sources": {
     "room_roles_r77.rx3": "1bbf9808fa6056ca87d96a33224d0a475bc078b1f395c5a175ffd4d18bd42ede",
@@ -94,15 +94,15 @@
       "submesh": "room_part_5"
     },
     {
-      "material": "light",
+      "material": "safe",
       "submesh": "room_part_6"
     },
     {
-      "material": "safe",
+      "material": "safe_metal",
       "submesh": "room_part_7"
     },
     {
-      "material": "safe_metal",
+      "material": "linen_seam",
       "submesh": "room_part_8"
     }
   ],
@@ -154,12 +154,8 @@
       "submesh": "room_part_2"
     },
     {
-      "material": "light",
-      "submesh": "room_part_3"
-    },
-    {
       "material": "cabinet",
-      "submesh": "room_part_4"
+      "submesh": "room_part_3"
     }
   ],
   "ceiling_bindings": [
@@ -178,6 +174,14 @@
     {
       "material": "vent",
       "submesh": "room_part_4"
+    },
+    {
+      "material": "sprinkler_glass",
+      "submesh": "room_part_5"
+    },
+    {
+      "material": "wall",
+      "submesh": "room_part_6"
     }
   ],
   "crest_bindings": [
@@ -200,6 +204,10 @@
     {
       "material": "corner",
       "submesh": "room_part_5"
+    },
+    {
+      "material": "bay_custom",
+      "submesh": "room_part_6"
     }
   ],
   "mount_bindings": [
@@ -220,8 +228,12 @@
   ],
   "furniture_bindings": [
     {
-      "material": "walnut",
+      "material": "top",
       "submesh": "room_part_1"
+    },
+    {
+      "material": "base",
+      "submesh": "room_part_2"
     }
   ],
   "scenery_bindings": [
@@ -293,18 +305,18 @@
     "collision_layout"
   ],
   "model_files": {
-    "room_roles.rx3": "room_roles_36d2db6f7c57e2.rx3",
+    "room_roles.rx3": "room_roles_bac53c13ff85bd.rx3",
     "scenery.rx3": "scenery_c874ddac663808.rx3",
     "crest_surfaces.rx3": "crest_surfaces_89d255cf1eceb1.rx3",
-    "interior.rx3": "interior_7d46205a2329de.rx3",
-    "locker_bay.rx3": "locker_bay_09054265a958d4.rx3",
+    "interior.rx3": "interior_7f46a97d80e004.rx3",
+    "locker_bay.rx3": "locker_bay_23752f1706fd82.rx3",
     "fascia.rx3": "fascia_24a0328bc06a21.rx3",
-    "crests.rx3": "crests_cf4f02b6e0746c.rx3",
-    "joinery.rx3": "joinery_e71c06e31745b4.rx3",
-    "ceiling_details.rx3": "ceiling_details_5d9e89477022af.rx3",
+    "crests.rx3": "crests_a712c43da23545.rx3",
+    "joinery.rx3": "joinery_5a7bf20a12e3d1.rx3",
+    "ceiling_details.rx3": "ceiling_details_d969ab26a0ac7d.rx3",
     "logo_mount.rx3": "logo_mount_a2ebc9ad5dd548.rx3",
     "feature_wall.rx3": "feature_wall_383424509b5185.rx3",
-    "furniture_wood.rx3": "furniture_wood_e8b75a0f6e0460.rx3",
+    "furniture_wood.rx3": "furniture_wood_995bb07540f2fd.rx3",
     "loading_backdrop_r82.rx3": "loading_backdrop_r82.rx3",
     "loading_backdrop_texture_r82.rx3": "loading_backdrop_texture_r82.rx3",
     "loading_badge_r82.rx3": "loading_badge_r82.rx3",
@@ -314,7 +326,8 @@
     "loading_progress_r82.rx3": "loading_progress_r82.rx3",
     "loading_progress_texture_r82.rx3": "loading_progress_texture_r82.rx3",
     "loading_ring_r82.rx3": "loading_ring_r82.rx3",
-    "loading_ring_texture_r82.rx3": "loading_ring_texture_r82.rx3"
+    "loading_ring_texture_r82.rx3": "loading_ring_texture_r82.rx3",
+    "exit_door.rx3": "exit_door_fb31fced974936.rx3"
   },
   "loading": {
     "revision": 82,
@@ -326,5 +339,266 @@
     "badge_size": 44.0625,
     "backdrop": "overscan, behind card, all supported camera aspect ratios",
     "progress": "loaded native resources / requested native resources"
-  }
+  },
+  "floor_uv": {
+    "tile_cm": 60,
+    "axes": [
+      "world_x",
+      "world_z"
+    ],
+    "origin": [
+      0,
+      0
+    ]
+  },
+  "drawer": {
+    "layout": "open left half / fitted right half",
+    "custom_image_aspect": 2,
+    "art_modes": [
+      "crest",
+      "none",
+      "custom"
+    ]
+  },
+  "next_match_board": {
+    "model": "next_match_board_8a60b707154871.rx3",
+    "texture": "next_match_board_palette_7af87b119d39a3.rx3",
+    "bindings": [
+      {
+        "material": "metal",
+        "submesh": "room_part_1"
+      },
+      {
+        "material": "dark",
+        "submesh": "room_part_2"
+      },
+      {
+        "material": "white",
+        "submesh": "room_part_3"
+      },
+      {
+        "material": "rubber",
+        "submesh": "room_part_4"
+      },
+      {
+        "material": "markers",
+        "submesh": "room_part_5"
+      }
+    ],
+    "dynamic_image": {
+      "lo": [
+        -117.5,
+        1094,
+        -512.55
+      ],
+      "hi": [
+        117.5,
+        1242,
+        -512.55
+      ]
+    },
+    "replaces": [
+      "role_neutral_19",
+      "role_neutral_20",
+      "role_neutral_21"
+    ],
+    "source_meshes": 23
+  },
+  "linen": {
+    "folds": 2,
+    "material": "shared cotton weave",
+    "shelf_plate": false
+  },
+  "footer_clearance_cm": {
+    "floor": 0.5,
+    "locker_base": 0.5,
+    "bank_ends": 0.4
+  },
+  "exit_door_bindings": [
+    {
+      "material": "leaves",
+      "submesh": "room_part_1"
+    },
+    {
+      "material": "frame",
+      "submesh": "room_part_2"
+    },
+    {
+      "material": "metal",
+      "submesh": "room_part_3"
+    },
+    {
+      "material": "kick",
+      "submesh": "room_part_4"
+    },
+    {
+      "material": "annex_leaves",
+      "submesh": "room_part_5"
+    }
+  ],
+  "exit_door": {
+    "revision": 2,
+    "center_native_cm": [
+      -846,
+      1118,
+      1350.0
+    ],
+    "right_shift_cm": 100.0,
+    "leaf_finish": "door_finish",
+    "custom_asset": "exit-door.png",
+    "closed": true,
+    "panic_bar_height_cm": 105,
+    "unrelated_triangles_preserved": true,
+    "removed_old_fixture_triangles": [
+      60,
+      48
+    ],
+    "shared_finish": true
+  },
+  "annex_doors": {
+    "revision": 1,
+    "finish_setting": "door_finish",
+    "shared_with_exit": true,
+    "doors": [
+      {
+        "id": "coach",
+        "center_x_cm": 180.0,
+        "hinge": [
+          246.0,
+          1000,
+          1552.0
+        ],
+        "width_cm": 126.0,
+        "height_cm": 232.0,
+        "open_degrees": 90
+      },
+      {
+        "id": "medical",
+        "center_x_cm": -545.0,
+        "hinge": [
+          -479.0,
+          1000,
+          1552.0
+        ],
+        "width_cm": 126.0,
+        "height_cm": 232.0,
+        "open_degrees": 90
+      }
+    ]
+  },
+  "ceiling": {
+    "module_cm": 60.0,
+    "ceiling_y": 1338.0,
+    "lights": [
+      [
+        -450.0,
+        -300.0
+      ],
+      [
+        -450.0,
+        240.0
+      ],
+      [
+        -450.0,
+        780.0
+      ],
+      [
+        -450.0,
+        1320.0
+      ],
+      [
+        30.0,
+        -300.0
+      ],
+      [
+        30.0,
+        240.0
+      ],
+      [
+        30.0,
+        780.0
+      ],
+      [
+        30.0,
+        1320.0
+      ],
+      [
+        450.0,
+        -300.0
+      ],
+      [
+        450.0,
+        240.0
+      ],
+      [
+        450.0,
+        780.0
+      ],
+      [
+        450.0,
+        1320.0
+      ]
+    ],
+    "supply": [
+      [
+        -210.0,
+        30.0
+      ],
+      [
+        -210.0,
+        1290.0
+      ]
+    ],
+    "air_return": [
+      [
+        270.0,
+        930.0
+      ]
+    ],
+    "sprinklers": [
+      [
+        -570.0,
+        540.0
+      ],
+      [
+        -570.0,
+        1140.0
+      ],
+      [
+        150.0,
+        540.0
+      ],
+      [
+        150.0,
+        1140.0
+      ],
+      [
+        570.0,
+        540.0
+      ],
+      [
+        570.0,
+        1140.0
+      ]
+    ],
+    "recessed": true,
+    "native_lighting_changed": false
+  },
+  "plain_terminal_walls": {
+    "from_z": 735,
+    "to_z": 1543.6,
+    "club_stripes": false,
+    "door_opening": true
+  },
+  "fitted_shell": {
+    "revision": 1,
+    "side_inner_x_cm": 835.5,
+    "side_end_z_cm": 735.0,
+    "back_inner_z_cm": -595.5,
+    "cabinet_wall_clearance_cm": 1.5,
+    "cabinet_positions_unchanged": true,
+    "service_corridor_unchanged": true
+  },
+  "legacy_lintel_faces_removed": true,
+  "white_locker_trim": false
 }

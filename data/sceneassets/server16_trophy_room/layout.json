@@ -1,0 +1,1070 @@
+{
+  "revision": 6,
+  "bindings": [
+    {
+      "key": "surface_stone",
+      "model": "data/sceneassets/server16_trophy_room/gallery-clean-r6.rx3",
+      "submesh": "gallery_part_1",
+      "alpha": false,
+      "metal": false,
+      "diffuse": "gallery_cm",
+      "lighting_point": [
+        0.0,
+        -5.0,
+        0.0
+      ],
+      "baked": false,
+      "texture": "data/sceneassets/server16_trophy_room/surface_stone-r6.rx3"
+    },
+    {
+      "key": "surface_ceiling",
+      "model": "data/sceneassets/server16_trophy_room/gallery-clean-r6.rx3",
+      "submesh": "gallery_part_2",
+      "alpha": false,
+      "metal": false,
+      "diffuse": "gallery_cm",
+      "lighting_point": [
+        0.0,
+        337.0,
+        0.0
+      ],
+      "baked": false,
+      "texture": "data/sceneassets/server16_trophy_room/surface_ceiling-r6.rx3"
+    },
+    {
+      "key": "surface_wall",
+      "model": "data/sceneassets/server16_trophy_room/gallery-clean-r6.rx3",
+      "submesh": "gallery_part_3",
+      "alpha": false,
+      "metal": false,
+      "diffuse": "gallery_cm",
+      "lighting_point": [
+        0.0,
+        165.0,
+        0.0
+      ],
+      "baked": false,
+      "texture": "data/sceneassets/server16_trophy_room/surface_wall-r6.rx3"
+    },
+    {
+      "key": "surface_aluminium",
+      "model": "data/sceneassets/server16_trophy_room/gallery-clean-r6.rx3",
+      "submesh": "gallery_part_4",
+      "alpha": false,
+      "metal": false,
+      "diffuse": "gallery_cm",
+      "lighting_point": [
+        0.0,
+        135.0,
+        0.0
+      ],
+      "baked": false,
+      "texture": "data/sceneassets/server16_trophy_room/surface_aluminium-r6.rx3"
+    },
+    {
+      "key": "surface_door",
+      "model": "data/sceneassets/server16_trophy_room/gallery-clean-r6.rx3",
+      "submesh": "gallery_part_5",
+      "alpha": false,
+      "metal": false,
+      "diffuse": "gallery_cm",
+      "lighting_point": [
+        260.0,
+        117.6500244140625,
+        745.0
+      ],
+      "baked": false,
+      "texture": "data/sceneassets/server16_trophy_room/surface_door-r6.rx3"
+    },
+    {
+      "key": "surface_black",
+      "model": "data/sceneassets/server16_trophy_room/gallery-clean-r6.rx3",
+      "submesh": "gallery_part_6",
+      "alpha": false,
+      "metal": false,
+      "diffuse": "gallery_cm",
+      "lighting_point": [
+        0.0,
+        163.70001220703125,
+        27.0
+      ],
+      "baked": false,
+      "texture": "data/sceneassets/server16_trophy_room/surface_black-r6.rx3"
+    },
+    {
+      "key": "surface_bench",
+      "model": "data/sceneassets/server16_trophy_room/gallery-clean-r6.rx3",
+      "submesh": "gallery_part_7",
+      "alpha": false,
+      "metal": false,
+      "diffuse": "gallery_cm",
+      "lighting_point": [
+        146.3499755859375,
+        57.850006103515625,
+        376.5249938964844
+      ],
+      "baked": false,
+      "texture": "data/sceneassets/server16_trophy_room/surface_bench-r6.rx3"
+    },
+    {
+      "key": "exit",
+      "model": "data/sceneassets/server16_trophy_room/gallery-clean-r6.rx3",
+      "submesh": "gallery_part_8",
+      "alpha": false,
+      "metal": false,
+      "diffuse": "gallery_cm",
+      "lighting_point": [
+        260.0,
+        262.0,
+        738.5
+      ],
+      "baked": true
+    },
+    {
+      "key": "identity",
+      "model": "data/sceneassets/server16_trophy_room/gallery-clean-r6.rx3",
+      "submesh": "gallery_part_9",
+      "alpha": false,
+      "metal": false,
+      "diffuse": "gallery_cm",
+      "lighting_point": [
+        0.0,
+        165.0,
+        -746.0
+      ],
+      "baked": true
+    },
+    {
+      "key": "surface_cabinet",
+      "model": "data/sceneassets/server16_trophy_room/gallery-clean-r6.rx3",
+      "submesh": "gallery_part_10",
+      "alpha": false,
+      "metal": false,
+      "diffuse": "gallery_cm",
+      "lighting_point": [
+        0.0,
+        142.75,
+        0.0
+      ],
+      "baked": false,
+      "texture": "data/sceneassets/server16_trophy_room/surface_cabinet-r6.rx3"
+    },
+    {
+      "key": "surface_case_back",
+      "model": "data/sceneassets/server16_trophy_room/gallery-clean-r6.rx3",
+      "submesh": "gallery_part_11",
+      "alpha": false,
+      "metal": false,
+      "diffuse": "gallery_cm",
+      "lighting_point": [
+        0.0,
+        174.0,
+        0.0
+      ],
+      "baked": false,
+      "texture": "data/sceneassets/server16_trophy_room/surface_case_back-r6.rx3"
+    },
+    {
+      "key": "surface_shelf",
+      "model": "data/sceneassets/server16_trophy_room/gallery-clean-r6.rx3",
+      "submesh": "gallery_part_12",
+      "alpha": false,
+      "metal": false,
+      "diffuse": "gallery_cm",
+      "lighting_point": [
+        0.0,
+        80.0,
+        0.0
+      ],
+      "baked": false,
+      "texture": "data/sceneassets/server16_trophy_room/surface_shelf-r6.rx3"
+    },
+    {
+      "key": "secondary",
+      "model": "data/sceneassets/server16_trophy_room/gallery-clean-r6.rx3",
+      "submesh": "gallery_part_13",
+      "alpha": false,
+      "metal": false,
+      "diffuse": "gallery_cm",
+      "lighting_point": [
+        0.0,
+        77.0,
+        0.0
+      ],
+      "baked": false
+    },
+    {
+      "key": "primary",
+      "model": "data/sceneassets/server16_trophy_room/gallery-clean-r6.rx3",
+      "submesh": "gallery_part_14",
+      "alpha": false,
+      "metal": false,
+      "diffuse": "gallery_cm",
+      "lighting_point": [
+        0.0,
+        154.7,
+        0.0
+      ],
+      "baked": false
+    },
+    {
+      "key": "emission",
+      "model": "data/sceneassets/server16_trophy_room/gallery-clean-r6.rx3",
+      "submesh": "gallery_part_15",
+      "alpha": false,
+      "metal": false,
+      "diffuse": "gallery_cm",
+      "lighting_point": [
+        0.0,
+        297.75,
+        0.0
+      ],
+      "baked": true
+    },
+    {
+      "key": "glass",
+      "model": "data/sceneassets/server16_trophy_room/gallery-clean-r6.rx3",
+      "submesh": "gallery_part_16",
+      "alpha": true,
+      "metal": false,
+      "diffuse": "gallery_cm",
+      "lighting_point": [
+        0.0,
+        176.0,
+        0.0
+      ],
+      "baked": false
+    },
+    {
+      "key": "surface_plinth",
+      "model": "data/sceneassets/server16_trophy_room/gallery-clean-r6.rx3",
+      "submesh": "gallery_part_17",
+      "alpha": false,
+      "metal": false,
+      "diffuse": "gallery_cm",
+      "lighting_point": [
+        0.0,
+        92.0,
+        0.0
+      ],
+      "baked": false,
+      "texture": "data/sceneassets/server16_trophy_room/surface_plinth-r6.rx3"
+    },
+    {
+      "key": "plaque_0",
+      "model": "data/sceneassets/server16_trophy_room/gallery-clean-r6.rx3",
+      "submesh": "gallery_part_18",
+      "alpha": false,
+      "metal": false,
+      "diffuse": "gallery_cm",
+      "lighting_point": [
+        -494.0,
+        93.0,
+        -630.0
+      ],
+      "baked": true
+    },
+    {
+      "key": "plaque_1",
+      "model": "data/sceneassets/server16_trophy_room/gallery-clean-r6.rx3",
+      "submesh": "gallery_part_19",
+      "alpha": false,
+      "metal": false,
+      "diffuse": "gallery_cm",
+      "lighting_point": [
+        -494.0,
+        93.0,
+        -540.0
+      ],
+      "baked": true
+    },
+    {
+      "key": "plaque_2",
+      "model": "data/sceneassets/server16_trophy_room/gallery-clean-r6.rx3",
+      "submesh": "gallery_part_20",
+      "alpha": false,
+      "metal": false,
+      "diffuse": "gallery_cm",
+      "lighting_point": [
+        -494.0,
+        93.0,
+        -450.0
+      ],
+      "baked": true
+    },
+    {
+      "key": "plaque_3",
+      "model": "data/sceneassets/server16_trophy_room/gallery-clean-r6.rx3",
+      "submesh": "gallery_part_21",
+      "alpha": false,
+      "metal": false,
+      "diffuse": "gallery_cm",
+      "lighting_point": [
+        -494.0,
+        93.0,
+        -360.0
+      ],
+      "baked": true
+    },
+    {
+      "key": "plaque_4",
+      "model": "data/sceneassets/server16_trophy_room/gallery-clean-r6.rx3",
+      "submesh": "gallery_part_22",
+      "alpha": false,
+      "metal": false,
+      "diffuse": "gallery_cm",
+      "lighting_point": [
+        -494.0,
+        93.0,
+        -270.0
+      ],
+      "baked": true
+    },
+    {
+      "key": "plaque_5",
+      "model": "data/sceneassets/server16_trophy_room/gallery-clean-r6.rx3",
+      "submesh": "gallery_part_23",
+      "alpha": false,
+      "metal": false,
+      "diffuse": "gallery_cm",
+      "lighting_point": [
+        -494.0,
+        93.0,
+        -180.0
+      ],
+      "baked": true
+    },
+    {
+      "key": "plaque_6",
+      "model": "data/sceneassets/server16_trophy_room/gallery-clean-r6.rx3",
+      "submesh": "gallery_part_24",
+      "alpha": false,
+      "metal": false,
+      "diffuse": "gallery_cm",
+      "lighting_point": [
+        -494.0,
+        93.0,
+        -90.0
+      ],
+      "baked": true
+    },
+    {
+      "key": "plaque_7",
+      "model": "data/sceneassets/server16_trophy_room/gallery-clean-r6.rx3",
+      "submesh": "gallery_part_25",
+      "alpha": false,
+      "metal": false,
+      "diffuse": "gallery_cm",
+      "lighting_point": [
+        -494.0,
+        93.0,
+        0.0
+      ],
+      "baked": true
+    },
+    {
+      "key": "plaque_8",
+      "model": "data/sceneassets/server16_trophy_room/gallery-clean-r6.rx3",
+      "submesh": "gallery_part_26",
+      "alpha": false,
+      "metal": false,
+      "diffuse": "gallery_cm",
+      "lighting_point": [
+        -494.0,
+        93.0,
+        90.0
+      ],
+      "baked": true
+    },
+    {
+      "key": "plaque_9",
+      "model": "data/sceneassets/server16_trophy_room/gallery-clean-r6.rx3",
+      "submesh": "gallery_part_27",
+      "alpha": false,
+      "metal": false,
+      "diffuse": "gallery_cm",
+      "lighting_point": [
+        -494.0,
+        93.0,
+        180.0
+      ],
+      "baked": true
+    },
+    {
+      "key": "plaque_10",
+      "model": "data/sceneassets/server16_trophy_room/gallery-clean-r6.rx3",
+      "submesh": "gallery_part_28",
+      "alpha": false,
+      "metal": false,
+      "diffuse": "gallery_cm",
+      "lighting_point": [
+        -494.0,
+        93.0,
+        270.0
+      ],
+      "baked": true
+    },
+    {
+      "key": "plaque_11",
+      "model": "data/sceneassets/server16_trophy_room/gallery-clean-r6.rx3",
+      "submesh": "gallery_part_29",
+      "alpha": false,
+      "metal": false,
+      "diffuse": "gallery_cm",
+      "lighting_point": [
+        -494.0,
+        93.0,
+        360.0
+      ],
+      "baked": true
+    },
+    {
+      "key": "plaque_12",
+      "model": "data/sceneassets/server16_trophy_room/gallery-clean-r6.rx3",
+      "submesh": "gallery_part_30",
+      "alpha": false,
+      "metal": false,
+      "diffuse": "gallery_cm",
+      "lighting_point": [
+        -494.0,
+        93.0,
+        450.0
+      ],
+      "baked": true
+    },
+    {
+      "key": "plaque_13",
+      "model": "data/sceneassets/server16_trophy_room/gallery-clean-r6.rx3",
+      "submesh": "gallery_part_31",
+      "alpha": false,
+      "metal": false,
+      "diffuse": "gallery_cm",
+      "lighting_point": [
+        -494.0,
+        93.0,
+        540.0
+      ],
+      "baked": true
+    },
+    {
+      "key": "plaque_14",
+      "model": "data/sceneassets/server16_trophy_room/gallery-clean-r6.rx3",
+      "submesh": "gallery_part_32",
+      "alpha": false,
+      "metal": false,
+      "diffuse": "gallery_cm",
+      "lighting_point": [
+        -494.0,
+        93.0,
+        630.0
+      ],
+      "baked": true
+    },
+    {
+      "key": "plaque_15",
+      "model": "data/sceneassets/server16_trophy_room/gallery-clean-r6.rx3",
+      "submesh": "gallery_part_33",
+      "alpha": false,
+      "metal": false,
+      "diffuse": "gallery_cm",
+      "lighting_point": [
+        494.0,
+        93.0,
+        -630.0
+      ],
+      "baked": true
+    },
+    {
+      "key": "plaque_16",
+      "model": "data/sceneassets/server16_trophy_room/gallery-clean-r6.rx3",
+      "submesh": "gallery_part_34",
+      "alpha": false,
+      "metal": false,
+      "diffuse": "gallery_cm",
+      "lighting_point": [
+        494.0,
+        93.0,
+        -540.0
+      ],
+      "baked": true
+    },
+    {
+      "key": "plaque_17",
+      "model": "data/sceneassets/server16_trophy_room/gallery-clean-r6.rx3",
+      "submesh": "gallery_part_35",
+      "alpha": false,
+      "metal": false,
+      "diffuse": "gallery_cm",
+      "lighting_point": [
+        494.0,
+        93.0,
+        -450.0
+      ],
+      "baked": true
+    },
+    {
+      "key": "plaque_18",
+      "model": "data/sceneassets/server16_trophy_room/gallery-clean-r6.rx3",
+      "submesh": "gallery_part_36",
+      "alpha": false,
+      "metal": false,
+      "diffuse": "gallery_cm",
+      "lighting_point": [
+        494.0,
+        93.0,
+        -360.0
+      ],
+      "baked": true
+    },
+    {
+      "key": "plaque_19",
+      "model": "data/sceneassets/server16_trophy_room/gallery-clean-r6.rx3",
+      "submesh": "gallery_part_37",
+      "alpha": false,
+      "metal": false,
+      "diffuse": "gallery_cm",
+      "lighting_point": [
+        494.0,
+        93.0,
+        -270.0
+      ],
+      "baked": true
+    },
+    {
+      "key": "plaque_20",
+      "model": "data/sceneassets/server16_trophy_room/gallery-clean-r6.rx3",
+      "submesh": "gallery_part_38",
+      "alpha": false,
+      "metal": false,
+      "diffuse": "gallery_cm",
+      "lighting_point": [
+        494.0,
+        93.0,
+        -180.0
+      ],
+      "baked": true
+    },
+    {
+      "key": "plaque_21",
+      "model": "data/sceneassets/server16_trophy_room/gallery-clean-r6.rx3",
+      "submesh": "gallery_part_39",
+      "alpha": false,
+      "metal": false,
+      "diffuse": "gallery_cm",
+      "lighting_point": [
+        494.0,
+        93.0,
+        -90.0
+      ],
+      "baked": true
+    },
+    {
+      "key": "plaque_22",
+      "model": "data/sceneassets/server16_trophy_room/gallery-clean-r6.rx3",
+      "submesh": "gallery_part_40",
+      "alpha": false,
+      "metal": false,
+      "diffuse": "gallery_cm",
+      "lighting_point": [
+        494.0,
+        93.0,
+        0.0
+      ],
+      "baked": true
+    },
+    {
+      "key": "plaque_23",
+      "model": "data/sceneassets/server16_trophy_room/gallery-clean-r6.rx3",
+      "submesh": "gallery_part_41",
+      "alpha": false,
+      "metal": false,
+      "diffuse": "gallery_cm",
+      "lighting_point": [
+        494.0,
+        93.0,
+        90.0
+      ],
+      "baked": true
+    },
+    {
+      "key": "plaque_24",
+      "model": "data/sceneassets/server16_trophy_room/gallery-clean-r6.rx3",
+      "submesh": "gallery_part_42",
+      "alpha": false,
+      "metal": false,
+      "diffuse": "gallery_cm",
+      "lighting_point": [
+        494.0,
+        93.0,
+        180.0
+      ],
+      "baked": true
+    },
+    {
+      "key": "plaque_25",
+      "model": "data/sceneassets/server16_trophy_room/gallery-clean-r6.rx3",
+      "submesh": "gallery_part_43",
+      "alpha": false,
+      "metal": false,
+      "diffuse": "gallery_cm",
+      "lighting_point": [
+        494.0,
+        93.0,
+        270.0
+      ],
+      "baked": true
+    },
+    {
+      "key": "plaque_26",
+      "model": "data/sceneassets/server16_trophy_room/gallery-clean-r6.rx3",
+      "submesh": "gallery_part_44",
+      "alpha": false,
+      "metal": false,
+      "diffuse": "gallery_cm",
+      "lighting_point": [
+        494.0,
+        93.0,
+        360.0
+      ],
+      "baked": true
+    },
+    {
+      "key": "plaque_27",
+      "model": "data/sceneassets/server16_trophy_room/gallery-clean-r6.rx3",
+      "submesh": "gallery_part_45",
+      "alpha": false,
+      "metal": false,
+      "diffuse": "gallery_cm",
+      "lighting_point": [
+        494.0,
+        93.0,
+        450.0
+      ],
+      "baked": true
+    },
+    {
+      "key": "plaque_28",
+      "model": "data/sceneassets/server16_trophy_room/gallery-clean-r6.rx3",
+      "submesh": "gallery_part_46",
+      "alpha": false,
+      "metal": false,
+      "diffuse": "gallery_cm",
+      "lighting_point": [
+        494.0,
+        93.0,
+        540.0
+      ],
+      "baked": true
+    },
+    {
+      "key": "plaque_29",
+      "model": "data/sceneassets/server16_trophy_room/gallery-clean-r6.rx3",
+      "submesh": "gallery_part_47",
+      "alpha": false,
+      "metal": false,
+      "diffuse": "gallery_cm",
+      "lighting_point": [
+        494.0,
+        93.0,
+        630.0
+      ],
+      "baked": true
+    },
+    {
+      "key": "surface_leather",
+      "model": "data/sceneassets/server16_trophy_room/gallery-clean-r6.rx3",
+      "submesh": "gallery_part_48",
+      "alpha": false,
+      "metal": false,
+      "diffuse": "gallery_cm",
+      "lighting_point": [
+        0.0,
+        51.0,
+        180.0
+      ],
+      "baked": false,
+      "texture": "data/sceneassets/server16_trophy_room/surface_leather-r6.rx3"
+    },
+    {
+      "key": "surface_joint",
+      "model": "data/sceneassets/server16_trophy_room/gallery-clean-r6.rx3",
+      "submesh": "gallery_part_49",
+      "alpha": false,
+      "metal": false,
+      "diffuse": "gallery_cm",
+      "lighting_point": [
+        0.0,
+        329.7,
+        0.0
+      ],
+      "baked": false,
+      "texture": "data/sceneassets/server16_trophy_room/surface_joint-r6.rx3"
+    }
+  ],
+  "slots": [
+    {
+      "index": 0,
+      "side": "left",
+      "x": -565.0,
+      "y": 102.0,
+      "z": -630.0,
+      "yaw": 1.5707963267948966,
+      "plaque_x": -494.0
+    },
+    {
+      "index": 1,
+      "side": "left",
+      "x": -565.0,
+      "y": 102.0,
+      "z": -540.0,
+      "yaw": 1.5707963267948966,
+      "plaque_x": -494.0
+    },
+    {
+      "index": 2,
+      "side": "left",
+      "x": -565.0,
+      "y": 102.0,
+      "z": -450.0,
+      "yaw": 1.5707963267948966,
+      "plaque_x": -494.0
+    },
+    {
+      "index": 3,
+      "side": "left",
+      "x": -565.0,
+      "y": 102.0,
+      "z": -360.0,
+      "yaw": 1.5707963267948966,
+      "plaque_x": -494.0
+    },
+    {
+      "index": 4,
+      "side": "left",
+      "x": -565.0,
+      "y": 102.0,
+      "z": -270.0,
+      "yaw": 1.5707963267948966,
+      "plaque_x": -494.0
+    },
+    {
+      "index": 5,
+      "side": "left",
+      "x": -565.0,
+      "y": 102.0,
+      "z": -180.0,
+      "yaw": 1.5707963267948966,
+      "plaque_x": -494.0
+    },
+    {
+      "index": 6,
+      "side": "left",
+      "x": -565.0,
+      "y": 102.0,
+      "z": -90.0,
+      "yaw": 1.5707963267948966,
+      "plaque_x": -494.0
+    },
+    {
+      "index": 7,
+      "side": "left",
+      "x": -565.0,
+      "y": 102.0,
+      "z": 0.0,
+      "yaw": 1.5707963267948966,
+      "plaque_x": -494.0
+    },
+    {
+      "index": 8,
+      "side": "left",
+      "x": -565.0,
+      "y": 102.0,
+      "z": 90.0,
+      "yaw": 1.5707963267948966,
+      "plaque_x": -494.0
+    },
+    {
+      "index": 9,
+      "side": "left",
+      "x": -565.0,
+      "y": 102.0,
+      "z": 180.0,
+      "yaw": 1.5707963267948966,
+      "plaque_x": -494.0
+    },
+    {
+      "index": 10,
+      "side": "left",
+      "x": -565.0,
+      "y": 102.0,
+      "z": 270.0,
+      "yaw": 1.5707963267948966,
+      "plaque_x": -494.0
+    },
+    {
+      "index": 11,
+      "side": "left",
+      "x": -565.0,
+      "y": 102.0,
+      "z": 360.0,
+      "yaw": 1.5707963267948966,
+      "plaque_x": -494.0
+    },
+    {
+      "index": 12,
+      "side": "left",
+      "x": -565.0,
+      "y": 102.0,
+      "z": 450.0,
+      "yaw": 1.5707963267948966,
+      "plaque_x": -494.0
+    },
+    {
+      "index": 13,
+      "side": "left",
+      "x": -565.0,
+      "y": 102.0,
+      "z": 540.0,
+      "yaw": 1.5707963267948966,
+      "plaque_x": -494.0
+    },
+    {
+      "index": 14,
+      "side": "left",
+      "x": -565.0,
+      "y": 102.0,
+      "z": 630.0,
+      "yaw": 1.5707963267948966,
+      "plaque_x": -494.0
+    },
+    {
+      "index": 15,
+      "side": "right",
+      "x": 565.0,
+      "y": 102.0,
+      "z": -630.0,
+      "yaw": -1.5707963267948966,
+      "plaque_x": 494.0
+    },
+    {
+      "index": 16,
+      "side": "right",
+      "x": 565.0,
+      "y": 102.0,
+      "z": -540.0,
+      "yaw": -1.5707963267948966,
+      "plaque_x": 494.0
+    },
+    {
+      "index": 17,
+      "side": "right",
+      "x": 565.0,
+      "y": 102.0,
+      "z": -450.0,
+      "yaw": -1.5707963267948966,
+      "plaque_x": 494.0
+    },
+    {
+      "index": 18,
+      "side": "right",
+      "x": 565.0,
+      "y": 102.0,
+      "z": -360.0,
+      "yaw": -1.5707963267948966,
+      "plaque_x": 494.0
+    },
+    {
+      "index": 19,
+      "side": "right",
+      "x": 565.0,
+      "y": 102.0,
+      "z": -270.0,
+      "yaw": -1.5707963267948966,
+      "plaque_x": 494.0
+    },
+    {
+      "index": 20,
+      "side": "right",
+      "x": 565.0,
+      "y": 102.0,
+      "z": -180.0,
+      "yaw": -1.5707963267948966,
+      "plaque_x": 494.0
+    },
+    {
+      "index": 21,
+      "side": "right",
+      "x": 565.0,
+      "y": 102.0,
+      "z": -90.0,
+      "yaw": -1.5707963267948966,
+      "plaque_x": 494.0
+    },
+    {
+      "index": 22,
+      "side": "right",
+      "x": 565.0,
+      "y": 102.0,
+      "z": 0.0,
+      "yaw": -1.5707963267948966,
+      "plaque_x": 494.0
+    },
+    {
+      "index": 23,
+      "side": "right",
+      "x": 565.0,
+      "y": 102.0,
+      "z": 90.0,
+      "yaw": -1.5707963267948966,
+      "plaque_x": 494.0
+    },
+    {
+      "index": 24,
+      "side": "right",
+      "x": 565.0,
+      "y": 102.0,
+      "z": 180.0,
+      "yaw": -1.5707963267948966,
+      "plaque_x": 494.0
+    },
+    {
+      "index": 25,
+      "side": "right",
+      "x": 565.0,
+      "y": 102.0,
+      "z": 270.0,
+      "yaw": -1.5707963267948966,
+      "plaque_x": 494.0
+    },
+    {
+      "index": 26,
+      "side": "right",
+      "x": 565.0,
+      "y": 102.0,
+      "z": 360.0,
+      "yaw": -1.5707963267948966,
+      "plaque_x": 494.0
+    },
+    {
+      "index": 27,
+      "side": "right",
+      "x": 565.0,
+      "y": 102.0,
+      "z": 450.0,
+      "yaw": -1.5707963267948966,
+      "plaque_x": 494.0
+    },
+    {
+      "index": 28,
+      "side": "right",
+      "x": 565.0,
+      "y": 102.0,
+      "z": 540.0,
+      "yaw": -1.5707963267948966,
+      "plaque_x": 494.0
+    },
+    {
+      "index": 29,
+      "side": "right",
+      "x": 565.0,
+      "y": 102.0,
+      "z": 630.0,
+      "yaw": -1.5707963267948966,
+      "plaque_x": 494.0
+    }
+  ],
+  "obstacles": [
+    {
+      "lo": [
+        -646.0,
+        0.0,
+        -700.0
+      ],
+      "hi": [
+        -498.0,
+        78.0,
+        700.0
+      ]
+    },
+    {
+      "lo": [
+        498.0,
+        0.0,
+        -700.0
+      ],
+      "hi": [
+        646.0,
+        78.0,
+        700.0
+      ]
+    },
+    {
+      "lo": [
+        -44,
+        0,
+        9
+      ],
+      "hi": [
+        44,
+        57,
+        351
+      ]
+    }
+  ],
+  "cameras": [
+    {
+      "eye": [
+        0,
+        166,
+        660
+      ],
+      "target": [
+        0,
+        155,
+        -380
+      ],
+      "fov": 70
+    },
+    {
+      "eye": [
+        365,
+        166,
+        520
+      ],
+      "target": [
+        -560,
+        156,
+        -70
+      ],
+      "fov": 65
+    },
+    {
+      "eye": [
+        -365,
+        166,
+        520
+      ],
+      "target": [
+        560,
+        156,
+        -70
+      ],
+      "fov": 65
+    },
+    {
+      "eye": [
+        0,
+        170,
+        -310
+      ],
+      "target": [
+        0,
+        165,
+        -744
+      ],
+      "fov": 84
+    }
+  ],
+  "capacity": 30,
+  "lighting": "native indoor SH and ceiling spots; clean unlit albedo"
+}

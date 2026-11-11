@@ -4,6 +4,9 @@ import copy
 import json
 import os
 import threading
+import hashlib
+import ntpath
+import math
 from PIL import Image
 
 _asset_health={}
@@ -13,27 +16,72 @@ PREFERENCES = 'ModCarrerMode/data/club_environment/room/v3-settings'
 CATALOG = [
     ('style', 'Estilo do vestiário', [('default','Default',112),('custom','Custom do clube',113)]),
     ('finish', 'Composição dos armários', [('light','Branco',90),('dark','Preto',91),('gray','Cinza',92),('wood','Amadeirado',93),('wood_light','Amadeirado claro',99),('custom','Custom do clube',94)]),
-    ('backs', 'Fundo dos nichos', [('light','Branco',95),('dark','Preto',96),('wood','Amadeirado',97),('wood_light','Amadeirado claro',106),('custom','Custom do clube',98)]),
+    ('backs', 'Fundo dos nichos', [('light','Branco',95),('dark','Preto',96),('wood','Amadeirado',97),('wood_light','Amadeirado claro',106),('custom','Custom do clube',98),('ash','Freijó natural',132),('slate','Ardósia',133)]),
     ('trim', 'Contorno dos armários', [('primary','Cor primária do clube',114),('secondary','Cor secundária do clube',115),('light','Branco',116),('dark','Preto',117),('wood','Amadeirado',118),('wood_light','Amadeirado claro',119)]),
-    ('floor', 'Piso', [('rubber','Emborrachado',100),('light','Claro',101),('dark','Escuro',102),('stone','Cimento',103),('wood','Amadeirado',104),('custom','Custom do clube',105)]),
+    ('floor', 'Piso', [('rubber','Emborrachado',100),('light','Claro',101),('dark','Escuro',102),('stone','Cimento',103),('wood','Amadeirado',104),('custom','Custom do clube',105),('graphite','Borracha grafite',130),('terrazzo','Terrazzo claro',131)]),
     ('logo', 'Escudo do clube', [('floor','Chão',110),('ceiling','Teto',111)]),
+    ('fascia', 'Faixa superior dos armários', [('custom','Custom do clube',134),('name','Nome do clube',135),('primary','Cor primária',136),('secondary','Cor secundária',137),('dark','Madeira preta',138),('light','Branco',139),('gray','Cinza',140),('wood','Amadeirado',141)]),
+    ('drawer_art', 'Frente da gaveta', [('crest','Escudo do clube',142),('none','Sem imagem',143),('custom','Imagem personalizada',144)]),
+    ('table_top', 'Tampo da mesa', [('default','Padrão atual',145),('walnut','Madeira marrom',146),('oak','Madeira clara',147),('black','Preto',148),('white','Branco',149),('primary','Cor primária do clube',150),('stone','Pedra cinza',151),('custom','Textura personalizada',152)]),
+    ('table_base', 'Estrutura da mesa', [('default','Padrão atual',153),('black','Preto',154),('white','Branco',155),('gray','Cinza',156),('primary','Cor primária do clube',157),('secondary','Cor secundária do clube',158)]),
+    ('door_finish', 'Acabamento das portas', [('black','Preto fosco',160),('graphite','Grafite',161),('white','Branco fosco',162),('walnut','Madeira marrom',163),('steel','Aço escovado',164),('primary','Cor primária do clube',165),('secondary','Cor secundária do clube',166),('custom','Textura personalizada',167)]),
 ]
+GROUPS=[('Armários',('style','finish','backs','trim','fascia','drawer_art')),
+        ('Mesa central',('table_top','table_base')),('Ambiente',('floor','logo')),
+        ('Portas',('door_finish',))]
 CODES={code:(key,value) for key,_,options in CATALOG for value,_,code in options}
-# One mailbox command carries the whole draft. The six base-8 option indices
-# occupy the low digits of a monotonically increasing, exactly represented ID.
+# Legacy screens use eight base-8 rows. Grouped screens use each row's own
+# option count: all ten choices still fit exactly in FIFA's float32 integers.
 APPLY_CODE=120
-SEQUENCE_STRIDE=1_000_000
+GROUPED_APPLY_CODE=121
+# The first ten settings already approach the seven-digit float32 limit.
+# Carry the door index in the command ID instead of widening that payload.
+PACKED_ROWS=10
+DOOR_APPLY_BASE=180
+DOOR_OPTIONS=next(items for key,_,items in CATALOG if key=='door_finish')
+DOOR_APPLY_CODES=range(DOOR_APPLY_BASE,DOOR_APPLY_BASE+len(DOOR_OPTIONS))
+SEQUENCE_STRIDE=10_000_000
+assert math.prod(len(items) for _,_,items in CATALOG[:PACKED_ROWS])<min(SEQUENCE_STRIDE,2**24)
 
 
-def decode_draft(game,club,sequence):
+def preference_scope(game,club,pid=None):
+    """Stable save-slot identity; only read the host's current publication.
+
+    Native DATA and all career databases remain read-only. A different save
+    gets its own directory, while the old club-wide file is a frozen baseline.
+    """
+    try:
+        snap=json.loads((Path(game)/'ModCarrerMode/runtime/career_fce_snapshot.json').read_text(encoding='utf8'))
+        if int(snap.get('club',0))!=int(club) or (pid is not None and int(snap.get('pid',0))!=int(pid)):return None
+        path=snap.get('savePath')
+        if isinstance(path,str) and ntpath.isabs(path):
+            key=hashlib.sha256(ntpath.normcase(ntpath.normpath(path.removeprefix('\\\\?\\'))).encode('utf8')).hexdigest()[:24]
+            return Path(game)/PREFERENCES/'careers'/key/f'{int(club)}.json'
+        if int(snap.get('pid',0))>0 and int(snap.get('fceContextEpoch',0))>0:
+            return Path(game)/'ModCarrerMode/runtime/club_environment/room/unsaved'/f'{snap["pid"]}_{snap["fceContextEpoch"]}'/f'{int(club)}.json'
+    except (OSError,ValueError,TypeError):pass
+    return None
+
+
+def scope_key(game,club):
+    path=preference_scope(game,club)
+    return str(path.relative_to(Path(game))) if path else 'legacy'
+
+
+def decode_draft(game,club,sequence,code=APPLY_CODE):
     packed=sequence%SEQUENCE_STRIDE
     selected={}
-    for row in rows(game,club):
-        packed,index=divmod(packed,8)
+    catalog=rows(game,club)[:PACKED_ROWS]
+    if code==APPLY_CODE:catalog=catalog[:8]  # old screen, without table settings
+    elif code!=GROUPED_APPLY_CODE and code not in DOOR_APPLY_CODES:raise ValueError('Invalid appearance command')
+    for row in catalog:
+        packed,index=divmod(packed,8 if code==APPLY_CODE else len(row['options']))
         if index>=len(row['options']):raise ValueError('Invalid dressing-room option')
         selected[row['key']]=row['options'][index]['value']
     if packed:raise ValueError('Invalid dressing-room draft')
-    if selected['style']=='default' and any(selected[k]=='custom' for k in ('finish','backs','floor')):
+    if code in DOOR_APPLY_CODES:
+        selected['door_finish']=DOOR_OPTIONS[code-DOOR_APPLY_BASE][0]
+    if selected['style']=='default' and any(selected[k]=='custom' for k in ('finish','backs','floor','fascia')):
         raise ValueError('Custom material requires the club style')
     return selected
 
@@ -55,7 +103,9 @@ def asset(game,club,key):
     value=assets.get(key) if isinstance(assets,dict) else None
     # Optional per-club safe artwork uses a predictable filename; a profile
     # may override it when an existing pack uses a different asset name.
-    if key=='locker_box_front' and not isinstance(value,str):value='locker-box-front.png'
+    if key in ('locker_box_front','table_top','exit_door') and not isinstance(value,str):
+        stem={'locker_box_front':'locker-box-front','table_top':'table-top','exit_door':'exit-door'}[key]
+        value=stem+'.png' if (folder/(stem+'.png')).is_file() else stem+'.dds'
     if not isinstance(value,str):return None
     path=(folder/value).resolve()
     if not path.is_relative_to(folder) or path.suffix.lower() not in ('.png','.dds') or not path.is_file():return None
@@ -78,8 +128,8 @@ def has_custom(game,club):
 def rows(game,club):
     result=[]
     for key,title,items in CATALOG:
-        available=[item for item in items if item[0]!='custom' or
-                   (has_custom(game,club) if key=='style' else asset(game,club,{'finish':'cabinet','backs':'backing','floor':'floor'}[key]))]
+        available=[item for item in items if item[0]!='custom' or key in ('drawer_art','table_top','door_finish') or
+                   (has_custom(game,club) if key=='style' else (has_custom(game,club) if key=='fascia' else asset(game,club,{'finish':'cabinet','backs':'backing','floor':'floor'}[key])))]
         result.append({'key':key,'title':title,'options':[{'value':value,'label':label,'code':code} for value,label,code in available]})
     return result
 
@@ -91,20 +141,23 @@ def preferences(game,club,default_finish=None):
             default_finish=cfg['visual'].get('clubs',{}).get(str(club),{}).get('finish',cfg['visual'].get('fallback',{}).get('finish','light'))
         except (OSError,ValueError,KeyError,TypeError):default_finish='light'
     values={'style':'custom' if has_custom(game,club) else 'default','finish':default_finish,
-            'backs':'dark' if default_finish=='dark' else 'light','trim':'primary','floor':'light','logo':'floor'}
+            'backs':'dark' if default_finish=='dark' else 'light','trim':'primary','floor':'light','logo':'floor','fascia':'custom' if has_custom(game,club) else 'name',
+            'drawer_art':'custom' if asset(game,club,'locker_box_front') else 'crest','table_top':'default','table_base':'default','door_finish':'black'}
     defaults=custom_profile(game,club).get('defaults',{})
     if isinstance(defaults,dict):values.update(defaults)
-    path=Path(game)/PREFERENCES/f'{int(club)}.json'
-    try:
-        saved=json.loads(path.read_text(encoding='utf8'))
-        if isinstance(saved,dict):values.update(saved)
-    except (OSError,ValueError):pass
+    paths=[Path(game)/PREFERENCES/f'{int(club)}.json',preference_scope(game,club)]
+    for path in paths:
+        if path is None:continue
+        try:
+            saved=json.loads(path.read_text(encoding='utf8'))
+            if isinstance(saved,dict):values.update(saved)
+        except (OSError,ValueError):pass
     for row in rows(game,club):
         permitted=[v['value'] for v in row['options']]
         if values.get(row['key']) not in permitted:values[row['key']]=permitted[0]
     if values['style']=='default':
-        for key in ('finish','backs','floor'):
-            if values[key]=='custom':values[key]='rubber' if key=='floor' else 'light'
+        for key in ('finish','backs','floor','fascia'):
+            if values[key]=='custom':values[key]='rubber' if key=='floor' else 'name' if key=='fascia' else 'light'
     return values
 
 
@@ -115,11 +168,14 @@ def ui_data(game,club,default_finish='light'):
     for row in result:
         row['selected']=next(i for i,item in enumerate(row['options']) if item['value']==values[row['key']])
         row['custom_selected']=next((i for i,item in enumerate(row['options']) if item['value']==saved_custom.get(row['key'])),row['selected'])
+        row['group']=next(i for i,(_,keys) in enumerate(GROUPS) if row['key'] in keys)
     return result
 
 
 def stamp(game,club):
     paths=[Path(game)/PREFERENCES/f'{int(club)}.json']
+    scoped=preference_scope(game,club)
+    if scoped:paths.append(scoped)
     folder=club_folder(game,club)
     if folder.is_dir():paths.extend(sorted(p for p in folder.rglob('*') if p.is_file()))
     generic=Path(game)/ROOT/'generic/materials'
@@ -133,18 +189,20 @@ def save_command(game,pid,wire):
     if len(parts)!=7 or parts[:2]!=['S16ROOM','1']:return False
     try:session,club,sequence,code=int(parts[2]),int(parts[3]),int(parts[5]),int(parts[6])
     except ValueError:return False
-    if session!=pid or sequence<=0 or sequence>9007199254740991 or (code not in CODES and code!=APPLY_CODE):return False
+    apply_code=code in (APPLY_CODE,GROUPED_APPLY_CODE) or code in DOOR_APPLY_CODES
+    if session!=pid or sequence<=0 or sequence>9007199254740991 or (code not in CODES and not apply_code):return False
     root=Path(game)/'ModCarrerMode/runtime/club_environment/room/runtime'
     try:scope=(root/'room_control_scope.txt').read_text().split()
     except OSError:return False
     if scope!=['S16ROOMSCOPE','1',str(pid),str(club),parts[4]]:return False
+    if preference_scope(game,club,pid) is None:return False
     values=preferences(game,club)
-    if code==APPLY_CODE:
-        try:draft=decode_draft(game,club,sequence)
+    if apply_code:
+        try:draft=decode_draft(game,club,sequence,code)
         except ValueError:return False
         if all(values[k]==v for k,v in draft.items()):return False
         if values['style']=='custom' and draft['style']=='default':
-            values['_custom_choices']={key:values[key] for key in ('finish','backs','floor')}
+            values['_custom_choices']={key:values[key] for key in ('finish','backs','floor','fascia')}
         values.update(draft)
         return write_preferences(game,pid,club,parts[4],sequence,code,values)
     key,value=CODES[code]
@@ -152,20 +210,22 @@ def save_command(game,pid,wire):
     if value not in allowed:return False
     previous_style=values['style']
     if key=='style' and value=='default' and previous_style=='custom':
-        values['_custom_choices']={other:values[other] for other in ('finish','backs','floor')}
+        values['_custom_choices']={other:values[other] for other in ('finish','backs','floor','fascia')}
     values[key]=value
     if key=='style' and value=='custom':
         values.update(values.get('_custom_choices',{}))
-    if value=='custom' and key!='style':values['style']='custom'
+    if value=='custom' and key in ('finish','backs','floor','fascia'):values['style']='custom'
     if key=='style' and value=='default':
-        for other in ('finish','backs','floor'):
-            if values[other]=='custom':values[other]='rubber' if other=='floor' else 'light'
+        for other in ('finish','backs','floor','fascia'):
+            if values[other]=='custom':values[other]='rubber' if other=='floor' else 'name' if other=='fascia' else 'light'
     return write_preferences(game,pid,club,parts[4],sequence,code,values)
 
 
 def write_preferences(game,pid,club,nonce,sequence,code,values):
     root=Path(game)/'ModCarrerMode/runtime/club_environment/room/runtime'
-    path=Path(game)/PREFERENCES/f'{club}.json';path.parent.mkdir(parents=True,exist_ok=True)
+    path=preference_scope(game,club,pid)
+    if path is None:return False
+    path.parent.mkdir(parents=True,exist_ok=True)
     temporary=path.with_suffix('.json.tmp')
     temporary.write_text(json.dumps(values,ensure_ascii=False,indent=2),encoding='utf8');os.replace(temporary,path)
     (root/'appearance_ack.json').write_text(json.dumps({'pid':pid,'club':club,'nonce':nonce,'sequence':sequence,'code':code,'values':values}),encoding='utf8')

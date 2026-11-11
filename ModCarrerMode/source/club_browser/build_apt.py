@@ -105,6 +105,7 @@ def script(data,dictionaries,scenes,*,from_room=False):
     a.function('Select',0,select)
     def event(a):
         a.when(('bin',16,b.equal(T('navPage'),7),b.equal(R(2),P(M('InputCodes'),'OPTION_TOP'))),lambda a:(a.do(R(1),'Publish','stadium_pad_toggle'),a.ret(True)))
+        a.when(('bin',16,b.equal(T('navPage'),7),b.equal(R(2),P(M('InputCodes'),'OPTION_LEFT'))),lambda a:(a.do(R(1),'Publish','stadium_free'),a.ret(True)))
         a.when(('bin',16,b.equal(T('navPage'),6),b.equal(R(2),P(M('InputCodes'),'OPTION_LEFT'))),lambda a:(a.do(R(1),'MascotAnimate'),a.ret(True)))
         a.when(('bin',16,b.equal(T('navPage'),6),b.equal(R(2),P(M('InputCodes'),'OPTION_TOP'))),lambda a:(a.do(R(1),'Publish','mascot_center'),a.ret(True)))
         a.when(('bin',16,b.equal(T('navPage'),0),b.equal(R(2),P(M('InputCodes'),'OPTION_TOP'))),lambda a:(a.do(R(1),'Publish','globe_mode'),a.ret(True)))
@@ -138,7 +139,7 @@ def script(data,dictionaries,scenes,*,from_room=False):
     def help(a):
         def items(a,values):a.ret(('array',tuple(CALL(PATH('ion','manager','HelpItem'),'CreateHelpTickerItem',key,label) for key,label in values)))
         a.when(b.equal(T('navPage'),1),lambda a:items(a,[('ADVANCE','Selecionar'),('BACK','Voltar'),('LAS_UD','Linhas'),('LAS_LR','Opções')]))
-        a.when(b.equal(T('navPage'),7),lambda a:items(a,[('BACK','Voltar'),('OPTION_TOP','Alternar câmera'),('LAS_UD','Andar'),('RAS_LR','Olhar')]))
+        a.when(b.equal(T('navPage'),7),lambda a:items(a,[('BACK','Voltar'),('OPTION_TOP','Primeira pessoa'),('OPTION_LEFT','Câmera livre'),('LAS_UD','Mover'),('RAS_LR','Olhar'),('L1R1','Descer / subir')]))
         a.when(b.equal(T('navPage'),2),lambda a:items(a,[('BACK','Voltar'),('ADVANCE','Atualizar')]))
         a.when(b.equal(T('navPage'),3),lambda a:items(a,[('ADVANCE','Detalhes'),('BACK','Voltar'),('LAS_UD','Elenco'),('L2R2','Abas'),('RAS_LR','Girar'),('L1R1','Zoom')]))
         a.when(b.equal(T('navPage'),4),lambda a:items(a,[('BACK','Voltar'),('L2R2','Abas'),('RAS_LR','Girar'),('L1R1','Zoom')]))

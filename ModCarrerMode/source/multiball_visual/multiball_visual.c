@@ -6,6 +6,7 @@
 extern float standball_height(void);
 extern unsigned char standball_start(const char *root);
 extern void standball_stop(void);
+extern void standball_ball_shadow_frame(float scale,int visible);
 typedef void (__fastcall *RenderFn)(void*,int);
 typedef unsigned char (__fastcall *SceneFn)(void*,void*);
 static RenderFn render_original,render_previous;
@@ -52,8 +53,9 @@ static void __fastcall render_hook(void *self,int phase) {
  render_previous(self,phase);
  if(phase==0 && snapshot(self,0x30,object,state,0)) {
   render_original(object,0);
+  {float matrix[16];memcpy(matrix,state+0x3b0,64);standball_ball_shadow_frame(sqrtf(matrix[0]*matrix[0]+matrix[1]*matrix[1]+matrix[2]*matrix[2]),1);}
   if(InterlockedCompareExchange(&observed,1,0)==0)event("drawn 13 visual balls support_height=automatic spare_balls_inward=30cm");
- }
+ }else if(phase==0)standball_ball_shadow_frame(0,0);
 }
 static unsigned char __fastcall bounds_hook(void *self,void *context) {
  __declspec(align(16)) unsigned char object[0x40],state[BALL_STATE_BYTES];
@@ -63,8 +65,8 @@ static unsigned char __fastcall bounds_hook(void *self,void *context) {
 }
 static unsigned char __fastcall shadow_hook(void *self,void *context) {
  /* Shadow mesh allocation belongs to the original object. Do not make a
-    temporary owner that loses the native lazy allocation. Main balls render
-    without additional flat-shadow objects in this first visual prototype. */
+    temporary owner that loses the native lazy allocation. Spare balls now use
+    isolated GameplayProp casters attached to the stadium shadow renderers. */
  return shadow_original(self,context);
 }
 static BOOL exchange(unsigned int i,void *before,void *after) {

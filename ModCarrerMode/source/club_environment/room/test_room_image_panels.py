@@ -89,7 +89,7 @@ class ImagePanelTests(unittest.TestCase):
         import copy,struct
         calls=[]
         # Stock native inputs live in the installed game, not in the Git tree.
-        with patch.object(room,'OLD',str(portable_paths.GAME/room.OLD)+'\\'),patch.object(appearance,'preferences',return_value={'style':'custom','finish':'dark','backs':'custom','trim':'primary','floor':'rubber','logo':'floor'}):
+        with patch.object(room,'OLD',str(portable_paths.GAME/room.OLD)+'\\'),patch.object(appearance,'preferences',return_value={'style':'custom','finish':'dark','backs':'custom','trim':'primary','floor':'rubber','logo':'floor'}),patch.object(appearance,'ui_data',return_value=[]):
             room.prepare(copy.deepcopy(context),D,lambda *a,**k:calls.append((a,k)),[1,0,0,0,0,1,0,0,0,0,1,0,100000,0,0,1])
         images=[(a,k) for a,k in calls if a[0].startswith('v3_image_band_')]
         self.assertEqual(len(images),4)

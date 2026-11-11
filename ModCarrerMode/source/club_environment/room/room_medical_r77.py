@@ -23,7 +23,7 @@ def clip_medical(v,ids):
     return v,ids
 
 
-def geometry():
+def geometry(rehab_furniture=True):
     groups={k:[] for k in ('primary','secondary','floor','ceiling','dark','metal','white','padding','wood','atlas','glass','crest')};obstacles=[]
     def add(k,shape):groups[k].append(shape)
     def solid(name,lo,hi):obstacles.append(dict(name='Departamento médico R77 / '+name,lo=[lo[0],lo[1]-1000,lo[2]],hi=[hi[0],hi[1]-1000,hi[2]]))
@@ -145,6 +145,7 @@ def geometry():
     # Rehabilitation sector: rubber floor, cable station, bench and mobility kit.
     add('dark',box((-1107,1000.5,2530),(-343,1002.2,BACK-3)))
     for x in range(-1105,-345,80):add('primary',box((x,1002.3,2530),(x+38,1002.6,2533)))
+    rehab_start={key:len(value) for key,value in groups.items()};rehab_obstacles=len(obstacles)
     for x in (-1080,-920):add('metal',box((x,1002,2775),(x+6,1240,2819)))
     add('metal',box((-1080,1235,2775),(-914,1242,2819)))
     for y in range(1010,1120,9):add('dark',box((-1032,y,2790),(-962,y+7,2813)))
@@ -167,6 +168,9 @@ def geometry():
     color(box((-810,1002.3,2570),(-735,1005,2770)),5)
     color(lathe([-510,1002.3,2595],[(0,0),(0,26),(6,26),(9,18),(9,0)],32),9)
     color(box((-620,1002.3,2560),(-570,1012,2610)),6)
+    if not rehab_furniture:
+        for key,count in rehab_start.items():del groups[key][count:]
+        del obstacles[rehab_obstacles:]
     # Waste container, clean trays, disposable packs and towel rails add detail.
     for x,z in ((-1090,1920),(-390,2510)):
         add('white',lathe([x,1000.5,z],[(0,0),(0,14),(42,17),(45,17),(45,0)],32));add('secondary',lathe([x,1045.5,z],[(0,0),(0,18),(3,18),(3,0)],32));solid('recipiente',(x-18,1000,z-18),(x+18,1049,z+18))
@@ -217,7 +221,11 @@ def stage(game,output):
 
 def prepare(context,read_asset,add,identity):
     from room_medical_art_r77 import atlas
-    live=portable.GAME/PREFIX;spec=json.loads((live/'medical_room_r77.json').read_text(encoding='utf8'));club=context['club']
+    from room_gym_equipment import specification as gym_specification,prepare as gym_prepare
+    gym=gym_specification(portable.GAME)
+    model=gym['medical_model'] if gym else PREFIX+'medical_room_r77.rx3'
+    spec_path=portable.GAME/(gym['medical_spec'] if gym else PREFIX+'medical_room_r77.json')
+    live=portable.GAME/PREFIX;spec=json.loads(spec_path.read_text(encoding='utf8'));club=context['club']
     colors=dict(dark=(29,36,43),metal=(162,177,183),white=(235,240,239),padding=(32,51,60),glass=(100,170,184))
     images={k:Image.new('RGBA',(8,8),v+(34 if k=='glass' else 255,)) for k,v in colors.items()}
     y,x=np.mgrid[:256,:1024];grain=np.sin(x*.13+np.sin(y*.028)*2)*5+np.sin(x*.037+y*.004)*3
@@ -233,10 +241,11 @@ def prepare(context,read_asset,add,identity):
             for page in range(context['medical']['pages']):
                 size=context['medical'].get('pageSize',6)
                 view=dict(art_context,medical=dict(context['medical'],players=context['medical']['players'][page*size:(page+1)*size]));path=texture(atlas(view,read_asset),'atlas')
-                add(f'medical_atlas_{page}',PREFIX+'medical_room_r77.rx3',path,'medical_cm',identity,submesh=binding['submesh'],page=page,pages=context['medical']['pages'],bank=0)
+                add(f'medical_atlas_{page}',model,path,'medical_cm',identity,submesh=binding['submesh'],page=page,pages=context['medical']['pages'],bank=0)
         elif key=='crest':
             path=f'data/ui/imgassets/crest/light/l{club}.dds';name=''
             try:read_asset(path)
             except (FileNotFoundError,OSError):path=texture(Image.new('RGBA',(4,4)),key);name='medical_cm'
-            add('medical_crest',PREFIX+'medical_room_r77.rx3',path,name,identity,True,submesh=binding['submesh'])
-        else:add('medical_'+key,PREFIX+'medical_room_r77.rx3',texture(images[key],key),'medical_cm',identity,key=='glass',submesh=binding['submesh'])
+            add('medical_crest',model,path,name,identity,True,submesh=binding['submesh'])
+        else:add('medical_'+key,model,texture(images[key],key),'medical_cm',identity,key=='glass',submesh=binding['submesh'])
+    if gym:gym_prepare(portable.GAME,add,identity)

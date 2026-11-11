@@ -1,0 +1,2031 @@
+{
+  "schema": 1,
+  "source_entry": 430,
+  "source_sha256": "a12dbc08702f672d847e387926567df06d8b826b8e9b70ad94f95c9acc330ccd",
+  "units": "centimeters",
+  "source_uniform_scale": 100,
+  "offset": [
+    270.0,
+    1000.0,
+    2100.0
+  ],
+  "bindings": [
+    {
+      "key": "coach_pes_sofa_set_1_0",
+      "model": "data/sceneassets/server16_dressing_room_v3/office_neutral/sofa_set_1_0_be57606ed1a3be.rx3",
+      "texture": "data/sceneassets/server16_dressing_room_v3/pes_office/sofa_set_1_0-texture.rx3",
+      "submesh": "gallery_part_1",
+      "alpha": false
+    },
+    {
+      "key": "coach_pes_sofa_set_4_1",
+      "model": "data/sceneassets/server16_dressing_room_v3/office_neutral/sofa_set_4_1_4e6f2a4be32be9.rx3",
+      "texture": "data/sceneassets/server16_dressing_room_v3/pes_office/sofa_set_4_1-texture.rx3",
+      "submesh": "gallery_part_1",
+      "alpha": false
+    },
+    {
+      "key": "coach_pes_coffee_table_3_2",
+      "model": "data/sceneassets/server16_dressing_room_v3/office_neutral/coffee_table_3_2_e0fc8f2397a6e5.rx3",
+      "texture": "data/sceneassets/server16_dressing_room_v3/pes_office/coffee_table_3_2-texture.rx3",
+      "submesh": "gallery_part_1",
+      "alpha": true
+    },
+    {
+      "key": "coach_pes_desk_assembly_3_5",
+      "model": "data/sceneassets/server16_dressing_room_v3/office_neutral/desk_assembly_3_5_60ca809c483e61.rx3",
+      "texture": "data/sceneassets/server16_dressing_room_v3/pes_office/desk_assembly_3_5-texture.rx3",
+      "submesh": "gallery_part_1",
+      "alpha": true
+    },
+    {
+      "key": "coach_pes_coffee_table_5_3",
+      "model": "data/sceneassets/server16_dressing_room_v3/office_neutral/coffee_table_5_3_8eb24ccc4e650f.rx3",
+      "texture": "data/sceneassets/server16_dressing_room_v3/pes_office/coffee_table_5_3-texture.rx3",
+      "submesh": "gallery_part_1",
+      "alpha": false
+    },
+    {
+      "key": "coach_pes_desk_assembly_atlas_0",
+      "model": "data/sceneassets/server16_dressing_room_v3/office_neutral/desk_assembly_atlas_0_c9bc8a6e93a896.rx3",
+      "texture": "data/sceneassets/server16_dressing_room_v3/pes_office/desk_assembly_atlas_0-texture.rx3",
+      "submesh": "gallery_part_1",
+      "alpha": false
+    },
+    {
+      "key": "coach_pes_desk_assembly_12_9",
+      "model": "data/sceneassets/server16_dressing_room_v3/office_neutral/desk_assembly_12_9_bd8b397a523be1.rx3",
+      "texture": "data/sceneassets/server16_dressing_room_v3/pes_office/desk_assembly_12_9-texture.rx3",
+      "submesh": "gallery_part_1",
+      "alpha": false
+    },
+    {
+      "key": "coach_pes_office_chair_atlas_0",
+      "model": "data/sceneassets/server16_dressing_room_v3/office_neutral/office_chair_atlas_0_17048f58e862ba.rx3",
+      "texture": "data/sceneassets/server16_dressing_room_v3/pes_office/office_chair_atlas_0-texture.rx3",
+      "submesh": "gallery_part_1",
+      "alpha": false
+    },
+    {
+      "key": "coach_pes_office_chair_8_14",
+      "model": "data/sceneassets/server16_dressing_room_v3/office_neutral/office_chair_8_14_26580f3098a182.rx3",
+      "texture": "data/sceneassets/server16_dressing_room_v3/pes_office/office_chair_8_14-texture.rx3",
+      "submesh": "gallery_part_1",
+      "alpha": false
+    },
+    {
+      "key": "coach_pes_tactical_board_atlas_0",
+      "model": "data/sceneassets/server16_dressing_room_v3/office_neutral/tactical_board_atlas_0_5121ac3319df03.rx3",
+      "texture": "data/sceneassets/server16_dressing_room_v3/pes_office/tactical_board_atlas_0-texture.rx3",
+      "submesh": "gallery_part_1",
+      "alpha": false
+    },
+    {
+      "key": "coach_pes_rolling_shelf_atlas_0",
+      "model": "data/sceneassets/server16_dressing_room_v3/office_neutral/rolling_shelf_atlas_0_7e6560fa0948cc.rx3",
+      "texture": "data/sceneassets/server16_dressing_room_v3/pes_office/rolling_shelf_atlas_0-texture.rx3",
+      "submesh": "gallery_part_1",
+      "alpha": false
+    },
+    {
+      "key": "coach_pes_table_vase_0_28",
+      "model": "data/sceneassets/server16_dressing_room_v3/office_neutral/table_vase_0_28_eb4d8056f148dc.rx3",
+      "texture": "data/sceneassets/server16_dressing_room_v3/pes_office/table_vase_0_28-texture.rx3",
+      "submesh": "gallery_part_1",
+      "alpha": false
+    },
+    {
+      "key": "coach_pes_floor_plant_19_29",
+      "model": "data/sceneassets/server16_dressing_room_v3/office_neutral/floor_plant_19_29_59d543c5135b2c.rx3",
+      "texture": "data/sceneassets/server16_dressing_room_v3/pes_office/floor_plant_19_29-texture.rx3",
+      "submesh": "gallery_part_1",
+      "alpha": false
+    },
+    {
+      "key": "coach_prop_clock_face_0",
+      "model": "data/sceneassets/server16_dressing_room_v3/office_neutral/clock_face_107aff7ed37d60.rx3",
+      "texture": "data/sceneassets/server16_dressing_room_v3/office_refresh/clock-face.rx3",
+      "texname": "equipment_cm",
+      "submesh": "gallery_part_1",
+      "alpha": false
+    },
+    {
+      "key": "coach_desktop_props_r2_0",
+      "model": "data/sceneassets/server16_dressing_room_v3/office_neutral/desktop_props_r2_9ca8c49b981e71.rx3",
+      "texture": "data/sceneassets/server16_dressing_room_v3/office_refresh/palette.rx3",
+      "texname": "equipment_cm",
+      "submesh": "gallery_part_1",
+      "alpha": false
+    },
+    {
+      "key": "coach_guest_chairs_atlas_0_0",
+      "model": "data/sceneassets/server16_dressing_room_v3/office_neutral/guest_chairs_atlas_0_865c22256e8afb.rx3",
+      "texture": "data/sceneassets/server16_dressing_room_v3/pes_office/office_chair_atlas_0-texture.rx3",
+      "texname": "office_cm",
+      "submesh": "gallery_part_1",
+      "alpha": false
+    },
+    {
+      "key": "coach_guest_chairs_8_14_0",
+      "model": "data/sceneassets/server16_dressing_room_v3/office_neutral/guest_chairs_8_14_cf8f934c4cbdee.rx3",
+      "texture": "data/sceneassets/server16_dressing_room_v3/pes_office/office_chair_8_14-texture.rx3",
+      "texname": "office_cm",
+      "submesh": "gallery_part_1",
+      "alpha": false
+    }
+  ],
+  "obstacles": [
+    {
+      "name": "PES office / seating 0",
+      "lo": [
+        408.1676290893555,
+        0.0,
+        1751.2
+      ],
+      "hi": [
+        485.7611389160156,
+        65.92178710937492,
+        1928.799977416992
+      ]
+    },
+    {
+      "name": "PES office / seating 1",
+      "lo": [
+        580.3469055175781,
+        0.0,
+        1840.1560034179688
+      ],
+      "hi": [
+        658.2688287353516,
+        65.92178710937492,
+        1914.175966796875
+      ]
+    },
+    {
+      "name": "PES office / seating 2",
+      "lo": [
+        580.5388610839843,
+        0.0,
+        1764.52
+      ],
+      "hi": [
+        658.1322918701172,
+        65.92178710937492,
+        1838.52
+      ]
+    },
+    {
+      "name": "PES office / coffee_table",
+      "lo": [
+        498.0,
+        0.0,
+        1780.8
+      ],
+      "hi": [
+        572.0,
+        38.1099999999999,
+        1899.2
+      ]
+    },
+    {
+      "name": "PES office / desk_assembly",
+      "lo": [
+        135.0,
+        0.0,
+        2200.0
+      ],
+      "hi": [
+        385.0,
+        140.89630126953125,
+        2300.000015258789
+      ]
+    },
+    {
+      "name": "PES office / office_chair",
+      "lo": [
+        220.52209854125977,
+        0.022199999541044235,
+        2287.720504760742
+      ],
+      "hi": [
+        299.47790145874023,
+        115.0,
+        2364.8652954101562
+      ]
+    },
+    {
+      "name": "PES office / tactical_board",
+      "lo": [
+        -163.26520156860352,
+        0.0,
+        2322.4999961853027
+      ],
+      "hi": [
+        -6.75,
+        187.5,
+        2377.5
+      ]
+    },
+    {
+      "name": "PES office / rolling_shelf",
+      "lo": [
+        528.4057968139648,
+        -0.08290000259876251,
+        2298.398899841309
+      ],
+      "hi": [
+        591.6057994842529,
+        88.79389953613281,
+        2361.672200012207
+      ]
+    },
+    {
+      "name": "Coach office / plant",
+      "lo": [
+        601.0,
+        0.0,
+        2482.0
+      ],
+      "hi": [
+        719.0,
+        141.0,
+        2578.0
+      ]
+    },
+    {
+      "name": "Coach office / guest chair 1",
+      "lo": [
+        136.0490047454834,
+        0.019091999605279852,
+        2106.8338459472657
+      ],
+      "hi": [
+        203.9509952545166,
+        98.90000000000009,
+        2173.178365905762
+      ]
+    },
+    {
+      "name": "Coach office / guest chair 2",
+      "lo": [
+        316.0490047454834,
+        0.019091999605279852,
+        2106.8338459472657
+      ],
+      "hi": [
+        383.9509952545166,
+        98.90000000000009,
+        2173.178365905762
+      ]
+    },
+    {
+      "name": "Coach office / low storage",
+      "lo": [
+        -314,
+        0.5,
+        1759
+      ],
+      "hi": [
+        -258,
+        90,
+        2311
+      ]
+    },
+    {
+      "name": "Coach office / archive",
+      "lo": [
+        -313,
+        0.5,
+        2495
+      ],
+      "hi": [
+        -253.7,
+        210,
+        2580
+      ]
+    },
+    {
+      "name": "Coach office / TV console",
+      "lo": [
+        690,
+        0.5,
+        1736
+      ],
+      "hi": [
+        743,
+        63,
+        1924
+      ]
+    }
+  ],
+  "lighting": "linear RGB irradiance baked through original UV1; native FIFA environment reflections",
+  "conversion": [
+    {
+      "group": "sofa_set",
+      "source": {
+        "sourceModel": "mroom_S_03.obj",
+        "packet": 1,
+        "sourceRole": "scene",
+        "baseTexture": "mroomS_c_07.tex",
+        "lightmapTexture": "mroomS_lig_01.tex",
+        "textureBindings": {
+          "reflection": {
+            "name": "mroomS_reflect00.tex",
+            "uv": 128,
+            "bindingIndex": 0,
+            "textureIndex": 0,
+            "texParam": 0,
+            "mode": "REFLECTION"
+          },
+          "color": {
+            "name": "mroomS_c_07.tex",
+            "uv": 0,
+            "bindingIndex": 3,
+            "textureIndex": 3,
+            "texParam": 1,
+            "mode": "COLOR_OR_DIFFUSE"
+          },
+          "lightmap": {
+            "name": "mroomS_lig_01.tex",
+            "uv": 1,
+            "bindingIndex": 2,
+            "textureIndex": 2,
+            "texParam": 3,
+            "mode": "COLOR_OR_DIFFUSE"
+          }
+        }
+      },
+      "vertices": 708,
+      "triangles": 420,
+      "lighting_bake": {
+        "written": 307457,
+        "conflicting_pixels": 0,
+        "uv_bounds": [
+          [
+            0.6159330010414124,
+            0.2421880066394806
+          ],
+          [
+            0.8697839975357056,
+            0.9921879768371582
+          ]
+        ]
+      },
+      "native_key": "sofa_set_1_0"
+    },
+    {
+      "group": "sofa_set",
+      "source": {
+        "sourceModel": "mroom_S_03.obj",
+        "packet": 4,
+        "sourceRole": "scene",
+        "baseTexture": "mroomS_c_18.tex",
+        "lightmapTexture": "mroomS_lig_01.tex",
+        "textureBindings": {
+          "reflection": {
+            "name": "mroomS_reflect01.tex",
+            "uv": 128,
+            "bindingIndex": 5,
+            "textureIndex": 5,
+            "texParam": 0,
+            "mode": "REFLECTION"
+          },
+          "color": {
+            "name": "mroomS_c_18.tex",
+            "uv": 0,
+            "bindingIndex": 6,
+            "textureIndex": 6,
+            "texParam": 1,
+            "mode": "COLOR_OR_DIFFUSE"
+          },
+          "lightmap": {
+            "name": "mroomS_lig_01.tex",
+            "uv": 1,
+            "bindingIndex": 2,
+            "textureIndex": 2,
+            "texParam": 3,
+            "mode": "COLOR_OR_DIFFUSE"
+          }
+        }
+      },
+      "vertices": 2041,
+      "triangles": 2730,
+      "lighting_bake": {
+        "written": 2555060,
+        "conflicting_pixels": 0,
+        "uv_bounds": [
+          [
+            0.5802639722824097,
+            0.019531000405550003
+          ],
+          [
+            0.9943259954452515,
+            0.9914309978485107
+          ]
+        ]
+      },
+      "native_key": "sofa_set_4_1"
+    },
+    {
+      "group": "coffee_table",
+      "source": {
+        "sourceModel": "mroom_S_03.obj",
+        "packet": 3,
+        "sourceRole": "scene",
+        "baseTexture": "mroomS_c_08.tex",
+        "lightmapTexture": "mroomS_lig_01.tex",
+        "textureBindings": {
+          "reflection": {
+            "name": "mroomS_reflect00.tex",
+            "uv": 128,
+            "bindingIndex": 0,
+            "textureIndex": 0,
+            "texParam": 0,
+            "mode": "REFLECTION"
+          },
+          "color": {
+            "name": "mroomS_c_08.tex",
+            "uv": 0,
+            "bindingIndex": 4,
+            "textureIndex": 4,
+            "texParam": 1,
+            "mode": "COLOR_OR_DIFFUSE"
+          },
+          "lightmap": {
+            "name": "mroomS_lig_01.tex",
+            "uv": 1,
+            "bindingIndex": 2,
+            "textureIndex": 2,
+            "texParam": 3,
+            "mode": "COLOR_OR_DIFFUSE"
+          }
+        }
+      },
+      "vertices": 197,
+      "triangles": 288,
+      "lighting_bake": {
+        "written": 355694,
+        "conflicting_pixels": 0,
+        "uv_bounds": [
+          [
+            0.48521900177001953,
+            0.7243310213088989
+          ],
+          [
+            0.5722270011901855,
+            0.9946839809417725
+          ]
+        ]
+      },
+      "native_key": "coffee_table_3_2"
+    },
+    {
+      "group": "coffee_table",
+      "source": {
+        "sourceModel": "mroom_S_03.obj",
+        "packet": 5,
+        "sourceRole": "scene",
+        "baseTexture": "mroomS_c_05.tex",
+        "lightmapTexture": "mroomS_lig_01.tex",
+        "textureBindings": {
+          "reflection": {
+            "name": "mroomS_reflect00.tex",
+            "uv": 128,
+            "bindingIndex": 0,
+            "textureIndex": 0,
+            "texParam": 0,
+            "mode": "REFLECTION"
+          },
+          "color": {
+            "name": "mroomS_c_05.tex",
+            "uv": 0,
+            "bindingIndex": 7,
+            "textureIndex": 7,
+            "texParam": 1,
+            "mode": "COLOR_OR_DIFFUSE"
+          },
+          "lightmap": {
+            "name": "mroomS_lig_01.tex",
+            "uv": 1,
+            "bindingIndex": 2,
+            "textureIndex": 2,
+            "texParam": 2,
+            "mode": "COLOR_OR_DIFFUSE"
+          }
+        }
+      },
+      "vertices": 117,
+      "triangles": 112,
+      "lighting_bake": {
+        "written": 310438,
+        "conflicting_pixels": 0,
+        "uv_bounds": [
+          [
+            0.5037590265274048,
+            0.7508289813995361
+          ],
+          [
+            0.5623530149459839,
+            0.8758289813995361
+          ]
+        ]
+      },
+      "native_key": "coffee_table_5_3"
+    },
+    {
+      "group": "desk_assembly",
+      "source": {
+        "sourceModel": "mroom_S_03.obj",
+        "packet": 1,
+        "sourceRole": "scene",
+        "baseTexture": "mroomS_c_07.tex",
+        "lightmapTexture": "mroomS_lig_01.tex",
+        "textureBindings": {
+          "reflection": {
+            "name": "mroomS_reflect00.tex",
+            "uv": 128,
+            "bindingIndex": 0,
+            "textureIndex": 0,
+            "texParam": 0,
+            "mode": "REFLECTION"
+          },
+          "color": {
+            "name": "mroomS_c_07.tex",
+            "uv": 0,
+            "bindingIndex": 3,
+            "textureIndex": 3,
+            "texParam": 1,
+            "mode": "COLOR_OR_DIFFUSE"
+          },
+          "lightmap": {
+            "name": "mroomS_lig_01.tex",
+            "uv": 1,
+            "bindingIndex": 2,
+            "textureIndex": 2,
+            "texParam": 3,
+            "mode": "COLOR_OR_DIFFUSE"
+          }
+        }
+      },
+      "vertices": 554,
+      "triangles": 586,
+      "lighting_bake": {
+        "written": 799530,
+        "conflicting_pixels": 0,
+        "uv_bounds": [
+          [
+            0.005859000142663717,
+            0.75
+          ],
+          [
+            0.5292969942092896,
+            0.9921879768371582
+          ]
+        ]
+      },
+      "native_key": "desk_assembly_1_4"
+    },
+    {
+      "group": "desk_assembly",
+      "source": {
+        "sourceModel": "mroom_S_03.obj",
+        "packet": 3,
+        "sourceRole": "scene",
+        "baseTexture": "mroomS_c_08.tex",
+        "lightmapTexture": "mroomS_lig_01.tex",
+        "textureBindings": {
+          "reflection": {
+            "name": "mroomS_reflect00.tex",
+            "uv": 128,
+            "bindingIndex": 0,
+            "textureIndex": 0,
+            "texParam": 0,
+            "mode": "REFLECTION"
+          },
+          "color": {
+            "name": "mroomS_c_08.tex",
+            "uv": 0,
+            "bindingIndex": 4,
+            "textureIndex": 4,
+            "texParam": 1,
+            "mode": "COLOR_OR_DIFFUSE"
+          },
+          "lightmap": {
+            "name": "mroomS_lig_01.tex",
+            "uv": 1,
+            "bindingIndex": 2,
+            "textureIndex": 2,
+            "texParam": 3,
+            "mode": "COLOR_OR_DIFFUSE"
+          }
+        }
+      },
+      "vertices": 6,
+      "triangles": 4,
+      "lighting_bake": {
+        "written": 1048582,
+        "conflicting_pixels": 0,
+        "uv_bounds": [
+          [
+            0.12402299791574478,
+            0.9140620231628418
+          ],
+          [
+            0.20898400247097015,
+            0.9669560194015503
+          ]
+        ]
+      },
+      "native_key": "desk_assembly_3_5"
+    },
+    {
+      "group": "desk_assembly",
+      "source": {
+        "sourceModel": "mroom_S_03.obj",
+        "packet": 9,
+        "sourceRole": "scene",
+        "baseTexture": "mroomS_c_05.tex",
+        "lightmapTexture": "mroomS_lig_01.tex",
+        "textureBindings": {
+          "reflection": {
+            "name": "mroomS_reflect00.tex",
+            "uv": 128,
+            "bindingIndex": 0,
+            "textureIndex": 0,
+            "texParam": 0,
+            "mode": "REFLECTION"
+          },
+          "color": {
+            "name": "mroomS_c_05.tex",
+            "uv": 0,
+            "bindingIndex": 7,
+            "textureIndex": 7,
+            "texParam": 1,
+            "mode": "COLOR_OR_DIFFUSE"
+          },
+          "lightmap": {
+            "name": "mroomS_lig_01.tex",
+            "uv": 1,
+            "bindingIndex": 2,
+            "textureIndex": 2,
+            "texParam": 1,
+            "mode": "COLOR_OR_DIFFUSE"
+          }
+        }
+      },
+      "vertices": 765,
+      "triangles": 658,
+      "lighting_bake": {
+        "written": 276111,
+        "conflicting_pixels": 0,
+        "uv_bounds": [
+          [
+            0.1874299943447113,
+            0.0039059999398887157
+          ],
+          [
+            0.4960939884185791,
+            0.3168860077857971
+          ]
+        ]
+      },
+      "native_key": "desk_assembly_9_6"
+    },
+    {
+      "group": "desk_assembly",
+      "source": {
+        "sourceModel": "mroom_S_03.obj",
+        "packet": 10,
+        "sourceRole": "scene",
+        "baseTexture": "mroomS_c_17.tex",
+        "lightmapTexture": "mroomS_lig_01.tex",
+        "textureBindings": {
+          "reflection": {
+            "name": "mroomS_reflect01.tex",
+            "uv": 128,
+            "bindingIndex": 5,
+            "textureIndex": 5,
+            "texParam": 0,
+            "mode": "REFLECTION"
+          },
+          "color": {
+            "name": "mroomS_c_17.tex",
+            "uv": 0,
+            "bindingIndex": 9,
+            "textureIndex": 9,
+            "texParam": 1,
+            "mode": "COLOR_OR_DIFFUSE"
+          },
+          "lightmap": {
+            "name": "mroomS_lig_01.tex",
+            "uv": 1,
+            "bindingIndex": 2,
+            "textureIndex": 2,
+            "texParam": 3,
+            "mode": "COLOR_OR_DIFFUSE"
+          }
+        }
+      },
+      "vertices": 108,
+      "triangles": 114,
+      "lighting_bake": {
+        "written": 143513,
+        "conflicting_pixels": 0,
+        "uv_bounds": [
+          [
+            0.21289099752902985,
+            0.05859399959445
+          ],
+          [
+            0.4911940097808838,
+            0.4960939884185791
+          ]
+        ]
+      },
+      "native_key": "desk_assembly_10_7"
+    },
+    {
+      "group": "desk_assembly",
+      "source": {
+        "sourceModel": "mroom_S_03.obj",
+        "packet": 11,
+        "sourceRole": "scene",
+        "baseTexture": "mroomS_c_17.tex",
+        "lightmapTexture": "mroomS_lig_01.tex",
+        "textureBindings": {
+          "reflection": {
+            "name": "mroomS_reflect00.tex",
+            "uv": 128,
+            "bindingIndex": 0,
+            "textureIndex": 0,
+            "texParam": 0,
+            "mode": "REFLECTION"
+          },
+          "color": {
+            "name": "mroomS_c_17.tex",
+            "uv": 0,
+            "bindingIndex": 9,
+            "textureIndex": 9,
+            "texParam": 1,
+            "mode": "COLOR_OR_DIFFUSE"
+          },
+          "lightmap": {
+            "name": "mroomS_lig_01.tex",
+            "uv": 1,
+            "bindingIndex": 2,
+            "textureIndex": 2,
+            "texParam": 3,
+            "mode": "COLOR_OR_DIFFUSE"
+          }
+        }
+      },
+      "vertices": 1149,
+      "triangles": 628,
+      "lighting_bake": {
+        "written": 337892,
+        "conflicting_pixels": 0,
+        "uv_bounds": [
+          [
+            0.27539101243019104,
+            0.1289059966802597
+          ],
+          [
+            0.4965820014476776,
+            0.4814600348472595
+          ]
+        ]
+      },
+      "native_key": "desk_assembly_11_8"
+    },
+    {
+      "group": "desk_assembly",
+      "source": {
+        "sourceModel": "mroom_S_03.obj",
+        "packet": 12,
+        "sourceRole": "scene",
+        "baseTexture": "mroomS_c_17.tex",
+        "lightmapTexture": "mroomS_lig_01.tex",
+        "textureBindings": {
+          "reflection": {
+            "name": "mroomS_reflect01.tex",
+            "uv": 128,
+            "bindingIndex": 5,
+            "textureIndex": 5,
+            "texParam": 0,
+            "mode": "REFLECTION"
+          },
+          "color": {
+            "name": "mroomS_c_17.tex",
+            "uv": 0,
+            "bindingIndex": 9,
+            "textureIndex": 9,
+            "texParam": 1,
+            "mode": "COLOR_OR_DIFFUSE"
+          },
+          "lightmap": {
+            "name": "mroomS_lig_01.tex",
+            "uv": 1,
+            "bindingIndex": 2,
+            "textureIndex": 2,
+            "texParam": 3,
+            "mode": "COLOR_OR_DIFFUSE"
+          }
+        }
+      },
+      "vertices": 329,
+      "triangles": 388,
+      "lighting_bake": {
+        "written": 667717,
+        "conflicting_pixels": 0,
+        "uv_bounds": [
+          [
+            0.35742199420928955,
+            0.2763670086860657
+          ],
+          [
+            0.4960939884185791,
+            0.4961079955101013
+          ]
+        ]
+      },
+      "native_key": "desk_assembly_12_9"
+    },
+    {
+      "group": "office_chair",
+      "source": {
+        "sourceModel": "mroom_S_03.obj",
+        "packet": 1,
+        "sourceRole": "scene",
+        "baseTexture": "mroomS_c_07.tex",
+        "lightmapTexture": "mroomS_lig_01.tex",
+        "textureBindings": {
+          "reflection": {
+            "name": "mroomS_reflect00.tex",
+            "uv": 128,
+            "bindingIndex": 0,
+            "textureIndex": 0,
+            "texParam": 0,
+            "mode": "REFLECTION"
+          },
+          "color": {
+            "name": "mroomS_c_07.tex",
+            "uv": 0,
+            "bindingIndex": 3,
+            "textureIndex": 3,
+            "texParam": 1,
+            "mode": "COLOR_OR_DIFFUSE"
+          },
+          "lightmap": {
+            "name": "mroomS_lig_01.tex",
+            "uv": 1,
+            "bindingIndex": 2,
+            "textureIndex": 2,
+            "texParam": 3,
+            "mode": "COLOR_OR_DIFFUSE"
+          }
+        }
+      },
+      "vertices": 552,
+      "triangles": 446,
+      "lighting_bake": {
+        "written": 369017,
+        "conflicting_pixels": 0,
+        "uv_bounds": [
+          [
+            0.13574199378490448,
+            0.3115229904651642
+          ],
+          [
+            0.30475398898124695,
+            0.4960939884185791
+          ]
+        ]
+      },
+      "native_key": "office_chair_1_10"
+    },
+    {
+      "group": "office_chair",
+      "source": {
+        "sourceModel": "mroom_S_03.obj",
+        "packet": 2,
+        "sourceRole": "scene",
+        "baseTexture": "mroomS_c_07.tex",
+        "lightmapTexture": "mroomS_lig_01.tex",
+        "textureBindings": {
+          "reflection": {
+            "name": "mroomS_reflect00.tex",
+            "uv": 128,
+            "bindingIndex": 0,
+            "textureIndex": 0,
+            "texParam": 0,
+            "mode": "REFLECTION"
+          },
+          "color": {
+            "name": "mroomS_c_07.tex",
+            "uv": 0,
+            "bindingIndex": 3,
+            "textureIndex": 3,
+            "texParam": 1,
+            "mode": "COLOR_OR_DIFFUSE"
+          },
+          "lightmap": {
+            "name": "mroomS_lig_01.tex",
+            "uv": 1,
+            "bindingIndex": 2,
+            "textureIndex": 2,
+            "texParam": 3,
+            "mode": "COLOR_OR_DIFFUSE"
+          }
+        }
+      },
+      "vertices": 208,
+      "triangles": 146,
+      "lighting_bake": {
+        "written": 824278,
+        "conflicting_pixels": 0,
+        "uv_bounds": [
+          [
+            0.0039019999094307423,
+            0.3114849925041199
+          ],
+          [
+            0.13183100521564484,
+            0.43212899565696716
+          ]
+        ]
+      },
+      "native_key": "office_chair_2_11"
+    },
+    {
+      "group": "office_chair",
+      "source": {
+        "sourceModel": "mroom_S_03.obj",
+        "packet": 6,
+        "sourceRole": "scene",
+        "baseTexture": "mroomS_c_03.tex",
+        "lightmapTexture": "mroomS_lig_01.tex",
+        "textureBindings": {
+          "reflection": {
+            "name": "mroomS_reflect01.tex",
+            "uv": 128,
+            "bindingIndex": 5,
+            "textureIndex": 5,
+            "texParam": 0,
+            "mode": "REFLECTION"
+          },
+          "color": {
+            "name": "mroomS_c_03.tex",
+            "uv": 0,
+            "bindingIndex": 8,
+            "textureIndex": 8,
+            "texParam": 1,
+            "mode": "COLOR_OR_DIFFUSE"
+          },
+          "lightmap": {
+            "name": "mroomS_lig_01.tex",
+            "uv": 1,
+            "bindingIndex": 2,
+            "textureIndex": 2,
+            "texParam": 3,
+            "mode": "COLOR_OR_DIFFUSE"
+          }
+        }
+      },
+      "vertices": 841,
+      "triangles": 1100,
+      "lighting_bake": {
+        "written": 387636,
+        "conflicting_pixels": 0,
+        "uv_bounds": [
+          [
+            0.0039059999398887157,
+            0.0039059999398887157
+          ],
+          [
+            0.29219600558280945,
+            0.4960939884185791
+          ]
+        ]
+      },
+      "native_key": "office_chair_6_12"
+    },
+    {
+      "group": "office_chair",
+      "source": {
+        "sourceModel": "mroom_S_03.obj",
+        "packet": 7,
+        "sourceRole": "scene",
+        "baseTexture": "mroomS_c_03.tex",
+        "lightmapTexture": "mroomS_lig_01.tex",
+        "textureBindings": {
+          "reflection": {
+            "name": "mroomS_reflect00.tex",
+            "uv": 128,
+            "bindingIndex": 0,
+            "textureIndex": 0,
+            "texParam": 0,
+            "mode": "REFLECTION"
+          },
+          "color": {
+            "name": "mroomS_c_03.tex",
+            "uv": 0,
+            "bindingIndex": 8,
+            "textureIndex": 8,
+            "texParam": 1,
+            "mode": "COLOR_OR_DIFFUSE"
+          },
+          "lightmap": {
+            "name": "mroomS_lig_01.tex",
+            "uv": 1,
+            "bindingIndex": 2,
+            "textureIndex": 2,
+            "texParam": 2,
+            "mode": "COLOR_OR_DIFFUSE"
+          }
+        }
+      },
+      "vertices": 23,
+      "triangles": 16,
+      "lighting_bake": {
+        "written": 1048581,
+        "conflicting_pixels": 0,
+        "uv_bounds": [
+          [
+            0.0742190033197403,
+            0.4604490101337433
+          ],
+          [
+            0.0859379991889,
+            0.47021499276161194
+          ]
+        ]
+      },
+      "native_key": "office_chair_7_13"
+    },
+    {
+      "group": "office_chair",
+      "source": {
+        "sourceModel": "mroom_S_03.obj",
+        "packet": 8,
+        "sourceRole": "scene",
+        "baseTexture": "mroomS_c_03.tex",
+        "lightmapTexture": "mroomS_lig_01.tex",
+        "textureBindings": {
+          "reflection": {
+            "name": "mroomS_reflect00.tex",
+            "uv": 128,
+            "bindingIndex": 0,
+            "textureIndex": 0,
+            "texParam": 0,
+            "mode": "REFLECTION"
+          },
+          "color": {
+            "name": "mroomS_c_03.tex",
+            "uv": 0,
+            "bindingIndex": 8,
+            "textureIndex": 8,
+            "texParam": 1,
+            "mode": "COLOR_OR_DIFFUSE"
+          },
+          "lightmap": {
+            "name": "mroomS_lig_01.tex",
+            "uv": 1,
+            "bindingIndex": 2,
+            "textureIndex": 2,
+            "texParam": 3,
+            "mode": "COLOR_OR_DIFFUSE"
+          }
+        }
+      },
+      "vertices": 906,
+      "triangles": 800,
+      "lighting_bake": {
+        "written": 43135,
+        "conflicting_pixels": 0,
+        "uv_bounds": [
+          [
+            0.07415100187063217,
+            0.19726599752902985
+          ],
+          [
+            0.2705079913139343,
+            0.49544697999954224
+          ]
+        ]
+      },
+      "native_key": "office_chair_8_14"
+    },
+    {
+      "group": "media_wall",
+      "source": {
+        "sourceModel": "mroom_S_01.obj",
+        "packet": 8,
+        "sourceRole": "scene",
+        "baseTexture": "mroomS_c_12.tex",
+        "lightmapTexture": "mroomS_lig_00.tex",
+        "textureBindings": {
+          "reflection": {
+            "name": "mroomS_reflect00.tex",
+            "uv": 128,
+            "bindingIndex": 4,
+            "textureIndex": 4,
+            "texParam": 0,
+            "mode": "REFLECTION"
+          },
+          "color": {
+            "name": "mroomS_c_12.tex",
+            "uv": 0,
+            "bindingIndex": 1,
+            "textureIndex": 1,
+            "texParam": 1,
+            "mode": "COLOR_OR_DIFFUSE"
+          },
+          "lightmap": {
+            "name": "mroomS_lig_00.tex",
+            "uv": 1,
+            "bindingIndex": 6,
+            "textureIndex": 3,
+            "texParam": 2,
+            "mode": "COLOR_OR_DIFFUSE"
+          }
+        }
+      },
+      "vertices": 81,
+      "triangles": 92,
+      "lighting_bake": {
+        "written": 22326,
+        "conflicting_pixels": 0,
+        "uv_bounds": [
+          [
+            0.45898398756980896,
+            0.2880859971046448
+          ],
+          [
+            0.9472659826278687,
+            0.6679689884185791
+          ]
+        ]
+      },
+      "native_key": "media_wall_8_15"
+    },
+    {
+      "group": "media_wall",
+      "source": {
+        "sourceModel": "mroom_S_01.obj",
+        "packet": 9,
+        "sourceRole": "scene",
+        "baseTexture": "mroomS_c_09.tex",
+        "lightmapTexture": "mroomS_lig_00.tex",
+        "textureBindings": {
+          "reflection": {
+            "name": "mroomS_reflect01.tex",
+            "uv": 128,
+            "bindingIndex": 7,
+            "textureIndex": 0,
+            "texParam": 0,
+            "mode": "REFLECTION"
+          },
+          "color": {
+            "name": "mroomS_c_09.tex",
+            "uv": 0,
+            "bindingIndex": 9,
+            "textureIndex": 7,
+            "texParam": 1,
+            "mode": "COLOR_OR_DIFFUSE"
+          },
+          "lightmap": {
+            "name": "mroomS_lig_00.tex",
+            "uv": 1,
+            "bindingIndex": 6,
+            "textureIndex": 3,
+            "texParam": 3,
+            "mode": "COLOR_OR_DIFFUSE"
+          }
+        }
+      },
+      "vertices": 4,
+      "triangles": 2,
+      "lighting_bake": {
+        "written": 1049600,
+        "conflicting_pixels": 0,
+        "uv_bounds": [
+          [
+            0.9091799855232239,
+            0.3662109971046448
+          ],
+          [
+            0.9697269797325134,
+            0.4462890028953552
+          ]
+        ]
+      },
+      "native_key": "media_wall_9_16"
+    },
+    {
+      "group": "media_wall",
+      "source": {
+        "sourceModel": "mroom_S_01.obj",
+        "packet": 10,
+        "sourceRole": "scene",
+        "baseTexture": "mroomS_c_09.tex",
+        "lightmapTexture": "mroomS_lig_00.tex",
+        "textureBindings": {
+          "reflection": {
+            "name": "mroomS_reflect00.tex",
+            "uv": 128,
+            "bindingIndex": 4,
+            "textureIndex": 4,
+            "texParam": 0,
+            "mode": "REFLECTION"
+          },
+          "color": {
+            "name": "mroomS_c_09.tex",
+            "uv": 0,
+            "bindingIndex": 9,
+            "textureIndex": 7,
+            "texParam": 1,
+            "mode": "COLOR_OR_DIFFUSE"
+          },
+          "lightmap": {
+            "name": "mroomS_lig_00.tex",
+            "uv": 1,
+            "bindingIndex": 6,
+            "textureIndex": 3,
+            "texParam": 3,
+            "mode": "COLOR_OR_DIFFUSE"
+          }
+        }
+      },
+      "vertices": 110,
+      "triangles": 88,
+      "lighting_bake": {
+        "written": 274415,
+        "conflicting_pixels": 0,
+        "uv_bounds": [
+          [
+            0.9042969942092896,
+            0.359375
+          ],
+          [
+            0.9746090173721313,
+            0.453125
+          ]
+        ]
+      },
+      "native_key": "media_wall_10_17"
+    },
+    {
+      "group": "media_wall",
+      "source": {
+        "sourceModel": "mroom_S_01.obj",
+        "packet": 11,
+        "sourceRole": "scene",
+        "baseTexture": "mroomS_c_09.tex",
+        "lightmapTexture": "mroomS_lig_00.tex",
+        "textureBindings": {
+          "reflection": {
+            "name": "mroomS_reflect00.tex",
+            "uv": 128,
+            "bindingIndex": 4,
+            "textureIndex": 4,
+            "texParam": 0,
+            "mode": "REFLECTION"
+          },
+          "color": {
+            "name": "mroomS_c_09.tex",
+            "uv": 0,
+            "bindingIndex": 9,
+            "textureIndex": 7,
+            "texParam": 1,
+            "mode": "COLOR_OR_DIFFUSE"
+          },
+          "lightmap": {
+            "name": "mroomS_lig_00.tex",
+            "uv": 1,
+            "bindingIndex": 6,
+            "textureIndex": 3,
+            "texParam": 2,
+            "mode": "COLOR_OR_DIFFUSE"
+          }
+        }
+      },
+      "vertices": 536,
+      "triangles": 596,
+      "lighting_bake": {
+        "written": 194281,
+        "conflicting_pixels": 0,
+        "uv_bounds": [
+          [
+            0.3828119933605194,
+            0.0078119998797774315
+          ],
+          [
+            0.6191409826278687,
+            0.734375
+          ]
+        ]
+      },
+      "native_key": "media_wall_11_18"
+    },
+    {
+      "group": "media_wall",
+      "source": {
+        "sourceModel": "mroom_S_01.obj",
+        "packet": 12,
+        "sourceRole": "scene",
+        "baseTexture": "mroomS_c_14.tex",
+        "lightmapTexture": "mroomS_lig_00.tex",
+        "textureBindings": {
+          "reflection": {
+            "name": "mroomS_reflect01.tex",
+            "uv": 128,
+            "bindingIndex": 7,
+            "textureIndex": 0,
+            "texParam": 0,
+            "mode": "REFLECTION"
+          },
+          "color": {
+            "name": "mroomS_c_14.tex",
+            "uv": 0,
+            "bindingIndex": 11,
+            "textureIndex": 9,
+            "texParam": 1,
+            "mode": "COLOR_OR_DIFFUSE"
+          },
+          "lightmap": {
+            "name": "mroomS_lig_00.tex",
+            "uv": 1,
+            "bindingIndex": 6,
+            "textureIndex": 3,
+            "texParam": 3,
+            "mode": "COLOR_OR_DIFFUSE"
+          }
+        }
+      },
+      "vertices": 504,
+      "triangles": 480,
+      "lighting_bake": {
+        "written": 800961,
+        "conflicting_pixels": 0,
+        "uv_bounds": [
+          [
+            0.8374019861221313,
+            0.0078119998797774315
+          ],
+          [
+            0.9899899959564209,
+            0.09179700165987015
+          ]
+        ]
+      },
+      "native_key": "media_wall_12_19"
+    },
+    {
+      "group": "media_wall",
+      "source": {
+        "sourceModel": "mroom_S_01.obj",
+        "packet": 13,
+        "sourceRole": "scene",
+        "baseTexture": "mroomS_c_12.tex",
+        "lightmapTexture": "mroomS_lig_00.tex",
+        "textureBindings": {
+          "reflection": {
+            "name": "mroomS_reflect00.tex",
+            "uv": 128,
+            "bindingIndex": 4,
+            "textureIndex": 4,
+            "texParam": 0,
+            "mode": "REFLECTION"
+          },
+          "color": {
+            "name": "mroomS_c_12.tex",
+            "uv": 0,
+            "bindingIndex": 1,
+            "textureIndex": 1,
+            "texParam": 1,
+            "mode": "COLOR_OR_DIFFUSE"
+          },
+          "lightmap": {
+            "name": "mroomS_lig_00.tex",
+            "uv": 1,
+            "bindingIndex": 6,
+            "textureIndex": 3,
+            "texParam": 3,
+            "mode": "COLOR_OR_DIFFUSE"
+          }
+        }
+      },
+      "vertices": 65,
+      "triangles": 60,
+      "lighting_bake": {
+        "written": 750607,
+        "conflicting_pixels": 0,
+        "uv_bounds": [
+          [
+            0.6718389987945557,
+            0.0078119998797774315
+          ],
+          [
+            0.8327590227127075,
+            0.05175799876451492
+          ]
+        ]
+      },
+      "native_key": "media_wall_13_20"
+    },
+    {
+      "group": "media_wall",
+      "source": {
+        "sourceModel": "mroom_S_03.obj",
+        "packet": 18,
+        "sourceRole": "scene",
+        "baseTexture": "mroomS_c_15.tex",
+        "lightmapTexture": "mroomS_lig_01.tex",
+        "textureBindings": {
+          "reflection": {
+            "name": "mroomS_reflect01.tex",
+            "uv": 128,
+            "bindingIndex": 5,
+            "textureIndex": 5,
+            "texParam": 0,
+            "mode": "REFLECTION"
+          },
+          "color": {
+            "name": "mroomS_c_15.tex",
+            "uv": 0,
+            "bindingIndex": 11,
+            "textureIndex": 11,
+            "texParam": 1,
+            "mode": "COLOR_OR_DIFFUSE"
+          },
+          "lightmap": {
+            "name": "mroomS_lig_01.tex",
+            "uv": 1,
+            "bindingIndex": 2,
+            "textureIndex": 2,
+            "texParam": 3,
+            "mode": "COLOR_OR_DIFFUSE"
+          }
+        }
+      },
+      "vertices": 2097,
+      "triangles": 3016,
+      "lighting_bake": {
+        "written": 495255,
+        "conflicting_pixels": 0,
+        "uv_bounds": [
+          [
+            0.8470820188522339,
+            0.002004999900236726
+          ],
+          [
+            0.9860360026359558,
+            0.12554700672626495
+          ]
+        ]
+      },
+      "native_key": "media_wall_18_21"
+    },
+    {
+      "group": "tactical_board",
+      "source": {
+        "sourceModel": "mroom_S_03.obj",
+        "packet": 13,
+        "sourceRole": "scene",
+        "baseTexture": "mroomS_c_04.tex",
+        "lightmapTexture": "mroomS_lig_01.tex",
+        "textureBindings": {
+          "reflection": {
+            "name": "mroomS_reflect00.tex",
+            "uv": 128,
+            "bindingIndex": 0,
+            "textureIndex": 0,
+            "texParam": 0,
+            "mode": "REFLECTION"
+          },
+          "color": {
+            "name": "mroomS_c_04.tex",
+            "uv": 0,
+            "bindingIndex": 10,
+            "textureIndex": 10,
+            "texParam": 1,
+            "mode": "COLOR_OR_DIFFUSE"
+          },
+          "lightmap": {
+            "name": "mroomS_lig_01.tex",
+            "uv": 1,
+            "bindingIndex": 2,
+            "textureIndex": 2,
+            "texParam": 3,
+            "mode": "COLOR_OR_DIFFUSE"
+          }
+        }
+      },
+      "vertices": 38,
+      "triangles": 32,
+      "lighting_bake": {
+        "written": 352116,
+        "conflicting_pixels": 0,
+        "uv_bounds": [
+          [
+            0.0039059999398887157,
+            0.4882810115814209
+          ],
+          [
+            0.3125,
+            0.7460939884185791
+          ]
+        ]
+      },
+      "native_key": "tactical_board_13_22"
+    },
+    {
+      "group": "tactical_board",
+      "source": {
+        "sourceModel": "mroom_S_03.obj",
+        "packet": 15,
+        "sourceRole": "scene",
+        "baseTexture": "mroomS_c_04.tex",
+        "lightmapTexture": "mroomS_lig_01.tex",
+        "textureBindings": {
+          "reflection": {
+            "name": "mroomS_reflect01.tex",
+            "uv": 128,
+            "bindingIndex": 5,
+            "textureIndex": 5,
+            "texParam": 0,
+            "mode": "REFLECTION"
+          },
+          "color": {
+            "name": "mroomS_c_04.tex",
+            "uv": 0,
+            "bindingIndex": 10,
+            "textureIndex": 10,
+            "texParam": 1,
+            "mode": "COLOR_OR_DIFFUSE"
+          },
+          "lightmap": {
+            "name": "mroomS_lig_01.tex",
+            "uv": 1,
+            "bindingIndex": 2,
+            "textureIndex": 2,
+            "texParam": 3,
+            "mode": "COLOR_OR_DIFFUSE"
+          }
+        }
+      },
+      "vertices": 364,
+      "triangles": 260,
+      "lighting_bake": {
+        "written": 390711,
+        "conflicting_pixels": 0,
+        "uv_bounds": [
+          [
+            0.12304700165987015,
+            0.5039060115814209
+          ],
+          [
+            0.4033200144767761,
+            0.7460939884185791
+          ]
+        ]
+      },
+      "native_key": "tactical_board_15_23"
+    },
+    {
+      "group": "tactical_board",
+      "source": {
+        "sourceModel": "mroom_S_03.obj",
+        "packet": 17,
+        "sourceRole": "scene",
+        "baseTexture": "mroomS_c_04.tex",
+        "lightmapTexture": "mroomS_lig_01.tex",
+        "textureBindings": {
+          "color": {
+            "name": "mroomS_c_04.tex",
+            "uv": 0,
+            "bindingIndex": 10,
+            "textureIndex": 10,
+            "texParam": 1,
+            "mode": "COLOR_OR_DIFFUSE"
+          },
+          "lightmap": {
+            "name": "mroomS_lig_01.tex",
+            "uv": 1,
+            "bindingIndex": 2,
+            "textureIndex": 2,
+            "texParam": 3,
+            "mode": "COLOR_OR_DIFFUSE"
+          }
+        }
+      },
+      "vertices": 756,
+      "triangles": 916,
+      "lighting_bake": {
+        "written": 353776,
+        "conflicting_pixels": 0,
+        "uv_bounds": [
+          [
+            0.1782670021057129,
+            0.5029299855232239
+          ],
+          [
+            0.49804699420928955,
+            0.7460939884185791
+          ]
+        ]
+      },
+      "native_key": "tactical_board_17_24"
+    },
+    {
+      "group": "rolling_shelf",
+      "source": {
+        "sourceModel": "mroom_S_03.obj",
+        "packet": 14,
+        "sourceRole": "scene",
+        "baseTexture": "mroomS_c_04.tex",
+        "lightmapTexture": "mroomS_lig_01.tex",
+        "textureBindings": {
+          "reflection": {
+            "name": "mroomS_reflect00.tex",
+            "uv": 128,
+            "bindingIndex": 0,
+            "textureIndex": 0,
+            "texParam": 0,
+            "mode": "REFLECTION"
+          },
+          "color": {
+            "name": "mroomS_c_04.tex",
+            "uv": 0,
+            "bindingIndex": 10,
+            "textureIndex": 10,
+            "texParam": 1,
+            "mode": "COLOR_OR_DIFFUSE"
+          },
+          "lightmap": {
+            "name": "mroomS_lig_01.tex",
+            "uv": 1,
+            "bindingIndex": 2,
+            "textureIndex": 2,
+            "texParam": 3,
+            "mode": "COLOR_OR_DIFFUSE"
+          }
+        }
+      },
+      "vertices": 24,
+      "triangles": 18,
+      "lighting_bake": {
+        "written": 986198,
+        "conflicting_pixels": 0,
+        "uv_bounds": [
+          [
+            0.1876949965953827,
+            0.6121090054512024
+          ],
+          [
+            0.24160200357437134,
+            0.7460939884185791
+          ]
+        ]
+      },
+      "native_key": "rolling_shelf_14_25"
+    },
+    {
+      "group": "rolling_shelf",
+      "source": {
+        "sourceModel": "mroom_S_03.obj",
+        "packet": 16,
+        "sourceRole": "scene",
+        "baseTexture": "mroomS_c_04.tex",
+        "lightmapTexture": "mroomS_lig_01.tex",
+        "textureBindings": {
+          "reflection": {
+            "name": "mroomS_reflect01.tex",
+            "uv": 128,
+            "bindingIndex": 5,
+            "textureIndex": 5,
+            "texParam": 0,
+            "mode": "REFLECTION"
+          },
+          "color": {
+            "name": "mroomS_c_04.tex",
+            "uv": 0,
+            "bindingIndex": 10,
+            "textureIndex": 10,
+            "texParam": 1,
+            "mode": "COLOR_OR_DIFFUSE"
+          },
+          "lightmap": {
+            "name": "mroomS_lig_01.tex",
+            "uv": 1,
+            "bindingIndex": 2,
+            "textureIndex": 2,
+            "texParam": 3,
+            "mode": "COLOR_OR_DIFFUSE"
+          }
+        }
+      },
+      "vertices": 8,
+      "triangles": 6,
+      "lighting_bake": {
+        "written": 1043325,
+        "conflicting_pixels": 0,
+        "uv_bounds": [
+          [
+            0.9421949982643127,
+            0.9598420262336731
+          ],
+          [
+            0.955672025680542,
+            0.9703890085220337
+          ]
+        ]
+      },
+      "native_key": "rolling_shelf_16_26"
+    },
+    {
+      "group": "rolling_shelf",
+      "source": {
+        "sourceModel": "mroom_S_03.obj",
+        "packet": 17,
+        "sourceRole": "scene",
+        "baseTexture": "mroomS_c_04.tex",
+        "lightmapTexture": "mroomS_lig_01.tex",
+        "textureBindings": {
+          "color": {
+            "name": "mroomS_c_04.tex",
+            "uv": 0,
+            "bindingIndex": 10,
+            "textureIndex": 10,
+            "texParam": 1,
+            "mode": "COLOR_OR_DIFFUSE"
+          },
+          "lightmap": {
+            "name": "mroomS_lig_01.tex",
+            "uv": 1,
+            "bindingIndex": 2,
+            "textureIndex": 2,
+            "texParam": 3,
+            "mode": "COLOR_OR_DIFFUSE"
+          }
+        }
+      },
+      "vertices": 336,
+      "triangles": 256,
+      "lighting_bake": {
+        "written": 616205,
+        "conflicting_pixels": 0,
+        "uv_bounds": [
+          [
+            0.0039059999398887157,
+            0.5029299855232239
+          ],
+          [
+            0.20780900120735168,
+            0.5625
+          ]
+        ]
+      },
+      "native_key": "rolling_shelf_17_27"
+    },
+    {
+      "group": "table_vase",
+      "source": {
+        "sourceModel": "mroom_S_03.obj",
+        "packet": 0,
+        "sourceRole": "scene",
+        "baseTexture": "mroomS_c_12.tex",
+        "lightmapTexture": "mroomS_lig_01.tex",
+        "textureBindings": {
+          "reflection": {
+            "name": "mroomS_reflect00.tex",
+            "uv": 128,
+            "bindingIndex": 0,
+            "textureIndex": 0,
+            "texParam": 0,
+            "mode": "REFLECTION"
+          },
+          "color": {
+            "name": "mroomS_c_12.tex",
+            "uv": 0,
+            "bindingIndex": 1,
+            "textureIndex": 1,
+            "texParam": 1,
+            "mode": "COLOR_OR_DIFFUSE"
+          },
+          "lightmap": {
+            "name": "mroomS_lig_01.tex",
+            "uv": 1,
+            "bindingIndex": 2,
+            "textureIndex": 2,
+            "texParam": 2,
+            "mode": "COLOR_OR_DIFFUSE"
+          }
+        }
+      },
+      "vertices": 201,
+      "triangles": 336,
+      "lighting_bake": {
+        "written": 822180,
+        "conflicting_pixels": 0,
+        "uv_bounds": [
+          [
+            0.5313079953193665,
+            0.9470880031585693
+          ],
+          [
+            0.5422030091285706,
+            0.9710559844970703
+          ]
+        ]
+      },
+      "native_key": "table_vase_0_28"
+    },
+    {
+      "group": "floor_plant",
+      "source": {
+        "sourceModel": "mroom_S_03.obj",
+        "packet": 19,
+        "sourceRole": "scene",
+        "baseTexture": "mroomS_c_15.tex",
+        "lightmapTexture": "mroomS_lig_02.tex",
+        "textureBindings": {
+          "reflection": {
+            "name": "mroomS_reflect01.tex",
+            "uv": 128,
+            "bindingIndex": 5,
+            "textureIndex": 5,
+            "texParam": 0,
+            "mode": "REFLECTION"
+          },
+          "color": {
+            "name": "mroomS_c_15.tex",
+            "uv": 0,
+            "bindingIndex": 11,
+            "textureIndex": 11,
+            "texParam": 1,
+            "mode": "COLOR_OR_DIFFUSE"
+          },
+          "lightmap": {
+            "name": "mroomS_lig_02.tex",
+            "uv": 1,
+            "bindingIndex": 12,
+            "textureIndex": 12,
+            "texParam": 3,
+            "mode": "COLOR_OR_DIFFUSE"
+          }
+        }
+      },
+      "vertices": 3750,
+      "triangles": 5955,
+      "lighting_bake": {
+        "written": 554893,
+        "conflicting_pixels": 0,
+        "uv_bounds": [
+          [
+            0.009352999739348888,
+            0.010472999885678291
+          ],
+          [
+            0.9609379768371582,
+            0.9901959896087646
+          ]
+        ]
+      },
+      "native_key": "floor_plant_19_29"
+    },
+    "Office refresh: static centimetre props, native 24-byte vertices; original shell, wall displays and exits retained."
+  ],
+  "unmerged_component_count": 30,
+  "replacements": {
+    "data/sceneassets/server16_dressing_room_v3/room_roles_36d2db6f7c57e2.rx3": "data/sceneassets/server16_dressing_room_v3/pes_office/room_roles_7723da2cdece4d.rx3",
+    "data/sceneassets/server16_dressing_room_v3/scenery_c874ddac663808.rx3": "data/sceneassets/server16_dressing_room_v3/pes_office/scenery_6fd507d0c56db7.rx3",
+    "data/sceneassets/server16_dressing_room_v3/crest_surfaces_89d255cf1eceb1.rx3": "data/sceneassets/server16_dressing_room_v3/pes_office/crest_surfaces_45c8637f10f9ae.rx3",
+    "data/sceneassets/server16_dressing_room_v3/interior_7d46205a2329de.rx3": "data/sceneassets/server16_dressing_room_v3/pes_office/interior_32b2560ec94219.rx3",
+    "data/sceneassets/server16_dressing_room_v3/shared/coach_room_r76.rx3": "data/sceneassets/server16_dressing_room_v3/office_neutral/shell_c6cf72b6ac7a19.rx3",
+    "data/sceneassets/server16_dressing_room_v3/room_roles_738f7578469297.rx3": "data/sceneassets/server16_dressing_room_v3/pes_office/room_roles_dd00964303ec11.rx3",
+    "data/sceneassets/server16_dressing_room_v3/interior_24f22d06e7b182.rx3": "data/sceneassets/server16_dressing_room_v3/pes_office/interior_333c6796b7abf2.rx3",
+    "data/sceneassets/server16_dressing_room_v3/room_roles_380dea048ced0f.rx3": "data/sceneassets/server16_dressing_room_v3/pes_office/room_roles_75e49fc89af417.rx3",
+    "data/sceneassets/server16_dressing_room_v3/room_roles_793c26bc6f24ba.rx3": "data/sceneassets/server16_dressing_room_v3/pes_office/room_roles_aaeaea61c0d4ff.rx3",
+    "data/sceneassets/server16_dressing_room_v3/interior_56741e79b96b44.rx3": "data/sceneassets/server16_dressing_room_v3/office_neutral/interior_30cfc1a8e8e4d5.rx3",
+    "data/sceneassets/server16_dressing_room_v3/room_roles_bac53c13ff85bd.rx3": "data/sceneassets/server16_dressing_room_v3/pes_office/room_roles_b5a175cd4c50e6.rx3",
+    "data/sceneassets/server16_dressing_room_v3/interior_7f46a97d80e004.rx3": "data/sceneassets/server16_dressing_room_v3/office_neutral/interior_33a3cf1c34f899.rx3"
+  },
+  "shell_bindings": [
+    {
+      "material": "primary",
+      "submesh": "room_part_1"
+    },
+    {
+      "material": "secondary",
+      "submesh": "room_part_2"
+    },
+    {
+      "material": "wood",
+      "submesh": "room_part_3"
+    },
+    {
+      "material": "dark",
+      "submesh": "room_part_4"
+    },
+    {
+      "material": "metal",
+      "submesh": "room_part_5"
+    },
+    {
+      "material": "light",
+      "submesh": "room_part_6"
+    },
+    {
+      "material": "panels",
+      "submesh": "room_part_7"
+    },
+    {
+      "material": "crest",
+      "submesh": "room_part_8"
+    },
+    {
+      "material": "rug",
+      "submesh": "room_part_9"
+    },
+    {
+      "material": "shirts",
+      "submesh": "room_part_10"
+    }
+  ],
+  "layout_revision": 5,
+  "overview_pose": [
+    150,
+    178,
+    1685,
+    245,
+    130,
+    2260,
+    83
+  ],
+  "palette_style": "coach_neutral",
+  "scene_poses": {
+    "Sala do treinador \u00b7 vis\u00e3o geral": [
+      150,
+      178,
+      1685,
+      245,
+      130,
+      2260,
+      83
+    ],
+    "Sala do treinador \u00b7 quadro t\u00e1tico": [
+      0,
+      180,
+      2110,
+      -317,
+      178,
+      2350,
+      67
+    ],
+    "Sala do treinador \u00b7 desempenho": [
+      420,
+      175,
+      2070,
+      746,
+      170,
+      2070,
+      53
+    ],
+    "Sala do treinador \u00b7 mercado": [
+      0,
+      177,
+      1780,
+      -317,
+      175,
+      1780,
+      52
+    ],
+    "Sala do treinador \u00b7 destaques": [
+      0,
+      177,
+      2035,
+      -317,
+      175,
+      2035,
+      56
+    ],
+    "Sala do treinador \u00b7 classifica\u00e7\u00e3o": [
+      410,
+      177,
+      2370,
+      746,
+      170,
+      2370,
+      54
+    ]
+  },
+  "neutral_wall_rgb": [
+    232,
+    229,
+    222
+  ],
+  "wood_finish": "wood_light",
+  "design": "Neutral coaching workspace, central desk, compact meeting corner, smaller live panels",
+  "dashboard_revision": 1
+}
