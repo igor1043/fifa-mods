@@ -65,7 +65,8 @@ class StorageTests(unittest.TestCase):
 
     def test_dry_run_does_not_remove_a_bundle(self):
         folder=self.bundle('_MEI7654321')
-        report=self.sweep(dry_run=True)
+        # Windows birth time can equal the current coarse wall-clock tick.
+        with patch.object(storage.time,'time',return_value=time.time()+2):report=self.sweep(dry_run=True)
         self.assertTrue(folder.exists())
         self.assertEqual(1,report.removed)
 

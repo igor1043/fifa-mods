@@ -38,6 +38,12 @@ class ShutdownTests(unittest.TestCase):
         self.assertFalse(app._closing);app.memory.close.assert_not_called();app.after.assert_called_once()
         app._bh_regen_running=False;app._retry_close();self.assertTrue(app._shutdown_complete)
 
+    def test_scoreboard_write_finishes_before_shutdown(self):
+        app=self.app();app.scoreboard_options=SimpleNamespace(busy=True,close=Mock());app.on_close()
+        self.assertFalse(app._closing);app.memory.close.assert_not_called()
+        app.scoreboard_options.busy=False;app._retry_close();self.assertTrue(app._shutdown_complete)
+        app.scoreboard_options.close.assert_called_once()
+
     def test_network_cleanup_is_bounded(self):
         release=threading.Event();start=time.monotonic()
         bounded_cleanup('fixture',release.wait,Mock(),timeout=.02)

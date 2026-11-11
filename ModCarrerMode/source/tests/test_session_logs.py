@@ -5,6 +5,7 @@ import tempfile
 import threading
 import time
 import unittest
+import zipfile
 from types import SimpleNamespace
 from unittest.mock import Mock, patch
 
@@ -80,9 +81,53 @@ class SessionLogTests(unittest.TestCase):
             active=root/'runtime/diagnostics/20260102_120000_000001_pid19'
             active_log=self.file(root,str(active.relative_to(root))+'/timeline.jsonl')
             user=self.file(root,'runtime/diagnostics/my-notes.txt')
+            newer=self.file(root,'runtime/diagnostics/20260103_120000_000001_pid99999999/summary.json')
+            os.utime(old.parent.parent,(1,1));os.utime(archive,(1,1))
             logs.maintain(root,reset=True,protected=(active,))
             self.assertFalse(old.exists());self.assertFalse(archive.exists())
             self.assertTrue(active_log.exists());self.assertEqual(user.read_bytes(),b'old evidence\n')
+
+    def test_two_bounded_tail_archives_survive_resets_without_saves_or_dump_copies(self):
+        with tempfile.TemporaryDirectory() as folder:
+            root=Path(folder);p=self.file(root,'runtime/worker.log',b'x'*(logs.HISTORY_TAIL*2))
+            self.file(root,'runtime/settings.json',b'SECRET');self.file(root,'crash.dmp',b'not a dump')
+            for index in range(4):
+                p.write_bytes((b'new evidence '+str(index).encode()+b'\n')*8000)
+                logs.maintain(root,reset=True)
+            archives=list((root/'runtime/session_history').glob('*.zip'))
+            self.assertEqual(len(archives),2)
+            for archive in archives:
+                with zipfile.ZipFile(archive) as data:
+                    self.assertLess(sum(i.file_size for i in data.infolist()),logs.HISTORY_LIMIT//2)
+                    self.assertTrue(any(name.endswith('worker.log') for name in data.namelist()))
+                    self.assertFalse(any(name.endswith(('.dmp','.sqlite3')) or 'settings' in name for name in data.namelist()))
+
+    def test_supervisor_does_not_clear_active_session_when_binding(self):
+        with tempfile.TemporaryDirectory() as folder:
+            root=Path(folder);p=self.file(root,'runtime/worker.log');service=logs.SessionLogs(startup_clear=False,interval=.02)
+            try:
+                service.bind(root);time.sleep(.1);self.assertEqual(p.read_bytes(),b'old evidence\n')
+            finally:service.close()
+
+    def test_non_game_root_cannot_clear_the_real_native_temp_log(self):
+        with tempfile.TemporaryDirectory() as folder:
+            parent=Path(folder);root=parent/'fixture';root.mkdir()
+            native=self.file(parent,'cgfs16_overlay.log')
+            with patch.object(logs.tempfile,'gettempdir',return_value=str(parent)):
+                logs.maintain(root,reset=True)
+            self.assertEqual(native.read_bytes(),b'old evidence\n')
+
+    def test_validation_images_are_bounded_without_touching_original_art(self):
+        with tempfile.TemporaryDirectory() as folder:
+            root=Path(folder);captures=[]
+            for index in range(4):
+                p=self.file(root,f'ModCarrerMode/runtime/club_browser/99999999/validation/1043_{index}.pixels',b'pixels')
+                os.utime(p,(100+index,100+index));captures.append(p)
+                self.file(root,str(p.relative_to(root).with_suffix('.json')))
+            art=self.file(root,'ModCarrerMode/data/club_environment/wall.png',b'original art')
+            logs.maintain(root)
+            self.assertEqual([p.exists() for p in captures],[False,False,True,True])
+            self.assertFalse(captures[0].with_suffix('.json').exists());self.assertEqual(art.read_bytes(),b'original art')
 
     def test_new_diagnostic_created_after_startup_is_not_deleted(self):
         with tempfile.TemporaryDirectory() as folder:

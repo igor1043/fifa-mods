@@ -154,6 +154,10 @@ if (($externalPaths -notcontains 'dlc') -and (Test-Path -LiteralPath $compdataSo
     }
 }
 # External helper sources are runtime dependencies executed by Server16.
+$scoreboardTemplate = Join-Path $modSource 'source\native_mods\scoreboard_settings\gamesettings.original.big'
+if (Test-Path -LiteralPath $scoreboardTemplate -PathType Leaf) {
+    Add-File $scoreboardTemplate 'ModCarrerMode\source\native_mods\scoreboard_settings\gamesettings.original.big'
+}
 foreach($file in Get-ChildItem -LiteralPath (Join-Path $modSource 'source\club_environment') -Recurse -File) {
     if ($file.FullName -match '[\\/]__pycache__[\\/]' -or $file.Extension -in @('.obj','.lib','.exp','.pyc')) { continue }
     Add-File $file.FullName ('ModCarrerMode\source\club_environment\'+$file.FullName.Substring((Join-Path $modSource 'source\club_environment').Length+1))

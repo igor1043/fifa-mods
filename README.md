@@ -86,8 +86,9 @@ Mods de carreira, apresentação e partidas para FIFA 16, integrados ao Server16
 | Recursos da partida | Prepara os arquivos instalados de estádio, narração e apresentação, com indicação de carregamento. |
 | Configurações dentro do jogo | Abre os controles dos mods pelo atalho Select + Start ou F12. |
 | Seleção de estádio | Permite escolher o estádio e as opções de apresentação da partida. |
+| Scoreboard nas opções de jogo | Adiciona um seletor nativo em Partida. Aplica o placar escolhido ao voltar, com opções para o padrão do FIFA ou as regras automáticas do Server16. |
 | Mapeamento de controles | Permite ajustar os comandos usados pelos mods. |
-| Limpeza de logs | Limpa os registros de sessões anteriores ao iniciar o Server16 e oferece limpeza manual. |
+| Limpeza de cache e logs | Limita arquivos temporários, limpa sessões encerradas e oferece o botão Esvaziar cache e logs, preservando os dados das carreiras e evidências recentes de diagnóstico. |
 | Diagnóstico da inicialização | Registra o carregamento do jogo e dos módulos para investigar falhas. |
 
 ## Configuração

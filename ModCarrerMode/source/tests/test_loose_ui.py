@@ -11,6 +11,7 @@ class LooseUITest(unittest.TestCase):
         self.assertIn('data/ui/layout/careermanagerhubcfg.xml',TARGETS)
         self.assertIn('data/ui/game/screens/fluxhub/fluxhub.big',TARGETS)
         self.assertIn('data/ui/game/screens/career/managerpreferences.big',TARGETS)
+        self.assertIn('data/ui/game/screens/settings/gamesettings.big',TARGETS)
         self.assertIn('data/ui/game/background/backgroundbootflow.big',TARGETS)
     def test_creation_background_activation_preserves_the_startup_archive(self):
         with tempfile.TemporaryDirectory() as temp:

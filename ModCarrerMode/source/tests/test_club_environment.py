@@ -4,6 +4,18 @@ from unittest.mock import patch
 from server16_py.club_environment import prepare_runtime,worker,atomic_copy,ENTRIES
 
 class PortableRuntimeTest(unittest.TestCase):
+    def test_editable_art_is_read_from_data_without_a_runtime_mirror(self):
+        with tempfile.TemporaryDirectory() as temp:
+            game=Path(temp);self.fixture(game)
+            art=game/'ModCarrerMode/data/club_environment/current_dressing_room/custom/1043/wall.png'
+            art.parent.mkdir(parents=True);art.write_bytes(b'original editable art')
+            legacy=game/'ModCarrerMode/data/club_environment/room/clubs/1043/wall.png'
+            legacy.parent.mkdir(parents=True);legacy.write_bytes(b'legacy art')
+            test=game/'ModCarrerMode/source/club_environment/room/test_fixture.py';test.write_text('not runtime')
+            _,runtime=prepare_runtime(game)
+            self.assertFalse((runtime/'current_dressing_room').exists());self.assertFalse((runtime/'room/clubs').exists())
+            self.assertFalse((runtime/'room/test_fixture.py').exists());self.assertEqual(art.read_bytes(),b'original editable art')
+
     def test_source_code_wins_over_old_seed_on_every_launch(self):
         with tempfile.TemporaryDirectory() as temp:
             game=Path(temp);self.fixture(game)

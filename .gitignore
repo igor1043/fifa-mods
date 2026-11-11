@@ -6,6 +6,8 @@ ModCarrerMode/*_status.ini
 ModCarrerMode/*_status.txt
 ModCarrerMode/career_retirement_background.local.ini
 ModCarrerMode/config/career_retirement_background.local.ini
+# Personal manual scoreboard choice; competition assignments remain shared.
+ModCarrerMode/config/scoreboard.ini
 _codex_reconcile_backup_*/
 ModCarrerMode/tools/**/__pycache__/
 ModCarrerMode/source/localization/__pycache__/
