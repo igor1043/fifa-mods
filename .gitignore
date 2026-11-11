@@ -266,3 +266,8 @@ runtime/diagnostics/
 # Authored room templates and external stadium photos belong to the asset ZIP.
 /ModCarrerMode/data/trophy_room/*.rx3
 /data/ui/imgAssets/stadium/stadium_*.dds
+
+# Local study notes are archived outside the published projects.
+/[Dd][Oo][Cc][Ss]/
+/ModCarrerMode/[Dd][Oo][Cc][Ss]/
+/ModCarrerMode/source/[Dd][Oo][Cc][Ss]/
