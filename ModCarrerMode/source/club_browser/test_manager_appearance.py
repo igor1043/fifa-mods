@@ -1,5 +1,5 @@
 """Per-save identity and completed-save binding, without modifying FIFA DATA."""
-from pathlib import Path
+from pathlib import Path,PureWindowsPath
 from contextlib import closing
 import tempfile,unittest
 from unittest.mock import patch
@@ -7,6 +7,20 @@ import json
 import manager_appearance as a
 
 class Appearance(unittest.TestCase):
+ def test_extended_windows_save_path_is_read_only_and_never_a_question_mark_authority(self):
+  for path,expected in ((r'\\?\C:\Users\Robson\save #1\aparência.sqlite3','file:///C:/Users/Robson/save%20%231/apar%C3%AAncia.sqlite3?mode=ro'),
+                        (r'\\?\UNC\server\share\save\appearance.sqlite3','file:////server/share/save/appearance.sqlite3?mode=ro')):
+   with patch.object(Path,'resolve',return_value=PureWindowsPath(path)):
+    self.assertEqual(a.readonly_uri(path),expected)
+  with tempfile.TemporaryDirectory() as folder:
+   save=Path(folder)/'save #1 aparência'/'DATA';save.parent.mkdir();save.write_bytes(b'native save')
+   digest=a.snapshot(save);choice=dict(coach='COACH-X',asset=1)
+   database=a.save(save,digest,choice,1,100)
+   with patch.object(Path,'resolve',return_value=Path('\\\\?\\'+str(database.resolve()))):
+    self.assertEqual(a.load(save,digest),choice)
+   import sqlite3
+   with closing(sqlite3.connect(a.readonly_uri(database),uri=True)) as db:
+    with self.assertRaises(sqlite3.OperationalError):db.execute('DELETE FROM appearances')
  def test_two_careers_same_club_are_independent_and_native_data_unchanged(self):
   with tempfile.TemporaryDirectory() as folder:
    files=[]

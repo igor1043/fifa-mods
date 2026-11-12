@@ -122,8 +122,10 @@ def build(game,original,output,catalog_file):
             a.when(matches('BACK'),lambda a:(a.do(R(1),'S16FaceClose','cancel'),a.ret(True)))
             for code in ('ADVANCE','START','MENU','PAUSE'):
                 a.when(matches(code),lambda a:(a.do(R(1),'S16FaceClose','confirm'),a.ret(True)))
-            for code,command in [('UI_UP','up'),('UI_DOWN','down'),('PAGE_UP','page_up'),('PAGE_DOWN','page_down'),('OPTION_TOP','center')]:
-                a.when(matches(code),lambda a,command=command:send(a,command))
+            # Shoulder aliases may share PAGE_UP/DOWN codes. Handle them once,
+            # before list paging, so changing the filter cannot also skip faces.
+            for code,command in [('L2','mode_all'),('R2','mode_league'),('UI_UP','up'),('UI_DOWN','down'),('UI_LEFT','left'),('UI_RIGHT','right'),('PAGE_UP','page_up'),('PAGE_DOWN','page_down'),('OPTION_TOP','center')]:
+                a.when(matches(code),lambda a,command=command:(send(a,command),a.ret(True)))
             a.ret(True)
         a.when(T('S16FaceActive'),face)
         row=('index',T('m_RowData'),CALL(T('mcRowControl'),'getSelectedIndex'))
@@ -136,7 +138,8 @@ def build(game,original,output,catalog_file):
         a.when(T('S16FaceActive'),lambda a:a.when(inside(49,603,394,646),lambda a:a.do(R(1),'S16FaceClose','confirm')))
     a.function('onMouseDown',0,mouse)
     def help(a):
-        items=[('ADVANCE','Confirmar'),('BACK','Voltar'),('LAS_UD','Subir / descer'),('RAS_LR','Girar'),('L1R1','Zoom'),('OPTION_TOP','Centralizar')]
+        # FIFA names the shoulder help pair L2/R2 and analog triggers L1/R1.
+        items=[('ADVANCE','Confirmar'),('BACK','Voltar'),('LAS_UD','Lista / filtros'),('L2R2','Todos / por liga'),('RAS_LR','Câmera'),('L1R1','Zoom'),('OPTION_TOP','Centralizar')]
         a.when(T('S16FaceActive'),lambda a:a.ret(('array',tuple(CALL(PATH('ion','manager','HelpItem'),'CreateHelpTickerItem',key,label) for key,label in items))))
         a.ret(CALL(R(1),'S16BaseHelp'))
     a.function('getHelpContext',0,help)
@@ -152,11 +155,26 @@ def build(game,original,output,catalog_file):
     output.parent.mkdir(parents=True,exist_ok=True);b.write_big(big,output,{})
     check=Actions(AptFile(BigFile(output))).read_all()
     if check.errors:raise ValueError(check.errors)
+    # Reuse the same country, flag and league identities as the club browser.
+    # The small static catalog is built once, never queried in the render loop.
+    geography={};country_names={}
+    for filename in ('catalog.tsv','nations.tsv'):
+        path=game/'ModCarrerMode/data/club_browser'/filename
+        if not path.is_file():continue
+        for line in path.read_text(encoding='utf8').splitlines():
+            fields=line.split('\t')
+            if len(fields)!=18:continue
+            if filename=='catalog.tsv':
+                geo=[fields[0],fields[2],fields[5],fields[4],fields[1],fields[6]]
+                country_names[fields[2]]=fields[1]
+            else:geo=[fields[2],fields[2],'1000000','999',country_names.get(fields[2],fields[11] or fields[10]),'Seleções']
+            geography[int(fields[9])]=geo
     rows=[]
     for key,row in sorted(catalog(game).items(),key=lambda item:item[1]['name'].casefold()):
         if installed(game,row) and (game/'ModCarrerMode/data/manager_market'/row['image']).is_file():
             if any(c in row['name']+row['image'] for c in '\t\r\n'):continue
-            rows.append(f'{row["assetId"]}\t{key}\t{row["name"]}\t{row["image"]}\t{row["default_club_id"]}\t{row["default_club_name"] or "Sem clube"}')
+            geo=geography.get(row['default_club_id'],['0','0','0','999','Sem clube','Sem liga'])
+            rows.append('\t'.join([str(row['assetId']),key,row['name'],row['image'],str(row['default_club_id']),row['default_club_name'] or 'Sem clube',*geo]))
     catalog_file=Path(catalog_file);catalog_file.parent.mkdir(parents=True,exist_ok=True);catalog_file.write_bytes(('\n'.join(rows)+'\n').encode('utf8'))
     return dict(faces=len(rows),bytes=output.stat().st_size,stage=[apt.stage_width,apt.stage_height],original_fields_preserved=True,sha256=hashlib.sha256(output.read_bytes()).hexdigest())
 

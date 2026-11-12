@@ -3163,8 +3163,8 @@
     },
     {
       "path": "ModCarrerMode/data/manager_face_selector/catalog.tsv",
-      "bytes": 3108,
-      "sha256": "3da706fd7371f8e85d889280406184ed7f9accc48487ee38807a5fa0f5047e2a"
+      "bytes": 4438,
+      "sha256": "ed279919665012c76c0a4716f97ea300f74fa16729ddf3e38e263e710974ca25"
     },
     {
       "path": "ModCarrerMode/data/manager_market/catalog.sqlite3",
@@ -11134,7 +11134,7 @@
     {
       "path": "ModCarrerMode/mods/club_browser/club_browser.dll",
       "bytes": 1474048,
-      "sha256": "46e16a8d0de6b8f7098ce02fde32bed14b8f09c1ad518d7342d06b04c854da2a"
+      "sha256": "1245dc5a94d5e7e7806fd554fe03d7c4125cf1df96effb3433deccc2cd1df696"
     },
     {
       "path": "ModCarrerMode/mods/club_environment/native_dressing_room.dll",
@@ -12353,8 +12353,8 @@
     },
     {
       "path": "ModCarrerMode/source/club_browser/build_manager_face.py",
-      "bytes": 11731,
-      "sha256": "aaaa10552ef61d6cd20ed909d994a457bbeb7e452a8d96cff94a1a74d4933b6c"
+      "bytes": 13023,
+      "sha256": "b107ed530b5815ed24360209db64a6534bacaf4c5460e5136492db9bffc0431a"
     },
     {
       "path": "ModCarrerMode/source/club_browser/build_manager_face_background.py",
@@ -13018,8 +13018,8 @@
     },
     {
       "path": "ModCarrerMode/source/club_browser/manager_appearance.py",
-      "bytes": 3428,
-      "sha256": "3ccf79d195fdf7c165b5d04e737305581df800c0170fb822dc67fd785daa2283"
+      "bytes": 3910,
+      "sha256": "d482768651c2d954f0d1d02a3e7f291ab48d20005a881d54e5b44765d1d2defd"
     },
     {
       "path": "ModCarrerMode/source/club_browser/manager_face_service.py",
@@ -13128,8 +13128,8 @@
     },
     {
       "path": "ModCarrerMode/source/club_browser/native/graphics.h",
-      "bytes": 16534,
-      "sha256": "0e1b76b4f1457e02422275907d2ad38a4a8b1747acfa3031f20688efc47db0da"
+      "bytes": 16648,
+      "sha256": "7652f9a8323d5afd8275097269b9587cdf5e8a2e8eb47e7fdb767f298d9ea629"
     },
     {
       "path": "ModCarrerMode/source/club_browser/native/indoor_scene_profile.h",
@@ -13153,13 +13153,13 @@
     },
     {
       "path": "ModCarrerMode/source/club_browser/native/manager_face_model.h",
-      "bytes": 2631,
-      "sha256": "3768d360738a3696aa74abd7eb32aafd417a428366b81f83388e187bf47e28de"
+      "bytes": 4984,
+      "sha256": "02361b7caedab80140b5c9ce68cb9c0b7756857128dee6670e35a280362942e7"
     },
     {
       "path": "ModCarrerMode/source/club_browser/native/manager_face_ui.inc",
-      "bytes": 12774,
-      "sha256": "224ed623bb8f00deec9ced8bb3eb232127ee8505e95c6ad77b3eb141a6a36ca6"
+      "bytes": 17462,
+      "sha256": "b584aebeb3ef32d93c7f6769a472a8f22a370303f2eb194edb75d6fca17a84ec"
     },
     {
       "path": "ModCarrerMode/source/club_browser/native/manager_model_bridge.h",
@@ -13208,8 +13208,8 @@
     },
     {
       "path": "ModCarrerMode/source/club_browser/native/render.cpp",
-      "bytes": 44985,
-      "sha256": "0943d9a83bad203cb70a788aa1c5bb042d9dc659b50d3540e46d549b9d862d7a"
+      "bytes": 45016,
+      "sha256": "b40b7a0f76208c04f3aa258fe0d4de26ab2a6fba7bc0026d2bccfa83b6369e0f"
     },
     {
       "path": "ModCarrerMode/source/club_browser/native/room_prop_shadow.h",
@@ -13353,13 +13353,13 @@
     },
     {
       "path": "ModCarrerMode/source/club_browser/native/test_manager_face_controls.cpp",
-      "bytes": 2909,
-      "sha256": "62e28647cad183fdb4aa4c93ea847dc70ed854f4d71843d9447642375bf58e39"
+      "bytes": 4791,
+      "sha256": "2e182d81d23e750b64855371fdaf73a3f8ac6433c61090967e73e36d2a107d98"
     },
     {
       "path": "ModCarrerMode/source/club_browser/native/test_manager_face_model.cpp",
-      "bytes": 1479,
-      "sha256": "88f642888d4c046a9e794a54a5de550c7197dee4951c1871de429047be5022ab"
+      "bytes": 2403,
+      "sha256": "c354f300cb691bcdd85f71aa6573f2ae354e1ba1cd8b4a8de99c2aa744ac6f96"
     },
     {
       "path": "ModCarrerMode/source/club_browser/native/test_manager_lua51.cpp",
@@ -13728,8 +13728,8 @@
     },
     {
       "path": "ModCarrerMode/source/club_browser/test_manager_appearance.py",
-      "bytes": 3418,
-      "sha256": "ce9f1bd212301fe3cf4ca0aece1dc0357511b3aae5df9dc1b5ca271618c91d11"
+      "bytes": 4513,
+      "sha256": "abb01a1485ece182eecc9a43799bba5c66cb23d234021017d9ea83a5e7bb018d"
     },
     {
       "path": "ModCarrerMode/source/club_browser/test_manager_face_background.py",
@@ -13738,8 +13738,8 @@
     },
     {
       "path": "ModCarrerMode/source/club_browser/test_manager_face_screen.py",
-      "bytes": 11678,
-      "sha256": "860f9f5bd7523526ff3e9303a2984e91083971e542d9811ba6ded8adb7f2ca6a"
+      "bytes": 12490,
+      "sha256": "2645db6fe1f6f7958cd9e8e814600b1fc3e70dcc1d9ac8bcfe957b96da43c72f"
     },
     {
       "path": "ModCarrerMode/source/club_browser/test_manager_face_worker.py",
@@ -31888,8 +31888,8 @@
     },
     {
       "path": "data/ui/game/screens/career/managerpreferences.big",
-      "bytes": 51838,
-      "sha256": "a8182d9356d9c707f3789d79eca69ebe069f9577e79f65715f12e7a34b8b0178"
+      "bytes": 13509,
+      "sha256": "c7107c68f9d1edcafe5d083e3acc374d9fd6825fdf2a3ea7471b8e209860b858"
     },
     {
       "path": "data/ui/game/screens/career/server16/bankloansv2.big",
@@ -48505,6 +48505,21 @@
       "path": "winmm.dll",
       "bytes": 276392,
       "sha256": "a142a367d62f5bbe85a0d2349eb801c03e2e6710dab987d0abcbb615a3487c56"
+    },
+    {
+      "path": "ModCarrerMode/source/club_browser/native/native_value_font.h",
+      "bytes": 1757,
+      "sha256": "9afe679d8adc28a8831a2e5816736d391c62492ffad7e2b8415f5c4fe61cf4b0"
+    },
+    {
+      "path": "ModCarrerMode/source/club_browser/native/test_native_value_font.cpp",
+      "bytes": 1275,
+      "sha256": "6bfe8e0d821c9d46b38d454d4e74185981906ab4404cc4ea20bdf51d45979635"
+    },
+    {
+      "path": "README.md",
+      "bytes": 8791,
+      "sha256": "97bde92f0bfa532e730e6671f1fa409ad2f212b528218d0c6cd65bcdcbb6cde8"
     }
   ],
   "local_revision": "Mercado em background, tÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â©cnicos 3D por identidade, histÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â³rico da carreira, vestiÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¡rio ampliado e recursos do Server16",

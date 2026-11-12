@@ -48,7 +48,7 @@ class Screen(unittest.TestCase):
   self.klass=Object(dict(prototype=proto,TYPE_BUTTON=7))
   help=Object({k:Native(k) for k in ('Update','Show','SetCustomSource')})
   self.vm.global_.set('game',Object(dict(screens=Object(dict(career=Object(dict(ManagerPreferences=self.klass)))),globalClasses=Object(dict(HelpManager=help)))))
-  self.codes=dict(BACK=1,ADVANCE=2,UI_UP=3,UI_DOWN=4,PAGE_UP=5,PAGE_DOWN=6,OPTION_TOP=7,START=8,MENU=9,PAUSE=10)
+  self.codes=dict(BACK=1,ADVANCE=2,UI_UP=3,UI_DOWN=4,PAGE_UP=5,PAGE_DOWN=6,OPTION_TOP=7,START=8,MENU=9,PAUSE=10,UI_LEFT=11,UI_RIGHT=12,OPTION_LEFT=13,L2=14,R2=15,L1=16,R1=17)
   self.vm.global_.set('INPUTCODE',Object(self.codes));self.vm.global_.set('ION_CareerMode',Object(dict(SendSystemEvent=Native('SendSystemEvent'))))
   self.vm.global_.set('cafe',Object(dict(utility=Object(dict(Delegate=Object(dict(Create=Native('Create'))))))))
   self.vm.global_.set('ion',Object(dict(manager=Object(dict(HelpItem=Object(dict(CreateHelpTickerItem=Native('CreateHelpTickerItem'))))))))
@@ -75,7 +75,10 @@ class Screen(unittest.TestCase):
   self.index=4;self.press('ADVANCE');self.assertEqual(self.commands(),['open']);self.assertFalse(self.view.get('mcMainFrame').get('_visible'))
   self.assertTrue(all(not self.view.get(name).get('_visible') for name in screen.NATIVE_CLIPS))
   self.press('UI_DOWN');self.assertEqual(self.commands()[-1],'down')
-  self.assertEqual([x[0] for x in self.invoke('getHelpContext')],['ADVANCE','BACK','LAS_UD','RAS_LR','L1R1','OPTION_TOP'])
+  self.assertEqual([x[0] for x in self.invoke('getHelpContext')],['ADVANCE','BACK','LAS_UD','L2R2','RAS_LR','L1R1','OPTION_TOP'])
+  for key,command in [('UI_LEFT','left'),('UI_RIGHT','right'),('L2','mode_all'),('R2','mode_league')]:
+   self.press(key);self.assertEqual(self.commands()[-1],command)
+  before=len(self.commands());self.press('L1');self.press('R1');self.assertEqual(len(self.commands()),before,'Zoom triggers must never change filter or selection')
   self.press('BACK');self.assertEqual(self.commands()[-1],'cancel');self.assertTrue(self.view.get('mcMainFrame').get('_visible'))
   self.assertFalse(self.view.get('mcImageLoader').get('_visible'));self.assertTrue(self.view.get('mcRowControl').get('_visible'))
   self.press('ADVANCE');self.press('START');self.assertEqual(self.commands()[-1],'confirm')
@@ -85,6 +88,11 @@ class Screen(unittest.TestCase):
   self.press('ADVANCE');self.view.set('_xmouse',450);self.view.set('_ymouse',50);self.invoke('onMouseDown');self.assertTrue(self.view.get('S16FaceActive'));self.assertEqual(self.commands()[-1],'open')
   self.press('BACK');self.assertEqual(self.commands()[-1],'cancel')
   self.assertFalse(any(name=='baseInput' for name,args in self.calls))
+ def test_shoulder_alias_cannot_page_the_list_and_change_filter_together(self):
+  self.index=4;self.press('ADVANCE')
+  codes=self.vm.global_.get('INPUTCODE');codes.set('L2',self.codes['PAGE_UP']);codes.set('R2',self.codes['PAGE_DOWN'])
+  for key,command in (('PAGE_UP','mode_all'),('PAGE_DOWN','mode_league')):
+   before=len(self.commands());self.press(key);self.assertEqual(self.commands()[before:],[command])
  def test_background_updates_on_ui_owner_and_original_frame_is_restored(self):
   original=Native('priorFrame');self.view.set('onEnterFrame',original)
   self.invoke('_OnAnimateInComplete')

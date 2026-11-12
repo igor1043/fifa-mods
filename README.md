@@ -18,6 +18,7 @@ Mods de carreira, apresentação e partidas para FIFA 16, integrados ao Server16
 | Jogadores do time | Lista o elenco com filtros, atributos, desempenho e visualização animada do jogador. |
 | Detalhes do jogador | Apresenta as informações individuais do jogador selecionado no elenco. |
 | Técnico do time | Exibe treinador, miniface, estatísticas e modelo 3D quando disponível. |
+| Face do treinador na criação | Permite escolher a aparência em 3D, filtrar por país e liga e manter a escolha vinculada ao save. |
 | Ver mascote | Mostra o mascote instalado para o clube selecionado. |
 | Visualizar estádio | Carrega o estádio do clube com passeio panorâmico e exploração em primeira pessoa. |
 | Mercado de transferências | Organiza a consulta de jogadores, valores e movimentações do mercado. |

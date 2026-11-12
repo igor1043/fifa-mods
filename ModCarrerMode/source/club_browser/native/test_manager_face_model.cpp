@@ -16,4 +16,13 @@ int main(){
  assert(managerface::step(36,1,37)==36&&managerface::step(0,-1,37)==0);
  assert(managerface::firstVisible(7,0,37)==1&&managerface::firstVisible(0,5,37)==0);
  assert(managerface::firstVisible(36,0,37)==30);
+ std::istringstream regional("383\tCOACH-ABEL\tAbel Ferreira\tminifaces/a.png\t383\tPalmeiras\t54\t54\t7\t1\tBrasil\tSérie A\n1\tCOACH-TITE\tTite\tminifaces/t.png\t1\tOutro\t54\t54\t83\t2\tBrasil\tSérie B\n2\tCOACH-X\tX\tminifaces/x.png\t2\tBarcelona\t45\t45\t53\t1\tEspanha\tLaLiga\n");
+ assert(managerface::load(regional,rows));managerface::Filter filter;
+ assert((filter.visible(rows)==std::vector<int>{1,2,3}));
+ filter.grouped=true;filter.follow(rows,1);assert((filter.visible(rows)==std::vector<int>{1}));
+ assert(filter.options(rows,0).size()==2&&filter.options(rows,1).size()==2);
+ assert(filter.cycle(rows,1,1)==2&&filter.league==83);assert(filter.cycle(rows,1,-1)==1&&filter.league==7);
+ assert(filter.cycle(rows,0,1)==3&&filter.country==45&&filter.league==53);
+ filter.grouped=false;assert(filter.visible(rows).size()==3);
+ assert(managerface::scrollFirst(10,0,14,5)==6&&managerface::scrollFirst(0,6,14,5)==0);
 }

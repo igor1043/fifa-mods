@@ -2,6 +2,7 @@
 from pathlib import Path
 from contextlib import closing
 import hashlib,json,sqlite3
+from urllib.parse import quote
 
 NAME='server16_manager_appearance.sqlite3'
 SCHEMA='''CREATE TABLE IF NOT EXISTS appearances(
@@ -16,10 +17,21 @@ def snapshot(save):
     return digest
 
 
+def readonly_uri(path):
+    # Native save events may contain the Windows extended-length prefix.
+    # Path.as_uri treats its '?' as a UNC authority, rejected by SQLite.
+    value=str(Path(path).resolve())
+    if value.startswith('\\\\?\\UNC\\'):value='\\\\'+value[8:]
+    elif value.startswith('\\\\?\\'):value=value[4:]
+    value=value.replace('\\','/')
+    if len(value)>1 and value[1]==':':value='/'+value
+    return 'file://'+quote(value,safe='/:')+'?mode=ro'
+
+
 def load_record(save,digest):
     file=Path(save).parent/NAME
     if not file.is_file():return None
-    with closing(sqlite3.connect(file.resolve().as_uri()+'?mode=ro',uri=True,timeout=1)) as db:
+    with closing(sqlite3.connect(readonly_uri(file),uri=True,timeout=1)) as db:
         row=db.execute('SELECT coach,asset FROM appearances WHERE digest=?',(digest,)).fetchone()
     return dict(coach=row[0],asset=row[1]) if row else None
 

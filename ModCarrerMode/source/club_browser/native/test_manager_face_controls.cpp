@@ -2,6 +2,7 @@
 #include <iostream>
 #include "render.cpp"
 static DWORD WINAPI noPad(DWORD,XINPUT_STATE* state){*state={};return ERROR_SUCCESS;}
+static DWORD WINAPI secondPad(DWORD i,XINPUT_STATE* state){*state={};if(i==1)state->Gamepad.sThumbLY=24000;return i<2?ERROR_SUCCESS:ERROR_DEVICE_NOT_CONNECTED;}
 int wmain(int argc,wchar_t**argv){
  assert(argc==2);readPad=noPad;
  managerface::ValueRect rect;assert(rect.parse("row:487,284,390,24"));
@@ -15,11 +16,27 @@ int wmain(int argc,wchar_t**argv){
  assert(a.pan==-.45f&&a.zoom==.65f);a.update(0,0,0,120,.016f);assert(a.zoom>.65f);
  managerFace.game=argv[1];managerFace.choices={{0,"","Padrão do FIFA",""},{383,"COACH-ABEL","Abel Ferreira","minifaces/abel.png"},{1,"COACH-TITE","Tite","minifaces/tite.png"}};
  managerFace.command("begin");assert(managerFace.preferenceName()==L"Padrão do FIFA");
- managerFace.command("open");managerFace.select(1);managerFace.command("confirm");assert(managerFace.preferenceName()==L"Abel Ferreira");
+ managerFace.command("open");assert(managerFace.selected==1);assert((managerFace.visible()==std::vector<int>{1,2}));managerFace.select(1);managerFace.command("confirm");assert(managerFace.preferenceName()==L"Abel Ferreira");
  managerFace.command("open");managerFace.select(2);managerFace.command("cancel");assert(managerFace.preferenceName()==L"Abel Ferreira");
  managerFace.command("open");managerFace.select(2);managerFace.command("confirm");assert(managerFace.preferenceName()==L"Tite");
  managerFace.command("row:487,284,390,24");assert(managerFace.valueRect.valid);managerFace.command("row_focus");assert(managerFace.valueHighlighted);managerFace.command("row_hide");assert(!managerFace.valueRect.valid);
  managerFace.command("open");clubscene::playerPan=.4f;clubscene::playerZoom=2;clubscene::playerAngle=1;managerFace.command("center");assert(clubscene::playerPan==0&&clubscene::playerZoom==1&&clubscene::playerAngle==0);
+ readPad=secondPad;auto controller=managerFacePad();assert(controller.Gamepad.sThumbLY==24000);
+ managerFace.select(1);managerFace.filter.focus=3;managerFace.command("down");assert(managerFace.selected==2&&managerFace.filter.focus==3);
+ XINPUT_GAMEPAD onlyLeft{};onlyLeft.sThumbLX=24000;onlyLeft.sThumbLY=-24000;
+ auto axes=managerFaceCameraAxes(onlyLeft);assert(axes.turn==0&&axes.vertical==0&&axes.zoom==0);
+ onlyLeft.wButtons=XINPUT_GAMEPAD_LEFT_SHOULDER|XINPUT_GAMEPAD_RIGHT_SHOULDER;
+ axes=managerFaceCameraAxes(onlyLeft);assert(axes.turn==0&&axes.vertical==0&&axes.zoom==0);
+ onlyLeft.sThumbRX=24000;onlyLeft.sThumbRY=-24000;onlyLeft.bRightTrigger=255;
+ axes=managerFaceCameraAxes(onlyLeft);assert(axes.turn>0&&axes.vertical<0&&axes.zoom==1);
+ onlyLeft.bRightTrigger=0;onlyLeft.bLeftTrigger=255;assert(managerFaceCameraAxes(onlyLeft).zoom==-1);
+ onlyLeft.bLeftTrigger=20;onlyLeft.sThumbRX=3000;onlyLeft.sThumbRY=-3000;
+ axes=managerFaceCameraAxes(onlyLeft);assert(axes.turn==0&&axes.vertical==0&&axes.zoom==0);
+ readPad=noPad;managerFace.command("mode_league");assert(managerFace.filter.grouped);managerFace.command("mode_all");assert(!managerFace.filter.grouped);
+ managerFace.command("up");assert(managerFace.selected==1&&managerFace.filter.focus==3);managerFace.command("up");assert(managerFace.filter.focus==0);
+ managerFace.command("right");assert(managerFace.filter.grouped&&managerFace.filter.focus==1);
+ managerFace.command("down");assert(managerFace.filter.focus==2);managerFace.command("down");assert(managerFace.filter.focus==3);
+ assert(clubscene::playerPan==0&&clubscene::playerZoom==1&&clubscene::playerAngle==0);
  managerFace.command("cancel");std::cout<<"PASS native face value, confirmation/cancellation, native row bounds and frame-independent camera controls\n";
  // A still-loading old animation may never block the native rendering thread.
  std::promise<std::shared_ptr<clubanim::Clip>> pending;managerFace.clip=pending.get_future();
