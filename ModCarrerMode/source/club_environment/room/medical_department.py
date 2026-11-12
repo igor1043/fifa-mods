@@ -45,7 +45,10 @@ def prepare(game,context,read_asset,add,identity):
     tex=texture(game,injury_board(context,read_asset,page),'medical_injuries',mipmaps=False)
     add(key+'_'+str(page),spec['model'],tex,'v3_cm',identity,submesh=binding['submesh'],page=page,pages=pages,bank=0)
    continue
-  if material.startswith('board_'):
+  if material=='floor':
+   from room_v3 import floor_texture
+   tex=floor_texture(context,game);texname='v3_cm'
+  elif material.startswith('board_'):
    board=material[6:]
    tex=spec['posters'][board] if board in spec['posters'] else texture(game,images[board],'medical_'+board,mipmaps=False)
    texname='medical_cm' if board in spec['posters'] else 'v3_cm'

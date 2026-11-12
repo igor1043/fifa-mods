@@ -1,0 +1,80 @@
+{
+  "schema": 1,
+  "name": "Ajax",
+  "collection": "club-identity-20261111",
+  "concept": "white dominant broad central red band and clean Dutch architectural linework",
+  "assets": {
+    "wall_mural": "wall-mural.png",
+    "backing": "locker-backing.png",
+    "hydration_wall": "hydration-wall.png",
+    "corner": "corner-panel.png",
+    "cabinet": "locker-frame.png",
+    "fascia_back_left": "fascia-back-left.png",
+    "fascia_back_right": "fascia-back-right.png",
+    "fascia_left": "fascia-left.png",
+    "fascia_right": "fascia-right.png"
+  },
+  "defaults": {
+    "style": "custom",
+    "backs": "custom",
+    "finish": "custom",
+    "fascia": "custom"
+  },
+  "theme": {
+    "banner": {
+      "base": "#E9EBE6",
+      "accent": "#BC2934",
+      "lines": [
+        "AJAX AMSTERDAM",
+        "WIJ ZIJN AJAX",
+        "VOOR ALTIJD AJAX",
+        "DE GODENZONEN"
+      ],
+      "panels": [
+        {
+          "mode": "image",
+          "asset_key": "fascia_back_left"
+        },
+        {
+          "mode": "image",
+          "asset_key": "fascia_back_right"
+        },
+        {
+          "mode": "image",
+          "asset_key": "fascia_left"
+        },
+        {
+          "mode": "image",
+          "asset_key": "fascia_right"
+        }
+      ],
+      "club_style": "ajax"
+    }
+  },
+  "surface_layout_revision": 5,
+  "surface_image_revision": 3,
+  "artwork": {
+    "tool": "image_gen built-in",
+    "original_copy": true,
+    "collection": "club-identity-20261111",
+    "roles": [
+      "wall_mural",
+      "backing",
+      "hydration_wall"
+    ],
+    "club_id": 245,
+    "supplement": {
+      "cabinet": "native club-color finish",
+      "corner": "image_gen built-in",
+      "fascia": "Four club-specific authored banks: identity, nickname and supporter phrases",
+      "roles": [
+        "cabinet",
+        "corner",
+        "fascia_back_left",
+        "fascia_back_right",
+        "fascia_left",
+        "fascia_right"
+      ]
+    }
+  }
+}

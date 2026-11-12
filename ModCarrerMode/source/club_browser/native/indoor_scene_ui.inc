@@ -1,11 +1,21 @@
 // Shared, crisp native HUD. Loading uses the real component progress; no
 // animated cards, texture repaints or synthetic countdowns are involved.
 using Microsoft::WRL::ComPtr;
+std::wstring indoorPreparationLabel(const scene_loading::Status&s){
+ switch(scene_loading::roomStage(s)){
+  case 2:return L"Lendo os dados do clube…";
+  case 3:return L"Preparando uniformes e jogadores…";
+  case 4:return L"Preparando modelos e texturas…";
+  case 5:return L"Montando os ambientes…";
+  case 6:return L"Carregando os recursos 3D…";
+  default:return L"Aguarde, iniciando o carregamento…";
+ }
+}
 void indoorProgress(ID3D11DeviceContext*c,const scene_loading::Status&s,float x,float y,float width,int&label){
  const float progress=scene_loading::progress(s);renderer.rectangle(c,x,y,width,9,0xffece7dc);
  if(progress>=0)renderer.rectangle(c,x,y,width*progress,9,uitheme::accent());
  else {const float segment=width*.2f,offset=float(GetTickCount64()%1800)/1800*(width-segment);renderer.rectangle(c,x+offset,y,segment,9,uitheme::accent());}
- std::wstring text=s.error?L"Volte e entre novamente":s.ready?L"Pronto":progress<0?L"Preparando os dados do clube…":s.loaded>=s.total?L"Finalizando a cena…":std::to_wstring(s.loaded)+L" de "+std::to_wstring(s.total)+L" recursos carregados · "+std::to_wstring(int(progress*100))+L"%";
+ std::wstring text=s.error?L"Volte e entre novamente":s.ready?L"Pronto":(s.variant&scene_loading::RoomPreparation)?indoorPreparationLabel(s):progress<0?L"Preparando os dados do clube…":s.loaded>=s.total?L"Finalizando a cena…":std::to_wstring(s.loaded)+L" de "+std::to_wstring(s.total)+L" recursos carregados · "+std::to_wstring(int(progress*100))+L"%";
  renderer.label(c,label++,text,x,y+20,int(width),32,21,RGB(126,105,67),true);
 }
 void drawIndoorLoading(ID3D11DeviceContext* context,const scene_loading::Status&status,const std::wstring&name,bool trophy){
@@ -22,7 +32,12 @@ void drawIndoorLoading(ID3D11DeviceContext* context,const scene_loading::Status&
   renderer.label(context,label++,std::to_wstring(percent)+L"%",x+26,y+112,518,34,25,RGB(126,105,67),true);
   renderer.rectangle(context,x+26,y+154,w-52,8,0xffece7dc);
   if(progress>=0)renderer.rectangle(context,x+26,y+154,(w-52)*progress,8,uitheme::accent());
-  renderer.label(context,label++,status.error?L"Volte e tente novamente":!status.total?L"Aguarde, preparando os dados do clube…":status.loaded>=status.total?L"Finalizando a cena…":std::to_wstring(status.loaded)+L" de "+std::to_wstring(status.total)+L" recursos carregados",x+26,y+171,518,25,18,RGB(105,121,129),true);
+  if(status.variant&scene_loading::RoomPreparation){
+   const float span=(w-52)*.10f,travel=(w-52)-span;
+   const float offset=float(GetTickCount64()%1600)/1600*travel;
+   renderer.rectangle(context,x+26+offset,y+154,span,8,0xffcfbc8c);
+  }
+  renderer.label(context,label++,status.error?L"Volte e tente novamente":(status.variant&scene_loading::RoomPreparation)?indoorPreparationLabel(status):!status.total?L"Aguarde, preparando os dados do clube…":status.loaded>=status.total?L"Finalizando a cena…":std::to_wstring(status.loaded)+L" de "+std::to_wstring(status.total)+L" recursos carregados",x+26,y+171,518,25,18,RGB(105,121,129),true);
 }
 void drawRoomBackgroundLoading(ID3D11DeviceContext* context,const scene_loading::Status&status){
  // Keep this above the hub, while its native image provider covers the scene.

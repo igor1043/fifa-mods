@@ -16,5 +16,13 @@ int main(){
  s.ready=1;assert(scene_loading::secondsRemaining(s)==0);
  s.ready=0;s.loaded=100;s.elapsedMs=1000;assert(scene_loading::secondsRemaining(s)==0);
  s.loaded=1;s.elapsedMs=10000000000ULL;assert(scene_loading::secondsRemaining(s)==86400);
+ // Preparing the career/PNG art has no native resource count yet. Report
+ // measured milestones and activity, then reserve completion for native ready.
+ s={};s.variant=scene_loading::RoomPreparation|(2<<8);
+ assert(std::abs(scene_loading::progress(s)-.20f)<.00001f);
+ s.variant=scene_loading::RoomPreparation|(5<<8);assert(std::abs(scene_loading::progress(s)-.70f)<.00001f);
+ s.variant=scene_loading::RoomPreparation|(6<<8);s.total=200;s.loaded=100;
+ assert(std::abs(scene_loading::progress(s)-.895f)<.00001f);
+ s.loaded=200;assert(scene_loading::progress(s)<1.f);s.ready=1;assert(scene_loading::progress(s)==1.f);
  std::cout<<"PASS loading ETA: unknown before measured progress, proportional estimate, bounded and completed states\n";
 }

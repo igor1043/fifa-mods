@@ -65,6 +65,9 @@ def geometry(include_annex=True):
     solid('metal', (-849., 1000.2, z - 77.4), (-838.8, 1000.8, z + 77.4))
     # Sign backing is proud of the wall, with no coplanar texture layers.
     solid('frame', (-846., 1248., z - 74.), (-842.3, 1276., z + 74.))
+    from room_fitted_shell import SIDE_SHIFT
+    for shapes in groups.values():
+        for vertices,_ in shapes:vertices['p'][:,0]+=SIDE_SHIFT
     if include_annex:
         from room_annex_doors import geometry as annex_geometry
         for key,shapes in annex_geometry().items():groups.setdefault(key,[]).extend(shapes)

@@ -1,0 +1,73 @@
+{
+  "schema": 1,
+  "name": "Jabaquara",
+  "collection": "friends-club-art-20261111",
+  "concept": "rich red and warm yellow, an elegant powerful lion in engraved line art, Santos port cranes and coastal waves, Spanish heritage in restrained ornamental geometry; never Santos FC symbols",
+  "assets": {
+    "corner": "corner-panel.png",
+    "wall_mural": "wall-mural.png",
+    "backing": "locker-backing.png",
+    "feature_wall": "feature-wall.png",
+    "hydration_wall": "hydration-wall.png",
+    "cabinet": "locker-frame.png",
+    "fascia_back_left": "fascia-back-left.png",
+    "fascia_back_right": "fascia-back-right.png",
+    "fascia_left": "fascia-left.png",
+    "fascia_right": "fascia-right.png"
+  },
+  "defaults": {
+    "style": "custom",
+    "finish": "custom",
+    "backs": "custom",
+    "fascia": "custom"
+  },
+  "theme": {
+    "banner": {
+      "base": "#C71824",
+      "accent": "#E7BB24",
+      "lines": [
+        "JABAQUARA ATLÉTICO CLUBE",
+        "ARRIBA JABUCA!",
+        "JABAQUARA DE SANTOS",
+        "PAIXÃO RUBRO-AMARELA"
+      ],
+      "panels": [
+        {
+          "mode": "image",
+          "asset_key": "fascia_back_left"
+        },
+        {
+          "mode": "image",
+          "asset_key": "fascia_back_right"
+        },
+        {
+          "mode": "image",
+          "asset_key": "fascia_left"
+        },
+        {
+          "mode": "image",
+          "asset_key": "fascia_right"
+        }
+      ]
+    }
+  },
+  "surface_layout_revision": 5,
+  "surface_image_revision": 1,
+  "artwork": {
+    "tool": "image_gen built-in",
+    "original_copy": true,
+    "club_id": 130127,
+    "collection": "friends-club-art-20261111",
+    "roles": [
+      "corner",
+      "wall_mural",
+      "feature_wall",
+      "backing",
+      "hydration_wall"
+    ],
+    "supplement": {
+      "cabinet": "Existing native club-color graphic system",
+      "fascia": "Native type composition, four independently authored club strips"
+    }
+  }
+}

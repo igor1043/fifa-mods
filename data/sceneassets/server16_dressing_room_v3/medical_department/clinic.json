@@ -1,8 +1,8 @@
 {
   "schema": 1,
   "revision": 1,
-  "root": "data/sceneassets/server16_dressing_room_v3/medical_department/r1_8bae77079bcdb5/",
-  "model": "data/sceneassets/server16_dressing_room_v3/medical_department/r1_8bae77079bcdb5/medical_room_r77.rx3",
+  "root": "data/sceneassets/server16_dressing_room_v3/medical_department/r1_14151fd2b00f48/",
+  "model": "data/sceneassets/server16_dressing_room_v3/medical_department/r1_14151fd2b00f48/medical_room_r77.rx3",
   "bindings": [
     {
       "material": "clinical_flat",
@@ -10,57 +10,62 @@
       "batch": "clinical_flat_0"
     },
     {
-      "material": "board_injuries",
+      "material": "floor",
       "submesh": "room_part_2",
+      "batch": "floor_0"
+    },
+    {
+      "material": "board_injuries",
+      "submesh": "room_part_3",
       "batch": "board_injuries_0"
     },
     {
       "material": "board_summary",
-      "submesh": "room_part_3",
+      "submesh": "room_part_4",
       "batch": "board_summary_0"
     },
     {
       "material": "board_followup",
-      "submesh": "room_part_4",
+      "submesh": "room_part_5",
       "batch": "board_followup_0"
     },
     {
       "material": "board_knee",
-      "submesh": "room_part_5",
+      "submesh": "room_part_6",
       "batch": "board_knee_0"
     },
     {
       "material": "board_spine",
-      "submesh": "room_part_6",
+      "submesh": "room_part_7",
       "batch": "board_spine_0"
     },
     {
       "material": "board_identity",
-      "submesh": "room_part_7",
+      "submesh": "room_part_8",
       "batch": "board_identity_0"
     },
     {
       "material": "board_door_medical",
-      "submesh": "room_part_8",
+      "submesh": "room_part_9",
       "batch": "board_door_medical_0"
     },
     {
       "material": "board_door_coach",
-      "submesh": "room_part_9",
+      "submesh": "room_part_10",
       "batch": "board_door_coach_0"
     }
   ],
   "materials": {
-    "clinical_flat": "data/sceneassets/server16_dressing_room_v3/medical_department/r1_8bae77079bcdb5/clinical_palette.rx3"
+    "clinical_flat": "data/sceneassets/server16_dressing_room_v3/medical_department/r1_14151fd2b00f48/clinical_palette.rx3"
   },
   "posters": {
-    "knee": "data/sceneassets/server16_dressing_room_v3/medical_department/r1_8bae77079bcdb5/knee_poster.rx3",
-    "spine": "data/sceneassets/server16_dressing_room_v3/medical_department/r1_8bae77079bcdb5/spine_poster.rx3"
+    "knee": "data/sceneassets/server16_dressing_room_v3/medical_department/r1_14151fd2b00f48/knee_poster.rx3",
+    "spine": "data/sceneassets/server16_dressing_room_v3/medical_department/r1_14151fd2b00f48/spine_poster.rx3"
   },
   "cardio": [
     {
       "name": "treadmill",
-      "model": "data/sceneassets/server16_dressing_room_v3/medical_department/r1_8bae77079bcdb5/treadmill.rx3",
+      "model": "data/sceneassets/server16_dressing_room_v3/medical_department/r1_14151fd2b00f48/treadmill.rx3",
       "bindings": [
         {
           "material": "clinical_flat",
@@ -83,7 +88,7 @@
     },
     {
       "name": "bicycle",
-      "model": "data/sceneassets/server16_dressing_room_v3/medical_department/r1_8bae77079bcdb5/bicycle.rx3",
+      "model": "data/sceneassets/server16_dressing_room_v3/medical_department/r1_14151fd2b00f48/bicycle.rx3",
       "bindings": [
         {
           "material": "clinical_flat",
@@ -108,8 +113,8 @@
   "imported": [
     {
       "key": "medical_import_bottle_0_0",
-      "model": "data/sceneassets/server16_dressing_room_v3/medical_department/r1_8bae77079bcdb5/bottle_0.rx3",
-      "texture": "data/sceneassets/server16_dressing_room_v3/medical_department/r1_8bae77079bcdb5/bottle_color_0.rx3",
+      "model": "data/sceneassets/server16_dressing_room_v3/medical_department/r1_14151fd2b00f48/bottle_0.rx3",
+      "texture": "data/sceneassets/server16_dressing_room_v3/medical_department/r1_14151fd2b00f48/bottle_color_0.rx3",
       "texname": "medical_cm",
       "submesh": "gallery_part_1",
       "alpha": false,
@@ -117,8 +122,8 @@
     },
     {
       "key": "medical_import_bottle_1_0",
-      "model": "data/sceneassets/server16_dressing_room_v3/medical_department/r1_8bae77079bcdb5/bottle_1.rx3",
-      "texture": "data/sceneassets/server16_dressing_room_v3/medical_department/r1_8bae77079bcdb5/bottle_color_1.rx3",
+      "model": "data/sceneassets/server16_dressing_room_v3/medical_department/r1_14151fd2b00f48/bottle_1.rx3",
+      "texture": "data/sceneassets/server16_dressing_room_v3/medical_department/r1_14151fd2b00f48/bottle_color_1.rx3",
       "texname": "medical_cm",
       "submesh": "gallery_part_1",
       "alpha": false,
@@ -126,8 +131,8 @@
     },
     {
       "key": "medical_import_bottle_2_0",
-      "model": "data/sceneassets/server16_dressing_room_v3/medical_department/r1_8bae77079bcdb5/bottle_2.rx3",
-      "texture": "data/sceneassets/server16_dressing_room_v3/medical_department/r1_8bae77079bcdb5/import_97c3da3eddb5ef.rx3",
+      "model": "data/sceneassets/server16_dressing_room_v3/medical_department/r1_14151fd2b00f48/bottle_2.rx3",
+      "texture": "data/sceneassets/server16_dressing_room_v3/medical_department/r1_14151fd2b00f48/import_97c3da3eddb5ef.rx3",
       "texname": "medical_cm",
       "submesh": "gallery_part_1",
       "alpha": false,
@@ -135,8 +140,8 @@
     },
     {
       "key": "medical_import_cooler_0_0",
-      "model": "data/sceneassets/server16_dressing_room_v3/medical_department/r1_8bae77079bcdb5/cooler_0.rx3",
-      "texture": "data/sceneassets/server16_dressing_room_v3/medical_department/r1_8bae77079bcdb5/import_690d558682d30d.rx3",
+      "model": "data/sceneassets/server16_dressing_room_v3/medical_department/r1_14151fd2b00f48/cooler_0.rx3",
+      "texture": "data/sceneassets/server16_dressing_room_v3/medical_department/r1_14151fd2b00f48/import_690d558682d30d.rx3",
       "texname": "medical_cm",
       "submesh": "gallery_part_1",
       "alpha": false,
@@ -144,8 +149,8 @@
     },
     {
       "key": "medical_import_cooler_1_0",
-      "model": "data/sceneassets/server16_dressing_room_v3/medical_department/r1_8bae77079bcdb5/cooler_1.rx3",
-      "texture": "data/sceneassets/server16_dressing_room_v3/medical_department/r1_8bae77079bcdb5/import_690d558682d30d.rx3",
+      "model": "data/sceneassets/server16_dressing_room_v3/medical_department/r1_14151fd2b00f48/cooler_1.rx3",
+      "texture": "data/sceneassets/server16_dressing_room_v3/medical_department/r1_14151fd2b00f48/import_690d558682d30d.rx3",
       "texname": "medical_cm",
       "submesh": "gallery_part_1",
       "alpha": false,
@@ -153,8 +158,8 @@
     },
     {
       "key": "medical_import_cooler_2_0",
-      "model": "data/sceneassets/server16_dressing_room_v3/medical_department/r1_8bae77079bcdb5/cooler_2.rx3",
-      "texture": "data/sceneassets/server16_dressing_room_v3/medical_department/r1_8bae77079bcdb5/import_690d558682d30d.rx3",
+      "model": "data/sceneassets/server16_dressing_room_v3/medical_department/r1_14151fd2b00f48/cooler_2.rx3",
+      "texture": "data/sceneassets/server16_dressing_room_v3/medical_department/r1_14151fd2b00f48/import_690d558682d30d.rx3",
       "texname": "medical_cm",
       "submesh": "gallery_part_1",
       "alpha": false,
@@ -162,8 +167,8 @@
     },
     {
       "key": "medical_import_cooler_3_0",
-      "model": "data/sceneassets/server16_dressing_room_v3/medical_department/r1_8bae77079bcdb5/cooler_3.rx3",
-      "texture": "data/sceneassets/server16_dressing_room_v3/medical_department/r1_8bae77079bcdb5/import_690d558682d30d.rx3",
+      "model": "data/sceneassets/server16_dressing_room_v3/medical_department/r1_14151fd2b00f48/cooler_3.rx3",
+      "texture": "data/sceneassets/server16_dressing_room_v3/medical_department/r1_14151fd2b00f48/import_690d558682d30d.rx3",
       "texname": "medical_cm",
       "submesh": "gallery_part_1",
       "alpha": false,
@@ -171,8 +176,8 @@
     },
     {
       "key": "medical_import_cooler_4_0",
-      "model": "data/sceneassets/server16_dressing_room_v3/medical_department/r1_8bae77079bcdb5/cooler_4.rx3",
-      "texture": "data/sceneassets/server16_dressing_room_v3/medical_department/r1_8bae77079bcdb5/import_690d558682d30d.rx3",
+      "model": "data/sceneassets/server16_dressing_room_v3/medical_department/r1_14151fd2b00f48/cooler_4.rx3",
+      "texture": "data/sceneassets/server16_dressing_room_v3/medical_department/r1_14151fd2b00f48/import_690d558682d30d.rx3",
       "texname": "medical_cm",
       "submesh": "gallery_part_1",
       "alpha": false,
@@ -180,8 +185,8 @@
     },
     {
       "key": "medical_fitness_0_0",
-      "model": "data/sceneassets/server16_dressing_room_v3/medical_department/r1_8bae77079bcdb5/fitness_batch_0.rx3",
-      "texture": "data/sceneassets/server16_dressing_room_v3/medical_department/r1_8bae77079bcdb5/import_246d731eadf7f6.rx3",
+      "model": "data/sceneassets/server16_dressing_room_v3/medical_department/r1_14151fd2b00f48/fitness_batch_0.rx3",
+      "texture": "data/sceneassets/server16_dressing_room_v3/medical_department/r1_14151fd2b00f48/import_246d731eadf7f6.rx3",
       "texname": "medical_cm",
       "submesh": "gallery_part_1",
       "alpha": false,
@@ -191,48 +196,48 @@
   "office": [
     {
       "key": "medical_coach_pes_desk_assembly_3_5_0",
-      "model": "data/sceneassets/server16_dressing_room_v3/medical_department/r1_8bae77079bcdb5/coach_pes_desk_assembly_3_5.rx3",
-      "texture": "data/sceneassets/server16_dressing_room_v3/medical_department/r1_8bae77079bcdb5/office_7f06b074c0602f.rx3",
+      "model": "data/sceneassets/server16_dressing_room_v3/medical_department/r1_14151fd2b00f48/coach_pes_desk_assembly_3_5.rx3",
+      "texture": "data/sceneassets/server16_dressing_room_v3/medical_department/r1_14151fd2b00f48/office_7f06b074c0602f.rx3",
       "texname": "office_cm",
       "submesh": "gallery_part_1",
       "alpha": true
     },
     {
       "key": "medical_coach_pes_desk_assembly_atlas_0_0",
-      "model": "data/sceneassets/server16_dressing_room_v3/medical_department/r1_8bae77079bcdb5/coach_pes_desk_assembly_atlas_0.rx3",
-      "texture": "data/sceneassets/server16_dressing_room_v3/medical_department/r1_8bae77079bcdb5/office_bb3547977d04a8.rx3",
+      "model": "data/sceneassets/server16_dressing_room_v3/medical_department/r1_14151fd2b00f48/coach_pes_desk_assembly_atlas_0.rx3",
+      "texture": "data/sceneassets/server16_dressing_room_v3/medical_department/r1_14151fd2b00f48/office_bb3547977d04a8.rx3",
       "texname": "office_cm",
       "submesh": "gallery_part_1",
       "alpha": false
     },
     {
       "key": "medical_coach_pes_desk_assembly_12_9_0",
-      "model": "data/sceneassets/server16_dressing_room_v3/medical_department/r1_8bae77079bcdb5/coach_pes_desk_assembly_12_9.rx3",
-      "texture": "data/sceneassets/server16_dressing_room_v3/medical_department/r1_8bae77079bcdb5/office_9c0d83014b61a7.rx3",
+      "model": "data/sceneassets/server16_dressing_room_v3/medical_department/r1_14151fd2b00f48/coach_pes_desk_assembly_12_9.rx3",
+      "texture": "data/sceneassets/server16_dressing_room_v3/medical_department/r1_14151fd2b00f48/office_9c0d83014b61a7.rx3",
       "texname": "office_cm",
       "submesh": "gallery_part_1",
       "alpha": false
     },
     {
       "key": "medical_office_3_0",
-      "model": "data/sceneassets/server16_dressing_room_v3/medical_department/r1_8bae77079bcdb5/office_batch_3.rx3",
-      "texture": "data/sceneassets/server16_dressing_room_v3/medical_department/r1_8bae77079bcdb5/office_0c19de20ef434b.rx3",
+      "model": "data/sceneassets/server16_dressing_room_v3/medical_department/r1_14151fd2b00f48/office_batch_3.rx3",
+      "texture": "data/sceneassets/server16_dressing_room_v3/medical_department/r1_14151fd2b00f48/office_0c19de20ef434b.rx3",
       "texname": "office_cm",
       "submesh": "gallery_part_1",
       "alpha": false
     },
     {
       "key": "medical_office_4_0",
-      "model": "data/sceneassets/server16_dressing_room_v3/medical_department/r1_8bae77079bcdb5/office_batch_4.rx3",
-      "texture": "data/sceneassets/server16_dressing_room_v3/medical_department/r1_8bae77079bcdb5/office_c9d61e321c8c25.rx3",
+      "model": "data/sceneassets/server16_dressing_room_v3/medical_department/r1_14151fd2b00f48/office_batch_4.rx3",
+      "texture": "data/sceneassets/server16_dressing_room_v3/medical_department/r1_14151fd2b00f48/office_c9d61e321c8c25.rx3",
       "texname": "office_cm",
       "submesh": "gallery_part_1",
       "alpha": false
     },
     {
       "key": "medical_coach_desktop_props_r2_0_0",
-      "model": "data/sceneassets/server16_dressing_room_v3/medical_department/r1_8bae77079bcdb5/coach_desktop_props_r2_0.rx3",
-      "texture": "data/sceneassets/server16_dressing_room_v3/medical_department/r1_8bae77079bcdb5/office_b9b94b0e4e4cca.rx3",
+      "model": "data/sceneassets/server16_dressing_room_v3/medical_department/r1_14151fd2b00f48/coach_desktop_props_r2_0.rx3",
+      "texture": "data/sceneassets/server16_dressing_room_v3/medical_department/r1_14151fd2b00f48/office_b9b94b0e4e4cca.rx3",
       "texname": "equipment_cm",
       "submesh": "gallery_part_1",
       "alpha": false
@@ -793,56 +798,56 @@
     ]
   },
   "required": [
-    "data/sceneassets/server16_dressing_room_v3/medical_department/r1_8bae77079bcdb5/MSH_AbWheel_0.rx3",
-    "data/sceneassets/server16_dressing_room_v3/medical_department/r1_8bae77079bcdb5/MSH_Bench_01_0.rx3",
-    "data/sceneassets/server16_dressing_room_v3/medical_department/r1_8bae77079bcdb5/MSH_DumbBell_01_0.rx3",
-    "data/sceneassets/server16_dressing_room_v3/medical_department/r1_8bae77079bcdb5/MSH_DumbBell_02_0.rx3",
-    "data/sceneassets/server16_dressing_room_v3/medical_department/r1_8bae77079bcdb5/MSH_KettleBell_01_0.rx3",
-    "data/sceneassets/server16_dressing_room_v3/medical_department/r1_8bae77079bcdb5/MSH_Plate_01_0.rx3",
-    "data/sceneassets/server16_dressing_room_v3/medical_department/r1_8bae77079bcdb5/MSH_Rack_01_0.rx3",
-    "data/sceneassets/server16_dressing_room_v3/medical_department/r1_8bae77079bcdb5/bicycle.rx3",
-    "data/sceneassets/server16_dressing_room_v3/medical_department/r1_8bae77079bcdb5/bottle_0.rx3",
-    "data/sceneassets/server16_dressing_room_v3/medical_department/r1_8bae77079bcdb5/bottle_1.rx3",
-    "data/sceneassets/server16_dressing_room_v3/medical_department/r1_8bae77079bcdb5/bottle_2.rx3",
-    "data/sceneassets/server16_dressing_room_v3/medical_department/r1_8bae77079bcdb5/bottle_color_0.rx3",
-    "data/sceneassets/server16_dressing_room_v3/medical_department/r1_8bae77079bcdb5/bottle_color_1.rx3",
-    "data/sceneassets/server16_dressing_room_v3/medical_department/r1_8bae77079bcdb5/clinical_palette.rx3",
-    "data/sceneassets/server16_dressing_room_v3/medical_department/r1_8bae77079bcdb5/coach_desktop_props_r2_0.rx3",
-    "data/sceneassets/server16_dressing_room_v3/medical_department/r1_8bae77079bcdb5/coach_guest_chairs_8_14_0.rx3",
-    "data/sceneassets/server16_dressing_room_v3/medical_department/r1_8bae77079bcdb5/coach_guest_chairs_atlas_0_0.rx3",
-    "data/sceneassets/server16_dressing_room_v3/medical_department/r1_8bae77079bcdb5/coach_pes_desk_assembly_12_9.rx3",
-    "data/sceneassets/server16_dressing_room_v3/medical_department/r1_8bae77079bcdb5/coach_pes_desk_assembly_3_5.rx3",
-    "data/sceneassets/server16_dressing_room_v3/medical_department/r1_8bae77079bcdb5/coach_pes_desk_assembly_atlas_0.rx3",
-    "data/sceneassets/server16_dressing_room_v3/medical_department/r1_8bae77079bcdb5/coach_pes_office_chair_8_14.rx3",
-    "data/sceneassets/server16_dressing_room_v3/medical_department/r1_8bae77079bcdb5/coach_pes_office_chair_atlas_0.rx3",
-    "data/sceneassets/server16_dressing_room_v3/medical_department/r1_8bae77079bcdb5/cooler_0.rx3",
-    "data/sceneassets/server16_dressing_room_v3/medical_department/r1_8bae77079bcdb5/cooler_1.rx3",
-    "data/sceneassets/server16_dressing_room_v3/medical_department/r1_8bae77079bcdb5/cooler_2.rx3",
-    "data/sceneassets/server16_dressing_room_v3/medical_department/r1_8bae77079bcdb5/cooler_3.rx3",
-    "data/sceneassets/server16_dressing_room_v3/medical_department/r1_8bae77079bcdb5/cooler_4.rx3",
-    "data/sceneassets/server16_dressing_room_v3/medical_department/r1_8bae77079bcdb5/fitness_batch_0.rx3",
-    "data/sceneassets/server16_dressing_room_v3/medical_department/r1_8bae77079bcdb5/import_246d731eadf7f6.rx3",
-    "data/sceneassets/server16_dressing_room_v3/medical_department/r1_8bae77079bcdb5/import_690d558682d30d.rx3",
-    "data/sceneassets/server16_dressing_room_v3/medical_department/r1_8bae77079bcdb5/import_97c3da3eddb5ef.rx3",
-    "data/sceneassets/server16_dressing_room_v3/medical_department/r1_8bae77079bcdb5/knee_poster.rx3",
-    "data/sceneassets/server16_dressing_room_v3/medical_department/r1_8bae77079bcdb5/medical_room_r77.rx3",
-    "data/sceneassets/server16_dressing_room_v3/medical_department/r1_8bae77079bcdb5/office_0c19de20ef434b.rx3",
-    "data/sceneassets/server16_dressing_room_v3/medical_department/r1_8bae77079bcdb5/office_7f06b074c0602f.rx3",
-    "data/sceneassets/server16_dressing_room_v3/medical_department/r1_8bae77079bcdb5/office_9c0d83014b61a7.rx3",
-    "data/sceneassets/server16_dressing_room_v3/medical_department/r1_8bae77079bcdb5/office_b9b94b0e4e4cca.rx3",
-    "data/sceneassets/server16_dressing_room_v3/medical_department/r1_8bae77079bcdb5/office_batch_3.rx3",
-    "data/sceneassets/server16_dressing_room_v3/medical_department/r1_8bae77079bcdb5/office_batch_4.rx3",
-    "data/sceneassets/server16_dressing_room_v3/medical_department/r1_8bae77079bcdb5/office_bb3547977d04a8.rx3",
-    "data/sceneassets/server16_dressing_room_v3/medical_department/r1_8bae77079bcdb5/office_c9d61e321c8c25.rx3",
-    "data/sceneassets/server16_dressing_room_v3/medical_department/r1_8bae77079bcdb5/spine_poster.rx3",
-    "data/sceneassets/server16_dressing_room_v3/medical_department/r1_8bae77079bcdb5/treadmill.rx3"
+    "data/sceneassets/server16_dressing_room_v3/medical_department/r1_14151fd2b00f48/MSH_AbWheel_0.rx3",
+    "data/sceneassets/server16_dressing_room_v3/medical_department/r1_14151fd2b00f48/MSH_Bench_01_0.rx3",
+    "data/sceneassets/server16_dressing_room_v3/medical_department/r1_14151fd2b00f48/MSH_DumbBell_01_0.rx3",
+    "data/sceneassets/server16_dressing_room_v3/medical_department/r1_14151fd2b00f48/MSH_DumbBell_02_0.rx3",
+    "data/sceneassets/server16_dressing_room_v3/medical_department/r1_14151fd2b00f48/MSH_KettleBell_01_0.rx3",
+    "data/sceneassets/server16_dressing_room_v3/medical_department/r1_14151fd2b00f48/MSH_Plate_01_0.rx3",
+    "data/sceneassets/server16_dressing_room_v3/medical_department/r1_14151fd2b00f48/MSH_Rack_01_0.rx3",
+    "data/sceneassets/server16_dressing_room_v3/medical_department/r1_14151fd2b00f48/bicycle.rx3",
+    "data/sceneassets/server16_dressing_room_v3/medical_department/r1_14151fd2b00f48/bottle_0.rx3",
+    "data/sceneassets/server16_dressing_room_v3/medical_department/r1_14151fd2b00f48/bottle_1.rx3",
+    "data/sceneassets/server16_dressing_room_v3/medical_department/r1_14151fd2b00f48/bottle_2.rx3",
+    "data/sceneassets/server16_dressing_room_v3/medical_department/r1_14151fd2b00f48/bottle_color_0.rx3",
+    "data/sceneassets/server16_dressing_room_v3/medical_department/r1_14151fd2b00f48/bottle_color_1.rx3",
+    "data/sceneassets/server16_dressing_room_v3/medical_department/r1_14151fd2b00f48/clinical_palette.rx3",
+    "data/sceneassets/server16_dressing_room_v3/medical_department/r1_14151fd2b00f48/coach_desktop_props_r2_0.rx3",
+    "data/sceneassets/server16_dressing_room_v3/medical_department/r1_14151fd2b00f48/coach_guest_chairs_8_14_0.rx3",
+    "data/sceneassets/server16_dressing_room_v3/medical_department/r1_14151fd2b00f48/coach_guest_chairs_atlas_0_0.rx3",
+    "data/sceneassets/server16_dressing_room_v3/medical_department/r1_14151fd2b00f48/coach_pes_desk_assembly_12_9.rx3",
+    "data/sceneassets/server16_dressing_room_v3/medical_department/r1_14151fd2b00f48/coach_pes_desk_assembly_3_5.rx3",
+    "data/sceneassets/server16_dressing_room_v3/medical_department/r1_14151fd2b00f48/coach_pes_desk_assembly_atlas_0.rx3",
+    "data/sceneassets/server16_dressing_room_v3/medical_department/r1_14151fd2b00f48/coach_pes_office_chair_8_14.rx3",
+    "data/sceneassets/server16_dressing_room_v3/medical_department/r1_14151fd2b00f48/coach_pes_office_chair_atlas_0.rx3",
+    "data/sceneassets/server16_dressing_room_v3/medical_department/r1_14151fd2b00f48/cooler_0.rx3",
+    "data/sceneassets/server16_dressing_room_v3/medical_department/r1_14151fd2b00f48/cooler_1.rx3",
+    "data/sceneassets/server16_dressing_room_v3/medical_department/r1_14151fd2b00f48/cooler_2.rx3",
+    "data/sceneassets/server16_dressing_room_v3/medical_department/r1_14151fd2b00f48/cooler_3.rx3",
+    "data/sceneassets/server16_dressing_room_v3/medical_department/r1_14151fd2b00f48/cooler_4.rx3",
+    "data/sceneassets/server16_dressing_room_v3/medical_department/r1_14151fd2b00f48/fitness_batch_0.rx3",
+    "data/sceneassets/server16_dressing_room_v3/medical_department/r1_14151fd2b00f48/import_246d731eadf7f6.rx3",
+    "data/sceneassets/server16_dressing_room_v3/medical_department/r1_14151fd2b00f48/import_690d558682d30d.rx3",
+    "data/sceneassets/server16_dressing_room_v3/medical_department/r1_14151fd2b00f48/import_97c3da3eddb5ef.rx3",
+    "data/sceneassets/server16_dressing_room_v3/medical_department/r1_14151fd2b00f48/knee_poster.rx3",
+    "data/sceneassets/server16_dressing_room_v3/medical_department/r1_14151fd2b00f48/medical_room_r77.rx3",
+    "data/sceneassets/server16_dressing_room_v3/medical_department/r1_14151fd2b00f48/office_0c19de20ef434b.rx3",
+    "data/sceneassets/server16_dressing_room_v3/medical_department/r1_14151fd2b00f48/office_7f06b074c0602f.rx3",
+    "data/sceneassets/server16_dressing_room_v3/medical_department/r1_14151fd2b00f48/office_9c0d83014b61a7.rx3",
+    "data/sceneassets/server16_dressing_room_v3/medical_department/r1_14151fd2b00f48/office_b9b94b0e4e4cca.rx3",
+    "data/sceneassets/server16_dressing_room_v3/medical_department/r1_14151fd2b00f48/office_batch_3.rx3",
+    "data/sceneassets/server16_dressing_room_v3/medical_department/r1_14151fd2b00f48/office_batch_4.rx3",
+    "data/sceneassets/server16_dressing_room_v3/medical_department/r1_14151fd2b00f48/office_bb3547977d04a8.rx3",
+    "data/sceneassets/server16_dressing_room_v3/medical_department/r1_14151fd2b00f48/office_c9d61e321c8c25.rx3",
+    "data/sceneassets/server16_dressing_room_v3/medical_department/r1_14151fd2b00f48/spine_poster.rx3",
+    "data/sceneassets/server16_dressing_room_v3/medical_department/r1_14151fd2b00f48/treadmill.rx3"
   ],
   "audit": [
     {
       "name": "medical_room_r77",
       "vertices": 22369,
       "triangles": 19316,
-      "materials": 9
+      "materials": 10
     },
     {
       "name": "treadmill",
@@ -922,7 +927,7 @@
   ],
   "model_records": [
     {
-      "model": "data/sceneassets/server16_dressing_room_v3/medical_department/r1_8bae77079bcdb5/medical_room_r77.rx3",
+      "model": "data/sceneassets/server16_dressing_room_v3/medical_department/r1_14151fd2b00f48/medical_room_r77.rx3",
       "bindings": [
         {
           "material": "clinical_flat",
@@ -930,49 +935,54 @@
           "batch": "clinical_flat_0"
         },
         {
-          "material": "board_injuries",
+          "material": "floor",
           "submesh": "room_part_2",
+          "batch": "floor_0"
+        },
+        {
+          "material": "board_injuries",
+          "submesh": "room_part_3",
           "batch": "board_injuries_0"
         },
         {
           "material": "board_summary",
-          "submesh": "room_part_3",
+          "submesh": "room_part_4",
           "batch": "board_summary_0"
         },
         {
           "material": "board_followup",
-          "submesh": "room_part_4",
+          "submesh": "room_part_5",
           "batch": "board_followup_0"
         },
         {
           "material": "board_knee",
-          "submesh": "room_part_5",
+          "submesh": "room_part_6",
           "batch": "board_knee_0"
         },
         {
           "material": "board_spine",
-          "submesh": "room_part_6",
+          "submesh": "room_part_7",
           "batch": "board_spine_0"
         },
         {
           "material": "board_identity",
-          "submesh": "room_part_7",
+          "submesh": "room_part_8",
           "batch": "board_identity_0"
         },
         {
           "material": "board_door_medical",
-          "submesh": "room_part_8",
+          "submesh": "room_part_9",
           "batch": "board_door_medical_0"
         },
         {
           "material": "board_door_coach",
-          "submesh": "room_part_9",
+          "submesh": "room_part_10",
           "batch": "board_door_coach_0"
         }
       ]
     },
     {
-      "model": "data/sceneassets/server16_dressing_room_v3/medical_department/r1_8bae77079bcdb5/treadmill.rx3",
+      "model": "data/sceneassets/server16_dressing_room_v3/medical_department/r1_14151fd2b00f48/treadmill.rx3",
       "bindings": [
         {
           "material": "clinical_flat",
@@ -982,7 +992,7 @@
       ]
     },
     {
-      "model": "data/sceneassets/server16_dressing_room_v3/medical_department/r1_8bae77079bcdb5/bicycle.rx3",
+      "model": "data/sceneassets/server16_dressing_room_v3/medical_department/r1_14151fd2b00f48/bicycle.rx3",
       "bindings": [
         {
           "material": "clinical_flat",

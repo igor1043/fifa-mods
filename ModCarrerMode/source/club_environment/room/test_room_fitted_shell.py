@@ -39,15 +39,16 @@ class FittedRoom(unittest.TestCase):
             self.assertEqual(expected,sorted(c[t].tobytes() for t in tri[mask]))
             self.assertTrue(np.isfinite(c['p']).all());self.assertLess(int(ind.max()),len(c))
 
-    def test_corridor_wall_is_split_instead_of_stretched_through_last_bay(self):
+    def test_service_wall_stays_straight_after_last_bay(self):
         lo,hi=(850,1000,-600),(862,1338,1542)
         template=portable_paths.GAME/room.OLD/'room_roles_r77.rx3'
         rx=Rx3(template.read_bytes());replace_mesh(rx,0,*box(lo,hi))
         shell.geometry(rx,'roles');v,ids=read_mesh(rx,0);p=v['p'][ids.reshape(-1,3)]
-        near=p[(p[:,:,2]<=shell.SIDE_END_Z+.001).all(1)]
-        far=p[(p[:,:,2]>shell.SIDE_END_Z+.001).all(1)]
+        near=p[(p[:,:,2]<=shell.CABINET_END_Z+.001).all(1)]
+        far=p[(p[:,:,2]>=shell.CABINET_END_Z-.001).all(1)]
         self.assertAlmostEqual(float(near[:,:,0].min()),shell.SIDE_INNER_X)
-        self.assertAlmostEqual(float(far[:,:,0].min()),850.)
+        self.assertAlmostEqual(float(far[:,:,0].min()),shell.SIDE_INNER_X)
+        self.assertEqual(shell.returns(),[])
         self.assertFalse(((np.ptp(p[:,:,0],axis=1)>.01)&(np.ptp(p[:,:,1],axis=1)>20)&(np.ptp(p[:,:,2],axis=1)>20)).any())
 
     def test_collision_follows_new_wall_and_retains_service_corridor_and_furniture(self):
@@ -57,8 +58,8 @@ class FittedRoom(unittest.TestCase):
         before=copy.deepcopy(original);result=shell.obstacles(original)
         self.assertEqual(original,before);self.assertIn(original[-1],result)
         parts=[o for o in result if o['name']=='Limite externo']
-        self.assertEqual(len(parts),2);self.assertEqual(parts[0]['lo'][0],shell.SIDE_INNER_X)
-        self.assertEqual(parts[1]['lo'][0],850.)
+        self.assertEqual(len(parts),1);self.assertEqual(parts[0]['lo'][0],shell.SIDE_INNER_X)
+        self.assertFalse(any('fitted wall return' in item['name'] for item in result))
         back=next(o for o in result if o['name']=='Sala / parede de fundo')
         self.assertEqual(back['hi'][2],shell.BACK_INNER_Z)
         for name in ('ball trolley','next match board'):

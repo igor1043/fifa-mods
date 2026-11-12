@@ -1909,7 +1909,9 @@
     "data/sceneassets/server16_dressing_room_v3/room_roles_793c26bc6f24ba.rx3": "data/sceneassets/server16_dressing_room_v3/pes_office/room_roles_aaeaea61c0d4ff.rx3",
     "data/sceneassets/server16_dressing_room_v3/interior_56741e79b96b44.rx3": "data/sceneassets/server16_dressing_room_v3/office_neutral/interior_30cfc1a8e8e4d5.rx3",
     "data/sceneassets/server16_dressing_room_v3/room_roles_bac53c13ff85bd.rx3": "data/sceneassets/server16_dressing_room_v3/pes_office/room_roles_b5a175cd4c50e6.rx3",
-    "data/sceneassets/server16_dressing_room_v3/interior_7f46a97d80e004.rx3": "data/sceneassets/server16_dressing_room_v3/office_neutral/interior_33a3cf1c34f899.rx3"
+    "data/sceneassets/server16_dressing_room_v3/interior_7f46a97d80e004.rx3": "data/sceneassets/server16_dressing_room_v3/office_neutral/interior_33a3cf1c34f899.rx3",
+    "data/sceneassets/server16_dressing_room_v3/room_roles_9ac8fdfc73ae26.rx3": "data/sceneassets/server16_dressing_room_v3/pes_office/room_roles_874a7cfc0b8511.rx3",
+    "data/sceneassets/server16_dressing_room_v3/interior_1beef40e5fbd42.rx3": "data/sceneassets/server16_dressing_room_v3/pes_office/interior_b48d1d593af564.rx3"
   },
   "shell_bindings": [
     {
@@ -1965,7 +1967,7 @@
   ],
   "palette_style": "coach_neutral",
   "scene_poses": {
-    "Sala do treinador \u00b7 vis\u00e3o geral": [
+    "Sala do treinador · visão geral": [
       150,
       178,
       1685,
@@ -1974,7 +1976,7 @@
       2260,
       83
     ],
-    "Sala do treinador \u00b7 quadro t\u00e1tico": [
+    "Sala do treinador · quadro tático": [
       0,
       180,
       2110,
@@ -1983,7 +1985,7 @@
       2350,
       67
     ],
-    "Sala do treinador \u00b7 desempenho": [
+    "Sala do treinador · desempenho": [
       420,
       175,
       2070,
@@ -1992,7 +1994,7 @@
       2070,
       53
     ],
-    "Sala do treinador \u00b7 mercado": [
+    "Sala do treinador · mercado": [
       0,
       177,
       1780,
@@ -2001,7 +2003,7 @@
       1780,
       52
     ],
-    "Sala do treinador \u00b7 destaques": [
+    "Sala do treinador · destaques": [
       0,
       177,
       2035,
@@ -2010,7 +2012,7 @@
       2035,
       56
     ],
-    "Sala do treinador \u00b7 classifica\u00e7\u00e3o": [
+    "Sala do treinador · classificação": [
       410,
       177,
       2370,

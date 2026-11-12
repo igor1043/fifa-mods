@@ -3,6 +3,7 @@
 #include "room_medical_paging.h"
 #include "room_sign_material.h"
 #include "room_loading_progress.h"
+#include "room_tour_loader.h"
 struct NativeRoomComponent {
  std::string key,type,model,submesh,texture,textureName;
  int medicalPage=-1,medicalPages=0,medicalBank=0;
@@ -75,15 +76,10 @@ unsigned snapshotClub(){
  return value("\"pid\"")==GetCurrentProcessId()?value("\"club\""):0;
 }
 bool loadTour(unsigned generation,unsigned club){
- std::ifstream f(folder/L"runtime/room_tour_r46.txt");std::string magic;unsigned ver=0,pid=0,id=0,stamp=0,n=0,boxes=0,paths=0,details=0,shirts=0,nav=0,extra=0;
- if(!(f>>magic>>ver>>pid>>id>>stamp>>n>>boxes>>paths>>details>>shirts>>nav>>extra)||magic!="S16TOUR"||ver!=5||pid!=GetCurrentProcessId()||id!=club||stamp!=generation||n>2||boxes>1024||paths!=8||details!=1||shirts>35||nav>32||extra>64)return false;
- room_cinema::Tour tour;
- auto vec=[&f](panorama::Vec&v){return bool(f>>v.x>>v.y>>v.z)&&std::isfinite(v.x)&&std::isfinite(v.y)&&std::isfinite(v.z)&&std::abs(v.x)<2000&&std::abs(v.y)<500&&std::abs(v.z)<3000;};
- for(unsigned i=0;i<n;++i){room_cinema::Focus q;if(!(f>>q.number)||(q.number!=9&&q.number!=10)||!vec(q.eye)||!vec(q.target))return false;tour.focus.push_back(q);}
- for(unsigned i=0;i<boxes;++i){room_cinema::Box b;if(!vec(b.lo)||!vec(b.hi)||b.lo.x>b.hi.x||b.lo.y>b.hi.y||b.lo.z>b.hi.z)return false;tour.obstacles.push_back(b);}
- for(unsigned i=0;i<paths+details;++i){panorama::Pose p;if(!vec(p.eye)||!vec(p.target)||!(f>>p.fov)||!std::isfinite(p.fov)||p.fov<40||p.fov>80)return false;(i<paths?tour.path:tour.details).push_back(p);}
- for(unsigned i=0;i<shirts;++i){room_cinema::Focus q;if(!(f>>q.number)||q.number>99||!vec(q.eye)||!vec(q.target))return false;tour.shirts.push_back(q);}
- for(unsigned i=0;i<nav+extra;++i){panorama::Pose p;if(!vec(p.eye)||!vec(p.target)||!(f>>p.fov)||!std::isfinite(p.fov)||p.fov<40||p.fov>80)return false;(i<nav?tour.nav:tour.extra).push_back(p);}
+ std::ifstream f(folder/L"runtime/room_tour_r46.txt");room_cinema::Tour tour;
+ if(!room_tour_loader::read(f,GetCurrentProcessId(),club,generation,tour)){
+  log("CAMERA_TOUR_REJECTED: retaining previous room; navigation and collisions must load together");return false;
+ }
  room_cinema::compile(tour);std::ifstream source(folder/L"runtime/room_tour_r46.txt");std::string header,body;std::getline(source,header);body.assign(std::istreambuf_iterator<char>(source),std::istreambuf_iterator<char>());uint64_t fingerprint=1469598103934665603ULL^club;for(unsigned char c:body){fingerprint^=c;fingerprint*=1099511628211ULL;}
  if(!roomTourVersion||fingerprint!=roomTourFingerprint){roomTour=std::move(tour);roomTourFingerprint=fingerprint;++roomTourVersion;}log("CAMERA_TOUR_LOADED: mesh obstacle bounds and save jersey 9/10");return true;
 }
@@ -107,6 +103,7 @@ bool loadComponents(){
   for(auto&m:c->matrices)for(float&v:m)if(!(f>>v)||!std::isfinite(v)||std::abs(v)>1000000.f)return false;
   c->type="server16_native_room_r60_"+std::to_string(generation)+"_"+std::to_string(i);prepared.push_back(std::move(c));
  }
+ if(!loadTour(generation,club))return false;
  hideComponents();
  for(auto&next:prepared)for(auto&old:components){
   if(old&&old->key==next->key&&old->model==next->model&&old->submesh==next->submesh&&old->texture==next->texture&&old->textureName==next->textureName&&old->alpha==next->alpha&&!old->failed){
@@ -114,7 +111,6 @@ bool loadComponents(){
   }
  }
  for(auto&c:components)if(c)retiredComponents.push_back(std::move(c));components=std::move(prepared);componentGeneration=generation;componentClub=club;
- loadTour(generation,club);
  log("NATIVE_COMPONENT_CONFIG_LOADED: original FIFA mesh/texture references, career club validated");return true;
 }
 bool createComponent(NativeRoomComponent&c){

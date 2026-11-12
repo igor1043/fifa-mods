@@ -27,7 +27,7 @@ PREFIX = 'data/sceneassets/server16_dressing_room_v3/'
 CONFIG = 'ModCarrerMode/data/club_environment/room/locker-system-v3.json'
 ACTIVE = 'ModCarrerMode/data/club_environment/room/active-version.txt'
 CAPACITY = 38
-REVISION = 20
+REVISION = 21
 FLOOR_TILE_CM = 60.
 TOE_KICK_BOTTOM, TOE_KICK_TOP, TOE_KICK_RECESS = 1000.5, 1002.5, .4
 CEILING_Y = 1338.
@@ -446,14 +446,15 @@ def ceiling_groups():
 def plain_wall_panels():
     """Cover the full two end walls; no club stripe or partial overlay seams."""
     from room_exit_door import CENTER_Z
+    from room_fitted_shell import SIDE_INNER_X
     parts=[]
     def face(x,lo,hi,bottom,top,normal):
         parts.append(panel([x,(bottom+top)/2,(lo+hi)/2],hi-lo,top-bottom,normal))
     # The closed exit and its frame stay in front, with a matching opening.
     for lo,hi in ((735.,CENTER_Z-85.),(CENTER_Z+85.,MAIN_END)):
-        face(-847.7,lo,hi,1000.,CEILING_Y,(1,0,0))
-    face(-847.7,CENTER_Z-85.,CENTER_Z+85.,1242.,CEILING_Y,(1,0,0))
-    face(847.7,735.,MAIN_END,1000.,CEILING_Y,(-1,0,0))
+        face(-SIDE_INNER_X+.05,lo,hi,1000.,CEILING_Y,(1,0,0))
+    face(-SIDE_INNER_X+.05,CENTER_Z-85.,CENTER_Z+85.,1242.,CEILING_Y,(1,0,0))
+    face(SIDE_INNER_X-.05,735.,MAIN_END,1000.,CEILING_Y,(-1,0,0))
     return parts
 
 
@@ -663,7 +664,8 @@ def empty_component(model, submesh, game):
 
 
 def texture(game, image, name,*,mipmaps=True):
-    from room_native_hanging_20261022 import texture_package
+    from room_native_hanging_20261022 import texture_package,native_texture_image
+    image=native_texture_image(image)
     policy=b'' if mipmaps else b'full-resolution-sign-v1'
     digest = hashlib.sha256(policy+str(image.size).encode()+image.tobytes()).hexdigest()[:14]
     relative = PREFIX + name + '_' + digest + '.rx3'

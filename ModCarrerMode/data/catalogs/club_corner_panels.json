@@ -1,0 +1,497 @@
+{
+  "schema": 1,
+  "role": "corner",
+  "surfaces": "two rear/side locker junctions",
+  "clubs": [
+    {
+      "path": "ModCarrerMode/data/club_environment/current_dressing_room/custom/1/corner-panel.png",
+      "bytes": 1637991,
+      "sha256": "8eaf0ddecfcca586b0c7f83d00301f06a1fc8da0b27786b689115f79e90cbb87",
+      "club_id": 1,
+      "club": "Arsenal"
+    },
+    {
+      "path": "ModCarrerMode/data/club_environment/current_dressing_room/custom/5/corner-panel.png",
+      "bytes": 1778581,
+      "sha256": "60c86ac001de4b73e9bcc7373574c8686bd34e21dea935e8be73d830036085ed",
+      "club_id": 5,
+      "club": "Chelsea"
+    },
+    {
+      "path": "ModCarrerMode/data/club_environment/current_dressing_room/custom/9/corner-panel.png",
+      "bytes": 2135037,
+      "sha256": "c4add738866da922b44da2333230d46a5bb8e1918f56d745f167670d4f6e79ba",
+      "club_id": 9,
+      "club": "Liverpool"
+    },
+    {
+      "path": "ModCarrerMode/data/club_environment/current_dressing_room/custom/10/corner-panel.png",
+      "bytes": 1798281,
+      "sha256": "06934bd741d7df34db5e01753e6e898b77073b9f5cad016950e33c5e8d61890b",
+      "club_id": 10,
+      "club": "Manchester City"
+    },
+    {
+      "path": "ModCarrerMode/data/club_environment/current_dressing_room/custom/11/corner-panel.png",
+      "bytes": 2177684,
+      "sha256": "aec9e35d77f5451db106666fe9c9d692639d907204e380bab6be4f6f82c2eee8",
+      "club_id": 11,
+      "club": "Manchester United"
+    },
+    {
+      "path": "ModCarrerMode/data/club_environment/current_dressing_room/custom/18/corner-panel.png",
+      "bytes": 1511137,
+      "sha256": "f2e32d4cfd3a0014d6bfa9f1c03d744ddfe7866bc59197e59b77946ce3b178a9",
+      "club_id": 18,
+      "club": "Tottenham Hotspur"
+    },
+    {
+      "path": "ModCarrerMode/data/club_environment/current_dressing_room/custom/21/corner-panel.png",
+      "bytes": 1630091,
+      "sha256": "16fda6d90c55679437f1649cbf865552df9c141121ce8c1ff37b9a204837fd62",
+      "club_id": 21,
+      "club": "Bayern München"
+    },
+    {
+      "path": "ModCarrerMode/data/club_environment/current_dressing_room/custom/22/corner-panel.png",
+      "bytes": 1514879,
+      "sha256": "36b73e1e3f8b9e4fc6ae03f5b2c14360509361d8b25f63f7a476c45f1de7dc81",
+      "club_id": 22,
+      "club": "Borussia Dortmund"
+    },
+    {
+      "path": "ModCarrerMode/data/club_environment/current_dressing_room/custom/44/corner-panel.png",
+      "bytes": 1397277,
+      "sha256": "0a2fc89ccabfa1aba6405867d65763e1b8f8f94bf786c535cffb0cf2adc4b534",
+      "club_id": 44,
+      "club": "Inter"
+    },
+    {
+      "path": "ModCarrerMode/data/club_environment/current_dressing_room/custom/45/corner-panel.png",
+      "bytes": 1238290,
+      "sha256": "50fe9bae4019ce11e6917d19d12c681b02adfdd51328933dbe2d79251b6befdc",
+      "club_id": 45,
+      "club": "Juventus"
+    },
+    {
+      "path": "ModCarrerMode/data/club_environment/current_dressing_room/custom/47/corner-panel.png",
+      "bytes": 2155745,
+      "sha256": "7c2614d090abb6752f517e4a13d6ebbdf8a0f8d535711750e05022ad2e3eb81d",
+      "club_id": 47,
+      "club": "AC Milan"
+    },
+    {
+      "path": "ModCarrerMode/data/club_environment/current_dressing_room/custom/48/corner-panel.png",
+      "bytes": 1714623,
+      "sha256": "380781d907514b1c97663467fa97f75ec0ba5268c6592ec3e1493ee9972b0419",
+      "club_id": 48,
+      "club": "Napoli"
+    },
+    {
+      "path": "ModCarrerMode/data/club_environment/current_dressing_room/custom/52/corner-panel.png",
+      "bytes": 2212668,
+      "sha256": "e221758a995277e94fd977b9febd8c4a22368c57e4db114a65ea8dbf6f0fe2a6",
+      "club_id": 52,
+      "club": "AS Roma"
+    },
+    {
+      "path": "ModCarrerMode/data/club_environment/current_dressing_room/custom/66/corner-panel.png",
+      "bytes": 1569402,
+      "sha256": "af4a5353d4256dacf2fb9baa5b485cfb88d5c97a2a6b5f4c65deef587fc68fca",
+      "club_id": 66,
+      "club": "Olympique Lyonnais"
+    },
+    {
+      "path": "ModCarrerMode/data/club_environment/current_dressing_room/custom/73/corner-panel.png",
+      "bytes": 1690081,
+      "sha256": "81a25a4eb1f26d1b5ea90b03e2ca36ebd1f4d58adafaf9ebb352a9e2b70d7792",
+      "club_id": 73,
+      "club": "Paris Saint-Germain"
+    },
+    {
+      "path": "ModCarrerMode/data/club_environment/current_dressing_room/custom/219/corner-panel.png",
+      "bytes": 1972876,
+      "sha256": "26da271fedd4bdcdb6fad9fddd7716cc54650d8f8a544e39f979d884afbcb840",
+      "club_id": 219,
+      "club": "Marseille"
+    },
+    {
+      "path": "ModCarrerMode/data/club_environment/current_dressing_room/custom/234/corner-panel.png",
+      "bytes": 2812810,
+      "sha256": "e00ca213dffa363abf177315e1cc00f15b3ebcb05f2302534454795c64786dd7",
+      "club_id": 234,
+      "club": "Benfica"
+    },
+    {
+      "path": "ModCarrerMode/data/club_environment/current_dressing_room/custom/236/corner-panel.png",
+      "bytes": 2363562,
+      "sha256": "d5b34108f5f9a0ce725d0ed19925ff3650a3224a9037cc63585fcb119fe5a85b",
+      "club_id": 236,
+      "club": "FC Porto"
+    },
+    {
+      "path": "ModCarrerMode/data/club_environment/current_dressing_room/custom/237/corner-panel.png",
+      "bytes": 2470295,
+      "sha256": "46aa2b57d5e157b212d126e6be2e9e32a7da1965dcba902d0827e6e1dfc98f8d",
+      "club_id": 237,
+      "club": "Sporting CP"
+    },
+    {
+      "path": "ModCarrerMode/data/club_environment/current_dressing_room/custom/240/corner-panel.png",
+      "bytes": 1282264,
+      "sha256": "588e4d351d7fafa28c98dd5931831e31e51a754115531f8b59b43a97bca267f7",
+      "club_id": 240,
+      "club": "Atlético de Madrid"
+    },
+    {
+      "path": "ModCarrerMode/data/club_environment/current_dressing_room/custom/241/corner-panel.png",
+      "bytes": 2088676,
+      "sha256": "15c6145efad607e13c552008c97c40941e82567ba1a409a1db0759090fce3bae",
+      "club_id": 241,
+      "club": "Barcelona"
+    },
+    {
+      "path": "ModCarrerMode/data/club_environment/current_dressing_room/custom/243/corner-panel.png",
+      "bytes": 1942792,
+      "sha256": "10d4556837b6664f8c5ef05f32c4c6fac11705296fa42fbe0c765f275ee7176c",
+      "club_id": 243,
+      "club": "Real Madrid"
+    },
+    {
+      "path": "ModCarrerMode/data/club_environment/current_dressing_room/custom/245/corner-panel.png",
+      "bytes": 1655014,
+      "sha256": "341afa6bb30adb43f77efdf2e95942136275f063601547de937181b198ae6e86",
+      "club_id": 245,
+      "club": "Ajax"
+    },
+    {
+      "path": "ModCarrerMode/data/club_environment/current_dressing_room/custom/247/corner-panel.png",
+      "bytes": 1325824,
+      "sha256": "9cd73ba25a238c133634cd8370b2d5ed9646dcd39408d63ec62714242003e627",
+      "club_id": 247,
+      "club": "PSV"
+    },
+    {
+      "path": "ModCarrerMode/data/club_environment/current_dressing_room/custom/383/corner-panel.png",
+      "bytes": 2965359,
+      "sha256": "c8393642c49e2e9f700a13e57fcebcbde4bf239fe2cb1818aab84e2f591ad8a7",
+      "club_id": 383,
+      "club": "Palmeiras"
+    },
+    {
+      "path": "ModCarrerMode/data/club_environment/current_dressing_room/custom/517/corner-panel.png",
+      "bytes": 1557066,
+      "sha256": "9fc5b8ee20ebde168505f44292f082211ed911b9a0eea59138a4c0b1c803d39d",
+      "club_id": 517,
+      "club": "Botafogo"
+    },
+    {
+      "path": "ModCarrerMode/data/club_environment/current_dressing_room/custom/567/corner-panel.png",
+      "bytes": 1909351,
+      "sha256": "79944261d3e39097a96f15b708b31476369c82774a0b9bd3eae7c8eba7ad75c7",
+      "club_id": 567,
+      "club": "Fluminense"
+    },
+    {
+      "path": "ModCarrerMode/data/club_environment/current_dressing_room/custom/568/corner-panel.png",
+      "bytes": 2727253,
+      "sha256": "215f54da446b74782c59b59bf30823c9b71208e252ff1d2c11f8dde5a97057a8",
+      "club_id": 568,
+      "club": "Cruzeiro"
+    },
+    {
+      "path": "ModCarrerMode/data/club_environment/current_dressing_room/custom/569/corner-panel.png",
+      "bytes": 1391763,
+      "sha256": "bc517a2eabb558823f720d0a764774f9c37ed108d1a7ea70ab99bff5f93db5ab",
+      "club_id": 569,
+      "club": "Vasco da Gama"
+    },
+    {
+      "path": "ModCarrerMode/data/club_environment/current_dressing_room/custom/598/corner-panel.png",
+      "bytes": 3223477,
+      "sha256": "0011a7f15417d045a264eb1dd3989a3655aa852245ad49e819f40f4bd12ff409",
+      "club_id": 598,
+      "club": "São Paulo"
+    },
+    {
+      "path": "ModCarrerMode/data/club_environment/current_dressing_room/custom/1035/corner-panel.png",
+      "bytes": 1575228,
+      "sha256": "d5f4a4bd8d9c28ce7c0bb641042d8c8dfd61af3139ad7e172738002105e8fe2e",
+      "club_id": 1035,
+      "club": "Atlético-MG"
+    },
+    {
+      "path": "ModCarrerMode/data/club_environment/current_dressing_room/custom/1039/corner-panel.png",
+      "bytes": 1808208,
+      "sha256": "3f6ff564e42b039d1a1dcb273a48d04ccf4b8ee426ab3d90e9818b2e4af48eaf",
+      "club_id": 1039,
+      "club": "Athletico-PR"
+    },
+    {
+      "path": "ModCarrerMode/data/club_environment/current_dressing_room/custom/1041/corner-panel.png",
+      "bytes": 2199306,
+      "sha256": "4cdc320fc017b9052ea62cc9de9e35114737d2a8888cf2498eabd68ea9594461",
+      "club_id": 1041,
+      "club": "Corinthians"
+    },
+    {
+      "path": "ModCarrerMode/data/club_environment/current_dressing_room/custom/1043/corner-panel.png",
+      "bytes": 2098176,
+      "sha256": "c58b7d865738c35cd27e8a50537cd9230a3a9e8463c3f4f67342815bc36c3687",
+      "club_id": 1043,
+      "club": "Flamengo"
+    },
+    {
+      "path": "ModCarrerMode/data/club_environment/current_dressing_room/custom/1048/corner-panel.png",
+      "bytes": 1871783,
+      "sha256": "15f1b5e6c96e77134be58059990f269174a5934d722b3e73904bc97f6e089b86",
+      "club_id": 1048,
+      "club": "Internacional"
+    },
+    {
+      "path": "ModCarrerMode/data/club_environment/current_dressing_room/custom/1053/corner-panel.png",
+      "bytes": 2899103,
+      "sha256": "e5cf81c83f72b0db5c6dcfd19723c6561e7354cec47bc59be49198c7c5f681de",
+      "club_id": 1053,
+      "club": "Santos"
+    },
+    {
+      "path": "ModCarrerMode/data/club_environment/current_dressing_room/custom/1598/corner-panel.png",
+      "bytes": 1880661,
+      "sha256": "4466ef0da5610193f1880727e6dc7655693d477a0efe7ed9468178244f0ac934",
+      "club_id": 1598,
+      "club": "Bahia"
+    },
+    {
+      "path": "ModCarrerMode/data/club_environment/current_dressing_room/custom/1629/corner-panel.png",
+      "bytes": 1527305,
+      "sha256": "0cadac35fd89f431264c8617ae71517d0db9291d18883a3e433645217e546501",
+      "club_id": 1629,
+      "club": "Grêmio"
+    },
+    {
+      "path": "ModCarrerMode/data/club_environment/current_dressing_room/custom/1719/corner-panel.png",
+      "bytes": 1821683,
+      "sha256": "4e6db8dc5c3caa98bd81359ea9aa3741ee076caa73e596c970519c22ac48adcc",
+      "club_id": 1719,
+      "club": "Vitória"
+    },
+    {
+      "path": "ModCarrerMode/data/club_environment/current_dressing_room/custom/105519/corner-panel.png",
+      "bytes": 2258448,
+      "sha256": "7f6e058a33348cbea91bbe4d47da2f08db4d9038df22ae2d4b7f1d1960fa9780",
+      "club_id": 105519,
+      "club": "América-SP"
+    },
+    {
+      "path": "ModCarrerMode/data/club_environment/current_dressing_room/custom/111041/corner-panel.png",
+      "bytes": 2037730,
+      "sha256": "32c7b3c63bf728da382b0312c918aa552332b2baf89d12d766cf525bb47ac915",
+      "club_id": 111041,
+      "club": "Juventude"
+    },
+    {
+      "path": "ModCarrerMode/data/club_environment/current_dressing_room/custom/111042/corner-panel.png",
+      "bytes": 1705291,
+      "sha256": "844cdf69dce6ae9b1892f634f294a0d056c31ed4b5cf36c64d8fd2bcd5fde7f6",
+      "club_id": 111042,
+      "club": "Goiás"
+    },
+    {
+      "path": "ModCarrerMode/data/club_environment/current_dressing_room/custom/111043/corner-panel.png",
+      "bytes": 2284342,
+      "sha256": "bed55a9bec495944995383c76e28faf468b0e6d78e4c50030b394a03adf624ca",
+      "club_id": 111043,
+      "club": "Ponte Preta"
+    },
+    {
+      "path": "ModCarrerMode/data/club_environment/current_dressing_room/custom/111044/corner-panel.png",
+      "bytes": 1645192,
+      "sha256": "f5c29d1185bd0ebfd158de476eae7e126958036c900691e708b3199a9f6bf23e",
+      "club_id": 111044,
+      "club": "Coritiba"
+    },
+    {
+      "path": "ModCarrerMode/data/club_environment/current_dressing_room/custom/111046/corner-panel.png",
+      "bytes": 1509379,
+      "sha256": "bf83403b530d0d3c1695a12587d799c2f06f5f93228e2bf245fe938c06ab0a86",
+      "club_id": 111046,
+      "club": "Criciúma"
+    },
+    {
+      "path": "ModCarrerMode/data/club_environment/current_dressing_room/custom/111050/corner-panel.png",
+      "bytes": 2025738,
+      "sha256": "1c5ebf1810f57067131bdc76b60d0224efb539f389274f7578db99c78cab11e5",
+      "club_id": 111050,
+      "club": "Náutico"
+    },
+    {
+      "path": "ModCarrerMode/data/club_environment/current_dressing_room/custom/111052/corner-panel.png",
+      "bytes": 1536337,
+      "sha256": "51ddad60cd9b168fcdae01493067d71203035b868187150d54073833ddefc64f",
+      "club_id": 111052,
+      "club": "Fortaleza"
+    },
+    {
+      "path": "ModCarrerMode/data/club_environment/current_dressing_room/custom/111057/corner-panel.png",
+      "bytes": 1445460,
+      "sha256": "61320203711c70ed597a3fd4fa371db8ffa5f54ca497496b6f74ecb0a3a830f6",
+      "club_id": 111057,
+      "club": "Sport Recife"
+    },
+    {
+      "path": "ModCarrerMode/data/club_environment/current_dressing_room/custom/111059/corner-panel.png",
+      "bytes": 1854944,
+      "sha256": "ba27c9c8ef965ae92c652c2370f4e8693fdef09079fc2846823465646824f63e",
+      "club_id": 111059,
+      "club": "Ceará"
+    },
+    {
+      "path": "ModCarrerMode/data/club_environment/current_dressing_room/custom/111976/corner-panel.png",
+      "bytes": 1487706,
+      "sha256": "0fb3d4b0a585cc91d954cef7939d3395276b39780c06ab57467a7e8f04744033",
+      "club_id": 111976,
+      "club": "Avaí"
+    },
+    {
+      "path": "ModCarrerMode/data/club_environment/current_dressing_room/custom/112001/corner-panel.png",
+      "bytes": 1288075,
+      "sha256": "91882b2edf2651619e5a89d17d67a7b7fac2f2121641d92ec1897e0032b85d76",
+      "club_id": 112001,
+      "club": "América-MG"
+    },
+    {
+      "path": "ModCarrerMode/data/club_environment/current_dressing_room/custom/112119/corner-panel.png",
+      "bytes": 1423346,
+      "sha256": "28905f390dbfae14b1ee1e791dfcbaaf72f96fcf376ea90a797451b44e7f09e3",
+      "club_id": 112119,
+      "club": "Atlético-GO"
+    },
+    {
+      "path": "ModCarrerMode/data/club_environment/current_dressing_room/custom/112476/corner-panel.png",
+      "bytes": 1991766,
+      "sha256": "296f678c6a151c0ef27f900a0b59cfc16475fd183b5a071cf758fe56170a8c26",
+      "club_id": 112476,
+      "club": "Chapecoense"
+    },
+    {
+      "path": "ModCarrerMode/data/club_environment/current_dressing_room/custom/113116/corner-panel.png",
+      "bytes": 1810991,
+      "sha256": "a63ba4c32d8c3801f62e0efa10f1ecdb35f6fc44733e8f0df250fb8d98578328",
+      "club_id": 113116,
+      "club": "Operário-PR"
+    },
+    {
+      "path": "ModCarrerMode/data/club_environment/current_dressing_room/custom/113163/corner-panel.png",
+      "bytes": 1564865,
+      "sha256": "54a36d985bb9e4d9317349007dd9e804fd6241c57fd2162c70a1753f2d1a8c3a",
+      "club_id": 113163,
+      "club": "Mirassol"
+    },
+    {
+      "path": "ModCarrerMode/data/club_environment/current_dressing_room/custom/113165/corner-panel.png",
+      "bytes": 2290607,
+      "sha256": "8e2f118eec8f5d34838136a42f28a2ab4be52b07c10715f9e75cb2951b4982dc",
+      "club_id": 113165,
+      "club": "Independente Tucuruí"
+    },
+    {
+      "path": "ModCarrerMode/data/club_environment/current_dressing_room/custom/120005/corner-panel.png",
+      "bytes": 1538634,
+      "sha256": "77731801ef432777073714582f49151490d3432bc78b2f3097846f2ae12cfa56",
+      "club_id": 120005,
+      "club": "CRB"
+    },
+    {
+      "path": "ModCarrerMode/data/club_environment/current_dressing_room/custom/120006/corner-panel.png",
+      "bytes": 1664480,
+      "sha256": "d604b131465ac62167629fbf57347fa615c90d17abee169c602ce1fb4538610d",
+      "club_id": 120006,
+      "club": "Cuiabá"
+    },
+    {
+      "path": "ModCarrerMode/data/club_environment/current_dressing_room/custom/120016/corner-panel.png",
+      "bytes": 1833680,
+      "sha256": "e7993717b0c4d109e27dd254c74a9ae38b66df7fb5c71f24576312d6aac9d9f0",
+      "club_id": 120016,
+      "club": "Vila Nova"
+    },
+    {
+      "path": "ModCarrerMode/data/club_environment/current_dressing_room/custom/123921/corner-panel.png",
+      "bytes": 1956403,
+      "sha256": "d23d02c32665dd2ce99648266bd4511e9e33ee7e21710147106e7110e6316ba0",
+      "club_id": 123921,
+      "club": "RB Bragantino"
+    },
+    {
+      "path": "ModCarrerMode/data/club_environment/current_dressing_room/custom/130021/corner-panel.png",
+      "bytes": 1476532,
+      "sha256": "ead94def067b343b385ecda81457d328c6b00ff232d39c4eae1c6cb2a69f1d2c",
+      "club_id": 130021,
+      "club": "Londrina"
+    },
+    {
+      "path": "ModCarrerMode/data/club_environment/current_dressing_room/custom/130026/corner-panel.png",
+      "bytes": 2108028,
+      "sha256": "1a836245ad555c09e6a20f09824f8168a64b7936c52e2864b0d2db9fe308ed63",
+      "club_id": 130026,
+      "club": "Remo"
+    },
+    {
+      "path": "ModCarrerMode/data/club_environment/current_dressing_room/custom/130028/corner-panel.png",
+      "bytes": 1602603,
+      "sha256": "f5fce0f07641a6df0ce29a58a2337c0b2a7f6a5da5868db546653f8b2dd384f2",
+      "club_id": 130028,
+      "club": "Botafogo-RP"
+    },
+    {
+      "path": "ModCarrerMode/data/club_environment/current_dressing_room/custom/130045/corner-panel.png",
+      "bytes": 1556386,
+      "sha256": "44debc6af6ed074abd9699449c71326c8d192a73aa4826508a58a550c40abad2",
+      "club_id": 130045,
+      "club": "Grêmio Novorizontino"
+    },
+    {
+      "path": "ModCarrerMode/data/club_environment/current_dressing_room/custom/130046/corner-panel.png",
+      "bytes": 1838272,
+      "sha256": "acb0960130c680a2c88faecc03efa70e3afa53dc6c16616cff5bc9840d38a5a5",
+      "club_id": 130046,
+      "club": "São Bernardo"
+    },
+    {
+      "path": "ModCarrerMode/data/club_environment/current_dressing_room/custom/130066/corner-panel.png",
+      "bytes": 3109504,
+      "sha256": "bf41002f03bb6fa9df00bd5e3992266758a2bfef2ec89c1e92acf704b5ac0a66",
+      "club_id": 130066,
+      "club": "Paulista de Jundiaí"
+    },
+    {
+      "path": "ModCarrerMode/data/club_environment/current_dressing_room/custom/130078/corner-panel.png",
+      "bytes": 2437337,
+      "sha256": "aacb98341dbf4cf3848914d6f14042d7192c2b4c2614f01409a3a59de49f8048",
+      "club_id": 130078,
+      "club": "Galícia"
+    },
+    {
+      "path": "ModCarrerMode/data/club_environment/current_dressing_room/custom/130127/corner-panel.png",
+      "bytes": 1684349,
+      "sha256": "a3866a0d3bde08e20deef8f1c402094e55ff7597e5ed1d9215b73e06cd3847e3",
+      "club_id": 130127,
+      "club": "Jabaquara"
+    },
+    {
+      "path": "ModCarrerMode/data/club_environment/current_dressing_room/custom/130383/corner-panel.png",
+      "bytes": 1947806,
+      "sha256": "f3047d5e5f445870b158dec39e5637860c07a0d9ee0ca21d4fc24b7d707d38d0",
+      "club_id": 130383,
+      "club": "Ypiranga-BA"
+    },
+    {
+      "path": "ModCarrerMode/data/club_environment/current_dressing_room/custom/130388/corner-panel.png",
+      "bytes": 1624873,
+      "sha256": "0e474a202ea07a8d040153f21783010c995d86962255e387b00f4b2fbdba1f36",
+      "club_id": 130388,
+      "club": "Athletic SJR-MG"
+    }
+  ]
+}

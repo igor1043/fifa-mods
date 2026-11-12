@@ -1,0 +1,834 @@
+{
+  "schema": 1,
+  "clubs": [
+    {
+      "club_id": 105519,
+      "club": "América-SP",
+      "reference": "https://www.americasp.com/estatuto-social",
+      "generated": [
+        {
+          "role": "corner",
+          "path": "ModCarrerMode/data/club_environment/current_dressing_room/custom/105519/corner-panel.png",
+          "bytes": 2258448,
+          "sha256": "7f6e058a33348cbea91bbe4d47da2f08db4d9038df22ae2d4b7f1d1960fa9780",
+          "tool": "image_gen built-in",
+          "prompt": "Edit the supplied América-SP crest into one premium architectural football locker-room texture. Target: portrait 1:2, full bleed, flat artwork, not a room render, no perspective or mockup. Role: Architectural corner-column mural. One hero crest prominently upper-middle, fully inside generous margins. Engraved club-related motif and city/ground line art in the lower half, elegant clean architectural framing. It must read correctly on either of two matching columns. Restrained footer text is the club title only.\nClub identity: rich scarlet and ivory with subtle charcoal engraving, proud abstract red-devil flame curves (not a copyrighted cartoon), the broad oval Teixeirão stadium and restrained Rio Preto skyline. Preserve the supplied crest's exact shapes, colors and lettering. Only additional text allowed is exactly 'AMÉRICA DE RIO PRETO'. Fine engraved illustration, beautiful composed detail, matte clean painted material, crisp readable design. Flat even albedo with NO circular vignette, no fake light spots, glow or baked shadows. Do not introduce other club emblems, trophies, dates or invented achievements.",
+          "refinement": null
+        },
+        {
+          "role": "wall_mural",
+          "path": "ModCarrerMode/data/club_environment/current_dressing_room/custom/105519/wall-mural.png",
+          "bytes": 2395820,
+          "sha256": "546c6637a3f142538bc3fe23ede70ac481cd581b92980af2e8e28d244534f07b",
+          "tool": "image_gen built-in",
+          "prompt": "Transform the supplied América-SP crest into one premium club-specific football locker-room wall artwork texture. Output ultrawide landscape 3:1, full bleed FLAT artwork, no actual room or furniture and no perspective. A full-width team wall mural, dramatically composed but flat. Large exact crest in a clear central medallion, team-related line-art or mascot motif at one side, city/ground panorama along the lower quarter and sweeping club-color ribbons. Keep the center readable even when 3D furniture partly overlaps the bottom. Title may appear once, large, in a safe readable area.\nVisual identity: rich scarlet and ivory with subtle charcoal engraving, proud abstract red-devil flame curves (not a copyrighted cartoon), the broad oval Teixeirão stadium and restrained Rio Preto skyline. Keep the supplied crest accurate, crisp and recognizable. Any additional wording must be exactly 'AMÉRICA DE RIO PRETO', no other text. Sophisticated engraving blended with strong contemporary sports graphic design, refined fine lines, carefully balanced negative space and large confident shapes, matte clean finish. Use the entire wide canvas; no collage of separate panels. No circular vignette, lens effects, fake lights, baked shadow, grunge, sponsor marks, unrelated clubs, fictional dates or invented trophies.",
+          "refinement": null
+        },
+        {
+          "role": "backing",
+          "path": "ModCarrerMode/data/club_environment/current_dressing_room/custom/105519/locker-backing.png",
+          "bytes": 2577859,
+          "sha256": "c333a4543ec42648acc6be22c90f64df3140114e95245492088fd94906e40e4b",
+          "tool": "image_gen built-in",
+          "prompt": "Create an edited graphic variation of the supplied América-SP crest identity for a premium football locker-room cabinet backing. Target portrait 1:2, full bleed, a FLAT printed surface texture, not a room mockup. Decorative interior back panel of one player's locker, repeated behind hanging shirts. Create a sophisticated continuous-feeling low-to-medium contrast all-over graphic using club colors and small team-related ornamental/engraved motifs. Keep the middle 60 percent quiet enough for the hanging jersey to stand out. NO large crest, NO text, NO numbers, NO giant mascot face. This is a richly authored club-specific backing material, not a poster.\nIdentity and decorative vocabulary: rich scarlet and ivory with subtle charcoal engraving, proud abstract red-devil flame curves (not a copyrighted cartoon), the broad oval Teixeirão stadium and restrained Rio Preto skyline. Use the crest only as a reference for the club's exact colors and visual character; DO NOT place a large crest or any lettering. Delicate authored ornamental linework, subtle tonal depth in the pigment, elegant repeating rhythm, beautiful crafted detail. Keep central jersey viewing space quiet. Matte even albedo, no reflected light, no lens gradient, no spotlight or painted cast shadow. No other clubs, no trophies, no dates, no people.",
+          "refinement": null
+        },
+        {
+          "role": "feature_wall",
+          "path": "ModCarrerMode/data/club_environment/current_dressing_room/custom/105519/feature-wall.png",
+          "bytes": 2374588,
+          "sha256": "c1c8ade917c6e87b0af6ed0d3a3175f78da093a6d9454f0c3c833f41aae70751",
+          "tool": "image_gen built-in",
+          "prompt": "Edit the supplied América-SP crest into one finished premium football locker-room feature-wall texture. Output portrait 2:3, full bleed FLAT artwork, not a render or mockup. Central feature-wall artwork for the dressing room. Balanced symmetric or near-symmetric heraldic composition with a prominent exact crest, subtle club-related engraving, an understated skyline/base illustration and generous quiet margins. The exact club title is the only additional text. Refined premium sports architecture, club identity at first glance.\nClub-specific art direction: rich scarlet and ivory with subtle charcoal engraving, proud abstract red-devil flame curves (not a copyrighted cartoon), the broad oval Teixeirão stadium and restrained Rio Preto skyline. Preserve the supplied crest accurately; additional text only 'AMÉRICA DE RIO PRETO'. Produce refined engraving and contemporary graphic design with rich visual craftsmanship, clean matte painted material and harmonious detail. Main emblem stays clear of all edges, unclipped. Avoid grunge, distressed dirt, photographic room, circular vignette, glowing spots, simulated shadows, trophies, invented dates, extra sponsor logos and symbols from other clubs.",
+          "refinement": null
+        },
+        {
+          "role": "hydration_wall",
+          "path": "ModCarrerMode/data/club_environment/current_dressing_room/custom/105519/hydration-wall.png",
+          "bytes": 2875507,
+          "sha256": "b3a4964b32e8a9921cdcc74c75b307fe11ec80e820385263bcea54b93415a1db",
+          "tool": "image_gen built-in",
+          "prompt": "Transform the supplied América-SP crest into one refined club-specific printed hydration-wall texture for a football locker room. Output ultrawide landscape 3:1, full bleed FLAT artwork. Wall artwork behind a football locker-room hydration station. A separate spacious composition from the main mural: club-related etched motif, flowing club-color bands and delicate city/ground panorama arranged above a mostly quiet lower half where the physical countertop and bottles will stand. Medium-sized exact crest offset into a clear upper focal area. Title may appear once, restrained and legible. No rendered bottles, products, furniture, sponsor brands or room perspective.\nArt direction: rich scarlet and ivory with subtle charcoal engraving, proud abstract red-devil flame curves (not a copyrighted cartoon), the broad oval Teixeirão stadium and restrained Rio Preto skyline. Use exact crest identity, crisp emblem edges, sophisticated engraving and club-color graphics. Only additional text 'AMÉRICA DE RIO PRETO' if needed. Matte clean surface and even flat albedo, strong artistry and coherent composition. Absolutely no rendered countertop, bottles, furniture, 3D room, gradients of fake lighting, circular lens vignette, cast shadows, other club marks, sponsor words, invented trophies or dates.",
+          "refinement": null
+        },
+        {
+          "role": "trophy_wall",
+          "path": "ModCarrerMode/data/trophy_room/custom/105519/identity-wall.png",
+          "bytes": 1491920,
+          "sha256": "ac46915d8bcc394287d630ad976e80f55aece2c170535368cb938295f0a606c8",
+          "tool": "image_gen built-in",
+          "prompt": "Edit the supplied América-SP football crest into one premium architectural TROPHY ROOM identity-wall print. Output ultrawide landscape 3:1, full bleed FLAT graphic artwork. Elegant museum wall graphic for this club's 3D trophy room, printed on the long architectural feature wall. Large accurate club crest in the left third, exact title 'SALA DE TROFÉUS' as the main typographic anchor across the middle, club title below, slim club-colored divider and restrained engraved team/city identity along the base. White/light-gray overall background with club-color accent linework and a few clean motifs. Dignified, spacious and premium. No actual trophy illustrations: real earned 3D trophies will be placed elsewhere by the game. No rendered room, furniture, reflections or shadows. Keep all content inside safe margins.\nUse these exact two lines: 'SALA DE TROFÉUS' and 'AMÉRICA DE RIO PRETO'. Crest copied faithfully from the supplied identity source, large but not oversized. Very light neutral white and soft gray backdrop; controlled #C9172A and #F4F0E7 accent details. Fine tasteful line-art inspired by rich scarlet and ivory with subtle charcoal engraving, proud abstract red-devil flame curves (not a copyrighted cartoon), the broad oval Teixeirão stadium and restrained Rio Preto skyline. Refined spacious museum typography and thin architectural divider rules. Keep all letters fully visible with generous margins. Absolutely no view of a physical room, podiums, cabinets, trophy drawings, invented honours, dates, sponsor logos, lens gradients, fake light spots, cast shadows, dirty grunge or other clubs.",
+          "refinement": null
+        }
+      ],
+      "assets": [
+        {
+          "path": "ModCarrerMode/data/club_environment/current_dressing_room/custom/105519/corner-panel.png",
+          "bytes": 2258448,
+          "sha256": "7f6e058a33348cbea91bbe4d47da2f08db4d9038df22ae2d4b7f1d1960fa9780"
+        },
+        {
+          "path": "ModCarrerMode/data/club_environment/current_dressing_room/custom/105519/wall-mural.png",
+          "bytes": 2395820,
+          "sha256": "546c6637a3f142538bc3fe23ede70ac481cd581b92980af2e8e28d244534f07b"
+        },
+        {
+          "path": "ModCarrerMode/data/club_environment/current_dressing_room/custom/105519/locker-backing.png",
+          "bytes": 2577859,
+          "sha256": "c333a4543ec42648acc6be22c90f64df3140114e95245492088fd94906e40e4b"
+        },
+        {
+          "path": "ModCarrerMode/data/club_environment/current_dressing_room/custom/105519/feature-wall.png",
+          "bytes": 2374588,
+          "sha256": "c1c8ade917c6e87b0af6ed0d3a3175f78da093a6d9454f0c3c833f41aae70751"
+        },
+        {
+          "path": "ModCarrerMode/data/club_environment/current_dressing_room/custom/105519/hydration-wall.png",
+          "bytes": 2875507,
+          "sha256": "b3a4964b32e8a9921cdcc74c75b307fe11ec80e820385263bcea54b93415a1db"
+        },
+        {
+          "path": "ModCarrerMode/data/club_environment/current_dressing_room/custom/105519/locker-frame.png",
+          "bytes": 670826,
+          "sha256": "5c0885a8b0a966f521d5634610d9491971f73959aa2a4c037acc17daa14248f0"
+        },
+        {
+          "path": "ModCarrerMode/data/club_environment/current_dressing_room/custom/105519/fascia-back-left.png",
+          "bytes": 264621,
+          "sha256": "f8409b1c8714463ca8df7c987547256067a42b009a7e90f222ac8c937e623a44"
+        },
+        {
+          "path": "ModCarrerMode/data/club_environment/current_dressing_room/custom/105519/fascia-back-right.png",
+          "bytes": 246645,
+          "sha256": "ba89d1e5d1d6a6fbdc78a196cfb7623584557dcd587a26ace66f850d9e14d6e4"
+        },
+        {
+          "path": "ModCarrerMode/data/club_environment/current_dressing_room/custom/105519/fascia-left.png",
+          "bytes": 197221,
+          "sha256": "fcb253773f4205f3fe0915ffa724e2c9f9e3582a82ef1cd0c515e8d481eb3839"
+        },
+        {
+          "path": "ModCarrerMode/data/club_environment/current_dressing_room/custom/105519/fascia-right.png",
+          "bytes": 193577,
+          "sha256": "5f677137b428a44180df5ec9ce47d0fdb2fe3d8df22e66eed2cb5addf0df2743"
+        },
+        {
+          "path": "ModCarrerMode/data/club_environment/current_dressing_room/custom/105519/profile.json",
+          "bytes": 1954,
+          "sha256": "3d945e3d33ed30de275398a55258d2f1dfd4b70d2368464fc6409afa84aec478"
+        }
+      ]
+    },
+    {
+      "club_id": 130127,
+      "club": "Jabaquara",
+      "reference": "https://jabaquaraac.com.br/",
+      "generated": [
+        {
+          "role": "corner",
+          "path": "ModCarrerMode/data/club_environment/current_dressing_room/custom/130127/corner-panel.png",
+          "bytes": 1684349,
+          "sha256": "a3866a0d3bde08e20deef8f1c402094e55ff7597e5ed1d9215b73e06cd3847e3",
+          "tool": "image_gen built-in",
+          "prompt": "Edit the supplied Jabaquara crest into one premium architectural football locker-room texture. Target: portrait 1:2, full bleed, flat artwork, not a room render, no perspective or mockup. Role: Architectural corner-column mural. One hero crest prominently upper-middle, fully inside generous margins. Engraved club-related motif and city/ground line art in the lower half, elegant clean architectural framing. It must read correctly on either of two matching columns. Restrained footer text is the club title only.\nClub identity: rich red and warm yellow, an elegant powerful lion in engraved line art, Santos port cranes and coastal waves, Spanish heritage in restrained ornamental geometry; never Santos FC symbols. Preserve the supplied crest's exact shapes, colors and lettering. Only additional text allowed is exactly 'JABAQUARA ATLÉTICO CLUBE'. Fine engraved illustration, beautiful composed detail, matte clean painted material, crisp readable design. Flat even albedo with NO circular vignette, no fake light spots, glow or baked shadows. Do not introduce other club emblems, trophies, dates or invented achievements.",
+          "refinement": null
+        },
+        {
+          "role": "wall_mural",
+          "path": "ModCarrerMode/data/club_environment/current_dressing_room/custom/130127/wall-mural.png",
+          "bytes": 1981527,
+          "sha256": "a568ece4e3771082bb57ec2872e0917d38319ba34f847f4aea5bcd6a1a968c8c",
+          "tool": "image_gen built-in",
+          "prompt": "Transform the supplied Jabaquara crest into one premium club-specific football locker-room wall artwork texture. Output ultrawide landscape 3:1, full bleed FLAT artwork, no actual room or furniture and no perspective. A full-width team wall mural, dramatically composed but flat. Large exact crest in a clear central medallion, team-related line-art or mascot motif at one side, city/ground panorama along the lower quarter and sweeping club-color ribbons. Keep the center readable even when 3D furniture partly overlaps the bottom. Title may appear once, large, in a safe readable area.\nVisual identity: rich red and warm yellow, an elegant powerful lion in engraved line art, Santos port cranes and coastal waves, Spanish heritage in restrained ornamental geometry; never Santos FC symbols. Keep the supplied crest accurate, crisp and recognizable. Any additional wording must be exactly 'JABAQUARA ATLÉTICO CLUBE', no other text. Sophisticated engraving blended with strong contemporary sports graphic design, refined fine lines, carefully balanced negative space and large confident shapes, matte clean finish. Use the entire wide canvas; no collage of separate panels. No circular vignette, lens effects, fake lights, baked shadow, grunge, sponsor marks, unrelated clubs, fictional dates or invented trophies.",
+          "refinement": null
+        },
+        {
+          "role": "backing",
+          "path": "ModCarrerMode/data/club_environment/current_dressing_room/custom/130127/locker-backing.png",
+          "bytes": 2234783,
+          "sha256": "8634411dfb5d0f78a5eb57f4e8269215976a05347ad0ae841d129b516569054d",
+          "tool": "image_gen built-in",
+          "prompt": "Create an edited graphic variation of the supplied Jabaquara crest identity for a premium football locker-room cabinet backing. Target portrait 1:2, full bleed, a FLAT printed surface texture, not a room mockup. Decorative interior back panel of one player's locker, repeated behind hanging shirts. Create a sophisticated continuous-feeling low-to-medium contrast all-over graphic using club colors and small team-related ornamental/engraved motifs. Keep the middle 60 percent quiet enough for the hanging jersey to stand out. NO large crest, NO text, NO numbers, NO giant mascot face. This is a richly authored club-specific backing material, not a poster.\nIdentity and decorative vocabulary: rich red and warm yellow, an elegant powerful lion in engraved line art, Santos port cranes and coastal waves, Spanish heritage in restrained ornamental geometry; never Santos FC symbols. Use the crest only as a reference for the club's exact colors and visual character; DO NOT place a large crest or any lettering. Delicate authored ornamental linework, subtle tonal depth in the pigment, elegant repeating rhythm, beautiful crafted detail. Keep central jersey viewing space quiet. Matte even albedo, no reflected light, no lens gradient, no spotlight or painted cast shadow. No other clubs, no trophies, no dates, no people.",
+          "refinement": null
+        },
+        {
+          "role": "feature_wall",
+          "path": "ModCarrerMode/data/club_environment/current_dressing_room/custom/130127/feature-wall.png",
+          "bytes": 2115431,
+          "sha256": "4ddc1e9b36215494d695ec15622baf917e5fc9386bd01ceb6602335c222125c5",
+          "tool": "image_gen built-in",
+          "prompt": "Edit the supplied Jabaquara crest into one finished premium football locker-room feature-wall texture. Output portrait 2:3, full bleed FLAT artwork, not a render or mockup. Central feature-wall artwork for the dressing room. Balanced symmetric or near-symmetric heraldic composition with a prominent exact crest, subtle club-related engraving, an understated skyline/base illustration and generous quiet margins. The exact club title is the only additional text. Refined premium sports architecture, club identity at first glance.\nClub-specific art direction: rich red and warm yellow, an elegant powerful lion in engraved line art, Santos port cranes and coastal waves, Spanish heritage in restrained ornamental geometry; never Santos FC symbols. Preserve the supplied crest accurately; additional text only 'JABAQUARA ATLÉTICO CLUBE'. Produce refined engraving and contemporary graphic design with rich visual craftsmanship, clean matte painted material and harmonious detail. Main emblem stays clear of all edges, unclipped. Avoid grunge, distressed dirt, photographic room, circular vignette, glowing spots, simulated shadows, trophies, invented dates, extra sponsor logos and symbols from other clubs.",
+          "refinement": null
+        },
+        {
+          "role": "hydration_wall",
+          "path": "ModCarrerMode/data/club_environment/current_dressing_room/custom/130127/hydration-wall.png",
+          "bytes": 1824060,
+          "sha256": "a566bf78004fca3777d3bdea9157935ad09784e2e2282d415de4ca5cf6a430c1",
+          "tool": "image_gen built-in",
+          "prompt": "Transform the supplied Jabaquara crest into one refined club-specific printed hydration-wall texture for a football locker room. Output ultrawide landscape 3:1, full bleed FLAT artwork. Wall artwork behind a football locker-room hydration station. A separate spacious composition from the main mural: club-related etched motif, flowing club-color bands and delicate city/ground panorama arranged above a mostly quiet lower half where the physical countertop and bottles will stand. Medium-sized exact crest offset into a clear upper focal area. Title may appear once, restrained and legible. No rendered bottles, products, furniture, sponsor brands or room perspective.\nArt direction: rich red and warm yellow, an elegant powerful lion in engraved line art, Santos port cranes and coastal waves, Spanish heritage in restrained ornamental geometry; never Santos FC symbols. Use exact crest identity, crisp emblem edges, sophisticated engraving and club-color graphics. Only additional text 'JABAQUARA ATLÉTICO CLUBE' if needed. Matte clean surface and even flat albedo, strong artistry and coherent composition. Absolutely no rendered countertop, bottles, furniture, 3D room, gradients of fake lighting, circular lens vignette, cast shadows, other club marks, sponsor words, invented trophies or dates.",
+          "refinement": null
+        },
+        {
+          "role": "trophy_wall",
+          "path": "ModCarrerMode/data/trophy_room/custom/130127/identity-wall.png",
+          "bytes": 1862909,
+          "sha256": "2023a0c1f4dbed9cf9291c6031cabb571ff104ac88ebad6f30a2bf549135052b",
+          "tool": "image_gen built-in",
+          "prompt": "Edit the supplied Jabaquara football crest into one premium architectural TROPHY ROOM identity-wall print. Output ultrawide landscape 3:1, full bleed FLAT graphic artwork. Elegant museum wall graphic for this club's 3D trophy room, printed on the long architectural feature wall. Large accurate club crest in the left third, exact title 'SALA DE TROFÉUS' as the main typographic anchor across the middle, club title below, slim club-colored divider and restrained engraved team/city identity along the base. White/light-gray overall background with club-color accent linework and a few clean motifs. Dignified, spacious and premium. No actual trophy illustrations: real earned 3D trophies will be placed elsewhere by the game. No rendered room, furniture, reflections or shadows. Keep all content inside safe margins.\nUse these exact two lines: 'SALA DE TROFÉUS' and 'JABAQUARA ATLÉTICO CLUBE'. Crest copied faithfully from the supplied identity source, large but not oversized. Very light neutral white and soft gray backdrop; controlled #C71824 and #E7BB24 accent details. Fine tasteful line-art inspired by rich red and warm yellow, an elegant powerful lion in engraved line art, Santos port cranes and coastal waves, Spanish heritage in restrained ornamental geometry; never Santos FC symbols. Refined spacious museum typography and thin architectural divider rules. Keep all letters fully visible with generous margins. Absolutely no view of a physical room, podiums, cabinets, trophy drawings, invented honours, dates, sponsor logos, lens gradients, fake light spots, cast shadows, dirty grunge or other clubs.",
+          "refinement": null
+        }
+      ],
+      "assets": [
+        {
+          "path": "ModCarrerMode/data/club_environment/current_dressing_room/custom/130127/corner-panel.png",
+          "bytes": 1684349,
+          "sha256": "a3866a0d3bde08e20deef8f1c402094e55ff7597e5ed1d9215b73e06cd3847e3"
+        },
+        {
+          "path": "ModCarrerMode/data/club_environment/current_dressing_room/custom/130127/wall-mural.png",
+          "bytes": 1981527,
+          "sha256": "a568ece4e3771082bb57ec2872e0917d38319ba34f847f4aea5bcd6a1a968c8c"
+        },
+        {
+          "path": "ModCarrerMode/data/club_environment/current_dressing_room/custom/130127/locker-backing.png",
+          "bytes": 2234783,
+          "sha256": "8634411dfb5d0f78a5eb57f4e8269215976a05347ad0ae841d129b516569054d"
+        },
+        {
+          "path": "ModCarrerMode/data/club_environment/current_dressing_room/custom/130127/feature-wall.png",
+          "bytes": 2115431,
+          "sha256": "4ddc1e9b36215494d695ec15622baf917e5fc9386bd01ceb6602335c222125c5"
+        },
+        {
+          "path": "ModCarrerMode/data/club_environment/current_dressing_room/custom/130127/hydration-wall.png",
+          "bytes": 1824060,
+          "sha256": "a566bf78004fca3777d3bdea9157935ad09784e2e2282d415de4ca5cf6a430c1"
+        },
+        {
+          "path": "ModCarrerMode/data/club_environment/current_dressing_room/custom/130127/locker-frame.png",
+          "bytes": 670609,
+          "sha256": "8d9029952afe6784bd8e1fae172c83a10f20503e255358731374642da4ced0f8"
+        },
+        {
+          "path": "ModCarrerMode/data/club_environment/current_dressing_room/custom/130127/fascia-back-left.png",
+          "bytes": 291144,
+          "sha256": "42de31291be5cc5db57f8a90a7f353c7ecc68f5573d4c250e6d865e23f6fe0fc"
+        },
+        {
+          "path": "ModCarrerMode/data/club_environment/current_dressing_room/custom/130127/fascia-back-right.png",
+          "bytes": 228860,
+          "sha256": "22745fc7fe68d361c7a6a7b4790d8843920c246dde2c0bc00cf49e3c5275729f"
+        },
+        {
+          "path": "ModCarrerMode/data/club_environment/current_dressing_room/custom/130127/fascia-left.png",
+          "bytes": 260345,
+          "sha256": "a465b50f242a3f7cb20d1ca003ac16583507488f657d146f1342b1e43e307756"
+        },
+        {
+          "path": "ModCarrerMode/data/club_environment/current_dressing_room/custom/130127/fascia-right.png",
+          "bytes": 263735,
+          "sha256": "db4a9b227979f64b289e03659216eac2fde7c33f0775b36f38e696b8c6ed53f5"
+        },
+        {
+          "path": "ModCarrerMode/data/club_environment/current_dressing_room/custom/130127/profile.json",
+          "bytes": 1949,
+          "sha256": "7d7ae00448f595634343f3c4a729d1a6cb2a97bbd4969f8f8bdc431a738f64d7"
+        }
+      ]
+    },
+    {
+      "club_id": 130066,
+      "club": "Paulista de Jundiaí",
+      "reference": "https://paulistadejundiai.com.br/",
+      "generated": [
+        {
+          "role": "corner",
+          "path": "ModCarrerMode/data/club_environment/current_dressing_room/custom/130066/corner-panel.png",
+          "bytes": 3109504,
+          "sha256": "bf41002f03bb6fa9df00bd5e3992266758a2bfef2ec89c1e92acf704b5ac0a66",
+          "tool": "image_gen built-in",
+          "prompt": "Edit the supplied Paulista de Jundiaí football crest into a premium architectural corner-column mural texture for a Brazilian football locker room video game. Output one finished flat portrait 1:2 texture, full bleed, NOT a room render or mockup. The supplied crest is the exact identity source: keep its shield, diagonal black-white stripes, red outlines, 1909 circle and single gold star accurate, crisp and recognizable. Place the crest prominently at the upper-middle, all inside generous safe margins. Build an original sophisticated tricolor design in deep red, warm white and charcoal, with fine engraved line art of a proud rooster and the Jundiaí/Japi hillside subtly integrated near the lower third, sweeping football scarf rhythms and refined architectural lines. Strong crafted composition, fine detail, print-ready, matte painted surface, clean rather than distressed. Flat even albedo; no circular vignette, fake lens glow, perspective, baked spotlight, shadow, frame, furniture or people. Only additional text allowed is exactly 'PAULISTA DE JUNDIAÍ' in a restrained legible footer. Texture must remain beautiful when repeated on both left and right columns. Do not include Flamengo, Corinthians, São Paulo or any other club symbols.",
+          "refinement": null
+        },
+        {
+          "role": "wall_mural",
+          "path": "ModCarrerMode/data/club_environment/current_dressing_room/custom/130066/wall-mural.png",
+          "bytes": 2648822,
+          "sha256": "a3eb752ddf4950efe542624e7f76ae0a58ad49052cee4cd4246cbaeb1c0f9ff3",
+          "tool": "image_gen built-in",
+          "prompt": "Transform the supplied Paulista de Jundiaí crest into one premium club-specific football locker-room wall artwork texture. Output ultrawide landscape 3:1, full bleed FLAT artwork, no actual room or furniture and no perspective. A full-width team wall mural, dramatically composed but flat. Large exact crest in a clear central medallion, team-related line-art or mascot motif at one side, city/ground panorama along the lower quarter and sweeping club-color ribbons. Keep the center readable even when 3D furniture partly overlaps the bottom. Title may appear once, large, in a safe readable area.\nVisual identity: deep red, warm white and charcoal tricolor ribbons, elegant proud rooster engraving, subtle Serra do Japi hill contours and Jundiaí heritage architectural lines; never São Paulo FC or Flamengo. Keep the supplied crest accurate, crisp and recognizable. Any additional wording must be exactly 'PAULISTA DE JUNDIAÍ', no other text. Sophisticated engraving blended with strong contemporary sports graphic design, refined fine lines, carefully balanced negative space and large confident shapes, matte clean finish. Use the entire wide canvas; no collage of separate panels. No circular vignette, lens effects, fake lights, baked shadow, grunge, sponsor marks, unrelated clubs, fictional dates or invented trophies.",
+          "refinement": null
+        },
+        {
+          "role": "backing",
+          "path": "ModCarrerMode/data/club_environment/current_dressing_room/custom/130066/locker-backing.png",
+          "bytes": 3019341,
+          "sha256": "2b568b61d87015b0a022e41ba693c74b000d7769224a11e9c31cbd925a913ff2",
+          "tool": "image_gen built-in",
+          "prompt": "Create an edited graphic variation of the supplied Paulista de Jundiaí crest identity for a premium football locker-room cabinet backing. Target portrait 1:2, full bleed, a FLAT printed surface texture, not a room mockup. Decorative interior back panel of one player's locker, repeated behind hanging shirts. Create a sophisticated continuous-feeling low-to-medium contrast all-over graphic using club colors and small team-related ornamental/engraved motifs. Keep the middle 60 percent quiet enough for the hanging jersey to stand out. NO large crest, NO text, NO numbers, NO giant mascot face. This is a richly authored club-specific backing material, not a poster.\nIdentity and decorative vocabulary: deep red, warm white and charcoal tricolor ribbons, elegant proud rooster engraving, subtle Serra do Japi hill contours and Jundiaí heritage architectural lines; never São Paulo FC or Flamengo. Use the crest only as a reference for the club's exact colors and visual character; DO NOT place a large crest or any lettering. Delicate authored ornamental linework, subtle tonal depth in the pigment, elegant repeating rhythm, beautiful crafted detail. Keep central jersey viewing space quiet. Matte even albedo, no reflected light, no lens gradient, no spotlight or painted cast shadow. No other clubs, no trophies, no dates, no people.",
+          "refinement": null
+        },
+        {
+          "role": "feature_wall",
+          "path": "ModCarrerMode/data/club_environment/current_dressing_room/custom/130066/feature-wall.png",
+          "bytes": 3647949,
+          "sha256": "6e63cb23515948fc097014f2f21031276d4e97fbde9dbedea60475e38dbdcb15",
+          "tool": "image_gen built-in",
+          "prompt": "Edit the supplied Paulista de Jundiaí crest into one finished premium football locker-room feature-wall texture. Output portrait 2:3, full bleed FLAT artwork, not a render or mockup. Central feature-wall artwork for the dressing room. Balanced symmetric or near-symmetric heraldic composition with a prominent exact crest, subtle club-related engraving, an understated skyline/base illustration and generous quiet margins. The exact club title is the only additional text. Refined premium sports architecture, club identity at first glance.\nClub-specific art direction: deep red, warm white and charcoal tricolor ribbons, elegant proud rooster engraving, subtle Serra do Japi hill contours and Jundiaí heritage architectural lines; never São Paulo FC or Flamengo. Preserve the supplied crest accurately; additional text only 'PAULISTA DE JUNDIAÍ'. Produce refined engraving and contemporary graphic design with rich visual craftsmanship, clean matte painted material and harmonious detail. Main emblem stays clear of all edges, unclipped. Avoid grunge, distressed dirt, photographic room, circular vignette, glowing spots, simulated shadows, trophies, invented dates, extra sponsor logos and symbols from other clubs.",
+          "refinement": null
+        },
+        {
+          "role": "hydration_wall",
+          "path": "ModCarrerMode/data/club_environment/current_dressing_room/custom/130066/hydration-wall.png",
+          "bytes": 2663294,
+          "sha256": "597983ffbd1f35463ddbb8a9b14501f16fa1c338032b6d03511f9c74cd378bd0",
+          "tool": "image_gen built-in",
+          "prompt": "Transform the supplied Paulista de Jundiaí crest into one refined club-specific printed hydration-wall texture for a football locker room. Output ultrawide landscape 3:1, full bleed FLAT artwork. Wall artwork behind a football locker-room hydration station. A separate spacious composition from the main mural: club-related etched motif, flowing club-color bands and delicate city/ground panorama arranged above a mostly quiet lower half where the physical countertop and bottles will stand. Medium-sized exact crest offset into a clear upper focal area. Title may appear once, restrained and legible. No rendered bottles, products, furniture, sponsor brands or room perspective.\nArt direction: deep red, warm white and charcoal tricolor ribbons, elegant proud rooster engraving, subtle Serra do Japi hill contours and Jundiaí heritage architectural lines; never São Paulo FC or Flamengo. Use exact crest identity, crisp emblem edges, sophisticated engraving and club-color graphics. Only additional text 'PAULISTA DE JUNDIAÍ' if needed. Matte clean surface and even flat albedo, strong artistry and coherent composition. Absolutely no rendered countertop, bottles, furniture, 3D room, gradients of fake lighting, circular lens vignette, cast shadows, other club marks, sponsor words, invented trophies or dates.",
+          "refinement": null
+        },
+        {
+          "role": "trophy_wall",
+          "path": "ModCarrerMode/data/trophy_room/custom/130066/identity-wall.png",
+          "bytes": 2061066,
+          "sha256": "b61e2635066e9789fa852ef69b0ecbdd701028267af02c7d3f5a1e2582fdf235",
+          "tool": "image_gen built-in",
+          "prompt": "Edit the supplied Paulista de Jundiaí football crest into one premium architectural TROPHY ROOM identity-wall print. Output ultrawide landscape 3:1, full bleed FLAT graphic artwork. Elegant museum wall graphic for this club's 3D trophy room, printed on the long architectural feature wall. Large accurate club crest in the left third, exact title 'SALA DE TROFÉUS' as the main typographic anchor across the middle, club title below, slim club-colored divider and restrained engraved team/city identity along the base. White/light-gray overall background with club-color accent linework and a few clean motifs. Dignified, spacious and premium. No actual trophy illustrations: real earned 3D trophies will be placed elsewhere by the game. No rendered room, furniture, reflections or shadows. Keep all content inside safe margins.\nUse these exact two lines: 'SALA DE TROFÉUS' and 'PAULISTA DE JUNDIAÍ'. Crest copied faithfully from the supplied identity source, large but not oversized. Very light neutral white and soft gray backdrop; controlled #B91F30 and #EDEBE3 accent details. Fine tasteful line-art inspired by deep red, warm white and charcoal tricolor ribbons, elegant proud rooster engraving, subtle Serra do Japi hill contours and Jundiaí heritage architectural lines; never São Paulo FC or Flamengo. Refined spacious museum typography and thin architectural divider rules. Keep all letters fully visible with generous margins. Absolutely no view of a physical room, podiums, cabinets, trophy drawings, invented honours, dates, sponsor logos, lens gradients, fake light spots, cast shadows, dirty grunge or other clubs.",
+          "refinement": null
+        }
+      ],
+      "assets": [
+        {
+          "path": "ModCarrerMode/data/club_environment/current_dressing_room/custom/130066/corner-panel.png",
+          "bytes": 3109504,
+          "sha256": "bf41002f03bb6fa9df00bd5e3992266758a2bfef2ec89c1e92acf704b5ac0a66"
+        },
+        {
+          "path": "ModCarrerMode/data/club_environment/current_dressing_room/custom/130066/wall-mural.png",
+          "bytes": 2648822,
+          "sha256": "a3eb752ddf4950efe542624e7f76ae0a58ad49052cee4cd4246cbaeb1c0f9ff3"
+        },
+        {
+          "path": "ModCarrerMode/data/club_environment/current_dressing_room/custom/130066/locker-backing.png",
+          "bytes": 3019341,
+          "sha256": "2b568b61d87015b0a022e41ba693c74b000d7769224a11e9c31cbd925a913ff2"
+        },
+        {
+          "path": "ModCarrerMode/data/club_environment/current_dressing_room/custom/130066/feature-wall.png",
+          "bytes": 3647949,
+          "sha256": "6e63cb23515948fc097014f2f21031276d4e97fbde9dbedea60475e38dbdcb15"
+        },
+        {
+          "path": "ModCarrerMode/data/club_environment/current_dressing_room/custom/130066/hydration-wall.png",
+          "bytes": 2663294,
+          "sha256": "597983ffbd1f35463ddbb8a9b14501f16fa1c338032b6d03511f9c74cd378bd0"
+        },
+        {
+          "path": "ModCarrerMode/data/club_environment/current_dressing_room/custom/130066/locker-frame.png",
+          "bytes": 670319,
+          "sha256": "42d12e959daf795770f2be33c9e6f71f2a5aa8e8c22b547549fd9714dcd65c97"
+        },
+        {
+          "path": "ModCarrerMode/data/club_environment/current_dressing_room/custom/130066/fascia-back-left.png",
+          "bytes": 226704,
+          "sha256": "406f80ec1fd20e165378e25257db18b27ab44d6ef29326203bdb395a4f92eb79"
+        },
+        {
+          "path": "ModCarrerMode/data/club_environment/current_dressing_room/custom/130066/fascia-back-right.png",
+          "bytes": 205125,
+          "sha256": "28d057ae1d55607a8708ab117cc6a13729cf53dc907141de39bb74b5af1e8ded"
+        },
+        {
+          "path": "ModCarrerMode/data/club_environment/current_dressing_room/custom/130066/fascia-left.png",
+          "bytes": 189264,
+          "sha256": "682357e28e7ba37f3941d468c9e72ca5618d80bf0e20c0169ce1f8072a286bdb"
+        },
+        {
+          "path": "ModCarrerMode/data/club_environment/current_dressing_room/custom/130066/fascia-right.png",
+          "bytes": 195510,
+          "sha256": "e1f6000151babec1b265592497f28878cccb143d50bad0282de9b84739bf5c18"
+        },
+        {
+          "path": "ModCarrerMode/data/club_environment/current_dressing_room/custom/130066/profile.json",
+          "bytes": 1963,
+          "sha256": "a477b2c0d6dca28650de7291dad593ab13242dd582683cad1a8065389b4f43cd"
+        }
+      ]
+    },
+    {
+      "club_id": 113165,
+      "club": "Independente Tucuruí",
+      "reference": "https://www.fpfpara.com.br/filiado/5",
+      "generated": [
+        {
+          "role": "corner",
+          "path": "ModCarrerMode/data/club_environment/current_dressing_room/custom/113165/corner-panel.png",
+          "bytes": 2290607,
+          "sha256": "8e2f118eec8f5d34838136a42f28a2ab4be52b07c10715f9e75cb2951b4982dc",
+          "tool": "image_gen built-in",
+          "prompt": "Edit the supplied Independente Tucuruí crest into one premium architectural football locker-room texture. Target: portrait 1:2, full bleed, flat artwork, not a room render, no perspective or mockup. Role: Architectural corner-column mural. One hero crest prominently upper-middle, fully inside generous margins. Engraved club-related motif and city/ground line art in the lower half, elegant clean architectural framing. It must read correctly on either of two matching columns. Restrained footer text is the club title only.\nClub identity: emerald green with warm white and small royal-blue accents, proud electric rooster etched in clean lines, flowing Tocantins river and monumental hydroelectric spillway geometry, dense Amazonian leaf silhouettes; avoid overwhelming clutter. Preserve the supplied crest's exact shapes, colors and lettering. Only additional text allowed is exactly 'INDEPENDENTE TUCURUÍ'. Fine engraved illustration, beautiful composed detail, matte clean painted material, crisp readable design. Flat even albedo with NO circular vignette, no fake light spots, glow or baked shadows. Do not introduce other club emblems, trophies, dates or invented achievements.",
+          "refinement": null
+        },
+        {
+          "role": "wall_mural",
+          "path": "ModCarrerMode/data/club_environment/current_dressing_room/custom/113165/wall-mural.png",
+          "bytes": 2330816,
+          "sha256": "c00ac5253b825c95276ca7ea4fd2c2d6dbb4eeb81c5c2d09b2dbd41a93bec436",
+          "tool": "image_gen built-in",
+          "prompt": "Transform the supplied Independente Tucuruí crest into one premium club-specific football locker-room wall artwork texture. Output ultrawide landscape 3:1, full bleed FLAT artwork, no actual room or furniture and no perspective. A full-width team wall mural, dramatically composed but flat. Large exact crest in a clear central medallion, team-related line-art or mascot motif at one side, city/ground panorama along the lower quarter and sweeping club-color ribbons. Keep the center readable even when 3D furniture partly overlaps the bottom. Title may appear once, large, in a safe readable area.\nVisual identity: emerald green with warm white and small royal-blue accents, proud electric rooster etched in clean lines, flowing Tocantins river and monumental hydroelectric spillway geometry, dense Amazonian leaf silhouettes; avoid overwhelming clutter. Keep the supplied crest accurate, crisp and recognizable. Any additional wording must be exactly 'INDEPENDENTE TUCURUÍ', no other text. Sophisticated engraving blended with strong contemporary sports graphic design, refined fine lines, carefully balanced negative space and large confident shapes, matte clean finish. Use the entire wide canvas; no collage of separate panels. No circular vignette, lens effects, fake lights, baked shadow, grunge, sponsor marks, unrelated clubs, fictional dates or invented trophies.",
+          "refinement": null
+        },
+        {
+          "role": "backing",
+          "path": "ModCarrerMode/data/club_environment/current_dressing_room/custom/113165/locker-backing.png",
+          "bytes": 2401915,
+          "sha256": "53e1d63609273fcf45444d6746b026d0a607ddf8957ceaf81b163f645dec4323",
+          "tool": "image_gen built-in",
+          "prompt": "Create an edited graphic variation of the supplied Independente Tucuruí crest identity for a premium football locker-room cabinet backing. Target portrait 1:2, full bleed, a FLAT printed surface texture, not a room mockup. Decorative interior back panel of one player's locker, repeated behind hanging shirts. Create a sophisticated continuous-feeling low-to-medium contrast all-over graphic using club colors and small team-related ornamental/engraved motifs. Keep the middle 60 percent quiet enough for the hanging jersey to stand out. NO large crest, NO text, NO numbers, NO giant mascot face. This is a richly authored club-specific backing material, not a poster.\nIdentity and decorative vocabulary: emerald green with warm white and small royal-blue accents, proud electric rooster etched in clean lines, flowing Tocantins river and monumental hydroelectric spillway geometry, dense Amazonian leaf silhouettes; avoid overwhelming clutter. Use the crest only as a reference for the club's exact colors and visual character; DO NOT place a large crest or any lettering. Delicate authored ornamental linework, subtle tonal depth in the pigment, elegant repeating rhythm, beautiful crafted detail. Keep central jersey viewing space quiet. Matte even albedo, no reflected light, no lens gradient, no spotlight or painted cast shadow. No other clubs, no trophies, no dates, no people.",
+          "refinement": null
+        },
+        {
+          "role": "feature_wall",
+          "path": "ModCarrerMode/data/club_environment/current_dressing_room/custom/113165/feature-wall.png",
+          "bytes": 3440996,
+          "sha256": "5238bc23ec6c63e686a25e8e3245fd28aee2a2f629a550eb2d89b27f5a1fc4b1",
+          "tool": "image_gen built-in",
+          "prompt": "Edit the supplied Independente Tucuruí crest into one finished premium football locker-room feature-wall texture. Output portrait 2:3, full bleed FLAT artwork, not a render or mockup. Central feature-wall artwork for the dressing room. Balanced symmetric or near-symmetric heraldic composition with a prominent exact crest, subtle club-related engraving, an understated skyline/base illustration and generous quiet margins. The exact club title is the only additional text. Refined premium sports architecture, club identity at first glance.\nClub-specific art direction: emerald green with warm white and small royal-blue accents, proud electric rooster etched in clean lines, flowing Tocantins river and monumental hydroelectric spillway geometry, dense Amazonian leaf silhouettes; avoid overwhelming clutter. Preserve the supplied crest accurately; additional text only 'INDEPENDENTE TUCURUÍ'. Produce refined engraving and contemporary graphic design with rich visual craftsmanship, clean matte painted material and harmonious detail. Main emblem stays clear of all edges, unclipped. Avoid grunge, distressed dirt, photographic room, circular vignette, glowing spots, simulated shadows, trophies, invented dates, extra sponsor logos and symbols from other clubs.",
+          "refinement": null
+        },
+        {
+          "role": "hydration_wall",
+          "path": "ModCarrerMode/data/club_environment/current_dressing_room/custom/113165/hydration-wall.png",
+          "bytes": 2534946,
+          "sha256": "e0ff20632dbb7b3e3b88615c87c445ed58aaae5898af4c6d181dee06c499d698",
+          "tool": "image_gen built-in",
+          "prompt": "Transform the supplied Independente Tucuruí crest into one refined club-specific printed hydration-wall texture for a football locker room. Output ultrawide landscape 3:1, full bleed FLAT artwork. Wall artwork behind a football locker-room hydration station. A separate spacious composition from the main mural: club-related etched motif, flowing club-color bands and delicate city/ground panorama arranged above a mostly quiet lower half where the physical countertop and bottles will stand. Medium-sized exact crest offset into a clear upper focal area. Title may appear once, restrained and legible. No rendered bottles, products, furniture, sponsor brands or room perspective.\nArt direction: emerald green with warm white and small royal-blue accents, proud electric rooster etched in clean lines, flowing Tocantins river and monumental hydroelectric spillway geometry, dense Amazonian leaf silhouettes; avoid overwhelming clutter. Use exact crest identity, crisp emblem edges, sophisticated engraving and club-color graphics. Only additional text 'INDEPENDENTE TUCURUÍ' if needed. Matte clean surface and even flat albedo, strong artistry and coherent composition. Absolutely no rendered countertop, bottles, furniture, 3D room, gradients of fake lighting, circular lens vignette, cast shadows, other club marks, sponsor words, invented trophies or dates.",
+          "refinement": null
+        },
+        {
+          "role": "trophy_wall",
+          "path": "ModCarrerMode/data/trophy_room/custom/113165/identity-wall.png",
+          "bytes": 1791249,
+          "sha256": "6c27976f8bfb318a96961cb31fcef2ff5632d195a6b50f8fffe89b2ebaaf736e",
+          "tool": "image_gen built-in",
+          "prompt": "Edit the supplied Independente Tucuruí football crest into one premium architectural TROPHY ROOM identity-wall print. Output ultrawide landscape 3:1, full bleed FLAT graphic artwork. Elegant museum wall graphic for this club's 3D trophy room, printed on the long architectural feature wall. Large accurate club crest in the left third, exact title 'SALA DE TROFÉUS' as the main typographic anchor across the middle, club title below, slim club-colored divider and restrained engraved team/city identity along the base. White/light-gray overall background with club-color accent linework and a few clean motifs. Dignified, spacious and premium. No actual trophy illustrations: real earned 3D trophies will be placed elsewhere by the game. No rendered room, furniture, reflections or shadows. Keep all content inside safe margins.\nUse these exact two lines: 'SALA DE TROFÉUS' and 'INDEPENDENTE TUCURUÍ'. Crest copied faithfully from the supplied identity source, large but not oversized. Very light neutral white and soft gray backdrop; controlled #08734E and #EDEFE7 accent details. Fine tasteful line-art inspired by emerald green with warm white and small royal-blue accents, proud electric rooster etched in clean lines, flowing Tocantins river and monumental hydroelectric spillway geometry, dense Amazonian leaf silhouettes; avoid overwhelming clutter. Refined spacious museum typography and thin architectural divider rules. Keep all letters fully visible with generous margins. Absolutely no view of a physical room, podiums, cabinets, trophy drawings, invented honours, dates, sponsor logos, lens gradients, fake light spots, cast shadows, dirty grunge or other clubs.",
+          "refinement": null
+        }
+      ],
+      "assets": [
+        {
+          "path": "ModCarrerMode/data/club_environment/current_dressing_room/custom/113165/corner-panel.png",
+          "bytes": 2290607,
+          "sha256": "8e2f118eec8f5d34838136a42f28a2ab4be52b07c10715f9e75cb2951b4982dc"
+        },
+        {
+          "path": "ModCarrerMode/data/club_environment/current_dressing_room/custom/113165/wall-mural.png",
+          "bytes": 2330816,
+          "sha256": "c00ac5253b825c95276ca7ea4fd2c2d6dbb4eeb81c5c2d09b2dbd41a93bec436"
+        },
+        {
+          "path": "ModCarrerMode/data/club_environment/current_dressing_room/custom/113165/locker-backing.png",
+          "bytes": 2401915,
+          "sha256": "53e1d63609273fcf45444d6746b026d0a607ddf8957ceaf81b163f645dec4323"
+        },
+        {
+          "path": "ModCarrerMode/data/club_environment/current_dressing_room/custom/113165/feature-wall.png",
+          "bytes": 3440996,
+          "sha256": "5238bc23ec6c63e686a25e8e3245fd28aee2a2f629a550eb2d89b27f5a1fc4b1"
+        },
+        {
+          "path": "ModCarrerMode/data/club_environment/current_dressing_room/custom/113165/hydration-wall.png",
+          "bytes": 2534946,
+          "sha256": "e0ff20632dbb7b3e3b88615c87c445ed58aaae5898af4c6d181dee06c499d698"
+        },
+        {
+          "path": "ModCarrerMode/data/club_environment/current_dressing_room/custom/113165/locker-frame.png",
+          "bytes": 673600,
+          "sha256": "56501070ac466390731e71fcd8aefa113dccae5faa2412ca6c186a64a6c41ab1"
+        },
+        {
+          "path": "ModCarrerMode/data/club_environment/current_dressing_room/custom/113165/fascia-back-left.png",
+          "bytes": 185093,
+          "sha256": "4ddc572096a857e75e68d3f36e9bd6881ffb191c127ad8f5da61379d4c94143d"
+        },
+        {
+          "path": "ModCarrerMode/data/club_environment/current_dressing_room/custom/113165/fascia-back-right.png",
+          "bytes": 184335,
+          "sha256": "5cf37fbd62dd7240e5f32f7193d81f0f0703478f5fb04b885d90873983175a5a"
+        },
+        {
+          "path": "ModCarrerMode/data/club_environment/current_dressing_room/custom/113165/fascia-left.png",
+          "bytes": 146826,
+          "sha256": "c6e68160ed1ec92195e9162aab92f2b8b6499d5ecf22eeaec759257e5a461629"
+        },
+        {
+          "path": "ModCarrerMode/data/club_environment/current_dressing_room/custom/113165/fascia-right.png",
+          "bytes": 185753,
+          "sha256": "4565b6e91e8251afd0eb9cf5da59c19c86df70cfc604a941d6eaa7e14fed71c6"
+        },
+        {
+          "path": "ModCarrerMode/data/club_environment/current_dressing_room/custom/113165/profile.json",
+          "bytes": 2014,
+          "sha256": "22aad9abed9fa3815b1c1724615a95a488cffffe56952fa8959202cc5ed600c2"
+        }
+      ]
+    },
+    {
+      "club_id": 130078,
+      "club": "Galícia",
+      "reference": "https://galiciaec.com.br/clube/simbolos/",
+      "generated": [
+        {
+          "role": "corner",
+          "path": "ModCarrerMode/data/club_environment/current_dressing_room/custom/130078/corner-panel.png",
+          "bytes": 2437337,
+          "sha256": "aacb98341dbf4cf3848914d6f14042d7192c2b4c2614f01409a3a59de49f8048",
+          "tool": "image_gen built-in",
+          "prompt": "Edit the supplied Galícia crest into one premium architectural football locker-room texture. Target: portrait 1:2, full bleed, flat artwork, not a room render, no perspective or mockup. Role: Architectural corner-column mural. One hero crest prominently upper-middle, fully inside generous margins. Engraved club-related motif and city/ground line art in the lower half, elegant clean architectural framing. It must read correctly on either of two matching columns. Restrained footer text is the club title only.\nClub identity: royal blue and ivory with small red Santiago cross accents, refined Galician maritime and scallop/compass engraving blended with Salvador coastal architectural contours; diagonal blue-white heraldic rhythm, strong sophisticated composition. Preserve the supplied crest's exact shapes, colors and lettering. Only additional text allowed is exactly 'GALÍCIA ESPORTE CLUBE'. Fine engraved illustration, beautiful composed detail, matte clean painted material, crisp readable design. Flat even albedo with NO circular vignette, no fake light spots, glow or baked shadows. Do not introduce other club emblems, trophies, dates or invented achievements.",
+          "refinement": null
+        },
+        {
+          "role": "wall_mural",
+          "path": "ModCarrerMode/data/club_environment/current_dressing_room/custom/130078/wall-mural.png",
+          "bytes": 2732850,
+          "sha256": "a339fb1f4c89b54e325163b1b9ba2832ac538a3d56af970e13ea05dfd31b4026",
+          "tool": "image_gen built-in",
+          "prompt": "Transform the supplied Galícia crest into one premium club-specific football locker-room wall artwork texture. Output ultrawide landscape 3:1, full bleed FLAT artwork, no actual room or furniture and no perspective. A full-width team wall mural, dramatically composed but flat. Large exact crest in a clear central medallion, team-related line-art or mascot motif at one side, city/ground panorama along the lower quarter and sweeping club-color ribbons. Keep the center readable even when 3D furniture partly overlaps the bottom. Title may appear once, large, in a safe readable area.\nVisual identity: royal blue and ivory with small red Santiago cross accents, refined Galician maritime and scallop/compass engraving blended with Salvador coastal architectural contours; diagonal blue-white heraldic rhythm, strong sophisticated composition. Keep the supplied crest accurate, crisp and recognizable. Any additional wording must be exactly 'GALÍCIA ESPORTE CLUBE', no other text. Sophisticated engraving blended with strong contemporary sports graphic design, refined fine lines, carefully balanced negative space and large confident shapes, matte clean finish. Use the entire wide canvas; no collage of separate panels. No circular vignette, lens effects, fake lights, baked shadow, grunge, sponsor marks, unrelated clubs, fictional dates or invented trophies.",
+          "refinement": null
+        },
+        {
+          "role": "backing",
+          "path": "ModCarrerMode/data/club_environment/current_dressing_room/custom/130078/locker-backing.png",
+          "bytes": 2685602,
+          "sha256": "968d7cdc9539c3674d69d9c9c38945e0da67a805c4e8c9b84184dfc50322fb29",
+          "tool": "image_gen built-in",
+          "prompt": "Create an edited graphic variation of the supplied Galícia crest identity for a premium football locker-room cabinet backing. Target portrait 1:2, full bleed, a FLAT printed surface texture, not a room mockup. Decorative interior back panel of one player's locker, repeated behind hanging shirts. Create a sophisticated continuous-feeling low-to-medium contrast all-over graphic using club colors and small team-related ornamental/engraved motifs. Keep the middle 60 percent quiet enough for the hanging jersey to stand out. NO large crest, NO text, NO numbers, NO giant mascot face. This is a richly authored club-specific backing material, not a poster.\nIdentity and decorative vocabulary: royal blue and ivory with small red Santiago cross accents, refined Galician maritime and scallop/compass engraving blended with Salvador coastal architectural contours; diagonal blue-white heraldic rhythm, strong sophisticated composition. Use the crest only as a reference for the club's exact colors and visual character; DO NOT place a large crest or any lettering. Delicate authored ornamental linework, subtle tonal depth in the pigment, elegant repeating rhythm, beautiful crafted detail. Keep central jersey viewing space quiet. Matte even albedo, no reflected light, no lens gradient, no spotlight or painted cast shadow. No other clubs, no trophies, no dates, no people.",
+          "refinement": null
+        },
+        {
+          "role": "feature_wall",
+          "path": "ModCarrerMode/data/club_environment/current_dressing_room/custom/130078/feature-wall.png",
+          "bytes": 3006977,
+          "sha256": "03f3557cd1b479867e6f55b385fc37326ac4ae2773d06a7460f70a2bab266ea5",
+          "tool": "image_gen built-in",
+          "prompt": "Edit the supplied Galícia crest into one finished premium football locker-room feature-wall texture. Output portrait 2:3, full bleed FLAT artwork, not a render or mockup. Central feature-wall artwork for the dressing room. Balanced symmetric or near-symmetric heraldic composition with a prominent exact crest, subtle club-related engraving, an understated skyline/base illustration and generous quiet margins. The exact club title is the only additional text. Refined premium sports architecture, club identity at first glance.\nClub-specific art direction: royal blue and ivory with small red Santiago cross accents, refined Galician maritime and scallop/compass engraving blended with Salvador coastal architectural contours; diagonal blue-white heraldic rhythm, strong sophisticated composition. Preserve the supplied crest accurately; additional text only 'GALÍCIA ESPORTE CLUBE'. Produce refined engraving and contemporary graphic design with rich visual craftsmanship, clean matte painted material and harmonious detail. Main emblem stays clear of all edges, unclipped. Avoid grunge, distressed dirt, photographic room, circular vignette, glowing spots, simulated shadows, trophies, invented dates, extra sponsor logos and symbols from other clubs.",
+          "refinement": null
+        },
+        {
+          "role": "hydration_wall",
+          "path": "ModCarrerMode/data/club_environment/current_dressing_room/custom/130078/hydration-wall.png",
+          "bytes": 1915994,
+          "sha256": "27083b036e235efb4d8872cbaa7a5cb4ccda4401bc425fc74a0267b67a5237ce",
+          "tool": "image_gen built-in",
+          "prompt": "Transform the supplied Galícia crest into one refined club-specific printed hydration-wall texture for a football locker room. Output ultrawide landscape 3:1, full bleed FLAT artwork. Wall artwork behind a football locker-room hydration station. A separate spacious composition from the main mural: club-related etched motif, flowing club-color bands and delicate city/ground panorama arranged above a mostly quiet lower half where the physical countertop and bottles will stand. Medium-sized exact crest offset into a clear upper focal area. Title may appear once, restrained and legible. No rendered bottles, products, furniture, sponsor brands or room perspective.\nArt direction: royal blue and ivory with small red Santiago cross accents, refined Galician maritime and scallop/compass engraving blended with Salvador coastal architectural contours; diagonal blue-white heraldic rhythm, strong sophisticated composition. Use exact crest identity, crisp emblem edges, sophisticated engraving and club-color graphics. Only additional text 'GALÍCIA ESPORTE CLUBE' if needed. Matte clean surface and even flat albedo, strong artistry and coherent composition. Absolutely no rendered countertop, bottles, furniture, 3D room, gradients of fake lighting, circular lens vignette, cast shadows, other club marks, sponsor words, invented trophies or dates.",
+          "refinement": null
+        },
+        {
+          "role": "trophy_wall",
+          "path": "ModCarrerMode/data/trophy_room/custom/130078/identity-wall.png",
+          "bytes": 1532150,
+          "sha256": "138978624cf9e161059adc14b32de0d64a9908d7390785de65e9e170bfb943a4",
+          "tool": "image_gen built-in",
+          "prompt": "Edit the supplied Galícia football crest into one premium architectural TROPHY ROOM identity-wall print. Output ultrawide landscape 3:1, full bleed FLAT graphic artwork. Elegant museum wall graphic for this club's 3D trophy room, printed on the long architectural feature wall. Large accurate club crest in the left third, exact title 'SALA DE TROFÉUS' as the main typographic anchor across the middle, club title below, slim club-colored divider and restrained engraved team/city identity along the base. White/light-gray overall background with club-color accent linework and a few clean motifs. Dignified, spacious and premium. No actual trophy illustrations: real earned 3D trophies will be placed elsewhere by the game. No rendered room, furniture, reflections or shadows. Keep all content inside safe margins.\nUse these exact two lines: 'SALA DE TROFÉUS' and 'GALÍCIA ESPORTE CLUBE'. Crest copied faithfully from the supplied identity source, large but not oversized. Very light neutral white and soft gray backdrop; controlled #174CA4 and #F1F0E9 accent details. Fine tasteful line-art inspired by royal blue and ivory with small red Santiago cross accents, refined Galician maritime and scallop/compass engraving blended with Salvador coastal architectural contours; diagonal blue-white heraldic rhythm, strong sophisticated composition. Refined spacious museum typography and thin architectural divider rules. Keep all letters fully visible with generous margins. Absolutely no view of a physical room, podiums, cabinets, trophy drawings, invented honours, dates, sponsor logos, lens gradients, fake light spots, cast shadows, dirty grunge or other clubs.",
+          "refinement": null
+        }
+      ],
+      "assets": [
+        {
+          "path": "ModCarrerMode/data/club_environment/current_dressing_room/custom/130078/corner-panel.png",
+          "bytes": 2437337,
+          "sha256": "aacb98341dbf4cf3848914d6f14042d7192c2b4c2614f01409a3a59de49f8048"
+        },
+        {
+          "path": "ModCarrerMode/data/club_environment/current_dressing_room/custom/130078/wall-mural.png",
+          "bytes": 2732850,
+          "sha256": "a339fb1f4c89b54e325163b1b9ba2832ac538a3d56af970e13ea05dfd31b4026"
+        },
+        {
+          "path": "ModCarrerMode/data/club_environment/current_dressing_room/custom/130078/locker-backing.png",
+          "bytes": 2685602,
+          "sha256": "968d7cdc9539c3674d69d9c9c38945e0da67a805c4e8c9b84184dfc50322fb29"
+        },
+        {
+          "path": "ModCarrerMode/data/club_environment/current_dressing_room/custom/130078/feature-wall.png",
+          "bytes": 3006977,
+          "sha256": "03f3557cd1b479867e6f55b385fc37326ac4ae2773d06a7460f70a2bab266ea5"
+        },
+        {
+          "path": "ModCarrerMode/data/club_environment/current_dressing_room/custom/130078/hydration-wall.png",
+          "bytes": 1915994,
+          "sha256": "27083b036e235efb4d8872cbaa7a5cb4ccda4401bc425fc74a0267b67a5237ce"
+        },
+        {
+          "path": "ModCarrerMode/data/club_environment/current_dressing_room/custom/130078/locker-frame.png",
+          "bytes": 673829,
+          "sha256": "4372a05a271665c3a5d95170020de09e8c21d64a2ff251b7a99a38624dcd812c"
+        },
+        {
+          "path": "ModCarrerMode/data/club_environment/current_dressing_room/custom/130078/fascia-back-left.png",
+          "bytes": 278357,
+          "sha256": "a0c6b91148760677699e65a98dbdd677199ec2dcb066c0fc9cb6453a999d87b1"
+        },
+        {
+          "path": "ModCarrerMode/data/club_environment/current_dressing_room/custom/130078/fascia-back-right.png",
+          "bytes": 297399,
+          "sha256": "61d1dff7411f2505f552abb97c5813b80fda5c70f70bc35933571411babd3575"
+        },
+        {
+          "path": "ModCarrerMode/data/club_environment/current_dressing_room/custom/130078/fascia-left.png",
+          "bytes": 228663,
+          "sha256": "ba3417b28405c8da303cd8f48b4597f180013afa2c79a553076d1db979b629c1"
+        },
+        {
+          "path": "ModCarrerMode/data/club_environment/current_dressing_room/custom/130078/fascia-right.png",
+          "bytes": 181943,
+          "sha256": "4e5e2197f0040cef5e35b79034390fca993230d35990f5b42d1163804186dbef"
+        },
+        {
+          "path": "ModCarrerMode/data/club_environment/current_dressing_room/custom/130078/profile.json",
+          "bytes": 2001,
+          "sha256": "e06552de1cb04bd51406dcf521be64fa88471c33b0ec05d6d86abf7583e4ba38"
+        }
+      ]
+    },
+    {
+      "club_id": 130383,
+      "club": "Ypiranga-BA",
+      "reference": "https://www.fbf.org.br/",
+      "generated": [
+        {
+          "role": "corner",
+          "path": "ModCarrerMode/data/club_environment/current_dressing_room/custom/130383/corner-panel.png",
+          "bytes": 1947806,
+          "sha256": "f3047d5e5f445870b158dec39e5637860c07a0d9ee0ca21d4fc24b7d707d38d0",
+          "tool": "image_gen built-in",
+          "prompt": "Edit the supplied Ypiranga-BA crest into one premium architectural football locker-room texture. Target: portrait 1:2, full bleed, flat artwork, not a room render, no perspective or mockup. Role: Architectural corner-column mural. One hero crest prominently upper-middle, fully inside generous margins. Engraved club-related motif and city/ground line art in the lower half, elegant clean architectural framing. It must read correctly on either of two matching columns. Restrained footer text is the club title only.\nClub identity: golden yellow and deep black, elegant canary in engraved line art, Salvador architectural contours and subtle capoeira motion arcs, clean strong geometric ribbons; no green, no Ypiranga Erechim or Amapá insignia. Preserve the supplied crest's exact shapes, colors and lettering. Only additional text allowed is exactly 'ESPORTE CLUBE YPIRANGA'. Fine engraved illustration, beautiful composed detail, matte clean painted material, crisp readable design. Flat even albedo with NO circular vignette, no fake light spots, glow or baked shadows. Do not introduce other club emblems, trophies, dates or invented achievements.",
+          "refinement": null
+        },
+        {
+          "role": "wall_mural",
+          "path": "ModCarrerMode/data/club_environment/current_dressing_room/custom/130383/wall-mural.png",
+          "bytes": 1969574,
+          "sha256": "d65ea6e5f3a3b6a25ec09fdcc4155f3c899288ebb112c5315e712c79563f9006",
+          "tool": "image_gen built-in",
+          "prompt": "Transform the supplied Ypiranga-BA crest into one premium club-specific football locker-room wall artwork texture. Output ultrawide landscape 3:1, full bleed FLAT artwork, no actual room or furniture and no perspective. A full-width team wall mural, dramatically composed but flat. Large exact crest in a clear central medallion, team-related line-art or mascot motif at one side, city/ground panorama along the lower quarter and sweeping club-color ribbons. Keep the center readable even when 3D furniture partly overlaps the bottom. Title may appear once, large, in a safe readable area.\nVisual identity: golden yellow and deep black, elegant canary in engraved line art, Salvador architectural contours and subtle capoeira motion arcs, clean strong geometric ribbons; no green, no Ypiranga Erechim or Amapá insignia. Keep the supplied crest accurate, crisp and recognizable. Any additional wording must be exactly 'ESPORTE CLUBE YPIRANGA', no other text. Sophisticated engraving blended with strong contemporary sports graphic design, refined fine lines, carefully balanced negative space and large confident shapes, matte clean finish. Use the entire wide canvas; no collage of separate panels. No circular vignette, lens effects, fake lights, baked shadow, grunge, sponsor marks, unrelated clubs, fictional dates or invented trophies.",
+          "refinement": null
+        },
+        {
+          "role": "backing",
+          "path": "ModCarrerMode/data/club_environment/current_dressing_room/custom/130383/locker-backing.png",
+          "bytes": 2431583,
+          "sha256": "8d3e45bd54c1f0f3629243c4b036830c56ee82ab3e6c19e4761832c32a2fb390",
+          "tool": "image_gen built-in",
+          "prompt": "Create an edited graphic variation of the supplied Ypiranga-BA crest identity for a premium football locker-room cabinet backing. Target portrait 1:2, full bleed, a FLAT printed surface texture, not a room mockup. Decorative interior back panel of one player's locker, repeated behind hanging shirts. Create a sophisticated continuous-feeling low-to-medium contrast all-over graphic using club colors and small team-related ornamental/engraved motifs. Keep the middle 60 percent quiet enough for the hanging jersey to stand out. NO large crest, NO text, NO numbers, NO giant mascot face. This is a richly authored club-specific backing material, not a poster.\nIdentity and decorative vocabulary: golden yellow and deep black, elegant canary in engraved line art, Salvador architectural contours and subtle capoeira motion arcs, clean strong geometric ribbons; no green, no Ypiranga Erechim or Amapá insignia. Use the crest only as a reference for the club's exact colors and visual character; DO NOT place a large crest or any lettering. Delicate authored ornamental linework, subtle tonal depth in the pigment, elegant repeating rhythm, beautiful crafted detail. Keep central jersey viewing space quiet. Matte even albedo, no reflected light, no lens gradient, no spotlight or painted cast shadow. No other clubs, no trophies, no dates, no people.",
+          "refinement": null
+        },
+        {
+          "role": "feature_wall",
+          "path": "ModCarrerMode/data/club_environment/current_dressing_room/custom/130383/feature-wall.png",
+          "bytes": 2213441,
+          "sha256": "591b2162ac6dba6c4d583cd07e7151359f0be35fe725260b5899bae64ad0e359",
+          "tool": "image_gen built-in",
+          "prompt": "Edit the supplied Ypiranga-BA crest into one finished premium football locker-room feature-wall texture. Output portrait 2:3, full bleed FLAT artwork, not a render or mockup. Central feature-wall artwork for the dressing room. Balanced symmetric or near-symmetric heraldic composition with a prominent exact crest, subtle club-related engraving, an understated skyline/base illustration and generous quiet margins. The exact club title is the only additional text. Refined premium sports architecture, club identity at first glance.\nClub-specific art direction: golden yellow and deep black, elegant canary in engraved line art, Salvador architectural contours and subtle capoeira motion arcs, clean strong geometric ribbons; no green, no Ypiranga Erechim or Amapá insignia. Preserve the supplied crest accurately; additional text only 'ESPORTE CLUBE YPIRANGA'. Produce refined engraving and contemporary graphic design with rich visual craftsmanship, clean matte painted material and harmonious detail. Main emblem stays clear of all edges, unclipped. Avoid grunge, distressed dirt, photographic room, circular vignette, glowing spots, simulated shadows, trophies, invented dates, extra sponsor logos and symbols from other clubs.",
+          "refinement": null
+        },
+        {
+          "role": "hydration_wall",
+          "path": "ModCarrerMode/data/club_environment/current_dressing_room/custom/130383/hydration-wall.png",
+          "bytes": 1694715,
+          "sha256": "1cdf821e73a329d131b0a5f814d7bd58c0be05eb0b4cd72565ee1b9cb90ad067",
+          "tool": "image_gen built-in",
+          "prompt": "Transform the supplied Ypiranga-BA crest into one refined club-specific printed hydration-wall texture for a football locker room. Output ultrawide landscape 3:1, full bleed FLAT artwork. Wall artwork behind a football locker-room hydration station. A separate spacious composition from the main mural: club-related etched motif, flowing club-color bands and delicate city/ground panorama arranged above a mostly quiet lower half where the physical countertop and bottles will stand. Medium-sized exact crest offset into a clear upper focal area. Title may appear once, restrained and legible. No rendered bottles, products, furniture, sponsor brands or room perspective.\nArt direction: golden yellow and deep black, elegant canary in engraved line art, Salvador architectural contours and subtle capoeira motion arcs, clean strong geometric ribbons; no green, no Ypiranga Erechim or Amapá insignia. Use exact crest identity, crisp emblem edges, sophisticated engraving and club-color graphics. Only additional text 'ESPORTE CLUBE YPIRANGA' if needed. Matte clean surface and even flat albedo, strong artistry and coherent composition. Absolutely no rendered countertop, bottles, furniture, 3D room, gradients of fake lighting, circular lens vignette, cast shadows, other club marks, sponsor words, invented trophies or dates.",
+          "refinement": null
+        },
+        {
+          "role": "trophy_wall",
+          "path": "ModCarrerMode/data/trophy_room/custom/130383/identity-wall.png",
+          "bytes": 1539183,
+          "sha256": "5664acf3584e2f0b5e25324b22b037b83ccb0de8d22db3ac9f4f556d18ca56b9",
+          "tool": "image_gen built-in",
+          "prompt": "Edit the supplied Ypiranga-BA football crest into one premium architectural TROPHY ROOM identity-wall print. Output ultrawide landscape 3:1, full bleed FLAT graphic artwork. Elegant museum wall graphic for this club's 3D trophy room, printed on the long architectural feature wall. Large accurate club crest in the left third, exact title 'SALA DE TROFÉUS' as the main typographic anchor across the middle, club title below, slim club-colored divider and restrained engraved team/city identity along the base. White/light-gray overall background with club-color accent linework and a few clean motifs. Dignified, spacious and premium. No actual trophy illustrations: real earned 3D trophies will be placed elsewhere by the game. No rendered room, furniture, reflections or shadows. Keep all content inside safe margins.\nUse these exact two lines: 'SALA DE TROFÉUS' and 'ESPORTE CLUBE YPIRANGA'. Crest copied faithfully from the supplied identity source, large but not oversized. Very light neutral white and soft gray backdrop; controlled #E7BF16 and #151515 accent details. Fine tasteful line-art inspired by golden yellow and deep black, elegant canary in engraved line art, Salvador architectural contours and subtle capoeira motion arcs, clean strong geometric ribbons; no green, no Ypiranga Erechim or Amapá insignia. Refined spacious museum typography and thin architectural divider rules. Keep all letters fully visible with generous margins. Absolutely no view of a physical room, podiums, cabinets, trophy drawings, invented honours, dates, sponsor logos, lens gradients, fake light spots, cast shadows, dirty grunge or other clubs.",
+          "refinement": null
+        }
+      ],
+      "assets": [
+        {
+          "path": "ModCarrerMode/data/club_environment/current_dressing_room/custom/130383/corner-panel.png",
+          "bytes": 1947806,
+          "sha256": "f3047d5e5f445870b158dec39e5637860c07a0d9ee0ca21d4fc24b7d707d38d0"
+        },
+        {
+          "path": "ModCarrerMode/data/club_environment/current_dressing_room/custom/130383/wall-mural.png",
+          "bytes": 1969574,
+          "sha256": "d65ea6e5f3a3b6a25ec09fdcc4155f3c899288ebb112c5315e712c79563f9006"
+        },
+        {
+          "path": "ModCarrerMode/data/club_environment/current_dressing_room/custom/130383/locker-backing.png",
+          "bytes": 2431583,
+          "sha256": "8d3e45bd54c1f0f3629243c4b036830c56ee82ab3e6c19e4761832c32a2fb390"
+        },
+        {
+          "path": "ModCarrerMode/data/club_environment/current_dressing_room/custom/130383/feature-wall.png",
+          "bytes": 2213441,
+          "sha256": "591b2162ac6dba6c4d583cd07e7151359f0be35fe725260b5899bae64ad0e359"
+        },
+        {
+          "path": "ModCarrerMode/data/club_environment/current_dressing_room/custom/130383/hydration-wall.png",
+          "bytes": 1694715,
+          "sha256": "1cdf821e73a329d131b0a5f814d7bd58c0be05eb0b4cd72565ee1b9cb90ad067"
+        },
+        {
+          "path": "ModCarrerMode/data/club_environment/current_dressing_room/custom/130383/locker-frame.png",
+          "bytes": 670923,
+          "sha256": "e1dabcb99f5fe832ab6df451c0d6ef4c61de6c0207e59bee29fd6972167f326d"
+        },
+        {
+          "path": "ModCarrerMode/data/club_environment/current_dressing_room/custom/130383/fascia-back-left.png",
+          "bytes": 277896,
+          "sha256": "65f649e955c5493d5879740777c4765202882b7a0be6132e5c0486be3970c976"
+        },
+        {
+          "path": "ModCarrerMode/data/club_environment/current_dressing_room/custom/130383/fascia-back-right.png",
+          "bytes": 258413,
+          "sha256": "d50d466afec8c6e64c1ac74b0f64234263d3c7b8dd92965465b57770fa326382"
+        },
+        {
+          "path": "ModCarrerMode/data/club_environment/current_dressing_room/custom/130383/fascia-left.png",
+          "bytes": 198930,
+          "sha256": "cf16864acf5cea9ac9a04b1f3eea4455581d67187c9070b9ceda1689ddb39ff0"
+        },
+        {
+          "path": "ModCarrerMode/data/club_environment/current_dressing_room/custom/130383/fascia-right.png",
+          "bytes": 210066,
+          "sha256": "2c07e6d9a11137a851ff59aa3d4244b89dde764e8fa89698884e80c22bcc99b0"
+        },
+        {
+          "path": "ModCarrerMode/data/club_environment/current_dressing_room/custom/130383/profile.json",
+          "bytes": 1971,
+          "sha256": "bf9b24c8ce606a0b4627699e9e5c5bb566fcc0c37d5c6c6d7eacda7b8f5795b8"
+        }
+      ]
+    },
+    {
+      "club_id": 111059,
+      "club": "Ceará",
+      "reference": "https://www.cearasc.com/",
+      "generated": [
+        {
+          "role": "corner",
+          "path": "ModCarrerMode/data/club_environment/current_dressing_room/custom/111059/corner-panel.png",
+          "bytes": 1854944,
+          "sha256": "ba27c9c8ef965ae92c652c2370f4e8693fdef09079fc2846823465646824f63e",
+          "tool": "image_gen built-in",
+          "prompt": "Edit the supplied Ceará crest into one premium architectural football locker-room texture. Target: portrait 1:2, full bleed, flat artwork, not a room render, no perspective or mockup. Role: Architectural corner-column mural. One hero crest prominently upper-middle, fully inside generous margins. Engraved club-related motif and city/ground line art in the lower half, elegant clean architectural framing. It must read correctly on either of two matching columns. Restrained footer text is the club title only.\nClub identity: strictly black, white and silver-gray, refined alvinegro football stripes, coastal wave engravings, Castelão stadium linework and devoted supporter flag rhythm; 100 percent Ceará Sporting Club, NO Fortaleza EC crest, NO red/blue tricolor, NO lion; the city of Fortaleza is geographic only. Preserve the supplied crest's exact shapes, colors and lettering. Only additional text allowed is exactly 'CEARÁ SPORTING CLUB'. Fine engraved illustration, beautiful composed detail, matte clean painted material, crisp readable design. Flat even albedo with NO circular vignette, no fake light spots, glow or baked shadows. Do not introduce other club emblems, trophies, dates or invented achievements.",
+          "refinement": null
+        },
+        {
+          "role": "wall_mural",
+          "path": "ModCarrerMode/data/club_environment/current_dressing_room/custom/111059/wall-mural.png",
+          "bytes": 2757924,
+          "sha256": "f2f7c4a01a1aabd88a38ef7f727d5e0c9d1d0c2c0236b0cb297e7c13c4c9a7b8",
+          "tool": "image_gen built-in",
+          "prompt": "Transform the supplied Ceará crest into one premium club-specific football locker-room wall artwork texture. Output ultrawide landscape 3:1, full bleed FLAT artwork, no actual room or furniture and no perspective. A full-width team wall mural, dramatically composed but flat. Large exact crest in a clear central medallion, team-related line-art or mascot motif at one side, city/ground panorama along the lower quarter and sweeping club-color ribbons. Keep the center readable even when 3D furniture partly overlaps the bottom. Title may appear once, large, in a safe readable area.\nVisual identity: strictly black, white and silver-gray, refined alvinegro football stripes, coastal wave engravings, Castelão stadium linework and devoted supporter flag rhythm; 100 percent Ceará Sporting Club, NO Fortaleza EC crest, NO red/blue tricolor, NO lion; the city of Fortaleza is geographic only. Keep the supplied crest accurate, crisp and recognizable. Any additional wording must be exactly 'CEARÁ SPORTING CLUB', no other text. Sophisticated engraving blended with strong contemporary sports graphic design, refined fine lines, carefully balanced negative space and large confident shapes, matte clean finish. Use the entire wide canvas; no collage of separate panels. No circular vignette, lens effects, fake lights, baked shadow, grunge, sponsor marks, unrelated clubs, fictional dates or invented trophies.",
+          "refinement": null
+        },
+        {
+          "role": "backing",
+          "path": "ModCarrerMode/data/club_environment/current_dressing_room/custom/111059/locker-backing.png",
+          "bytes": 2496009,
+          "sha256": "e09dc549a0ad50c312bef9af2617850e98a933126544ce4acce922a10654d97f",
+          "tool": "image_gen built-in",
+          "prompt": "Create an edited graphic variation of the supplied Ceará crest identity for a premium football locker-room cabinet backing. Target portrait 1:2, full bleed, a FLAT printed surface texture, not a room mockup. Decorative interior back panel of one player's locker, repeated behind hanging shirts. Create a sophisticated continuous-feeling low-to-medium contrast all-over graphic using club colors and small team-related ornamental/engraved motifs. Keep the middle 60 percent quiet enough for the hanging jersey to stand out. NO large crest, NO text, NO numbers, NO giant mascot face. This is a richly authored club-specific backing material, not a poster.\nIdentity and decorative vocabulary: strictly black, white and silver-gray, refined alvinegro football stripes, coastal wave engravings, Castelão stadium linework and devoted supporter flag rhythm; 100 percent Ceará Sporting Club, NO Fortaleza EC crest, NO red/blue tricolor, NO lion; the city of Fortaleza is geographic only. Use the crest only as a reference for the club's exact colors and visual character; DO NOT place a large crest or any lettering. Delicate authored ornamental linework, subtle tonal depth in the pigment, elegant repeating rhythm, beautiful crafted detail. Keep central jersey viewing space quiet. Matte even albedo, no reflected light, no lens gradient, no spotlight or painted cast shadow. No other clubs, no trophies, no dates, no people.",
+          "refinement": null
+        },
+        {
+          "role": "feature_wall",
+          "path": "ModCarrerMode/data/club_environment/current_dressing_room/custom/111059/feature-wall.png",
+          "bytes": 2885265,
+          "sha256": "c82d8f4e31f135609cdcffaf0963432649cb11f9f410b19aef923f2ad925c331",
+          "tool": "image_gen built-in",
+          "prompt": "Edit the supplied Ceará crest into one finished premium football locker-room feature-wall texture. Output portrait 2:3, full bleed FLAT artwork, not a render or mockup. Central feature-wall artwork for the dressing room. Balanced symmetric or near-symmetric heraldic composition with a prominent exact crest, subtle club-related engraving, an understated skyline/base illustration and generous quiet margins. The exact club title is the only additional text. Refined premium sports architecture, club identity at first glance.\nClub-specific art direction: strictly black, white and silver-gray, refined alvinegro football stripes, coastal wave engravings, Castelão stadium linework and devoted supporter flag rhythm; 100 percent Ceará Sporting Club, NO Fortaleza EC crest, NO red/blue tricolor, NO lion; the city of Fortaleza is geographic only. Preserve the supplied crest accurately; additional text only 'CEARÁ SPORTING CLUB'. Produce refined engraving and contemporary graphic design with rich visual craftsmanship, clean matte painted material and harmonious detail. Main emblem stays clear of all edges, unclipped. Avoid grunge, distressed dirt, photographic room, circular vignette, glowing spots, simulated shadows, trophies, invented dates, extra sponsor logos and symbols from other clubs.",
+          "refinement": null
+        },
+        {
+          "role": "hydration_wall",
+          "path": "ModCarrerMode/data/club_environment/current_dressing_room/custom/111059/hydration-wall.png",
+          "bytes": 3193574,
+          "sha256": "65b4203d5094c7366c4b913e7b866b6e08ff16e4f72b775b3c925ca0b7f8ff2e",
+          "tool": "image_gen built-in",
+          "prompt": "Transform the supplied Ceará crest into one refined club-specific printed hydration-wall texture for a football locker room. Output ultrawide landscape 3:1, full bleed FLAT artwork. Wall artwork behind a football locker-room hydration station. A separate spacious composition from the main mural: club-related etched motif, flowing club-color bands and delicate city/ground panorama arranged above a mostly quiet lower half where the physical countertop and bottles will stand. Medium-sized exact crest offset into a clear upper focal area. Title may appear once, restrained and legible. No rendered bottles, products, furniture, sponsor brands or room perspective.\nArt direction: strictly black, white and silver-gray, refined alvinegro football stripes, coastal wave engravings, Castelão stadium linework and devoted supporter flag rhythm; 100 percent Ceará Sporting Club, NO Fortaleza EC crest, NO red/blue tricolor, NO lion; the city of Fortaleza is geographic only. Use exact crest identity, crisp emblem edges, sophisticated engraving and club-color graphics. Only additional text 'CEARÁ SPORTING CLUB' if needed. Matte clean surface and even flat albedo, strong artistry and coherent composition. Absolutely no rendered countertop, bottles, furniture, 3D room, gradients of fake lighting, circular lens vignette, cast shadows, other club marks, sponsor words, invented trophies or dates.",
+          "refinement": null
+        },
+        {
+          "role": "trophy_wall",
+          "path": "ModCarrerMode/data/trophy_room/custom/111059/identity-wall.png",
+          "bytes": 1613602,
+          "sha256": "b7285a4ebe6388c543e4cd3db27613dbbf40ac3526c4ebe74fbd23bef2d8c067",
+          "tool": "image_gen built-in",
+          "prompt": "Edit the supplied Ceará football crest into one premium architectural TROPHY ROOM identity-wall print. Output ultrawide landscape 3:1, full bleed FLAT graphic artwork. Elegant museum wall graphic for this club's 3D trophy room, printed on the long architectural feature wall. Large accurate club crest in the left third, exact title 'SALA DE TROFÉUS' as the main typographic anchor across the middle, club title below, slim club-colored divider and restrained engraved team/city identity along the base. White/light-gray overall background with club-color accent linework and a few clean motifs. Dignified, spacious and premium. No actual trophy illustrations: real earned 3D trophies will be placed elsewhere by the game. No rendered room, furniture, reflections or shadows. Keep all content inside safe margins.\nUse these exact two lines: 'SALA DE TROFÉUS' and 'CEARÁ SPORTING CLUB'. Crest copied faithfully from the supplied identity source, large but not oversized. Very light neutral white and soft gray backdrop; controlled #15171B and #F3F1EA accent details. Fine tasteful line-art inspired by strictly black, white and silver-gray, refined alvinegro football stripes, coastal wave engravings, Castelão stadium linework and devoted supporter flag rhythm; 100 percent Ceará Sporting Club, NO Fortaleza EC crest, NO red/blue tricolor, NO lion; the city of Fortaleza is geographic only. Refined spacious museum typography and thin architectural divider rules. Keep all letters fully visible with generous margins. Absolutely no view of a physical room, podiums, cabinets, trophy drawings, invented honours, dates, sponsor logos, lens gradients, fake light spots, cast shadows, dirty grunge or other clubs.",
+          "refinement": "Change only the tiny footer line in this finished Ceará trophy-room wall graphic. Replace the entire footer 'FORTALEZA • CEARÁ • BRASIL' with exactly 'NAÇÃO ALVINEGRA • CEARÁ • BRASIL'. Keep the crest, the large 'SALA DE TROFÉUS', the 'CEARÁ SPORTING CLUB' text, all spacing, layout, stadium line art, black-white-gray palette, wave engraving and all other pixels/composition as close as possible to the original. Do not put the word FORTALEZA anywhere. Output the same full-width landscape 3:1 flat wall texture with no extra objects or effects."
+        }
+      ],
+      "assets": [
+        {
+          "path": "ModCarrerMode/data/club_environment/current_dressing_room/custom/111059/corner-panel.png",
+          "bytes": 1854944,
+          "sha256": "ba27c9c8ef965ae92c652c2370f4e8693fdef09079fc2846823465646824f63e"
+        },
+        {
+          "path": "ModCarrerMode/data/club_environment/current_dressing_room/custom/111059/wall-mural.png",
+          "bytes": 2757924,
+          "sha256": "f2f7c4a01a1aabd88a38ef7f727d5e0c9d1d0c2c0236b0cb297e7c13c4c9a7b8"
+        },
+        {
+          "path": "ModCarrerMode/data/club_environment/current_dressing_room/custom/111059/locker-backing.png",
+          "bytes": 2496009,
+          "sha256": "e09dc549a0ad50c312bef9af2617850e98a933126544ce4acce922a10654d97f"
+        },
+        {
+          "path": "ModCarrerMode/data/club_environment/current_dressing_room/custom/111059/feature-wall.png",
+          "bytes": 2885265,
+          "sha256": "c82d8f4e31f135609cdcffaf0963432649cb11f9f410b19aef923f2ad925c331"
+        },
+        {
+          "path": "ModCarrerMode/data/club_environment/current_dressing_room/custom/111059/hydration-wall.png",
+          "bytes": 3193574,
+          "sha256": "65b4203d5094c7366c4b913e7b866b6e08ff16e4f72b775b3c925ca0b7f8ff2e"
+        },
+        {
+          "path": "ModCarrerMode/data/club_environment/current_dressing_room/custom/111059/locker-frame.png",
+          "bytes": 672446,
+          "sha256": "5dbd84d3d5f61513fa4586e423765a0212ff56a641f3021b41d51ea8dff08da9"
+        },
+        {
+          "path": "ModCarrerMode/data/club_environment/current_dressing_room/custom/111059/fascia-back-left.png",
+          "bytes": 243357,
+          "sha256": "154cab9f2cc6252b658df0191bfbc227acb5aec4bbc18ce0ffa415f7d509fda4"
+        },
+        {
+          "path": "ModCarrerMode/data/club_environment/current_dressing_room/custom/111059/fascia-back-right.png",
+          "bytes": 246842,
+          "sha256": "627008c93b83922a1f87ba267eba8ed71b8399041300d5d7c4aea3295efb844f"
+        },
+        {
+          "path": "ModCarrerMode/data/club_environment/current_dressing_room/custom/111059/fascia-left.png",
+          "bytes": 117676,
+          "sha256": "26cdc085d831e64a2474fdcc0894eabd2a3b84b0ac79c8a5cffb978a028806c7"
+        },
+        {
+          "path": "ModCarrerMode/data/club_environment/current_dressing_room/custom/111059/fascia-right.png",
+          "bytes": 178609,
+          "sha256": "c035a75dac86a149b39cbb81d28ad2c30096f6259e5c69b7f0c1b94847a1ef6c"
+        },
+        {
+          "path": "ModCarrerMode/data/club_environment/current_dressing_room/custom/111059/profile.json",
+          "bytes": 2034,
+          "sha256": "3689ca5762c25bd6f960ae79700f5edf5dd899c2d0895941e810afffbb2b7ac7"
+        }
+      ]
+    }
+  ],
+  "images": 77,
+  "tool": "image_gen built-in",
+  "surface_scope": "complete dressing-room graphics and trophy-room identity wall"
+}

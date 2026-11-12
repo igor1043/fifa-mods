@@ -19,12 +19,13 @@ int wmain(int argc,wchar_t** argv){
   d.BindFlags=0;d.Usage=D3D11_USAGE_STAGING;d.CPUAccessFlags=D3D11_CPU_ACCESS_READ;assert(SUCCEEDED(dev->CreateTexture2D(&d,nullptr,&copy)));
   const float gray[]={.1f,.1f,.1f,1};context->ClearRenderTargetView(target.Get(),gray);
   scene_loading::Status s;s.club=1043;s.visible=1;s.loaded=25;s.total=100;s.elapsedMs=10000;
-  if(variant==2)s.total=s.loaded=0; // activity remains visible before resource publication
+  if(variant==0)s.variant=scene_loading::RoomPreparation|(4<<8);
+  if(variant==2){s.total=s.loaded=0;s.variant=scene_loading::RoomPreparation|(1<<8);} // before resource publication
   {clubgfx::UiPass pass(context.Get(),renderer.uiPipeline);renderer.begin(context.Get(),target.Get(),2560,1080);renderer.normal(context.Get());if(background)drawRoomBackgroundLoading(context.Get(),s);else drawIndoorLoading(context.Get(),s,L"Flamengo",trophy);}
   context->CopyResource(copy.Get(),color.Get());D3D11_MAPPED_SUBRESOURCE map{};assert(SUCCEEDED(context->Map(copy.Get(),0,D3D11_MAP_READ,0,&map)));
   unsigned marked=0,gold=0;std::ofstream out(fs::path(argv[2])/(variant==2?L"background-pending.rgba":variant==3?L"background-loading.rgba":trophy?L"trophy-loading.rgba":L"room-loading.rgba"),std::ios::binary);
   for(unsigned y=0;y<1080;++y){const auto*row=static_cast<unsigned char*>(map.pData)+y*map.RowPitch;
-   for(unsigned x=0;x<2560;++x){const auto*p=row+x*4;if(!background&&y<998&&(x<100||x>2460))assert(p[0]==255&&p[1]==255&&p[2]==255);
+   for(unsigned x=0;x<2560;++x){const auto*p=row+x*4;if(!background&&y<998&&(x<100||x>2460))assert(p[0]<30&&p[1]<30&&p[2]<30);
     if(y>1010)assert(p[0]<30&&p[1]<30&&p[2]<30);
     if(p[0]<250||p[1]<250||p[2]<250)++marked;
     if(std::abs(int(p[0])-185)<3&&std::abs(int(p[1])-162)<3&&std::abs(int(p[2])-116)<3)++gold;

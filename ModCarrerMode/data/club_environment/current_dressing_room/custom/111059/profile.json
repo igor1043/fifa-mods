@@ -2,6 +2,72 @@
   "schema": 1,
   "name": "Ceará",
   "assets": {
-    "wall_mural": "wall-mural.png"
+    "wall_mural": "wall-mural.png",
+    "backing": "locker-backing.png",
+    "hydration_wall": "hydration-wall.png",
+    "corner": "corner-panel.png",
+    "cabinet": "locker-frame.png",
+    "fascia_back_left": "fascia-back-left.png",
+    "fascia_back_right": "fascia-back-right.png",
+    "fascia_left": "fascia-left.png",
+    "fascia_right": "fascia-right.png",
+    "feature_wall": "feature-wall.png"
+  },
+  "collection": "friends-club-art-20261111",
+  "concept": "strictly black, white and silver-gray, refined alvinegro football stripes, coastal wave engravings, Castelão stadium linework and devoted supporter flag rhythm; 100 percent Ceará Sporting Club, NO Fortaleza EC crest, NO red/blue tricolor, NO lion; the city of Fortaleza is geographic only",
+  "defaults": {
+    "style": "custom",
+    "backs": "custom",
+    "finish": "custom",
+    "fascia": "custom"
+  },
+  "theme": {
+    "banner": {
+      "base": "#171717",
+      "accent": "#F2F2F2",
+      "lines": [
+        "CEARÁ SPORTING CLUB",
+        "VAMOS, VOZÃO!",
+        "TIME DO POVO",
+        "NAÇÃO ALVINEGRA"
+      ],
+      "panels": [
+        {
+          "mode": "image",
+          "asset_key": "fascia_back_left"
+        },
+        {
+          "mode": "image",
+          "asset_key": "fascia_back_right"
+        },
+        {
+          "mode": "image",
+          "asset_key": "fascia_left"
+        },
+        {
+          "mode": "image",
+          "asset_key": "fascia_right"
+        }
+      ]
+    }
+  },
+  "surface_layout_revision": 5,
+  "surface_image_revision": 4,
+  "artwork": {
+    "tool": "image_gen built-in",
+    "original_copy": true,
+    "club_id": 111059,
+    "collection": "friends-club-art-20261111",
+    "roles": [
+      "corner",
+      "wall_mural",
+      "feature_wall",
+      "backing",
+      "hydration_wall"
+    ],
+    "supplement": {
+      "cabinet": "Existing native club-color graphic system",
+      "fascia": "Native type composition, four independently authored club strips"
+    }
   }
 }

@@ -200,7 +200,7 @@ inline std::array<float,1024> lightProjection(const Area& area=Area{}){
  matrix[13]=-1.f;matrix[15]=height;return matrix;
 }
 inline constexpr size_t ceilingSources=room_spotlight_r79::kSources.size();
-static_assert(ceilingSources==36,"Update the HLSL source array when the ceiling layout changes");
+static_assert(ceilingSources>0&&ceilingSources<256,"Ceiling lights must fit the receiver constant buffer");
 struct alignas(16) ReceiverConstants {
  float viewProjection[16];float floor[4];float depth[4];
  float light[4],spot[4],sources[ceilingSources][4];
@@ -208,7 +208,7 @@ struct alignas(16) ReceiverConstants {
 inline constexpr const char* receiverShader=R"hlsl(
 cbuffer Receiver:register(b0){
  row_major float4x4 worldToClip;float4 floorData;float4 depthData;
- float4 lightData;float4 spotData;float4 ceilingLights[36];
+ float4 lightData;float4 spotData;float4 ceilingLights[ROOM_CEILING_SOURCE_COUNT];
 };
 Texture2D<float> silhouette:register(t0);SamplerState filtered:register(s0);
 #ifdef ROOM_MULTISAMPLED_DEPTH
@@ -249,7 +249,7 @@ float4 PS(Pixel p):SV_TARGET{
  float weight=1;
  if(spotData.x>0){
   float energy=spotEnergy(lightData.xyz,p.world);float total=0;
-  [loop]for(int light=0;light<36;++light)total+=spotEnergy(ceilingLights[light].xyz,p.world);
+  [loop]for(int light=0;light<ROOM_CEILING_SOURCE_COUNT;++light)total+=spotEnergy(ceilingLights[light].xyz,p.world);
   weight=energy/max(total,0.25); // Partial occlusion when another ceiling focus lights the same floor.
  }
  return float4(0,0,0,saturate(shade/9.0)*depthData.w*coverage*saturate(weight));
@@ -306,11 +306,13 @@ struct Renderer {
   const D3D11_INPUT_ELEMENT_DESC floatElement={"POSITION",0,DXGI_FORMAT_R32G32B32_FLOAT,0,0,D3D11_INPUT_PER_VERTEX_DATA,0};
   if(FAILED(device->CreateInputLayout(&floatElement,1,code->vertex.data(),code->vertex.size(),&floatPosition)))return false;
   ComPtr<ID3DBlob> vertex,pixel;
-  if(FAILED(D3DCompile(receiverShader,strlen(receiverShader),nullptr,nullptr,nullptr,"VS","vs_5_0",D3DCOMPILE_OPTIMIZATION_LEVEL3,0,&vertex,nullptr))||
-     FAILED(D3DCompile(receiverShader,strlen(receiverShader),nullptr,nullptr,nullptr,"PS","ps_5_0",D3DCOMPILE_OPTIMIZATION_LEVEL3,0,&pixel,nullptr)))return false;
+  const auto sourceCount=std::to_string(ceilingSources);
+  const D3D_SHADER_MACRO baseMacros[]={{"ROOM_CEILING_SOURCE_COUNT",sourceCount.c_str()},{nullptr,nullptr}};
+  if(FAILED(D3DCompile(receiverShader,strlen(receiverShader),nullptr,baseMacros,nullptr,"VS","vs_5_0",D3DCOMPILE_OPTIMIZATION_LEVEL3,0,&vertex,nullptr))||
+     FAILED(D3DCompile(receiverShader,strlen(receiverShader),nullptr,baseMacros,nullptr,"PS","ps_5_0",D3DCOMPILE_OPTIMIZATION_LEVEL3,0,&pixel,nullptr)))return false;
   if(FAILED(device->CreateVertexShader(vertex->GetBufferPointer(),vertex->GetBufferSize(),nullptr,&receiver))||
      FAILED(device->CreatePixelShader(pixel->GetBufferPointer(),pixel->GetBufferSize(),nullptr,&receiverPixel)))return false;
-  const D3D_SHADER_MACRO macros[]={{"ROOM_MULTISAMPLED_DEPTH","1"},{nullptr,nullptr}};
+  const D3D_SHADER_MACRO macros[]={{"ROOM_MULTISAMPLED_DEPTH","1"},{"ROOM_CEILING_SOURCE_COUNT",sourceCount.c_str()},{nullptr,nullptr}};
   pixel.Reset();if(FAILED(D3DCompile(receiverShader,strlen(receiverShader),nullptr,macros,nullptr,"PS","ps_5_0",D3DCOMPILE_OPTIMIZATION_LEVEL3,0,&pixel,nullptr))||
      FAILED(device->CreatePixelShader(pixel->GetBufferPointer(),pixel->GetBufferSize(),nullptr,&receiverMultisampled)))return false;
   const float tiles[8]{};const auto matrix=lightProjection();

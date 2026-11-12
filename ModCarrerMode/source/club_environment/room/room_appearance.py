@@ -101,10 +101,11 @@ def asset(game,club,key):
     folder=club_folder(game,club).resolve()
     assets=custom_profile(game,club).get('assets',{})
     value=assets.get(key) if isinstance(assets,dict) else None
-    # Optional per-club safe artwork uses a predictable filename; a profile
-    # may override it when an existing pack uses a different asset name.
-    if key in ('locker_box_front','table_top','exit_door') and not isinstance(value,str):
-        stem={'locker_box_front':'locker-box-front','table_top':'table-top','exit_door':'exit-door'}[key]
+    # Optional artwork can be installed independently of a full club profile.
+    # In particular, corner updates must not replace the club's other artwork
+    # or its per-career appearance settings just to bind the two corner faces.
+    if key in ('locker_box_front','table_top','exit_door','corner') and not isinstance(value,str):
+        stem={'locker_box_front':'locker-box-front','table_top':'table-top','exit_door':'exit-door','corner':'corner-panel'}[key]
         value=stem+'.png' if (folder/(stem+'.png')).is_file() else stem+'.dds'
     if not isinstance(value,str):return None
     path=(folder/value).resolve()

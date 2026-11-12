@@ -12,6 +12,7 @@ from room_native_kit_rules_r46 import rules,number_candidates,name_candidates
 from kit_selection import current_kits
 import room_v3
 import copy,threading
+from room_preparation_progress import publish as publish_preparation
 ROOT=portable.ROOM;GAME=portable.GAME
 _base_components=None;_base_report=None;_generation=0
 CACHE=ROOT/'runtime/native_source_geometry';CACHE.mkdir(exist_ok=True)
@@ -129,7 +130,10 @@ def career():
  return snap,roster,info,context
 def prepare():
  global _base_components,_base_report
+ snapshot=json.loads((GAME/'ModCarrerMode/runtime/career_fce_snapshot.json').read_text(encoding='utf8'))
+ publish_preparation(ROOT,snapshot['pid'],snapshot['club'],2)
  began=time.perf_counter();snap,roster,kits,context=career();read_ms=round((time.perf_counter()-began)*1000);club=snap['club'];print_sources=[];components={};native_refs=set();hanging={k:prepare_geometry(k,read_asset) for k in {2 if p['goalkeeper'] else 0 for p in roster}};hardware=hardware_texture()
+ publish_preparation(ROOT,snap['pid'],club,3)
  from room_kit_print_r56 import name_model,number_models,name_stamp,locker_plate
  native_names={};native_numbers={};print_warnings=[];name_prints=[];plate_prints=[]
  for typ in hanging:
@@ -165,6 +169,7 @@ def prepare():
    if submesh is None:submesh=bounds(model)[2]
    components[key]=dict(key=key,model=model,texture=texture,texname=texname,alpha=alpha,submesh=submesh,overlay=overlay,page=page,pages=pages,bank=bank,matrices=[]);native_refs.update(x for x in (model,texture) if not x.startswith('data/sceneassets/server16_dressing_room_v3/shared'))
   components[key]['matrices'].append(matrix)
+ publish_preparation(ROOT,snap['pid'],club,4)
  club_badge=Image.open(__import__('io').BytesIO(read_asset(f'data/ui/imgassets/crest/light/l{club}.dds'))).convert('RGBA')
  for i,p in enumerate(roster):
   typ=2 if p['goalkeeper'] else 0;jersey='data/sceneassets/body/jersey_0_'+('0' if typ==2 else '8')+'_0_0_1_0_0.rx3'
@@ -238,6 +243,7 @@ def prepare():
  add('table_shadows',prefix+('floor_shadows_r77.rx3' if (GAME/'data/sceneassets/server16_dressing_room_v3/shared/floor_shadows_r77.rx3').is_file() else 'floor_shadows_r76.rx3' if (GAME/'data/sceneassets/server16_dressing_room_v3/shared/floor_shadows_r76.rx3').is_file() else 'floor_shadows_r75.rx3' if (GAME/(prefix+'floor_shadows_r75.rx3')).is_file() else 'floor_shadows_r72.rx3' if (GAME/(prefix+'floor_shadows_r72.rx3')).is_file() else 'floor_shadows_r56.rx3'),prefix+'contact_shadow_r51.rx3','shadow_cm',identity,True,'room_part_2')
  assert 0<len(components)<=256,f'Native room component group limit exceeded: {len(components)}/256 before interior'
  from room_medical_r53 import prepare as prepare_medical
+ publish_preparation(ROOT,snap['pid'],club,5)
  prepare_medical(context,read_asset,add,identity)
  if (GAME/(prefix+'interior_r72.json')).is_file():
   from room_interior_r72 import prepare as prepare_interior
@@ -276,6 +282,7 @@ def publish_components(components,report):
   if probe_key not in probe_cache:probe_cache[probe_key]=geometry_probe(*probe_key,read_asset)
   config+=' '.join(format(v,'.9g') for v in probe_cache[probe_key])+'\n'
   config+='\n'.join(' '.join(format(float(x),'.9g') for x in m) for m in c['matrices'])+'\n'
+ publish_preparation(ROOT,report['pid'],club,6)
  target=ROOT/'runtime/native_components_v2.txt';tmp=target.with_suffix('.tmp');tmp.write_text(config);os.replace(tmp,target)
  (ROOT/'runtime/native_components_manifest_r46.json').write_text(json.dumps(report,ensure_ascii=False,indent=2),encoding='utf8')
 
@@ -284,7 +291,7 @@ def refresh_appearance():
  if _base_components is None or _base_report is None:return False
  began=time.perf_counter();components=copy.deepcopy(_base_components);report=copy.deepcopy(_base_report);context=report['context']
  for key,c in components.items():
-  if key.startswith('role_floor_'):c['texture']=room_v3.floor_texture(context,GAME);c['texname']='v3_cm'
+  if key.startswith(('role_floor_','medical_clinical_floor_')):c['texture']=room_v3.floor_texture(context,GAME);c['texname']='v3_cm'
  def add(key,model,texture,texname,matrix,alpha=False,submesh=None,overlay=(0,0,0,0),page=-1,pages=0,bank=0):
   if room_v3.empty_component(model,submesh,GAME):return
   from room_annex_signage import model_path as sign_model

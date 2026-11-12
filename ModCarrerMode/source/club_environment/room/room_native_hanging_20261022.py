@@ -11,9 +11,14 @@ R=scene.ROOT;LIVE=scene.LIVE
 TEMPLATE=portable.ROOM/"assets/texture_template.rx3"
 VERSION='r71'
 
+def native_texture_image(image):
+ image=image.convert('RGBA')
+ size=tuple(max(4,(dimension+3)//4*4) for dimension in image.size)
+ return image if size==image.size else image.resize(size,Image.Resampling.LANCZOS)
+
 def texture_package(image,path,name,*,mipmaps=True,opaque=False):
  """Native mipmap directory, with BC1 available only for proven opaque art."""
- image=image.convert('RGBA')
+ image=native_texture_image(image)
  if opaque and image.getextrema()[3]!=(255,255):raise ValueError('BC1 office art must be fully opaque')
  codec='DXT1' if opaque else 'DXT5';block=8 if opaque else 16
  w,h=image.size;rx=Rx3(TEMPLATE.read_bytes());head=rx.get(TEXTURE)[0][:16];raw=bytearray(head);raw[5]=0 if opaque else 2;mips=0

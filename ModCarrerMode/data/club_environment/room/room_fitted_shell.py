@@ -8,7 +8,8 @@ import numpy as np
 from room_visual_r68 import box,read_mesh,replace_mesh
 from rx3 import VERTEX
 
-SIDE_END_Z=735.
+SIDE_END_Z=1543.6
+CABINET_END_Z=735.
 OLD_SIDE_X=850.
 SIDE_INNER_X=835.5
 SIDE_SHIFT=OLD_SIDE_X-SIDE_INNER_X
@@ -39,17 +40,20 @@ def geometry(rx,kind):
         if not (outer or rear):continue
         v,idx=split_at_z(v,idx,SIDE_END_Z)
         old=v['p'].copy();v['p']=fit_points(old)
+        if kind=='interior':
+            # The immutable old exit is recognized and removed later by its
+            # original coordinates. Move its replacement, not these fixtures.
+            from room_exit_door import OLD_LO,OLD_HI
+            fixture=((old>=OLD_LO)&(old<=OLD_HI)).all(1)
+            v['p'][fixture]=old[fixture]
         count=int((np.abs(v['p']-old)>.001).any(1).sum())
         if count:replace_mesh(rx,slot,v,idx);changed[str(slot)]=count
     return changed
 
 
 def returns():
-    # Close the short step where the fitted cabinet wall meets the unchanged
-    # service-corridor wall; there is no open slit behind the final side bay.
-    return [box((sign*SIDE_INNER_X if sign>0 else -OLD_SIDE_X,1000.,SIDE_END_Z),
-                (OLD_SIDE_X if sign>0 else -SIDE_INNER_X,1338.,SIDE_END_Z+.8))
-            for sign in (-1,1)]
+    # No return/step: the cabinet wall and service wall share one plane.
+    return []
 
 
 def obstacles(items):
@@ -70,10 +74,6 @@ def obstacles(items):
             result.append(item)
     additions=[('ball trolley',[-333,0,296],[-227,100,374]),
                ('next match board',[-125,0,-560],[125,250,-475])]
-    for sign in (-1,1):
-        lo=SIDE_INNER_X if sign>0 else -OLD_SIDE_X
-        hi=OLD_SIDE_X if sign>0 else -SIDE_INNER_X
-        additions.append(('fitted wall return '+str(sign),[lo,0,SIDE_END_Z],[hi,338,SIDE_END_Z+.8]))
     names={item['name'] for item in result}
     for name,lo,hi in additions:
         name='Current Dressing Room / '+name
@@ -82,6 +82,6 @@ def obstacles(items):
 
 
 def specification():
-    return dict(revision=1,side_inner_x_cm=SIDE_INNER_X,side_end_z_cm=SIDE_END_Z,
+    return dict(revision=2,side_inner_x_cm=SIDE_INNER_X,side_end_z_cm=SIDE_END_Z,
                 back_inner_z_cm=BACK_INNER_Z,cabinet_wall_clearance_cm=1.5,
-                cabinet_positions_unchanged=True,service_corridor_unchanged=True)
+                cabinet_positions_unchanged=True,service_doorways_unchanged=True)

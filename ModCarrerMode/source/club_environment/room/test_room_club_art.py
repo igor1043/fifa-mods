@@ -13,6 +13,29 @@ D=Path(__file__).resolve().parents[4]
 
 
 class ClubArtTests(unittest.TestCase):
+    def test_corner_only_update_binds_each_club_without_replacing_profiles_or_save_settings(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root=Path(tmp)
+            for club,ink in ((383,'green'),(1629,'blue')):
+                folder=root/appearance.ROOT/'custom'/str(club);folder.mkdir(parents=True)
+                Image.new('RGBA',(64,128),ink).save(folder/'corner-panel.png')
+            # An older club profile without a corner mapping remains valid.
+            profile=root/appearance.ROOT/'custom/383/profile.json'
+            profile.write_text('{"assets":{"backing":"existing-backing.png"},"defaults":{"finish":"light"}}')
+            before=profile.read_bytes()
+            for club in (383,1629):
+                corner=appearance.asset(root,club,'corner')
+                self.assertEqual(corner,root/appearance.ROOT/'custom'/str(club)/'corner-panel.png')
+                self.assertEqual(appearance.preferences(root,club)['style'],'custom')
+            self.assertEqual(appearance.preferences(root,383)['finish'],'light')
+            self.assertEqual(profile.read_bytes(),before)
+            self.assertNotEqual(appearance.asset(root,383,'corner').read_bytes(),appearance.asset(root,1629,'corner').read_bytes())
+            self.assertIsNone(appearance.asset(root,1043,'corner'))
+            saved=root/appearance.PREFERENCES/'383.json';saved.parent.mkdir(parents=True)
+            saved.write_text('{"style":"default","finish":"gray"}')
+            self.assertEqual(appearance.preferences(root,383)['style'],'default')
+            self.assertEqual(appearance.preferences(root,383)['finish'],'gray')
+
     def test_current_catalog_resolves_area_and_respects_default(self):
         with tempfile.TemporaryDirectory() as tmp:
             root=Path(tmp);folder=root/appearance.ROOT/'custom/1043';folder.mkdir(parents=True)
@@ -32,7 +55,11 @@ class ClubArtTests(unittest.TestCase):
             (p/'profile.json').write_text('{"assets":{"wall_mural":"wall-mural.png"}}')
             image=p/'wall-mural.png';Image.new('RGBA',(300,100),'red').save(image)
             before=interior.art_stamp(root,1043)
+            modified=image.stat().st_mtime_ns
             Image.new('RGBA',(300,100),'blue').save(image)
+            # Tiny PNG rewrites can share a timestamp on Windows volumes.
+            # Model an observed editor save without depending on clock speed.
+            __import__('os').utime(image,ns=(modified+1_000_000_000,modified+1_000_000_000))
             self.assertNotEqual(before,interior.art_stamp(root,1043))
             self.assertEqual(interior.mural_source(root,1043),image)
 

@@ -38,7 +38,8 @@ def replace_old_fixture(rx):
     v, idx = read_mesh(rx, 3)
     if len(idx) != 6 or not old_door_triangles(v, idx).all():
         raise ValueError('Unexpected exit sign; room model left unpublished')
-    v, idx = panel([-841.9, 1262., CENTER_Z], 146., 27., (1, 0, 0), (0, .5, 1, .75))
+    from room_fitted_shell import SIDE_SHIFT
+    v, idx = panel([-841.9+SIDE_SHIFT, 1262., CENTER_Z], 146., 27., (1, 0, 0), (0, .5, 1, .75))
     replace_mesh(rx, 3, v, idx)
     return removed
 

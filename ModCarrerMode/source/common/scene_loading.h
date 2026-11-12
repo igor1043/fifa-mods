@@ -7,8 +7,16 @@ struct Status {
  uint32_t size=sizeof(Status),version=1,club=0,visible=0,ready=0,loaded=0,total=0,variant=0,error=0;
  uint64_t elapsedMs=0;
 };
+constexpr unsigned RoomPreparation=8;
+inline unsigned roomStage(const Status&s){return s.variant&RoomPreparation?(s.variant>>8)&255:0;}
 inline float progress(const Status&s){
  if(s.ready)return 1.f;
+ if(s.variant&RoomPreparation){
+  const unsigned stage=roomStage(s);
+  const float milestones[]={.10f,.10f,.20f,.40f,.55f,.70f,.80f};
+  if(stage<6)return milestones[std::min(stage,6u)];
+  return std::min(.99f,.80f+(s.total?.19f*float(std::min(s.loaded,s.total))/s.total:0.f));
+ }
  if(!s.total)return -1.f;
  return std::min(.99f,float(std::min(s.loaded,s.total))/s.total);
 }

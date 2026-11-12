@@ -58,7 +58,9 @@ def build(game,interchange,output,poster_dir):
   batched=defaultdict(list)
   for key,parts in scene.groups.items():
    for v,idx in parts:
-    if key in palette_uv:
+    if key=='floor':
+     v=v.copy();v['uv']=v['p'][:,[0,2]]/60.;batched['floor'].append((v,idx))
+    elif key in palette_uv:
      v=v.copy();v['uv']=palette_uv[key];batched['clinical_flat'].append((v,idx))
     else:batched[key].append((v,idx))
   groups,lookup=split(batched);relative=root+name+'.rx3';bindings=write_groups(template,groups,output/relative);required.add(relative)

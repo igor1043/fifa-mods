@@ -43,7 +43,35 @@ def tables(data,metadata,spans,exclude=()):
     return result
 
 _base_cache=None
+_metadata_cache=None
+_saved_cache=None
 last_tables=None
+
+def read_table_sets(path,meta_path):
+    """Retain one validated save revision and base DB, never another career.
+
+    Re-entry still validates the live career in project(); only decoding the
+    unchanged disk data is reused. File identity and requested tables are keys.
+    """
+    global _metadata_cache,_saved_cache,_base_cache
+    path,meta_path=Path(path),Path(meta_path)
+    ms=meta_path.stat();meta_key=(str(meta_path),ms.st_size,ms.st_mtime_ns)
+    if _metadata_cache is None or _metadata_cache[0]!=meta_key:
+        meta=ET.parse(meta_path).getroot()
+        metadata={t.get('shortname').encode():(t.get('name'),{f.get('shortname').encode():f.attrib for f in t.findall('fields/field')}) for t in meta.findall('table')}
+        _metadata_cache=(meta_key,metadata)
+    metadata=_metadata_cache[1];wanted=tuple(sorted(TABLES));stat=path.stat()
+    save_key=(str(path),stat.st_size,stat.st_mtime_ns,meta_key,wanted)
+    if _saved_cache is None or _saved_cache[0]!=save_key:
+        data=path.read_bytes();saved=tables(data,metadata,blocks(data))
+        after=path.stat()
+        if (stat.st_size,stat.st_mtime_ns)!=(after.st_size,after.st_mtime_ns):raise ValueError('Save changed during room preparation')
+        _saved_cache=(save_key,saved)
+    db_path=GAME/'data/db/fifa_ng_db.db';db_stat=db_path.stat()
+    base_key=(str(db_path),db_stat.st_size,db_stat.st_mtime_ns,meta_key,wanted)
+    if _base_cache is None or _base_cache[0]!=base_key:
+        base_data=db_path.read_bytes();_base_cache=(base_key,tables(base_data,metadata,[(0,len(base_data))],exclude=('playernames',)))
+    return _saved_cache[1],_base_cache[1]
 def project(snapshot_path=GAME/'ModCarrerMode/runtime/career_fce_snapshot.json'):
     global _base_cache,last_tables
     snapshot=json.loads(snapshot_path.read_text(encoding='utf8'))
@@ -70,12 +98,8 @@ def project(snapshot_path=GAME/'ModCarrerMode/runtime/career_fce_snapshot.json')
         from datetime import datetime
         datetime.strptime(str(live_date),'%Y%m%d')
     finally:m.close()
-    meta=ET.parse(GAME/'data/db/fifa_ng_db-meta.xml').getroot()
-    metadata={t.get('shortname').encode():(t.get('name'),{f.get('shortname').encode():f.attrib for f in t.findall('fields/field')}) for t in meta.findall('table')}
-    saved=tables(data,metadata,blocks(data));db_path=GAME/'data/db/fifa_ng_db.db';db_stat=db_path.stat();base_stamp=(db_stat.st_size,db_stat.st_mtime_ns)
-    if _base_cache is None or _base_cache[0]!=base_stamp:
-        base_data=db_path.read_bytes();_base_cache=(base_stamp,tables(base_data,metadata,[(0,len(base_data))],exclude=('playernames',)))
-    base=_base_cache[1];last_tables=(str(path),snapshot['saveWriteTime100ns'],saved,base)
+    saved,base=read_table_sets(path,GAME/'data/db/fifa_ng_db-meta.xml')
+    last_tables=(str(path),snapshot['saveWriteTime100ns'],saved,base)
     rows=lambda name:saved[name] if name in saved else base.get(name,[])
     club=snapshot['club'];today=live_date
     fixtures=[r for r in snapshot['fixtures'] if len(r)>=10 and club in r[5:7] and r[3]>=today and r[9]==0]

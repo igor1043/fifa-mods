@@ -1,8 +1,8 @@
 {
   "schema": 1,
   "name": "Atlético-MG",
-  "collection": "serie-a-original",
-  "concept": "Pedra e galo",
+  "collection": "club-identity-20261111",
+  "concept": "geometric black-white terraces and fierce rooster feather rhythm",
   "assets": {
     "cabinet": "locker-frame.png",
     "backing": "locker-backing.png",
@@ -13,15 +13,17 @@
     "fascia_back_right": "fascia-back-right.png",
     "fascia_left": "fascia-left.png",
     "fascia_right": "fascia-right.png",
-    "wall_mural": "wall-mural.png"
+    "wall_mural": "wall-mural.png",
+    "hydration_wall": "hydration-wall.png"
   },
   "defaults": {
     "style": "custom",
-    "finish": "dark",
+    "finish": "custom",
     "backs": "custom",
     "trim": "primary",
     "floor": "rubber",
-    "logo": "floor"
+    "logo": "floor",
+    "fascia": "custom"
   },
   "theme": {
     "banner": {
@@ -44,13 +46,40 @@
           "mode": "image",
           "asset_key": "fascia_right"
         }
-      ]
+      ],
+      "lines": [
+        "ATLÉTICO MINEIRO",
+        "AQUI É GALO!",
+        "MASSA ATLETICANA",
+        "LUTAR, LUTAR, LUTAR!"
+      ],
+      "club_style": "stripes"
     }
   },
   "artwork": {
     "tool": "image_gen built-in",
-    "original_copy": true
+    "original_copy": true,
+    "collection": "club-identity-20261111",
+    "roles": [
+      "wall_mural",
+      "backing",
+      "hydration_wall"
+    ],
+    "club_id": 1035,
+    "supplement": {
+      "cabinet": "native club-color finish",
+      "corner": "image_gen built-in",
+      "fascia": "Four club-specific authored banks: identity, nickname and supporter phrases",
+      "roles": [
+        "cabinet",
+        "corner",
+        "fascia_back_left",
+        "fascia_back_right",
+        "fascia_left",
+        "fascia_right"
+      ]
+    }
   },
-  "surface_layout_revision": 4,
-  "surface_image_revision": 7
+  "surface_layout_revision": 5,
+  "surface_image_revision": 10
 }
