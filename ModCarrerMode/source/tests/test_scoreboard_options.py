@@ -105,11 +105,25 @@ class NativeScreen(unittest.TestCase):
         self.view=Object(dict(mcData=Object(dict(categories=Object({10:self.match,20:self.other}),settings=Object()))),self.proto)
         self.invoke('InitGameSetting');self.calls.clear()
     def invoke(self,name,*args):return self.vm.invoke(self.proto.get(name),self.view,args)
-    def test_all_original_exports_and_rows_are_preserved_with_one_extra_match_row(self):
-        self.assertTrue(self.exports_preserved);self.assertEqual(self.match.get('settings'),[11,12,self.ROW])
+    def test_all_original_exports_and_rows_are_preserved_with_extra_match_rows(self):
+        self.assertTrue(self.exports_preserved);self.assertEqual(self.match.get('settings'),[11,12,self.ROW,65001])
         self.assertEqual(self.other.get('settings'),[21,22]);self.invoke('InitGameSetting')
-        self.assertEqual(self.match.get('settings'),[11,12,self.ROW])
+        self.assertEqual(self.match.get('settings'),[11,12,self.ROW,65001])
         self.assertEqual(self.invoke('S16ScoreboardValues'),[0,1,2,3]);self.assertEqual(len(self.invoke('S16ScoreboardLabels')),4)
+    def test_attendance_uses_native_toggle_and_commits_without_changing_scoreboard(self):
+        labels=self.invoke('S16CrowdLabels')
+        self.assertEqual(labels[0].encode('latin1').decode('utf8'),'Automático')
+        self.assertEqual(labels[1:],[str(v)+'%' for v in range(0,101,5)])
+        self.assertEqual(self.invoke('GetCurrentSettingValue',10,65001),0)
+        self.invoke('SetCurrentSettingValue',10,65001,14)
+        self.invoke('OnChangeCallback',1,10,65001,14)
+        self.assertEqual(self.calls,[])
+        self.invoke('InitGameSetting')
+        self.assertEqual(self.invoke('GetCurrentSettingValue',10,65001),14)
+        self.invoke('LocalEventHandler',1,0,0);self.invoke('OnExitScreen')
+        messages=[args for name,args in self.calls if name=='SendSystemEvent']
+        self.assertEqual(messages,[('GameSettings','Server16MatchCrowd','S16CROWD1|65|END')])
+        self.assertEqual(self.invoke('GetCurrentSettingValue',10,self.ROW),0)
     def test_native_controller_never_receives_the_custom_setting_id(self):
         self.assertEqual(self.invoke('GetCurrentSettingValue',10,self.ROW),0)
         self.invoke('SetCurrentSettingValue',10,self.ROW,2);self.invoke('OnChangeCallback',1,10,self.ROW,2)

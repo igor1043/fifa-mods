@@ -31,6 +31,34 @@ def expand(text):
     return text
 
 
+def _keep_transfer_text_black(apt):
+    """Keep native hover text recoloring from reducing row readability."""
+    import struct
+    from formats import Placement
+    assert apt.width == 8
+    component = apt.exports['game.components.FluxComponents.career.TransferInfo']
+    placements = [p for p in apt.characters[component].frames[0]
+                  if isinstance(p, Placement) and p.name in ('txtPlayerName', 'txtAmount')]
+    assert len(placements) == 2
+    for placement in placements:
+        assert apt.characters[placement.character].type == 2
+        # A local color transform follows the native textColor update. Keep
+        # its alpha untouched, while both highlighted and idle RGB stay black.
+        struct.pack_into('<I', apt.data, placement.offset + 8, placement.flags | 8)
+        struct.pack_into('<II', apt.data, placement.matrix_offset + 24, 0xFF000000, 0)
+
+
+def keep_transfer_text_black(source):
+    """Patch the installed row without rebuilding its other visual changes."""
+    import sys
+    vendor = str(Path(__file__).resolve().parent / 'apt_vendor')
+    if vendor not in sys.path: sys.path.insert(0, vendor)
+    from formats import AptFile, BigFile
+    big = BigFile(source)
+    _keep_transfer_text_black(AptFile(big))
+    return big.build()
+
+
 def style_component(source):
     """Refine the stock APT's visual fields; retain all native data bindings."""
     import struct
@@ -77,6 +105,7 @@ def style_component(source):
     assert kind==9
     reader.i();reader.ptr();reader.ptr();reader.i();reader.ptr()
     struct.pack_into('<II',apt.data,reader.pos,396,92)
+    _keep_transfer_text_black(apt)
     return big.build()
 
 

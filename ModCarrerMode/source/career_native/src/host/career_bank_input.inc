@@ -90,9 +90,15 @@ static uintptr_t background_room_view(void);
 static void drain_frontend_ui_tick(void);
 static void drain_background_refresh(void);
 #include "scoreboard_options_input.inc"
+#include "attendance_options_input.inc"
 static uintptr_t bank_input_event(void *bridge,const char *controller,const char *event,const char *argument)
 {
     typedef uintptr_t (*Dispatch)(void *,const char *,const char *,const char *);
+    if(bank_mail_string(event,128)&&!strcmp(event,"Server16MatchCrowd")){
+        if(bank_mail_string(controller,64)&&!strcmp(controller,"GameSettings"))
+            (void)attendance_options_capture(argument);
+        return 0;
+    }
     if(bank_mail_string(event,128)&&!strcmp(event,"Server16MatchScoreboard")){
         if(bank_mail_string(controller,64)&&!strcmp(controller,"GameSettings"))
             (void)scoreboard_options_capture(argument);

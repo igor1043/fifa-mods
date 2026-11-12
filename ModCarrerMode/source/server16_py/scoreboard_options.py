@@ -171,7 +171,7 @@ class ScoreboardOptions:
             if manifest.is_file():
                 record=json.loads(manifest.read_bytes())
                 if (game/UI_PATH).is_file():verified_ui(game,record)
-                rebuild=record.get('signature')!=catalog.signature or not (game/UI_PATH).is_file()
+                rebuild=record.get('signature')!=catalog.signature or record.get('crowd_row')!=65001 or not (game/UI_PATH).is_file()
             if rebuild:
                 from .scoreboard_options_ui import build
                 template=game/'ModCarrerMode/source/native_mods/scoreboard_settings/gamesettings.original.big'
