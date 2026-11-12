@@ -352,6 +352,7 @@
     "XXX - Torneio Personalizado"
   ],
   "initial_value_offset": 36529,
-  "ui_stable_sha256": "1c6dffa651fdece22553f0fb4ea2cfe604f235fd36d3f2e3099ef26dc1842e82",
-  "original_rows_preserved": true
+  "ui_stable_sha256": "a6ba7780d1cab66e06776eed9bf20936eb6ccd9f51b0f2926b46549013d9038a",
+  "original_rows_preserved": true,
+  "crowd_row": 65001
 }
