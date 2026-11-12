@@ -84,7 +84,7 @@ Mods de carreira, apresentação e partidas para FIFA 16, integrados ao Server16
 | Música de gol | Reproduz a música de comemoração configurada para o clube. |
 | Música de substituição | Reproduz os áudios configurados para as substituições. |
 | Recursos da partida | Prepara os arquivos instalados de estádio, narração e apresentação, com indicação de carregamento. |
-| Configurações dentro do jogo | Abre os controles dos mods pelo atalho Select + Start ou F12. |
+| Configurações dentro do jogo | Na carreira, Start abre as configurações visuais e aparece no rodapé nativo. F12 também abre o painel. Durante partidas, permanece Select + Start. |
 | Seleção de estádio | Permite escolher o estádio e as opções de apresentação da partida. |
 | Scoreboard nas opções de jogo | Adiciona um seletor nativo em Partida. Aplica o placar escolhido ao voltar, com opções para o padrão do FIFA ou as regras automáticas do Server16. |
 | Mapeamento de controles | Permite ajustar os comandos usados pelos mods. |

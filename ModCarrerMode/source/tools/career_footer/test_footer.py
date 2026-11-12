@@ -125,7 +125,7 @@ class FooterTests(unittest.TestCase):
               help_item('native_save','Salvar'),help_item('native_inbox','Caixa de e-mails')]
         self.setup_vm(base,[],[])
         items=self.result()
-        self.assertEqual(len(items),7)
+        self.assertEqual(len(items),8)
         self.assertFalse(any(item in base for item in items))
         labels=[self.label(i).lower().replace(' ','') for i in items]
         self.assertEqual(len(labels),len(set(labels)))

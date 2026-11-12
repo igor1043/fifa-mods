@@ -5,14 +5,14 @@
 #include <cstring>
 #include <cassert>
 #include <iostream>
-static uint64_t tick=100;static unsigned routePid,routeClub=112893,routeRequest=2;static int routePhase=2,nativeState=14;static bool configured=true;
+static uint64_t tick=100;static unsigned routePid,routeClub=112893,routeRequest=2;static int routePhase=2,nativeState=14;static bool configured=true,careerConfigured=true,frontendLoaded=true;
 struct Identity {unsigned schema=1,size=48,sequence=2,pid;uintptr_t service,vtable,registry;unsigned epoch=2,thread=42;} identity;
-static HMODULE WINAPI module(LPCWSTR name){return !wcscmp(name,L"dinput8.dll")?HMODULE(1):HMODULE(2);}
+static HMODULE WINAPI module(LPCWSTR name){return !wcscmp(name,L"dinput8.dll")?HMODULE(1):frontendLoaded?HMODULE(2):nullptr;}
 static FARPROC WINAPI symbol(HMODULE,const char*){return (FARPROC)&identity;}
 static ULONGLONG WINAPI clockNow(){return tick;}
 static UINT WINAPI profile(LPCWSTR,LPCWSTR key,INT,LPCWSTR){
  if(!wcscmp(key,L"pid"))return routePid;if(!wcscmp(key,L"team"))return routeClub;if(!wcscmp(key,L"phase"))return unsigned(routePhase);
- if(!wcscmp(key,L"request"))return routeRequest;if(!wcscmp(key,L"slot"))return 261;if(!wcscmp(key,L"enabled"))return configured;return 0;
+ if(!wcscmp(key,L"request"))return routeRequest;if(!wcscmp(key,L"slot"))return 261;if(!wcscmp(key,L"enabled"))return configured;if(!wcscmp(key,L"career"))return careerConfigured;return 0;
 }
 #define GetModuleHandleW module
 #define GetProcAddress symbol
@@ -43,5 +43,23 @@ int main(){
  routePid--;tick=1800;assert(!startup.allow(game,0x140000000,112893,read)&&startup.gate.reason==3);routePid++;
  routeClub=1043;tick=2100;assert(!startup.allow(game,0x140000000,112893,read));routeClub=112893;
  tick=2400;assert(!startup.allow(game,0x140000000,112893,read));tick=3150;assert(startup.allow(game,0x140000000,112893,read));
+ // The shared gate is used by BOTH dedicated cards: neither depends on the
+ // background mode, idle mode or custom-stadium switches to be enabled.
+ for(int card=0;card<2;++card)for(bool enabled:{false,true})for(bool career:{false,true}){
+  configured=enabled;careerConfigured=career;frontendLoaded=true;routePhase=0;routePid=GetCurrentProcessId();routeClub=1043;
+  RoomStartup independent;tick+=1000;
+  assert(!independent.allow(game,0x140000000,112893,read));
+  if(enabled&&career){assert(independent.gate.reason==3);routePhase=3;routeClub=112893;tick+=300;assert(!independent.allow(game,0x140000000,112893,read));}
+  else assert(independent.gate.reason==4);
+  tick+=750;assert(independent.allow(game,0x140000000,112893,read));
+ }
+ // Switching backgrounds off must not allow props during a queued load.
+ configured=careerConfigured=false;routePhase=2;routeClub=112893;RoomStartup pending;tick+=1000;
+ assert(!pending.allow(game,0x140000000,112893,read)&&pending.gate.reason==3);
+ routePhase=3;tick+=300;assert(!pending.allow(game,0x140000000,112893,read));tick+=750;assert(pending.allow(game,0x140000000,112893,read));
+ // Optional frontend module absent: native loader/context remain mandatory.
+ frontendLoaded=false;configured=careerConfigured=true;routePhase=0;RoomStartup optional;nativeState=14;tick+=1000;
+ assert(!optional.allow(game,0x140000000,112893,read)&&optional.gate.reason==2);
+ nativeState=0;tick+=300;assert(!optional.allow(game,0x140000000,112893,read));tick+=750;assert(optional.allow(game,0x140000000,112893,read));
  std::cout<<"PASS actual startup probe: native loader, current career/club, route phase, stale session and settling checks\n";
 }

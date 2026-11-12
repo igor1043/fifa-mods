@@ -33,8 +33,8 @@
     },
     {
       "path": "ModCarrerMode/data/club_environment/current_dressing_room/custom/1035/locker-backing.png",
-      "bytes": 2470488,
-      "sha256": "efc71be753c4bcb867bea3aaea487e632f581845a728b80b8c4936430da72dae"
+      "bytes": 2003600,
+      "sha256": "47cf73dbb6ee20d85880de20cd374ae77f822cec0c7154da21adf3ee57c59bfe"
     },
     {
       "path": "ModCarrerMode/data/club_environment/current_dressing_room/custom/1035/locker-frame.png",
@@ -43,13 +43,13 @@
     },
     {
       "path": "ModCarrerMode/data/club_environment/current_dressing_room/custom/1035/profile.json",
-      "bytes": 1288,
-      "sha256": "1d292f02e0d1e69e3f447cdf2b5e94f994d649abc635e5fa083887b559d3b62f"
+      "bytes": 1539,
+      "sha256": "632aaab62a64edd778b20822835e879a83eeb60522c18b65151a428aaf32f3fa"
     },
     {
       "path": "ModCarrerMode/data/club_environment/current_dressing_room/custom/1035/wall-mural.png",
-      "bytes": 2761956,
-      "sha256": "f18c418e33dbdba15b6cfb458d64ddb5de3a9da26087826111352a197423964a"
+      "bytes": 2792056,
+      "sha256": "b168495b10784b1b7378e8c9ff4e51ab1a91facd1fe5b69f62d0e5fb9383996d"
     },
     {
       "path": "ModCarrerMode/data/club_environment/current_dressing_room/custom/1039/corner-panel.png",
@@ -83,8 +83,8 @@
     },
     {
       "path": "ModCarrerMode/data/club_environment/current_dressing_room/custom/1039/locker-backing.png",
-      "bytes": 1863641,
-      "sha256": "2433c4afbb93eda05d2d4c05b9a44af5efc91a2a29c32669cf35e1d47cf849c4"
+      "bytes": 2004793,
+      "sha256": "cef74d0ccfaa6e1e02a27a6d163b250580e1ef7a3018173ded98b1f0b587e817"
     },
     {
       "path": "ModCarrerMode/data/club_environment/current_dressing_room/custom/1039/locker-frame.png",
@@ -93,13 +93,13 @@
     },
     {
       "path": "ModCarrerMode/data/club_environment/current_dressing_room/custom/1039/profile.json",
-      "bytes": 1291,
-      "sha256": "ad99155473b35e74942b2985b1fd7e8c383119af50e4db37cad07419e86aa3c2"
+      "bytes": 1516,
+      "sha256": "30cc9745f67a374e9d94bbc1ede1dfd94e99f673bccbb4db1f555528905f11be"
     },
     {
       "path": "ModCarrerMode/data/club_environment/current_dressing_room/custom/1039/wall-mural.png",
-      "bytes": 2816657,
-      "sha256": "13732ad8b6bd1044df9492520fa8bfed6c28c6fb5d1fe29f62cc02da111d1aa3"
+      "bytes": 2749077,
+      "sha256": "ccebb59ea3a1763a4e17a7afc96b39c5f1ca5caed8dea15e47cc2f80c0517b55"
     },
     {
       "path": "ModCarrerMode/data/club_environment/current_dressing_room/custom/1041/corner-panel.png",
@@ -133,8 +133,8 @@
     },
     {
       "path": "ModCarrerMode/data/club_environment/current_dressing_room/custom/1041/locker-backing.png",
-      "bytes": 2524955,
-      "sha256": "f8c4468ffe739471a40c4dea11a2b6805a816d9b9ed95b73fc11e1b1cc66a045"
+      "bytes": 1891188,
+      "sha256": "0f21ef486bbf085bc89f001ece1a6d6c46848b4720792168ed9c73b5b63c5db7"
     },
     {
       "path": "ModCarrerMode/data/club_environment/current_dressing_room/custom/1041/locker-frame.png",
@@ -143,13 +143,13 @@
     },
     {
       "path": "ModCarrerMode/data/club_environment/current_dressing_room/custom/1041/profile.json",
-      "bytes": 1289,
-      "sha256": "8f66c0a8042d8cd8af9cc4394674ecd02b1870d3ef54cd1ce299eaa13ec8b13c"
+      "bytes": 1521,
+      "sha256": "219b5cd3ee8173e74bfed17548cf70231d19613e295f64b7b5be634fdd846e32"
     },
     {
       "path": "ModCarrerMode/data/club_environment/current_dressing_room/custom/1041/wall-mural.png",
-      "bytes": 3001609,
-      "sha256": "34bd21711d9302e510605756cc8b4514f66ba6aac1f61aedf27573b40d040965"
+      "bytes": 3030432,
+      "sha256": "6ee816dd323edc52149cff365fd7fd5696a875d3042db659feb86af7e97c80ea"
     },
     {
       "path": "ModCarrerMode/data/club_environment/current_dressing_room/custom/1043/corner-panel.png",
@@ -238,8 +238,8 @@
     },
     {
       "path": "ModCarrerMode/data/club_environment/current_dressing_room/custom/1048/locker-backing.png",
-      "bytes": 2161545,
-      "sha256": "cea2a6f86c0474eae013a114617a62736e51347eafa95f41ce5431c8658343f7"
+      "bytes": 2086703,
+      "sha256": "81e68f14fff4285751ff24cff62da26225ba79a726eec31f63badbd84e4e435d"
     },
     {
       "path": "ModCarrerMode/data/club_environment/current_dressing_room/custom/1048/locker-frame.png",
@@ -248,13 +248,13 @@
     },
     {
       "path": "ModCarrerMode/data/club_environment/current_dressing_room/custom/1048/profile.json",
-      "bytes": 1293,
-      "sha256": "87cf57f8477086da6d86f692b5fd5c77622a1ea2f56b82211d2d5f00b309a4e5"
+      "bytes": 1524,
+      "sha256": "f5220ec0f43582a25a34e8e015a2cb145eb311b39e3ff72f04574a6b52da4c87"
     },
     {
       "path": "ModCarrerMode/data/club_environment/current_dressing_room/custom/1048/wall-mural.png",
-      "bytes": 2923052,
-      "sha256": "f8989222b4ac583a1dec134075cebf72b679575fe6c4ec7e0bfade0026e1de45"
+      "bytes": 2590508,
+      "sha256": "786adabb071f340f01281129d4aa220bd199acb8de92c636a5f59d68b1be770f"
     },
     {
       "path": "ModCarrerMode/data/club_environment/current_dressing_room/custom/1053/corner-panel.png",
@@ -288,8 +288,8 @@
     },
     {
       "path": "ModCarrerMode/data/club_environment/current_dressing_room/custom/1053/locker-backing.png",
-      "bytes": 1831181,
-      "sha256": "e5810dd98b089d7330438b897ee3e31e236c2ed9c0eb41a883482f6a1cb059f5"
+      "bytes": 2098849,
+      "sha256": "39cd0aadf7602ebba80481fbb7fa0572a0970eecea2fca0f96f04ba4b233e1c8"
     },
     {
       "path": "ModCarrerMode/data/club_environment/current_dressing_room/custom/1053/locker-frame.png",
@@ -298,43 +298,43 @@
     },
     {
       "path": "ModCarrerMode/data/club_environment/current_dressing_room/custom/1053/profile.json",
-      "bytes": 1282,
-      "sha256": "fe824553bf20d57fd7d0fbd9163a42f71aa7a86b862a4f7d0377a456414f8184"
+      "bytes": 1524,
+      "sha256": "6bbd73864d5107b29e663b4b3e182eeaa4a1e628dd21ea65ee74cc509f17b0ee"
     },
     {
       "path": "ModCarrerMode/data/club_environment/current_dressing_room/custom/1053/wall-mural.png",
-      "bytes": 2853979,
-      "sha256": "ec95e1ddf60506038b7f514e388ffac232ddab63d18a5699a8a46caa1fb5e164"
+      "bytes": 3138351,
+      "sha256": "9863713457d3abb360b5a5dc76d4479527d2a8de08b0523b293bb42c04482c30"
     },
     {
       "path": "ModCarrerMode/data/club_environment/current_dressing_room/custom/111041/profile.json",
-      "bytes": 95,
-      "sha256": "e8f0a69c505196157977d89cda25ef6ab72dc36594319589cabed996ba6b7782"
+      "bytes": 1227,
+      "sha256": "bad9f5a28b61f2f11677880d0070a5931a8fc4e4c8902153577590c42470fd41"
     },
     {
       "path": "ModCarrerMode/data/club_environment/current_dressing_room/custom/111041/wall-mural.png",
-      "bytes": 2952275,
-      "sha256": "91879e292a50c4c8d5f7899f6aa0d049184d6d9fe0db5d6b2b055208127e56d1"
+      "bytes": 3039837,
+      "sha256": "0181e551d59a1fc8dedd1d91338ff1193dc5160cf995642e2bcca6cebe378129"
     },
     {
       "path": "ModCarrerMode/data/club_environment/current_dressing_room/custom/111042/profile.json",
-      "bytes": 92,
-      "sha256": "29fa515b75e3bd3edddf3c9770a17a7cd40cf003e1d1bf375bd4dd0d1d7d0c3b"
+      "bytes": 1180,
+      "sha256": "f4df8032c2689715651e943cdcefadae86171c05ca13fb923dc717b8b3e307df"
     },
     {
       "path": "ModCarrerMode/data/club_environment/current_dressing_room/custom/111042/wall-mural.png",
-      "bytes": 2770926,
-      "sha256": "7a82c5193147f009e5f3cafa0c003a5f488c1c21b73571b29c84b45434df79df"
+      "bytes": 2109586,
+      "sha256": "5a90a006383696f35963129314d8d7edf3ddbeb38f8d8858da8090cdc9d3d01f"
     },
     {
       "path": "ModCarrerMode/data/club_environment/current_dressing_room/custom/111043/profile.json",
-      "bytes": 97,
-      "sha256": "25de7b7a67f40c81a0324912d35c0aed06018a582be6f53b47f11ddbd39186ab"
+      "bytes": 1237,
+      "sha256": "bd7f7ec3b0669c6ceaaecd50a8fdd0f1fa6d748d328bca57d4fe53b7b403e103"
     },
     {
       "path": "ModCarrerMode/data/club_environment/current_dressing_room/custom/111043/wall-mural.png",
-      "bytes": 2973444,
-      "sha256": "50f26401cd37391bfbf7485a8d7953a69ab48070eb232418de2cb8b33f0e6d81"
+      "bytes": 3164815,
+      "sha256": "5d3c52eb100ccd4746ada0262f524ad4e09030f2d8db1461b3f8c1351c726290"
     },
     {
       "path": "ModCarrerMode/data/club_environment/current_dressing_room/custom/111044/corner-panel.png",
@@ -368,8 +368,8 @@
     },
     {
       "path": "ModCarrerMode/data/club_environment/current_dressing_room/custom/111044/locker-backing.png",
-      "bytes": 2707771,
-      "sha256": "ac314882e8f0a40f30dd0d6f6f4934d5b33d3cb0ad457e6c5d5291ddfec30216"
+      "bytes": 2176069,
+      "sha256": "9126a03e3605e27e8feb65af56c984b21b9a1aec42bd44cbf8e5907ff10a612b"
     },
     {
       "path": "ModCarrerMode/data/club_environment/current_dressing_room/custom/111044/locker-frame.png",
@@ -378,93 +378,93 @@
     },
     {
       "path": "ModCarrerMode/data/club_environment/current_dressing_room/custom/111044/profile.json",
-      "bytes": 1299,
-      "sha256": "23c028fadba78d8f3267674a6456c6d356269428ece45d7fc079d52bc51ddc3d"
+      "bytes": 1542,
+      "sha256": "7bad8ba6050c995af4128f2826832eaeee715d359a8264d7e1afaea931610e51"
     },
     {
       "path": "ModCarrerMode/data/club_environment/current_dressing_room/custom/111044/wall-mural.png",
-      "bytes": 2896963,
-      "sha256": "e16b008c3941a79ddebd1257e90a7907ec55839afb8b66073abb2192353a2686"
+      "bytes": 2874817,
+      "sha256": "c66814b763d5693c39a1572196ff651f9bb8a29766492332a3f0b0ef3ec865d6"
     },
     {
       "path": "ModCarrerMode/data/club_environment/current_dressing_room/custom/111046/profile.json",
-      "bytes": 95,
-      "sha256": "4563d87521c4890e16abf99517874a250f56ab8db99597c8d28f5f9c68fa8415"
+      "bytes": 1209,
+      "sha256": "3f79b3bb1d3c2c6ee4e96669559e43872ca090a07c274980b4b8ec50c933577c"
     },
     {
       "path": "ModCarrerMode/data/club_environment/current_dressing_room/custom/111046/wall-mural.png",
-      "bytes": 2776519,
-      "sha256": "93f42118f1807681264843e0f4418485944fd09d781b81776dd0379a8669092c"
+      "bytes": 2811059,
+      "sha256": "b854ffec22206b75477e2502fdd5d6324914a22609541909fbfd794c9c354e37"
     },
     {
       "path": "ModCarrerMode/data/club_environment/current_dressing_room/custom/111050/profile.json",
-      "bytes": 94,
-      "sha256": "de2289efb46322703951b13fe9f71456d3ee7ec168c8c6ad4047b81d4fd19d66"
+      "bytes": 1211,
+      "sha256": "9230c00ccf3649ce9959d01122b049dd38cf28b56a0413c92579155b4aecf707"
     },
     {
       "path": "ModCarrerMode/data/club_environment/current_dressing_room/custom/111050/wall-mural.png",
-      "bytes": 3033879,
-      "sha256": "6a97015e7598271f7e7cfeb9260a8eb148d6e5017694ac852d7252d3d5c5d05e"
+      "bytes": 2976470,
+      "sha256": "24863f28d7af4d27744bcc69077eac822f6458c1e93b9a238fc1e69ec4d3a91c"
     },
     {
       "path": "ModCarrerMode/data/club_environment/current_dressing_room/custom/111052/profile.json",
-      "bytes": 95,
-      "sha256": "6df84f780b0d0965e959625e741d3c685c5f57ddc0d637f4043c426293b109d2"
+      "bytes": 1222,
+      "sha256": "73cafb4c4fc7e397ec93146bd5cf49e11f31b9a13ec9830c257bbab2b89f3b9d"
     },
     {
       "path": "ModCarrerMode/data/club_environment/current_dressing_room/custom/111052/wall-mural.png",
-      "bytes": 2932744,
-      "sha256": "058228b030db13d8ba62b2106a65918dd18b02aed42d534cbfbd1533acc1714b"
+      "bytes": 2717932,
+      "sha256": "99d2ee14abd7c6065150599a5f17b2306ab5faea2e32ca17e1b537b8432766c4"
     },
     {
       "path": "ModCarrerMode/data/club_environment/current_dressing_room/custom/111057/profile.json",
-      "bytes": 98,
-      "sha256": "f9690e0d333fc5a41d94b1321c98ac03a04d05aeeef242f6558883a56f7bb643"
+      "bytes": 1188,
+      "sha256": "770e56e4dbe32673573371da3f0964d3eae2bc5eb7115f47c8a2e4531b1ecb5a"
     },
     {
       "path": "ModCarrerMode/data/club_environment/current_dressing_room/custom/111057/wall-mural.png",
-      "bytes": 2783008,
-      "sha256": "ceb9c0004da972e2b61f9871606c9f3f0055188b666604ceb213d63a13fd1fe9"
+      "bytes": 2397392,
+      "sha256": "0313fbf35596483367eaba1210c962afdc8b8ec85375915f76341146c5aaf38e"
     },
     {
       "path": "ModCarrerMode/data/club_environment/current_dressing_room/custom/111059/profile.json",
-      "bytes": 92,
-      "sha256": "92f8462afdf07bf9d207156b4bee7cf97a69278bf34fbd08bbad7fa530d3ed9f"
+      "bytes": 1191,
+      "sha256": "f34f4728fb090a8de72fde6dba02a74a4d0f55b178352e736779a60014611f11"
     },
     {
       "path": "ModCarrerMode/data/club_environment/current_dressing_room/custom/111059/wall-mural.png",
-      "bytes": 2774513,
-      "sha256": "ccebb6a95f591a25e62331f26380d8902a4c680de960e7f2b34104bc6b4fcf4e"
+      "bytes": 2977179,
+      "sha256": "2d357770f1380e61989861313a815f2d39208785290d6dfdb6f4959f5efd10f8"
     },
     {
       "path": "ModCarrerMode/data/club_environment/current_dressing_room/custom/111976/profile.json",
-      "bytes": 91,
-      "sha256": "3b9b18ab4884aced85765a51dd0824cd9b6934bc161460bc46933fd9c7050e5e"
+      "bytes": 1177,
+      "sha256": "72eb923b72be9f6cfa49bcb5331bf2dca72aace5961cdcf28510163ca786dcee"
     },
     {
       "path": "ModCarrerMode/data/club_environment/current_dressing_room/custom/111976/wall-mural.png",
-      "bytes": 2949997,
-      "sha256": "d284ac58e54a467badce8167b0f1e41adec8f1e6c1063faaf000e0ad4419e5a6"
+      "bytes": 2487695,
+      "sha256": "8c372e5b90c136016a61b4aa7bdb5f0416d5a3fe9aa3a7626863d2a1e999f5c7"
     },
     {
       "path": "ModCarrerMode/data/club_environment/current_dressing_room/custom/112001/profile.json",
-      "bytes": 97,
-      "sha256": "fd3536ebca93675abf2a5cd14dea1c84e02d4499ead377f2ce4a3fd5f73dab0b"
+      "bytes": 1218,
+      "sha256": "a924d788ae3417cf10471a5f68f4c0c023980541d81979ad59e2754efa4bb6ae"
     },
     {
       "path": "ModCarrerMode/data/club_environment/current_dressing_room/custom/112001/wall-mural.png",
-      "bytes": 2568501,
-      "sha256": "dca6d2e0627f47461eb420e5ebb259489044367be9b47e5bcd7f9d4fdf02f459"
+      "bytes": 2661314,
+      "sha256": "15f2f9bd8627b100a1b4a03973b847b8a01a7345080124df5a7b61a2d45e7cc0"
     },
     {
       "path": "ModCarrerMode/data/club_environment/current_dressing_room/custom/112119/profile.json",
-      "bytes": 98,
-      "sha256": "ec1c8f6b87e695449f1059378b3cd7bb0b65be96510d16f42b37f9b24f332ff1"
+      "bytes": 1248,
+      "sha256": "491d060982368b334b39928fbf45ae6aeed3378daa14c0202fea590207aecba9"
     },
     {
       "path": "ModCarrerMode/data/club_environment/current_dressing_room/custom/112119/wall-mural.png",
-      "bytes": 2612027,
-      "sha256": "8cb185ef0f74792e61f18d5665604ba05e01be1db9203341ee333fed01acb7c7"
+      "bytes": 2714823,
+      "sha256": "de9f8c847e65bd4feba0de08617b6a1330bd5687eea59fcf98042e4eebb82d22"
     },
     {
       "path": "ModCarrerMode/data/club_environment/current_dressing_room/custom/112476/corner-panel.png",
@@ -498,8 +498,8 @@
     },
     {
       "path": "ModCarrerMode/data/club_environment/current_dressing_room/custom/112476/locker-backing.png",
-      "bytes": 1838833,
-      "sha256": "9fc849e02504b27f8e4d7b3dc47f2e258015176928e952115e7c6060dbfd28a8"
+      "bytes": 1981254,
+      "sha256": "a01bea4fd39c0c92d54fa20b7270c891b74f2664eaed5d7066e1702eaac4b589"
     },
     {
       "path": "ModCarrerMode/data/club_environment/current_dressing_room/custom/112476/locker-frame.png",
@@ -508,23 +508,23 @@
     },
     {
       "path": "ModCarrerMode/data/club_environment/current_dressing_room/custom/112476/profile.json",
-      "bytes": 1303,
-      "sha256": "c9d9032e6ee6360db949f724b50866dfa752ed7dde22f7712a91d7bfcaacc98a"
+      "bytes": 1550,
+      "sha256": "b469caebad4551a623f995681ac1165bc093ba5e0558603cb0af67a08a45fd7e"
     },
     {
       "path": "ModCarrerMode/data/club_environment/current_dressing_room/custom/112476/wall-mural.png",
-      "bytes": 2880063,
-      "sha256": "02c638687ede8f9fc44bce031dd717cbaf5ef30878c5490fdc4cc780c484de92"
+      "bytes": 2871360,
+      "sha256": "7c1c0067d2b33f265225c98e7f510390f9f7b97bd8c6e585080851899a0daad4"
     },
     {
       "path": "ModCarrerMode/data/club_environment/current_dressing_room/custom/113116/profile.json",
-      "bytes": 98,
-      "sha256": "0518222bf4279690ee9c01aa406ed26e80f1c7b8ee7104ee997d9e4cb9058c6e"
+      "bytes": 1227,
+      "sha256": "39f6cf31fe3d2fa4e64fea77485623a80570e38a3ac2c840095da85b9210c4fa"
     },
     {
       "path": "ModCarrerMode/data/club_environment/current_dressing_room/custom/113116/wall-mural.png",
-      "bytes": 3040905,
-      "sha256": "ccaed3760d1579247d5b0959d77131593b5648161cf74e6f7325da5458639805"
+      "bytes": 3088885,
+      "sha256": "e579ea769a0c85565e9eeb5bde5bd679a1fb7f760ca0af17694e6d7f8094a085"
     },
     {
       "path": "ModCarrerMode/data/club_environment/current_dressing_room/custom/113163/corner-panel.png",
@@ -558,8 +558,8 @@
     },
     {
       "path": "ModCarrerMode/data/club_environment/current_dressing_room/custom/113163/locker-backing.png",
-      "bytes": 1788397,
-      "sha256": "453f418f16d6c09254ae68278b088b8681d1f7c17ebf9c9b7fe222c363117b3a"
+      "bytes": 1918015,
+      "sha256": "51be4c3f0057d8f81ad1649347e82e2d0bfd8b38c69bb5ea63dcd294d91ff626"
     },
     {
       "path": "ModCarrerMode/data/club_environment/current_dressing_room/custom/113163/locker-frame.png",
@@ -568,43 +568,43 @@
     },
     {
       "path": "ModCarrerMode/data/club_environment/current_dressing_room/custom/113163/profile.json",
-      "bytes": 1290,
-      "sha256": "047c2c588e247f8b8c1a95e75d15c80af597f52f8ff4368c2cb14eace1000b15"
+      "bytes": 1530,
+      "sha256": "8b9206b265aa4966103f8d7178c6e3a8acc1abd0c3138c4003fa2735a1964712"
     },
     {
       "path": "ModCarrerMode/data/club_environment/current_dressing_room/custom/113163/wall-mural.png",
-      "bytes": 2833073,
-      "sha256": "23193049573385d9f50838c1bda7fecd8261400a4f5c674ae1068250e6007b0a"
+      "bytes": 2325483,
+      "sha256": "11d0ad6cea9ef448266cb56c02ab50b163f4446e97d4534218f8250ba4fd19b6"
     },
     {
       "path": "ModCarrerMode/data/club_environment/current_dressing_room/custom/120005/profile.json",
-      "bytes": 89,
-      "sha256": "e8ec0ecbb94c472e8887195aca9e390e617be815f31b0a3e987961e9e5b096c5"
+      "bytes": 1163,
+      "sha256": "26c56ce20fdc23609045ca84b21b7c3c3df12f6c338fab77f2801b07087c8e74"
     },
     {
       "path": "ModCarrerMode/data/club_environment/current_dressing_room/custom/120005/wall-mural.png",
-      "bytes": 2837043,
-      "sha256": "c20410b8b0bb0776818d9d2231cf02eb5155dc48af714cb58b81cb5654b6da66"
+      "bytes": 2474467,
+      "sha256": "7bec4a844e3ac59ed3bfb46683637719ac41790559c32a2311918dc13601cac8"
     },
     {
       "path": "ModCarrerMode/data/club_environment/current_dressing_room/custom/120006/profile.json",
-      "bytes": 93,
-      "sha256": "bfa1d1bf8401227beb04755d1aa08a7ad10ed4fa09873cf00d67509a8315a4bf"
+      "bytes": 1206,
+      "sha256": "b8f0729013a9acffaecb9347f38ff86b0d3fb303cdf1917cf7e9c5799e127cea"
     },
     {
       "path": "ModCarrerMode/data/club_environment/current_dressing_room/custom/120006/wall-mural.png",
-      "bytes": 2934798,
-      "sha256": "3541a3a1d24c968f478c1f342dbcc053783231bd4d500182f4d894cd4b78dba1"
+      "bytes": 2596803,
+      "sha256": "7b11df1f090b4097f6659ab47910104a6202602b794969bcda832a0e7476a356"
     },
     {
       "path": "ModCarrerMode/data/club_environment/current_dressing_room/custom/120016/profile.json",
-      "bytes": 95,
-      "sha256": "d3aa5910374a644488db929e7f848e610cef5da7f69743c27de00055cadfd384"
+      "bytes": 1223,
+      "sha256": "2d34049dab48fb05286a3127f835c2e96c6823004c59bcb71d436410cd9aaf54"
     },
     {
       "path": "ModCarrerMode/data/club_environment/current_dressing_room/custom/120016/wall-mural.png",
-      "bytes": 2793727,
-      "sha256": "234dcd1746b0bff02fc7f1098b642ab88e8d3db4d7cd047771ed0cf529ba30a4"
+      "bytes": 2489398,
+      "sha256": "db01246322da3bc6a8214d0869fcfa0bab504e452ac7ebb0589ed294e94f83d4"
     },
     {
       "path": "ModCarrerMode/data/club_environment/current_dressing_room/custom/123921/corner-panel.png",
@@ -638,8 +638,8 @@
     },
     {
       "path": "ModCarrerMode/data/club_environment/current_dressing_room/custom/123921/locker-backing.png",
-      "bytes": 2232862,
-      "sha256": "c790bce2b45243586a22c577940a61a88a49593d56fdb03c2b5dd6b1dc0bf376"
+      "bytes": 2111830,
+      "sha256": "9f07d23e3c1ddf4a0d0301f438022eec7c6798194bd0d9f3fc1052c10c194973"
     },
     {
       "path": "ModCarrerMode/data/club_environment/current_dressing_room/custom/123921/locker-frame.png",
@@ -648,23 +648,23 @@
     },
     {
       "path": "ModCarrerMode/data/club_environment/current_dressing_room/custom/123921/profile.json",
-      "bytes": 1294,
-      "sha256": "ef7812bc4b12ff3ce1d297fdec9a820dd9003a5ffafc3fbce2b583e8d40cb04a"
+      "bytes": 1546,
+      "sha256": "c614c1ba0f6dac64b7e85eb2f7fb6a8e997437465e0ef2aca95d0998fb3e57f3"
     },
     {
       "path": "ModCarrerMode/data/club_environment/current_dressing_room/custom/123921/wall-mural.png",
-      "bytes": 3006187,
-      "sha256": "030790c3856b54b28f728714e12e0d6aac9ffd61e472430374d315923bff112a"
+      "bytes": 2572235,
+      "sha256": "3e8fd7e0b8181fafc6c214677a0a1b7be76f6fb8d25444b6883ce6fe5e82d6e8"
     },
     {
       "path": "ModCarrerMode/data/club_environment/current_dressing_room/custom/130021/profile.json",
-      "bytes": 94,
-      "sha256": "e4f997d470fb9bfdcd4cf4fa86204ecbf892ef5da1a99905e274f60861db25b2"
+      "bytes": 1209,
+      "sha256": "56a8f2bf360dd4179f30d68aacf3699eb893ba301e7dde0ec6a1051a085d817b"
     },
     {
       "path": "ModCarrerMode/data/club_environment/current_dressing_room/custom/130021/wall-mural.png",
-      "bytes": 2910557,
-      "sha256": "13bbaed1db4f7aff47f6e8b4bc83c9c66734de6168b46c6e4273c27a0d96f54a"
+      "bytes": 2414731,
+      "sha256": "561563ae990ea04c3f46f88d5600a7c090fd48317d39138de974ef0200bcb915"
     },
     {
       "path": "ModCarrerMode/data/club_environment/current_dressing_room/custom/130026/corner-panel.png",
@@ -698,8 +698,8 @@
     },
     {
       "path": "ModCarrerMode/data/club_environment/current_dressing_room/custom/130026/locker-backing.png",
-      "bytes": 1871290,
-      "sha256": "e0e58571947866ce6c51aabcaa4fd6696646e28dca0ae2d18867e9a7f0acbeb6"
+      "bytes": 1698889,
+      "sha256": "4ea2e32e33fab4596c0d09197025f33f9b8673694b9f63fdbe3dd82ea35605a0"
     },
     {
       "path": "ModCarrerMode/data/club_environment/current_dressing_room/custom/130026/locker-frame.png",
@@ -708,53 +708,53 @@
     },
     {
       "path": "ModCarrerMode/data/club_environment/current_dressing_room/custom/130026/profile.json",
-      "bytes": 1280,
-      "sha256": "d77923109f4c3e44da23515f8627ed2dfbf0252a0226f889d5b0f477cc7c20a5"
+      "bytes": 1535,
+      "sha256": "80ae08491450a72104448576f9adf97e7b3ebd4ad6f9f7360939da40574f9988"
     },
     {
       "path": "ModCarrerMode/data/club_environment/current_dressing_room/custom/130026/wall-mural.png",
-      "bytes": 3016214,
-      "sha256": "085a88d8b296fdd248db1b510a3b0e48634819c3856f3e238cc59c67f339506b"
+      "bytes": 2166566,
+      "sha256": "9100544d7b1df54db74a38e48eb30ea4359212de37f0ccc8a434b14c1d25f89f"
     },
     {
       "path": "ModCarrerMode/data/club_environment/current_dressing_room/custom/130028/profile.json",
-      "bytes": 97,
-      "sha256": "98f2b8bcc1c041effa1ca944b5461d9cda2da99dec93d6d0863c8291a2a8f191"
+      "bytes": 1238,
+      "sha256": "893773769429a7bc607dd274c44948ea4e78df42adaf23a35892b12ee3d669b7"
     },
     {
       "path": "ModCarrerMode/data/club_environment/current_dressing_room/custom/130028/wall-mural.png",
-      "bytes": 2688490,
-      "sha256": "15058dcf57501257d761eac4688c34788588bbd28fda0ccbad330092442fa695"
+      "bytes": 2665560,
+      "sha256": "8757331d8766e829678a14219ab83f0eb5be12ea4dd3990ccc41eb0cf97a7265"
     },
     {
       "path": "ModCarrerMode/data/club_environment/current_dressing_room/custom/130045/profile.json",
-      "bytes": 107,
-      "sha256": "2fe9430fb63b141cef8c8aca35161e2b959cd533f0e48b360a24c78092d6d4c3"
+      "bytes": 1262,
+      "sha256": "131029f3c22b9f2f07b4b925b8419a6e8f85fab2857d8542225efc232b2d8d11"
     },
     {
       "path": "ModCarrerMode/data/club_environment/current_dressing_room/custom/130045/wall-mural.png",
-      "bytes": 2816259,
-      "sha256": "dbfbc1417d72aef93ce154ab644f55e735188ffcf2391d17c6b56b10d034e101"
+      "bytes": 2733011,
+      "sha256": "dd2519f16008e20f9530a560354f52c45522fc7f1ac6b563a18538209115fb9c"
     },
     {
       "path": "ModCarrerMode/data/club_environment/current_dressing_room/custom/130046/profile.json",
-      "bytes": 99,
-      "sha256": "b36f241b11bc913f6e5fbd90851870299f29ee6c3fbe6b5dada85df1d3d6e82d"
+      "bytes": 1261,
+      "sha256": "89c25c27d06cfca07dd41b46252cde22fe1e108c1a18dcc715b2e885044702aa"
     },
     {
       "path": "ModCarrerMode/data/club_environment/current_dressing_room/custom/130046/wall-mural.png",
-      "bytes": 2792199,
-      "sha256": "e5a972187ae240ca5488233902a1d483d8185024f8bd5523bfab3cfce6f306e4"
+      "bytes": 2940168,
+      "sha256": "cf0bfc8a5dea45f909ba75cd38b135d61aaff48c03827e1fcd6cc5f3fb7228df"
     },
     {
       "path": "ModCarrerMode/data/club_environment/current_dressing_room/custom/130388/profile.json",
-      "bytes": 101,
-      "sha256": "ad1e0494e934c7670f6076caf134dd140ee2ac846949235b3dd6af657108901f"
+      "bytes": 1219,
+      "sha256": "624ca379314bf077582be84bfb1e9fcef53b7b61f7b94698213e0a82362c4f79"
     },
     {
       "path": "ModCarrerMode/data/club_environment/current_dressing_room/custom/130388/wall-mural.png",
-      "bytes": 2987578,
-      "sha256": "a171653a6b93579464a1fd6c76b81efd604575d629b1c696d72c0d897ca0d0ff"
+      "bytes": 2853622,
+      "sha256": "c200e3fe582e6e0c677b8298c05519b3a48c14ef8fce8da6132a3cd3fa6ec114"
     },
     {
       "path": "ModCarrerMode/data/club_environment/current_dressing_room/custom/1598/corner-panel.png",
@@ -788,8 +788,8 @@
     },
     {
       "path": "ModCarrerMode/data/club_environment/current_dressing_room/custom/1598/locker-backing.png",
-      "bytes": 2015308,
-      "sha256": "7da570971ad5fead4dc1bec8a6e67eedf9076149bf78dbb3277cedfe9d690612"
+      "bytes": 2203562,
+      "sha256": "a86f0928717ae793afe7d52fbb1e3e8600b5be158e197d5677b3d43624df21d2"
     },
     {
       "path": "ModCarrerMode/data/club_environment/current_dressing_room/custom/1598/locker-frame.png",
@@ -798,13 +798,13 @@
     },
     {
       "path": "ModCarrerMode/data/club_environment/current_dressing_room/custom/1598/profile.json",
-      "bytes": 1283,
-      "sha256": "41445b6dd8102c2ca2dcfe245cae54e2a68de8ef2b7f498684ff70da91bb4a51"
+      "bytes": 1532,
+      "sha256": "e56c103151b3351364d3dea216f6b84783276d7b42ef780e5b672af99a5ef5cc"
     },
     {
       "path": "ModCarrerMode/data/club_environment/current_dressing_room/custom/1598/wall-mural.png",
-      "bytes": 2997175,
-      "sha256": "6723a730498ea301aac4f4f69731e62d919c3cc1ea9663c581d31e389a907e11"
+      "bytes": 2817103,
+      "sha256": "0a34cc238d2f2311d258ca29ae61c0d80907d5a4cfb592ba37b56e3a4c310941"
     },
     {
       "path": "ModCarrerMode/data/club_environment/current_dressing_room/custom/1629/corner-panel.png",
@@ -838,8 +838,8 @@
     },
     {
       "path": "ModCarrerMode/data/club_environment/current_dressing_room/custom/1629/locker-backing.png",
-      "bytes": 1776025,
-      "sha256": "dfb9c83dd596ea1bb4f9c6861313a79041d08684197a249e80401381648b2821"
+      "bytes": 2098974,
+      "sha256": "ae2daa6bf0573b8b12b8b4a8a6900ca98420af9875ccfb1e059558c12d33fa89"
     },
     {
       "path": "ModCarrerMode/data/club_environment/current_dressing_room/custom/1629/locker-frame.png",
@@ -848,13 +848,13 @@
     },
     {
       "path": "ModCarrerMode/data/club_environment/current_dressing_room/custom/1629/profile.json",
-      "bytes": 1283,
-      "sha256": "a2c35540b3fee44d51c7e12a013e50265460a8ad0936d9b6fc2040cb1839736d"
+      "bytes": 1532,
+      "sha256": "34b23f78c2b6d6a24b948eec6cd71c7388a0db5fe88d2383d36f648b9ee387e4"
     },
     {
       "path": "ModCarrerMode/data/club_environment/current_dressing_room/custom/1629/wall-mural.png",
-      "bytes": 2856266,
-      "sha256": "a646624ca10791628dacf447699fd485b33f22196fc01e474354f2897f349b0c"
+      "bytes": 2878078,
+      "sha256": "c6e6e8a0e124f75813b2d8ba57de5b4144fe865a85325ebdabc6ac9fe11456c1"
     },
     {
       "path": "ModCarrerMode/data/club_environment/current_dressing_room/custom/1719/corner-panel.png",
@@ -888,8 +888,8 @@
     },
     {
       "path": "ModCarrerMode/data/club_environment/current_dressing_room/custom/1719/locker-backing.png",
-      "bytes": 2062482,
-      "sha256": "3f28d5fda1b825d534120bf594503dbdc143ec7338ff6eab75bd368bfff5ba0f"
+      "bytes": 2040723,
+      "sha256": "9ad9c7abbb9956c78f3eabccfb5ce7a6d6620ede72388ba055bd1026916020cd"
     },
     {
       "path": "ModCarrerMode/data/club_environment/current_dressing_room/custom/1719/locker-frame.png",
@@ -898,13 +898,13 @@
     },
     {
       "path": "ModCarrerMode/data/club_environment/current_dressing_room/custom/1719/profile.json",
-      "bytes": 1289,
-      "sha256": "ec01f9296a661f5d3a657fc0a2ee993aaa3560b6f14f65abb08582f76f70485e"
+      "bytes": 1529,
+      "sha256": "06fddd5c14d9bd9e7bb6ee06dbe60a4babad187c222856e2d0b79ffa1e630e3a"
     },
     {
       "path": "ModCarrerMode/data/club_environment/current_dressing_room/custom/1719/wall-mural.png",
-      "bytes": 2630573,
-      "sha256": "f4cf99698a4d285afcf02bbc3d77d9364e2fd9ebb977094af6bf31ab7fe3db64"
+      "bytes": 2684715,
+      "sha256": "febb145f23e18c9483342aead7207a713c84771624f5cb2330643387138051dc"
     },
     {
       "path": "ModCarrerMode/data/club_environment/current_dressing_room/custom/383/corner-panel.png",
@@ -938,8 +938,8 @@
     },
     {
       "path": "ModCarrerMode/data/club_environment/current_dressing_room/custom/383/locker-backing.png",
-      "bytes": 2334875,
-      "sha256": "c1be54149a1cca6dcacd18e5010e46eb84b11e96dc25025ea2e79281b54e5f9d"
+      "bytes": 2177797,
+      "sha256": "3e56995dd6176ba918b43ddff0618dee69f97e532edb7287d75e42c9fcc3f416"
     },
     {
       "path": "ModCarrerMode/data/club_environment/current_dressing_room/custom/383/locker-frame.png",
@@ -948,13 +948,13 @@
     },
     {
       "path": "ModCarrerMode/data/club_environment/current_dressing_room/custom/383/profile.json",
-      "bytes": 1298,
-      "sha256": "ba104a6ec05a3ad9f963deff2bd70f0032cef89c160306efff5903012c22a509"
+      "bytes": 1544,
+      "sha256": "e18c910bc7ff74645ba193363437372ce44d09c6749201ee47dd469c99b28d37"
     },
     {
       "path": "ModCarrerMode/data/club_environment/current_dressing_room/custom/383/wall-mural.png",
-      "bytes": 2997002,
-      "sha256": "79cb9b8aec2d627ca303c4de3cd2c695a123c79f056c770e5fcfb628c0afcc9f"
+      "bytes": 2824645,
+      "sha256": "70ba5cd464fd8c3c368129d9a54ff770d96d3a8c8516e9a07743b6628192c8a9"
     },
     {
       "path": "ModCarrerMode/data/club_environment/current_dressing_room/custom/517/corner-panel.png",
@@ -988,8 +988,8 @@
     },
     {
       "path": "ModCarrerMode/data/club_environment/current_dressing_room/custom/517/locker-backing.png",
-      "bytes": 1444143,
-      "sha256": "d507c8832c55a603f4b67f7b4e3fc46cfed2142a385eb66c26f901dbaa2d1ec4"
+      "bytes": 2045602,
+      "sha256": "6698a2df4fd378a82db13c4c6ed540337c5d3a4a6f35e30247cb605a43089413"
     },
     {
       "path": "ModCarrerMode/data/club_environment/current_dressing_room/custom/517/locker-frame.png",
@@ -998,13 +998,13 @@
     },
     {
       "path": "ModCarrerMode/data/club_environment/current_dressing_room/custom/517/profile.json",
-      "bytes": 1286,
-      "sha256": "b0ac04e20bfba2feff6e2832240ec3be0da56ec3a517174beb4f82cf7b19e6bc"
+      "bytes": 1532,
+      "sha256": "2c882fd3e74c1e355026843a63183c0d81dc7c3f705bbe6a76f293a14263f0b8"
     },
     {
       "path": "ModCarrerMode/data/club_environment/current_dressing_room/custom/517/wall-mural.png",
-      "bytes": 2970546,
-      "sha256": "de8a733d178028a2075fddf4e976282a4369c15ed249b103c707265a9a30bb61"
+      "bytes": 2839638,
+      "sha256": "68626cc4c0fb8c55abbc6fa2628e2600c10989579a72ddcf19d0dddc8ccbe515"
     },
     {
       "path": "ModCarrerMode/data/club_environment/current_dressing_room/custom/567/corner-panel.png",
@@ -1038,8 +1038,8 @@
     },
     {
       "path": "ModCarrerMode/data/club_environment/current_dressing_room/custom/567/locker-backing.png",
-      "bytes": 2029949,
-      "sha256": "1ba8451b15ced8c9524253cb3153edfbeaf8e18425dce438ba08eea7598185cf"
+      "bytes": 1943805,
+      "sha256": "be0b7fea702518be218eb2701270d71a9c1fe61eeb39c117e8128f3bd64d79cd"
     },
     {
       "path": "ModCarrerMode/data/club_environment/current_dressing_room/custom/567/locker-frame.png",
@@ -1048,13 +1048,13 @@
     },
     {
       "path": "ModCarrerMode/data/club_environment/current_dressing_room/custom/567/profile.json",
-      "bytes": 1289,
-      "sha256": "710561998231c88c71149f1b1949672b4d07e40192236b23e5f015ed2409713a"
+      "bytes": 1538,
+      "sha256": "a3b31de8e4505bddf88bf649c345a6f24ab5f785744585beef5458d013bcf410"
     },
     {
       "path": "ModCarrerMode/data/club_environment/current_dressing_room/custom/567/wall-mural.png",
-      "bytes": 2762525,
-      "sha256": "36ceecc9cec1ca044a340648936dbfdb0e4f142439d66e5197d34e9edcb60b67"
+      "bytes": 2759278,
+      "sha256": "a711e4d617493533d366e63cefd2eb60470620e12b9375d7b8f3472a927e4be5"
     },
     {
       "path": "ModCarrerMode/data/club_environment/current_dressing_room/custom/568/corner-panel.png",
@@ -1088,8 +1088,8 @@
     },
     {
       "path": "ModCarrerMode/data/club_environment/current_dressing_room/custom/568/locker-backing.png",
-      "bytes": 2114370,
-      "sha256": "60362f4c34c6ccfc3959d285981bb5884b2f72bfd838095b6bad83f63a4d9fcb"
+      "bytes": 1899666,
+      "sha256": "ea95953c0cd6f5414b6dddd61d59afc1c9808b0f63af352b80f2302c2695a90d"
     },
     {
       "path": "ModCarrerMode/data/club_environment/current_dressing_room/custom/568/locker-frame.png",
@@ -1098,13 +1098,13 @@
     },
     {
       "path": "ModCarrerMode/data/club_environment/current_dressing_room/custom/568/profile.json",
-      "bytes": 1284,
-      "sha256": "81642fe2b4653c745c4c3afe306f47db6705a7b9b980208b4f158a94c7b1d0f4"
+      "bytes": 1534,
+      "sha256": "8c92401615dea4049e0de5ee26e0d5a75fa59efda9c5f4218cb8677d7ba559b3"
     },
     {
       "path": "ModCarrerMode/data/club_environment/current_dressing_room/custom/568/wall-mural.png",
-      "bytes": 2901717,
-      "sha256": "d838598b76639496e2274765ecd43a2049b97de9ecf655ea09db43ed25b3f2ea"
+      "bytes": 2919046,
+      "sha256": "b5b8a7bd58083e17e3290f078227ac1fff3ebe64019faf291f146dba9ec58b45"
     },
     {
       "path": "ModCarrerMode/data/club_environment/current_dressing_room/custom/569/corner-panel.png",
@@ -1138,8 +1138,8 @@
     },
     {
       "path": "ModCarrerMode/data/club_environment/current_dressing_room/custom/569/locker-backing.png",
-      "bytes": 2038763,
-      "sha256": "166ef07b5dbb360f3ae00e71bec298de1bdfe7a7ba9a95aea715350c72ff25e6"
+      "bytes": 2029691,
+      "sha256": "1883f9ec472c0fe1f01e4a200c14578c888b3218ddf151e07477af399cf4d5d3"
     },
     {
       "path": "ModCarrerMode/data/club_environment/current_dressing_room/custom/569/locker-frame.png",
@@ -1148,13 +1148,13 @@
     },
     {
       "path": "ModCarrerMode/data/club_environment/current_dressing_room/custom/569/profile.json",
-      "bytes": 1291,
-      "sha256": "d0bbbe68fa3ac3f19df001a13044dd5f903a97f7dd1a2571c0aa186965dbc860"
+      "bytes": 1539,
+      "sha256": "6b1d05d69c52e111f6f1d7288ce747c6f62f07bda6784750adfc2ec63d232b74"
     },
     {
       "path": "ModCarrerMode/data/club_environment/current_dressing_room/custom/569/wall-mural.png",
-      "bytes": 2935123,
-      "sha256": "fa37e9bc8992c8536336cd58d7aa9744df7c649011e34b9a3aa1d774d27d1db7"
+      "bytes": 2694112,
+      "sha256": "e2a08e768293b4410c3c83cd4e212e8d847fb743d42f159e7b65cad26f579060"
     },
     {
       "path": "ModCarrerMode/data/club_environment/current_dressing_room/custom/598/corner-panel.png",
@@ -1188,8 +1188,8 @@
     },
     {
       "path": "ModCarrerMode/data/club_environment/current_dressing_room/custom/598/locker-backing.png",
-      "bytes": 2037009,
-      "sha256": "b46a7b23ff19ff990e9771a5c4e79f534dab9ee2af09188c7c1894a0046fe834"
+      "bytes": 2395590,
+      "sha256": "8046f9c20b4acdcd8942afcbb944c206dc8560fcdf2341b2052ce24f366e0aff"
     },
     {
       "path": "ModCarrerMode/data/club_environment/current_dressing_room/custom/598/locker-frame.png",
@@ -1198,13 +1198,13 @@
     },
     {
       "path": "ModCarrerMode/data/club_environment/current_dressing_room/custom/598/profile.json",
-      "bytes": 1295,
-      "sha256": "51c57570b43c72358e59f3f16df2ff2784247d8cb5c48303a1d1cb8bb0a75ebf"
+      "bytes": 1548,
+      "sha256": "1a313089d68d9748005e41f8c4c1c8cc4c222234b7cfb1761a345eb0f865e5ae"
     },
     {
       "path": "ModCarrerMode/data/club_environment/current_dressing_room/custom/598/wall-mural.png",
-      "bytes": 2747834,
-      "sha256": "fad8b07bda8c860db0649457e404977df05e66482c5858f00b1641540500f26d"
+      "bytes": 3251529,
+      "sha256": "2cc17b0e7f222f17f88bad9135b019eca5c36d10d36046d5266c525d48bd3bc8"
     },
     {
       "path": "ModCarrerMode/data/club_environment/current_dressing_room/custom/profile.example.json",
@@ -1875,6 +1875,731 @@
       "path": "data/sceneassets/server16_dressing_room_v3/shared/water_cooler_r78.rx3",
       "bytes": 244000,
       "sha256": "9b130aa0a36a7b549a0778bea729f7978d2e77599499e5466715bf772c978336"
+    },
+    {
+      "path": "ModCarrerMode/data/club_environment/medical_department/posters/knee.png",
+      "bytes": 1652633,
+      "sha256": "4c88756ad0153449d5180021fde78e1c77c029ba3a8d49b38a4446cca33a5ecf"
+    },
+    {
+      "path": "ModCarrerMode/data/club_environment/medical_department/posters/spine.png",
+      "bytes": 1347347,
+      "sha256": "ab800140c3bd496bc8e24eb786a76facb5278bc9df29315e1e2a456c6ac1fdcf"
+    },
+    {
+      "path": "data/sceneassets/server16_dressing_room_v3/annex_signage/door_baa23ee96f1c9f94.rx3",
+      "bytes": 106400,
+      "sha256": "baa23ee96f1c9f94f13379a84ab78df2bc7438ce8c7d50cdc27769d720f69781"
+    },
+    {
+      "path": "data/sceneassets/server16_dressing_room_v3/annex_signage/interior_4668965c1fe5feda.rx3",
+      "bytes": 753472,
+      "sha256": "4668965c1fe5feda0fd1c23bf560084087e4f56fe83bcecb25af4302b273c893"
+    },
+    {
+      "path": "data/sceneassets/server16_dressing_room_v3/medical_department/r1_8bae77079bcdb5/MSH_AbWheel_0.rx3",
+      "bytes": 53488,
+      "sha256": "8f83baf85e8c22e4d636f68dbb8c3fe3579cb8302dd101459bd3a55665b642c0"
+    },
+    {
+      "path": "data/sceneassets/server16_dressing_room_v3/medical_department/r1_8bae77079bcdb5/MSH_Bench_01_0.rx3",
+      "bytes": 98704,
+      "sha256": "a5067ef6993b1e34a5d794041ddfcd2b92d16537a0ac4f0d3be964df8cef45d6"
+    },
+    {
+      "path": "data/sceneassets/server16_dressing_room_v3/medical_department/r1_8bae77079bcdb5/MSH_DumbBell_01_0.rx3",
+      "bytes": 3760,
+      "sha256": "02204f1ef3a1f1d8854d69bd840ee2f6bc660d841e0266e10bcb654b927530ce"
+    },
+    {
+      "path": "data/sceneassets/server16_dressing_room_v3/medical_department/r1_8bae77079bcdb5/MSH_DumbBell_02_0.rx3",
+      "bytes": 3760,
+      "sha256": "124d570c03f0da0c1cb579f341ea2f1c3e4ca2f57d0ee3c7cf63f48ded7122d5"
+    },
+    {
+      "path": "data/sceneassets/server16_dressing_room_v3/medical_department/r1_8bae77079bcdb5/MSH_KettleBell_01_0.rx3",
+      "bytes": 9744,
+      "sha256": "f25b0ca1edc367a277468520155dcaa8bb610f598872b8419d1aa30eb9b46f07"
+    },
+    {
+      "path": "data/sceneassets/server16_dressing_room_v3/medical_department/r1_8bae77079bcdb5/MSH_Plate_01_0.rx3",
+      "bytes": 37744,
+      "sha256": "871f7a9568243eed3d235b9251f693c5e466b2950e4d9ab7a7b9bea5593e0b9c"
+    },
+    {
+      "path": "data/sceneassets/server16_dressing_room_v3/medical_department/r1_8bae77079bcdb5/MSH_Rack_01_0.rx3",
+      "bytes": 106464,
+      "sha256": "78b819665dcfa33281f7bc83b47cb454efcc29b6914c2dd4a26ac310985bca5b"
+    },
+    {
+      "path": "data/sceneassets/server16_dressing_room_v3/medical_department/r1_8bae77079bcdb5/bicycle.rx3",
+      "bytes": 60736,
+      "sha256": "6964d821073a7559aaa701adeaa8991bf37308b3bc45a7c4302f70487e0a2e75"
+    },
+    {
+      "path": "data/sceneassets/server16_dressing_room_v3/medical_department/r1_8bae77079bcdb5/bottle_0.rx3",
+      "bytes": 57408,
+      "sha256": "49851089e66eab6f19ee5186589f2870b9791c524325aa5484af136e1f7e7310"
+    },
+    {
+      "path": "data/sceneassets/server16_dressing_room_v3/medical_department/r1_8bae77079bcdb5/bottle_1.rx3",
+      "bytes": 7712,
+      "sha256": "ec4577ef52ce0db873598c5fd14e13b5f4850a26a4add4878116093013334a34"
+    },
+    {
+      "path": "data/sceneassets/server16_dressing_room_v3/medical_department/r1_8bae77079bcdb5/bottle_2.rx3",
+      "bytes": 13248,
+      "sha256": "8b861f786bc970d8585157ede6438239e1d7b558a9281ca4bc7e056cbd73548b"
+    },
+    {
+      "path": "data/sceneassets/server16_dressing_room_v3/medical_department/r1_8bae77079bcdb5/bottle_color_0.png",
+      "bytes": 79,
+      "sha256": "38fb43fbd4b078237a94650903231de41f9ac8ed0c2550b3581cd41b6e9ff501"
+    },
+    {
+      "path": "data/sceneassets/server16_dressing_room_v3/medical_department/r1_8bae77079bcdb5/bottle_color_0.rx3",
+      "bytes": 336,
+      "sha256": "71098e4b432add3984f6502e07865522456457913d4c2e563864e61d7d9a279c"
+    },
+    {
+      "path": "data/sceneassets/server16_dressing_room_v3/medical_department/r1_8bae77079bcdb5/bottle_color_1.png",
+      "bytes": 79,
+      "sha256": "7b09e26a733c6f5d617bee95c176c54e3f5db2e65463ad550314ab37c7056ddb"
+    },
+    {
+      "path": "data/sceneassets/server16_dressing_room_v3/medical_department/r1_8bae77079bcdb5/bottle_color_1.rx3",
+      "bytes": 336,
+      "sha256": "08f1bc982f180f5b269684eb008b351507a0679303f6987ba846234e19a69d85"
+    },
+    {
+      "path": "data/sceneassets/server16_dressing_room_v3/medical_department/r1_8bae77079bcdb5/clinical_palette.png",
+      "bytes": 2333,
+      "sha256": "ae6a7ddc4fc669a7b7e39498067f8737eff60019f1468dbe04e3c7230dac1066"
+    },
+    {
+      "path": "data/sceneassets/server16_dressing_room_v3/medical_department/r1_8bae77079bcdb5/clinical_palette.rx3",
+      "bytes": 349872,
+      "sha256": "b810ef4568b26b4a7b48bc3f821ad32be19cdf79f0192b6f20e4dbc20f683c9a"
+    },
+    {
+      "path": "data/sceneassets/server16_dressing_room_v3/medical_department/r1_8bae77079bcdb5/coach_desktop_props_r2_0.rx3",
+      "bytes": 25904,
+      "sha256": "1d4934ca678cee5af553874262b5870ef68ff023e13303420e324f32b1630f11"
+    },
+    {
+      "path": "data/sceneassets/server16_dressing_room_v3/medical_department/r1_8bae77079bcdb5/coach_guest_chairs_8_14_0.rx3",
+      "bytes": 47392,
+      "sha256": "269009e089ab8c50c2b416ce6f0c877a23f3d47166ab59278e24b2cae5eec9a9"
+    },
+    {
+      "path": "data/sceneassets/server16_dressing_room_v3/medical_department/r1_8bae77079bcdb5/coach_guest_chairs_atlas_0_0.rx3",
+      "bytes": 94432,
+      "sha256": "afd632dcbd01f49a8cde4544a2af9eef9d1759fbcf26a2e6bb28ccaa1d326714"
+    },
+    {
+      "path": "data/sceneassets/server16_dressing_room_v3/medical_department/r1_8bae77079bcdb5/coach_pes_desk_assembly_12_9.rx3",
+      "bytes": 10496,
+      "sha256": "bed777270557d86806752936481c54a6afd209e4f6ed7aac5d1242e29969e367"
+    },
+    {
+      "path": "data/sceneassets/server16_dressing_room_v3/medical_department/r1_8bae77079bcdb5/coach_pes_desk_assembly_3_5.rx3",
+      "bytes": 528,
+      "sha256": "e7e75cedabc239f2008f6d3e897f4c3f7bbc55783756f83a845baaad575aca92"
+    },
+    {
+      "path": "data/sceneassets/server16_dressing_room_v3/medical_department/r1_8bae77079bcdb5/coach_pes_desk_assembly_atlas_0.rx3",
+      "bytes": 71168,
+      "sha256": "480cf2317f8cbdf5767a9921e72721e40086bc72818266d09dbccab5f4369960"
+    },
+    {
+      "path": "data/sceneassets/server16_dressing_room_v3/medical_department/r1_8bae77079bcdb5/coach_pes_office_chair_8_14.rx3",
+      "bytes": 23872,
+      "sha256": "3df0673bb4e7166c9777cb167e9946fc096458f9d35683fcecfd89868cc599ac"
+    },
+    {
+      "path": "data/sceneassets/server16_dressing_room_v3/medical_department/r1_8bae77079bcdb5/coach_pes_office_chair_atlas_0.rx3",
+      "bytes": 47408,
+      "sha256": "aa16446d00c76eda5e97e6dfa821737129e52826442388ef1e0ce3e571732c91"
+    },
+    {
+      "path": "data/sceneassets/server16_dressing_room_v3/medical_department/r1_8bae77079bcdb5/cooler_0.rx3",
+      "bytes": 24576,
+      "sha256": "0ae1a8bf07a42c4e8d95891fda4bacdb7947b0eaf094ea655ef961acb60bcc6e"
+    },
+    {
+      "path": "data/sceneassets/server16_dressing_room_v3/medical_department/r1_8bae77079bcdb5/cooler_1.rx3",
+      "bytes": 28240,
+      "sha256": "ff3cbf1c79f11a6f1d843245d9208f6c29ea19cc20b7b0b6c7ea59f3e7561f08"
+    },
+    {
+      "path": "data/sceneassets/server16_dressing_room_v3/medical_department/r1_8bae77079bcdb5/cooler_2.rx3",
+      "bytes": 68896,
+      "sha256": "057486efa67980d9e091852a234f52ec345632cd19a85cccd26831cd7e0f7547"
+    },
+    {
+      "path": "data/sceneassets/server16_dressing_room_v3/medical_department/r1_8bae77079bcdb5/cooler_3.rx3",
+      "bytes": 75360,
+      "sha256": "aa515a40cbdd48122f2febd0110e90c3995919438560cf602a8e0f4598b95261"
+    },
+    {
+      "path": "data/sceneassets/server16_dressing_room_v3/medical_department/r1_8bae77079bcdb5/cooler_4.rx3",
+      "bytes": 22144,
+      "sha256": "7b4a815eb642e32d94e8bf8280f500d17a37fce59f4ef8a71934f41667852ccc"
+    },
+    {
+      "path": "data/sceneassets/server16_dressing_room_v3/medical_department/r1_8bae77079bcdb5/fitness_batch_0.rx3",
+      "bytes": 311152,
+      "sha256": "af97bcc2232fb231d6a39d26a8dbca0b7a084c6aeaee76d594d0b898b451d9f2"
+    },
+    {
+      "path": "data/sceneassets/server16_dressing_room_v3/medical_department/r1_8bae77079bcdb5/import_246d731eadf7f6.png",
+      "bytes": 3047619,
+      "sha256": "32245f16c1737894f54398ae99af05e03ea5db5e00b542347353669dd1a18297"
+    },
+    {
+      "path": "data/sceneassets/server16_dressing_room_v3/medical_department/r1_8bae77079bcdb5/import_246d731eadf7f6.rx3",
+      "bytes": 5592784,
+      "sha256": "7afb8511e46e6d9f92392ca1fb7a4e9b57c78c023c8861addf084f29281b25bb"
+    },
+    {
+      "path": "data/sceneassets/server16_dressing_room_v3/medical_department/r1_8bae77079bcdb5/import_690d558682d30d.png",
+      "bytes": 120685,
+      "sha256": "4ff54045e6d558a17cc743be99e39d55a62f0d65c4f7fb58f309c0b00748893f"
+    },
+    {
+      "path": "data/sceneassets/server16_dressing_room_v3/medical_department/r1_8bae77079bcdb5/import_690d558682d30d.rx3",
+      "bytes": 5592784,
+      "sha256": "4840a29a665a4354bab0d66a885d4e36a484f9c9fadfcfa47ac5713a8ba0147d"
+    },
+    {
+      "path": "data/sceneassets/server16_dressing_room_v3/medical_department/r1_8bae77079bcdb5/import_97c3da3eddb5ef.png",
+      "bytes": 730035,
+      "sha256": "fa5ceff68cfa10d7564e985e85de882d38678065e0142fc7cf1c96b748a76179"
+    },
+    {
+      "path": "data/sceneassets/server16_dressing_room_v3/medical_department/r1_8bae77079bcdb5/import_97c3da3eddb5ef.rx3",
+      "bytes": 5592784,
+      "sha256": "0b89bf628e6d1839332dc5a16c3006d2bd8e9f482b6a2d938fd4370d55d2a71a"
+    },
+    {
+      "path": "data/sceneassets/server16_dressing_room_v3/medical_department/r1_8bae77079bcdb5/knee_poster.png",
+      "bytes": 1669409,
+      "sha256": "08c4bc07482133b160b8fc9da5bd4ab8a67ce93c3872417869ecf26846b580df"
+    },
+    {
+      "path": "data/sceneassets/server16_dressing_room_v3/medical_department/r1_8bae77079bcdb5/knee_poster.rx3",
+      "bytes": 2097520,
+      "sha256": "e2881869f751c4cb4cd24c0f611cd3107c54d02aaf5ec930d1895749e838257b"
+    },
+    {
+      "path": "data/sceneassets/server16_dressing_room_v3/medical_department/r1_8bae77079bcdb5/medical_room_r77.rx3",
+      "bytes": 655248,
+      "sha256": "3d06558ce076151a49034f3d9e7f8e2d4914ded3a40bfb59d2c9990556a9bebe"
+    },
+    {
+      "path": "data/sceneassets/server16_dressing_room_v3/medical_department/r1_8bae77079bcdb5/office_0c19de20ef434b.rx3",
+      "bytes": 5592784,
+      "sha256": "b05ca00add1bba8edad53ffe6dc22926ca1474e4de802a81d57b2f6459a29a86"
+    },
+    {
+      "path": "data/sceneassets/server16_dressing_room_v3/medical_department/r1_8bae77079bcdb5/office_7f06b074c0602f.rx3",
+      "bytes": 1398464,
+      "sha256": "306080559028ed71265ee11d9ecda3eaecc31adf545618feb3f7d80f1259bb05"
+    },
+    {
+      "path": "data/sceneassets/server16_dressing_room_v3/medical_department/r1_8bae77079bcdb5/office_9c0d83014b61a7.rx3",
+      "bytes": 1398464,
+      "sha256": "95ef0cfba9ea0fc545d53cde72164c906e28fea0fd984ff3c6e3088df3f02d74"
+    },
+    {
+      "path": "data/sceneassets/server16_dressing_room_v3/medical_department/r1_8bae77079bcdb5/office_b9b94b0e4e4cca.rx3",
+      "bytes": 349872,
+      "sha256": "cf5f30f3d716b425af5043961131302e48403d702966bad7d7c964f04ad869b5"
+    },
+    {
+      "path": "data/sceneassets/server16_dressing_room_v3/medical_department/r1_8bae77079bcdb5/office_batch_3.rx3",
+      "bytes": 141488,
+      "sha256": "7089ea218b042f38550db76d673e7bec5657a2d3ebbcf58c30636de2e0c0b839"
+    },
+    {
+      "path": "data/sceneassets/server16_dressing_room_v3/medical_department/r1_8bae77079bcdb5/office_batch_4.rx3",
+      "bytes": 70912,
+      "sha256": "b274816623229dbfa422939938bce858a12361d2a4b1e2b9629e9edc607013e0"
+    },
+    {
+      "path": "data/sceneassets/server16_dressing_room_v3/medical_department/r1_8bae77079bcdb5/office_bb3547977d04a8.rx3",
+      "bytes": 5592784,
+      "sha256": "aafe9d4719db173708c03d73ab580096160b8ae3e2712bd24ea2f209f758fd3d"
+    },
+    {
+      "path": "data/sceneassets/server16_dressing_room_v3/medical_department/r1_8bae77079bcdb5/office_c9d61e321c8c25.rx3",
+      "bytes": 1398464,
+      "sha256": "d86861db1cd8eb9dcb66f1e752ccc65f73e4e4f66c0d24efbf5e6240405cb5b6"
+    },
+    {
+      "path": "data/sceneassets/server16_dressing_room_v3/medical_department/r1_8bae77079bcdb5/spine_poster.png",
+      "bytes": 1297775,
+      "sha256": "5661987d93e5b3da3f393b4f045211f41174ac1bfa2ea72ed1ba1fe0e1b11073"
+    },
+    {
+      "path": "data/sceneassets/server16_dressing_room_v3/medical_department/r1_8bae77079bcdb5/spine_poster.rx3",
+      "bytes": 2097520,
+      "sha256": "9dd05d06bc78610da221d8f6b1831d6beca1a6622ced22b2be6311d58df4525b"
+    },
+    {
+      "path": "data/sceneassets/server16_dressing_room_v3/medical_department/r1_8bae77079bcdb5/treadmill.rx3",
+      "bytes": 47008,
+      "sha256": "aa86ec08e88319a279c711f2884212d168561c28c023c60a277fe821395cf161"
+    },
+    {
+      "path": "data/sceneassets/server16_dressing_room_v3/medical_department/variants/interior_4668965c1fe5feda_3a3ad048df867e.rx3",
+      "bytes": 520656,
+      "sha256": "3a3ad048df867ef65d388f3065205bb898c43e85a727db69319b203892117a40"
+    },
+    {
+      "path": "data/sceneassets/server16_dressing_room_v3/medical_department/variants/room_roles_b5a175cd4c50e6_a6081c050f926b.rx3",
+      "bytes": 1171520,
+      "sha256": "a6081c050f926b1a656cca7291b4330f0f0de84a68294e0deecb6bfbab9087c4"
+    },
+    {
+      "path": "data/sceneassets/server16_dressing_room_v3/medical_department/variants/scenery_c874ddac663808_83f1a46d519832.rx3",
+      "bytes": 2752,
+      "sha256": "83f1a46d519832ec846e9ee46c6c9613bdd5b9235fc01bfc5e6292a965559674"
+    },
+    {
+      "path": "data/sceneassets/server16_dressing_room_v3/office_neutral/clock_face_107aff7ed37d60.rx3",
+      "bytes": 1408,
+      "sha256": "107aff7ed37d603f682fdd530b9f9df9c79cb6a3ba979d9caa2932cca15e6337"
+    },
+    {
+      "path": "data/sceneassets/server16_dressing_room_v3/office_neutral/coffee_table_3_2_e0fc8f2397a6e5.rx3",
+      "bytes": 6816,
+      "sha256": "e0fc8f2397a6e5ad191e9d9ec9ef87636fee9169c9140d99f679c872a59d4795"
+    },
+    {
+      "path": "data/sceneassets/server16_dressing_room_v3/office_neutral/coffee_table_5_3_8eb24ccc4e650f.rx3",
+      "bytes": 3840,
+      "sha256": "8eb24ccc4e650f37f7dfc6b623e1ddbe50503639aedfe48a63d1422a4faba217"
+    },
+    {
+      "path": "data/sceneassets/server16_dressing_room_v3/office_neutral/desk_assembly_12_9_bd8b397a523be1.rx3",
+      "bytes": 10592,
+      "sha256": "bd8b397a523be11c9d8343eda4bcc2192b2bcefcad8619c38e9461b3e7f75f0f"
+    },
+    {
+      "path": "data/sceneassets/server16_dressing_room_v3/office_neutral/desk_assembly_3_5_60ca809c483e61.rx3",
+      "bytes": 528,
+      "sha256": "60ca809c483e6185ed8e7757ac23b7f7cb8e2f6ce88f818452fe8fed26be8cc2"
+    },
+    {
+      "path": "data/sceneassets/server16_dressing_room_v3/office_neutral/desk_assembly_atlas_0_c9bc8a6e93a896.rx3",
+      "bytes": 74096,
+      "sha256": "c9bc8a6e93a89672855ba23e4688b93b422c475fe2926aeb9a4646e195a297ae"
+    },
+    {
+      "path": "data/sceneassets/server16_dressing_room_v3/office_neutral/desktop_props_r2_9ca8c49b981e71.rx3",
+      "bytes": 91712,
+      "sha256": "9ca8c49b981e71c69e91ecad86d824d5330c50978a0ece7b4ab57d5c1c293b5f"
+    },
+    {
+      "path": "data/sceneassets/server16_dressing_room_v3/office_neutral/floor_plant_19_29_59d543c5135b2c.rx3",
+      "bytes": 251824,
+      "sha256": "59d543c5135b2c8169d6c8ac1b38c7960809280700ee45dd23f93269db7a4cf8"
+    },
+    {
+      "path": "data/sceneassets/server16_dressing_room_v3/office_neutral/guest_chairs_8_14_cf8f934c4cbdee.rx3",
+      "bytes": 47392,
+      "sha256": "cf8f934c4cbdee7e17f1322879e851dd7870010c9b2059dc845827283920aebe"
+    },
+    {
+      "path": "data/sceneassets/server16_dressing_room_v3/office_neutral/guest_chairs_atlas_0_865c22256e8afb.rx3",
+      "bytes": 94432,
+      "sha256": "865c22256e8afbad84cd9c3ea0ec5365a99b16edc4c2b5f1c535a9c18f24c201"
+    },
+    {
+      "path": "data/sceneassets/server16_dressing_room_v3/office_neutral/interior_30cfc1a8e8e4d5.rx3",
+      "bytes": 753216,
+      "sha256": "30cfc1a8e8e4d5a072975f757498a73c4a76600a4a76de53df8c90ee0c06698c"
+    },
+    {
+      "path": "data/sceneassets/server16_dressing_room_v3/office_neutral/interior_33a3cf1c34f899.rx3",
+      "bytes": 754128,
+      "sha256": "33a3cf1c34f8992ffa25cb4e8c7b63f40f4f66d5080bb7c7973909c73df41e0d"
+    },
+    {
+      "path": "data/sceneassets/server16_dressing_room_v3/office_neutral/office_chair_8_14_26580f3098a182.rx3",
+      "bytes": 26896,
+      "sha256": "26580f3098a182739e1cb208b4ead035a94ff4266b7ba772e059e77faafc3059"
+    },
+    {
+      "path": "data/sceneassets/server16_dressing_room_v3/office_neutral/office_chair_atlas_0_17048f58e862ba.rx3",
+      "bytes": 49584,
+      "sha256": "17048f58e862baeef87fe39505a14b68106993a56ac51f38d5a282e61d5ab28c"
+    },
+    {
+      "path": "data/sceneassets/server16_dressing_room_v3/office_neutral/rolling_shelf_atlas_0_7e6560fa0948cc.rx3",
+      "bytes": 10864,
+      "sha256": "7e6560fa0948cc652b426ea2ff6ef2a5170413ba4de0de5e4f4fea058c23a238"
+    },
+    {
+      "path": "data/sceneassets/server16_dressing_room_v3/office_neutral/shell_4718c83a5f49cf.rx3",
+      "bytes": 84656,
+      "sha256": "4718c83a5f49cfaf78df2299b107959ad07a864c1225695ff25e6028864ad591"
+    },
+    {
+      "path": "data/sceneassets/server16_dressing_room_v3/office_neutral/shell_9413c3e173cb2e.rx3",
+      "bytes": 87888,
+      "sha256": "9413c3e173cb2ee10c63b9e74c5ab75e7d231eb08fce48a8d741458dae0161aa"
+    },
+    {
+      "path": "data/sceneassets/server16_dressing_room_v3/office_neutral/shell_c6cf72b6ac7a19.rx3",
+      "bytes": 102192,
+      "sha256": "c6cf72b6ac7a19e3a58fe4710001ef094cba789ca2b537680367108b6bc8e216"
+    },
+    {
+      "path": "data/sceneassets/server16_dressing_room_v3/office_neutral/sofa_set_1_0_be57606ed1a3be.rx3",
+      "bytes": 19872,
+      "sha256": "be57606ed1a3be52bc8109202cde3906ea12e69e764ae6a67ff1d3409e6313c7"
+    },
+    {
+      "path": "data/sceneassets/server16_dressing_room_v3/office_neutral/sofa_set_4_1_4e6f2a4be32be9.rx3",
+      "bytes": 65728,
+      "sha256": "4e6f2a4be32be9e73cecc202d5d6e38ddb0e1a2f11e03811872a03fb679d6886"
+    },
+    {
+      "path": "data/sceneassets/server16_dressing_room_v3/office_neutral/table_vase_0_28_eb4d8056f148dc.rx3",
+      "bytes": 7200,
+      "sha256": "eb4d8056f148dc0187841f7de4027010b05bef51df32db4ed77010c705ff693a"
+    },
+    {
+      "path": "data/sceneassets/server16_dressing_room_v3/office_neutral/tactical_board_atlas_0_5121ac3319df03.rx3",
+      "bytes": 35392,
+      "sha256": "5121ac3319df038ec50f3d38278352ce715fe73107ec478907134a205fe08a75"
+    },
+    {
+      "path": "data/sceneassets/server16_dressing_room_v3/office_refresh/clock-face.rx3",
+      "bytes": 5592784,
+      "sha256": "171f36b8b84f3e2b34d68279e2662facfcf76f71bb244e94f3db391d5a508997"
+    },
+    {
+      "path": "data/sceneassets/server16_dressing_room_v3/office_refresh/clock_face.rx3",
+      "bytes": 1408,
+      "sha256": "a8730223a21367b5ee5b36322f39b889bb82be09fbb2603b10c930ff155d73fc"
+    },
+    {
+      "path": "data/sceneassets/server16_dressing_room_v3/office_refresh/coffee_table_3_2.rx3",
+      "bytes": 6816,
+      "sha256": "c285b760d00fc53fb686ed5d54a42aab07d3a079414f7fa82b5f35d34f0800e0"
+    },
+    {
+      "path": "data/sceneassets/server16_dressing_room_v3/office_refresh/coffee_table_5_3.rx3",
+      "bytes": 3840,
+      "sha256": "14dd40d1502a6c55c5ac0037ef436a471118b90c93c55ba4ca93579988d724a3"
+    },
+    {
+      "path": "data/sceneassets/server16_dressing_room_v3/office_refresh/desk_assembly_12_9.rx3",
+      "bytes": 10592,
+      "sha256": "7804bf70a3c562212a7f187e93b73f8e76211367f440d7af8f928993748026de"
+    },
+    {
+      "path": "data/sceneassets/server16_dressing_room_v3/office_refresh/desk_assembly_3_5.rx3",
+      "bytes": 528,
+      "sha256": "8cba1b94de612ed084ad190232d284f79d78fe807b1c1ab0809cad033a59b487"
+    },
+    {
+      "path": "data/sceneassets/server16_dressing_room_v3/office_refresh/desk_assembly_atlas_0.rx3",
+      "bytes": 74096,
+      "sha256": "921f9ce8d4f7196d6f13adf1137f6cb2d576728f8bacc4091fc87c11d7481e0e"
+    },
+    {
+      "path": "data/sceneassets/server16_dressing_room_v3/office_refresh/desktop_props.rx3",
+      "bytes": 32576,
+      "sha256": "4e75bde2450c417734bb875585072e8172b390f363de3ca17ad1d6a41598924b"
+    },
+    {
+      "path": "data/sceneassets/server16_dressing_room_v3/office_refresh/desktop_props_r2.rx3",
+      "bytes": 32576,
+      "sha256": "f8ab670cfc58c3b44d60f69bfe221b54a8f769b09588ffa61d90151b6d8006ba"
+    },
+    {
+      "path": "data/sceneassets/server16_dressing_room_v3/office_refresh/floor_plant_19_29.rx3",
+      "bytes": 251824,
+      "sha256": "a8b60ef26117dead67e0a245f952eebd80ece8279c772d083845328963b2375a"
+    },
+    {
+      "path": "data/sceneassets/server16_dressing_room_v3/office_refresh/guest_chairs_8_14.rx3",
+      "bytes": 47392,
+      "sha256": "8bbac9dfdee1bb9aa796e3336eba11ffdc35aa3f81bfc98f0acc46ed6927b7b0"
+    },
+    {
+      "path": "data/sceneassets/server16_dressing_room_v3/office_refresh/guest_chairs_atlas_0.rx3",
+      "bytes": 94432,
+      "sha256": "70e774894a0501a12c5182c89d35aeda0df00b440c411307bbde6ed32c59eeae"
+    },
+    {
+      "path": "data/sceneassets/server16_dressing_room_v3/office_refresh/office_chair_8_14.rx3",
+      "bytes": 26896,
+      "sha256": "c7437b9c2560036ab7e73857ed3b3979e044f588795df0e4df1186b0b60235a9"
+    },
+    {
+      "path": "data/sceneassets/server16_dressing_room_v3/office_refresh/office_chair_atlas_0.rx3",
+      "bytes": 49584,
+      "sha256": "943e052ab3d8afc3dd74b31d7547dfb0bbd51baaad2f8120163c668401109e35"
+    },
+    {
+      "path": "data/sceneassets/server16_dressing_room_v3/office_refresh/palette.rx3",
+      "bytes": 349872,
+      "sha256": "cf5f30f3d716b425af5043961131302e48403d702966bad7d7c964f04ad869b5"
+    },
+    {
+      "path": "data/sceneassets/server16_dressing_room_v3/office_refresh/rolling_shelf_atlas_0.rx3",
+      "bytes": 10864,
+      "sha256": "d7c4a4148775d592c2fdd3a91329addcd23bfd2fbe9cba77ec09c89f33e7db7c"
+    },
+    {
+      "path": "data/sceneassets/server16_dressing_room_v3/office_refresh/sofa_set_1_0.rx3",
+      "bytes": 19872,
+      "sha256": "c5026e7d1691ada24d06ed9cdab03bae9811c9fb2483fbda40b41b62ccf6576f"
+    },
+    {
+      "path": "data/sceneassets/server16_dressing_room_v3/office_refresh/sofa_set_4_1.rx3",
+      "bytes": 65728,
+      "sha256": "58c433efe7acada406fe8f88ce3d16cbafafd331b4346397736c3b5c3baa3c18"
+    },
+    {
+      "path": "data/sceneassets/server16_dressing_room_v3/office_refresh/table_vase_0_28.rx3",
+      "bytes": 7200,
+      "sha256": "d94695df039ef9b3a94d5075a057c13c48474895870dd1623114580fc914a831"
+    },
+    {
+      "path": "data/sceneassets/server16_dressing_room_v3/office_refresh/tactical_board_atlas_0.rx3",
+      "bytes": 35392,
+      "sha256": "4853eacd12fd3f28b70c95adcabb728d54c53bde2125bbc165aa99954c6ff95e"
+    },
+    {
+      "path": "data/sceneassets/server16_dressing_room_v3/pes_office/coffee_table_3_2-texture.rx3",
+      "bytes": 1398464,
+      "sha256": "998b92f7355919518fcf8aaff5c5d543ad12268ad32de3ea5954a3b09cb495b2"
+    },
+    {
+      "path": "data/sceneassets/server16_dressing_room_v3/pes_office/coffee_table_3_2.rx3",
+      "bytes": 6816,
+      "sha256": "1c533cde0e0900f991ee9963e61f49bab162afe069200a5555df826c17be5664"
+    },
+    {
+      "path": "data/sceneassets/server16_dressing_room_v3/pes_office/coffee_table_5_3-texture.rx3",
+      "bytes": 1398464,
+      "sha256": "26a1b26e1e54322e369a0012289df8822bcd02ce5477369cbd01dbca713de7fc"
+    },
+    {
+      "path": "data/sceneassets/server16_dressing_room_v3/pes_office/coffee_table_5_3.rx3",
+      "bytes": 3840,
+      "sha256": "14633a7a4e88729a400ca996533cd978b35e2baed8f5770aaef641aa9b361b9f"
+    },
+    {
+      "path": "data/sceneassets/server16_dressing_room_v3/pes_office/crest_surfaces_45c8637f10f9ae.rx3",
+      "bytes": 2304,
+      "sha256": "45c8637f10f9aec474bb02729a5c8d0750c3caba1338b1b0ae6b85e2e593f134"
+    },
+    {
+      "path": "data/sceneassets/server16_dressing_room_v3/pes_office/desk_assembly_12_9-texture.rx3",
+      "bytes": 1398464,
+      "sha256": "95ef0cfba9ea0fc545d53cde72164c906e28fea0fd984ff3c6e3088df3f02d74"
+    },
+    {
+      "path": "data/sceneassets/server16_dressing_room_v3/pes_office/desk_assembly_12_9.rx3",
+      "bytes": 10592,
+      "sha256": "898db1c8fd2648f36d0807f0a88b9b0dd6894cae7dbe3a96f6856352bdc07437"
+    },
+    {
+      "path": "data/sceneassets/server16_dressing_room_v3/pes_office/desk_assembly_3_5-texture.rx3",
+      "bytes": 1398464,
+      "sha256": "306080559028ed71265ee11d9ecda3eaecc31adf545618feb3f7d80f1259bb05"
+    },
+    {
+      "path": "data/sceneassets/server16_dressing_room_v3/pes_office/desk_assembly_3_5.rx3",
+      "bytes": 528,
+      "sha256": "3f8bc8ad980fcd78129beb6f7daff1895d1ef984e48b214946cd2a5e0ac58b40"
+    },
+    {
+      "path": "data/sceneassets/server16_dressing_room_v3/pes_office/desk_assembly_atlas_0-texture.rx3",
+      "bytes": 5592784,
+      "sha256": "aafe9d4719db173708c03d73ab580096160b8ae3e2712bd24ea2f209f758fd3d"
+    },
+    {
+      "path": "data/sceneassets/server16_dressing_room_v3/pes_office/desk_assembly_atlas_0.rx3",
+      "bytes": 74096,
+      "sha256": "97b0e3501cab76164da6d4bfca37eb1abc258316049d15a8fb14251ca22ae3b0"
+    },
+    {
+      "path": "data/sceneassets/server16_dressing_room_v3/pes_office/floor_plant_19_29-texture.rx3",
+      "bytes": 1398464,
+      "sha256": "200fa22b4385d994b94882dc0dc2d0d258555c88bd2c2f5d1b0f869091f6b59c"
+    },
+    {
+      "path": "data/sceneassets/server16_dressing_room_v3/pes_office/floor_plant_19_29.rx3",
+      "bytes": 251824,
+      "sha256": "7cdcb022dc9ee72a3635e9a3f7804ab9159c4619c015fe9ffa211d0538c9af16"
+    },
+    {
+      "path": "data/sceneassets/server16_dressing_room_v3/pes_office/interior_32b2560ec94219.rx3",
+      "bytes": 770320,
+      "sha256": "32b2560ec942198d4361c61e3aaf150b75482b0a20052ef457561638aa6f6dc9"
+    },
+    {
+      "path": "data/sceneassets/server16_dressing_room_v3/pes_office/interior_333c6796b7abf2.rx3",
+      "bytes": 759680,
+      "sha256": "333c6796b7abf284f7e3c4fff28d70642362a6d9700597d85a72806151fcd33f"
+    },
+    {
+      "path": "data/sceneassets/server16_dressing_room_v3/pes_office/interior_c647cff49eefac.rx3",
+      "bytes": 759680,
+      "sha256": "c647cff49eefacec763a0401e09a1f3530996a928e0dca7b7b473c532a5f2f55"
+    },
+    {
+      "path": "data/sceneassets/server16_dressing_room_v3/pes_office/media_wall_atlas_0-texture.rx3",
+      "bytes": 5592784,
+      "sha256": "8558a38014c83a17c576e3d9599d8f0af01d82ef1942ffb51e4a70b8811d371b"
+    },
+    {
+      "path": "data/sceneassets/server16_dressing_room_v3/pes_office/media_wall_atlas_0.rx3",
+      "bytes": 22576,
+      "sha256": "55e06ee7d8a7f8fc499e7b8d8f317f67b5e544f7f9e6f8163b2ad1b002bed8c5"
+    },
+    {
+      "path": "data/sceneassets/server16_dressing_room_v3/pes_office/media_wall_atlas_1-texture.rx3",
+      "bytes": 5592784,
+      "sha256": "808828906c71517a3685d5ede97b6217fff57fbea366f3a4d53e67baa30f701b"
+    },
+    {
+      "path": "data/sceneassets/server16_dressing_room_v3/pes_office/media_wall_atlas_1.rx3",
+      "bytes": 85680,
+      "sha256": "de0f3e7f0070d3bd5578a71d660dd8bc73cb68d026923d94720cf50e2ebfdaf4"
+    },
+    {
+      "path": "data/sceneassets/server16_dressing_room_v3/pes_office/office-shell.rx3",
+      "bytes": 15424,
+      "sha256": "e185e1835e358f8358fc6646bafd38cf4deee61b63f675e24f91e4f7c00a171a"
+    },
+    {
+      "path": "data/sceneassets/server16_dressing_room_v3/pes_office/office_chair_8_14-texture.rx3",
+      "bytes": 1398464,
+      "sha256": "d86861db1cd8eb9dcb66f1e752ccc65f73e4e4f66c0d24efbf5e6240405cb5b6"
+    },
+    {
+      "path": "data/sceneassets/server16_dressing_room_v3/pes_office/office_chair_8_14.rx3",
+      "bytes": 26896,
+      "sha256": "0c558b2f7397729315e01e91b905c2d5026e2288b5de9ef07dfc410e719dcf7a"
+    },
+    {
+      "path": "data/sceneassets/server16_dressing_room_v3/pes_office/office_chair_atlas_0-texture.rx3",
+      "bytes": 5592784,
+      "sha256": "b05ca00add1bba8edad53ffe6dc22926ca1474e4de802a81d57b2f6459a29a86"
+    },
+    {
+      "path": "data/sceneassets/server16_dressing_room_v3/pes_office/office_chair_atlas_0.rx3",
+      "bytes": 49584,
+      "sha256": "e09f74eb344f45f300656a3b94ca81934209c8d0fd4ee6a65953423cf4fe7318"
+    },
+    {
+      "path": "data/sceneassets/server16_dressing_room_v3/pes_office/rolling_shelf_atlas_0-texture.rx3",
+      "bytes": 5592784,
+      "sha256": "153b356f67a1b37eb5edca5d5dea71960369083eeccea9795e4b5cff6d3e3b8b"
+    },
+    {
+      "path": "data/sceneassets/server16_dressing_room_v3/pes_office/rolling_shelf_atlas_0.rx3",
+      "bytes": 10864,
+      "sha256": "38f2a85024365200a1c45f2a6544e712f30e6130efdf3cc6d83ea59171e724eb"
+    },
+    {
+      "path": "data/sceneassets/server16_dressing_room_v3/pes_office/room_roles_75e49fc89af417.rx3",
+      "bytes": 933296,
+      "sha256": "75e49fc89af417a93de7f34386558850e763b381161a9200ef87464471d24fcb"
+    },
+    {
+      "path": "data/sceneassets/server16_dressing_room_v3/pes_office/room_roles_7723da2cdece4d.rx3",
+      "bytes": 971200,
+      "sha256": "7723da2cdece4d3ba4ca225cf59cad433331aaa959b83a5cc32a5c1e681fa655"
+    },
+    {
+      "path": "data/sceneassets/server16_dressing_room_v3/pes_office/room_roles_aaeaea61c0d4ff.rx3",
+      "bytes": 1157952,
+      "sha256": "aaeaea61c0d4ff4744ced39ff3110335fa2d806f89350b446bcb9aabff0fc79d"
+    },
+    {
+      "path": "data/sceneassets/server16_dressing_room_v3/pes_office/room_roles_b5a175cd4c50e6.rx3",
+      "bytes": 1172064,
+      "sha256": "b5a175cd4c50e6234f9e9bf5ca028df6c0a0717843283ef1c0a187d75984798b"
+    },
+    {
+      "path": "data/sceneassets/server16_dressing_room_v3/pes_office/room_roles_dd00964303ec11.rx3",
+      "bytes": 971200,
+      "sha256": "dd00964303ec11cf7bd32a4f20ff5aa354d2236f0952b591bd7f192aa824437b"
+    },
+    {
+      "path": "data/sceneassets/server16_dressing_room_v3/pes_office/scenery_6fd507d0c56db7.rx3",
+      "bytes": 2752,
+      "sha256": "6fd507d0c56db70eba6f1828f18b775a3a9d50e9908f42f0b277ade7ef84f908"
+    },
+    {
+      "path": "data/sceneassets/server16_dressing_room_v3/pes_office/sofa_set_1_0-texture.rx3",
+      "bytes": 5592784,
+      "sha256": "466f00d8d1ae0876fa83e4fa2b136cefe8e31632a0be437b97d1b6d0e7cee98d"
+    },
+    {
+      "path": "data/sceneassets/server16_dressing_room_v3/pes_office/sofa_set_1_0.rx3",
+      "bytes": 19872,
+      "sha256": "10c477589e83d53f76d97c076dd05d37971c565341e28bc3e74da3c9817b92bd"
+    },
+    {
+      "path": "data/sceneassets/server16_dressing_room_v3/pes_office/sofa_set_4_1-texture.rx3",
+      "bytes": 5592784,
+      "sha256": "3be6d2d16f3a3afe4107bf6094540d1beb6f4a0ff25a21933cb4e2db225b6fc4"
+    },
+    {
+      "path": "data/sceneassets/server16_dressing_room_v3/pes_office/sofa_set_4_1.rx3",
+      "bytes": 65728,
+      "sha256": "015a2e1682b4332a512a691e113800c70f3725c06d8d2c1ecc5b4a65df467aa2"
+    },
+    {
+      "path": "data/sceneassets/server16_dressing_room_v3/pes_office/table_vase_0_28-texture.rx3",
+      "bytes": 1398464,
+      "sha256": "45970b8376926e6f36c3c9474453e963c46d92300457ce8c780f14bfe1aba5ba"
+    },
+    {
+      "path": "data/sceneassets/server16_dressing_room_v3/pes_office/table_vase_0_28.rx3",
+      "bytes": 7200,
+      "sha256": "bbc9b9573efc8a6e575eb243a8c1df31892b7163023e32790e431a098b447adb"
+    },
+    {
+      "path": "data/sceneassets/server16_dressing_room_v3/pes_office/tactical_board_atlas_0-texture.rx3",
+      "bytes": 5592784,
+      "sha256": "c2c4b5d6f5f4119b046804c41e5aa1a5488d7849f2eed45cf2329332aae0d4d1"
+    },
+    {
+      "path": "data/sceneassets/server16_dressing_room_v3/pes_office/tactical_board_atlas_0.rx3",
+      "bytes": 35392,
+      "sha256": "13b5bf1588339e763461c41107e1ad1e80d6b3dec1fb7cd5194a524f05877ea5"
+    },
+    {
+      "path": "data/sceneassets/server16_dressing_room_v3/rehab_equipment/medical_room_r77.rx3",
+      "bytes": 357344,
+      "sha256": "91f0984d76bdbfa8cbe8996095a92827bf21a6229ec35245b3d28d1f94e240ad"
+    },
+    {
+      "path": "data/sceneassets/server16_dressing_room_v3/rehab_equipment/palette.rx3",
+      "bytes": 349872,
+      "sha256": "cf5f30f3d716b425af5043961131302e48403d702966bad7d7c964f04ad869b5"
+    },
+    {
+      "path": "data/sceneassets/server16_dressing_room_v3/rehab_equipment/rehabilitation.rx3",
+      "bytes": 304912,
+      "sha256": "4da4ae47210119e5ec745f8c289ccda5145d2accebef254ff589ffb753f6ae66"
+    },
+    {
+      "path": "data/sceneassets/server16_dressing_room_v3/rehab_equipment/rehabilitation_r2.rx3",
+      "bytes": 304912,
+      "sha256": "49eea48ae9284254d473d803748a95417a32cf5ab167ac527810df3a0e3fb690"
     }
   ],
   "room_revision": 62,

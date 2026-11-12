@@ -4,9 +4,11 @@
 #include <cassert>
 static BOOL capturing=FALSE, shortcuts=FALSE;
 static BOOL audio_mode=FALSE;
+static BOOL career_mode=FALSE;
 extern "C" BOOL mod_screen_captures_input(void) { return capturing; }
 extern "C" BOOL selector_shortcut_enabled(void) { return shortcuts; }
 extern "C" BOOL selector_audio_mode(void) { return audio_mode; }
+extern "C" BOOL selector_career_mode(void) { return career_mode; }
 static XINPUT_STATE fake_pad;
 static BYTE fake_keys[256];
 static DIMOUSESTATE2 fake_mouse;
@@ -30,6 +32,7 @@ static HRESULT WINAPI read_keys(void *,DWORD size,void *state) {
     memcpy(state,fake_keys,256); return DI_OK;
 }
 static void print_log(const char *message) { puts(message); }
+void ultrawide_cursor_position(POINT*) {}
 int main(int argc,char **) {
     if (argc>1) {
         LoadLibraryExW(L"xinput1_4.dll",nullptr,LOAD_LIBRARY_SEARCH_SYSTEM32);
@@ -62,6 +65,12 @@ int main(int argc,char **) {
     filter_state(entry,0,&result); assert(result.Gamepad.wButtons==XINPUT_GAMEPAD_START);
     fake_pad.Gamepad.wButtons=XINPUT_GAMEPAD_BACK;
     filter_state(entry,0,&result); assert(result.Gamepad.wButtons==XINPUT_GAMEPAD_BACK);
+    career_mode=TRUE;
+    fake_pad.Gamepad.wButtons=XINPUT_GAMEPAD_START;
+    filter_state(entry,0,&result);assert(result.Gamepad.wButtons==0);
+    fake_pad.Gamepad.wButtons=XINPUT_GAMEPAD_START|XINPUT_GAMEPAD_BACK;
+    filter_state(entry,0,&result);assert(result.Gamepad.wButtons==XINPUT_GAMEPAD_BACK);
+    career_mode=FALSE;
     audio_mode=FALSE;
     shortcuts=FALSE;
     // A compatible pre-existing FIFA Mods Dev hook must be chained, not

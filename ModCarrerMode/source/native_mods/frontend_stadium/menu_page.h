@@ -3,7 +3,8 @@
 #include <cstring>
 
 namespace frontend_stadium {
-enum class PageKind { Transition, Menu, Hub, IdlePanorama, ClubBrowser, PlayerCareer, Other, ManagerFace, ManagerPreferences };
+enum class PageKind { Transition, Menu, Hub, IdlePanorama, ClubBrowser, PlayerCareer, Other, ManagerFace, ManagerPreferences, DressingRoom, TrophyRoom };
+inline bool isDedicatedRoomPage(PageKind page){return page==PageKind::DressingRoom||page==PageKind::TrophyRoom;}
 inline bool isBackgroundPage(PageKind page){
     return page==PageKind::Menu||page==PageKind::Hub||page==PageKind::IdlePanorama
         ||page==PageKind::ClubBrowser||page==PageKind::PlayerCareer||page==PageKind::ManagerFace||page==PageKind::ManagerPreferences;
@@ -44,6 +45,8 @@ template<class Read> PageKind pageKind(uintptr_t image,Read read){
        std::strstr(name,"becomeaplayer")||std::strstr(name,"player-career"))return PageKind::PlayerCareer;
     if(std::strstr(name,"mainmenuwithstadium")||std::strstr(name,"mainmenuhub"))return PageKind::Menu;
     if(!leaf)return PageKind::Other;
+    if(!std::strcmp(leaf,"/dressingroom"))return PageKind::DressingRoom;
+    if(!std::strcmp(leaf,"/trophyroom"))return PageKind::TrophyRoom;
     if(!std::strcmp(leaf,"/managerpreferences"))return PageKind::ManagerPreferences;
     if(!std::strcmp(leaf,"/fluxhub"))return PageKind::Hub;
     if(!std::strcmp(leaf,"/stadiumpan"))return PageKind::IdlePanorama;

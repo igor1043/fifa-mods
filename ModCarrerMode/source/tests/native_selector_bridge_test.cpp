@@ -17,6 +17,7 @@ static wchar_t test_mapping_name[100];
 #include "../server16_py/d3d_overlay/stadium_selector_bridge.cpp"
 #include <cassert>
 static void print_log(const char *message) { puts(message); }
+void ultrawide_cursor_position(POINT*) {} // The renderer has its own independent tests.
 int main() {
     setvbuf(stdout,nullptr,_IONBF,0);
     static_assert(sizeof(SelectorShared)==1576,"Python/native protocol size mismatch");
@@ -141,7 +142,7 @@ int main() {
     assert(handle_shortcut(true,false,false,XINPUT_GAMEPAD_START,0,XINPUT_GAMEPAD_START,450));
     assert(shared->events[0].kind==1);
     assert(!handle_shortcut(true,true,false,XINPUT_GAMEPAD_START,0,XINPUT_GAMEPAD_START,500));
-    for (LONG mode : {2L,3L})
+    for (LONG mode : {2L})
     for (WORD first : {WORD(0),WORD(XINPUT_GAMEPAD_START),WORD(XINPUT_GAMEPAD_BACK)}) {
         reset_events(mode);
         if (first) assert(!handle_shortcut(true,false,false,first,first,0,100));
@@ -152,6 +153,15 @@ int main() {
         assert(handle_shortcut(true,true,false,combo,combo,0,500));
         assert(shared->events[1].kind==11);
     }
+    reset_events(0);
+    reset_events(3);
+    assert(selector_career_mode());
+    assert(handle_shortcut(true,false,false,XINPUT_GAMEPAD_START,XINPUT_GAMEPAD_START,0,600));
+    assert(shared->events[0].kind==1);
+    assert(!handle_shortcut(true,true,false,XINPUT_GAMEPAD_START,0,XINPUT_GAMEPAD_START,650));
+    assert(!handle_shortcut(true,true,false,0,0,XINPUT_GAMEPAD_START,700));
+    assert(handle_shortcut(true,true,false,XINPUT_GAMEPAD_START,XINPUT_GAMEPAD_START,0,750));
+    assert(shared->events[1].kind==11);
     reset_events(0);
     assert(!handle_shortcut(false,false,true,0,0,0,100));
     assert(shared->write_index==0 && !shared->visible);

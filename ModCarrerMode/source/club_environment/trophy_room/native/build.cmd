@@ -31,6 +31,7 @@ cl /nologo /O2 /W3 /EHsc /std:c++17 /utf-8 /MT "%~dp0..\..\..\club_browser\nativ
 if errorlevel 1 exit /b 1
 test_gallery_scene_profile.exe
 if errorlevel 1 exit /b 1
+if errorlevel 1 exit /b 1
 cl /nologo /O2 /W3 /EHsc /std:c++17 /utf-8 /MT "%~dp0..\..\..\common\test_scene_lens.cpp" /Fe:test_scene_lens.exe
 if errorlevel 1 exit /b 1
 test_scene_lens.exe scene-lens-scripts.lua

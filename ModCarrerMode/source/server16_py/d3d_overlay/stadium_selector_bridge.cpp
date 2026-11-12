@@ -70,9 +70,10 @@ extern "C" BOOL selector_shortcut_enabled(void) {
     const auto channel=std::atomic_load(&g_channel);
     return alive(channel.get()) && channel->enabled && channel->ready==7 && game_foreground(g_window);
 }
-// Modes 2 (match) and 3 (career) share Select+Start and panel navigation.
+// Match keeps Select+Start. Career visual settings use Start on its own.
 // The career panel is rendered and dispatched separately by Python.
 extern "C" BOOL selector_audio_mode(void) { const auto channel=std::atomic_load(&g_channel);return channel && (channel->enabled==2 || channel->enabled==3); }
+extern "C" BOOL selector_career_mode(void) { const auto channel=std::atomic_load(&g_channel);return channel && channel->enabled==3; }
 static bool audio_combo_edge(WORD buttons,WORD previous) {
     const WORD combo=XINPUT_GAMEPAD_START|XINPUT_GAMEPAD_BACK;
     return (buttons&combo)==combo && (previous&combo)!=combo;
@@ -124,7 +125,10 @@ static void emit(LONG kind,LONG value=0) {
 }
 static bool handle_shortcut(bool enabled,bool shown,bool keyboard_edge,WORD buttons,WORD pressed,WORD previous,DWORD now) {
     bool start=false;
-    if (selector_audio_mode()) {
+    if (selector_career_mode()) {
+        g_start_pending=0;
+        start=(pressed & XINPUT_GAMEPAD_START)!=0;
+    } else if (selector_audio_mode()) {
         g_start_pending=0;
         start=audio_combo_edge(buttons,previous);
     } else {

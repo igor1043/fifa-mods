@@ -1,6 +1,6 @@
 """Current career availability and observed injury countdown, no save writes."""
 from pathlib import Path
-from datetime import datetime
+from datetime import datetime,date,timedelta
 import hashlib,json,os,re,math
 import portable_paths as portable
 
@@ -29,10 +29,17 @@ def enrich(context,snapshot,roster,rows):
         state=json.loads(path.read_text(encoding='utf8'))
         if state.get('schema')!=1 or state.get('scope')!=key or state.get('date',0)>today or not isinstance(state.get('episodes'),dict) or not isinstance(state.get('history'),list):raise ValueError('Different career timeline')
     except (OSError,ValueError,TypeError):state=dict(schema=1,scope=key,date=today,episodes={},history=[])
-    episodes=state['episodes'];active=set();condition=[]
+    episodes=state['episodes'];active=set();condition=[];ages=[];injured_ages=[]
     for p in roster:
         record=players.get(p['id']);stamina=record.value('stamina') if record and 'stamina' in record.fields else None
-        condition.append(dict(player=p['id'],name=p['name'],stamina=stamina if type(stamina)==int and 0<=stamina<=99 else None,available=p['id'] not in injured))
+        age=None
+        if record and 'birthdate' in record.fields:
+            try:
+                born=date(1582,10,14)+timedelta(days=record.value('birthdate'));now=datetime.strptime(str(today),'%Y%m%d').date()
+                value=now.year-born.year-((now.month,now.day)<(born.month,born.day))
+                if 10<=value<=65:age=value;ages.append(age)
+            except (TypeError,ValueError,OverflowError):pass
+        condition.append(dict(player=p['id'],name=p['name'],age=age,stamina=stamina if type(stamina)==int and 0<=stamina<=99 else None,available=p['id'] not in injured))
         injury=injured.get(p['id'])
         if not injury:continue
         ident=str(p['id']);active.add(ident);remaining=remaining_days(injury,today)
@@ -43,6 +50,14 @@ def enrich(context,snapshot,roster,rows):
         baseline=old.get('baseline');injury['observedSince']=old['first']
         injury['recovery']=round(max(0,min(100,100*(baseline-remaining)/baseline))) if baseline and remaining is not None else None
         injury['remainingDays']=remaining
+        injury['age']=age
+        if age is not None:injured_ages.append(age)
+        explicit=re.search(r'\b(\d{2}/\d{2}/\d{4})\b',injury.get('return',''))
+        try:
+            forecast=datetime.strptime(explicit[1],'%d/%m/%Y').date() if explicit else datetime.strptime(str(today),'%Y%m%d').date()+timedelta(days=remaining) if remaining is not None else None
+        except (TypeError,ValueError,OverflowError):forecast=None
+        injury['forecastDate']=forecast.strftime('%d/%m/%Y') if forecast else None
+        injury['forecastEstimated']=bool(forecast and not explicit)
     for ident in list(episodes):
         if ident not in active:
             old=episodes.pop(ident);state['history'].append(dict(player=int(ident),name=old['name'],injury=old['injury'],first=old['first'],last=today))
@@ -52,7 +67,8 @@ def enrich(context,snapshot,roster,rows):
         temp=path.with_name(path.name+'.'+str(os.getpid())+'.tmp');temp.write_text(encoded,encoding='utf8');os.replace(temp,path)
     values=[p['stamina'] for p in condition if p['stamina'] is not None]
     medical.update(rosterCount=len(roster),availableCount=len(roster)-len(injured),unavailableCount=len(injured),
-        condition=condition,averageStamina=round(sum(values)/len(values),1) if values else None,observedHistory=state['history'][-5:],
+        condition=condition,averageStamina=round(sum(values)/len(values),1) if values else None,averageAge=round(sum(ages)/len(ages),1) if ages else None,
+        injuredAverageAge=round(sum(injured_ages)/len(injured_ages),1) if injured_ages else None,ageCoverage=len(ages),observedHistory=state['history'][-5:],
         recoverySource='Observed remaining-time countdown, not a medical measurement',historyScope=key,
         fatigue=None,workload=None,injuryRisk=None)
     medical['pageSize']=max(6,math.ceil(len(injured)/6))

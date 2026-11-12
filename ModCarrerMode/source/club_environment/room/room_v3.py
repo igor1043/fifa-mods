@@ -1,4 +1,4 @@
-"""V3 native RX3 dressing room. V2 geometry remains an immutable input.
+"""Official native RX3 dressing room. Legacy geometry stays an immutable input.
 
 The installed shell, doors, coach room and medical annex are retained. Only
 the furniture inside the locker envelopes is replaced by one instanced bay.
@@ -54,6 +54,7 @@ def stamp(game, club=0):
                  for p in (Path(game) / ACTIVE, Path(game) / CONFIG,
                            Path(game) / 'data/sceneassets/server16_dressing_room_v3/pes_office/office.json',
                            Path(game) / 'data/sceneassets/server16_dressing_room_v3/rehab_equipment/equipment.json',
+                           Path(game) / 'data/sceneassets/server16_dressing_room_v3/medical_department/clinic.json',
                            *(setting_path(game, club, key) for key in ('finish', 'floor', 'backs'))))+appearance.stamp(game,club)
 
 
@@ -89,7 +90,7 @@ def rotation(yaw):
     return np.array([[c, 0, s], [0, 1, 0], [-s, 0, c]])
 
 
-def camera_layout(layout):
+def camera_layout(layout,game=None):
     result=copy.deepcopy(layout)
     from room_fitted_shell import SIDE_SHIFT,BACK_SHIFT
     result['room']['camera_bounds']['half_width']+=100-SIDE_SHIFT
@@ -113,7 +114,11 @@ def camera_layout(layout):
     for z in (2070.,2400.):
         pose=[440.,180.,z,440.,180.,z+400.,60.]
         if pose not in navigation:navigation.append(pose)
-    return result
+    if game is None:
+        import portable_paths
+        game=portable_paths.GAME
+    from medical_department import layout as clinical_layout
+    return clinical_layout(game,result)
 
 
 def obstacles(items):
@@ -640,7 +645,7 @@ def model_path(model, game):
             name=build_manifest(str(game)).get('model_files',{}).get(name,name)
             target = PREFIX + name
             if not (Path(game) / target).is_file():
-                raise FileNotFoundError('Vestiário V3: ' + target)
+                raise FileNotFoundError('Vestiário 3D: ' + target)
             return target
     return model
 

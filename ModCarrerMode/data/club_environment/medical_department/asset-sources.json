@@ -1,0 +1,50 @@
+{
+  "schema": 1,
+  "sourceFiles": [
+    {
+      "path": "equipamentos academia/model.dae",
+      "sha256": "488c230c8c13960639efd201ee6ad0294b9ddd3e1a1fd55a0e268466fed3ee95"
+    },
+    {
+      "path": "fitness-equipment/source/Fitness Equipment.zip",
+      "sha256": "c47bd9b345f40a09d894c98fddae639aaa95a6af433d45be98ce2d539d3c93f9"
+    },
+    {
+      "path": "fitness-equipment/textures/T_HomeGym_D.png",
+      "sha256": "246d731eadf7f6e3ea0063883ddb4308736452a3987cf3811ca884b6b63f6573"
+    },
+    {
+      "path": "gatorade-bottle (3)/source/e9ab64e315ca45de98a3e739337773f2.fbx.fbx",
+      "sha256": "0b6cc5e7f7e5e792b2e6caf49ca8d154ac45728b7f941c00ea0c2137dd152746"
+    },
+    {
+      "path": "gatorade-bottle (3)/textures/gatorade_label.jpg",
+      "sha256": "97c3da3eddb5ef76a97d249c01b1b9d24e383ff18e5f3f895c22a8db70035d44"
+    },
+    {
+      "path": "igloo-cooler-gatorade-football-training/source/Igloo.fbx",
+      "sha256": "c1914220e497d96606a3e897de6f1f56dae601260f8088b49d34ac10d1883b1d"
+    },
+    {
+      "path": "igloo-cooler-gatorade-football-training/textures/Igloo_Diff.jpg",
+      "sha256": "690d558682d30d3017ecb91d72f8d57fef23ef74e1998aa086ab805c77760d15"
+    }
+  ],
+  "nativeUnits": "centimetres; local Y=1000 at the floor",
+  "bottleHeightCm": 26,
+  "coolerHeightCm": 46,
+  "originalsModified": false,
+  "pack": "data/sceneassets/server16_dressing_room_v3/medical_department/r1_8bae77079bcdb5/",
+  "anatomyArtwork": "posters/generation.json",
+  "validation": {
+    "currentBaseline": 232,
+    "oldMedical": 9,
+    "newClinicalGroups": 26,
+    "groupsWithOnePage": 249,
+    "groupsWithSixPages": 254,
+    "nativeGroupLimit": 256,
+    "modelsValidated": 26,
+    "remapped": 87,
+    "collisionBounds": 176
+  }
+}

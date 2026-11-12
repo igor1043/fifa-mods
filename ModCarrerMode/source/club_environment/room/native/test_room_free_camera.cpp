@@ -82,5 +82,7 @@ int main(int argc,char**argv){
  // The longer room must be reachable, with its new outer bound retained.
  {room_free::Walk expanded;room_cinema::Tour clear;
   assert(expanded.clear({0,165,2720},clear));
-  assert(!expanded.clear({0,165,2786},clear));}
+  assert(expanded.clear({-1500,165,2786},clear));
+  assert(!expanded.clear({-1526,165,2786},clear));
+  assert(!expanded.clear({0,165,2866},clear));}
 }

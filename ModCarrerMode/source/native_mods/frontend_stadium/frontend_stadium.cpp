@@ -16,6 +16,7 @@
 #include "menu_page.h"
 #include "profile_reload.h"
 #include "reload_scope.h"
+#include "reload_completion.h"
 #include "stadium_metadata.h"
 #include "../../common/club_stadium_scope.h"
 #include "../../common/career_background.h"
@@ -414,7 +415,7 @@ static frontend_stadium::ReloadScope reloadScope(int* nativeState=nullptr){
     if(!backgroundCommandOwner())return scope;
     scope.frontendCallback=true;scope.ownerThread=GetCurrentThreadId();
     scope.page=currentPage();scope.view=frontend_stadium::pageView(image,read);
-    if(!frontend_stadium::isBackgroundPage(scope.page)||!scope.view)return {};
+    if((!frontend_stadium::isBackgroundPage(scope.page)&&!frontend_stadium::isDedicatedRoomPage(scope.page))||!scope.view)return {};
     scope.background=backgroundViewModel.load();
     const auto vtable=get<uintptr_t>(scope.background);
     if(!scope.background||get<uintptr_t>(vtable+0x38)!=image+0x408d1d0)return {};
@@ -492,6 +493,46 @@ static void failReload(int error){
     publishState(-1,stageTeam,stageCareer,stageSlot,error);
     log("RELOAD_FAILED",stageTeam,error);
 }
+// Called with gate held. Publishing a completed route only reads the native
+// loader/scene and writes our status file; no UI values or props are allocated.
+static bool finishLoadedRoute(uint64_t now){
+    if(stopping||!installed||!awaitingReload||!menuScene())return false;
+    const auto before=uiContext();bool career=false;const auto actualTeam=club(&career);
+    const auto page=currentPage();const auto selected=page==frontend_stadium::PageKind::ClubBrowser?club_stadium_scope::selected():0;
+    const auto team=club_stadium_scope::target(actualTeam,selected);
+    int nativeState=-1;nativeCommands(&nativeState);
+    const auto object=get<uintptr_t>(image+0x3504648),state=get<uintptr_t>(object+0x20);
+    frontend_stadium::CompletionSample sample;
+    sample.pending=awaitingReload;sample.career=FrontendStadiumStatus.career!=0;sample.currentCareer=career;
+    sample.team=FrontendStadiumStatus.team;sample.currentTeam=team>0?static_cast<uint32_t>(team):0;
+    sample.preparedEpoch=stageEpoch;sample.currentEpoch=before.epoch;
+    sample.requests=FrontendStadiumStatus.requests;sample.requestsAtPost=requestsAtPost;
+    sample.slot=static_cast<int>(FrontendStadiumStatus.slot);sample.activeSlot=activeSlot();sample.nativeState=nativeState;
+    sample.sceneLoaded=state&&get<unsigned char>(state+1)!=0;
+    sample.customRoute=activeMode!=0;sample.drawn=drawnRequest==FrontendStadiumStatus.requests;
+    const auto after=uiContext();
+    if(std::memcmp(&before,&after,sizeof before)||!frontend_stadium::reloadCompleted(sample))return false;
+    awaitingReload=false;lastRouteComplete=now;
+    publishState(activeMode?3:4,static_cast<int>(FrontendStadiumStatus.team),static_cast<int>(FrontendStadiumStatus.career),sample.activeSlot,0);
+    log("RELOAD_COMPLETE",static_cast<int>(FrontendStadiumStatus.team),sample.activeSlot);
+    return true;
+}
+static void deferBackgroundForCard(uint64_t now){
+    if(stopping||!installed||!stageRequest||!menuScene())return;
+    const auto page=currentPage();int nativeState=-1;nativeCommands(&nativeState);
+    const auto stadium=get<uintptr_t>(image+0x3504648),state=get<uintptr_t>(stadium+0x20);
+    if(!frontend_stadium::deferQueuedBackground(frontend_stadium::isDedicatedRoomPage(page),true,awaitingReload,
+        reloadProgress.started,FrontendStadiumStatus.requests,requestsAtPost,nativeState,state&&get<unsigned char>(state+1)))return;
+    bool resolved=false;const auto before=uiContext();const auto team=activeCareerClub(image,read,&resolved);const auto after=uiContext();
+    if(!resolved||team<=0||!before.epoch||std::memcmp(&before,&after,sizeof before))return;
+    // The optional background has not dispatched an engine reload. Yield to
+    // the dedicated card using the idle native scene. On returning to Hub,
+    // observedTeam=0 restages the user's normal background configuration.
+    InterlockedExchange(&stageRequest,0);InterlockedExchange(&stageComplete,0);awaitingReload=false;reloadProgress.fail();
+    activeMode=0;observedTeam=0;lastRouteComplete=now;
+    FrontendStadiumStatus.team=static_cast<uint32_t>(team);FrontendStadiumStatus.slot=static_cast<uint32_t>(activeSlot());FrontendStadiumStatus.career=1;
+    publishState(4,team,1,activeSlot(),0);log("OPTIONAL_STADIUM_DEFERRED_FOR_3D_CARD",team,activeSlot());
+}
 static void pollReload(){
     const auto now=GetTickCount64();
     if(!installed||stopping||!backgroundCommandOwner()||now-lastProbe<250)return;
@@ -535,11 +576,8 @@ static void pollReload(){
     }
     if(observedEnabled!=1){observedTeam=0;observedEnabled=1;}
     if(awaitingReload){
-        const auto object=get<uintptr_t>(image+0x3504648),state=get<uintptr_t>(object+0x20);
-        if(FrontendStadiumStatus.requests>requestsAtPost&&activeSlot()==static_cast<int>(FrontendStadiumStatus.slot)&&get<unsigned char>(state+1)&&
-           (!activeMode||drawnRequest==FrontendStadiumStatus.requests)){
-            awaitingReload=false;lastRouteComplete=now;publishState(activeMode?3:4,static_cast<int>(FrontendStadiumStatus.team),static_cast<int>(FrontendStadiumStatus.career),activeSlot(),0);
-            log("RELOAD_COMPLETE",static_cast<int>(FrontendStadiumStatus.team),activeSlot());
+        if(finishLoadedRoute(now)){
+            ReleaseSRWLockExclusive(&gate);return;
         }else if(now-waitSince>60000){
             failReload(20);
         }else if(FrontendStadiumStatus.requests==requestsAtPost){
@@ -605,6 +643,15 @@ static void stadiumUiTick(){
     if(stopping)return;
 }
 static void renderPoll(){
+    // DressingRoom and other custom pages may retain the photograph without
+    // another BackgroundDP tick. Their render callbacks still observe the
+    // completed engine load, so route completion cannot depend on returning
+    // to FluxHub. Actual reload commands remain on the verified UI owner.
+    if(TryAcquireSRWLockExclusive(&gate)){
+        const auto now=GetTickCount64();
+        if(!finishLoadedRoute(now))deferBackgroundForCard(now);
+        ReleaseSRWLockExclusive(&gate);
+    }
     bool career=false;club(&career);
     if(uiRegistered||career||careerWasActive){
         using Register=BOOL(WINAPI*)(void(*)());

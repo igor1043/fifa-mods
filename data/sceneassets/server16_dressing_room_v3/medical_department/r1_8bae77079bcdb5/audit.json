@@ -1,0 +1,83 @@
+[
+  {
+    "name": "medical_room_r77",
+    "vertices": 22369,
+    "triangles": 19316,
+    "materials": 9
+  },
+  {
+    "name": "treadmill",
+    "vertices": 1596,
+    "triangles": 1392,
+    "materials": 1
+  },
+  {
+    "name": "bicycle",
+    "vertices": 2068,
+    "triangles": 1792,
+    "materials": 1
+  },
+  {
+    "name": "MSH_Bench_01",
+    "source": "MSH_Bench_01.FBX",
+    "triangles": 3914,
+    "height_cm": 124.91805553436282,
+    "hydration": false
+  },
+  {
+    "name": "MSH_Rack_01",
+    "source": "MSH_Rack_01.FBX",
+    "triangles": 3940,
+    "height_cm": 80.26198036968708,
+    "hydration": false
+  },
+  {
+    "name": "MSH_AbWheel",
+    "source": "MSH_AbWheel.FBX",
+    "triangles": 2128,
+    "height_cm": 20.93413919210434,
+    "hydration": false
+  },
+  {
+    "name": "MSH_DumbBell_01",
+    "source": "MSH_DumbBell_01.FBX",
+    "triangles": 112,
+    "height_cm": 13.026407361030579,
+    "hydration": false
+  },
+  {
+    "name": "MSH_DumbBell_02",
+    "source": "MSH_DumbBell_02.FBX",
+    "triangles": 112,
+    "height_cm": 13.026407361030579,
+    "hydration": false
+  },
+  {
+    "name": "MSH_KettleBell_01",
+    "source": "MSH_KettleBell_01.FBX",
+    "triangles": 444,
+    "height_cm": 28.79718542098999,
+    "hydration": false
+  },
+  {
+    "name": "MSH_Plate_01",
+    "source": "MSH_Plate_01.FBX",
+    "triangles": 1648,
+    "height_cm": 38.80000114440918,
+    "hydration": false
+  },
+  {
+    "name": "bottle",
+    "source": "e9ab64e315ca45de98a3e739337773f2.fbx.fbx",
+    "triangles": 4108,
+    "height_cm": 26.0,
+    "hydration": true
+  },
+  {
+    "name": "cooler",
+    "source": "Igloo.fbx",
+    "triangles": 10180,
+    "height_cm": 46.0,
+    "hydration": true
+  }
+]

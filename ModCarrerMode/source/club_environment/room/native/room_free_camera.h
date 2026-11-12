@@ -7,7 +7,7 @@ struct Walk {
  float stepPhase=0,stepAmount=0;panorama::Vec stepOffset{};
  static constexpr float walkingSpeed=170.f,runningSpeed=280.f;
  bool clear(panorama::Vec p,const room_cinema::Tour&t)const{
-  if(!std::isfinite(p.x)||!std::isfinite(p.z)||p.x< -1100||p.x>710||p.z< -555||p.z>2785)return false;
+  if(!std::isfinite(p.x)||!std::isfinite(p.z)||p.x< -1525||p.x>710||p.z< -555||p.z>2865)return false;
   // Continuous body capsule, rather than four separated spheres: thin table
   // tops and stretcher rails must also block the space between those samples.
   for(const auto&b:t.obstacles){

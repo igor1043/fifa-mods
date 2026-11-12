@@ -220,6 +220,8 @@ def stage(game,output):
 
 
 def prepare(context,read_asset,add,identity):
+    from medical_department import prepare as clinical_prepare
+    if clinical_prepare(portable.GAME,context,read_asset,add,identity):return
     from room_medical_art_r77 import atlas
     from room_gym_equipment import specification as gym_specification,prepare as gym_prepare
     gym=gym_specification(portable.GAME)

@@ -81,8 +81,11 @@ static DWORD filter_state(XInputEntry &entry, DWORD index, XINPUT_STATE *state)
     } else {
         if (selector_shortcut_enabled()) {
             if (selector_audio_mode()) {
-                const WORD combo=XINPUT_GAMEPAD_START|XINPUT_GAMEPAD_BACK;
-                if ((pad.wButtons & combo)==combo) pad.wButtons &= (WORD)~combo;
+                if (selector_career_mode()) pad.wButtons &= (WORD)~XINPUT_GAMEPAD_START;
+                else {
+                    const WORD combo=XINPUT_GAMEPAD_START|XINPUT_GAMEPAD_BACK;
+                    if ((pad.wButtons & combo)==combo) pad.wButtons &= (WORD)~combo;
+                }
             } else if (!(pad.wButtons & XINPUT_GAMEPAD_BACK))
                 pad.wButtons &= (WORD)~XINPUT_GAMEPAD_START;
         }

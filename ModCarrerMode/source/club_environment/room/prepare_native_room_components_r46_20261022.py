@@ -147,9 +147,14 @@ def prepare():
    from room_pes_office import specification as office_specification
    if office_specification(GAME):return  # Old office shelf prop; its shelf is replaced.
   model=room_v3.model_path(model,GAME)
+  if room_v3.empty_component(model,submesh,GAME):return
   if room_v3.enabled(GAME):
    from room_pes_office import model_path as office_model
    model=office_model(GAME,model)
+   from room_annex_signage import model_path as sign_model
+   model=sign_model(GAME,model)
+   from medical_department import model_path as clinical_model
+   model=clinical_model(GAME,model)
   if room_v3.enabled(GAME) and key.startswith('role_board_'):
    from room_image_panels import next_match_board
    model,texture,texname,submesh=next_match_board(GAME,context,read_asset,model,submesh)
@@ -282,6 +287,10 @@ def refresh_appearance():
   if key.startswith('role_floor_'):c['texture']=room_v3.floor_texture(context,GAME);c['texname']='v3_cm'
  def add(key,model,texture,texname,matrix,alpha=False,submesh=None,overlay=(0,0,0,0),page=-1,pages=0,bank=0):
   if room_v3.empty_component(model,submesh,GAME):return
+  from room_annex_signage import model_path as sign_model
+  model=sign_model(GAME,model)
+  from medical_department import model_path as clinical_model
+  model=clinical_model(GAME,model)
   if key not in components:components[key]=dict(key=key,model=model,texture=texture,texname=texname,alpha=alpha,submesh=submesh,overlay=overlay,page=page,pages=pages,bank=bank,matrices=[])
   components[key]['matrices'].append(matrix)
  identity=np.eye(4);identity[0,3]=100000
@@ -291,9 +300,14 @@ def refresh_appearance():
  def art_add(key,model,texture,texname,matrix,alpha=False,submesh=None,**unused):
   if not key.startswith('interior_'):return
   model=room_v3.model_path(model,GAME)
+  if room_v3.empty_component(model,submesh,GAME):return
   if room_v3.enabled(GAME):
    from room_pes_office import model_path as office_model
    model=office_model(GAME,model)
+   from room_annex_signage import model_path as sign_model
+   model=sign_model(GAME,model)
+   from medical_department import model_path as clinical_model
+   model=clinical_model(GAME,model)
   if room_v3.empty_component(model,submesh,GAME):return
   if key not in components:components[key]=dict(key=key,model=model,texture=texture,texname=texname,alpha=alpha,submesh=submesh,overlay=(0,0,0,0),page=-1,pages=0,bank=0,matrices=[])
   components[key]['matrices'].append(matrix)
@@ -380,7 +394,7 @@ def refresh_requested_room(pid,state,logfile):
  fixtures=tuple(tuple(r[:11]) for r in snap.get('fixtures',[]) if snap['club'] in r[5:7])
  medical=ROOT/'runtime/medical_native_capture.tsv'
  medical_stamp=medical_content_stamp(medical)
- stamp=(snap.get('pid'),snap.get('club'),snap.get('savePath'),snap.get('saveWriteTime100ns'),__import__('room_interior_r71').art_stamp(GAME,snap['club']),__import__('room_secondary_wall_r75').config_stamp(GAME),__import__('room_pes_office').content_stamp(GAME),__import__('room_gym_equipment').content_stamp(GAME))
+ stamp=(snap.get('pid'),snap.get('club'),snap.get('savePath'),snap.get('saveWriteTime100ns'),__import__('room_interior_r71').art_stamp(GAME,snap['club']),__import__('room_secondary_wall_r75').config_stamp(GAME),__import__('room_pes_office').content_stamp(GAME),__import__('room_gym_equipment').content_stamp(GAME),__import__('medical_department').stamp(GAME))
  details=(date,fixtures,medical_stamp)
  # While the calendar runs, keep the background ready without rebuilding it
  # each day. On entry, refresh only if the actual dated content has changed.

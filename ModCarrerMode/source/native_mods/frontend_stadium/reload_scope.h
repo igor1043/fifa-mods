@@ -13,7 +13,7 @@ struct ReloadScope {
     bool career=false,frontendCallback=false,resolved=false;
     bool valid()const{
         return frontendCallback&&resolved&&ownerThread&&view&&background
-            &&backgroundRegistry&&commands&&team&&isBackgroundPage(page)
+            &&backgroundRegistry&&commands&&team&&(isBackgroundPage(page)||(career&&isDedicatedRoomPage(page)))
             &&(career||(page!=PageKind::Hub&&page!=PageKind::ClubBrowser&&page!=PageKind::PlayerCareer))
             &&(!career||(epoch&&careerService&&careerRegistry&&careerThread));
     }
@@ -28,6 +28,7 @@ struct ReloadScope {
 };
 inline bool canDispatchReload(const ReloadScope& expected,const ReloadScope& current,int state,bool backgroundReady=false){
     return expected.valid()&&current.valid()&&current.same(expected)
+        &&(!isDedicatedRoomPage(current.page)||backgroundReady)
         &&(backgroundReady?state==14:(state==0||state==12));
 }
 struct ReloadScopeGuard {

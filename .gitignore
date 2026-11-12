@@ -273,3 +273,7 @@ runtime/diagnostics/
 /[Dd][Oo][Cc][Ss]/
 /ModCarrerMode/[Dd][Oo][Cc][Ss]/
 /ModCarrerMode/source/[Dd][Oo][Cc][Ss]/
+
+# Clinical models and editable anatomy artwork travel in the runtime ZIP.
+/data/sceneassets/server16_dressing_room_v3/medical_department/**/*.png
+/ModCarrerMode/data/club_environment/medical_department/posters/*.png

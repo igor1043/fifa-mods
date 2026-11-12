@@ -119,7 +119,7 @@ def write_tour(context,roster,frame,rotation,generation):
  layout_path=LIVE/('room_layout_r77.json' if (LIVE/'room_layout_r77.json').is_file() else 'room_layout_r76.json' if (LIVE/'room_layout_r76.json').is_file() else 'room_layout_r75.json' if (LIVE/'room_layout_r75.json').is_file() else 'room_layout_r72.json')
  expanded=json.loads(layout_path.read_text(encoding='utf8')) if layout_path.is_file() else None
  import room_v3
- if expanded and room_v3.enabled(GAME):expanded=room_v3.camera_layout(expanded)
+ if expanded and room_v3.enabled(GAME):expanded=room_v3.camera_layout(expanded,GAME)
  if expanded:data=expanded['room']
  for p in context['focus']:
   origin,yaw=frame(p['locker']);r=rotation(yaw);eye=origin+r@np.array([0,187,285]);target=origin+r@np.array([0,165,54]);eye[0]=max(-575,min(575,eye[0]));focus.append([p['number'],*eye.tolist(),*target.tolist()])
@@ -153,6 +153,8 @@ def write_tour(context,roster,frame,rotation,generation):
   obstacles_data=office_obstacles(GAME,obstacles_data)
   from room_gym_equipment import obstacles as gym_obstacles
   obstacles_data=gym_obstacles(GAME,obstacles_data)
+  from medical_department import obstacles as clinical_obstacles
+  obstacles_data=clinical_obstacles(GAME,obstacles_data)
  obstacles=solid_obstacles(obstacles_data);lines=[f'S16TOUR 5 {context["pid"]} {context["club"]} {generation} {len(focus)} {len(obstacles)} {len(path)} {len(details)} {len(shirts)} {len(navigation)} {len(extra)}']
  lines+=[' '.join(map(str,p)) for p in focus]
  lines+=[' '.join(map(str,p['lo']+p['hi'])) for p in obstacles]

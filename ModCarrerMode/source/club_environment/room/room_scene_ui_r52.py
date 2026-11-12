@@ -80,7 +80,7 @@ def methods(a,scope):
             a.set(T('roomSettings'),'_visible',False);a.set(T('roomSettings'),'_alpha',0)
             for i,row in enumerate(settings):
                 a.set(R(1),'settingIndex'+str(i),row['selected']);a.set(R(1),'appliedSettingIndex'+str(i),row['selected']);a.set(R(1),'customSettingIndex'+str(i),row.get('custom_selected',row['selected']));a.set(R(1),'appliedCustomSettingIndex'+str(i),row.get('custom_selected',row['selected']))
-        a.set(T('freeHint'),'_visible',False);a.set(T('sceneModal'),'_visible',False);a.set(T('sceneModal'),'_alpha',0);a.set(T('sceneButton'),'owner',R(1));a.set(T('sceneButton'),'onRelease',T('SceneButtonClick'));a.set(R(1),'onEnterFrame',T('WaitForSceneClips'))
+        a.set(T('freeHint'),'_visible',False);a.set(T('sceneModal'),'_visible',False);a.set(T('sceneModal'),'_alpha',0);a.set(T('sceneButton'),'owner',R(1));a.set(T('sceneButton'),'onRelease',T('SceneButtonClick'));a.set(R(1),'roomFrameHandler',T('WaitForSceneClips'));a.set(R(1),'roomFrontendFrames',0);a.set(R(1),'onEnterFrame',T('RoomUiTick'))
         # The native director initializes on real scene entry. Rebuilding an
         # appearance package must never issue an automatic-camera reset.
         a.when(b.G('Server16RoomSequence'),lambda a:None,lambda a:a.set(b.GLOBAL,'Server16RoomSequence',0))
@@ -88,6 +88,13 @@ def methods(a,scope):
         a.set(R(1),'roomPointerCycle',False);a.set(R(1),'roomPointerHandled',False);a.set(R(1),'onMouseMove',T('RoomMouseMove'))
         a.when(PATH('Mouse'),lambda a:a.do(PATH('Mouse'),'addListener',R(1)))
     a.function('InitSceneControl',0,init)
+    def ui_tick(a):
+        a.when(T('roomFrameHandler'),lambda a:a.do(R(1),'roomFrameHandler'))
+        a.set(R(1),'roomFrontendFrames',('bin',71,T('roomFrontendFrames'),1))
+        a.when(('bin',72,T('roomFrontendFrames'),15),lambda a:a.ret())
+        a.set(R(1),'roomFrontendFrames',0)
+        a.when(P(b.ION,'SendSystemEvent'),lambda a:a.do(b.ION,'SendSystemEvent',P(T('staticData'),'SCREEN_CONTROLLER_ID'),'Server16FrontendTick','tick'))
+    a.function('RoomUiTick',0,ui_tick)
     def identity(a):
         valid=('bin',16,EQ(b.G('Server16ActiveCareerClubId'),scope['club']),('bin',16,('not',T('roomPlayersOpen')),('not',T('freeCameraOpen'))))
         a.set(T('roomHeader'),'_visible',valid);a.set(T('roomHeader'),'_alpha',0)
@@ -141,17 +148,17 @@ def methods(a,scope):
     def open_players(a):
         a.when(T('roomPlayersOpen'),lambda a:a.ret());a.set(R(1),'roomPlayersOpen',True);a.set(R(1),'roomPlayersDetail',False);a.set(R(1),'modalOpen',False);a.do(R(1),'PublishScene',-3)
         for name in ('roomHeader','sceneModal')+action_names:a.set(T(name),'_visible',False)
-        a.do(R(1),'PublishRoster','room_roster');a.set(R(1),'rosterHelpDelay',90);a.set(R(1),'onEnterFrame',T('RoomPlayersTick'));a.do(R(1),'RefreshRosterHelp')
+        a.do(R(1),'PublishRoster','room_roster');a.set(R(1),'rosterHelpDelay',90);a.set(R(1),'roomFrameHandler',T('RoomPlayersTick'));a.do(R(1),'RefreshRosterHelp')
     a.function('OpenPlayers',0,open_players)
     def roster_back(a):
         a.when(T('roomPlayersDetail'),lambda a:(a.set(R(1),'roomPlayersDetail',False),a.do(R(1),'PublishRoster','back'),a.do(R(1),'RefreshRosterHelp'),a.ret()))
-        a.do(R(1),'PublishRoster','room_close');a.set(R(1),'roomPlayersOpen',False);a.set(R(1),'onEnterFrame',None)
+        a.do(R(1),'PublishRoster','room_close');a.set(R(1),'roomPlayersOpen',False);a.set(R(1),'roomFrameHandler',None)
         for name in ('roomHeader',)+action_names:a.set(T(name),'_visible',True)
         a.do(R(1),'RefreshRoomIdentity')
         a.do(R(1),'RefreshRoomActions');a.do(R(1),'RefreshRosterHelp')
     a.function('RoomPlayersBack',0,roster_back)
     def wait(a):
-        a.when(T('sceneModal'),lambda a:(a.do(R(1),'RefreshSceneModal'),a.set(T('sceneButton'),'owner',R(1)),a.set(T('sceneButton'),'onRelease',T('SceneButtonClick')),a.do(R(1),'RefreshRoomActions'),a.do(R(1),'RefreshRoomIdentity'),a.do(R(1),'RefreshRosterHelp'),a.set(R(1),'onEnterFrame',None)))
+        a.when(T('sceneModal'),lambda a:(a.do(R(1),'RefreshSceneModal'),a.set(T('sceneButton'),'owner',R(1)),a.set(T('sceneButton'),'onRelease',T('SceneButtonClick')),a.do(R(1),'RefreshRoomActions'),a.do(R(1),'RefreshRoomIdentity'),a.do(R(1),'RefreshRosterHelp'),a.set(R(1),'roomFrameHandler',None)))
     a.function('WaitForSceneClips',0,wait)
     def publish(a):
         a.set(b.GLOBAL,'Server16RoomSequence',b.plus(b.G('Server16RoomSequence'),1));value=f'S16ROOM2|{scope["club"]}|{scope["nonce"]}|'

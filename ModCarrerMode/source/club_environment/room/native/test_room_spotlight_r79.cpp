@@ -5,7 +5,7 @@
 
 int main(){
  float center[4]={100030.f,1100.f,780.f,30.f};
- assert(room_spotlight_r79::kSources.size()==36);
+ assert(room_spotlight_r79::kSources.size()==39);
  for(const auto& light:room_spotlight_r79::kSources){
   float floorPoint[4]={100000+light.x,1010,light.z,0};
   assert(room_spotlight_r79::evaluate(floorPoint,1.35f).energy>0);
@@ -20,6 +20,8 @@ int main(){
  auto localSpot=room_spotlight_r79::evaluate(local,1.35f);
  assert(std::abs(localSpot.energy-spot.energy)<.001f);
  float outside[4]={102000.f,1100.f,500.f,30.f};
+ float clinic[4]={98540.f,1100.f,2190.f,30.f};
+ assert(room_spotlight_r79::evaluate(clinic,1.35f).energy>0.f);
  assert(room_spotlight_r79::evaluate(outside,1.35f).energy==0.f);
  float beyond[4]={100000.f,1100.f,5000.f,30.f};
  assert(room_spotlight_r79::evaluate(beyond,1.35f).energy==0.f);

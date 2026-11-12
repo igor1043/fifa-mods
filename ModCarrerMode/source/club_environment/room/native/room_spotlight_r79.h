@@ -13,7 +13,7 @@ inline constexpr float kInvSH1=0.4886025119f;
 inline constexpr float kOuterCos=0.50f; // 60 degree soft cone
 inline constexpr float kInnerCos=0.78f; // 38 degree full-strength cone
 inline constexpr float kRange=620.f;
-inline constexpr std::array<Source,36> kSources={{
+inline constexpr std::array<Source,39> kSources={{
  // Emit below the lowest retained ceiling skin, avoiding blocked room lights.
  // Main room
  {-450.f,310.f,-300.f},
@@ -29,6 +29,10 @@ inline constexpr std::array<Source,36> kSources={{
  {450.f,310.f,780.f},
  {450.f,310.f,1320.f},
  // Medical recovery wing
+ // Additional ceiling row over the enlarged white treatment area.
+ {-1360.f,315.f,1770.f},
+ {-1360.f,315.f,2190.f},
+ {-1360.f,315.f,2610.f},
  {-960.f,315.f,1710.f},
  {-960.f,315.f,1950.f},
  {-960.f,315.f,2190.f},
@@ -68,7 +72,7 @@ inline Result evaluate(const float* sphere,float power){
  // Some FIFA renderables report their local room coordinates while others
  // carry the isolated scene origin applied by the room owner.
  if(x>50000.f){x-=100000.f;if(y>500.f)y-=1000.f;}
- if(std::abs(x)>1200.f||y< -20.f||y>450.f||z< -1000.f||z>3400.f)return result;
+ if(std::abs(x)>1600.f||y< -20.f||y>450.f||z< -1000.f||z>3400.f)return result;
  float sum=0.f,dx=0.f,dy=0.f,dz=0.f;
  for(const auto&source:kSources){
   const float vx=source.x-x,vy=source.y-y,vz=source.z-z;

@@ -129,7 +129,7 @@ class StadiumSelector:
         self._attempted_pid = 0
         self._next_injection = 0.0
         self._status = None
-        app.log('Overlay channel initialized: stadium F12 / Start; match settings F12 / Select+Start')
+        app.log('Overlay channel initialized: career visuals F12 / Start; stadium F12 / Start; match settings F12 / Select+Start')
 
     def match_eligible(self):
         app = self.app

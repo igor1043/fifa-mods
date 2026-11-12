@@ -25,7 +25,7 @@ int main(){
  assert(!owner.accept(DressingRoom,false)&&!owner.accept(DressingRoom,true));
  assert(owner.owner==TrophyGallery);assert(owner.accept(TrophyGallery,false));assert(owner.accept(DressingRoom,true));
  assert(indoor_profile::originX(Gallery)==-100000&&indoor_profile::originX(0)==100000);
- assert(indoor_profile::lightCount(Gallery)==26&&indoor_profile::lightCount(0)==36);
+ assert(indoor_profile::lightCount(Gallery)==26&&indoor_profile::lightCount(0)==39);
  for(unsigned i=0;i<26;++i){const auto s=indoor_profile::source(i,Gallery);assert(s.y>250&&s.y<310&&std::abs(s.x)<=572&&std::abs(s.z)<=630);}
  std::vector<std::string> slots;
  auto bind=[&](const char* name){slots.emplace_back(name);};

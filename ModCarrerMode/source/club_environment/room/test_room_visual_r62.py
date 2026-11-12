@@ -44,6 +44,14 @@ def open_room():
     return vm,screen,calls,saved_scope,apt
 
 class VisualRoomTests(unittest.TestCase):
+    def test_frontend_tick_survives_initialization_roster_and_free_camera(self):
+        vm,screen,calls,_,_=open_room()
+        for action in (None,'OpenPlayers','RoomPlayersBack','OpenFreeCamera','CloseFreeCamera'):
+            if action:vm.invoke(screen.get(action),screen)
+            calls.clear()
+            for _ in range(15):vm.invoke(screen.get('onEnterFrame'),screen)
+            self.assertIn(('SendSystemEvent',['Calendar','Server16FrontendTick','tick']),[(name,list(args)) for name,args in calls])
+        self.assertEqual(vm.errors,[])
     def test_previous_career_header_cannot_reappear_on_return_from_roster_or_camera(self):
         vm,screen,_,_,_=open_room()
         self.assertTrue(screen.get('roomHeader').get('_visible'))
