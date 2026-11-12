@@ -1,0 +1,225 @@
+{
+  "name": "SettingsFlow",
+  "states": [
+    {
+      "name": "SettingsGame",
+      "onEnter": [
+        [
+          "loadView",
+          [
+            "screen",
+            "game/screens/settings/GameSettings",
+            "",
+            ""
+          ]
+        ],
+        [
+          "loadView",
+          [
+            "background",
+            "BOOTFLOW"
+          ]
+        ]
+      ],
+      "onExit": [
+        [
+          "unloadView",
+          [
+            "screen",
+            "game/screens/settings/GameSettings"
+          ]
+        ],
+        [
+          "unloadView",
+          [
+            "background"
+          ]
+        ]
+      ],
+      "transitions": [
+        {
+          "event": "Server16RefreshGameSettings",
+          "actions": [
+            [
+              "unloadView",
+              [
+                "screen",
+                "game/screens/settings/GameSettings"
+              ]
+            ],
+            [
+              "loadView",
+              [
+                "screen",
+                "game/screens/settings/GameSettings",
+                "",
+                ""
+              ]
+            ]
+          ]
+        }
+      ]
+    },
+    {
+      "name": "SettingsController",
+      "onEnter": [
+        [
+          "loadView",
+          [
+            "screen",
+            "game/screens/settings/controllerAndGameSetup",
+            "",
+            ""
+          ]
+        ],
+        [
+          "loadView",
+          [
+            "background",
+            "BOOTFLOW"
+          ]
+        ]
+      ],
+      "onExit": [
+        [
+          "unloadView",
+          [
+            "screen",
+            "game/screens/settings/controllerAndGameSetup"
+          ]
+        ],
+        [
+          "unloadView",
+          [
+            "background"
+          ]
+        ]
+      ]
+    },
+    {
+      "name": "SettingsVideoBrightness",
+      "onEnter": [
+        [
+          "loadView",
+          [
+            "screen",
+            "game/screens/settings/Calibration",
+            "",
+            ""
+          ]
+        ],
+        [
+          "loadView",
+          [
+            "background",
+            "BOOTFLOW"
+          ]
+        ]
+      ],
+      "onExit": [
+        [
+          "unloadView",
+          [
+            "screen",
+            "game/screens/settings/Calibration"
+          ]
+        ],
+        [
+          "unloadView",
+          [
+            "background"
+          ]
+        ]
+      ]
+    },
+    {
+      "name": "SettingsArenaPlayer",
+      "onEnter": [
+        [
+          "loadView",
+          [
+            "screen",
+            "game/screens/misc/ArenaPlayer",
+            "PLAYER",
+            ""
+          ]
+        ],
+        [
+          "loadView",
+          [
+            "background",
+            "BOOTFLOW"
+          ]
+        ]
+      ],
+      "onExit": [
+        [
+          "unloadView",
+          [
+            "screen",
+            "game/screens/misc/ArenaPlayer"
+          ]
+        ],
+        [
+          "unloadView",
+          [
+            "background"
+          ]
+        ]
+      ]
+    },
+    {
+      "name": "SettingsArenaGoalkeeper",
+      "onEnter": [
+        [
+          "loadView",
+          [
+            "screen",
+            "game/screens/misc/ArenaPlayer",
+            "GOALKEEPER",
+            ""
+          ]
+        ],
+        [
+          "loadView",
+          [
+            "background",
+            "BOOTFLOW"
+          ]
+        ]
+      ],
+      "onExit": [
+        [
+          "unloadView",
+          [
+            "screen",
+            "game/screens/misc/ArenaPlayer"
+          ]
+        ],
+        [
+          "unloadView",
+          [
+            "background"
+          ]
+        ]
+      ]
+    }
+  ],
+  "transitions": [
+    {
+      "event": "back",
+      "targets": [
+        "back"
+      ],
+      "let": {
+        "direction": "back"
+      }
+    },
+    {
+      "event": "evt_notify_controller_disconnect",
+      "targets": [
+        "out_notify_controller_disconnect"
+      ]
+    }
+  ]
+}

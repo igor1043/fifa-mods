@@ -1,5 +1,5 @@
 """Session isolation, exact cup identity, repeated slots and native navigation."""
-import copy,json,sqlite3,tempfile,unittest,sys,shutil
+import copy,json,sqlite3,tempfile,unittest,sys,shutil,os
 from contextlib import closing
 from pathlib import Path
 from unittest.mock import patch
@@ -72,6 +72,9 @@ class TrophyDataTests(unittest.TestCase):
     def test_exact_trophy_mapping_precedes_asset_id(self):self.assertEqual(data.trophy_id(7,40,{7:1003},lambda i:i in (7,1003)),1003)
     def test_never_replaces_missing_cup_with_unrelated_node_or_generic(self):self.assertEqual(data.trophy_id(9000,13,{},lambda i:i in (13,999)),0)
     def test_exact_native_asset_is_supported(self):self.assertEqual(data.trophy_id(1003,40,{},lambda i:i==1003),1003)
+    def test_internal_root_collision_cannot_select_another_competitions_cup(self):
+        self.assertEqual(1003,data.trophy_id(1003,1460,{1460:1007},lambda i:i in (1003,1007)))
+        self.assertEqual(77,data.trophy_id(1003,1460,{1003:77,1460:1007},lambda i:i in (77,1007)))
     def test_custom_requires_the_clubs_own_editable_image(self):
         self.assertEqual(data.appearance(self.game,1043),'default')
         folder=self.game/'ModCarrerMode/data/trophy_room/custom/1043';folder.mkdir(parents=True);(folder/'identity-wall.png').write_bytes(b'PNG')
@@ -117,14 +120,14 @@ class GalleryPublicationTests(TrophyDataTests):
         self.worker=worker;self.installed=Path(__file__).resolve().parents[4]
         # Assets can be tested from either the dev checkout or this installation.
         if not (self.installed/'data/sceneassets/server16_trophy_room/layout.json').is_file():
-            self.installed=Path('U:/fifa 16')
+            self.installed=Path(os.environ.get('SERVER16_GAME_ROOT',self.installed))
         if not (self.installed/'data/sceneassets/server16_trophy_room/layout.json').is_file():self.skipTest('Native gallery asset build is not present')
         for relative in ('data/sceneassets/server16_trophy_room/layout.json',
                          'ModCarrerMode/data/trophy_room/texture-template.rx3',
                          'data/sceneassets/trophy/trophy_1003.rx3','data/sceneassets/trophy/trophy_1003_textures.rx3',
                          'data/ui/imgAssets/crest/light/l1043.dds'):
             source=self.installed/relative
-            if not source.is_file():source=Path('U:/fifa 16')/relative
+            if not source.is_file():source=Path(os.environ.get('SERVER16_GAME_ROOT',self.installed))/relative
             target=self.game/relative;target.parent.mkdir(parents=True,exist_ok=True);shutil.copy2(source,target)
         layout=self.game/'data/sceneassets/server16_trophy_room/layout.json'
         doc=json.loads(layout.read_bytes());doc['slots']=geometry.slots();layout.write_text(json.dumps(doc))
@@ -178,7 +181,10 @@ class GalleryPublicationTests(TrophyDataTests):
         second=json.loads((self.folder/'publication.json').read_bytes())
         self.assertNotEqual(first['signature'],second['signature']);self.assertEqual(first['appearance'],second['appearance'])
         self.assertEqual(1,len([r for r in initial if r[0]=='identity']))
-        self.assertEqual([r for r in initial if r[0]!='identity'],room_lines());self.assertEqual(second['collection'],'coach')
+        coach_lines=room_lines()
+        self.assertEqual([r for r in initial if r[0]!='identity'],[r for r in coach_lines if r[0]!='identity']);self.assertEqual(second['collection'],'coach')
+        coach_panel=[r for r in coach_lines if r[0]=='identity'];self.assertEqual(len(coach_panel),1)
+        self.assertTrue(coach_panel[0][3].endswith('coach-identity-v1.rx3'))
         # Keep the wire style equal to the request: native loading validates it
         # even when the optional club panel is hidden in the coach collection.
         self.assertEqual('1',(self.folder/'components.txt').read_text().splitlines()[0].split()[6])

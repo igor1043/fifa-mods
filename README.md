@@ -2,6 +2,20 @@
 
 Mods de carreira, apresentação e partidas para FIFA 16, integrados ao Server16.
 
+## Revisão atual
+
+As telas e módulos desta revisão acompanham a instalação validada do jogo.
+
+- **Finanças:** premiações nativas agrupadas por competição, histórico mensal e anual, rodapé contextual e cards de orçamento e limite salarial com valores completos, inclusive centenas de milhões.
+- **Orçamento inicial:** Incorporação Financeira desativada por padrão, com opções até **500 milhões**, aplicação única na criação e sincronização com o orçamento ativo e o salvamento.
+- **Central da carreira:** cabeçalho compacto com aproveitamento, avaliação da diretoria e prestígio; painel à direita com data, janela de transferências e caixa na moeda da carreira.
+- **Técnicos e títulos:** timeline com escudo do clube, logo da competição e troféu; registro de conquistas de ligas e copas, preservado por carreira e temporada, com proteção contra recompensas repetidas.
+- **Pré-jogo:** placar e vídeo de abertura lidos dos catálogos INI, ocupação do estádio e seletor de estádio com país, busca e prévia nas opções da partida.
+- **Ambientes 3D:** revisão da parede da hidratação, colisões da sala do treinador, intensidade das luzes e passeio e seleção da sala de troféus; cadastro e ajustes dos modelos de treinadores.
+- **Server16 0.2.30:** fontes alinhados ao executável validado, limpeza de cache e logs com proteção de saves, assets originais e sessões em uso. Atalhos: **F12** ou **Select + Start**, conforme o contexto.
+
+As telas iniciais distribuídas não contêm nomes, orçamento ou histórico de uma carreira pessoal. Elas são preenchidas pelo jogo ao abrir cada save. Artes, minifaces e modelos externos continuam em pacote separado; caches, logs e bancos pessoais das carreiras não fazem parte do repositório.
+
 ## Modo carreira
 
 | Mod | O que faz |
@@ -30,6 +44,7 @@ Mods de carreira, apresentação e partidas para FIFA 16, integrados ao Server16
 | Aposentadoria | Oferece o fluxo de aposentadoria dentro do modo carreira. |
 | Outro clube | Oferece a navegação para mudança de clube na carreira. |
 | Verba do clube | Integra a solicitação de verba ao modo carreira. |
+| Incorporação Financeira | Na criação da carreira de treinador, permite escolher um acréscimo de 10 mil a 500 milhões ao orçamento inicial. Começa desativada e aplica a verba uma única vez, na moeda selecionada. |
 | Histórico por carreira | Mantém os registros dos mods vinculados à carreira e ao seu salvamento, incluindo históricos anuais. |
 | Ícones das competições | Aplica os ícones do patch aos cards e ao calendário da carreira. |
 | Compatibilidade de competições | Ajusta a integração dos torneios do patch com os dados e telas da carreira. |
@@ -85,7 +100,7 @@ Mods de carreira, apresentação e partidas para FIFA 16, integrados ao Server16
 | Música de gol | Reproduz a música de comemoração configurada para o clube. |
 | Música de substituição | Reproduz os áudios configurados para as substituições. |
 | Recursos da partida | Prepara os arquivos instalados de estádio, narração e apresentação, com indicação de carregamento. |
-| Configurações dentro do jogo | Na carreira, Start abre as configurações visuais e aparece no rodapé nativo. F12 também abre o painel. Durante partidas, permanece Select + Start. |
+| Configurações dentro do jogo | F12 ou Select + Start abre o painel disponível no contexto da carreira, do pré-jogo ou da partida; os comandos aparecem no rodapé nativo. |
 | Seleção de estádio | Permite escolher o estádio e as opções de apresentação da partida. |
 | Scoreboard nas opções de jogo | Adiciona um seletor nativo em Partida. Aplica o placar escolhido ao voltar, com opções para o padrão do FIFA ou as regras automáticas do Server16. |
 | Mapeamento de controles | Permite ajustar os comandos usados pelos mods. |

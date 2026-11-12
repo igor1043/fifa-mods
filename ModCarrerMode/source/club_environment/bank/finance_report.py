@@ -6,7 +6,9 @@ def categories(view,month=None):
  months=[r for r in view.get('months',[]) if r['month']//100==year and (month is None or r['month']==month)]
  total=lambda key:sum(r.get(key,0) for r in months)
  native=view.get('native_finance') or {}
- prize=native.get('prizes') if month is None else None
+ from finance_prizes import entries
+ confirmed=entries(native,view.get('club'),year,month)
+ prize=sum(r['amount'] for r in confirmed) if native.get('entries') else native.get('prizes') if month is None else None
  buys=sales=loan_in=loan_out=0
  for t in view.get('transfers',[]):
   if t['date']//10000!=year or month is not None and t['date']//100!=month:continue
@@ -21,7 +23,8 @@ def categories(view,month=None):
   row('sponsor','Patrocínio',total('sponsor'),'Mod · aplicado','sponsors'),
   row('members','Sócio-torcedor',total('members'),'Mod · aplicado','members'),
   row('transfer','Vendas de jogadores',sales,'Save · negócios confirmados','transfers:out'),
-  row('prize','Premiações',prize,'Save · '+('valores confirmados' if prize is not None else 'histórico ainda indisponível'),'native'),
+  row('prize','Premiações',prize,'FIFA · recebidas por competição' if prize is not None else 'Save · histórico ainda indisponível',
+   'prizes' if month is None or not prize else 'prizes:month:'+str(month)),
   row('loan','Empréstimos bancários',total('loan_credit'),'Financiamento · não é lucro','loans'),
   row('loan_players','Empréstimos de jogadores',loan_out,'Save · taxas confirmadas','transfers:out')]
  expenses=[row('coach','Salário do técnico',-total('coach'),'Mod · aplicado','expenses'),
@@ -49,6 +52,8 @@ def period_months(view):
  year=(view.get('date') or 0)//10000;through=(view.get('date') or 0)//100
  found={r['month'] for r in view.get('months',[]) if r['month']//100==year and r['month']<=through}
  found|={r['date']//100 for r in view.get('transfers',[]) if r['date']//10000==year and r['date']//100<=through}
+ from finance_prizes import entries
+ found|={r['date']//100 for r in entries(view.get('native_finance'),view.get('club'),year) if r['date']//100<=through}
  if through:
   start=view.get('start') or year*10000+101
   first=start//100%100 if start//10000==year else 1
@@ -56,7 +61,14 @@ def period_months(view):
  return sorted(found,reverse=True)
 
 
-def native_view(rows,*,club,season,today):
+def native_view(rows,*,club,season,today,prizes=None):
  """Unknown historical payments cannot be inferred from current wages/balance."""
- return dict(prizes=None,player_wages=None,bonuses=None,source='Save da carreira',club=club,season=season,date=today,
+ result=dict(prizes=None,player_wages=None,bonuses=None,source='Save da carreira',club=club,season=season,date=today,
   reason='As tabelas de orçamento e contratos não contêm o extrato anual de pagamentos. Nenhuma premiação foi estimada por títulos ou saldo.')
+ if prizes and prizes.get('available'):
+  from finance_prizes import entries
+  result.update(entries=entries(prizes,club),partial_history=True,
+   reason='Premiações confirmadas nos avisos nativos do FIFA e preservadas pelo mod. Salários e bônus sem extrato validado permanecem não obtidos.')
+  own=entries(result,club,today//10000)
+  if own:result['prizes']=sum(r['amount'] for r in own)
+ return result

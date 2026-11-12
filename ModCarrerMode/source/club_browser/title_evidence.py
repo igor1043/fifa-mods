@@ -34,10 +34,11 @@ def merge_scores(saved,snapshot,season):
                     old=candidate;merged.pop(previous,None)
                 break
         same=old and (old['root'],old['home'],old['away'])==(comp[0],f[5],f[6])
+        template=old and old.get('schedule_template') and not old.get('played') and (old['root'],old['asset'],old['date'])==(comp[0],comp[1],f[3])
         node=nodes.get(f[2])
         if node and node[2]==5:node=nodes.get(node[1])
-        stage=old['stage'] if same else node[0] if node and node[2]==4 else f[2]
-        kind=old['stageKind'] if same else (node[4] if node and node[2]==4 else 0)
+        stage=old['stage'] if same or template else node[0] if node and node[2]==4 else f[2]
+        kind=old['stageKind'] if same or template else (node[4] if node and node[2]==4 else 0)
         merged[key]=dict(id=f[0],root=comp[0],asset=comp[1],stage=stage,stageKind=kind,
             date=f[3],home=f[5],away=f[6],homeScore=f[7] if f[9]==1 else None,
             awayScore=f[8] if f[9]==1 else None,played=f[9]==1)
@@ -47,8 +48,10 @@ def completed_titles(fixtures,formats,leagues,today,season,label):
     finals={};campaigns={}
     for m in fixtures:
         if m['date']<season:continue
+        info=formats.get(m['stage'],{})
+        kind=info.get('kind') or m.get('stageKind')
         edition=season_of(m['date'],season)
-        if m.get('stageKind')==10:finals.setdefault((edition,m['root'],m['stage'],m['asset']),[]).append(m)
+        if kind==10:finals.setdefault((edition,m['root'],m['stage'],m['asset']),[]).append(m)
         if m['asset'] in leagues:campaigns.setdefault((edition,m['root'],m['asset']),[]).append(m)
     result=[]
     def played(m):

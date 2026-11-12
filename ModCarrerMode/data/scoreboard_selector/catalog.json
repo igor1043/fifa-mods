@@ -1,6 +1,6 @@
 {
   "schema": 1,
-  "signature": "0a2046fe84b716caee15733b37db8fc8a17a0f9b1c3b33c6f969c904ba7e6413",
+  "signature": "77ae8c73d87105df2529082059166b07c0424fe3fb8bd05b35a2d9f71d21ccf4",
   "packages": [
     "AFC - Asia Champions League",
     "AFC - Asian Qualifiers",
@@ -92,7 +92,7 @@
     "ENG - FA Community Shield",
     "ENG - National League",
     "ENG - Premiere League",
-    "ENG - The Emirates FA CUP",
+    "ENG - The Emirates FA Cup",
     "ESP - Copa del Rey",
     "ESP - La Liga EA Sports",
     "ESP - LaLiga 123 Smartbank",
@@ -122,7 +122,7 @@
     "JAP - J-LEAGUE",
     "KOR - K-League",
     "MEX - FutAzteca",
-    "MEX - Liga Mx",
+    "MEX - Liga MX",
     "MEX - TUDN Liguilla",
     "NOR - Eliteserien",
     "OLD - Classic 70s",
@@ -132,7 +132,7 @@
     "POR - Liga 2",
     "POR - Liga 3",
     "POR - Liga Betclic",
-    "POR - Super taca",
+    "POR - Super Taca",
     "POR - Taca da Portugal",
     "QAT - Ooredoo Stars League",
     "ROM - Superliga",
@@ -268,7 +268,7 @@
     "ENG - FA Community Shield",
     "ENG - National League",
     "ENG - Premiere League",
-    "ENG - The Emirates FA CUP",
+    "ENG - The Emirates FA Cup",
     "ESP - Copa del Rey",
     "ESP - La Liga EA Sports",
     "ESP - LaLiga 123 Smartbank",
@@ -298,7 +298,7 @@
     "JAP - J-LEAGUE",
     "KOR - K-League",
     "MEX - FutAzteca",
-    "MEX - Liga Mx",
+    "MEX - Liga MX",
     "MEX - TUDN Liguilla",
     "NOR - Eliteserien",
     "OLD - Classic 70s",
@@ -308,7 +308,7 @@
     "POR - Liga 2",
     "POR - Liga 3",
     "POR - Liga Betclic",
-    "POR - Super taca",
+    "POR - Super Taca",
     "POR - Taca da Portugal",
     "QAT - Ooredoo Stars League",
     "ROM - Superliga",
@@ -351,8 +351,16 @@
     "XXX - TNT Sports",
     "XXX - Torneio Personalizado"
   ],
-  "initial_value_offset": 36529,
-  "ui_stable_sha256": "a6ba7780d1cab66e06776eed9bf20936eb6ccd9f51b0f2926b46549013d9038a",
+  "initial_value_offset": 36657,
+  "movie_initial_offset": 36753,
+  "mutable_value_offsets": [
+    36657,
+    36753
+  ],
+  "ui_stable_sha256": "5ecad7ac4ffc608a13fd6013bac5efd74f9f732d40d26c2223820f82bebf1840",
   "original_rows_preserved": true,
-  "crowd_row": 65001
+  "crowd_row": 65001,
+  "movie_signature": "ee202a9ab3917e834c7a9d3041d8eec2a4cb15f8936f81fa93e300bc39027b70",
+  "stadium_revision": null,
+  "native_options_revision": 2
 }

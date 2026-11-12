@@ -4808,6 +4808,7 @@ void WINAPI Fifa16CareerReleaseSnapshot(void *snapshot)
 #include "career_prepared_views.inc"
 #include "career_manager_read.inc"
 #include "career_retirement_live.inc"
+#include "career_financial_incorporation.inc"
 #include "career_ui_jobs.inc"
 
 BOOL WINAPI DllMain(HINSTANCE instance, DWORD reason, LPVOID reserved)

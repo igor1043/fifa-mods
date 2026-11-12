@@ -28,7 +28,8 @@ int main(){
  residentClub=1043;roomRequested=false;const auto ambient=indoorAmbient.load(),power=indoorSpotPower.load();poll();
  assert(residentClub==1043&&indoorAmbient==ambient&&indoorSpotPower==power);
  componentClub=1043;validCareerClub=1043;backgroundClub=1043;roomRequested=true;roomPresentedReady=true;active=false;fault=0;holdDrawing=false;
- scene_loading::Status status;assert(Fifa16RoomLoadingStatus(&status)&&status.ready&&status.club==1043&&status.variant==4);
+ scene_loading::Status status;assert(Fifa16RoomLoadingStatus(&status)&&status.ready&&status.club==1043);
+ assert((status.variant&255)==(4|scene_loading::RoomPreparation)&&scene_loading::roomStage(status)==1);
  roomRequested=false;assert(Fifa16RoomLoadingStatus(&status)&&!status.ready);
  image=0;VirtualFree(storage,0,MEM_RELEASE);std::cout<<"PASS actual room camera: panorama during preparation; states 1/13; exact restoration; resident props, lights and ready status survive hub/card handoff\n";
 }

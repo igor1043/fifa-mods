@@ -132,6 +132,8 @@ def pages(view,shell,money):
  s.text(130,574,1660,88,'Zero é mostrado quando o valor é conhecido e não houve movimentação. “Não obtido” indica ausência de um histórico validado.',24)
  s.text(130,690,1660,75,'Estes valores são apenas consulta. O mod não repete pagamentos de premiações, salários ou transferências que o FIFA já processou.',24,MUTED)
  result.append(pack(s,assets))
+ from finance_prize_ui import pages as prize_pages
+ result+=prize_pages(view,shell,money)
  observed=(view.get('date') or 0)//100%100
  count=max(1,(observed+5)//6)
  for page in range(count):

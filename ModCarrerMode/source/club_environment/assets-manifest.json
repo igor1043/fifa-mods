@@ -1917,6 +1917,11 @@
       "sha256": "1fe51298e810b3c4093dd8e4aae270fa44dfc99197251c6939098875d8f7c802"
     },
     {
+      "path": "ModCarrerMode/data/financial_incorporation/catalog.json",
+      "bytes": 341,
+      "sha256": "242259df3cdb964cb92bb22ca468b1e3b403335b3ad4d52cfa9204b7af0313d6"
+    },
+    {
       "path": "ModCarrerMode/data/trophy_room/custom/105519/identity-wall.png",
       "bytes": 1491920,
       "sha256": "ac46915d8bcc394287d630ad976e80f55aece2c170535368cb938295f0a606c8"
@@ -2087,11 +2092,6 @@
       "sha256": "5a7bf20a12e3d1d1b22a0947b2d9043b6ed9d8695103d22f52e14fbd5e544d68"
     },
     {
-      "path": "data/sceneassets/server16_dressing_room_v3/joinery_cabinet_f38c3f17e8481d.rx3",
-      "bytes": 2104704,
-      "sha256": "ec7fa2cc6333e569d93332a35843286db779b5b2623e3eab43a7cefbb43f6eed"
-    },
-    {
       "path": "data/sceneassets/server16_dressing_room_v3/joinery_e71c06e31745b4.rx3",
       "bytes": 19952,
       "sha256": "e71c06e31745b409ad816fefbb6bf3f2e01a85da1e647ca4fea880149760ec9f"
@@ -2183,8 +2183,8 @@
     },
     {
       "path": "data/sceneassets/server16_dressing_room_v3/manifest.json",
-      "bytes": 11639,
-      "sha256": "b99e2c190630fedc1497d22f3daa72013e6c70b8d8bfd46540ea750b85675c26"
+      "bytes": 12025,
+      "sha256": "8589d8e46217cc250d9f3afe8d572133a1483449c47db23e846f5f3b8b97311f"
     },
     {
       "path": "data/sceneassets/server16_dressing_room_v3/medical_department/clinic.json",
@@ -3053,8 +3053,8 @@
     },
     {
       "path": "data/sceneassets/server16_dressing_room_v3/pes_office/office.json",
-      "bytes": 55917,
-      "sha256": "3b131c83ca9845b8905175e8df9ad5063d69ab2cdaa300eb50659f4848d7621e"
+      "bytes": 56327,
+      "sha256": "6dae78ee4fb6930c605fc2a94201eb29052f3e103b81c942b67d598e79ef9466"
     },
     {
       "path": "data/sceneassets/server16_dressing_room_v3/pes_office/office_chair_8_14-texture.rx3",
@@ -3085,6 +3085,11 @@
       "path": "data/sceneassets/server16_dressing_room_v3/pes_office/rolling_shelf_atlas_0.rx3",
       "bytes": 10864,
       "sha256": "38f2a85024365200a1c45f2a6544e712f30e6130efdf3cc6d83ea59171e724eb"
+    },
+    {
+      "path": "data/sceneassets/server16_dressing_room_v3/pes_office/room_roles_70b167c2aec79f.rx3",
+      "bytes": 1157744,
+      "sha256": "70b167c2aec79f051ed6bc8ac6a8ab5efecafc31ffc5cc91fcc3137b4bc73c3d"
     },
     {
       "path": "data/sceneassets/server16_dressing_room_v3/pes_office/room_roles_75e49fc89af417.rx3",
@@ -3184,7 +3189,7 @@
     {
       "path": "data/sceneassets/server16_dressing_room_v3/room_roles.rx3",
       "bytes": 1155072,
-      "sha256": "9ac8fdfc73ae2680c4727bdf0dd8b63ab68673def1a22a855a11779564b73cb8"
+      "sha256": "de4629dc7c1c659d41f171615fc5639a7da0c8422e5206e4309cd56af5f7d278"
     },
     {
       "path": "data/sceneassets/server16_dressing_room_v3/room_roles_42309461bad76f.rx3",
@@ -3200,6 +3205,11 @@
       "path": "data/sceneassets/server16_dressing_room_v3/room_roles_bac53c13ff85bd.rx3",
       "bytes": 1169408,
       "sha256": "bac53c13ff85bd1a50cf290085ff76de15e031cc51a96255c14567f567757b35"
+    },
+    {
+      "path": "data/sceneassets/server16_dressing_room_v3/room_roles_de4629dc7c1c65.rx3",
+      "bytes": 1155072,
+      "sha256": "de4629dc7c1c659d41f171615fc5639a7da0c8422e5206e4309cd56af5f7d278"
     },
     {
       "path": "data/sceneassets/server16_dressing_room_v3/scenery.rx3",
@@ -3650,6 +3660,11 @@
       "path": "data/sceneassets/server16_dressing_room_v3/shared/water_cooler_r78.rx3",
       "bytes": 244000,
       "sha256": "9b130aa0a36a7b549a0778bea729f7978d2e77599499e5466715bf772c978336"
+    },
+    {
+      "path": "data/ui/game/screens/career/setup.big",
+      "bytes": 26870,
+      "sha256": "58bf0191197d3e8cb59f7e3eb197c409b71b791a3f107261eedec4b18550e54c"
     }
   ],
   "room_revision": 62,

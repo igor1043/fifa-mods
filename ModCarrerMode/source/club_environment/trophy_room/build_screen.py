@@ -75,6 +75,7 @@ def screen(game,output):
         a.set(R(1),'staticData',CALL(b.ION,'GetScreenStaticData'));a.set(R(1),'navEvents',CALL(b.ION,'GetEvents','Navigation'));a.set(R(1),'focusIndex',0);a.set(R(1),'freeOpen',False);a.set(R(1),'detailOpen',False)
         a.set(R(1),'coachCollection',False);a.set(R(1),'shelfOpen',True)
         for code in (65,68,83,87):a.set(R(1),'move'+str(code),False)
+        for code in (33,34,112,113):a.set(R(1),'held'+str(code),False)
         a.do(M('ScreenManager'),'SetOnExitScreenCallback',CALL(PATH('cafe','utility','Delegate'),'Create',R(1),T('OnExitScreen')))
         # Native input must be ready before binding optional timeline clips.
         # A delayed/missing clip must never disable Back or the free camera.
@@ -93,6 +94,9 @@ def screen(game,output):
         a.do(b.ION,'SendSystemEvent',P(T('staticData'),'SCREEN_CONTROLLER_ID'),'Server16FrontendTick','tick')
     def choose(a):
         a.when(('bin',16,T('detailOpen'),('bin',17,EQ(R(2),6),EQ(R(2),7))),lambda a:a.ret())
+        a.when(('bin',16,('not',T('shelfOpen')),EQ(R(2),7)),lambda a:a.ret())
+        a.when(('bin',16,T('freeOpen'),EQ(R(2),0)),lambda a:a.ret())
+        a.when(('bin',16,('bin',16,('not',T('shelfOpen')),('not',T('backgroundReady'))),('bin',17,('bin',17,EQ(R(2),0),EQ(R(2),1)),EQ(R(2),4))),lambda a:a.ret())
         for i,(_,command) in enumerate(buttons):
             def action(a,i=i,command=command):
                 if i in (1,4,7):
@@ -101,17 +105,19 @@ def screen(game,output):
                     a.when(T('shelfOpen'),lambda a:a.set(R(1),'backgroundReady',False))
                 if i==0:a.when(T('shelfOpen'),lambda a:send(a,'shelf_next'),lambda a:send(a,command))
                 elif i==1:
-                    a.when(T('shelfOpen'),lambda a:(send(a,'3d'),a.set(R(1),'shelfOpen',False),a.set(R(1),'freeOpen',False)),lambda a:(send(a,command),a.set(R(1),'freeOpen',('not',T('freeOpen')))))
-                    a.set(R(1),'detailOpen',False)
+                    def camera_mode(a):
+                        a.when(T('freeOpen'),lambda a:(send(a,'fixed'),a.set(R(1),'freeOpen',False),a.set(R(1),'detailOpen',True)),
+                               lambda a:(send(a,'free'),a.set(R(1),'freeOpen',True),a.set(R(1),'detailOpen',False)))
+                    a.when(T('shelfOpen'),lambda a:(send(a,'3d'),a.set(R(1),'shelfOpen',False),a.set(R(1),'freeOpen',False),a.set(R(1),'detailOpen',True)),camera_mode)
                 elif i==4:
                     a.when(T('shelfOpen'),lambda a:(send(a,'shelf_detail'),a.set(R(1),'shelfOpen',False),a.set(R(1),'detailOpen',True)),lambda a:(send(a,command),a.set(R(1),'detailOpen',('not',T('detailOpen')))))
                 else:send(a,command)
                 if i==4:a.set(R(1),'freeOpen',False)
                 if i==6:background(a,False)
                 if i in (1,4,7):background(a,True)
-                if i in (6,7):a.set(R(1),'shelfOpen',i==6);a.set(R(1),'freeOpen',False);a.set(R(1),'detailOpen',False)
-                if i==0:a.set(R(1),'freeOpen',False)
-                if i==5:a.set(R(1),'coachCollection',('not',T('coachCollection')));a.set(R(1),'freeOpen',False);a.set(R(1),'detailOpen',False)
+                if i in (6,7):a.set(R(1),'shelfOpen',i==6);a.set(R(1),'freeOpen',False);a.set(R(1),'detailOpen',i==7)
+                if i==0:a.set(R(1),'freeOpen',False);a.when(('not',T('shelfOpen')),lambda a:a.set(R(1),'detailOpen',True))
+                if i==5:a.set(R(1),'coachCollection',('not',T('coachCollection')));a.set(R(1),'freeOpen',False);a.set(R(1),'detailOpen',True)
                 if i in (8,9):a.set(R(1),'coachCollection',i==9)
             a.when(EQ(R(2),i),action)
         a.do(R(1),'RefreshButtons')
@@ -132,12 +138,12 @@ def screen(game,output):
         footer.apply(a)
     a.function('UiTick',0,ui_tick)
     def help(a):
-        normal=[('ADVANCE','Detalhes'),('BACK','Voltar'),('L2R2','Taças'),('OPTION_TOP','Próxima taça'),('OPTION_LEFT','Câmera livre'),('L1','Galeria'),('R1','Sala 3D')]
-        free=[('BACK','Voltar'),('LAS_UD','Andar'),('RAS_LR','Olhar'),('L2R2','Descer / subir'),('OPTION_LEFT','Passeio'),('L1','Galeria'),('R1','Sala 3D')]
+        normal=[('ADVANCE','Detalhes'),('BACK','Galeria'),('L2R2','Próxima / anterior'),('OPTION_TOP','Próxima taça'),('OPTION_LEFT','Câmera livre'),('L1','Galeria')]
+        free=[('BACK','Galeria'),('LAS_UD','Andar'),('RAS_LR','Olhar'),('L2R2','Descer / subir'),('OPTION_LEFT','Ver taça'),('L1','Galeria')]
         def result(a,items):a.ret(('array',tuple(CALL(PATH('ion','manager','HelpItem'),'CreateHelpTickerItem',k,v) for k,v in items)))
         a.when(T('shelfOpen'),lambda a:result(a,[('ADVANCE','Ver taça em 3D'),('BACK','Voltar'),('LAS_UD','Navegar'),('L2R2','Clube / treinador'),('L1','Galeria'),('R1','Sala 3D'),('OPTION_TOP','Próxima página')]))
         a.when(T('freeOpen'),lambda a:result(a,free))
-        a.when(T('detailOpen'),lambda a:result(a,[('BACK','Voltar'),('L2R2','Taças'),('RAS_LR','Rotacionar'),('L1R1','Zoom'),('LAS_UD','Histórico'),('OPTION_TOP','Próxima taça')]))
+        a.when(T('detailOpen'),lambda a:result(a,[('BACK','Voltar'),('L2R2','Próxima / anterior'),('RAS_LR','Rotacionar'),('L1R1','Zoom'),('LAS_UD','Histórico'),('OPTION_LEFT','Câmera livre')]))
         result(a,normal)
     a.function('getHelpContext',0,help)
     def begin(a):
@@ -157,7 +163,6 @@ def screen(game,output):
                    lambda a:a.when(T('shelfOpen'),lambda a:a.do(b.ION,'SendEvent',P(T('staticData'),'SCREEN_CONTROLLER_ID'),P(T('navEvents'),'BACK'),''),lambda a:a.do(R(1),'Choose',6)));a.ret(True)
         a.when(EQ(R(2),P(M('InputCodes'),'BACK')),back)
         moving=('bin',17,('bin',17,T('move65'),T('move68')),('bin',17,T('move83'),T('move87')))
-        a.when(('bin',16,('bin',17,T('freeOpen'),T('detailOpen')),moving),lambda a:a.ret(True))
         for name,i in [('L1',6),('R1',7)]:
             # Native analog triggers control continuous zoom during inspection.
             # Consume the APT aliases without changing view or local UI state.
@@ -165,16 +170,17 @@ def screen(game,output):
                 a.when(T('detailOpen'),lambda a:a.ret(True))
                 a.do(R(1),'Choose',i);a.ret(True)
             a.when(('bin',16,P(M('InputCodes'),name),EQ(R(2),P(M('InputCodes'),name))),view_key)
-        def collection_keys(a):
-            for name,i in [('L2',8),('R2',9)]:
-                a.when(('bin',16,P(M('InputCodes'),name),EQ(R(2),P(M('InputCodes'),name))),lambda a,i=i:(a.do(R(1),'Choose',i),a.ret(True)))
-        a.when(T('shelfOpen'),collection_keys)
-        def trophy_keys(a):
-            for name,command in [('L2','previous'),('R2','camera')]:
-                a.when(('bin',16,P(M('InputCodes'),name),EQ(R(2),P(M('InputCodes'),name))),lambda a,c=command:(send(a,c),a.ret(True)))
-        a.when(('bin',16,('not',T('shelfOpen')),('not',T('freeOpen'))),trophy_keys)
+        # Physical LB/RB are edge-owned by the native module. Consume these
+        # aliases, which can arrive after its 180 ms UI debounce, without
+        # executing a second (or oppositely mapped) navigation command.
+        def native_shoulders(a):
+            a.when(('bin',16,('not',T('shelfOpen')),('not',T('freeOpen'))),lambda a:(a.set(R(1),'detailOpen',True),a.do(R(1),'RefreshButtons')))
+            a.ret(True)
+        for name in ('L2','R2'):
+            a.when(('bin',16,P(M('InputCodes'),name),EQ(R(2),P(M('InputCodes'),name))),native_shoulders)
         for name,i in [('OPTION_LEFT',1),('OPTION_TOP',0),('R3',2),('L3',6)]:
             a.when(('bin',16,P(M('InputCodes'),name),EQ(R(2),P(M('InputCodes'),name))),lambda a,i=i:(a.do(R(1),'Choose',i),a.ret(True)))
+        a.when(('bin',16,('bin',17,T('freeOpen'),T('detailOpen')),moving),lambda a:a.ret(True))
         def shelf_keys(a):
             for name,command in [('UP','shelf_up'),('LAS_UP','shelf_up'),('DOWN','shelf_down'),('LAS_DOWN','shelf_down'),('LEFT','shelf_left'),('LAS_LEFT','shelf_left'),('RIGHT','shelf_right'),('LAS_RIGHT','shelf_right')]:
                 a.when(('bin',16,P(M('InputCodes'),name),EQ(R(2),P(M('InputCodes'),name))),lambda a,c=command:(send(a,c),a.ret(True)))
@@ -193,12 +199,23 @@ def screen(game,output):
     def keyboard(a):
         a.set(R(1),'keyCode',CALL(PATH('Key'),'getCode'))
         for code in (65,68,83,87):a.when(EQ(T('keyCode'),code),lambda a,code=code:a.set(R(1),'move'+str(code),True))
-        for code,i in [(112,0),(113,1),(114,4),(115,5),(80,3),(71,6),(72,7)]:a.when(EQ(T('keyCode'),code),lambda a,i=i:a.do(R(1),'Choose',i))
-        for code,command in [(33,'shelf_prev'),(34,'shelf_next')]:a.when(('bin',16,T('shelfOpen'),EQ(T('keyCode'),code)),lambda a,c=command:send(a,c))
+        for code,i in [(112,0),(113,1)]:
+            def press(a,code=code,i=i):
+                a.when(('not',T('held'+str(code))),lambda a:(a.set(R(1),'held'+str(code),True),a.do(R(1),'Choose',i)))
+            a.when(EQ(T('keyCode'),code),press)
+        for code,i in [(114,4),(115,5),(80,3),(71,6),(72,7)]:a.when(EQ(T('keyCode'),code),lambda a,i=i:a.do(R(1),'Choose',i))
+        for code,listing,scene in [(33,'shelf_prev','previous'),(34,'shelf_next','camera')]:
+            def page_key(a,code=code,listing=listing,scene=scene):
+                def press(a):
+                    a.set(R(1),'held'+str(code),True)
+                    a.when(T('shelfOpen'),lambda a:send(a,listing),lambda a:a.when(('not',T('freeOpen')),lambda a:(send(a,scene),a.set(R(1),'detailOpen',True),a.do(R(1),'RefreshButtons'))))
+                a.when(('not',T('held'+str(code))),press)
+            a.when(EQ(T('keyCode'),code),page_key)
     a.function('onKeyDown',0,keyboard)
     def keyup(a):
         a.set(R(1),'keyCode',CALL(PATH('Key'),'getCode'))
         for code in (65,68,83,87):a.when(EQ(T('keyCode'),code),lambda a,code=code:a.set(R(1),'move'+str(code),False))
+        for code in (33,34,112,113):a.when(EQ(T('keyCode'),code),lambda a,code=code:a.set(R(1),'held'+str(code),False))
     a.function('onKeyUp',0,keyup)
     def mouse(a):
         # APT is authored at 1920x1080; the crisp native gallery uses 1600x900.
@@ -217,6 +234,8 @@ def screen(game,output):
                 a.when(inside(x,y,(1460-5*12)/6,184),open_cup)
             a.ret()
         a.when(T('shelfOpen'),shelf_mouse)
+        # Native HUD owns history, scroll and cup arrows inside this card.
+        a.when(inside(1070,213,474,572),lambda a:a.ret())
         a.when(('bin',16,('not',('bin',15,T('pointerY'),195)),('bin',15,T('pointerY'),832)),lambda a:None,lambda a:a.ret())
         a.when(('bin',17,T('freeOpen'),T('detailOpen')),lambda a:a.ret())
         send(a,'pick');a.set(R(1),'detailOpen',True);a.do(R(1),'RefreshButtons')

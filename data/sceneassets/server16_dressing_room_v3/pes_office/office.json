@@ -316,6 +316,19 @@
         63,
         1924
       ]
+    },
+    {
+      "name": "Current Dressing Room / hydration back wall",
+      "lo": [
+        245.0,
+        0.0,
+        1543.6
+      ],
+      "hi": [
+        835.5,
+        338.0,
+        1557.0
+      ]
     }
   ],
   "lighting": "linear RGB irradiance baked through original UV1; native FIFA environment reflections",
@@ -1910,8 +1923,9 @@
     "data/sceneassets/server16_dressing_room_v3/interior_56741e79b96b44.rx3": "data/sceneassets/server16_dressing_room_v3/office_neutral/interior_30cfc1a8e8e4d5.rx3",
     "data/sceneassets/server16_dressing_room_v3/room_roles_bac53c13ff85bd.rx3": "data/sceneassets/server16_dressing_room_v3/pes_office/room_roles_b5a175cd4c50e6.rx3",
     "data/sceneassets/server16_dressing_room_v3/interior_7f46a97d80e004.rx3": "data/sceneassets/server16_dressing_room_v3/office_neutral/interior_33a3cf1c34f899.rx3",
-    "data/sceneassets/server16_dressing_room_v3/room_roles_9ac8fdfc73ae26.rx3": "data/sceneassets/server16_dressing_room_v3/pes_office/room_roles_874a7cfc0b8511.rx3",
-    "data/sceneassets/server16_dressing_room_v3/interior_1beef40e5fbd42.rx3": "data/sceneassets/server16_dressing_room_v3/pes_office/interior_b48d1d593af564.rx3"
+    "data/sceneassets/server16_dressing_room_v3/room_roles_9ac8fdfc73ae26.rx3": "data/sceneassets/server16_dressing_room_v3/pes_office/room_roles_70b167c2aec79f.rx3",
+    "data/sceneassets/server16_dressing_room_v3/interior_1beef40e5fbd42.rx3": "data/sceneassets/server16_dressing_room_v3/pes_office/interior_b48d1d593af564.rx3",
+    "data/sceneassets/server16_dressing_room_v3/room_roles_de4629dc7c1c65.rx3": "data/sceneassets/server16_dressing_room_v3/pes_office/room_roles_70b167c2aec79f.rx3"
   },
   "shell_bindings": [
     {
@@ -1967,7 +1981,7 @@
   ],
   "palette_style": "coach_neutral",
   "scene_poses": {
-    "Sala do treinador · visão geral": [
+    "Sala do treinador Â· visÃ£o geral": [
       150,
       178,
       1685,
@@ -1976,7 +1990,7 @@
       2260,
       83
     ],
-    "Sala do treinador · quadro tático": [
+    "Sala do treinador Â· quadro tÃ¡tico": [
       0,
       180,
       2110,
@@ -1985,7 +1999,7 @@
       2350,
       67
     ],
-    "Sala do treinador · desempenho": [
+    "Sala do treinador Â· desempenho": [
       420,
       175,
       2070,
@@ -1994,7 +2008,7 @@
       2070,
       53
     ],
-    "Sala do treinador · mercado": [
+    "Sala do treinador Â· mercado": [
       0,
       177,
       1780,
@@ -2003,7 +2017,7 @@
       1780,
       52
     ],
-    "Sala do treinador · destaques": [
+    "Sala do treinador Â· destaques": [
       0,
       177,
       2035,
@@ -2012,7 +2026,7 @@
       2035,
       56
     ],
-    "Sala do treinador · classificação": [
+    "Sala do treinador Â· classificaÃ§Ã£o": [
       410,
       177,
       2370,

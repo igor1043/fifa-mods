@@ -1,0 +1,954 @@
+{
+  "schema": 1,
+  "referenceDate": "2026-11-12",
+  "coaches": [
+    {
+      "coachId": "COACH-22684002feeda3a5",
+      "name": "Alberto Valentim",
+      "sourceCoachId": 21,
+      "sourceSlcId": 190239,
+      "sourceFilename": "specificmanager_21_0_0.fbx",
+      "sourceSha256": "1e0c8fdfb2e47b46849dd09721265aadb2ba5d15b645694e9ca3bf1772ad8144",
+      "sourceFormat": ".fbx",
+      "repairedLastTextureMipBuffers": 3,
+      "placeholderFacesRemoved": 0,
+      "normalVerticesRepaired": 0,
+      "offlinePoseSamples": 21,
+      "inGameVisualConfirmation": false,
+      "profile": {
+        "sourceJointsCm": {
+          "2": [
+            0.0,
+            96.84000015258789,
+            0.6799926981329918
+          ],
+          "11": [
+            6.6988187931841255e-16,
+            106.54000043869019,
+            -0.5600080825388432
+          ],
+          "13": [
+            3.740324118018599e-15,
+            157.55992531776428,
+            0.40682321414351463
+          ],
+          "14": [
+            4.324079372931562e-15,
+            167.75686740875244,
+            1.1106795631349087
+          ],
+          "15": [
+            5.3313517632161644e-15,
+            184.20686721801758,
+            1.1049368418753147
+          ],
+          "16": [
+            2.3099999874830246,
+            149.8094081878662,
+            4.689940437674522
+          ],
+          "17": [
+            18.227943778038025,
+            148.24464321136475,
+            -2.9601257294416428
+          ],
+          "18": [
+            37.15827465057373,
+            124.79245662689209,
+            -2.720443159341812
+          ],
+          "19": [
+            53.11927795410156,
+            106.12555742263794,
+            6.962178647518158
+          ],
+          "20": [
+            58.43134522438049,
+            98.63336086273193,
+            10.288069397211075
+          ],
+          "21": [
+            -2.3099999874830246,
+            149.8094081878662,
+            4.689940437674522
+          ],
+          "22": [
+            -18.227943778038025,
+            148.24464321136475,
+            -2.9601257294416428
+          ],
+          "23": [
+            -37.15827465057373,
+            124.79245662689209,
+            -2.720443159341812
+          ],
+          "24": [
+            -53.11927795410156,
+            106.12555742263794,
+            6.962178647518158
+          ],
+          "25": [
+            -58.43134522438049,
+            98.63336086273193,
+            10.288069397211075
+          ],
+          "3": [
+            -10.610000044107437,
+            96.84000015258789,
+            0.6799926981329918
+          ],
+          "4": [
+            -13.389158248901367,
+            51.960718631744385,
+            -1.32655780762434
+          ],
+          "5": [
+            -16.057105362415314,
+            8.076414465904236,
+            -4.056432843208313
+          ],
+          "6": [
+            -16.903774440288544,
+            3.175085410475731,
+            8.084182441234589
+          ],
+          "7": [
+            10.610000044107437,
+            96.84000015258789,
+            0.6799926981329918
+          ],
+          "8": [
+            13.389158248901367,
+            51.960718631744385,
+            -1.32655780762434
+          ],
+          "9": [
+            16.057105362415314,
+            8.076414465904236,
+            -4.056432843208313
+          ],
+          "10": [
+            16.903774440288544,
+            3.175085410475731,
+            8.084182441234589
+          ],
+          "12": [
+            2.1649559117153366e-15,
+            129.31943535804749,
+            -2.207770338281989
+          ]
+        },
+        "unitCorrection": 1,
+        "sourceHadRig": true,
+        "sourceOriginalBones": 317,
+        "inferredSkeleton": false,
+        "neckClearance": {
+          "rearZ": -7,
+          "frontZ": 7,
+          "rearHeight": 165.95686740875243,
+          "frontHeight": 160.45686740875243,
+          "featherCm": 1.5,
+          "axisX": 3.740324118018599e-15,
+          "axisZ": 0.40682321414351463,
+          "radialContraction": 0.1,
+          "maxContractionCm": 0.7
+        },
+        "reviewGarment": true,
+        "sealSkinSeams": true,
+        "capsuleArms": false,
+        "reviewAxilla": false,
+        "shoulderSmoothingPasses": 0,
+        "garmentUpperFade": [
+          115,
+          123
+        ]
+      }
+    },
+    {
+      "coachId": "COACH-9da705ed8eb879c4",
+      "name": "Frank Lampard",
+      "sourceCoachId": 216,
+      "sourceSlcId": 190216,
+      "sourceFilename": "specificmanager_216_0_0.rx3",
+      "sourceSha256": "aa75ba79945735cde1f90be7292fdd5049bb3f8245bb386df49766bf8b2f7b2d",
+      "sourceFormat": ".rx3",
+      "repairedLastTextureMipBuffers": 3,
+      "placeholderFacesRemoved": 240,
+      "normalVerticesRepaired": 0,
+      "offlinePoseSamples": 21,
+      "inGameVisualConfirmation": false,
+      "lowerBodyReview": {
+        "coachId": 216,
+        "clubId": 190216,
+        "name": "Frank Lampard",
+        "trouserAtlasCells": [
+          [
+            0,
+            1
+          ]
+        ],
+        "reviewedVertices": 1351,
+        "changedWeightVertices": 930,
+        "nativeAuthoredLegSkinPreserved": false,
+        "preservedAfterPoseReview": false,
+        "positionsNormalsUvsIndicesPreserved": true,
+        "nativeBindPalettePreserved": true,
+        "upperBodyPreserved": true,
+        "shoeGeometryAndWeightsPreserved": true,
+        "runtimeValidated": false
+      }
+    },
+    {
+      "coachId": "COACH-7473e28c2f7dde87",
+      "name": "Ernesto Valverde",
+      "sourceCoachId": 217,
+      "sourceSlcId": 190217,
+      "sourceFilename": "specificmanager_217_0_0.rx3",
+      "sourceSha256": "2fd7b609a800219f5449b41752cbd7f7358a1623d91183ce8b35a151f529b8eb",
+      "sourceFormat": ".rx3",
+      "repairedLastTextureMipBuffers": 3,
+      "placeholderFacesRemoved": 0,
+      "normalVerticesRepaired": 0,
+      "offlinePoseSamples": 21,
+      "inGameVisualConfirmation": false,
+      "lowerBodyReview": {
+        "coachId": 217,
+        "clubId": 190217,
+        "name": "Ernesto Valverde",
+        "trouserAtlasCells": [
+          [
+            1,
+            0
+          ]
+        ],
+        "reviewedVertices": 1947,
+        "changedWeightVertices": 1524,
+        "nativeAuthoredLegSkinPreserved": false,
+        "preservedAfterPoseReview": false,
+        "positionsNormalsUvsIndicesPreserved": true,
+        "nativeBindPalettePreserved": true,
+        "upperBodyPreserved": true,
+        "shoeGeometryAndWeightsPreserved": true,
+        "runtimeValidated": false
+      }
+    },
+    {
+      "coachId": "COACH-0ddd26a3155d2acc",
+      "name": "David Moyes",
+      "sourceCoachId": 218,
+      "sourceSlcId": 190218,
+      "sourceFilename": "specificmanager_218_0_0.rx3",
+      "sourceSha256": "2f2654e92c73b955d95c0fc09643a25487206cc71bf36e3dda9f8639ce2cde4b",
+      "sourceFormat": ".rx3",
+      "repairedLastTextureMipBuffers": 3,
+      "placeholderFacesRemoved": 0,
+      "normalVerticesRepaired": 2,
+      "offlinePoseSamples": 21,
+      "inGameVisualConfirmation": false,
+      "lowerBodyReview": {
+        "coachId": 218,
+        "clubId": 190218,
+        "name": "David Moyes",
+        "trouserAtlasCells": [
+          [
+            1,
+            0
+          ]
+        ],
+        "reviewedVertices": 1713,
+        "changedWeightVertices": 1365,
+        "nativeAuthoredLegSkinPreserved": false,
+        "preservedAfterPoseReview": false,
+        "positionsNormalsUvsIndicesPreserved": true,
+        "nativeBindPalettePreserved": true,
+        "upperBodyPreserved": true,
+        "shoeGeometryAndWeightsPreserved": true,
+        "runtimeValidated": false
+      }
+    },
+    {
+      "coachId": "COACH-fd1189340efbef04",
+      "name": "Fabian Hürzeler",
+      "sourceCoachId": 219,
+      "sourceSlcId": 190219,
+      "sourceFilename": "specificmanager_219_0_0.rx3",
+      "sourceSha256": "0edf159008ef654d34f718c25c9e86cb9583f3d0282c829208409d69b903f224",
+      "sourceFormat": ".rx3",
+      "repairedLastTextureMipBuffers": 3,
+      "placeholderFacesRemoved": 0,
+      "normalVerticesRepaired": 0,
+      "offlinePoseSamples": 21,
+      "inGameVisualConfirmation": false,
+      "lowerBodyReview": {
+        "coachId": 219,
+        "clubId": 190219,
+        "name": "Fabian Hürzeler",
+        "trouserAtlasCells": [
+          [
+            1,
+            0
+          ]
+        ],
+        "reviewedVertices": 916,
+        "changedWeightVertices": 725,
+        "nativeAuthoredLegSkinPreserved": false,
+        "preservedAfterPoseReview": false,
+        "positionsNormalsUvsIndicesPreserved": true,
+        "nativeBindPalettePreserved": true,
+        "upperBodyPreserved": true,
+        "shoeGeometryAndWeightsPreserved": true,
+        "runtimeValidated": false
+      }
+    },
+    {
+      "coachId": "COACH-da310881c1314033",
+      "name": "Manolo González",
+      "sourceCoachId": 220,
+      "sourceSlcId": 190220,
+      "sourceFilename": "specificmanager_220_0_0.rx3",
+      "sourceSha256": "1e91c94dacdc040fb68da13e6551c4a38ee6684b4fe6ea6455779053abc2e810",
+      "sourceFormat": ".rx3",
+      "repairedLastTextureMipBuffers": 3,
+      "placeholderFacesRemoved": 0,
+      "normalVerticesRepaired": 0,
+      "offlinePoseSamples": 21,
+      "inGameVisualConfirmation": false,
+      "lowerBodyReview": {
+        "coachId": 220,
+        "clubId": 190220,
+        "name": "Manolo González",
+        "trouserAtlasCells": [
+          [
+            0,
+            1
+          ]
+        ],
+        "reviewedVertices": 1522,
+        "changedWeightVertices": 1168,
+        "nativeAuthoredLegSkinPreserved": false,
+        "preservedAfterPoseReview": false,
+        "positionsNormalsUvsIndicesPreserved": true,
+        "nativeBindPalettePreserved": true,
+        "upperBodyPreserved": true,
+        "shoeGeometryAndWeightsPreserved": true,
+        "runtimeValidated": false
+      }
+    },
+    {
+      "coachId": "COACH-fc2e480876712f90",
+      "name": "Vincenzo Italiano",
+      "sourceCoachId": 221,
+      "sourceSlcId": 190221,
+      "sourceFilename": "specificmanager_221_0_0.rx3",
+      "sourceSha256": "a0e33c1a7808730b2f785a9c5bfcf9be5920436c594b7066c7cd6f7cfe6d8efb",
+      "sourceFormat": ".rx3",
+      "repairedLastTextureMipBuffers": 3,
+      "placeholderFacesRemoved": 0,
+      "normalVerticesRepaired": 0,
+      "offlinePoseSamples": 21,
+      "inGameVisualConfirmation": false,
+      "lowerBodyReview": {
+        "coachId": 221,
+        "clubId": 190221,
+        "name": "Vincenzo Italiano",
+        "trouserAtlasCells": [
+          [
+            0,
+            1
+          ]
+        ],
+        "reviewedVertices": 1522,
+        "changedWeightVertices": 1168,
+        "nativeAuthoredLegSkinPreserved": false,
+        "preservedAfterPoseReview": false,
+        "positionsNormalsUvsIndicesPreserved": true,
+        "nativeBindPalettePreserved": true,
+        "upperBodyPreserved": true,
+        "shoeGeometryAndWeightsPreserved": true,
+        "runtimeValidated": false
+      }
+    },
+    {
+      "coachId": "COACH-d1771b8ac07051fd",
+      "name": "Maurício Pochettino",
+      "sourceCoachId": 222,
+      "sourceSlcId": 190222,
+      "sourceFilename": "specificmanager_222_0_0.rx3",
+      "sourceSha256": "4fbae24d74ad98f3497d8ea6b48b00f27f0372dd47a4f007f5ab4d2725ec5e11",
+      "sourceFormat": ".rx3",
+      "repairedLastTextureMipBuffers": 3,
+      "placeholderFacesRemoved": 0,
+      "normalVerticesRepaired": 0,
+      "offlinePoseSamples": 21,
+      "inGameVisualConfirmation": false,
+      "lowerBodyReview": {
+        "coachId": 222,
+        "clubId": 190222,
+        "name": "Maurício Pochettino",
+        "trouserAtlasCells": [
+          [
+            0,
+            1
+          ]
+        ],
+        "reviewedVertices": 940,
+        "changedWeightVertices": 667,
+        "nativeAuthoredLegSkinPreserved": false,
+        "preservedAfterPoseReview": false,
+        "positionsNormalsUvsIndicesPreserved": true,
+        "nativeBindPalettePreserved": true,
+        "upperBodyPreserved": true,
+        "shoeGeometryAndWeightsPreserved": true,
+        "runtimeValidated": false
+      }
+    },
+    {
+      "coachId": "COACH-8c47504d6d0a8fbf",
+      "name": "Roberto De Zerbi",
+      "sourceCoachId": 223,
+      "sourceSlcId": 190223,
+      "sourceFilename": "specificmanager_223_0_0.rx3",
+      "sourceSha256": "92cdb167f971ec80be34dc9d401bb7a30d2730e121e43b0b3ce3e8640cc209fe",
+      "sourceFormat": ".rx3",
+      "repairedLastTextureMipBuffers": 3,
+      "placeholderFacesRemoved": 0,
+      "normalVerticesRepaired": 0,
+      "offlinePoseSamples": 21,
+      "inGameVisualConfirmation": false,
+      "lowerBodyReview": {
+        "coachId": 223,
+        "clubId": 190223,
+        "name": "Roberto De Zerbi",
+        "trouserAtlasCells": [
+          [
+            0,
+            1
+          ]
+        ],
+        "reviewedVertices": 1522,
+        "changedWeightVertices": 1168,
+        "nativeAuthoredLegSkinPreserved": false,
+        "preservedAfterPoseReview": false,
+        "positionsNormalsUvsIndicesPreserved": true,
+        "nativeBindPalettePreserved": true,
+        "upperBodyPreserved": true,
+        "shoeGeometryAndWeightsPreserved": true,
+        "runtimeValidated": false
+      }
+    },
+    {
+      "coachId": "COACH-184452b246a1f2ce",
+      "name": "Arne Slot",
+      "sourceCoachId": 224,
+      "sourceSlcId": 190224,
+      "sourceFilename": "specificmanager_224_0_0.rx3",
+      "sourceSha256": "88de660e715f35696621b4c1f84a46b059556890da21691138e5e6dd4af01235",
+      "sourceFormat": ".rx3",
+      "repairedLastTextureMipBuffers": 3,
+      "placeholderFacesRemoved": 240,
+      "normalVerticesRepaired": 0,
+      "offlinePoseSamples": 21,
+      "inGameVisualConfirmation": false,
+      "lowerBodyReview": {
+        "coachId": 224,
+        "clubId": 190224,
+        "name": "Arne Slot",
+        "trouserAtlasCells": [
+          [
+            0,
+            1
+          ]
+        ],
+        "reviewedVertices": 1351,
+        "changedWeightVertices": 930,
+        "nativeAuthoredLegSkinPreserved": false,
+        "preservedAfterPoseReview": false,
+        "positionsNormalsUvsIndicesPreserved": true,
+        "nativeBindPalettePreserved": true,
+        "upperBodyPreserved": true,
+        "shoeGeometryAndWeightsPreserved": true,
+        "runtimeValidated": false
+      }
+    },
+    {
+      "coachId": "COACH-57387ed1be1cfb0c",
+      "name": "Lionel Scaloni",
+      "sourceCoachId": 225,
+      "sourceSlcId": 190225,
+      "sourceFilename": "specificmanager_225_0_0.rx3",
+      "sourceSha256": "a2f6407cf6714baf9d154e7f49e4d5ebebeee47e2e12b55b145555a506719677",
+      "sourceFormat": ".rx3",
+      "repairedLastTextureMipBuffers": 3,
+      "placeholderFacesRemoved": 0,
+      "normalVerticesRepaired": 0,
+      "offlinePoseSamples": 21,
+      "inGameVisualConfirmation": false,
+      "lowerBodyReview": {
+        "coachId": 225,
+        "clubId": 190225,
+        "name": "Lionel Scaloni",
+        "trouserAtlasCells": [
+          [
+            1,
+            1
+          ]
+        ],
+        "reviewedVertices": 780,
+        "changedWeightVertices": 372,
+        "nativeAuthoredLegSkinPreserved": false,
+        "preservedAfterPoseReview": false,
+        "positionsNormalsUvsIndicesPreserved": true,
+        "nativeBindPalettePreserved": true,
+        "upperBodyPreserved": true,
+        "shoeGeometryAndWeightsPreserved": true,
+        "runtimeValidated": false
+      }
+    },
+    {
+      "coachId": "COACH-c32edb87fa13ba90",
+      "name": "Ruben Amorim",
+      "sourceCoachId": 226,
+      "sourceSlcId": 190226,
+      "sourceFilename": "specificmanager_226_0_0.rx3",
+      "sourceSha256": "02f0547fe3a046bb6beec5a1955a017611c1caa8585d41bfa996898730b80dd5",
+      "sourceFormat": ".rx3",
+      "repairedLastTextureMipBuffers": 3,
+      "placeholderFacesRemoved": 0,
+      "normalVerticesRepaired": 0,
+      "offlinePoseSamples": 21,
+      "inGameVisualConfirmation": false,
+      "lowerBodyReview": {
+        "coachId": 226,
+        "clubId": 190226,
+        "name": "Ruben Amorim",
+        "trouserAtlasCells": [
+          [
+            0,
+            1
+          ]
+        ],
+        "reviewedVertices": 1522,
+        "changedWeightVertices": 1168,
+        "nativeAuthoredLegSkinPreserved": false,
+        "preservedAfterPoseReview": false,
+        "positionsNormalsUvsIndicesPreserved": true,
+        "nativeBindPalettePreserved": true,
+        "upperBodyPreserved": true,
+        "shoeGeometryAndWeightsPreserved": true,
+        "runtimeValidated": false
+      }
+    },
+    {
+      "coachId": "COACH-ea340bf71103737b",
+      "name": "Enzo Maresca",
+      "sourceCoachId": 227,
+      "sourceSlcId": 190227,
+      "sourceFilename": "specificmanager_227_0_0.rx3",
+      "sourceSha256": "e7056602093d2164150549e5c707f942fe26352fce4eaff43085e6a403abb6f1",
+      "sourceFormat": ".rx3",
+      "repairedLastTextureMipBuffers": 3,
+      "placeholderFacesRemoved": 0,
+      "normalVerticesRepaired": 0,
+      "offlinePoseSamples": 21,
+      "inGameVisualConfirmation": false,
+      "lowerBodyReview": {
+        "coachId": 227,
+        "clubId": 190227,
+        "name": "Enzo Maresca",
+        "trouserAtlasCells": [
+          [
+            0,
+            1
+          ]
+        ],
+        "reviewedVertices": 1023,
+        "changedWeightVertices": 728,
+        "nativeAuthoredLegSkinPreserved": false,
+        "preservedAfterPoseReview": false,
+        "positionsNormalsUvsIndicesPreserved": true,
+        "nativeBindPalettePreserved": true,
+        "upperBodyPreserved": true,
+        "shoeGeometryAndWeightsPreserved": true,
+        "runtimeValidated": false
+      }
+    },
+    {
+      "coachId": "COACH-2e30bd8ddeec306b",
+      "name": "Cesc Fàbregas",
+      "sourceCoachId": 228,
+      "sourceSlcId": 190228,
+      "sourceFilename": "specificmanager_228_0_0.rx3",
+      "sourceSha256": "07a54a600cc963c83ee28bcb29868611387bfec27cac43d48de75411e4ed2d66",
+      "sourceFormat": ".rx3",
+      "repairedLastTextureMipBuffers": 3,
+      "placeholderFacesRemoved": 0,
+      "normalVerticesRepaired": 0,
+      "offlinePoseSamples": 21,
+      "inGameVisualConfirmation": false,
+      "lowerBodyReview": {
+        "coachId": 228,
+        "clubId": 190228,
+        "name": "Cesc Fàbregas",
+        "trouserAtlasCells": [
+          [
+            0,
+            1
+          ],
+          [
+            1,
+            1
+          ]
+        ],
+        "reviewedVertices": 4004,
+        "changedWeightVertices": 2904,
+        "nativeAuthoredLegSkinPreserved": false,
+        "preservedAfterPoseReview": false,
+        "positionsNormalsUvsIndicesPreserved": true,
+        "nativeBindPalettePreserved": true,
+        "upperBodyPreserved": true,
+        "shoeGeometryAndWeightsPreserved": true,
+        "runtimeValidated": false
+      }
+    },
+    {
+      "coachId": "COACH-25c971110de47d58",
+      "name": "Marco Silva",
+      "sourceCoachId": 229,
+      "sourceSlcId": 190229,
+      "sourceFilename": "specificmanager_229_0_0.rx3",
+      "sourceSha256": "044e517efbb10b71cae00f459c3ec11e0d8517984e6126f0ea21277e99c80524",
+      "sourceFormat": ".rx3",
+      "repairedLastTextureMipBuffers": 3,
+      "placeholderFacesRemoved": 0,
+      "normalVerticesRepaired": 0,
+      "offlinePoseSamples": 21,
+      "inGameVisualConfirmation": false,
+      "lowerBodyReview": {
+        "coachId": 229,
+        "clubId": 190229,
+        "name": "Marco Silva",
+        "trouserAtlasCells": [
+          [
+            0,
+            1
+          ]
+        ],
+        "reviewedVertices": 1522,
+        "changedWeightVertices": 1168,
+        "nativeAuthoredLegSkinPreserved": false,
+        "preservedAfterPoseReview": false,
+        "positionsNormalsUvsIndicesPreserved": true,
+        "nativeBindPalettePreserved": true,
+        "upperBodyPreserved": true,
+        "shoeGeometryAndWeightsPreserved": true,
+        "runtimeValidated": false
+      }
+    },
+    {
+      "coachId": "COACH-4343e3e6fa26150c",
+      "name": "Luciano Spalletti",
+      "sourceCoachId": 230,
+      "sourceSlcId": 190230,
+      "sourceFilename": "specificmanager_230_0_0.rx3",
+      "sourceSha256": "d06196fa0d56d0f451b9c04c9eeecc465f2ff9c2318970849672d9ab774d1175",
+      "sourceFormat": ".rx3",
+      "repairedLastTextureMipBuffers": 3,
+      "placeholderFacesRemoved": 0,
+      "normalVerticesRepaired": 0,
+      "offlinePoseSamples": 21,
+      "inGameVisualConfirmation": false,
+      "lowerBodyReview": {
+        "coachId": 230,
+        "clubId": 190230,
+        "name": "Luciano Spalletti",
+        "trouserAtlasCells": [
+          [
+            1,
+            0
+          ]
+        ],
+        "reviewedVertices": 2316,
+        "changedWeightVertices": 1664,
+        "nativeAuthoredLegSkinPreserved": false,
+        "preservedAfterPoseReview": false,
+        "positionsNormalsUvsIndicesPreserved": true,
+        "nativeBindPalettePreserved": true,
+        "upperBodyPreserved": true,
+        "shoeGeometryAndWeightsPreserved": true,
+        "runtimeValidated": false
+      }
+    },
+    {
+      "coachId": "COACH-7101183a8597ab02",
+      "name": "Nuno Espírito Santo",
+      "sourceCoachId": 231,
+      "sourceSlcId": 190231,
+      "sourceFilename": "specificmanager_231_0_0.rx3",
+      "sourceSha256": "4c85c516950c250e5a702a1514dcf932f5d78df3717c11a7bdc869b1d1cd385e",
+      "sourceFormat": ".rx3",
+      "repairedLastTextureMipBuffers": 3,
+      "placeholderFacesRemoved": 0,
+      "normalVerticesRepaired": 0,
+      "offlinePoseSamples": 21,
+      "inGameVisualConfirmation": false,
+      "lowerBodyReview": {
+        "coachId": 231,
+        "clubId": 190231,
+        "name": "Nuno Espírito Santo",
+        "trouserAtlasCells": [
+          [
+            1,
+            0
+          ]
+        ],
+        "reviewedVertices": 916,
+        "changedWeightVertices": 725,
+        "nativeAuthoredLegSkinPreserved": false,
+        "preservedAfterPoseReview": false,
+        "positionsNormalsUvsIndicesPreserved": true,
+        "nativeBindPalettePreserved": true,
+        "upperBodyPreserved": true,
+        "shoeGeometryAndWeightsPreserved": true,
+        "runtimeValidated": false
+      }
+    },
+    {
+      "coachId": "COACH-c4823159c8e6b5cd",
+      "name": "José Bordalás",
+      "sourceCoachId": 232,
+      "sourceSlcId": 190232,
+      "sourceFilename": "specificmanager_232_0_0.rx3",
+      "sourceSha256": "ae6274a541195f77f5fab362bf2b91ea9571c2b8110d4910e672bee65170a99a",
+      "sourceFormat": ".rx3",
+      "repairedLastTextureMipBuffers": 3,
+      "placeholderFacesRemoved": 0,
+      "normalVerticesRepaired": 0,
+      "offlinePoseSamples": 21,
+      "inGameVisualConfirmation": false,
+      "lowerBodyReview": {
+        "coachId": 232,
+        "clubId": 190232,
+        "name": "José Bordalás",
+        "trouserAtlasCells": [
+          [
+            1,
+            0
+          ]
+        ],
+        "reviewedVertices": 2410,
+        "changedWeightVertices": 1794,
+        "nativeAuthoredLegSkinPreserved": false,
+        "preservedAfterPoseReview": false,
+        "positionsNormalsUvsIndicesPreserved": true,
+        "nativeBindPalettePreserved": true,
+        "upperBodyPreserved": true,
+        "shoeGeometryAndWeightsPreserved": true,
+        "runtimeValidated": false
+      }
+    },
+    {
+      "coachId": "COACH-82dc9140dd69c22a",
+      "name": "Claudio Giráldez",
+      "sourceCoachId": 233,
+      "sourceSlcId": 190233,
+      "sourceFilename": "specificmanager_233_0_0.rx3",
+      "sourceSha256": "4130e6db436d1607af4719f3e2a98e6bec729bda441484e215f541bcf6a4b3b0",
+      "sourceFormat": ".rx3",
+      "repairedLastTextureMipBuffers": 3,
+      "placeholderFacesRemoved": 0,
+      "normalVerticesRepaired": 0,
+      "offlinePoseSamples": 21,
+      "inGameVisualConfirmation": false,
+      "lowerBodyReview": {
+        "coachId": 233,
+        "clubId": 190233,
+        "name": "Claudio Giráldez",
+        "trouserAtlasCells": [
+          [
+            0,
+            1
+          ]
+        ],
+        "reviewedVertices": 940,
+        "changedWeightVertices": 667,
+        "nativeAuthoredLegSkinPreserved": false,
+        "preservedAfterPoseReview": false,
+        "positionsNormalsUvsIndicesPreserved": true,
+        "nativeBindPalettePreserved": true,
+        "upperBodyPreserved": true,
+        "shoeGeometryAndWeightsPreserved": true,
+        "runtimeValidated": false
+      }
+    },
+    {
+      "coachId": "COACH-f9825939b1137e4a",
+      "name": "Erik ten Hag",
+      "sourceCoachId": 234,
+      "sourceSlcId": 190234,
+      "sourceFilename": "specificmanager_234_0_0.rx3",
+      "sourceSha256": "597a8fdd74ac3bed1b4249078514cb1597fcaaf6d5db4a505102c5dff0b94923",
+      "sourceFormat": ".rx3",
+      "repairedLastTextureMipBuffers": 3,
+      "placeholderFacesRemoved": 0,
+      "normalVerticesRepaired": 0,
+      "offlinePoseSamples": 21,
+      "inGameVisualConfirmation": false,
+      "lowerBodyReview": {
+        "coachId": 234,
+        "clubId": 190234,
+        "name": "Erik ten Hag",
+        "trouserAtlasCells": [
+          [
+            1,
+            0
+          ]
+        ],
+        "reviewedVertices": 2410,
+        "changedWeightVertices": 1797,
+        "nativeAuthoredLegSkinPreserved": false,
+        "preservedAfterPoseReview": false,
+        "positionsNormalsUvsIndicesPreserved": true,
+        "nativeBindPalettePreserved": true,
+        "upperBodyPreserved": true,
+        "shoeGeometryAndWeightsPreserved": true,
+        "runtimeValidated": false
+      }
+    },
+    {
+      "coachId": "COACH-deef3544494c226e",
+      "name": "Carlos Queiroz",
+      "sourceCoachId": 235,
+      "sourceSlcId": 190235,
+      "sourceFilename": "specificmanager_235_0_0.rx3",
+      "sourceSha256": "89bc1d94031ee14abd118faf10f4094e2eb46a0ca2bc5c6e7c75e1e5e5e4773d",
+      "sourceFormat": ".rx3",
+      "repairedLastTextureMipBuffers": 3,
+      "placeholderFacesRemoved": 0,
+      "normalVerticesRepaired": 0,
+      "offlinePoseSamples": 21,
+      "inGameVisualConfirmation": false,
+      "lowerBodyReview": {
+        "coachId": 235,
+        "clubId": 190235,
+        "name": "Carlos Queiroz",
+        "trouserAtlasCells": [
+          [
+            1,
+            0
+          ]
+        ],
+        "reviewedVertices": 2316,
+        "changedWeightVertices": 1664,
+        "nativeAuthoredLegSkinPreserved": false,
+        "preservedAfterPoseReview": false,
+        "positionsNormalsUvsIndicesPreserved": true,
+        "nativeBindPalettePreserved": true,
+        "upperBodyPreserved": true,
+        "shoeGeometryAndWeightsPreserved": true,
+        "runtimeValidated": false
+      }
+    },
+    {
+      "coachId": "COACH-031f46b5a4d2459a",
+      "name": "Daniel Farke",
+      "sourceCoachId": 236,
+      "sourceSlcId": 190236,
+      "sourceFilename": "specificmanager_236_0_0.rx3",
+      "sourceSha256": "d140c233b26558f6e15ed97fc9506e5761218567c71eb64ea2bc1f05ebbfc761",
+      "sourceFormat": ".rx3",
+      "repairedLastTextureMipBuffers": 3,
+      "placeholderFacesRemoved": 240,
+      "normalVerticesRepaired": 0,
+      "offlinePoseSamples": 21,
+      "inGameVisualConfirmation": false,
+      "lowerBodyReview": {
+        "coachId": 236,
+        "clubId": 190236,
+        "name": "Daniel Farke",
+        "trouserAtlasCells": [
+          [
+            0,
+            1
+          ]
+        ],
+        "reviewedVertices": 1351,
+        "changedWeightVertices": 930,
+        "nativeAuthoredLegSkinPreserved": false,
+        "preservedAfterPoseReview": false,
+        "positionsNormalsUvsIndicesPreserved": true,
+        "nativeBindPalettePreserved": true,
+        "upperBodyPreserved": true,
+        "shoeGeometryAndWeightsPreserved": true,
+        "runtimeValidated": false
+      }
+    },
+    {
+      "coachId": "COACH-5e6f699c45e4e66c",
+      "name": "Didier Deschamps",
+      "sourceCoachId": 237,
+      "sourceSlcId": 190237,
+      "sourceFilename": "specificmanager_237_0_0.rx3",
+      "sourceSha256": "920f20bda744ff6441d688ade3159aa4e6969c12764d8a4ef9450f662dd0ba2a",
+      "sourceFormat": ".rx3",
+      "repairedLastTextureMipBuffers": 3,
+      "placeholderFacesRemoved": 0,
+      "normalVerticesRepaired": 0,
+      "offlinePoseSamples": 21,
+      "inGameVisualConfirmation": false,
+      "lowerBodyReview": {
+        "coachId": 237,
+        "clubId": 190237,
+        "name": "Didier Deschamps",
+        "trouserAtlasCells": [
+          [
+            1,
+            0
+          ]
+        ],
+        "reviewedVertices": 2316,
+        "changedWeightVertices": 1664,
+        "nativeAuthoredLegSkinPreserved": false,
+        "preservedAfterPoseReview": false,
+        "positionsNormalsUvsIndicesPreserved": true,
+        "nativeBindPalettePreserved": true,
+        "upperBodyPreserved": true,
+        "shoeGeometryAndWeightsPreserved": true,
+        "runtimeValidated": false
+      }
+    },
+    {
+      "coachId": "COACH-272cd152a1994046",
+      "name": "Iñigo Pérez",
+      "sourceCoachId": 238,
+      "sourceSlcId": 190238,
+      "sourceFilename": "specificmanager_238_0_0.rx3",
+      "sourceSha256": "166ceff70b380e1ffc2204cb6ba3d554e252b818430fdcf132d5b93f4b32506e",
+      "sourceFormat": ".rx3",
+      "repairedLastTextureMipBuffers": 3,
+      "placeholderFacesRemoved": 240,
+      "normalVerticesRepaired": 0,
+      "offlinePoseSamples": 21,
+      "inGameVisualConfirmation": false,
+      "lowerBodyReview": {
+        "coachId": 238,
+        "clubId": 190238,
+        "name": "Iñigo Pérez",
+        "trouserAtlasCells": [
+          [
+            0,
+            1
+          ]
+        ],
+        "reviewedVertices": 1351,
+        "changedWeightVertices": 930,
+        "nativeAuthoredLegSkinPreserved": false,
+        "preservedAfterPoseReview": false,
+        "positionsNormalsUvsIndicesPreserved": true,
+        "nativeBindPalettePreserved": true,
+        "upperBodyPreserved": true,
+        "shoeGeometryAndWeightsPreserved": true,
+        "runtimeValidated": false
+      }
+    }
+  ]
+}

@@ -26,12 +26,13 @@ def open_finance(payload,globals_=None):
  def native(name,obj,args):
   calls.append((name,args))
   if name in ('Create','CreateHelpTickerItem'):return tuple(args)
+  if name=='SetCustomSource':obj.set('m_cbCustomSource',args[0])
   if name=='GetScreenStaticData':return Object({'SCREEN_CONTROLLER_ID':'Calendar'})
   if name=='GetEvents':return Object({'BACK':'Back'})
   if name=='LocalizeCurrencyWithType':return f'MOEDA{args[2]} {args[1]}'
  vm=BankInputVM(native)
  if globals_ is not None:vm.global_=globals_
- managers={k:Object({n:Native(n) for n in ns}) for k,ns in {'InputManager':['SetLocalEventHandler','DisableCurrentLocalEventHandler'],'ScreenManager':['SetOnExitScreenCallback','BeginAnimateIn'],'HelpManager':['Update','Clear']}.items()}
+ managers={k:Object({n:Native(n) for n in ns}) for k,ns in {'InputManager':['SetLocalEventHandler','DisableCurrentLocalEventHandler'],'ScreenManager':['SetOnExitScreenCallback','BeginAnimateIn'],'HelpManager':['Update','Clear','SetCustomSource','Show']}.items()}
  managers['InputCodes']=Object({'ADVANCE':2,'BACK':1,'UP':3,'DOWN':4,'LEFT':5,'RIGHT':6,'LAS_UP':7,'LAS_DOWN':8,'L2':9,'R2':10,'RAS_UP':11,'RAS_DOWN':12})
  vm.global_.set('game',Object({'globalClasses':Object(managers)}))
  vm.global_.set('ION_CareerMode',Object({n:Native(n) for n in ('GetScreenStaticData','GetEvents','SendEvent','SendSystemEvent')}))
@@ -109,12 +110,12 @@ class ClubFinanceUITests(unittest.TestCase):
   vm.invoke(s.get('Go'),s,[settings]);s.set('focus',len(ui.TABS));vm.invoke(s.get('Select'),s)
   wire=next(args[2] for n,args in calls if n=='SendSystemEvent' and args[1]=='Server16SubmitBank')
   rows=bridge.requests_in(wire.encode(),view()['nonce']);self.assertEqual(next(iter(rows))[1:5],(2,0,0,0))
-  self.assertEqual(s.get('onEnterFrame'),s.get('Poll'))
+  self.assertEqual(s.get('onEnterFrame'),s.get('FinanceFrame'));self.assertTrue(s.get('financePolling'))
   for _ in range(90):vm.invoke(s.get('Poll'),s)
   self.assertNotIn(('SendSystemEvent',['Calendar','Server16RefreshClubFinance','']),calls)
   vm.invoke(s.get('OnExitScreen'),s)
   updated=view();updated['ack']=1;updated['settings']['enabled']=False;updated['setting_result']=dict(sequence=1,ok=True,message='Configuração aplicada.')
-  vm,s,calls=open_finance(updated,vm.global_);self.assertEqual(s.get('page'),settings);self.assertIsNone(s.get('onEnterFrame'))
+  vm,s,calls=open_finance(updated,vm.global_);self.assertEqual(s.get('page'),settings);self.assertFalse(s.get('financePolling'))
   self.assertEqual(s.get('focus'),len(ui.TABS))
   self.assertEqual(text(s.get('scene'+str(settings)),'settingsFeedback'),'Configuração aplicada.')
  def test_switch_changes_immediately_blocks_duplicate_click_and_confirms_without_manual_exit(self):
@@ -191,7 +192,7 @@ class ClubFinanceUITests(unittest.TestCase):
  def test_waiting_screen_retries_without_sending_money(self):
   data=view();data.update(ready=False,nonce='DISABLED')
   vm,s,calls=open_finance(data)
-  self.assertEqual(s.get('onEnterFrame'),s.get('Poll'))
+  self.assertEqual(s.get('onEnterFrame'),s.get('FinanceFrame'));self.assertTrue(s.get('financePolling'))
   for _ in range(90):vm.invoke(s.get('Poll'),s)
   self.assertNotIn(('SendSystemEvent',['Calendar','Server16RefreshClubFinance','']),calls)
   self.assertFalse(any(n=='SendSystemEvent' and args[1]=='Server16SubmitBank' for n,args in calls))

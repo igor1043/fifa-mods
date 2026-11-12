@@ -40,7 +40,7 @@ def generate(game,pid,req):
     wall=game/'ModCarrerMode/data/trophy_room/custom'/str(req['club'])/'identity-wall.png'
     enhanced=req.get('gallery_views',1)>=2;collections=req.get('gallery_views',1)>=3;probes=req.get('gallery_views',1)>=4
     wall_stamp=wall.stat().st_mtime_ns if wall.is_file() else 0
-    signature=hashlib.sha256(json.dumps(['native-stream-v8-club-wall',enhanced,probes,collection,pid,req['epoch'],req['club'],branch,rows,page,style,wall_stamp,layout['revision']],sort_keys=True).encode()).hexdigest()[:16]
+    signature=hashlib.sha256(json.dumps(['native-stream-v10-manual-cups-coach-wall',enhanced,probes,collection,pid,req['epoch'],req['club'],branch,rows,page,style,wall_stamp,layout['revision']],sort_keys=True).encode()).hexdigest()[:16]
     # Snapshot generations can change without a new title. Reuse the gallery
     # instead of repainting plaques or loading the same native assets again.
     try:
@@ -62,12 +62,11 @@ def generate(game,pid,req):
         return str(path.relative_to(game)).replace('\\','/')
     default_aux=assets.PREFIX+'normal.rx3'
     for binding in layout['bindings']:
-        # The underlying neutral wall belongs to the shared room shell. Only
-        # the club collection displays the separate club artwork panel.
-        if binding['key']=='identity' and collection=='coach':continue
+        # Both collections share the panel geometry; the coach wall uses its
+        # own neutral texture and never loads the current club's custom image.
         c=dict(binding);key=c['key'];c.update(aux=default_aux,normal='gallery_nm',coeff_texture=assets.PREFIX+('metal.rx3' if c.get('metal') else 'matte.rx3'),coeff='gallery_coeff',matrices=[matrix()])
         if key=='gallery':c['baked']=True
-        elif key=='identity':c['texture']=texture(key,assets.identity_image(game,identity,style=='custom'),True)
+        elif key=='identity':c['texture']=texture('coach-identity-v1',assets.coach_identity_image(),True) if collection=='coach' else texture(key,assets.identity_image(game,identity,style=='custom'),True)
         elif key.startswith('plaque_'):
             index=int(key.split('_')[1]);row=rows[index] if index<len(rows) else None
             c['texture']=texture(key if row else 'empty-plaque',assets.plaque(game,row,index),row is None)

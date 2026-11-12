@@ -1,6 +1,6 @@
 {
   "version": 3,
-  "revision": 21,
+  "revision": 22,
   "capacity": 38,
   "sources": {
     "room_roles_r77.rx3": "1bbf9808fa6056ca87d96a33224d0a475bc078b1f395c5a175ffd4d18bd42ede",
@@ -527,8 +527,27 @@
     "exit_paths",
     "collision_layout"
   ],
+  "hydration_wall": {
+    "revision": 1,
+    "material": "existing_opaque_neutral_wall",
+    "bounds_cm": {
+      "lo": [
+        245.0,
+        1000.0,
+        1543.6
+      ],
+      "hi": [
+        835.5,
+        1338.0,
+        1557.0
+      ]
+    },
+    "original_faces_removed": 12,
+    "door_opening_unchanged": true,
+    "hydration_artwork_unchanged": true
+  },
   "model_files": {
-    "room_roles.rx3": "room_roles_9ac8fdfc73ae26.rx3",
+    "room_roles.rx3": "room_roles_de4629dc7c1c65.rx3",
     "scenery.rx3": "scenery_c874ddac663808.rx3",
     "crest_surfaces.rx3": "crest_surfaces_89d255cf1eceb1.rx3",
     "interior.rx3": "interior_1beef40e5fbd42.rx3",

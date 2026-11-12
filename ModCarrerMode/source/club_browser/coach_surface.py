@@ -1,9 +1,8 @@
 """Coach-only material separation; UV seams remain distinct from hair cards.
 
-The supplied manager atlases have no authored hair alpha. Repeated UV strips
-receive tapered strands; native heads with continuous paintings use a soft
-background key. Body texels remain opaque. Scoped to the 20 audited compact
-SLC managers; this is an approximate mask, not recovered author alpha.
+Opaque manager atlases use tapered strands or a soft background key; audited
+native hair cutouts retain their authored alpha. Body texels remain opaque.
+Scoped to compact SLC managers; generated masks approximate missing alpha.
 """
 import copy
 import re
@@ -11,8 +10,12 @@ import numpy as np
 from PIL import Image,ImageFilter
 from native_assets import decode
 
-VERSION=5
+VERSION=6
 CLUBS={1039,1035,1598,517,112476,1041,111044,568,1043,567,1629,1048,113163,383,123921,130026,1053,598,569,1719}
+
+# These supplied native atlases were audited for a real hair cutout. Their
+# alpha must not receive the approximate matte used by opaque FBX atlases.
+AUTHORED_HAIR_SLC={190226,190236}
 
 def manager(rig):
     if not (100000000<int(rig.get('id',0))<102000000 and len(rig['bones'])==31):return False
@@ -98,7 +101,7 @@ def prepare(rig):
         texture=part['texture']
         charts,layout=hair_charts(v,tri[is_hair])
         if texture not in textures:
-            native_id=re.search(r'/(?:manager_market/([0-9]+)/|slc/specificmanager_([0-9]+)_0_0)',part.get('asset',''));source_id=int(next(x for x in native_id.groups() if x)) if native_id else 0;preserve_authored=(200<=source_id<=211 or 190200<=source_id<=190211)
+            native_id=re.search(r'/(?:manager_market/([0-9]+)/|slc/specificmanager_([0-9]+)_0_0)',part.get('asset',''));source_id=int(next(x for x in native_id.groups() if x)) if native_id else 0;preserve_authored=(200<=source_id<=211 or 190200<=source_id<=190211 or source_id in AUTHORED_HAIR_SLC)
             rgba,info=hair_matte(decode(rig['textures'][texture]),charts,layout,preserve_authored=preserve_authored);h,w=rgba.shape[:2];textures[texture]=len(rig['textures']);rig['textures'].append((w,h,3,rgba.tobytes()));reports.append(info)
         for mask,hair in [(~is_hair,False),(is_hair,True)]:
             if not mask.any():continue

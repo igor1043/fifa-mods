@@ -3,6 +3,7 @@
 // No global stadium illumination or original game object's data is changed.
 #include "room_spotlight_r79.h"
 #include "room_light_probe.h"
+#include "room_light_profile.h"
 #include "room_prop_shadow_bridge.h"
 struct alignas(16) RoomDrawArgs {
  float color[4];uintptr_t object;int instance;unsigned padding;
@@ -16,6 +17,7 @@ std::atomic<unsigned> flatShadowPasses{0},selfShadowPasses{0};
 bool indoorEnabled=true;
 std::atomic<float> indoorAmbient{.65f};
 std::atomic<float> indoorSpotPower{1.35f};
+std::atomic<float> indoorLightGain{1.f};
 void nativeRef(uintptr_t p,bool add){if(p)((void(__fastcall*)(void*))get<uintptr_t>(get<uintptr_t>(p)+(add?0:8)))((void*)p);}
 bool uploadIndoor(uintptr_t buffer,const float* sphere){
  auto device=get<uintptr_t>(image+0x36140b0);if(!device||!buffer)return false;
@@ -32,7 +34,8 @@ bool uploadIndoor(uintptr_t buffer,const float* sphere){
  nativeRef(buffer,false);
  ok=mapped.data!=nullptr;
  if(ok){
-  alignas(16)const auto coefficients=room_spotlight_r79::coefficients(indoorAmbient.load(),indoorSpotPower.load(),sphere);
+  alignas(16)const auto coefficients=room_light_profile::apply(
+   room_spotlight_r79::coefficients(indoorAmbient.load(),indoorSpotPower.load(),sphere),indoorLightGain.load());
   if(room_spotlight_r79::evaluate(sphere,indoorSpotPower.load()).energy>.01f)++spotlightedDraws;
   ok=write((uintptr_t)mapped.data,coefficients.data(),sizeof coefficients);
   nativeRef(buffer,true);

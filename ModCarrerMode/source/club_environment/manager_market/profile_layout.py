@@ -3,6 +3,8 @@ from layout import Scene
 from profile_art import assets as profile_assets,pitch
 INK='#102f46';MUTED='#718797';LIGHT='#eaf0f4';PAPER='#f3f7fa'
 TAB_X=(490,757,1024,1291,1558);TAB_W=251
+TITLE_TOP=325;TITLE_STEP=176;TITLE_HEIGHT=154
+HISTORY_THUMB_MIN=48
 
 def profile_scene(assets,external_art=False):
  assets.update(profile_assets());p=Scene('profile','Perfil do técnico')
@@ -58,22 +60,35 @@ def profile_scene(assets,external_art=False):
  text('coverage',514,863,1250,24,'Placares individuais confirmados. A campanha total inclui os contadores da competição.',16,MUTED,0)
  text('recentEmpty',550,781,1170,36,'Nenhum placar individual disponível para este filtro.',21,MUTED)
  # History / titles retain independent pagination and competition artwork.
- image('profile_track','titleTimelineRail',493,333,3,500,2)
+ image('profile_track','titleTimelineRail',504,TITLE_TOP+77,3,TITLE_STEP*2)
  for i in range(3):
   y=315+i*182;image('profile_entry','entryCard'+str(i),490,y,1320,166)
-  image('profile_dot','titleTimelineDot'+str(i),483,y+34,22,22,2)
   for key in ([] if external_art else list(assets)):
    if key.startswith('crest_'):image(key,'entry'+str(i)+'_'+key,510,y+18,74,74)
-   elif key.startswith('competition_'):image(key,'trophy'+str(i)+'_'+key,510,y+18,86,90)
-   elif key.startswith('cup_'):image(key,'cup'+str(i)+'_'+key,1668,y+61,100,100)
   for tone in ('current','dismissed','resigned','ended','buyout','transferred'):image('status_'+tone,'entryBadge'+str(i)+'_'+tone,1486,y+11,300,36)
   text('entryName'+str(i),609,y+11,850,35,size=26);text('entryStatus'+str(i),1500,y+18,275,27,size=18,color=INK);text('entryDates'+str(i),609,y+51,1180,28,size=19,color=MUTED);text('entryTotal'+str(i),609,y+88,1180,28,size=21)
   for j,label in enumerate(('JOGOS','VITÓRIAS','EMPATES','DERROTAS','GOLS PRÓ','GOLS CONTRA')):
    x=609+j*195;text('entryValue'+str(i)+'_'+str(j),x,y+83,180,29,size=24);text('entryLabel'+str(i)+'_'+str(j),x,y+113,180,19,label,12,MUTED)
   text('entryHome'+str(i),510,y+113,86,23,size=17,color=INK);text('entryAway'+str(i),1220,y+122,556,24,size=16,color=MUTED)
   image('profile_track','entryHomeTrack'+str(i),609,y+151,1167,6);image('profile_gold_bar','entryHomeFill'+str(i),609,y+151,556,6);image('profile_track','entryAwayTrack'+str(i),1220,y+151,556,6);image('profile_gold_bar','entryAwayFill'+str(i),1220,y+151,556,6)
+ # Titles have their own geometry, rather than reusing the career-stat card.
+ # Keep the rail outside the cards and all trophy/logo/club slots proportionate.
+ for i in range(3):
+  y=TITLE_TOP+i*TITLE_STEP
+  image('profile_entry','titleCard'+str(i),530,y,1280,TITLE_HEIGHT)
+  image('profile_trophy_well','titleWell'+str(i),548,y+15,124,124)
+  image('profile_dot','titleTimelineDot'+str(i),494,y+66,22,22)
+  image('profile_tag','titleYearBadge'+str(i),1680,y+18,102,34)
+  for key in ([] if external_art else list(assets)):
+   if key.startswith('crest_'):image(key,'titleCrest'+str(i)+'_'+key,696,y+101,40,44)
+   elif key.startswith('competition_'):image(key,'titleCompetition'+str(i)+'_'+key,696,y+20,68,70)
+   elif key.startswith('cup_'):image(key,'titleCup'+str(i)+'_'+key,554,y+20,112,112)
+  text('titleName'+str(i),784,y+17,850,36,size=27)
+  text('titleDate'+str(i),784,y+60,850,27,size=18,color=MUTED)
+  text('titleClub'+str(i),752,y+108,1040,29,size=21)
+  text('titleYear'+str(i),1691,y+23,80,28,size=18);p.nodes[-1]['align']=2
  text('emptyProfile',510,482,1280,70,size=25,color=MUTED);button(490,879,65,29,70,'profile_filter');button(1745,879,65,29,71,'profile_filter');text('historyLeft',511,879,24,28,'‹',23);text('historyRight',1767,879,24,28,'›',23);text('historyPage',577,882,1140,27,size=18,color=MUTED)
- image('profile_track','historyScrollTrack',1824,315,6,530);image('profile_gold_bar','historyScrollThumb',1824,315,6,530)
+ image('profile_scroll_track','historyScrollTrack',1822,315,10,530);image('profile_scroll_thumb','historyScrollThumb',1822,315,10,530)
  # The fourth tab shows catalogue preferences, never invented tactical ratings.
  for i in range(2):image('profile_style','styleCard'+str(i),490+i*670,315,650,171,3)
  image('profile_icon_tactics','styleIcon',514,342,58,58,3);text('stylePrimaryLabel',594,334,520,27,'IDENTIDADE DE JOGO',19,MUTED,3);text('stylePrimary',594,378,520,45,size=33,section=3);text('stylePrimaryNote',514,449,600,25,'Preferência do técnico registrada na carreira',17,MUTED,3)

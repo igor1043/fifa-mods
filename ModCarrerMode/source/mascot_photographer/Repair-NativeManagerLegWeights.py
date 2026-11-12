@@ -49,8 +49,17 @@ def run(a):
         # Read the actual trouser chart from knee/calf vertices. Some supplied
         # atlases put trousers in a different cell. A spatial height cutoff
         # alone would also repaint the hem of a long jacket.
-        sample=(points[:,1]>30)&(points[:,1]<65);cells=np.clip((uv[sample]*3).astype(int),0,2);counts=np.bincount(cells[:,0]*3+cells[:,1],minlength=9);cell=int(counts.argmax());col,row=divmod(cell,3);assert counts[cell]/counts.sum()>.98
-        trousers=(uv[:,0]>=col/3-.001)&(uv[:,0]<=(col+1)/3+.001)&(uv[:,1]>=row/3-.001)&(uv[:,1]<=(row+1)/3+.001)
+        # Hands can reach knee height in the authored bind pose. Sample the
+        # actual calf skin, and allow trousers that span adjacent atlas cells.
+        calf_mass=original[:,4]+original[:,8]
+        sample=(points[:,1]>30)&(points[:,1]<65)&(calf_mass>.5)
+        assert sample.any(), 'No weighted calf sample for trouser chart'
+        cells=np.clip((uv[sample]*3).astype(int),0,2);counts=np.bincount(cells[:,0]*3+cells[:,1],minlength=9)
+        selected_cells=np.where(counts/counts.sum()>.01)[0];assert counts[selected_cells].sum()/counts.sum()>.98
+        trousers=np.zeros(len(points),dtype=bool);chart_cells=[]
+        for cell in selected_cells:
+            col,row=divmod(int(cell),3);chart_cells.append([col,row])
+            trousers|=(uv[:,0]>=col/3-.001)&(uv[:,0]<=(col+1)/3+.001)&(uv[:,1]>=row/3-.001)&(uv[:,1]<=(row+1)/3+.001)
         reviewed,amount=reviewed_field(points,original,rp,rf,trousers)
         preserved=job['type']=='.rx3' or job['coach_id'] in a.preserve
         if preserved:reviewed=original.copy();amount[:]=0
@@ -75,7 +84,7 @@ def run(a):
         assert (ws.sum(1)==255).all();assert rx.get(0x0f3861a2)==Rx3((before/name).read_bytes()).get(0x0f3861a2)
         for weather in [0,1]:
             model=f'specificmanager_{job["club_id"]}_0_{weather}.rx3';(out/model).write_bytes(blob);tex=model[:-4]+'_textures.rx3';shutil.copy2(before/tex,out/tex)
-        changed=(np.abs(reviewed-original).sum(1)>.01)&active;report={'coachId':job['coach_id'],'clubId':job['club_id'],'name':job['display_name'],'trouserAtlasCell':[col,row],'reviewedVertices':int(active.sum()),'changedWeightVertices':int(changed.sum()),'nativeAuthoredLegSkinPreserved':job['type']=='.rx3','preservedAfterPoseReview':job['coach_id'] in a.preserve,'positionsNormalsUvsIndicesPreserved':True,'nativeBindPalettePreserved':True,'upperBodyPreserved':bool(np.array_equal(js[~active],oldj[~active]) and np.array_equal(ws[~active],oldw[~active])),'shoeGeometryAndWeightsPreserved':bool(np.array_equal(js[points[:,1]<=12],oldj[points[:,1]<=12]) and np.array_equal(ws[points[:,1]<=12],oldw[points[:,1]<=12])),'runtimeValidated':False};reports.append(report);print(json.dumps(report,ensure_ascii=True),flush=True)
+        changed=(np.abs(reviewed-original).sum(1)>.01)&active;report={'coachId':job['coach_id'],'clubId':job['club_id'],'name':job['display_name'],'trouserAtlasCells':chart_cells,'reviewedVertices':int(active.sum()),'changedWeightVertices':int(changed.sum()),'nativeAuthoredLegSkinPreserved':job['type']=='.rx3','preservedAfterPoseReview':job['coach_id'] in a.preserve,'positionsNormalsUvsIndicesPreserved':True,'nativeBindPalettePreserved':True,'upperBodyPreserved':bool(np.array_equal(js[~active],oldj[~active]) and np.array_equal(ws[~active],oldw[~active])),'shoeGeometryAndWeightsPreserved':bool(np.array_equal(js[points[:,1]<=12],oldj[points[:,1]<=12]) and np.array_equal(ws[points[:,1]<=12],oldw[points[:,1]<=12])),'runtimeValidated':False};reports.append(report);print(json.dumps(report,ensure_ascii=True),flush=True)
     Path(a.report).write_text(json.dumps(reports,ensure_ascii=False,indent=2),encoding='utf8')
 
 if __name__=='__main__':

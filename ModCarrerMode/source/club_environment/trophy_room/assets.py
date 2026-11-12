@@ -102,6 +102,22 @@ def identity_image(game,identity,custom=False):
     return image
 
 
+def coach_identity_image():
+    """Neutral coach collection wall; no club artwork or crest is inherited."""
+    image=Image.new('RGBA',geometry.IDENTITY_SIZE,(232,234,231,255));d=ImageDraw.Draw(image)
+    gold='#b9a274'
+    # Minimal cup emblem, deliberately independent of the current club.
+    d.line([(886,75),(1034,75),(1020,170),(1000,201),(960,216),(920,201),(900,170),(886,75)],fill=gold,width=12)
+    d.line([(890,98),(854,98),(860,151),(907,173)],fill=gold,width=10)
+    d.line([(1030,98),(1066,98),(1060,151),(1013,173)],fill=gold,width=10)
+    d.line((960,216,960,251),fill=gold,width=12);d.rounded_rectangle((909,248,1011,267),5,fill=gold)
+    center(d,(960,342),'TÍTULOS DO TREINADOR',82,'#23292b',True,1740)
+    d.line((706,410,1214,410),fill=gold,width=6)
+    center(d,(960,481),'SALA DE TROFÉUS DO TREINADOR',45,'#333b3e',True,1740)
+    center(d,(960,554),'CONQUISTAS AO LONGO DA CARREIRA',24,'#657174',False,1740)
+    return image
+
+
 def flamengo_wall(game):
     """Flat editable artwork, using the installed crest without changing its drawing."""
     ident,_=club_identity(game,1043);im=identity_image(game,ident);d=ImageDraw.Draw(im)

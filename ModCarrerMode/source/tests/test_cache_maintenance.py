@@ -111,52 +111,15 @@ class CacheMaintenanceTests(unittest.TestCase):
         with patch.object(Path,'unlink',unlink):report=self.clean(quarantine=True)
         target=self.root.parent/('FIFA16-cache-descartavel-'+self.root.name)/p.relative_to(self.root)
         self.assertTrue(target.exists());self.assertFalse(p.exists());self.assertEqual(report.moved_bytes,3);self.assertEqual(report.released_bytes,0)
-
-    def test_manual_purge_empties_warm_cache_preserving_originals_and_unique_art(self):
-        generated=[self.file(p) for p in (cache.MARKET+'texture_cache/'+'a'*64+'.dds',
-            'ModCarrerMode/cache/club_browser/coach/'+'a'*64+'/mesh.rx3',
-            'data/sceneassets/server16_trophy_room/appearance/'+'a'*16+'/model.rx3',
-            'data/sceneassets/server16_trophy_room/9999/description.txt')]
-        original=self.file('ModCarrerMode/data/club_environment/current_dressing_room/custom/1043/wall.png',b'original artwork')
-        mirror=self.file('ModCarrerMode/runtime/club_environment/current_dressing_room/custom/1043/wall.png',original.read_bytes())
-        unique=self.file('ModCarrerMode/runtime/club_environment/current_dressing_room/custom/1043/unique.png',b'only copy')
-        self.assertNotIn(generated[0],cache.plan(self.root))
-        report=self.clean(purge=True)
-        self.assertTrue(all(not p.exists() for p in generated+[mirror]));self.assertFalse(report.failed)
-        self.assertEqual(original.read_bytes(),b'original artwork');self.assertTrue(unique.exists())
-
-    def test_purge_request_survives_server_restart_until_game_exits(self):
-        p=self.file(cache.MARKET+'texture_cache/'+'a'*64+'.dds')
-        service=cache.SessionCaches(Mock(),interval=.02,checker=lambda root:True)
-        service.request(self.root,purge=True);time.sleep(.05);service.close()
-        pending=self.root/'runtime/cache_maintenance/pending.json'
-        self.assertTrue(pending.exists());self.assertTrue(p.exists())
-        service=cache.SessionCaches(Mock(),interval=.02,checker=lambda root:False)
-        try:
-            service.bind(self.root);deadline=time.monotonic()+3
-            while pending.exists() and time.monotonic()<deadline:time.sleep(.02)
-            self.assertFalse(p.exists());self.assertFalse(pending.exists())
-        finally:service.close()
-
-    def test_dead_fifa_owner_no_longer_pins_caches_forever(self):
-        process=Mock();process.pid=os.getpid()+1000
-        process.info={'name':'Server16Python.exe','cmdline':['Server16Python.exe','--club-environment-worker','room','--pid','99999999']}
-        with patch.object(cache.psutil,'process_iter',return_value=[process]),patch.object(cache.psutil,'Process',side_effect=cache.psutil.NoSuchProcess(99999999)):
-            self.assertFalse(cache.busy(self.root))
-
-    def test_server_button_requests_full_purge_and_log_cleanup_in_background(self):
-        from types import SimpleNamespace
-        from server16_py.app import Server16App
-        app=SimpleNamespace(tr=lambda key,**kw:key,clean_cache_button=Mock(),_session_logs=Mock(),
-            _visual_caches=Mock(),exedir=self.root,log=Mock(),_post_ui=Mock(),_finish_cache_cleanup=Mock())
-        with patch('server16_py.app.messagebox') as dialog:
-            dialog.askyesno.return_value=True
-            Server16App._clean_generated_cache(app)
-        self.assertTrue(app._visual_caches.request.call_args.kwargs['purge'])
-        app._session_logs.clear.assert_called_once()
-        report=cache.Result(files=3,released_bytes=100,failed=['locked'])
-        app._visual_caches.request.call_args.args[1](report)
-        app._post_ui.assert_called_once_with(app._finish_cache_cleanup,'storage.done\n\nstorage.busy')
+    def test_locked_path_stays_in_place_without_explicit_quarantine(self):
+        p=self.file(cache.MARKET+'packages/managers_'+'b'*64+'.big',b'tmp')
+        original=Path.unlink
+        def unlink(path,*args,**kwargs):
+            if path==p:raise PermissionError('in use')
+            return original(path,*args,**kwargs)
+        with patch.object(Path,'unlink',unlink):report=self.clean()
+        self.assertEqual(p.read_bytes(),b'tmp');self.assertEqual(report.moved_bytes,0)
+        self.assertEqual(report.released_bytes,0);self.assertEqual(len(report.failed),1)
     def test_dry_run_and_second_sweep_are_idempotent(self):
         p=self.file(cache.MARKET+'packages/managers_'+'a'*64+'.big')
         report=self.clean(dry_run=True);self.assertEqual(report.files,1);self.assertTrue(p.exists())

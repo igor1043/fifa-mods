@@ -10,7 +10,7 @@ def records(game,req,cups,rows):
     result=[]
     for source in rows:
         row=dict(source);club=int(row.get('club',req['club']));winner,_=assets.club_identity(game,club)
-        trophy=int(cups.get(row['root']) or cups.get(row['competition']) or row['competition'])
+        trophy=data.trophy_identity(row['competition'],cups)
         wins=[]
         for victory in row.get('wins',[row]):
             winning_club=int(victory.get('club',req['club']));name=assets.club_identity(game,winning_club)[0]['name']

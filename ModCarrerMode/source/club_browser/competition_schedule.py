@@ -1,7 +1,7 @@
 """Read-only saved FCE schedule and previous-round movements. No runtime reference install required."""
 import struct,datetime
 
-def read_schedule(raw, stage_formats=None):
+def read_schedule(raw, stage_formats=None, *, include_unresolved=False):
     marker = raw.find(b'FCE_Setup_Stage')
     start = marker - 12 - 2 * 47
     if marker < 0 or start < 0:
@@ -56,7 +56,8 @@ def read_schedule(raw, stage_formats=None):
             continue
         home = teams.get(struct.unpack_from('<H', row, 12)[0], -1)
         away = teams.get(struct.unpack_from('<H', row, 16)[0], -1)
-        if home < 0 or away < 0 or home == away:
+        unresolved = home < 0 or away < 0
+        if (unresolved and not include_unresolved) or (not unresolved and home == away):
             continue
         stage = struct.unpack_from('<H', row, 3)[0]
         home_group = standing_groups.get(struct.unpack_from('<H', row, 12)[0])
@@ -81,7 +82,13 @@ def read_schedule(raw, stage_formats=None):
                 break
             root = struct.unpack_from('<h', node, 45)[0]
         time_value = struct.unpack_from('<H', row, 10)[0]
-        result.append({'id': struct.unpack_from('<H', row, 0)[0], 'home': home, 'away': away, 'root': root, 'asset': asset, 'date': date, 'time': f'{time_value // 100:02d}:{time_value % 100:02d}', 'stage': stage, 'group':group, 'stageKind': kind, 'homeScore': row[14] if row[14] != 255 else None, 'awayScore': row[18] if row[18] != 255 else None, 'played': bool(row[20]), 'score': f'{row[14]} – {row[18]}' if row[20] else '—'})
+        match = {'id': struct.unpack_from('<H', row, 0)[0], 'home': home, 'away': away, 'root': root, 'asset': asset, 'date': date, 'time': f'{time_value // 100:02d}:{time_value % 100:02d}', 'stage': stage, 'group':group, 'stageKind': kind, 'homeScore': row[14] if row[14] != 255 else None, 'awayScore': row[18] if row[18] != 255 else None, 'played': bool(row[20]), 'score': f'{row[14]} – {row[18]}' if row[20] else '—'}
+        if unresolved:
+            # The draw is not known yet, but this exact fixture's standing
+            # slots already identify its phase. Keep that structural evidence
+            # for unsaved simulation; it is never a result or a title itself.
+            match.update(schedule_template=True,played=False,homeScore=None,awayScore=None,score='—')
+        result.append(match)
     return result
 
 def read_assignment_roots(raw):

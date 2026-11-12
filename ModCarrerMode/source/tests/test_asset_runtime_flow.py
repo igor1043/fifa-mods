@@ -84,6 +84,17 @@ class AssetRuntimeFlowTests(unittest.TestCase):
         self.assertEqual(self.app.Movdata.read_bytes(), b"video-Isuzu UTE A-League")
         self.assertEqual(self.assignments, before)
 
+    def test_manual_movie_and_native_default_override_stadium_movie_without_changing_assignments(self):
+        from server16_py.movie_options import save_choice
+        self.app.Movies=self.root/'MoviesGBD';self.app.stadmovie=True
+        self.put('MoviesGBD/Selected/bootflowoutro.vp8',b'chosen video');self.put('MoviesGBD/Selected/bumper.big',b'chosen bumper')
+        self.put('FSW/Nav/bootflowoutro.vp8',b'native video');self.put('FSW/Nav/bumper.big',b'native bumper')
+        original=dict(self.assignments)
+        for choice,expected in (('Selected',b'chosen video'),('',b'native video')):
+            save_choice(self.root,choice);self.runtime.apply_movie_runtime()
+            self.assertEqual(self.app.Movdata.read_bytes(),expected);self.assertTrue(self.app.stadmovie)
+            self.assertEqual(self.assignments,original)
+
     def test_new_scoreboard_name_resolves_existing_assets_after_native_baseline(self):
         self.assignments[("Scoreboard", "tour")] = "New official name"
         self.put("FSW/ScoreBoard/game/native.big", b"native")

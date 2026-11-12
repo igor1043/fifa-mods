@@ -751,7 +751,13 @@ class Market:
    evidence=self.db.execute('SELECT home,home_coach,away_coach FROM results WHERE branch=? AND root=? AND competition_id=? AND game_date<=? AND (home=? OR away=?) ORDER BY game_date DESC LIMIT 1',(self.branch,title['root'],title['asset'],title['date'],title['club'],title['club'])).fetchone()
    coach=(evidence['home_coach'] if evidence['home']==title['club'] else evidence['away_coach']) if evidence else None
    if coach:
-    inserted=self.db.execute('INSERT OR IGNORE INTO honours VALUES(?,?,?,?,?,?,?,?)',(self.branch,coach,title['club'],title['season'],title['asset'],title['root'],title['date'],title['name'])).rowcount
+    # A legacy season key may contain the activation day rather than day 1.
+    # The same dated win must never pay a second reputation/salary reward.
+    inserted=self.db.execute('''INSERT OR IGNORE INTO honours
+        SELECT ?,?,?,?,?,?,?,? WHERE NOT EXISTS (SELECT 1 FROM honours
+        WHERE branch=? AND club_id=? AND competition_id=? AND root=? AND game_date=?)''',
+        (self.branch,coach,title['club'],title['season'],title['asset'],title['root'],title['date'],title['name'],
+         self.branch,title['club'],title['asset'],title['root'],title['date'])).rowcount
     if inserted:
      from title_rewards import reward,prestige
      reputation,wage_growth=reward(prestige(self,title['asset']))

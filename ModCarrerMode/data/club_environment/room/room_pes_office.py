@@ -50,6 +50,8 @@ def merge_main_shell(approved,new_shell):
             vertices,indices=join(pieces)
             if len(vertices)>=65536:raise ValueError('Rebased office exceeds native vertex budget')
             replace_mesh(approved,slot,vertices,indices)
+    from room_hydration_wall import front_present,repair
+    if front_present(*read_mesh(new_shell,0),1338.):repair(approved)
     return approved
 
 
@@ -81,4 +83,5 @@ def obstacles(game, items):
     result = [item for item in items if not (
         item['name'].startswith('Sala do treinador R76 / ') and
         item['name'].split(' / ', 1)[1] in old_furniture)]
-    return result + spec['obstacles']
+    seen={(r['name'],tuple(r.get('lo',())),tuple(r.get('hi',()))) for r in result}
+    return result + [r for r in spec['obstacles'] if (r['name'],tuple(r.get('lo',())),tuple(r.get('hi',()))) not in seen]

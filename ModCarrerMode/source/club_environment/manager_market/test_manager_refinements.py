@@ -61,7 +61,7 @@ class RefinementsTest(unittest.TestCase):
  def test_title_card_displays_club_crest_real_cup_and_has_no_explanatory_filler(self):
   model=project(self.market);person=model['clubRows'][0][7];model['people'][person]['titleCards']=[['Copa','competition_100','Clube 1','crest_1','2026','10/01/2026']]
   vm,s,_=self.native(model,dict(competition_100=Image.new('RGBA',(64,64),'yellow'),cup_100=Image.new('RGBA',(64,64),'gold')));vm.invoke(s.get('Command'),s,(40,));vm.invoke(s.get('Command'),s,(82,));clip=s.get('scene1')
-  self.assertEqual('Clube 1',clip.get('entryTotal0').get('text'));self.assertTrue(clip.get('entry0_crest_1').get('_visible'));self.assertTrue(clip.get('cup0_cup_100').get('_visible'));self.assertFalse(vm.errors)
+  self.assertEqual('Clube 1',clip.get('titleClub0').get('text'));self.assertTrue(clip.get('titleCrest0_crest_1').get('_visible'));self.assertTrue(clip.get('titleCup0_cup_100').get('_visible'));self.assertFalse(vm.errors)
  def test_current_coach_comes_first_when_predecessor_left_on_same_start_day(self):
   data=history(self.market,3,project(self.market,lightweight=True)['people']);self.assertEqual('Atual',data['rows'][0][4]);self.assertEqual('Substituído',data['rows'][1][4])
  def test_long_timeline_supports_controller_scrolling_and_mouse_track(self):

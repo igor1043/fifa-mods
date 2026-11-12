@@ -35,7 +35,7 @@ class Inputs:
   season=calendar[0]['startdate'];formats=read_formats(game)
   from title_evidence import career_start,merge_scores,completed_titles
   title_start=career_start(calendar[0],user)
-  fixtures=merge_scores(read_schedule(raw,formats),snapshot,title_start)
+  fixtures=merge_scores(read_schedule(raw,formats,include_unresolved=True),snapshot,title_start)
   result=[]
   for m in fixtures:
    if m['date']<season or m['home']<=0 or m['away']<=0 or m['home']==m['away']:continue
@@ -80,6 +80,7 @@ class Inputs:
    participants={m[t] for m in result if m['root']==rt for t in ('home','away')};reps=[c['reputation'] for c in clubs if c['club_id'] in participants];league_count=len({c['league_id'] for c in clubs if c['club_id'] in participants})
    prestige=max(1,min(10,round((sum(reps)/len(reps) if reps else 4)+(2 if league_count>1 else 0))))
    exits.append(dict(root=rt,asset=asset,club=lose,date=last,prestige=prestige))
+  title_progress=rows('career_competitionprogress',['compobjid','stageid','season','teamid','hasteamwon','cup_objective_result','compshortname'])
   evidence=fixtures
   leagues={int(lid):dict(members={c['club_id'] for c in clubs if c['league_id']==int(lid)}) for lid in tables}
   titles=[dict(t,asset=t['competition']) for t in completed_titles(evidence,formats,leagues,today,title_start,comp_name)]
@@ -88,4 +89,4 @@ class Inputs:
   national_teams={r['teamid'] for r in base.rows('teamnationlinks',['teamid'])}
   national_jobs=observations(user,user_manager,calendar[0]['currdate'],today,national_teams,memory,observed['profile'])
   if path.stat().st_mtime_ns!=before.st_mtime_ns:raise ValueError('Save alterado durante leitura dos técnicos')
-  return dict(title_start=title_start,title_fixtures=evidence,national_teams=sorted(national_teams),national_jobs=national_jobs,title_formats=formats,title_labels={m['asset']:comp_name(m['asset']) for m in fixtures},club=observed['profile']['club_id'],saved_club=user.get('clubteamid',observed['profile']['club_id']),saved_date=calendar[0]['currdate'],career_start_date=calendar[0]['startdate'],userid=user.get('userid',0),user_name=' '.join(str(user.get(k) or '') for k in ('firstname','surname')).strip(),user_wage=wage,user_confidence=user_manager.get('boardconfidence'),date=today,season=season,clubs=clubs,fixtures=result,tables=tables,club_tables=global_data['club_tables'],performance=global_data['performance'],table_dates=global_data['table_dates'],coverage=global_data['coverage'],titles=titles,cup_exits=exits,competitions=list(competition_profiles.values()),digest=hashlib.sha256(raw).hexdigest())
+  return dict(title_start=title_start,title_progress=title_progress,title_fixtures=evidence,national_teams=sorted(national_teams),national_jobs=national_jobs,title_formats=formats,title_labels={m['asset']:comp_name(m['asset']) for m in fixtures},club=observed['profile']['club_id'],saved_club=user.get('clubteamid',observed['profile']['club_id']),saved_date=calendar[0]['currdate'],career_start_date=calendar[0]['startdate'],userid=user.get('userid',0),user_name=' '.join(str(user.get(k) or '') for k in ('firstname','surname')).strip(),user_wage=wage,user_confidence=user_manager.get('boardconfidence'),date=today,season=season,clubs=clubs,fixtures=result,tables=tables,club_tables=global_data['club_tables'],performance=global_data['performance'],table_dates=global_data['table_dates'],coverage=global_data['coverage'],titles=titles,cup_exits=exits,competitions=list(competition_profiles.values()),digest=hashlib.sha256(raw).hexdigest())

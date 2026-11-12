@@ -30,7 +30,7 @@ def enrich_profile(profile,p,visits,results,honours,reviews,clubs,today,campaign
  ident=p['coach_id'];current=next((a for a in sorted(visits,key=lambda a:a['start_date'],reverse=True) if a['end_date'] is None),None);club=clubs.get(current['club_id'],{}) if current else {}
  rich=career_profile(p,visits,results,honours,reviews,clubs,today,stamp,campaigns,movements);s=rich['total'];hs=rich['home'];aws=rich['away'];current_spell=next((v for v in rich['spells'] if v['current']),None);confidence=current_spell['confidence'] if current_spell else dict(value=-1,label='Sem vínculo atual')
  if ident.startswith('USER-') and type(user_confidence)==int and 0<=user_confidence<=100:confidence=dict(value=user_confidence,label='Avaliação da diretoria no FIFA')
- profile.update(career=rich,confidence=confidence,overview=[s[k] for k in ('games','wins','draws','losses','gf','ga')]+[s['percentage'],hs['percentage'],aws['percentage'],brief(hs),brief(aws),rich['clubs'],len(rich['spells']),len(rich['titles']),('Contrato até '+stamp(current['contract_end'])+' · '+str(max(0,elapsed(today,current['contract_end'])))+' dias restantes') if current else 'Sem vínculo · Livre no mercado',club.get('name','Livre no mercado'),'crest_'+str(club['club_id']) if club else '',confidence['value'],confidence['label'],stamp(current['start_date']) if current else 'Sem contrato'],spellCards=[[v['club'],v['crest'],v['dates'],v['duration']+' · Contrato até '+stamp(v['contractEnd']),v['status'],f"{v['total']['games']} jogos   ·   {v['total']['wins']} vitórias   ·   {v['total']['draws']} empates   ·   {v['total']['losses']} derrotas   ·   Gols {v['total']['gf']}–{v['total']['ga']}",v['total']['percentage'],summary(v['home']),v['home']['percentage'],summary(v['away']),v['away']['percentage'],str(v['titles'])+' títulos confirmados',f"{v['total']['percentage']:.1f}%".replace('.',',')] for v in rich['spells']],titleCards=[[v['name'],v['competitionArt'],v['club'],v['crest'],v['year'],v['date']] for v in rich['titles']])
+ profile.update(career=rich,confidence=confidence,overview=[s[k] for k in ('games','wins','draws','losses','gf','ga')]+[s['percentage'],hs['percentage'],aws['percentage'],brief(hs),brief(aws),rich['clubs'],len(rich['spells']),len(rich['titles']),('Contrato até '+stamp(current['contract_end'])+' · '+str(max(0,elapsed(today,current['contract_end'])))+' dias restantes') if current else 'Sem vínculo · Livre no mercado',club.get('name','Livre no mercado'),'crest_'+str(club['club_id']) if club else '',confidence['value'],confidence['label'],stamp(current['start_date']) if current else 'Sem contrato'],spellCards=[[v['club'],v['crest'],v['dates'],v['duration']+' · Contrato até '+stamp(v['contractEnd']),v['status'],f"{v['total']['games']} jogos   ·   {v['total']['wins']} vitórias   ·   {v['total']['draws']} empates   ·   {v['total']['losses']} derrotas   ·   Gols {v['total']['gf']}–{v['total']['ga']}",v['total']['percentage'],summary(v['home']),v['home']['percentage'],summary(v['away']),v['away']['percentage'],str(v['titles'])+' títulos confirmados',f"{v['total']['percentage']:.1f}%".replace('.',',')] for v in rich['spells']],titleCards=[[v['name'],v['competitionArt'],v['club'],v['crest'],v['year'],v['date'],v['dateLabel']] for v in rich['titles']])
  for card,visit in zip(profile['spellCards'],rich['spells']):
   card[11]=card[11].replace(' títulos confirmados',' títulos');card.extend(str(visit['total'][k]) for k in ('games','wins','draws','losses','gf','ga'))
  profile['overview'] += [f"{v['percentage']:.1f}".replace('.',',')+'%' for v in (s,hs,aws)]
@@ -52,10 +52,13 @@ def project(market,user_confidence=None,lightweight=False,detail_coach=None):
  for a in appointments:history.setdefault(a['coach_id'],[]).append(a)
  requested={a['id'] for a in appointments if a['coach_id']==detail_coach} if lightweight else None
  def detail_rows(table,where='',args=()):
+  if table=='honours':
+   if lightweight and not detail_coach:return []
+   from coach_titles import read as read_titles
+   return read_titles(market,detail_coach if lightweight else None,today)
   if not lightweight:return market.rows(table,where,args)
   if not detail_coach:return []
   if table=='results':return market.rows(table,'(home_coach=? OR away_coach=?)',(detail_coach,detail_coach))
-  if table=='honours':return market.rows(table,'coach_id=?',(detail_coach,))
   if table=='reviews':
    clubs_visited={a['club_id'] for a in appointments if a['coach_id']==detail_coach}
    return market.rows(table,'club_id IN ('+','.join('?' for _ in clubs_visited)+')',tuple(clubs_visited)) if clubs_visited else []

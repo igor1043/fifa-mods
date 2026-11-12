@@ -44,6 +44,7 @@ LONG oldCall=0,newCall=0;
 std::atomic<bool> started{false},stopping{false},installed{false},requested{false},active{false};
 std::atomic<unsigned> club{0},epoch{0},generation{0},titleCount{0},selectedPage{0},pages{1},phase{0},error{0};
 std::atomic<int> command{-1},selectedTrophy{-1};std::atomic<bool> detailStatus{false};
+std::atomic<unsigned> historyPanelHeight{572};
 std::atomic<unsigned> componentCount{0},loadedCount{0};
 fs::path game,folder,config;
 std::atomic<bool> coachCollection{false};
@@ -255,9 +256,10 @@ bool manifest(){
   if(!(cameraFile>>v.slot)||v.slot>=30||!load(v.wide)||!load(v.detail))return false;
   for(const auto&prior:visits)if(prior.slot==v.slot)return false;visits.push_back(v);
  }
+ const auto previousPose=tour.pose(GetTickCount64());
  if(residentScene)tour.replace(std::move(visits),GetTickCount64());else{tour.reset(std::move(visits),GetTickCount64());freeCamera=false;}
  if(pendingDetailSlot>=0){for(size_t i=0;i<tour.visits.size();++i)if(tour.visits[i].slot==unsigned(pendingDetailSlot)){tour.select(int(i),GetTickCount64());break;}pendingDetailSlot=-1;}
- if(pageVisit&&!tour.visits.empty()){tour.index=-1;tour.step(pageVisit,GetTickCount64());if(pageDetail)tour.details(true,GetTickCount64());pageVisit=0;pageDetail=false;}
+ if(pageVisit&&!tour.visits.empty()){tour.index=-1;tour.step(pageVisit,GetTickCount64());tour.transition(previousPose,GetTickCount64());pageVisit=0;pageDetail=false;}
  for(auto&c:next)for(auto&old:components)if(old&&old->key==c->key&&old->model==c->model&&old->texture==c->texture&&old->submesh==c->submesh&&old->aux==c->aux&&old->normal==c->normal&&old->coeffTexture==c->coeffTexture&&old->coeff==c->coeff&&old->alpha==c->alpha&&old->baked==c->baked&&!old->failed){
   old->matrices=c->matrices;old->baseMatrices=c->baseMatrices;old->probe=c->probe;c=std::move(old);break;
  }
@@ -297,7 +299,7 @@ void Camera::apply(bool advance){
     const auto window=GetForegroundWindow();POINT pointer{};RECT client{};bool panel=false;
     if(GetCursorPos(&pointer)&&ScreenToClient(window,&pointer)&&GetClientRect(window,&client)){
      const float scale=std::min(client.right/1600.f,client.bottom/900.f);
-     if(scale>0)panel=trophy_shelf::historyContains((pointer.x-(client.right-1600*scale)/2)/scale,(pointer.y-(client.bottom-900*scale)/2)/scale);
+     if(scale>0)panel=trophy_shelf::historyContains((pointer.x-(client.right-1600*scale)/2)/scale,(pointer.y-(client.bottom-900*scale)/2)/scale,float(historyPanelHeight.load()));
     }
     const auto drag=detailMouse.sample(window,held(VK_LBUTTON)&&!panel);
     inspect.step((axis(pad.Gamepad.sThumbRX)+float(held(VK_RIGHT))-float(held(VK_LEFT)))*dt*1.7f+drag.yaw,
@@ -349,9 +351,9 @@ void Camera::apply(bool advance){
 }
 #include "loading.h"
 SRWLOCK inputLock=SRWLOCK_INIT;int lastPosted=-1;
-void postCommand(int value){
+void postCommand(int value,bool physicalEdge=false){
  AcquireSRWLockExclusive(&inputLock);const auto now=GetTickCount64();
- if(value!=lastPosted||now-lastInput>=180){lastPosted=value;lastInput=now;command=value;}
+ if(physicalEdge||value!=lastPosted||now-lastInput>=180){lastPosted=value;lastInput=now;command=value;}
  ReleaseSRWLockExclusive(&inputLock);
 }
 trophy_shelf::State shelfState(){return {shelfTotal.load(),shelfPage.load(),shelfSelected.load()};}
@@ -368,21 +370,24 @@ bool shelfManifest(){
 }
 void input(){
  pad={};if(padRead)for(DWORD i=0;i<4;++i)if(padRead(i,&pad)==ERROR_SUCCESS)break;
- static unsigned previousKeys=0;unsigned keys=0;
- if(foreground())keys=((GetAsyncKeyState(VK_F1)&0x8000)?1u:0u)|((GetAsyncKeyState(VK_F2)&0x8000)?2u:0u)|((pad.Gamepad.wButtons&XINPUT_GAMEPAD_Y)?1u:0u)|((pad.Gamepad.wButtons&XINPUT_GAMEPAD_X)?2u:0u);
+ // X/Y and F1/F2 belong to the APT screen. Polling them here as well
+ // toggled the camera twice, leaving its UI and native state disagreeing.
  static unsigned previousViewButtons=0;unsigned viewButtons=0;
- if(foreground())viewButtons=(pad.Gamepad.bLeftTrigger>70?1u:0u)|(pad.Gamepad.bRightTrigger>70?2u:0u)|((pad.Gamepad.wButtons&XINPUT_GAMEPAD_LEFT_SHOULDER)?4u:0u)|((pad.Gamepad.wButtons&XINPUT_GAMEPAD_RIGHT_SHOULDER)?8u:0u);
- const unsigned viewEdges=viewButtons&~previousViewButtons;previousViewButtons=viewButtons;
+ viewButtons=(pad.Gamepad.bLeftTrigger>70?1u:0u)|(pad.Gamepad.bRightTrigger>70?2u:0u)|((pad.Gamepad.wButtons&XINPUT_GAMEPAD_LEFT_SHOULDER)?4u:0u)|((pad.Gamepad.wButtons&XINPUT_GAMEPAD_RIGHT_SHOULDER)?8u:0u);
+ const unsigned viewEdges=foreground()?(viewButtons&~previousViewButtons):0u;previousViewButtons=viewButtons;
+ const unsigned shoulders=(viewButtons&12)==12?0u:(viewEdges&12);
  int viewIntent=-1;
- if(listMode||(!tour.detail&&pendingDetailSlot<0)){if(viewEdges&1)viewIntent=10;if(viewEdges&2)viewIntent=11;}if(listMode){if(viewEdges&4)viewIntent=25;if(viewEdges&8)viewIntent=26;}
- else if(!freeCamera&&pendingDetailSlot<0){if(viewEdges&4)viewIntent=7;if(viewEdges&8)viewIntent=0;}
- const auto edges=keys&~previousKeys;previousKeys=keys;if(edges&1)postCommand(listMode?14:0);if(edges&2)postCommand(listMode?11:1);
- if(listMode&&foreground()){
+ if(listMode||(!tour.detail&&pendingDetailSlot<0)){if(viewEdges&1)viewIntent=10;if(viewEdges&2)viewIntent=11;}if(listMode){if(shoulders==4)viewIntent=25;if(shoulders==8)viewIntent=26;}
+ else if(!freeCamera&&pendingDetailSlot<0){if(shoulders==4)viewIntent=0;if(shoulders==8)viewIntent=7;}
+ const auto queued=command.load();
+ if(listMode&&foreground()&&queued<0&&viewIntent<0){
   static uint64_t repeat=0;const auto now=GetTickCount64();const int axis=pad.Gamepad.sThumbRY;
   if(abs(axis)>18000&&now>=repeat){repeat=now+240;postCommand(axis>0?15:14);}else if(abs(axis)<9000)repeat=0;
  }
  // A held navigation stick must not overwrite the one-shot RT/LT request.
- if(viewIntent>=0)postCommand(viewIntent);
+ // An explicit UI camera/view request wins over a shoulder edge sampled in
+ // the same frame. Otherwise X+RB could navigate instead of entering free.
+ if(viewIntent>=0&&queued<0)postCommand(viewIntent,true);
  int value=command.exchange(-1);if(value<0)return;
  // View-switch commands are ignored during inspection; triggers belong to zoom.
  if(!listMode&&(tour.detail||pendingDetailSlot>=0)&&(value==10||value==11))return;
@@ -409,14 +414,17 @@ void input(){
 
  if(value==30){if(detailScroll)detailScroll--;return;}if(value==31){if(detailScroll<10000)detailScroll++;return;}if(value==32||value==33){camera.inspect.step(0,0,value==32?-4.f:4.f);return;}
  if(value==0||value==7){
+  if(freeCamera)return;
   tour.automatic=false;
   const int direction=value==7?-1:1;
   const bool edge=direction>0?tour.index==int(tour.visits.size())-1:tour.index==0;
-  if(!publicationPending&&pages>1&&edge&&!tour.visits.empty()){
-   selectedPage=direction>0?(selectedPage+1)%pages:(selectedPage+pages-1)%pages;pageVisit=direction;pageDetail=tour.detail;publicationPending=true;nextPoll=0;phase=4;
+  const bool nextPage=direction>0?selectedPage+1<pages:selectedPage>0;
+  if(!publicationPending&&edge&&nextPage&&!tour.visits.empty()){
+   selectedPage=direction>0?selectedPage+1:selectedPage-1;pageVisit=direction;pageDetail=tour.detail;publicationPending=true;nextPoll=0;phase=4;
   }else if(!publicationPending)tour.step(direction,GetTickCount64());freeCamera=false;
  }
- else if(value==1){tour.automatic=false;freeCamera=!freeCamera;if(freeCamera)tour.details(false,GetTickCount64());camera.mouseHeld=false;}
+ else if(value==1){if(!freeCamera){tour.automatic=false;tour.details(false,GetTickCount64());freeCamera=true;camera.freeMouse.reset();camera.detailMouse.reset();}camera.mouseHeld=false;}
+ else if(value==34){if(freeCamera){freeCamera=false;tour.details(true,GetTickCount64());camera.freeMouse.reset();camera.detailMouse.reset();}camera.mouseHeld=false;}
  else if(value==5||value==6){if(value==6){pendingDetailSlot=-1;pageDetail=false;}tour.details(value==5&&!tour.detail,GetTickCount64());freeCamera=false;}
  else if(value==8){
   if(foreground()&&!freeCamera){POINT p{};RECT r{};auto window=GetForegroundWindow();if(GetCursorPos(&p)&&ScreenToClient(window,&p)&&GetClientRect(window,&r)&&r.right>0&&r.bottom>0){
@@ -427,7 +435,7 @@ void input(){
  else if(value==2){
   const auto customFile=game/L"ModCarrerMode/data/trophy_room/custom"/std::to_wstring(club.load())/L"identity-wall.png";
   if(fs::is_regular_file(customFile)){custom=!custom;const auto section=std::to_wstring(club.load());WritePrivateProfileStringW(section.c_str(),L"style",custom?L"custom":L"default",config.c_str());publicationPending=true;nextPoll=0;phase=4;}
- }else if((value==3||value==4)&&pages>1){tour.automatic=false;selectedPage=value==3?(selectedPage+1)%pages:(selectedPage+pages-1)%pages;publicationPending=true;nextPoll=0;phase=4;}
+ }else if((value==3||value==4)&&pages>1){const auto next=value==3?std::min(selectedPage+1,pages.load()-1):selectedPage?selectedPage-1:0u;if(next!=selectedPage){tour.automatic=false;selectedPage=next;publicationPending=true;nextPoll=0;phase=4;}}
 }
 void poll(){
  bool resolved=false;const auto id=visiblePage()?activeCareerClub(image,read,&resolved):0;const auto context=id?scope():Scope{};
@@ -506,8 +514,11 @@ DWORD WINAPI worker(void*){
 }
 }
 extern "C" __declspec(dllexport) unsigned WINAPI Fifa16ModGetApiVersion(){return 1;}
+extern "C" __declspec(dllexport) BOOL WINAPI Fifa16TrophyRoomSetHistoryHeight(unsigned height){
+ if(height<360||height>572)return FALSE;historyPanelHeight=height;return TRUE;
+}
 extern "C" __declspec(dllexport) unsigned WINAPI Fifa16TrophyRoomUiMode(){
- return listMode?0u:detailStatus?2u:freeCamera?3u:1u;
+ return listMode?0u:freeCamera?3u:detailStatus?2u:1u;
 }
 extern "C" __declspec(dllexport) BOOL WINAPI Fifa16TrophyRoomLoadingStatus(scene_loading::Status*out){
  scene_loading::Status s;s.club=club;s.visible=visiblePage();s.ready=listMode?listReady.load():sceneStartupPermitted&&active;s.total=sceneStartupPermitted?componentCount.load():0;s.loaded=sceneStartupPermitted?loadedCount.load():0;s.variant=(coachCollection?1:0)|(listMode?2:0);s.error=error;
@@ -531,7 +542,7 @@ extern "C" __declspec(dllexport) BOOL WINAPI Fifa16TrophyRoomCommand(const char*
  else if(!strncmp(text,"shelf_open_",11)){char*end=nullptr;long i=strtol(text+11,&end,10);if(!end||*end||i<0||i>=int(trophy_shelf::capacity))return FALSE;postCommand(12000+int(i));}
  else if(!strncmp(text,"shelf_page_",11)){char*end=nullptr;long i=strtol(text+11,&end,10);if(!end||*end||i<0||i>=10000)return FALSE;postCommand(2000+int(i));}
  else if(!strncmp(text,"shelf_select_",13)){char*end=nullptr;long i=strtol(text+13,&end,10);if(!end||*end||i<0||i>=int(trophy_shelf::capacity))return FALSE;postCommand(1000+int(i));}
- else if(!strcmp(text,"camera"))postCommand(0);else if(!strcmp(text,"free"))postCommand(1);else if(!strcmp(text,"style"))postCommand(2);else if(!strcmp(text,"page"))postCommand(3);else if(!strcmp(text,"page_prev"))postCommand(4);else if(!strcmp(text,"detail"))postCommand(5);else if(!strcmp(text,"close_detail"))postCommand(6);else if(!strcmp(text,"previous"))postCommand(7);else if(!strcmp(text,"pick"))postCommand(8);else if(!strcmp(text,"collection"))postCommand(9);else return FALSE;return TRUE;
+ else if(!strcmp(text,"camera"))postCommand(0);else if(!strcmp(text,"free"))postCommand(1);else if(!strcmp(text,"fixed"))postCommand(34);else if(!strcmp(text,"style"))postCommand(2);else if(!strcmp(text,"page"))postCommand(3);else if(!strcmp(text,"page_prev"))postCommand(4);else if(!strcmp(text,"detail"))postCommand(5);else if(!strcmp(text,"close_detail"))postCommand(6);else if(!strcmp(text,"previous"))postCommand(7);else if(!strcmp(text,"pick"))postCommand(8);else if(!strcmp(text,"collection"))postCommand(9);else return FALSE;return TRUE;
 }
 extern "C" __declspec(dllexport) BOOL WINAPI Fifa16ModStart(const char*){
  if(started.exchange(true))return TRUE;image=(uintptr_t)GetModuleHandleW(nullptr);

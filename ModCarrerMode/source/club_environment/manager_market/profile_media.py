@@ -3,6 +3,7 @@ from pathlib import Path
 from collections import OrderedDict
 import io,json,zipfile
 from PIL import Image,ImageDraw
+from profile_layout import TITLE_TOP,TITLE_STEP
 
 _indexes=OrderedDict()
 
@@ -66,11 +67,13 @@ def prepare(game,media):
  for key in media['crests']:
   ident=key.split('_',1)[1];read(key,[f'data/ui/imgAssets/crest/{kind}/l{ident}.dds' for kind in ('light','dark')],(128,128),shield)
   if key==media['current']:image(key,'current_'+key,286,294,36,40)
-  for i in range(3):image(key,'entry'+str(i)+'_'+key,510,315+i*182+18,74,74)
+  for i in range(3):
+   image(key,'entry'+str(i)+'_'+key,510,315+i*182+18,74,74)
+   image(key,'titleCrest'+str(i)+'_'+key,696,TITLE_TOP+i*TITLE_STEP+101,40,44)
  for key in media['competitions']:
   ident=key.split('_',1)[1];read(key,[f'data/ui/imgAssets/careerCompetitionIcons/{ident}.png',f'data/ui/imgAssets/league/light/l{ident}.dds'],(128,128))
   cup='cup_'+ident;read(cup,[f'data/ui/imgAssets/trophy256x256/t{ident}.dds'],(160,160))
   for i in range(3):
-   image(key,'trophy'+str(i)+'_'+key,510,315+i*182+18,86,90)
-   image(cup,'cup'+str(i)+'_'+cup,1668,315+i*182+61,100,100)
+   image(key,'titleCompetition'+str(i)+'_'+key,696,TITLE_TOP+i*TITLE_STEP+20,68,70)
+   image(cup,'titleCup'+str(i)+'_'+cup,554,TITLE_TOP+i*TITLE_STEP+20,112,112)
  return scene.pack(),assets

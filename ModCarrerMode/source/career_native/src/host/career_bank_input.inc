@@ -89,11 +89,28 @@ static uintptr_t background_menu_view(void);
 static uintptr_t background_room_view(void);
 static void drain_frontend_ui_tick(void);
 static void drain_background_refresh(void);
+static int financial_incorporation_capture(const char *wire);
 #include "scoreboard_options_input.inc"
 #include "attendance_options_input.inc"
+#include "match_options_input.inc"
 static uintptr_t bank_input_event(void *bridge,const char *controller,const char *event,const char *argument)
 {
     typedef uintptr_t (*Dispatch)(void *,const char *,const char *,const char *);
+    if(bank_mail_string(event,128)&&(!strcmp(event,"Server16MatchMovie")||!strcmp(event,"Server16OptionsEnter")||!strcmp(event,"Server16OpenStadium")||!strcmp(event,"Server16OptionsTick"))){
+        if(bank_mail_string(controller,64)&&!strcmp(controller,"GameSettings")&&bank_mail_string(argument,128)){
+            if(!strcmp(event,"Server16MatchMovie"))(void)match_options_movie(argument);
+            else if(!strcmp(event,"Server16OptionsEnter")&&!strcmp(argument,"ENTER")&&match_options_page()){
+                g_match_options_thread=GetCurrentThreadId();g_match_options_enter=GetTickCount64();
+                (void)match_options_capture("enter",argument,0);
+            }else if(!strcmp(event,"Server16OpenStadium")&&!strcmp(argument,"S16STADIUM1|OPEN|END"))(void)match_options_capture("open",argument,1);
+            else if(!strcmp(event,"Server16OptionsTick")&&!strcmp(argument,"tick"))match_options_refresh(bridge);
+        }return 0;
+    }
+    if(bank_mail_string(event,128)&&!strcmp(event,"Server16FinancialIncorporation")){
+        if(bank_mail_string(controller,64)&&!strcmp(controller,"CareerSetup"))
+            (void)financial_incorporation_capture(argument);
+        return 0;
+    }
     if(bank_mail_string(event,128)&&!strcmp(event,"Server16MatchCrowd")){
         if(bank_mail_string(controller,64)&&!strcmp(controller,"GameSettings"))
             (void)attendance_options_capture(argument);

@@ -19,11 +19,11 @@ AND=lambda a,c:('bin',16,a,c)
 IDX=lambda o,i:('index',o,i)
 OLD='Server16CareerFooterOriginal';FLAG='Server16CareerFooterInstalled'
 ANIMATE='Server16CareerFooterAnimateOriginal';EXIT='Server16CareerFooterExitOriginal'
-REVISION='Server16CareerFooterRevision8'
+REVISION='Server16CareerFooterRevision9'
 REFRESH=('LoadComponents','UpdateButtonData','NavigatorHighlightCallback','NavigatorHelperChangedCallback','SetFocus')
 HUB_COMMANDS=(('ADVANCE','Selecionar'),('BACK','Voltar'),('OPTION_LEFT','Salvar'),
               ('OPTION_TOP','Caixa de e-mails'),('L2R2','Abas'),('LAS','Navegar'),
-              ('RAS_LR','Páginas dos cards'),('START','Server16'))
+              ('RAS_LR','Páginas dos cards'),('START','Select + Start · Server16'))
 
 
 def career_hub(a):

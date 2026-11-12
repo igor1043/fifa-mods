@@ -1,4 +1,4 @@
-"""Append the existing Server16 Start shortcut to FIFA's pre-match help."""
+"""Append the Server16 Select+Start shortcut to FIFA's pre-match help."""
 from pathlib import Path
 import os,struct,sys
 
@@ -17,21 +17,25 @@ def build(game,source,target):
     from build_preview import Code
     big=BigFile(source);apt=AptFile(big);actions=Actions(apt).read_all()
     if actions.errors:raise ValueError(actions.errors)
-    if b'S16PrematchFooterInstalled\0' in apt.data:return Path(source).read_bytes()
+    if b'S16PrematchFooterSelectStartV2\0' in apt.data:return Path(source).read_bytes()
     registration=next(c for c in apt.root_frames[0] if isinstance(c,tuple)
         and c[0]=='init' and c[1]==apt.exports['__Packages.'+'.'.join(CLASS)])
     original=actions.cache[registration[-1]];assert original[-1].op==0
     data=apt.data;data.extend(bytes(-len(data)%8));start=len(data)
     data.extend(data[registration[-1]:original[-1].offset]);a=Code(data)
     proto=b.path(*CLASS,'prototype');done=a.uid()
-    a.expr(b.prop(proto,'S16PrematchFooterInstalled'));a.branch(done)
+    a.expr(b.prop(proto,'S16PrematchFooterSelectStartV2'));a.branch(done)
+    a.set(proto,'S16PrematchFooterSelectStartV2',True)
+    # An installed first revision already retained the real native delegate.
+    # Reuse it instead of wrapping its Start help and duplicating the callout.
+    a.when(b.prop(proto,'S16PrematchFooterInstalled'),lambda a:None,
+           lambda a:a.set(proto,'S16OriginalPrematchHelp',b.prop(proto,'getHelpContext')))
     a.set(proto,'S16PrematchFooterInstalled',True)
-    a.set(proto,'S16OriginalPrematchHelp',b.prop(proto,'getHelpContext'))
     previous_class,previous_full=b.CLASS,b.FULL
     b.CLASS=CLASS;b.FULL='.'.join(CLASS)
     def help_context(a):
         a.expr(b.call(b.reg(1),'S16OriginalPrematchHelp'));a.op(135);a.align();a.data.extend(struct.pack('<i',2));a.op(23)
-        a.do(b.reg(2),'push',b.call(b.path('ion','manager','HelpItem'),'CreateHelpTickerItem','START','Server16'))
+        a.do(b.reg(2),'push',b.call(b.path('ion','manager','HelpItem'),'CreateHelpTickerItem','START','Select + Start · Server16'))
         a.ret(b.reg(2))
     try:a.function('getHelpContext',0,help_context)
     finally:b.CLASS=previous_class;b.FULL=previous_full

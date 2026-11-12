@@ -51,6 +51,9 @@ def assets():
  result['profile_back']=panel(160,48,radius=10);result['profile_filter']=panel(242,36,'#eaf0f4',8,'#eaf0f4');result['profile_clear']=Image.new('RGBA',(4,4))
  result['profile_gold_bar']=gradient(392,12,'#ac8950',ACCENT);result['profile_navy_bar']=gradient(392,12,'#082c46','#163f57');result['profile_track']=gradient(392,12,'#cedae3','#e0e7ec')
  result['profile_tag']=panel(90,30,'#f7f0e2',7,'#f7f0e2')
+ result['profile_trophy_well']=panel(160,160,'#f4f0e6',12,'#e9dfc8')
+ result['profile_scroll_track']=panel(12,530,'#e2e9ed',5,'#e2e9ed')
+ result['profile_scroll_thumb']=panel(12,128,ACCENT,5,ACCENT)
  for kind in ('pitch','trophy','handshake','cross','ball','shield','chevron','arrow','tactics','coach'):result['profile_icon_'+kind]=glyph(kind)
  for code,fill in (('V','#27a559'),('E','#9daab4'),('D','#ce3042')):
   im=Image.new('RGBA',(72,72));d=ImageDraw.Draw(im);d.ellipse((5,6,67,68),fill='#dce4e7');d.ellipse((4,2,66,64),fill=fill,outline='white',width=3);result['profile_form_'+code]=im

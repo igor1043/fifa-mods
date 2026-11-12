@@ -65,7 +65,7 @@ class Selection(unittest.TestCase):
 class NativeScreen(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
-        source=Path(__file__).resolve().parents[1];env=source/'club_environment'
+        source=Path(os.environ.get('SERVER16_SOURCE_ROOT',Path(__file__).resolve().parents[1]));env=source/'club_environment'
         sys.path[:0]=[str(env/'vendor'),str(env/'bank'),str(env/'preview'),str(env)]
         from server16_py.scoreboard_options_ui import build
         from formats import BigFile,AptFile
@@ -106,9 +106,9 @@ class NativeScreen(unittest.TestCase):
         self.invoke('InitGameSetting');self.calls.clear()
     def invoke(self,name,*args):return self.vm.invoke(self.proto.get(name),self.view,args)
     def test_all_original_exports_and_rows_are_preserved_with_extra_match_rows(self):
-        self.assertTrue(self.exports_preserved);self.assertEqual(self.match.get('settings'),[11,12,self.ROW,65001])
+        self.assertTrue(self.exports_preserved);self.assertEqual(self.match.get('settings'),[11,12,self.ROW,65001,65002])
         self.assertEqual(self.other.get('settings'),[21,22]);self.invoke('InitGameSetting')
-        self.assertEqual(self.match.get('settings'),[11,12,self.ROW,65001])
+        self.assertEqual(self.match.get('settings'),[11,12,self.ROW,65001,65002])
         self.assertEqual(self.invoke('S16ScoreboardValues'),[0,1,2,3]);self.assertEqual(len(self.invoke('S16ScoreboardLabels')),4)
     def test_attendance_uses_native_toggle_and_commits_without_changing_scoreboard(self):
         labels=self.invoke('S16CrowdLabels')
@@ -131,6 +131,21 @@ class NativeScreen(unittest.TestCase):
         self.assertEqual(self.invoke('GetCurrentSettingValue',10,11),23)
         self.invoke('SetCurrentSettingValue',10,11,4)
         self.assertEqual(self.calls,[('baseCurrent',(10,11)),('baseSet',(10,11,4))])
+    def test_movie_row_commits_once_without_passing_its_id_to_native_controller(self):
+        self.assertEqual(self.invoke('S16MovieValues'),[0,1])
+        self.invoke('SetCurrentSettingValue',10,65002,1);self.invoke('OnChangeCallback',1,10,65002,1)
+        self.assertEqual(self.calls,[])
+        self.invoke('LocalEventHandler',1,0,0);self.invoke('OnExitScreen')
+        messages=[args for name,args in self.calls if name=='SendSystemEvent']
+        self.assertEqual(messages,[('GameSettings','Server16MatchMovie','S16MOVIE1|'+self.record['movie_signature']+'|1|END')])
+    def test_stadium_shortcut_is_scoped_to_its_native_row(self):
+        settings=self.vm.global_.get('Settings');settings.set('eSetting',self.Object(dict(STADIUM=11)))
+        self.vm.global_.get('INPUTCODE').set('OPTION_LEFT',9)
+        self.view.set('m_nSettingEnum',12);self.assertEqual(self.invoke('LocalEventHandler',9,0,0),'native')
+        self.assertEqual([args for name,args in self.calls if name=='SendSystemEvent'],[])
+        self.calls.clear();self.view.set('m_nSettingEnum',11)
+        self.assertTrue(self.invoke('LocalEventHandler',9,0,0))
+        self.assertEqual(self.calls,[('SendSystemEvent',('GameSettings','Server16OpenStadium','S16STADIUM1|OPEN|END'))])
     def test_commit_happens_once_on_back_and_stock_input_keeps_its_return_value(self):
         self.invoke('SetCurrentSettingValue',10,self.ROW,3);self.assertEqual(self.calls,[])
         self.assertEqual(self.invoke('LocalEventHandler',1,0,0),'native');self.invoke('OnExitScreen')

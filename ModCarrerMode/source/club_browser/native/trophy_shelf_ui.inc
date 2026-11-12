@@ -87,25 +87,53 @@ bool drawTrophyHistory(ID3D11DeviceContext*c,HMODULE module){
  using Query=BOOL(WINAPI*)(trophy_shelf::Status*);using Command=BOOL(WINAPI*)(const char*);
  auto query=(Query)GetProcAddress(module,"Fifa16TrophyShelfStatus");auto command=(Command)GetProcAddress(module,"Fifa16TrophyRoomCommand");trophy_shelf::Status s;
  if(!query||!query(&s)||s.version!=2||s.size!=sizeof s||s.pid!=GetCurrentProcessId()||s.list||!s.detail||!s.ready)return false;
- detailPublication.update(s);if(s.selected>=detailPublication.rows.size())return false;const auto&row=detailPublication.rows[s.selected];auto&r=renderer;int label=12;
- shelfRounded(c,1070,213,474,572,0xfaffffff);r.rectangle(c,1092,235,4,46,uitheme::accent());
- auto lines=shelfLines(row.name);r.label(c,label++,lines.first,1112,233,408,31,23,RGB(38,55,65));r.label(c,label++,lines.second,1112,264,408,28,22,RGB(38,55,65));
- r.label(c,label++,std::to_wstring(row.titles)+(row.titles==1?L" conquista":L" conquistas"),1094,310,420,32,23,RGB(132,109,67));
- r.label(c,label++,L"ANO       CLUBE CAMPEÃO",1094,358,416,24,17,RGB(112,130,140));
- constexpr unsigned visible=7;const unsigned offset=std::min(s.detailScroll,row.titles>visible?row.titles-visible:0u);
+ detailPublication.update(s);if(s.selected>=detailPublication.rows.size())return false;
+ const auto&row=detailPublication.rows[s.selected];auto&r=renderer;int label=12;
+ const auto clubLines=shelfLines(row.clubName);const bool longClub=!clubLines.second.empty();
+ const unsigned height=trophy_shelf::historyHeight(row.titles,longClub),visible=trophy_shelf::historyRows;
+ const unsigned shown=std::min(visible,row.titles),offset=std::min(s.detailScroll,row.titles>visible?row.titles-visible:0u);
+ using Height=BOOL(WINAPI*)(unsigned);auto setHeight=(Height)GetProcAddress(module,"Fifa16TrophyRoomSetHistoryHeight");if(setHeight)setHeight(height);
+ static clubgfx::Texture cup;static std::array<clubgfx::Texture,trophy_shelf::historyRows>crests;static ID3D11Device*cachedDevice=nullptr;
+ if(cachedDevice!=r.device){cup.clear();for(auto&t:crests)t.clear();cachedDevice=r.device;}
+ shelfRounded(c,1074,220,474,float(height),0x240d1820);shelfRounded(c,1070,213,474,float(height),0xfffafbfb);
+ shelfRounded(c,1094,232,426,44,0xfff1ede4);
+ const unsigned ordinal=s.page*30+s.selected;const bool canLeft=ordinal+1<s.total,canRight=ordinal>0;
+ for(unsigned side=0;side<2;++side){const bool enabled=side?canRight:canLeft;const float x=side?1242.f:1102.f;
+  shelfRounded(c,x,240,30,28,enabled?0xffe5dcc8:0xffedece8);r.label(c,label++,side?L"›":L"‹",int(x),239,30,28,25,enabled?RGB(132,109,67):RGB(181,181,173),true);}
+ r.label(c,label++,trophy_shelf::position(s),1140,240,92,28,19,RGB(102,85,51),true);
+ r.label(c,label++,std::to_wstring(row.titles)+(row.titles==1?L" conquista":L" conquistas"),1284,241,220,26,18,RGB(132,109,67),true);
+ gameImage(r.device,cup,art,{row.thumbnail,"data/ui/imgassets/trophy/t"+std::to_string(row.trophy)+".dds"});containImage(c,cup,1094,289,90,112);
+ r.label(c,label++,s.collection?L"TÍTULO DO TREINADOR":L"TÍTULO DO CLUBE",1200,290,310,22,15,RGB(137,119,80));
+ auto lines=shelfLines(row.name);r.label(c,label++,lines.first,1200,320,310,32,24,RGB(38,55,65));r.label(c,label++,lines.second,1200,353,310,32,24,RGB(38,55,65));
+ r.rectangle(c,1094,416,426,1,0xffe1e6e8);
+ if(row.titles==1){
+  r.label(c,label++,L"CLUBE CAMPEÃO",1094,432,426,22,15,RGB(117,132,139));
+  gameImage(r.device,crests[0],art,{"data/ui/imgAssets/crest/light/l"+std::to_string(row.club)+".dds"});containImage(c,crests[0],1094,465,46,54);
+  r.label(c,label++,clubLines.first,1156,464,356,32,25,RGB(42,61,73));
+  if(longClub)r.label(c,label++,clubLines.second,1156,495,356,30,24,RGB(42,61,73));
+  const int y=longClub?530:504;r.label(c,label++,L"CONQUISTADO EM",1156,y,356,20,14,RGB(137,119,80));
+  r.label(c,label++,trophy_shelf::wonDate(row.date),1156,y+23,356,30,23,RGB(68,88,100));
+ }else{
+  r.label(c,label++,L"DATA",1106,448,115,22,15,RGB(117,132,139));r.label(c,label++,L"CLUBE CAMPEÃO",1232,448,276,22,15,RGB(117,132,139));
+  for(unsigned i=0;i<shown&&i+offset<row.wins.size();++i){const auto&w=row.wins[i+offset];const float y=482+i*44.f;
+   shelfRounded(c,1094,y,420,40,i%2?0xfffafbfb:0xfff0f3f3);r.label(c,label++,trophy_shelf::wonDate(w.date),1106,int(y)+4,115,32,19,RGB(52,73,85));
+   gameImage(r.device,crests[i],art,{"data/ui/imgAssets/crest/light/l"+std::to_string(w.club)+".dds"});containImage(c,crests[i],1230,y+5,25,29);
+   r.label(c,label++,wide(w.clubName),1268,int(y)+4,238,32,21,RGB(42,61,73));}
+  if(row.titles>visible){const float track=shown*44.f,thumb=std::max(24.f,track*visible/row.titles);r.rectangle(c,1524,482,5,track,0xffe2e7eb);r.rectangle(c,1524,482+(track-thumb)*offset/(row.titles-visible),5,thumb,uitheme::accent());}
+ }
+ const int footer=213+height-44;r.rectangle(c,1094,float(footer-12),426,1,0xffe1e6e8);
+ r.label(c,label++,row.titles==1?L"Conquista confirmada na carreira":L"Da conquista mais recente para a mais antiga",1094,footer,426,25,16,RGB(126,112,83));
  if(command&&s.detailScroll!=offset){const auto text="detail_scroll_"+std::to_string(offset);command(text.c_str());}
- static std::array<clubgfx::Texture,visible>crests;static ID3D11Device*cachedDevice=nullptr;
- if(cachedDevice!=r.device){for(auto&t:crests)t.clear();cachedDevice=r.device;}
- for(unsigned i=0;i<visible&&i+offset<row.wins.size();++i){const auto&w=row.wins[i+offset];float y=397+i*43.f;r.rectangle(c,1094,y+39,416,1,0xffe6eaed);
-  r.label(c,label++,std::to_wstring(w.year),1094,y,65,32,21,RGB(44,63,76));gameImage(r.device,crests[i],art,{"data/ui/imgAssets/crest/light/l"+std::to_string(w.club)+".dds"});containImage(c,crests[i],1172,y+2,26,28);
-  r.label(c,label++,wide(w.clubName),1210,y,300,32,21,RGB(44,63,76));}
- if(row.titles>visible){const float track=300,thumb=std::max(24.f,track*visible/row.titles);r.rectangle(c,1524,397,5,track,0xffe2e7eb);r.rectangle(c,1524,397+(track-thumb)*offset/(row.titles-visible),5,thumb,uitheme::accent());}
- r.label(c,label++,L"Cada título mantém seu ano e clube de origem",1094,741,422,28,17,RGB(113,130,140));
  POINT p{};auto window=GetForegroundWindow();DWORD pid=0;GetWindowThreadProcessId(window,&pid);
- if(command&&pid==GetCurrentProcessId()&&GetCursorPos(&p)&&ScreenToClient(window,&p)){float x=(p.x-r.left)/r.scale,y=(p.y-r.top)/r.scale;int wheel=wheelDelta.exchange(0);if(wheel)command(trophy_shelf::historyContains(x,y)?(wheel>0?"detail_up":"detail_down"):(wheel>0?"zoom_in":"zoom_out"));
+ if(command&&pid==GetCurrentProcessId()&&GetCursorPos(&p)&&ScreenToClient(window,&p)){
+  const float x=(p.x-r.left)/r.scale,y=(p.y-r.top)/r.scale;const int wheel=wheelDelta.exchange(0);
+  if(wheel)command(trophy_shelf::historyContains(x,y,float(height))?(wheel>0?"detail_up":"detail_down"):(wheel>0?"zoom_in":"zoom_out"));
   static bool held=false,drag=false;const bool down=(GetAsyncKeyState(VK_LBUTTON)&0x8000)!=0;
-  if(down&&!held)drag=x>=1515&&x<=1536&&y>=397&&y<=697;held=down;if(!down)drag=false;
-  if(drag&&row.titles>visible){unsigned desired=unsigned(std::clamp((y-397)/300.f,0.f,1.f)*(row.titles-visible));const auto text="detail_scroll_"+std::to_string(desired);command(text.c_str());}
+  if(down&&!held&&y>=240&&y<=268){if(canLeft&&x>=1102&&x<=1132)command("camera");else if(canRight&&x>=1242&&x<=1272)command("previous");}
+  const float track=shown*44.f;
+  if(down&&!held)drag=row.titles>visible&&x>=1515&&x<=1536&&y>=482&&y<=482+track;
+  held=down;if(!down)drag=false;
+  if(drag&&row.titles>visible){const unsigned desired=unsigned(std::clamp((y-482)/track,0.f,1.f)*(row.titles-visible));const auto text="detail_scroll_"+std::to_string(desired);command(text.c_str());}
  }
  return true;
 }

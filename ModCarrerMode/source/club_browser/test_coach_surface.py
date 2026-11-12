@@ -5,6 +5,14 @@ from PIL import Image
 from coach_surface import hair_matte,prepare,manager
 
 class CoachSurface(unittest.TestCase):
+ def test_supplied_amorim_and_farke_cutouts_survive_material_preparation(self):
+  a=np.full((120,120,4),[60,45,30,255],dtype='u1');a[100:,40:68,3]=0
+  v=np.zeros(3,dtype=[('p','f4',3),('n','f4',3),('uv','f4',2)]);v['p'][:,1]=170;v['n']=[0,0,1];v['uv']=[[.34,.84],[.99,.84],[.34,.99]]
+  for source in [190226,190236]:
+   part={'v':v,'idx':np.arange(3,dtype='u4'),'texture':0,'asset':f'data/sceneassets/slc/specificmanager_{source}_0_0.rx3','blend':0,'alpha':1,'coeff':-1}
+   rig={'id':100000999,'bones':[{}]*31,'parts':[part],'textures':[(120,120,3,a.tobytes())]};out,report=prepare(rig)
+   self.assertTrue(report['hairMasks'][0]['sourceContainsAuthoredAlpha']);self.assertFalse(report['hairMasks'][0]['approximateMask'])
+   rgba=np.frombuffer(out['textures'][out['parts'][0]['texture']][3],dtype='u1').reshape(120,120,4);np.testing.assert_array_equal(rgba[:,:,3],a[:,:,3])
  def test_new_native_id_and_authored_hair_alpha_are_preserved(self):
   self.assertTrue(manager({'id':100000999,'bones':[{}]*31,'parts':[{'asset':'data/sceneassets/manager_market/211/model_0.rx3'}]}))
   a=np.full((120,120,4),255,dtype='u1');a[100:,45:65,3]=0;a[20:30,20:30,3]=0

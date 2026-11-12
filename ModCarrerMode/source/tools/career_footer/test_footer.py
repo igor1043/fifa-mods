@@ -242,6 +242,12 @@ class FooterTests(unittest.TestCase):
         self.hub.set('mcToggleMenu',None)
         self.assert_commands(self.result())
 
+    def test_server_shortcut_describes_both_required_buttons_once(self):
+        self.setup_vm([],[],[])
+        shortcuts=[item for item in self.result() if self.icon(item)=='START']
+        self.assertEqual(len(shortcuts),1)
+        self.assertEqual(self.label(shortcuts[0]).encode('latin1').decode('utf-8'),'Select + Start · Server16')
+
     def test_installed_revision_rejects_repeated_wrapping(self):
         with self.assertRaisesRegex(ValueError,'already installed'):
             build.generate(self.output,Path(self.temp.name)/'repeat.big')

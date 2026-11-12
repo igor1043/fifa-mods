@@ -1,5 +1,5 @@
 """Emit the profile's native AVM controller using the common screen helpers."""
-from profile_layout import TAB_X
+from profile_layout import TAB_X,TITLE_TOP,TITLE_STEP,HISTORY_THUMB_MIN
 from profile_art import STATUS_TONES
 
 def emit(a,scenes,*,R,T,P,ix,add,mul,lt,EQ,both,either,clamp,div,CALL,PATH,field,show):
@@ -45,17 +45,24 @@ def emit(a,scenes,*,R,T,P,ix,add,mul,lt,EQ,both,either,clamp,div,CALL,PATH,field
  a.when(EQ(tab,2),lambda a:a.set(R(1),'profileRows',ix(p,25)),lambda a:a.when(EQ(tab,4),lambda a:a.set(R(1),'profileRows',ix(p,27)),lambda a:a.set(R(1),'profileRows',ix(p,24))))
  a.set(R(1),'historyPages',CALL(PATH('Math'),'max',1,('bin',11,P(T('profileRows'),'length'),2)));a.set(R(1),'historyPage',clamp(T('historyPage'),0,('bin',11,T('historyPages'),1)))
  field(a,root,'historyPage',add(add(add('Página ',add(T('historyPage'),1)),add(' de ',T('historyPages'))),add(' · ',add(P(T('profileRows'),'length'),' registros'))),history)
+ def title_caption(a):
+  count=P(T('profileRows'),'length')
+  field(a,root,'scope',add(count,' títulos conquistados nesta carreira · Mais recentes primeiro'))
+  first=CALL(PATH('Math'),'min',count,add(T('historyPage'),1));last=CALL(PATH('Math'),'min',count,add(T('historyPage'),3))
+  field(a,root,'historyPage',add(add(add(add(first,'–'),last),' de '),add(count,' títulos')))
+ a.when(EQ(tab,2),title_caption)
  field(a,root,'historyLeft','‹',history);field(a,root,'historyRight','›',history)
  field(a,root,'emptyProfile','Nenhuma passagem registrada nesta carreira.',both(EQ(tab,1),EQ(P(T('profileRows'),'length'),0)))
  a.when(EQ(tab,2),lambda a:field(a,root,'emptyProfile','Nenhum título confirmado nesta carreira.',EQ(P(T('profileRows'),'length'),0)))
  for i in range(3):
   idx=add(T('historyPage'),i);r=ix(T('profileRows'),idx);present=both(history,lt(idx,P(T('profileRows'),'length')));y=315+i*182
   for name in ('entryName','entryStatus','entryDates','entryTotal','entryHome','entryAway'):field(a,root,name+str(i),'',False)
+  for name in ('titleName','titleDate','titleClub','titleYear'):field(a,root,name+str(i),'',False)
   for j in range(6):
    field(a,root,'entryValue'+str(i)+'_'+str(j),'',False);a.set(P(root,'entryLabel'+str(i)+'_'+str(j)),'_visible',False)
   def row(a,i=i,r=r,y=y):
-   show(a,root,'entryCard'+str(i),490,y)
    def passage(a):
+    show(a,root,'entryCard'+str(i),490,y)
     show(a,root,add('entry'+str(i)+'_',ix(r,1)),510,y+18)
     for name,value in (('entryName',ix(r,0)),('entryStatus',add(ix(r,4),add(' · ',ix(r,11)))),('entryDates',add(ix(r,2),add(' · ',ix(r,3)))),('entryHome',ix(r,12))):field(a,root,name+str(i),value)
     def status_tag(a):
@@ -66,12 +73,24 @@ def emit(a,scenes,*,R,T,P,ix,add,mul,lt,EQ,both,either,clamp,div,CALL,PATH,field
     for side,col,x in (('Home',6,609),):
      show(a,root,'entry'+side+'Track'+str(i),x,y+151);show(a,root,'entry'+side+'Fill'+str(i),x,y+151);a.set(P(root,'entry'+side+'Fill'+str(i)),'_width',mul(11.67,ix(r,col)))
    def title(a):
-    show(a,root,add('trophy'+str(i)+'_',ix(r,1)),510,y+18)
-    show(a,root,add('cup'+str(i)+'_',add('cup_',CALL(ix(r,1),'substr',12))),1668,y+61)
-    show(a,root,add('entry'+str(i)+'_',ix(r,3)),610,y+83)
-    for name,value in (('entryName',ix(r,0)),('entryStatus',ix(r,4)),('entryDates',ix(r,5)),('entryTotal',ix(r,2))):field(a,root,name+str(i),value)
-    a.set(P(root,'entryTotal'+str(i)),'_x',700)
+    ty=TITLE_TOP+i*TITLE_STEP
+    for name,x,offset in (('titleCard',530,0),('titleWell',548,15),('titleYearBadge',1680,18),('titleTimelineDot',494,66)):
+     show(a,root,name+str(i),x,ty+offset)
+    show(a,root,add('titleCompetition'+str(i)+'_',ix(r,1)),696,ty+20)
+    show(a,root,add('titleCup'+str(i)+'_',add('cup_',CALL(ix(r,1),'substr',12))),554,ty+20)
+    show(a,root,add('titleCrest'+str(i)+'_',ix(r,3)),696,ty+101)
+    for name,value in (('titleName',ix(r,0)),('titleYear',ix(r,4)),('titleDate',ix(r,6)),('titleClub',ix(r,2))):field(a,root,name+str(i),value)
    a.when(EQ(tab,2),title,passage)
   a.when(present,row)
 
- a.when(history,lambda a:(show(a,root,'historyScrollTrack',1824,315),show(a,root,'historyScrollThumb',1824,315),a.set(P(root,'historyScrollThumb'),'_height',div(1590,CALL(PATH('Math'),'max',3,P(T('profileRows'),'length')))),a.set(P(root,'historyScrollThumb'),'_y',add(315,mul(div(T('historyPage'),CALL(PATH('Math'),'max',1,('bin',11,T('historyPages'),1))),('bin',11,530,div(1590,CALL(PATH('Math'),'max',3,P(T('profileRows'),'length')))))))))
+ def timeline_rail(a):
+  show(a,root,'titleTimelineRail',504,TITLE_TOP+77)
+  remaining=('bin',11,P(T('profileRows'),'length'),T('historyPage'))
+  a.set(P(root,'titleTimelineRail'),'_height',mul(TITLE_STEP,('bin',11,CALL(PATH('Math'),'min',3,remaining),1)))
+ a.when(both(EQ(tab,2),lt(1,P(T('profileRows'),'length'))),timeline_rail)
+ def scrollbar(a):
+  thumb=CALL(PATH('Math'),'max',HISTORY_THUMB_MIN,div(1590,CALL(PATH('Math'),'max',3,P(T('profileRows'),'length'))))
+  show(a,root,'historyScrollTrack',1822,315);show(a,root,'historyScrollThumb',1822,315)
+  a.set(P(root,'historyScrollThumb'),'_height',thumb)
+  a.set(P(root,'historyScrollThumb'),'_y',add(315,mul(div(T('historyPage'),CALL(PATH('Math'),'max',1,('bin',11,T('historyPages'),1))),('bin',11,530,thumb))))
+ a.when(both(history,lt(3,P(T('profileRows'),'length'))),scrollbar)

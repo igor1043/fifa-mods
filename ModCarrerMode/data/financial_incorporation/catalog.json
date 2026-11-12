@@ -1,0 +1,20 @@
+{
+  "schema": 1,
+  "path": "data/ui/game/screens/career/setup.big",
+  "amounts": [
+    0,
+    10000,
+    20000,
+    40000,
+    80000,
+    1000000,
+    5000000,
+    10000000,
+    50000000,
+    100000000,
+    200000000,
+    500000000
+  ],
+  "sha256": "9a8e3b0c9bfd9b343f3585a0d73fdd86b6feea1a0e90ba0fadd6327251e6d185",
+  "original_rows_preserved": true
+}

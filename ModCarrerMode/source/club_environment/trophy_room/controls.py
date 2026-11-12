@@ -3,9 +3,9 @@ LEFT,TOP,COLUMN,ROW,WIDTH,HEIGHT=60,838,370,29,350,26
 # mode: list, tour, inspection, free camera, loading. -1 is Back, -2 a hint.
 MODES=(
  (('A / Enter','Ver taça em 3D',4),('B / Esc','Voltar',-1),('LS / Setas','Navegar',-2),('LB / RB','Clube / treinador',5),('LT / G','Galeria',6),('RT / H','Sala 3D',7),('Y / PgDn','Próxima página',0)),
- (('A / Enter','Detalhes da taça',4),('B / Esc','Galeria',-1),('Y / F1','Próxima taça',0),('X / F2','Câmera livre',1),('LT / G','Galeria',6),('RT / H','Sala 3D',7)),
- (('B / Esc','Voltar',-1),('RS / Mouse','Rotacionar',-2),('LT / RT','Zoom',-2),('LS / Setas','Histórico',-2),('Y / F1','Próxima taça',0)),
- (('B / Esc','Galeria',-1),('LS / WASD','Andar',-2),('RS / Mouse','Olhar',-2),('LB / RB','Descer / subir',-2),('X / F2','Passeio',1),('LT / G','Galeria',6),('RT / H','Sala 3D',7)),
+ (('A / Enter','Detalhes da taça',4),('B / Esc','Galeria',-1),('LB / RB','Próxima / anterior',-2),('Y / F1','Próxima taça',0),('X / F2','Câmera livre',1),('LT / G','Galeria',6)),
+ (('B / Esc','Voltar',-1),('LB / RB','Próxima / anterior',-2),('RS / Mouse','Rotacionar',-2),('LT / RT','Zoom',-2),('LS / Setas','Histórico',-2),('X / F2','Câmera livre',1)),
+ (('B / Esc','Galeria',-1),('LS / WASD','Andar',-2),('RS / Mouse','Olhar',-2),('LB / RB','Descer / subir',-2),('X / F2','Ver taça',1),('LT / G','Galeria',6)),
  (('B / Esc','Voltar',-1),('LT / G','Galeria',6),('RT / H','Sala 3D',7)),
 )
 

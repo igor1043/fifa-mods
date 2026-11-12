@@ -7,29 +7,44 @@ namespace gallery_tour {
 using panorama::Pose;using panorama::Vec;
 struct Visit {unsigned slot=0;Pose wide{},detail{};};
 inline Pose overview(){return {{0,166,660},{0,155,-380},70};}
-inline Pose blend(Pose a,Pose b,float t){return {panorama::mix(a.eye,b.eye,t),panorama::mix(a.target,b.target,t),a.fov+(b.fov-a.fov)*t};}
-// Left bays run front-to-back on screen; right bays run back-to-front.
-// Preserve the physical slot ID for plaques, cup picking and gallery links.
-inline void spatialOrder(std::vector<Visit>&visits){
- std::stable_sort(visits.begin(),visits.end(),[](const Visit&a,const Visit&b){
-  const auto key=[](unsigned slot){return slot<15?14-slot:slot;};return key(a.slot)<key(b.slot);
- });
+inline Pose blend(Pose a,Pose b,float t){
+ t=std::clamp(t,0.f,1.f);if(t<=0)return a;if(t>=1)return b;
+ const auto da=a.target-a.eye,db=b.target-b.eye;
+ const float ya=std::atan2(da.x,-da.z),yb=std::atan2(db.x,-db.z);
+ const float pa=std::atan2(da.y,std::hypot(da.x,da.z)),pb=std::atan2(db.y,std::hypot(db.x,db.z));
+ const float yaw=ya+std::remainder(yb-ya,6.28318530718f)*t,pitch=pa+(pb-pa)*t;
+ const auto eye=panorama::mix(a.eye,b.eye,t);
+ const float distance=std::sqrt(panorama::dot(da,da))*(1-t)+std::sqrt(panorama::dot(db,db))*t;
+ const Vec forward{std::sin(yaw)*std::cos(pitch),std::sin(pitch),-std::cos(yaw)*std::cos(pitch)};
+ return {eye,eye+forward*std::max(1.f,distance),a.fov+(b.fov-a.fov)*t};
+}
+// The publication assigns slots from newest conquest to oldest. Pedestal
+// position must never reverse that order or change the gallery selection.
+inline void publicationOrder(std::vector<Visit>&visits){
+ std::stable_sort(visits.begin(),visits.end(),[](const Visit&a,const Visit&b){return a.slot<b.slot;});
 }
 inline bool valid(Pose p){for(float v:{p.eye.x,p.eye.y,p.eye.z,p.target.x,p.target.y,p.target.z,p.fov})if(!std::isfinite(v))return false;return p.fov>=25&&p.fov<=85&&std::abs(p.eye.x)<=600&&std::abs(p.eye.z)<=850&&p.eye.y>=70&&p.eye.y<=300;}
 struct Tour {
- std::vector<Visit> visits;int index=-1;bool detail=false,automatic=true;uint64_t changed=0;Pose from=overview();
- void reset(std::vector<Visit> next,uint64_t now){spatialOrder(next);visits=std::move(next);index=-1;detail=false;automatic=true;changed=now;from=overview();}
+ std::vector<Visit> visits;int index=-1;bool detail=false,automatic=false;uint64_t changed=0,duration=0;Pose from=overview();
+ void reset(std::vector<Visit> next,uint64_t now){publicationOrder(next);visits=std::move(next);index=visits.empty()?-1:0;detail=!visits.empty();automatic=false;changed=now;duration=0;from=target();}
  void replace(std::vector<Visit> next,uint64_t now){
-  const auto current=pose(now);const int slot=selected();spatialOrder(next);visits=std::move(next);index=-1;
+  const auto current=pose(now);const int slot=selected();const auto remaining=duration&&now<changed+duration?changed+duration-now:0;
+  publicationOrder(next);visits=std::move(next);index=-1;automatic=false;
   for(unsigned i=0;i<visits.size();++i)if(int(visits[i].slot)==slot){index=int(i);break;}
-  if(index<0)detail=false;from=current;changed=now;
+  if(index<0){index=visits.empty()?-1:0;detail=!visits.empty();duration=0;from=target();}
+  else{duration=remaining;from=remaining?current:target();}changed=now;
  }
  Pose target()const{return index<0||visits.empty()?overview():(detail?visits[index].detail:visits[index].wide);}
- Pose pose(uint64_t now)const{return gallery_tour::blend(from,target(),panorama::smooth(float(now-changed)/1300.f));}
- void step(int delta,uint64_t now,bool manual=true){if(manual)automatic=false;if(visits.empty())return;from=pose(now);index=index<0?(delta>0?0:int(visits.size())-1):(index+delta+int(visits.size()))%int(visits.size());changed=now;}
- void details(bool on,uint64_t now){if(on)automatic=false;if(visits.empty())return;from=pose(now);if(index<0)index=0;detail=on;changed=now;}
- void select(int next,uint64_t now){if(next<0||next>=int(visits.size()))return;automatic=false;from=pose(now);index=next;detail=true;changed=now;}
- void tick(uint64_t now){if(automatic&&!detail&&now-changed>=9000)step(1,now,false);}
+ Pose pose(uint64_t now)const{return duration?gallery_tour::blend(from,target(),panorama::smooth(now>=changed?float(now-changed)/float(duration):0.f)):target();}
+ void transition(Pose current,uint64_t now){from=current;changed=now;const auto distance=target().eye-current.eye;duration=uint64_t(std::clamp(350.f+std::sqrt(panorama::dot(distance,distance))*.35f,350.f,850.f));}
+ void step(int delta,uint64_t now,bool=true){
+  automatic=false;if(visits.empty())return;
+  const int next=index<0?(delta>0?0:int(visits.size())-1):std::clamp(index+delta,0,int(visits.size())-1);
+  if(next==index){if(!detail)details(true,now);return;}const auto current=pose(now);index=next;detail=true;transition(current,now);
+ }
+ void details(bool on,uint64_t now){automatic=false;if(visits.empty())return;if(index<0)index=0;detail=on;from=target();changed=now;duration=0;}
+ void select(int next,uint64_t now){if(next<0||next>=int(visits.size()))return;automatic=false;index=next;detail=true;from=target();changed=now;duration=0;}
+ void tick(uint64_t){} // Manual selection only; elapsed time never changes cups.
  int selected()const{return index>=0&&!visits.empty()?int(visits[index].slot):-1;}
 };
 inline int pick(const std::vector<Visit>&visits,Pose camera,float aspect,float nx,float ny){

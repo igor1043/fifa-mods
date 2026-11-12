@@ -9,10 +9,11 @@ def build(market,base_person,user_confidence=None):
     if not person:raise ValueError('Técnico fora desta carreira')
     visits=market.rows('appointments','coach_id=?',(coach,))
     ids=tuple(a['id'] for a in visits)
-    clubs={a['club_id'] for a in visits}
+    from coach_titles import read as read_titles
+    honours=read_titles(market,coach)
+    clubs={a['club_id'] for a in visits}|{h['club_id'] for h in honours}
     club_rows={r['club_id']:r for r in market.rows('clubs','club_id IN ('+','.join('?' for _ in clubs)+')',tuple(clubs))} if clubs else {}
     results=market.rows('results','(home_coach=? OR away_coach=?)',(coach,coach))
-    honours=market.rows('honours','coach_id=?',(coach,))
     moves=market.rows('movements','coach_id=?',(coach,))
     renewals={m['id'] for m in moves if m['kind']=='renewal'}
     for a in visits:a['renewal']=a['id'] in renewals

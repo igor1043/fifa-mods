@@ -1297,3 +1297,34 @@ dlc/dlc_FootballCompEng/dlc/FootballCompEng/data/transfers.ini -text whitespace=
 "dlc/dlc_FootballCompEng/dlc/FootballCompEng/data/simsettings.ini" -text whitespace=cr-at-eol
 "dlc/dlc_FootballCompEng/dlc/FootballCompEng/data/transfer.ini" -text whitespace=cr-at-eol
 "dlc/dlc_FootballCompEng/dlc/FootballCompEng/data/transfers.ini" -text whitespace=cr-at-eol
+
+# Preserve validated shared source bytes.
+"ModCarrerMode/source/server16_py/financial_incorporation_ui.py" -text whitespace=cr-at-eol
+"ModCarrerMode/source/server16_py/movie_options.py" -text whitespace=cr-at-eol
+"ModCarrerMode/source/server16_py/presentation_options_catalog.py" -text whitespace=cr-at-eol
+"ModCarrerMode/source/server16_py/scoreboard_options.py" -text whitespace=cr-at-eol
+"ModCarrerMode/source/server16_py/scoreboard_options_ui.py" -text whitespace=cr-at-eol
+"ModCarrerMode/source/server16_py/stadium_options.py" -text whitespace=cr-at-eol
+"ModCarrerMode/source/server16_py/stadium_options_nav.py" -text whitespace=cr-at-eol
+"ModCarrerMode/source/server16_py/stadium_options_ui.py" -text whitespace=cr-at-eol
+"ModCarrerMode/source/tests/native_input_gate_test.cpp" -text whitespace=cr-at-eol
+"ModCarrerMode/source/tests/test_asset_runtime_flow.py" -text whitespace=cr-at-eol
+"ModCarrerMode/source/tests/test_financial_incorporation_ui.py" -text whitespace=cr-at-eol
+"ModCarrerMode/source/tests/test_match_presentation_options.py" -text whitespace=cr-at-eol
+"ModCarrerMode/source/tests/test_scoreboard_options.py" -text whitespace=cr-at-eol
+
+"ModCarrerMode/source/tests/test_session_logs.py" -text whitespace=cr-at-eol
+
+"ModCarrerMode/source/tools/career_header/build.py" -text whitespace=cr-at-eol
+
+"ModCarrerMode/source/tools/prematch_footer.py" -text whitespace=cr-at-eol
+
+"ModCarrerMode/data/financial_incorporation/catalog.json" -text whitespace=cr-at-eol
+
+"ModCarrerMode/data/scoreboard_selector/catalog.json" -text whitespace=cr-at-eol
+
+"ModCarrerMode/source/mascot_photographer/profiles/native_managers_20261112.json" -text whitespace=cr-at-eol
+
+"ModCarrerMode/source/tools/career_header/verify.py" -text whitespace=cr-at-eol
+
+"data/ui/nav/settingsflow.nav" -text whitespace=cr-at-eol

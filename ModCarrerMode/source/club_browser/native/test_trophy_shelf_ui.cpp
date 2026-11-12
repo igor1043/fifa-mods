@@ -36,6 +36,15 @@ int wmain(int argc,wchar_t**argv){
  context->CopyResource(copy.Get(),color.Get());assert(SUCCEEDED(context->Map(copy.Get(),0,D3D11_MAP_READ,0,&m)));std::ofstream history(fs::path(argv[2])/L"history-preview.rgba",std::ios::binary);
  for(unsigned y=0;y<900;++y){auto*row=static_cast<unsigned char*>(m.pData)+y*m.RowPitch;history.write((const char*)row,1600*4);if(y>840)for(unsigned x=0;x<1600;++x)assert(row[x*4]<30&&row[x*4+1]<30&&row[x*4+2]<30);}
  context->Unmap(copy.Get(),0);
+ // A single conquest has a compact card, its exact date and one winning
+ // club. It must leave the unused lower viewport available to the camera.
+ shelfFixture.selected=0;shelfFixture.total=4;shelfFixture.detailScroll=0;detailPublication.state=shelfFixture;detailPublication.next=GetTickCount64()+60000;
+ detailPublication.rows[0]=shelfPublication.rows[2];detailPublication.rows[0].year=2027;detailPublication.rows[0].date=20271205;
+ context->ClearRenderTargetView(target.Get(),gray);
+ {clubgfx::UiPass saved(context.Get(),renderer.uiPipeline);renderer.begin(context.Get(),target.Get(),1600,900);renderer.normal(context.Get());assert(drawTrophyHistory(context.Get(),GetModuleHandleW(nullptr)));}
+ context->CopyResource(copy.Get(),color.Get());assert(SUCCEEDED(context->Map(copy.Get(),0,D3D11_MAP_READ,0,&m)));std::ofstream single(fs::path(argv[2])/L"single-history-preview.rgba",std::ios::binary);
+ for(unsigned y=0;y<900;++y){auto*row=static_cast<unsigned char*>(m.pData)+y*m.RowPitch;single.write((const char*)row,1600*4);if(y>=660)for(unsigned x=1070;x<1544;++x)assert(row[x*4]<30&&row[x*4+1]<30&&row[x*4+2]<30);}
+ context->Unmap(copy.Get(),0);single.close();shelfFixture.selected=0;shelfFixture.total=18;
  // Render the same native gallery over FIFA's existing BOOTFLOW artwork.
  // This is a visual preview only; the running game supplies this image through
  // its own background provider, behind the UI and its original help footer.

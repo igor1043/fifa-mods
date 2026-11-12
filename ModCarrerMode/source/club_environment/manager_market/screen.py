@@ -406,12 +406,24 @@ def script_factory(model,assets):
   def drag_scroll(a):
    for mode,key,top,height,visible,rows in ((1,'hirePage',MOVE_TOP,MOVE_HEIGHT,4,'monthHires'),(2,'movePage',MOVE_TOP,MOVE_HEIGHT,4,'monthMoves'),(3,'historyPage',315,530,3,'profileRows'),(4,'timelinePage',365,522,3,'timelineRows')):
     def drag(a,key=key,top=top,height=height,visible=visible,rows=rows):
-     count=P(T(rows),'length');thumb=div(height*visible,CALL(PATH('Math'),'max',visible,count));span=CALL(PATH('Math'),'max',1,sub(height,thumb));limit=CALL(PATH('Math'),'max',0,sub(count,visible))
-     target=floor(add(mul(clamp(div(sub(sub(T('_ymouse'),top),div(thumb,2)),span),0,1),limit),.5))
+     count=P(T(rows),'length');thumb=div(height*visible,CALL(PATH('Math'),'max',visible,count))
+     if key=='historyPage':thumb=CALL(PATH('Math'),'max',profile_layout.HISTORY_THUMB_MIN,thumb)
+     span=CALL(PATH('Math'),'max',1,sub(height,thumb));limit=CALL(PATH('Math'),'max',0,sub(count,visible))
+     grab=T('profileScrollGrab') if key=='historyPage' else div(thumb,2)
+     target=floor(add(mul(clamp(div(sub(sub(T('_ymouse'),top),grab),span),0,1),limit),.5))
      a.when(('not',EQ(T(key),target)),lambda a:(a.set(R(1),key,target),a.do(R(1),'Refresh')));a.ret()
     a.when(EQ(T('dragScroll'),mode),drag)
   a.function('DragScroll',0,drag_scroll)
-  a.function('StartScroll',1,lambda a:(a.set(R(1),'dragScroll',R(2)),a.do(R(1),'DragScroll')))
+  def start_scroll(a):
+   a.set(R(1),'dragScroll',R(2))
+   def history_grab(a):
+    thumb=CALL(PATH('Math'),'max',profile_layout.HISTORY_THUMB_MIN,div(1590,CALL(PATH('Math'),'max',3,P(T('profileRows'),'length'))))
+    top=add(315,mul(div(T('historyPage'),CALL(PATH('Math'),'max',1,sub(P(T('profileRows'),'length'),3))),sub(530,thumb)))
+    a.set(R(1),'profileScrollGrab',div(thumb,2))
+    inside=both(('not',lt(T('_ymouse'),top)),lt(T('_ymouse'),add(top,thumb)))
+    a.when(inside,lambda a:a.set(R(1),'profileScrollGrab',sub(T('_ymouse'),top)))
+   a.when(EQ(R(2),3),history_grab);a.do(R(1),'DragScroll')
+  a.function('StartScroll',1,start_scroll)
   a.function('ScrollPress',0,lambda a:a.do(P(R(1),'owner'),'StartScroll',sub(P(R(1),'code'),199)))
   a.function('ScrollRelease',0,lambda a:a.set(P(R(1),'owner'),'dragScroll',0))
   def warm_profile(a):
@@ -445,7 +457,7 @@ def script_factory(model,assets):
    a.when(T('yearMenu'),lambda a:(pointer(a,True),a.ret()))
    for mode,x,y,height,condition in ((1,945,MOVE_TOP,MOVE_HEIGHT,both(('not',T('profile')),EQ(T('tab'),1))),(2,1815,MOVE_TOP,MOVE_HEIGHT,both(('not',T('profile')),EQ(T('tab'),1))),(3,1824,315,530,both(T('profile'),either(either(EQ(T('profileTab'),1),EQ(T('profileTab'),2)),EQ(T('profileTab'),4)))),(4,1824,365,522,both(T('clubTimeline'),('not',T('profile'))))):
     inside=both(both(lt(x-12,T('_xmouse')),lt(T('_xmouse'),x+14)),both(lt(y-5,T('_ymouse')),lt(T('_ymouse'),y+height+5)))
-    a.when(both(condition,inside),lambda a,mode=mode:(a.set(R(1),'dragScroll',mode),a.do(R(1),'DragScroll'),a.ret()))
+    a.when(both(condition,inside),lambda a,mode=mode:(a.do(R(1),'StartScroll',mode),a.ret()))
    pointer(a,True)
   a.function('onMouseDown',0,mouse_down)
   a.function('onMouseMove',0,lambda a:a.when(lt(0,T('dragScroll')),lambda a:a.do(R(1),'DragScroll'),lambda a:pointer(a,False)))

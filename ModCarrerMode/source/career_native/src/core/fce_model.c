@@ -143,6 +143,16 @@ FceResult fce_model_build(const FceRawTable t[4],int date,FceModel *m) {
         a=t[1].bytes+(size_t)aslot*t[1].stride;
         f->id=(int)i; f->competition_object=r16(p,0x10); f->round=p[0x12];
         f->stage=fce_model_ancestor(m,f->competition_object,4);
+        /* Fixtures often point at the root throughout unsaved simulation.
+         * Their two resolved standing slots retain the actual phase. Require
+         * agreement and the same root; never borrow another cup's phase. */
+        if(f->stage<0) {
+            int root=fce_model_ancestor(m,f->competition_object,3);
+            int hs=fce_model_ancestor(m,r16(h,0x10),4);
+            int as=fce_model_ancestor(m,r16(a,0x10),4);
+            if(root>=0 && hs>=0 && hs==as &&
+               fce_model_ancestor(m,hs,3)==root) f->stage=hs;
+        }
         /* Real league fixtures also point directly to a type-3 competition,
          * with no type-4 ancestor. Its own native object scopes the round. */
         if(f->stage<0) f->stage=f->competition_object;

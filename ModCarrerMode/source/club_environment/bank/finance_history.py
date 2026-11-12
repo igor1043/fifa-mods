@@ -21,9 +21,14 @@ def observe(book,context,before,after):
         player_weekly=context.get('player_weekly'),wage_margin=context.get('wage_margin'),
         budget_initial=context.get('budget_initial'))
     # Unknown native totals must not erase a previously verified total.
-    native=row.setdefault('native_finance',{})
-    for k,v in context.get('native_finance',{}).items():
-        if v is not None or k not in native:native[k]=deepcopy(v)
+    from finance_prizes import merge,entries
+    incoming=context.get('native_finance',{})
+    row['native_finance']=merge(row.get('native_finance'),incoming,club=book['club'],year=year)
+    for past_year in {entry['date']//10000 for entry in entries(incoming,book['club']) if entry['date']//10000<year}:
+        past=years.setdefault(str(past_year),dict(year=past_year,club=book['club'],opening_budget=None,closing_budget=None,last_date=None,transfers=[],native_finance={}))
+        old=past.get('native_finance',{});added=entries(incoming,book['club'],past_year)
+        if {r['id'] for r in added}-{r['id'] for r in entries(old,book['club'],past_year)}:
+            past['native_finance']=merge(old,incoming,club=book['club'],year=past_year)
     transactions={tuple(t.get(k) for k in ('id','date','player','direction','fee','club','from','to')):t for t in row.get('transfers',[])}
     for t in context.get('transfers',[]):
         if t['date']//10000==year:
@@ -39,7 +44,9 @@ def years(state):
     for year in sorted(available,reverse=True):
         months=[deepcopy(r) for r in rows if r['month']//100==year]
         row=deepcopy(stored.get(str(year),dict(year=year,club=state['club'],opening_budget=None,closing_budget=None,last_date=None,transfers=[],native_finance={})))
-        row.update(months=months,income=sum(r['income'] for r in months),
+        from finance_prizes import entries
+        prizes=sum(r['amount'] for r in entries(row.get('native_finance'),state['club'],year))
+        row.update(months=months,income=sum(r['income'] for r in months)+prizes,prizes=prizes,
             expenses=sum(-r['coach']-r['staff']-r['facilities']-r['match_costs']-r['interest'] for r in months))
         row['result']=row['income']-row['expenses'];out.append(row)
     return out

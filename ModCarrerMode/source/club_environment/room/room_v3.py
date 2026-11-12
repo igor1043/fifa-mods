@@ -27,7 +27,7 @@ PREFIX = 'data/sceneassets/server16_dressing_room_v3/'
 CONFIG = 'ModCarrerMode/data/club_environment/room/locker-system-v3.json'
 ACTIVE = 'ModCarrerMode/data/club_environment/room/active-version.txt'
 CAPACITY = 38
-REVISION = 21
+REVISION = 22
 FLOOR_TILE_CM = 60.
 TOE_KICK_BOTTOM, TOE_KICK_TOP, TOE_KICK_RECESS = 1000.5, 1002.5, .4
 CEILING_Y = 1338.
@@ -142,6 +142,8 @@ def obstacles(items):
     # The table is rendered at x ±160, z 77..213, height 86.5 cm. Camera
     # collision uses room-local coordinates; do not add the render origin.
     result.append({'name':'Current Dressing Room / central table','lo':[-160,3,77],'hi':[160,86.5,213]})
+    from room_hydration_wall import obstacle as hydration_wall_obstacle
+    result.append(hydration_wall_obstacle(CEILING_Y))
     from room_annex_doors import obstacles as door_obstacles
     from room_fitted_shell import obstacles as fitted_obstacles
     return fitted_obstacles(door_obstacles(result))
@@ -568,6 +570,10 @@ def stage(game, output):
                 empty.append(f'room_part_{slot+1}')
         report['empty_submeshes'][name] = empty
     report['preserved'] = ['next_match_board', 'coach_room', 'medical_department', 'all_doorways', 'exit_paths', 'collision_layout']
+    from room_hydration_wall import repair as repair_hydration_wall
+    hydration_shell=Rx3((output/'room_roles.rx3').read_bytes())
+    report['hydration_wall']=repair_hydration_wall(hydration_shell,CEILING_Y)
+    (output/'room_roles.rx3').write_bytes(hydration_shell.build())
     # Content-addressed paths force fresh native resources on a room re-entry.
     report['model_files']={}
     for name in list(MODELS.values())+['locker_bay.rx3','fascia.rx3','crests.rx3','joinery.rx3','ceiling_details.rx3','logo_mount.rx3','feature_wall.rx3','furniture_wood.rx3','exit_door.rx3']:

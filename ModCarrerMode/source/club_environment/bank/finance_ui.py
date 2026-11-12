@@ -17,10 +17,11 @@ from native_screen import build as build_native,neighbors,arr
 from layout import Scene,INK,BLUE,MUTED,WHITE,PAPER,LIGHT
 from club_finance import monthly,SWITCHES
 from loans import parse_date
+import finance_footer
 
 CLASS=('game','screens','career','server16','ClubFinance');FULL='.'.join(CLASS);PAGE='/'.join(CLASS)
 TABS=(('overview','Visão geral'),('receipts','Receitas'),('expenses','Despesas'),('transfers','Transferências'),('salaries','Salários'),('loans','Dívidas'),('budget','Orçamento'),('settings','Configurações'))
-ROOT_TABS={'contracts':'receipts','tickets':'receipts','tv':'receipts','sponsors':'receipts','members':'receipts','statement':'budget','monthly':'overview','history':'overview','year':'overview'}
+ROOT_TABS={'contracts':'receipts','tickets':'receipts','tv':'receipts','sponsors':'receipts','members':'receipts','prizes':'receipts','statement':'budget','monthly':'overview','history':'overview','year':'overview'}
 
 def root_tab(key):return ROOT_TABS.get(key.split(':')[0],key.split(':')[0])
 R=b.reg;T=b.this;P=b.prop;EQ=b.equal;CALL=b.call;M=b.MANAGER;ION=b.ION
@@ -157,9 +158,10 @@ def script(data,dictionaries,items,view):
  def bind(a):
   last=P(settings_clip,'switchOn'+str(len(SWITCHES)-1))
   a.when(('not',('bin',16,P(T('scene0'),'action0'),last)),lambda a:a.ret())
-  a.set(R(1),'onEnterFrame',None);a.set(R(1),'pollFrames',0)
-  a.when(pending,lambda a:a.set(R(1),'onEnterFrame',T('Poll')))
-  if not view.get('ready'):a.set(R(1),'onEnterFrame',T('Poll'))
+  a.set(R(1),'onEnterFrame',T('FinanceFrame'));a.set(R(1),'pollFrames',0)
+  a.set(R(1),'financeHelpFrames',0);a.set(R(1),'financePolling',False)
+  a.when(pending,lambda a:a.set(R(1),'financePolling',True))
+  if not view.get('ready'):a.set(R(1),'financePolling',True)
   a.do(M('InputManager'),'SetLocalEventHandler',CALL(b.path('cafe','utility','Delegate'),'Create',R(1),T('LocalEventHandler')))
   a.do(R(1),'Refresh')
   a.do(M('ScreenManager'),'BeginAnimateIn',CALL(b.path('cafe','utility','Delegate'),'Create',R(1),T('OnAnimateInComplete')))
@@ -203,7 +205,7 @@ def script(data,dictionaries,items,view):
     a.do(R(1),'Money'+str(i))
    a.when(EQ(T('page'),i),selected)
   a.do(R(1),'RefreshSwitches')
-  a.do(M('HelpManager'),'Update')
+  a.do(R(1),'RefreshFinanceHelp')
  a.function('Refresh',0,refresh)
  def switches(a):
   for i in range(len(SWITCHES)):
@@ -239,7 +241,7 @@ def script(data,dictionaries,items,view):
        value=b.plus(b.plus('S16BANK_V3|'+view['nonce']+'|',b.G('Server16BankSequenceV2')),f'|2|{index}|')
        wire=b.plus(b.plus(value,('bin',12,T('setting'+str(index)),1)),f"|0|{view['date']}|END_S16BANK")
        a.do(ION,'SendSystemEvent','Calendar','Server16SubmitBank',wire)
-       a.set(R(1),'pollFrames',0);a.set(R(1),'onEnterFrame',T('Poll'))
+       a.set(R(1),'pollFrames',0);a.set(R(1),'financePolling',True)
       else:a.do(R(1),'Go',keys.get(action['target'],0))
       # Go changes page/focus. End this APT dispatch before the loop reaches
       # another scene and accidentally handles its newly selected first tab.
@@ -273,7 +275,7 @@ def script(data,dictionaries,items,view):
  def poll(a):
   a.set(R(1),'pollFrames',b.plus(T('pollFrames'),1))
   def slow(a):
-   a.set(R(1),'settingsFeedback','Aguardando confirmação do serviço. A opção ainda não foi confirmada.');a.do(R(1),'RefreshSwitches');a.set(R(1),'onEnterFrame',None)
+   a.set(R(1),'settingsFeedback','Aguardando confirmação do serviço. A opção ainda não foi confirmada.');a.do(R(1),'RefreshSwitches');a.set(R(1),'financePolling',False)
   a.when(('bin',103,T('pollFrames'),1799),slow)
  a.function('Poll',0,poll)
  def key(a):
@@ -283,13 +285,13 @@ def script(data,dictionaries,items,view):
    a.when(('bin',16,code,EQ(R(2),code)),handle)
   a.ret(True)
  a.function('LocalEventHandler',2,key)
- a.function('getHelpContext',0,lambda a:a.ret(arr(CALL(b.path('ion','manager','HelpItem'),'CreateHelpTickerItem',code,label) for code,label in (('ADVANCE','Selecionar'),('BACK','Voltar'),('L2R2','Abas'),('RAS_UD','Rolar lista')))))
+ finance_footer.emit(a,items)
  def shutdown(a):
   a.when(T('exiting'),lambda a:a.ret());a.set(R(1),'exiting',True)
   a.set(b.GLOBAL,'Server16FinanceReloading',('not',T('leaving')))
   a.set(b.GLOBAL,'Server16FinancePageKey',('index',arr(s['key'] for s in items),T('page')));a.set(b.GLOBAL,'Server16FinanceFocus',T('focus'))
   a.set(R(1),'onEnterFrame',None);a.do(R(1),'UnbindPage')
-  a.do(M('InputManager'),'DisableCurrentLocalEventHandler');a.do(M('HelpManager'),'Clear');a.do(R(1),'Shutdown')
+  a.do(M('InputManager'),'DisableCurrentLocalEventHandler');finance_footer.release(a);a.do(R(1),'Shutdown')
  a.function('OnExitScreen',0,shutdown);a.op(0);a.finish();a.align();registration=len(data);data.extend(dictionaries[1])
  a.string(FULL);a.op(28);a.string(FULL);a.expr(2);a.expr(b.path('Object'));a.method('registerClass');a.op(23);a.op(0);a.finish()
  return start,registration

@@ -2510,6 +2510,27 @@
               "targets": [
                 "MainMenuHub"
               ]
+            },
+            {
+              "event": "Server16RefreshGameSettings",
+              "actions": [
+                [
+                  "unloadView",
+                  [
+                    "screen",
+                    "game/screens/settings/GameSettings"
+                  ]
+                ],
+                [
+                  "loadView",
+                  [
+                    "screen",
+                    "game/screens/settings/GameSettings",
+                    "",
+                    ""
+                  ]
+                ]
+              ]
             }
           ]
         },

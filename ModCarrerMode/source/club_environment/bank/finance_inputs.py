@@ -4,10 +4,12 @@ import csv,json,sys
 from club_finance import median_value
 
 class FinanceInputs:
- def __init__(self,game):
+ def __init__(self,game,memory=None):
   self.game=Path(game)
   sys.path.insert(0,str(self.game/'ModCarrerMode/source/club_browser'))
   self.cache=None;self.last_signature=None;self.last=None;self.details_signature=None;self.details={}
+  from finance_prizes import NativePrizes
+  self.prizes=NativePrizes(memory)
 
  def read(self,save,live,*,pid,userid,created=None):
   game=self.game;save=Path(save)
@@ -21,8 +23,11 @@ class FinanceInputs:
    from career_publication import read
    snapshot=read(game,dict(path=str(save),pid=pid,process_created_100ns=created),live['date'],epoch=live['context_epoch'],club=live['club'])
    if snapshot is None:raise ValueError('Aguardando a publicação da carreira recarregada')
+  awards=self.prizes.read(pid=pid,club=live['club'],today=live['date'],epoch=live.get('context_epoch'),
+   context_address=live['address']-0x2ac if live.get('address') else None)
+  awards=dict(awards,entries=[dict(row) for row in awards.get('entries',[])])
   signature=(save.stat().st_mtime_ns,save.stat().st_size,live['club'],live['date'],live.get('context_epoch'),snapshot.get('generation'),
-    tuple(tuple(f) for f in snapshot['fixtures']))
+    tuple(tuple(f) for f in snapshot['fixtures']),json.dumps(awards,sort_keys=True))
   if signature==self.last_signature:return self.last
   if self.cache is None:
    from lineup_data import ProjectionCache
@@ -164,6 +169,9 @@ class FinanceInputs:
    self.details_signature=detail_signature
   result.update(self.details)
   from finance_report import native_view
-  result['native_finance']=native_view(rows,club=club,season=season,today=live['date'])
+  for entry in awards.get('entries',[]):
+   resolved=root(entry['competition']);asset=resolved[1] if resolved else 0
+   entry.update(asset=asset,name=labels.get(asset,'Competição '+str(entry['competition'])))
+  result['native_finance']=native_view(rows,club=club,season=season,today=live['date'],prizes=awards)
   self.last_signature=signature;self.last=result
   return result

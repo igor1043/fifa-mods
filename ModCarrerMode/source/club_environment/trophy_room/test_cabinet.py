@@ -33,6 +33,11 @@ class CabinetTests(unittest.TestCase):
                 self.assertEqual(result['pages'],3);self.assertLessEqual(len(result['rows']),18)
                 self.assertTrue(all(r['trophy']==1003 and r['club_name']=='Clube '+str(r['club']) for r in result['rows']))
         self.assertEqual(len(seen),41);self.assertEqual(len({r['root'] for r in seen}),41)
+    def test_thumbnail_uses_competition_mapping_even_when_the_graph_id_collides(self):
+        row=dict(self.rows(1)[0],competition=1003,root=1460)
+        with patch.object(cabinet.assets,'club_identity',return_value=(self.identity,{})):
+            self.assertEqual(1003,cabinet.records(self.game,self.req,{1460:1007},[row])[0]['trophy'])
+            self.assertEqual(77,cabinet.records(self.game,self.req,{1460:1007,1003:77},[row])[0]['trophy'])
     def test_changed_save_or_collection_cannot_publish_stale_titles(self):
         self.req['collection']='club';self.publish_request();stale=dict(self.req,collection='coach')
         with patch.object(cabinet.assets,'club_identity',return_value=(self.identity,{})),self.assertRaises(InterruptedError):

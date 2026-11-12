@@ -254,7 +254,7 @@ class Bridge:
         self.last_advance=(None,None)
         self.nonce=f'B57_{process.pid}_{self.club}_{secrets.token_hex(6)}';self.view_signature=None;self.ui_signature=None;self.feedback=''
         from finance_inputs import FinanceInputs
-        self.finance_reader=FinanceInputs(GAME);self.finance_next=0.;self.finance_ack=0
+        self.finance_reader=FinanceInputs(GAME,memory=self.memory);self.finance_next=0.;self.finance_ack=0
         self.finance_signature=None;self.finance_error=None;self.finance_context=None;self.finance_result=None
         self.reset_finance_presentation()
         if self.apply:
@@ -755,8 +755,9 @@ class Bridge:
         view.update(budget_initial=context.get('budget_initial'),player_weekly=context.get('player_weekly'),
             wage_margin=self.memory.read_uint32(self.context_address+0x2a8) if self.live_wage_valid else self.saved_wage_budget)
         from finance_people import debts
+        from finance_prizes import project as prize_history
         view.update(players=context.get('players',[]),transfers=context.get('transfers',[]),
-            native_finance=context.get('native_finance',{}),
+            native_finance=prize_history(book,context.get('native_finance',{}),club=self.club,today=live['date']),
             player_error=context.get('player_error'),transfer_error=context.get('transfer_error'),
             debts=debts(self.state['contracts'],BANKS),
             entries=book.get('entries',[]),coach_weekly=wage,commercial=book.get('commercial',{}),

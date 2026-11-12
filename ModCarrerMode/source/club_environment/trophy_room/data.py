@@ -73,11 +73,17 @@ def market_title_rows(game,snapshot,collection='club'):
     return list(unique.values()),state['branch']
 
 
+def trophy_identity(competition,catalogue):
+    """A competition's installed cup mapping; FCE graph IDs are unrelated."""
+    return int(catalogue.get(int(competition)) or competition)
+
+
 def trophy_id(competition,root,catalogue,exists):
     """cz_leagues.trophyid wins. No unrelated/default cup is substituted."""
-    for key in (root,competition):
-        value=catalogue.get(int(key))
-        if value and exists(int(value)):return int(value)
+    # FCE root IDs are graph nodes, never keys in the competition catalogue.
+    # A numeric collision must not select a different competition's cup.
+    value=trophy_identity(competition,catalogue)
+    if value>0 and exists(value):return value
     # root may be an internal FCE node whose numeric ID happens to collide
     # with another competition's trophy. Only the verified visual ID is safe.
     for key in (competition,):

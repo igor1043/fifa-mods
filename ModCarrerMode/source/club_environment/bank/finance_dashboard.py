@@ -68,17 +68,18 @@ def summary(view,shell,money):
  for key,y,title,kind,ratio,values in (
   ('budgetCard',414,'Orçamento da temporada','budget',metrics['budget_ratio'],(('Inicial',metrics['initial']),('Variação',metrics['variation']),('Disponível',metrics['current']))),
   ('wagesCard',543,'Limite salarial semanal','salary',metrics['salary_ratio'],(('Limite',metrics['salary_limit']),('Folha',view.get('player_weekly')),('Margem',view.get('wage_margin'))))):
-  card(key,1475,y,345,112 if key=='wagesCard' else 116)
-  image(key+'Icon',art.glyph(kind,25,BLUE),1491,y+12,25,25);s.text(1526,y+12,260,27,title,21,INK)
-  image(key+'Mark',art.glyph('settings',16,BLUE),1790,y+16,16,16)
-  image(key+'Bar',art.progress(ratio or 0,art.RED if kind=='salary' else art.GREEN,width=216),1493,y+48,216,9)
-  s.text(1718,y+43,84,21,(str(round(ratio*100))+'%') if ratio is not None else '—',15,MUTED,1)
+  card(key,1475,y,345,120)
+  image(key+'Icon',art.glyph(kind,25,BLUE),1491,y+10,25,25);s.text(1526,y+10,260,25,title,20,INK)
+  image(key+'Mark',art.glyph('settings',16,BLUE),1790,y+14,16,16)
+  image(key+'Bar',art.progress(ratio or 0,art.RED if kind=='salary' else art.GREEN,width=216),1493,y+42,216,7)
+  s.text(1718,y+36,84,20,(str(round(ratio*100))+'%') if ratio is not None else '—',14,MUTED,1)
+  # Full-width monetary rows keep the currency prefix and billions together.
+  # Three narrow columns could wrap even a 500M opening budget into two lines.
   for j,(label,value) in enumerate(values):
-   xx=1493+j*104
-   if j:s.rect(xx-7,y+71,1,30,'#dce6ee')
-   s.text(xx,y+68,99,20,label,15,MUTED)
-   if value is not None:money(s,xx,y+88,99,23,value,15,art.GREEN if j==2 else INK,0)
-   else:s.text(xx,y+88,99,22,'—',17,MUTED)
+   yy=y+57+j*19
+   s.text(1493,yy,90,21,label,15,MUTED)
+   if value is not None:money(s,1593,yy,209,21,value,17,art.GREEN if j==2 else INK,1)
+   else:s.text(1593,yy,209,21,'—',17,MUTED,1)
  from finance_report import categories
  report=categories(view)
  for x,w,title,rows,target,tint in ((100,548,'Principais receitas',m['revenue_rows'],'receipts',art.GREEN),

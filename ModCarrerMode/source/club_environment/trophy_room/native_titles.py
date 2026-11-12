@@ -58,7 +58,7 @@ def read(game,snapshot,collection='club'):
     definitions={r['leagueid']:r for r in base.rows('leagues',['leagueid','leaguename','level']) if r['level']>0}
     links=rows('leagueteamlinks',['teamid','leagueid','secondarytable'])
     leagues={i:dict(name=r['leaguename'],members={r['teamid'] for r in links if r['leagueid']==i and r['secondarytable']==0}) for i,r in definitions.items()}
-    formats=read_formats(game);fixtures=merge_scores(read_schedule(raw,formats),current,first)
+    formats=read_formats(game);fixtures=merge_scores(read_schedule(raw,formats,include_unresolved=True),current,first)
     titles=completed_titles(fixtures,formats,leagues,current['date'],first,lambda i:resolve(game,i,definitions.get(i,{}).get('leaguename','')))
     # The club collection never receives international titles. For the native
     # fallback, a national job is proven from this saved date onward only; the
