@@ -2600,6 +2600,106 @@
       "path": "data/sceneassets/server16_dressing_room_v3/rehab_equipment/rehabilitation_r2.rx3",
       "bytes": 304912,
       "sha256": "49eea48ae9284254d473d803748a95417a32cf5ab167ac527810df3a0e3fb690"
+    },
+    {
+      "path": "data/sceneassets/server16_dressing_room_v3/ceiling_details_d969ab26a0ac7d.rx3",
+      "bytes": 282480,
+      "sha256": "d969ab26a0ac7d0f3391fb6143d7afa5f7dc97ef534029a9cefc6c97023b92b8"
+    },
+    {
+      "path": "data/sceneassets/server16_dressing_room_v3/crests_a712c43da23545.rx3",
+      "bytes": 2448,
+      "sha256": "a712c43da2354555beeefa729299f5a159ddb9929a3e09fa21c650d469b476ca"
+    },
+    {
+      "path": "data/sceneassets/server16_dressing_room_v3/exit_door_fb31fced974936.rx3",
+      "bytes": 106400,
+      "sha256": "fb31fced974936c28da060344cd01ebc4af221caacaeccdaa0a49c4b2ddd4433"
+    },
+    {
+      "path": "data/sceneassets/server16_dressing_room_v3/furniture_wood_995bb07540f2fd.rx3",
+      "bytes": 31504,
+      "sha256": "995bb07540f2fd02028b4031884b9bf31f99e0bb230ef9e8454155638613b491"
+    },
+    {
+      "path": "data/sceneassets/server16_dressing_room_v3/interior_7f46a97d80e004.rx3",
+      "bytes": 778624,
+      "sha256": "7f46a97d80e0047bcbf860cc87134e6b7dfc608f8d8d8efc482770cdd689a6b7"
+    },
+    {
+      "path": "data/sceneassets/server16_dressing_room_v3/joinery_5a7bf20a12e3d1.rx3",
+      "bytes": 16800,
+      "sha256": "5a7bf20a12e3d1d1b22a0947b2d9043b6ed9d8695103d22f52e14fbd5e544d68"
+    },
+    {
+      "path": "data/sceneassets/server16_dressing_room_v3/loading_backdrop_r82.rx3",
+      "bytes": 464,
+      "sha256": "1238ac6471f8d6fa6f634706cdc5756c9e484edb421abeba056c91bd1fe21d55"
+    },
+    {
+      "path": "data/sceneassets/server16_dressing_room_v3/loading_backdrop_texture_r82.rx3",
+      "bytes": 336,
+      "sha256": "ba7f9a40015056a959052d5561d8456555cf9c091076bd71da45bd9672e9811b"
+    },
+    {
+      "path": "data/sceneassets/server16_dressing_room_v3/loading_badge_r82.rx3",
+      "bytes": 464,
+      "sha256": "6d10275e27dc1cb3ef28f9ec0e61dcf4abb2491cf11becead820ca8d61840336"
+    },
+    {
+      "path": "data/sceneassets/server16_dressing_room_v3/loading_error_texture_r82.rx3",
+      "bytes": 2766560,
+      "sha256": "88b341a42ef1b89ff1d4cf0cd5a538e6be376349ce7334bca5b19cb70280a05a"
+    },
+    {
+      "path": "data/sceneassets/server16_dressing_room_v3/loading_panel_r82.rx3",
+      "bytes": 464,
+      "sha256": "1a01729ce5efbee233623ae9fcf27d0f599604e599f688b1f5e54361468bf693"
+    },
+    {
+      "path": "data/sceneassets/server16_dressing_room_v3/loading_panel_texture_r82.rx3",
+      "bytes": 2766560,
+      "sha256": "97672a3f8c50b2ec47bfb25bab25c889c0fb528f4501a9eefda85b7548b44e43"
+    },
+    {
+      "path": "data/sceneassets/server16_dressing_room_v3/loading_progress_r82.rx3",
+      "bytes": 464,
+      "sha256": "3a64deb4a0bb31e7e5f697b261e9ca14b26baf08c111a16d55f124a1705dae02"
+    },
+    {
+      "path": "data/sceneassets/server16_dressing_room_v3/loading_progress_texture_r82.rx3",
+      "bytes": 336,
+      "sha256": "470036542101f1d8a89e658af4e8b29c2b3e1403cfa9bb4ef8211080429e372f"
+    },
+    {
+      "path": "data/sceneassets/server16_dressing_room_v3/loading_ring_r82.rx3",
+      "bytes": 464,
+      "sha256": "be392fbde9f673be64ba03a7d4ac0195179a91e257755c5cce8a74b72e461114"
+    },
+    {
+      "path": "data/sceneassets/server16_dressing_room_v3/loading_ring_texture_r82.rx3",
+      "bytes": 349872,
+      "sha256": "fbf04f2384a50c224aee1553390431830d00703353e7cebdf1b68f968a245fe4"
+    },
+    {
+      "path": "data/sceneassets/server16_dressing_room_v3/locker_bay_23752f1706fd82.rx3",
+      "bytes": 34960,
+      "sha256": "23752f1706fd8222ee493ee85e34d56c827875a09aed83a0f4cbbbed3d0eb156"
+    },
+    {
+      "path": "data/sceneassets/server16_dressing_room_v3/next_match_board_8a60b707154871.rx3",
+      "bytes": 188080,
+      "sha256": "8a60b707154871a62807ff94a34ace88b0e892d04ac2b69eebe02414c4689338"
+    },
+    {
+      "path": "data/sceneassets/server16_dressing_room_v3/next_match_board_palette_7af87b119d39a3.rx3",
+      "bytes": 349856,
+      "sha256": "e68b9cc65b3aaa5fe9c66ea849aca0243dc04c9bbfd3c65a6e17f6963f6d39ab"
+    },
+    {
+      "path": "data/sceneassets/server16_dressing_room_v3/room_roles_bac53c13ff85bd.rx3",
+      "bytes": 1169408,
+      "sha256": "bac53c13ff85bd1a50cf290085ff76de15e031cc51a96255c14567f567757b35"
     }
   ],
   "room_revision": 62,

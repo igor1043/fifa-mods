@@ -173,8 +173,8 @@
     },
     {
       "path": "ModCarrerMode/data/catalogs/asset_complement.json",
-      "bytes": 773485,
-      "sha256": "135573255fcbcd0449a8b8da7dd6583331e473decdf6c9345dcc0403b0a65303"
+      "bytes": 774115,
+      "sha256": "0685f565819d8a7546bc79ef14b76dff0144089d1447529c46cb64a53687929a"
     },
     {
       "path": "ModCarrerMode/data/catalogs/career_competition_icon_map.tsv",
@@ -12688,8 +12688,8 @@
     },
     {
       "path": "ModCarrerMode/source/club_environment/assets-manifest.json",
-      "bytes": 114473,
-      "sha256": "d305a88c15706e94949578238c23d44bd963701fb42735c0251d70dcdd6f2cc7"
+      "bytes": 118619,
+      "sha256": "6c6260468377221d6deca6335a1793b9cc5abd49b4276b5892a0e00821b687ec"
     },
     {
       "path": "ModCarrerMode/source/club_environment/bank/bank_art.py",
@@ -47730,6 +47730,16 @@
       "path": "ModCarrerMode/data/club_environment/current_dressing_room/custom/9/wall-mural.png",
       "bytes": 2998722,
       "sha256": "12cf06aa3b5be320060b1fa119a1dcae3e19f5bfbb19727e37ccc907047421bc"
+    },
+    {
+      "path": "ModCarrerMode/tools/Build-ClubScenesPackage.py",
+      "bytes": 9118,
+      "sha256": "a6b29b9dd0b0690652db18fa2ed487f6b58ea60881759969448f028bfd0a6b01"
+    },
+    {
+      "path": "ModCarrerMode/tools/test_club_scene_package.py",
+      "bytes": 2012,
+      "sha256": "c40a8bac407d5a706e0774ca71db716e54cce74951c7178817d67a210e58e699"
     }
   ],
   "local_revision": "Mercado em background, tÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â©cnicos 3D por identidade, histÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â³rico da carreira, vestiÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¡rio ampliado e recursos do Server16",

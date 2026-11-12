@@ -1,9 +1,30 @@
 """Extraction-only update for an existing FIFA Friends V12 installation."""
-from pathlib import Path
+from pathlib import Path, PurePosixPath
 import argparse,hashlib,json,os,shutil,subprocess,tempfile,zipfile
 
 def digest(path):
  with Path(path).open('rb') as stream:return hashlib.file_digest(stream,'sha256').hexdigest()
+
+ROOM_MODEL_MANIFEST='data/sceneassets/server16_dressing_room_v3/manifest.json'
+
+def room_model_assets(root):
+ """Follow the installed room manifest, including content-addressed models."""
+ root=Path(root).resolve();manifest=root/ROOM_MODEL_MANIFEST;folder=manifest.parent
+ def references(value):
+  if isinstance(value,dict):
+   for item in value.values():yield from references(item)
+  elif isinstance(value,list):
+   for item in value:yield from references(item)
+  elif isinstance(value,str) and value.lower().endswith('.rx3'):yield value
+ paths={manifest}
+ for value in references(json.loads(manifest.read_text(encoding='utf8'))):
+  relative=PurePosixPath(value.replace('\\','/'))
+  if relative.is_absolute() or '..' in relative.parts or ':' in value:raise ValueError('Invalid room asset: '+value)
+  path=(root/relative if relative.parts[0]=='data' else folder/relative).resolve()
+  if not path.is_relative_to(folder):raise ValueError('Room asset outside scene: '+value)
+  if not path.is_file():raise FileNotFoundError('Required room model/texture: '+str(path))
+  paths.add(path)
+ return sorted(paths)
 
 def build(root,output):
  root=Path(root).resolve();output=Path(output).resolve();output.parent.mkdir(parents=True,exist_ok=True);files={}
@@ -33,6 +54,9 @@ def build(root,output):
  # career textures. Additional immutable model packs are explicit.
  asset_manifest=root/'ModCarrerMode/source/club_environment/assets-manifest.json'
  for row in json.loads(asset_manifest.read_text(encoding='utf8'))['files']:add(root/row['path'])
+ # The aliases in assets-manifest are not sufficient: room_v3 selects the
+ # immutable names from its own manifest, including the match-board palette.
+ for path in room_model_assets(root):add(path)
  for name in ('medical_department','pes_office','office_neutral','office_refresh','rehab_equipment','annex_signage'):
   tree('data/sceneassets/server16_dressing_room_v3/'+name)
  trophy=root/'data/sceneassets/server16_trophy_room'
@@ -75,8 +99,9 @@ screen(game,game/BIG)
   relative=f'data/ui/game/screens/career/server16/{name}.big';files[relative]=stage/relative
  clinic=json.loads((stage/'data/sceneassets/server16_dressing_room_v3/medical_department/clinic.json').read_text(encoding='utf8'))
  assert all(name in files for name in clinic['required']),'Incomplete medical model pack'
+ assert all(p.relative_to(stage).as_posix() in files for p in room_model_assets(stage)),'Incomplete room model pack'
  records=[dict(path=name,bytes=p.stat().st_size,sha256=digest(p)) for name,p in sorted(files.items())]
- manifest=dict(schema=1,base='FIFA Friends V12 installed',server='0.2.30',layout='extract into the folder containing fifa16.exe',bundledRuntimeVerified=True,neutralScreens=True,files=records)
+ manifest=dict(schema=1,base='FIFA Friends V12 installed',server='0.2.30',layout='extract into the folder containing fifa16.exe',bundledRuntimeVerified=True,neutralScreens=True,roomModelDependenciesVerified=True,files=records)
  temporary=output.with_suffix('.zip.new')
  with zipfile.ZipFile(temporary,'w',zipfile.ZIP_DEFLATED,compresslevel=3,allowZip64=True) as z:
   for i,(name,p) in enumerate(sorted(files.items())):

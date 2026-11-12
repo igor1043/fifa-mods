@@ -18949,6 +18949,21 @@
       "path": "data/sceneassets/server16_dressing_room_v3/medical_department/variants/scenery_c874ddac663808_83f1a46d519832.rx3",
       "bytes": 2752,
       "sha256": "83f1a46d519832ec846e9ee46c6c9613bdd5b9235fc01bfc5e6292a965559674"
+    },
+    {
+      "path": "data/sceneassets/server16_dressing_room_v3/manifest.json",
+      "bytes": 12114,
+      "sha256": "bf5552ee62721b97cfce47fd82eb101270de2e2f799bb9101cfb81e3f4a070a4"
+    },
+    {
+      "path": "data/sceneassets/server16_dressing_room_v3/next_match_board_8a60b707154871.rx3",
+      "bytes": 188080,
+      "sha256": "8a60b707154871a62807ff94a34ace88b0e892d04ac2b69eebe02414c4689338"
+    },
+    {
+      "path": "data/sceneassets/server16_dressing_room_v3/next_match_board_palette_7af87b119d39a3.rx3",
+      "bytes": 349856,
+      "sha256": "e68b9cc65b3aaa5fe9c66ea849aca0243dc04c9bbfd3c65a6e17f6963f6d39ab"
     }
   ]
 }
