@@ -9,7 +9,7 @@ if errorlevel 1 exit /b 1
 pushd "%STADIUM_OUTPUT%"
 cl /nologo /O2 /MT /c "%STADIUM_SOURCE%\third_party\miniz\miniz_tinfl.c"
 if errorlevel 1 exit /b 1
-for %%T in (test_stadium_view test_choice_focus test_scene_publication) do (
+for %%T in (test_stadium_view test_choice_focus test_scene_publication test_catalog_metadata) do (
  cl /nologo /O2 /W3 /EHsc /std:c++17 /utf-8 /MT "%STADIUM_SOURCE%\%%T.cpp" miniz_tinfl.obj /Fe:%%T.exe /link user32.lib gdi32.lib ole32.lib d3d11.lib d3dcompiler.lib dxgi.lib psapi.lib windowscodecs.lib bcrypt.lib
  if errorlevel 1 exit /b 1
  %%T.exe

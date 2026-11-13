@@ -15,6 +15,7 @@
 #include "../../common/scene_loading.h"
 #include "../../common/native_scene_vignette.h"
 #include "model.h"
+#include "competition_scroll.h"
 #include "room_roster_mode.h"
 #include "graphics.h"
 #include "globe_texture.h"
@@ -115,7 +116,7 @@ void drawContent(ID3D11DeviceContext* context){auto& r=renderer;const auto& c=mo
  for(int i=0;i<3;++i){float y=i==0?150.f:i==1?258.f:366.f,h=i==2?340.f:96.f;bool selected=model.focus==i;r.normal(context);r.rectangle(context,64,y,400,h,selected?uitheme::accent():0xffeef2f4);if(selected){r.rectangle(context,64,y,400,2,uitheme::focus());r.rectangle(context,64,y+h-2,400,2,uitheme::focus());r.rectangle(context,64,y,2,h,uitheme::focus());r.rectangle(context,462,y,2,h,uitheme::focus());}COLORREF color=selected?uitheme::selectedText():ink;std::wstring name=i==0?wide(c.countryName):i==1?wide(model.national?c.city:c.leagueName):wide(c.name);text(i==0?(model.national?L"CONFEDERAÇÃO":L"PAÍS / REGIÃO"):i==1?(model.national?L"PAÍS":L"LIGA"):(model.national?L"SELEÇÃO":L"CLUBE"),83,y+8,250,25,18,color);
   int optionKind=model.national&&i==1?2:i;auto options=model.choices(optionKind);size_t at=0;for(size_t j=0;j<options.size();++j){const auto& v=model.rows[options[j]];if(optionKind==0?v.country==c.country:optionKind==1?v.league==c.league:v.id==c.id){at=j;break;}}text(std::to_wstring(at+1)+L" / "+std::to_wstring(options.size()),375,y+8,70,25,16,color,true);
   text(L"‹",74,y+(i==2?143:37),25,40,37,color,true);text(L"›",426,y+(i==2?143:37),25,40,37,color,true);
-  if(i<2){text(name,177,y+(i==0?34:31),244,36,27,color);if(i==1)text(model.national?L"Seleções nacionais":std::to_wstring(c.level)+L"ª divisão",177,y+65,244,20,16,color);}
+  if(i<2){text(name,177,y+(i==0?34:31),244,36,27,color);if(i==1)text(model.national?L"Seleções nacionais":!c.divisionLabel.empty()?wide(c.divisionLabel):std::to_wstring(c.level)+L"ª divisão",177,y+65,244,20,16,color);}
  }
  // Reuse a small fixed cache: three selected logos, never the full catalog.
  r.normal(context);gameImage(r.device,r.countryIcon,art,{"data/ui/imgAssets/flags512x512/f_"+std::to_string(c.nation)+".dds","data/ui/artassets/countryflags/f_"+std::to_string(c.nation)+".big"});gameImage(r.device,r.leagueIcon,art,{"data/ui/imgAssets/league/light/l"+std::to_string(c.league)+".dds","data/ui/imgAssets/league/dark/l"+std::to_string(c.league)+".dds"});gameImage(r.device,r.clubIcon,art,{"data/ui/imgAssets/crest/light/l"+std::to_string(c.id)+".dds","data/ui/imgAssets/crest/dark/l"+std::to_string(c.id)+".dds"});
@@ -210,7 +211,7 @@ void render(IDXGISwapChain* swap){
     }else if(kind==3){
      clubscene::intent(false,0);clubscene::mascotCamera=false;clubscene::rosterCamera=false;clubscene::roomView=false;rosterMouseActive=true;
      {std::vector<std::string>pending;{std::lock_guard<std::mutex>q(commandMutex);pending.swap(commands);}for(auto&s:pending)competitions.command(s);}
-     competitions.dashboardControls(sd.OutputWindow,float(desc.Width),float(desc.Height));
+     competitions.dashboardControls(sd.OutputWindow,float(desc.Width),float(desc.Height),dt);
       competitionPresentation=competitions.expanded||competitions.nav.rounds||competitions.nav.fullList>=0;
       if(renderer.init(dev,root.wstring())){competitions.poll();competitions.helpPublication.publish(art.game,clubcomp::helpMode(competitions.ready&&!competitions.data.competitions.empty(),competitions.nav.fullList>=0,competitions.expanded,competitions.nav.rounds),GetTickCount64());clubgfx::UiPass saved(context,renderer.uiPipeline);renderer.begin(context,target,float(desc.Width),float(desc.Height));competitions.draw(context);saved.restore();}
     }else{

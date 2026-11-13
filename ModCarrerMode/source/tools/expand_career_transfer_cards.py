@@ -42,20 +42,36 @@ def _keep_transfer_text_black(apt):
     assert len(placements) == 2
     for placement in placements:
         assert apt.characters[placement.character].type == 2
+        struct.pack_into('<I', apt.data, apt.characters[placement.character].color_offset, 0xFF000000)
         # A local color transform follows the native textColor update. Keep
         # its alpha untouched, while both highlighted and idle RGB stay black.
         struct.pack_into('<I', apt.data, placement.offset + 8, placement.flags | 8)
         struct.pack_into('<II', apt.data, placement.matrix_offset + 24, 0xFF000000, 0)
 
 
+def _keep_transfer_background_white(apt):
+    """The row remains white when its parent card receives native focus."""
+    import struct
+    from formats import Placement
+    component = apt.exports['game.components.FluxComponents.career.TransferInfo']
+    panels = [p for p in apt.characters[component].frames[0]
+              if isinstance(p, Placement) and p.character == 3]
+    assert len(panels) == 1
+    panel = panels[0]
+    struct.pack_into('<I', apt.data, panel.offset + 8, panel.flags | 8)
+    struct.pack_into('<II', apt.data, panel.matrix_offset + 24, 0xFF000000, 0x00FFFFFF)
+
+
 def keep_transfer_text_black(source):
-    """Patch the installed row without rebuilding its other visual changes."""
+    """Use black text on a white row without rebuilding other visual changes."""
     import sys
     vendor = str(Path(__file__).resolve().parent / 'apt_vendor')
     if vendor not in sys.path: sys.path.insert(0, vendor)
     from formats import AptFile, BigFile
     big = BigFile(source)
-    _keep_transfer_text_black(AptFile(big))
+    apt = AptFile(big)
+    _keep_transfer_text_black(apt)
+    _keep_transfer_background_white(apt)
     return big.build()
 
 
@@ -84,11 +100,11 @@ def style_component(source):
     }
     for name,matrix in matrices.items():
         struct.pack_into('<6f',apt.data,named[name].matrix_offset,*matrix)
-    # Reuse the original solid rectangle as a dark FIFA row background with light text. Its
+    # Reuse the original solid rectangle as a white FIFA row with black text. Its
     # symbol/depth stays in place, so ImageLoader and provider code are intact.
     panel=next(p for p in placements if p.character==3)
     struct.pack_into('<6f',apt.data,panel.matrix_offset,99.,0.,0.,23.,0.,0.)
-    struct.pack_into('<II',apt.data,panel.matrix_offset+24,0xFF000000,0x00273543)
+    struct.pack_into('<II',apt.data,panel.matrix_offset+24,0xFF000000,0x00FFFFFF)
     arrow=next(p for p in placements if p.character==5)
     struct.pack_into('<6f',apt.data,arrow.matrix_offset,.6,0.,0.,.6,124.,30.)
     for cid,size,width in ((8,22.,290.),(10,21.,156.)):
@@ -97,7 +113,7 @@ def style_component(source):
         struct.pack_into('<4f',apt.data,reader.pos,-2.,-2.,width,30.)
         reader.pos+=16;reader.i()
         struct.pack_into('<i',apt.data,reader.pos,0)
-        struct.pack_into('<I',apt.data,character.color_offset,0xFFF1F5F8)
+        struct.pack_into('<I',apt.data,character.color_offset,0xFF000000)
         struct.pack_into('<f',apt.data,character.font_offset,size)
     # Exported movie dimensions agree with the XML row box.
     constants=next(e for e in big.entries.values() if e.data[:4]==b'Apt1' or e.data[:17]==b'Apt constant file')
@@ -106,6 +122,7 @@ def style_component(source):
     reader.i();reader.ptr();reader.ptr();reader.i();reader.ptr()
     struct.pack_into('<II',apt.data,reader.pos,396,92)
     _keep_transfer_text_black(apt)
+    _keep_transfer_background_white(apt)
     return big.build()
 
 

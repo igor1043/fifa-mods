@@ -1,7 +1,48 @@
  // The APT owns entry/Back and modal transitions. Native edges own scrolling,
  // focus and tab changes; dispatching both would advance twice on a controller.
- void dashboardControls(HWND window,float w,float h){
-  DWORD pid=0;GetWindowThreadProcessId(GetForegroundWindow(),&pid);if(pid!=GetCurrentProcessId()){controlReady=false;return;}
+ // 0 = complete dashboard, 1 = mixed groups/knockout card, 2 = league table.
+ int tableMaximum(const clubcomp::Competition&c)const{return c.format=="cup"||c.groups.empty()?0:(std::max)(0,int(c.groups[std::clamp(group,0,int(c.groups.size())-1)].rows.size())-20);}
+ int classificationScroll(const clubcomp::Competition&c)const{return c.format=="cup"&&!c.groups.empty()&&mixedMaximum(c)>0?1:tableMaximum(c)>0?2:0;}
+ float scrollUnit(int owner)const{return owner==2?24.4f:1.f;}
+ float scrollMaximum(int owner,const clubcomp::Competition&c)const{return owner==1?float(mixedMaximum(c)):owner==2?float(tableMaximum(c)):clubcomp::detailMaximumScroll;}
+ int& scrollTarget(int owner){return owner==1?mixedScroll:owner==2?scroll:nav.detail;}
+ clubcomp::ScrollMotion& scrollMotion(int owner){return owner==1?mixedMotion:owner==2?tableMotion:pageMotion;}
+ clubcomp::ScrollTrack scrollTrack(int owner,const clubcomp::Competition&c)const{
+  if(owner==1)return {218,553,561,float(mixedMaximum(c))};
+  if(owner==2)return {235,488,488,float(tableMaximum(c))*24.4f};
+  return {171,603,clubcomp::detailViewportHeight,clubcomp::detailMaximumScroll};
+ }
+ void moveScroll(int owner,float pixels,const clubcomp::Competition&c){scrollMotion(owner).move(pixels/scrollUnit(owner),scrollTarget(owner),scrollMaximum(owner,c));}
+ void setScroll(int owner,float pixels,const clubcomp::Competition&c,bool immediate){scrollMotion(owner).set(pixels/scrollUnit(owner),scrollTarget(owner),scrollMaximum(owner,c),immediate);}
+ void scrollFocused(float pixels,const clubcomp::Competition&c){moveScroll(nav.focus==0?classificationScroll(c):0,pixels,c);}
+ void scrollAtPointer(float x,float y,int wheel,const clubcomp::Competition&c){
+  if(x<60||x>=1558||y<155||y>=790)return;
+  int owner=0;if(clubcomp::tableArea.contains(x,y+pageMotion.position)){nav.focus=0;owner=classificationScroll(c);}
+  moveScroll(owner,-float(wheel)*72.f/120.f,c);
+ }
+ void tickScrolls(float dt){if(data.competitions.empty())return;auto&c=data.competitions[selected];pageMotion.tick(nav.detail,clubcomp::detailMaximumScroll,dt);mixedMotion.tick(mixedScroll,c.format=="cup"&&!c.groups.empty()?float(mixedMaximum(c)):0,dt);if(c.format!="cup")tableMotion.tick(scroll,float(tableMaximum(c)),dt);else tableMotion.reset();}
+ bool beginScrollDrag(float x,float y,const clubcomp::Competition&c){
+  scrollDrag=-1;scrollContentDrag=false;float contentY=y+pageMotion.position;
+  if(x>=1545&&x<1558&&y>=166&&y<=779)scrollDrag=0;
+  else if(y>=155&&y<790&&clubcomp::tableArea.contains(x,contentY)&&contentY>=212){
+   scrollDrag=classificationScroll(c);if(!scrollDrag){scrollDrag=-1;return false;}nav.focus=0;scrollContentDrag=x<729;
+   pageMotion.set(pageMotion.position,nav.detail,clubcomp::detailMaximumScroll,true);
+  }
+  if(scrollDrag<0)return false;
+  auto track=scrollTrack(scrollDrag,c);float position=scrollMotion(scrollDrag).position*scrollUnit(scrollDrag);
+  setScroll(scrollDrag,position,c,true);scrollStartPosition=position;scrollStartY=y;
+  float cursor=scrollDrag?contentY:y,thumbTop=track.top+track.offset(position);
+  scrollGrab=cursor>=thumbTop&&cursor<thumbTop+track.thumb()?cursor-thumbTop:track.thumb()/2;
+  if(!scrollContentDrag)setScroll(scrollDrag,track.position(cursor,scrollGrab),c,true);
+  return true;
+ }
+ void updateScrollDrag(float y,const clubcomp::Competition&c){
+  if(scrollDrag<0)return;if(scrollContentDrag){if(std::abs(y-scrollStartY)>3)setScroll(scrollDrag,scrollStartPosition+scrollStartY-y,c,true);}
+  else setScroll(scrollDrag,scrollTrack(scrollDrag,c).position(y+(scrollDrag?pageMotion.position:0),scrollGrab),c,true);
+ }
+ void dashboardControls(HWND window,float w,float h,float dt){
+  scrollFrameSeconds=std::clamp(dt,0.f,.05f);
+  DWORD pid=0;GetWindowThreadProcessId(GetForegroundWindow(),&pid);if(pid!=GetCurrentProcessId()){controlReady=false;scrollDrag=-1;return;}
   bool held[256]{},edge[256]{};for(int i=0;i<256;++i){held[i]=(GetAsyncKeyState(i)&0x8000)!=0;edge[i]=controlReady&&held[i]&&!keyState[i];keyState[i]=held[i];}
   XINPUT_STATE pad{};if(readPad)for(DWORD i=0;i<4;++i)if(readPad(i,&pad)==ERROR_SUCCESS)break;
   WORD buttons=pad.Gamepad.wButtons,edges=controlReady?buttons&~previousPad:0;previousPad=buttons;
@@ -9,6 +50,7 @@
   if(!controlReady){controlReady=true;repeatDirection=detailDirection=0;wheelDelta.exchange(0);return;}if(!ready||data.competitions.empty())return;
   auto&c=data.competitions[selected];auto now=GetTickCount64();POINT p{};GetCursorPos(&p);ScreenToClient(window,&p);float fit=(std::min)(w/1600,h/900);if(fit<=0)return;float mx=(p.x-(w-1600*fit)/2)/fit,my=(p.y-(h-900*fit)/2)/fit;
   if(edge[VK_LBUTTON]&&my>=25&&my<105&&mx>=1470&&(expanded||nav.rounds||nav.fullList>=0)){command("comp_close");return;}
+  if(expanded||nav.fullList>=0||nav.rounds)scrollDrag=-1;
   if(expanded&&nav.fullList<0){bracketControls(window,w,h,edge,edges,pad.Gamepad);return;}
   int direction=(held[VK_LEFT]||(buttons&XINPUT_GAMEPAD_DPAD_LEFT)||pad.Gamepad.sThumbLX< -16000)?1:(held[VK_RIGHT]||(buttons&XINPUT_GAMEPAD_DPAD_RIGHT)||pad.Gamepad.sThumbLX>16000)?2:(held[VK_UP]||(buttons&XINPUT_GAMEPAD_DPAD_UP)||pad.Gamepad.sThumbLY>16000)?3:(held[VK_DOWN]||(buttons&XINPUT_GAMEPAD_DPAD_DOWN)||pad.Gamepad.sThumbLY< -16000)?4:0;
   bool step=direction&&(direction!=repeatDirection||now>=repeatAt);if(step)repeatAt=now+(direction!=repeatDirection?340:125);repeatDirection=direction;
@@ -31,11 +73,12 @@
   if(edge[VK_TAB])nav.moveFocus(held[VK_SHIFT]?-1:1);if(leftTrigger||edge['W'])nav.moveFocus(-1);if(rightTrigger||edge['E'])nav.moveFocus(1);
   if(step){if(held[VK_SHIFT]&&direction>=3&&nav.focus==0)command(direction==3?"comp_up":"comp_down");else nav.moveSpatial(direction==1?-1:direction==2?1:0,direction==3?-1:direction==4?1:0);}
   if(edge[VK_HOME])command("comp_left");if(edge[VK_END])command("comp_right");
-  if(rstep||edge[VK_PRIOR]||edge[VK_NEXT])nav.scrollPage((edge[VK_PRIOR]?-1:edge[VK_NEXT]?1:rs)*(edge[VK_PRIOR]||edge[VK_NEXT]?400:38));
-  // Horizontal right stick pages the focused ranking; vertical always scrolls
-  // the complete dashboard, regardless of which of its six cards has focus.
+  if(scrollDrag<0){float vertical=-clubcomp::ScrollMotion::axis(pad.Gamepad.sThumbRY);if(vertical)scrollFocused(vertical*520.f*scrollFrameSeconds,c);}
+  if(edge[VK_PRIOR]||edge[VK_NEXT])scrollFocused(edge[VK_PRIOR]?-400.f:400.f,c);
+  // Horizontal right stick keeps paging rankings/phases; vertical scrolls the
+  // focused classification when it overflows, otherwise the dashboard.
   static int priorPhase=0;static uint64_t phaseAt=0;if(phaseAxis&&(phaseAxis!=priorPhase||now>=phaseAt)){if(nav.focus==1||nav.focus==2)nav.pageLeader(nav.focus-1,phaseAxis,c);else if(nav.focus==0&&c.format=="cup")command(phaseAxis<0?"comp_left":"comp_right");phaseAt=now+(phaseAxis!=priorPhase?330:280);}priorPhase=phaseAxis;
-  float contentY=my+nav.detail;
+  float contentY=my+pageMotion.position;
   if(edge[VK_LBUTTON]){
    if(my>=20&&my<100){if(mx<130)command("comp_prev");else if(mx>1470)command("comp_next");}
    else if(my>=100&&my<142&&mx>=48&&mx<1552){int n=int(data.competitions.size());selected=std::clamp(int((mx-48)/(1504.f/n)),0,n-1);resetSelection();}
@@ -45,8 +88,9 @@
     if(!paged&&(nav.focus==1||nav.focus==2))command(nav.focus==1?"comp_goals":"comp_assists");else if(nav.focus==0&&clubcomp::roundsButton.contains(mx,contentY))command("comp_rounds");
    }
   }
-  if(held[VK_LBUTTON]&&mx>=1545&&mx<1558&&my>=166&&my<=779){float track=603,thumb=track*clubcomp::detailViewportHeight/clubcomp::detailContentHeight;nav.detail=int(std::clamp((my-171-thumb/2)/(track-thumb),0.f,1.f)*clubcomp::detailMaximumScroll);}
-  if(wheel&&mx>=60&&mx<1558&&my>=155&&my<790){nav.scrollPage(wheel>0?-82:82);}
+  if(edge[VK_LBUTTON])beginScrollDrag(mx,my,c);
+  if(held[VK_LBUTTON])updateScrollDrag(my,c);else scrollDrag=-1;
+  if(wheel)scrollAtPointer(mx,my,wheel,c);
  }
  void leaderCards(ID3D11DeviceContext*c,clubcomp::Competition&comp){
   auto&r=renderer;for(int kind=0;kind<2;++kind){const auto box=kind?clubcomp::assistsArea:clubcomp::goalsArea;panel(c,box.x,box.y,box.w,box.h);
@@ -79,13 +123,13 @@
   auto&r=renderer;if(!canvasClip){D3D11_RASTERIZER_DESC desc{};r.raster->GetDesc(&desc);desc.ScissorEnable=TRUE;r.device->CreateRasterizerState(&desc,&canvasClip);}
   D3D11_RECT old[16]{};UINT count=16;c->RSGetScissorRects(&count,old);D3D11_RECT clip{LONG(r.left+60*r.scale),LONG(r.top+155*r.scale),LONG(r.left+1541*r.scale),LONG(r.top+790*r.scale)};
   auto apply=[&](){if(canvasClip){c->RSSetState(canvasClip);c->RSSetScissorRects(1,&clip);}};
-  float oldTop=r.top;r.top-=nav.detail*r.scale;apply();
+  float oldTop=r.top;r.top-=pageMotion.position*r.scale;apply();
   if(comp.format=="cup"&&!comp.groups.empty())mixed(c,comp);else if(comp.format=="cup")cup(c,comp);else table(c,comp);
   apply();leaderCards(c,comp);pitch(c,comp);monthlyCard(c,comp.awards[0],false,60,810,732);monthlyCard(c,comp.awards[1],true,808,810,732);
   const clubcomp::Area areas[]={clubcomp::tableArea,clubcomp::goalsArea,clubcomp::assistsArea,clubcomp::pitchArea,clubcomp::playerMonthArea,clubcomp::coachMonthArea};auto box=areas[std::clamp(nav.focus,0,5)];
   unsigned focus=uitheme::accent();r.line(c,box.x+2,box.y+2,box.x+box.w-2,box.y+2,focus);r.line(c,box.x+2,box.y+2,box.x+2,box.y+box.h-2,focus);r.line(c,box.x+box.w-2,box.y+2,box.x+box.w-2,box.y+box.h-2,focus);r.line(c,box.x+2,box.y+box.h-2,box.x+box.w-2,box.y+box.h-2,focus);
   r.top=oldTop;c->RSSetState(r.raster);c->RSSetScissorRects(count,old);
-  float track=603,thumb=track*clubcomp::detailViewportHeight/clubcomp::detailContentHeight;rounded(c,1548,171,5,track,2.5f,0xffdce6ee);rounded(c,1548,171+(track-thumb)*nav.detail/clubcomp::detailMaximumScroll,5,thumb,2.5f,uitheme::accent());
+  auto track=scrollTrack(0,comp);rounded(c,1548,track.top,5,track.length,2.5f,0xffdce6ee);rounded(c,1548,track.top+track.offset(pageMotion.position),5,track.thumb(),2.5f,uitheme::accent());
  }
  void drawMatchdays(ID3D11DeviceContext*c,clubcomp::Competition&comp){
   auto&r=renderer;r.rectangle(c,40,20,1520,790,0xfff8fbfe);image(c,"comp",comp.asset,81,45,56,54);text(c,"RESULTADOS POR RODADA",154,42,1180,36,29);text(c,comp.name,155,82,1160,25,17,RGB(109,132,152));text(c,"×",1470,39,65,44,31,uitheme::accentInk(),true);

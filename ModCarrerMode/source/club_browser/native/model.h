@@ -13,14 +13,15 @@ inline bool isManagerPreferences(const char* name){return name&&!std::strcmp(nam
 struct GlobeView{static constexpr float x=470,y=24,w=1130,h=800,camera=3.8f,focal=2.3f;};
 struct Point{float x=0,y=0;bool visible=false;};
 inline Point project(float latitude,float longitude,float yaw,float pitch,float zoom){float lat=latitude*.01745329252f,lon=longitude*.01745329252f,x=cosf(lat)*sinf(lon),y=sinf(lat),z=cosf(lat)*cosf(lon);float xx=cosf(yaw)*x+sinf(yaw)*z,zz=-sinf(yaw)*x+cosf(yaw)*z,yy=cosf(pitch)*y-sinf(pitch)*zz,depth=sinf(pitch)*y+cosf(pitch)*zz,eye=GlobeView::camera/zoom,d=eye-depth;Point p;p.visible=depth>1/eye&&d>.01f;p.x=GlobeView::x+(xx*GlobeView::focal/(GlobeView::w/GlobeView::h)/d+1)*GlobeView::w/2;p.y=GlobeView::y+(1-yy*GlobeView::focal/d)*GlobeView::h/2;return p;}
-struct Club {int country=0,nation=0,world=0,leagueOrder=0,league=0,level=1,order=0,id=0,attack=0,midfield=0,defense=0,overall=0;std::string countryName,leagueName,name,city;float lat=0,lon=0;};
+struct Club {int country=0,nation=0,world=0,leagueOrder=0,league=0,level=1,order=0,id=0,attack=0,midfield=0,defense=0,overall=0;std::string countryName,leagueName,name,city;float lat=0,lon=0;std::string divisionLabel;};
 struct Model {
  std::vector<Club> rows,clubRows,nationRows;bool national=false;size_t selected=0;int focus=2;float yaw=0,pitch=0,targetYaw=0,targetPitch=0,zoom=1.3f,targetZoom=1.3f;unsigned revision=1;bool detailOpen=false;
  bool activate(){if(detailOpen)return false;detailOpen=true;return true;}
  bool closeDetail(){if(!detailOpen)return false;detailOpen=false;return true;}
  bool load(std::istream& input){std::vector<Club> pending;std::string line;
-  while(std::getline(input,line)){if(line.size()>4096||pending.size()>=3000)return false;std::vector<std::string> v;std::istringstream stream(line);std::string field;while(std::getline(stream,field,'\t'))v.push_back(field);if(v.size()!=18)return false;
+  while(std::getline(input,line)){if(line.size()>4096||pending.size()>=3000)return false;std::vector<std::string> v;std::istringstream stream(line);std::string field;while(std::getline(stream,field,'\t'))v.push_back(field);if(v.size()!=18&&v.size()!=19)return false;
    try{Club c;c.country=std::stoi(v[0]);c.countryName=v[1];c.nation=std::stoi(v[2]);c.world=std::stoi(v[3]);c.leagueOrder=std::stoi(v[4]);c.league=std::stoi(v[5]);c.leagueName=v[6];c.level=std::stoi(v[7]);c.order=std::stoi(v[8]);c.id=std::stoi(v[9]);c.name=v[10];c.city=v[11];c.lat=std::stof(v[12]);c.lon=std::stof(v[13]);c.attack=std::stoi(v[14]);c.midfield=std::stoi(v[15]);c.defense=std::stoi(v[16]);c.overall=std::stoi(v[17]);
+    if(v.size()==19)c.divisionLabel=v[18];
     if(c.id<1||c.country<0||c.country>10000||c.world<0||c.world>255||c.league<1||c.name.empty()||!std::isfinite(c.lat)||!std::isfinite(c.lon)||std::abs(c.lat)>90||std::abs(c.lon)>180)return false;pending.push_back(c);
    }catch(...){return false;}}
   if(pending.empty())return false;rows.swap(pending);clubRows=rows;national=false;selected=0;choose(1629);recenter(false);return true;

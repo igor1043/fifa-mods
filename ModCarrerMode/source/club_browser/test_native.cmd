@@ -96,5 +96,13 @@ if not errorlevel 0 exit /b 1
 test_competitions_layout.exe
 if errorlevel 1 exit /b 1
 if not errorlevel 0 exit /b 1
+cl /nologo /O2 /EHsc /std:c++17 /utf-8 /MT "%CLUB_SOURCE%\test_competition_scroll.cpp" /Fe:test_competition_scroll.exe
+if errorlevel 1 exit /b 1
+test_competition_scroll.exe
+if errorlevel 1 exit /b 1
+cl /nologo /O2 /EHsc /std:c++17 /utf-8 /MT "%CLUB_SOURCE%\test_competition_scroll_view.cpp" miniz_tinfl.obj /Fe:test_competition_scroll_view.exe /link user32.lib gdi32.lib ole32.lib d3d11.lib d3dcompiler.lib dxgi.lib psapi.lib windowscodecs.lib bcrypt.lib
+if errorlevel 1 exit /b 1
+test_competition_scroll_view.exe "%CLUB_DATA%" "%CLUB_GAME%" "%CLUB_TEST_OUTPUT%\scroll"
+if errorlevel 1 exit /b 1
 popd
 exit /b 0

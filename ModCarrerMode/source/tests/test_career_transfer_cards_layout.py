@@ -86,7 +86,7 @@ class TransferCardsLayoutTests(unittest.TestCase):
             self.assertEqual(before_names,after_names)
             for cid in (8,10):
                 self.assertEqual(b.characters[cid].alignment,0)
-                self.assertEqual(b.characters[cid].color,0xFFF1F5F8)
+                self.assertEqual(b.characters[cid].color,0xFF000000)
 
     def test_text_has_high_contrast_against_both_transfer_row_backgrounds(self):
         sys.path.insert(0,str(ROOT/'tools'))

@@ -1,0 +1,10 @@
+{
+  "project": "flag-icons",
+  "version": "7.3.2",
+  "license": "MIT",
+  "sources": {
+    "8": "https://raw.githubusercontent.com/lipis/flag-icons/v7.3.2/flags/4x3/ba.svg",
+    "50": "https://raw.githubusercontent.com/lipis/flag-icons/v7.3.2/flags/4x3/gb-wls.svg"
+  },
+  "australia_new_zealand": "Restored from installed FIFA countryflags resources, IDs 195 and 198."
+}

@@ -1,17 +1,20 @@
 // This screen never creates a player or touches the native FCE database.
 #include "competitions_model.h"
 #include "competitions_layout.h"
+#include "competition_scroll.h"
 std::atomic<int> competitionPresentation{0};
 struct CompetitionView{
  clubcomp::FooterPublication helpPublication;
  clubcomp::BracketScene bracketScene;clubcomp::BracketCamera viewport;bool bracketDirty=true,bracketDrag=false;int bracketPhase=-1;float bracketMouseX=0,bracketMouseY=0;uint64_t bracketLast=0;
  clubcomp::DashboardNavigation nav;bool controlReady=false,leftTriggerHeld=false,rightTriggerHeld=false;bool keyState[256]{};WORD previousPad=0;int repeatDirection=0,detailDirection=0;uint64_t repeatAt=0,detailAt=0;
+ clubcomp::ScrollMotion pageMotion,mixedMotion,tableMotion;float scrollFrameSeconds=1.f/60;int scrollDrag=-1;bool scrollContentDrag=false;float scrollGrab=0,scrollStartY=0,scrollStartPosition=0;
  clubcomp::Data data;int selected=0,group=0,round=0,scroll=0,stat=0,statScroll=0;bool bracket=false,ready=false,expanded=false;float canvasZoom=1,canvasPanX=0,canvasPanY=0,canvasCenterX=0,canvasCenterY=0;ID3D11RasterizerState*canvasClip=nullptr;uint64_t submitted=0,retry=0,checked=0;int currentClub=0,mixedScroll=0;fs::file_time_type publication{};
  std::array<clubgfx::Texture,2048>labels;std::map<std::string,clubgfx::Texture>images;int label=0;ID3D11Device* device=nullptr;
  struct CachedText{clubgfx::Texture texture;uint64_t used=0;};std::map<std::wstring,CachedText>textCache;size_t textBytes=0;uint64_t textFrame=0,textMisses=0;
  void clearTextures(){clubgfx::release(canvasClip);for(auto&t:labels)t.clear();for(auto&it:images)it.second.clear();images.clear();for(auto&it:textCache)it.second.texture.clear();textCache.clear();textBytes=0;device=nullptr;}
- void resetSelection(){group=round=scroll=statScroll=mixedScroll=0;nav.reset();bracket=false;if(data.competitions.empty())return;auto&c=data.competitions[selected];for(size_t i=0;i<c.groups.size();++i)for(auto&t:c.groups[i].rows)if(t.id==data.club)group=int(i);bracket=c.groups.empty();for(size_t i=0;i<c.rounds.size();++i)for(auto&t:c.rounds[i].ties)if(t.home==data.club||t.away==data.club)round=int(i);int latest=0;for(size_t i=0;i<c.matchdays.size();++i)for(auto&m:c.matchdays[i].matches)if(m.played&&m.date>=latest){latest=m.date;nav.matchday=int(i);}}
- void enter(int club){data={};selected=0;ready=false;expanded=false;controlReady=false;nav.reset();helpPublication.reset();currentClub=club;submitted=retry=checked=0;clearTextures();request();}
+ void resetScrolls(){pageMotion.reset();mixedMotion.reset();tableMotion.reset();scrollDrag=-1;}
+ void resetSelection(){group=round=scroll=statScroll=mixedScroll=0;nav.reset();resetScrolls();bracket=false;if(data.competitions.empty())return;auto&c=data.competitions[selected];for(size_t i=0;i<c.groups.size();++i)for(auto&t:c.groups[i].rows)if(t.id==data.club)group=int(i);bracket=c.groups.empty();for(size_t i=0;i<c.rounds.size();++i)for(auto&t:c.rounds[i].ties)if(t.home==data.club||t.away==data.club)round=int(i);int latest=0;for(size_t i=0;i<c.matchdays.size();++i)for(auto&m:c.matchdays[i].matches)if(m.played&&m.date>=latest){latest=m.date;nav.matchday=int(i);}}
+ void enter(int club){data={};selected=0;ready=false;expanded=false;controlReady=false;nav.reset();resetScrolls();helpPublication.reset();currentClub=club;submitted=retry=checked=0;clearTextures();request();}
  void request(){if(currentClub<=0)return;lineup.request(currentClub,"competitions");submitted=lineup.sequence;retry=GetTickCount64()+3000;}
  void poll(){
   auto now=GetTickCount64();int liveClub=careerClub();if(liveClub>0&&liveClub!=currentClub){enter(liveClub);return;}if(!submitted&&!ready){if(liveClub){currentClub=liveClub;request();}return;}if(submitted)lineup.poll(renderer.device);
@@ -78,11 +81,18 @@ struct CompetitionView{
   group=std::clamp(group,0,int(comp.groups.size())-1);auto&g=comp.groups[group];scroll=std::clamp(scroll,0,(std::max)(0,int(g.rows.size())-20));
   r.line(c,74,207,728,207,0xffe5edf3);text(c,comp.format=="league"?"CLASSIFICAÇÃO":g.name+"  ·  "+std::to_string(group+1)+" / "+std::to_string(comp.groups.size()),82,165,405,31,23);if(comp.format=="league")text(c,"Ver rodadas  ›",500,168,187,27,18,uitheme::accentInk(),true);else{text(c,"Ver chaveamento  ›",500,168,187,27,18,uitheme::accentInk(),true);text(c,"‹",69,165,30,31,27,uitheme::accentInk(),true);text(c,"›",695,165,30,31,27,uitheme::accentInk(),true);}
   text(c,"CLUBE",143,208,224,26,14);text(c,"#",75,208,26,26,14);text(c,"ÚLTIMAS 5",329,208,62,26,12,RGB(116,138,150),true);const char*heads[]={"J","V","E","D","GP","GC","SG","PTS"};for(int i=0;i<8;++i)text(c,heads[i],393+i*42.f,208,40,26,14,RGB(116,138,150),true);
-  int rows=(std::min)(20,int(g.rows.size())-scroll);for(int i=0;i<rows;++i){auto&t=g.rows[scroll+i];float y=235+i*24.4f;bool own=t.id==data.club;unsigned bg=own?0xff005db9:(i%2?0xffeaf1f8:0xfff4f8fc);r.rectangle(c,68,y,666,24,bg);auto ink=own?uitheme::selectedText():RGB(36,66,94);if(!t.color.empty())r.rectangle(c,68,y,4,24,color(t.color));text(c,std::to_string(t.rank),76,y,25,24,16,ink,true);if(t.movement){arrow(c,110,y+12,t.movement>0?1:-1,t.movement>0?0xff55a65b:0xffcf6164);}else r.rectangle(c,106,y+11,7,2,own?0xffd6e7ee:0xffaebdc5);image(c,"crest",t.id,118,y+1,23,23);text(c,t.name,147,y,187,24,17,ink);for(size_t f=0;f<t.form.size()&&f<5;++f){unsigned shade=t.form[f]=='V'?0xff4c9b63:t.form[f]=='D'?0xffca6468:0xff9daeb7;rounded(c,341+float(f)*8,y+9,6,6,3,shade);}
+  // Clip partial rows independently from the title and legend while easing.
+  ID3D11RasterizerState*oldRaster=nullptr;c->RSGetState(&oldRaster);D3D11_RECT old[16]{};UINT count=16;c->RSGetScissorRects(&count,old);
+  D3D11_RECT clip{LONG(r.left+68*r.scale),LONG(r.top+235*r.scale),LONG(r.left+734*r.scale),LONG(r.top+723*r.scale)};
+  if(count){clip.left=(std::max)(clip.left,old[0].left);clip.top=(std::max)(clip.top,old[0].top);clip.right=(std::min)(clip.right,old[0].right);clip.bottom=(std::max)(clip.top,(std::min)(clip.bottom,old[0].bottom));}
+  if(canvasClip){c->RSSetState(canvasClip);c->RSSetScissorRects(1,&clip);}
+  int first=std::clamp(int(std::floor(tableMotion.position)),0,tableMaximum(comp)),rows=(std::min)(21,int(g.rows.size())-first);for(int i=0;i<rows;++i){auto&t=g.rows[first+i];float y=235+(first+i-tableMotion.position)*24.4f;bool own=t.id==data.club;unsigned bg=own?0xff005db9:(i%2?0xffeaf1f8:0xfff4f8fc);r.rectangle(c,68,y,666,24,bg);auto ink=own?uitheme::selectedText():RGB(36,66,94);if(!t.color.empty())r.rectangle(c,68,y,4,24,color(t.color));text(c,std::to_string(t.rank),76,y,25,24,16,ink,true);if(t.movement){arrow(c,110,y+12,t.movement>0?1:-1,t.movement>0?0xff55a65b:0xffcf6164);}else r.rectangle(c,106,y+11,7,2,own?0xffd6e7ee:0xffaebdc5);image(c,"crest",t.id,118,y+1,23,23);text(c,t.name,147,y,187,24,17,ink);for(size_t f=0;f<t.form.size()&&f<5;++f){unsigned shade=t.form[f]=='V'?0xff4c9b63:t.form[f]=='D'?0xffca6468:0xff9daeb7;rounded(c,341+float(f)*8,y+9,6,6,3,shade);}
    int values[]={t.games,t.wins,t.draws,t.losses,t.gf,t.ga,(t.gf<0||t.ga<0)?-1000:t.gf-t.ga,t.points};for(int j=0;j<8;++j)text(c,j==6?(values[j]==-1000?"—":std::to_string(values[j])):num(values[j]),393+j*42.f,y,40,24,16,ink,true);
   }
+  c->RSSetState(oldRaster);clubgfx::release(oldRaster);c->RSSetScissorRects(count,old);
+  if(tableMaximum(comp)>0){auto track=scrollTrack(2,comp);rounded(c,735,track.top,4,track.length,2,0xffdce6ee);rounded(c,735,track.top+track.offset(tableMotion.position*24.4f),4,track.thumb(),2,uitheme::accent());}
   float lx=79,ly=735;for(auto&z:g.legend){int width=(std::min)(320,25+int(z.second.size())*8);if(lx+width>733){lx=79;ly+=22;}if(ly>765)break;rounded(c,lx,ly+8,8,8,4,color(z.first));text(c,z.second,lx+15,ly,width-15,24,14,RGB(116,138,150));lx+=width;}
-  if(g.rows.size()>20)text(c,std::to_string(scroll+1)+"–"+std::to_string(scroll+rows)+" de "+std::to_string(g.rows.size()),80,771,630,18,13,RGB(116,138,150),true);
+  if(g.rows.size()>20)text(c,std::to_string(first+1)+"–"+std::to_string((std::min)(first+20,int(g.rows.size())))+" de "+std::to_string(g.rows.size()),80,771,630,18,13,RGB(116,138,150),true);
  }
  void cup(ID3D11DeviceContext*c,clubcomp::Competition&comp,bool embedded=false){
   auto&r=renderer;if(!embedded){panel(c,60,155,682,635);r.line(c,74,207,728,207,0xffe5edf3);text(c,"‹",69,165,30,31,27,uitheme::accentInk(),true);text(c,"›",695,165,30,31,27,uitheme::accentInk(),true);text(c,"CHAVEAMENTO",106,165,370,31,23);text(c,"Ver chaveamento  ›",500,168,187,27,18,uitheme::accentInk(),true);}
@@ -106,7 +116,7 @@ struct CompetitionView{
   mixedScroll=std::clamp(mixedScroll,0,mixedMaximum(comp));
   if(!canvasClip){D3D11_RASTERIZER_DESC desc{};r.raster->GetDesc(&desc);desc.ScissorEnable=TRUE;r.device->CreateRasterizerState(&desc,&canvasClip);}if(!canvasClip)return;
   ID3D11RasterizerState*oldRaster=nullptr;c->RSGetState(&oldRaster);D3D11_RECT old[16]{};UINT count=16;c->RSGetScissorRects(&count,old);D3D11_RECT clip{LONG(r.left+64*r.scale),LONG(r.top+212*r.scale),LONG(r.left+728*r.scale),LONG(r.top+779*r.scale)};if(count){clip.left=(std::max)(clip.left,old[0].left);clip.top=(std::max)(clip.top,old[0].top);clip.right=(std::min)(clip.right,old[0].right);clip.bottom=(std::max)(clip.top,(std::min)(clip.bottom,old[0].bottom));}c->RSSetState(canvasClip);c->RSSetScissorRects(1,&clip);
-  float y=218.f-mixedScroll;
+  float y=218.f-mixedMotion.position;
   auto knockout=[&](){float oldTop=r.top;r.top+=(y-212)*r.scale;if(y<779&&y+578>212)cup(c,comp,true);r.top=oldTop;y+=578;};
   if(comp.knockoutFirst){knockout();r.line(c,82,y,710,y,uitheme::accent());text(c,"FASE DE GRUPOS",86,y+9,610,28,20,uitheme::accentInk());y+=47;}
   for(auto&g:comp.groups){float height=55.f+g.rows.size()*28.f;
@@ -116,7 +126,7 @@ struct CompetitionView{
   }
   if(!comp.knockoutFirst){r.line(c,82,y,710,y,uitheme::accent());text(c,"FASE ELIMINATÓRIA",86,y+9,610,28,20,uitheme::accentInk());y+=47;knockout();}
   c->RSSetState(oldRaster);clubgfx::release(oldRaster);c->RSSetScissorRects(count,old);
-  float track=553,content=float(mixedMaximum(comp)+561),thumb=(std::max)(40.f,track*561/content);rounded(c,733,218,5,track,2.5f,0xffdce6ee);rounded(c,733,218+(track-thumb)*mixedScroll/(std::max)(1,mixedMaximum(comp)),5,thumb,2.5f,uitheme::accent());
+  auto track=scrollTrack(1,comp);rounded(c,733,track.top,5,track.length,2.5f,0xffdce6ee);rounded(c,733,track.top+track.offset(mixedMotion.position),5,track.thumb(),2.5f,uitheme::accent());
  }
  void pitch(ID3D11DeviceContext*c,clubcomp::Competition&comp,float offset=0){
   auto&r=renderer;auto box=clubcomp::pitchArea;box.y-=offset;panel(c,box.x,box.y,box.w,box.h);text(c,"TIME DO CAMPEONATO",box.x+16,167-offset,286,30,22,RGB(22,49,74));
@@ -141,7 +151,7 @@ struct CompetitionView{
   auto&r=renderer;if(device!=r.device){clearTextures();device=r.device;}label=0;++textFrame;r.normal(c);r.rectangle(c,40,20,1520,790,0xffedf2f5);
   if(!ready){text(c,"COMPETIÇÕES DA CARREIRA",80,65,1440,65,35);text(c,lineup.status=="error"?lineup.message:"Carregando as competições desta carreira...",80,350,1440,90,25,RGB(116,138,150),true);return;}
   if(data.competitions.empty()){text(c,"Nenhuma competição registrada para este clube",80,350,1440,90,25,RGB(116,138,150),true);return;}
-  selected=std::clamp(selected,0,int(data.competitions.size())-1);auto&comp=data.competitions[selected];if(nav.fullList>=0){drawFullLeaders(c,comp);return;}if(expanded){drawExpanded(c,comp);return;}if(nav.rounds){drawMatchdays(c,comp);return;}r.rectangle(c,40,20,1520,80,0xfff8fbfc);image(c,"comp",comp.asset,136,32,60,57);text(c,"‹",68,35,56,53,44,uitheme::accentInk(),true);text(c,"›",1477,35,56,53,44,uitheme::accentInk(),true);text(c,comp.name,214,29,1100,45,31);text(c,comp.status+" · "+data.clubName+" · "+std::to_string(data.date/10000),216,71,1100,25,16,RGB(116,138,150));if(comp.rank>0)text(c,std::to_string(comp.rank)+"º  ·  "+num(comp.points)+" PTS",1298,35,168,47,23,uitheme::accentInk(),true);
+  selected=std::clamp(selected,0,int(data.competitions.size())-1);auto&comp=data.competitions[selected];tickScrolls(scrollFrameSeconds);if(nav.fullList>=0){drawFullLeaders(c,comp);return;}if(expanded){drawExpanded(c,comp);return;}if(nav.rounds){drawMatchdays(c,comp);return;}r.rectangle(c,40,20,1520,80,0xfff8fbfc);image(c,"comp",comp.asset,136,32,60,57);text(c,"‹",68,35,56,53,44,uitheme::accentInk(),true);text(c,"›",1477,35,56,53,44,uitheme::accentInk(),true);text(c,comp.name,214,29,1100,45,31);text(c,comp.status+" · "+data.clubName+" · "+std::to_string(data.date/10000),216,71,1100,25,16,RGB(116,138,150));if(comp.rank>0)text(c,std::to_string(comp.rank)+"º  ·  "+num(comp.points)+" PTS",1298,35,168,47,23,uitheme::accentInk(),true);
   float tabWidth=1504.f/data.competitions.size();for(size_t i=0;i<data.competitions.size();++i){float xx=48+i*tabWidth;r.rectangle(c,xx,102,tabWidth-5,40,i==selected?uitheme::accent():0xffdde6eb);text(c,data.competitions[i].name,xx+8,106,int(tabWidth)-21,32,15,i==selected?uitheme::selectedText():RGB(52,77,90),true);}
   dashboardBody(c,comp);r.normal(c);
  }

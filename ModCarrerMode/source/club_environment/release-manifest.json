@@ -453,8 +453,8 @@
     },
     {
       "path": "ModCarrerMode/data/club_browser/world_geography.json",
-      "bytes": 17630,
-      "sha256": "b279ba13a9d1b4c4e9a204f74df6594aecdee8a923d5ce9d0e5a561ef509dfb9"
+      "bytes": 17634,
+      "sha256": "934801b814713df8b9fc926f6a463dfc7bfcf5e321ec2c344cb1824c9f1d681f"
     },
     {
       "path": "ModCarrerMode/data/club_environment/bank/assets/banrisul.png",
@@ -11148,8 +11148,8 @@
     },
     {
       "path": "ModCarrerMode/mods/club_browser/club_browser.dll",
-      "bytes": 1480704,
-      "sha256": "884f70083c75e277a59a544a466cec8a39a8f1c67402a623fb85f741eeb45f31"
+      "bytes": 1489408,
+      "sha256": "c2ffa77ee3b33e0346a24c114b5b32eece44414081a24566f25470cf8503b2a5"
     },
     {
       "path": "ModCarrerMode/mods/club_environment/native_dressing_room.dll",
@@ -11264,7 +11264,7 @@
     {
       "path": "ModCarrerMode/mods/server16_overlay/cgfs16_overlay.dll",
       "bytes": 308736,
-      "sha256": "df1b0522839588f3bf68ff57c46cea1dc7eb4b389c170d184d35514fe9c0b4aa"
+      "sha256": "21ecac51290e19f84c9a78d87502088d98e84617d67da3193fc92d070ac338cd"
     },
     {
       "path": "ModCarrerMode/mods/smoke_machine/smoke_machine.dll",
@@ -12413,8 +12413,8 @@
     },
     {
       "path": "ModCarrerMode/source/club_browser/build_stadium.cmd",
-      "bytes": 1257,
-      "sha256": "ab8089d0456e5fef84988626746cc9e4dab4629c8619b70d5daf5339be75ac94"
+      "bytes": 1279,
+      "sha256": "d487b9ec22a7df1b285fd84781e91c5357510f6eacbdd8249f3c8e3886aae41b"
     },
     {
       "path": "ModCarrerMode/source/club_browser/career_publication.py",
@@ -13128,8 +13128,8 @@
     },
     {
       "path": "ModCarrerMode/source/club_browser/native/competitions_dashboard.inc",
-      "bytes": 17072,
-      "sha256": "d885699f190c5a5f3373215a4150d4d06f28b696721e6f20128037a00dc81c5f"
+      "bytes": 20713,
+      "sha256": "ea46192e1cd6e424db15a783825a8be14277cfc4aefbcc21fc541eb55a199513"
     },
     {
       "path": "ModCarrerMode/source/club_browser/native/competitions_footer.h",
@@ -13148,8 +13148,8 @@
     },
     {
       "path": "ModCarrerMode/source/club_browser/native/competitions_ui.inc",
-      "bytes": 24606,
-      "sha256": "1f4c8bb182ab57159bfea18232429b0d77790b9e67536baa0d2a1be1b2d053a5"
+      "bytes": 26006,
+      "sha256": "6540355d1f8850c32f66ba6d9c4555d612478c7a18e2f5ef8f54b78a3bf20114"
     },
     {
       "path": "ModCarrerMode/source/club_browser/native/gallery_reflection.h",
@@ -13223,8 +13223,8 @@
     },
     {
       "path": "ModCarrerMode/source/club_browser/native/model.h",
-      "bytes": 5291,
-      "sha256": "5fb015032edbd9472c81070aa0fd2d8e5ed77d0214ec8a9f8b140398f3ea3696"
+      "bytes": 5375,
+      "sha256": "a31f7f94a8ff0e4b2283fbcba99c81df31a28455fd320768c48872123ef291f0"
     },
     {
       "path": "ModCarrerMode/source/club_browser/native/native_animation.h",
@@ -13253,8 +13253,8 @@
     },
     {
       "path": "ModCarrerMode/source/club_browser/native/render.cpp",
-      "bytes": 45016,
-      "sha256": "b40b7a0f76208c04f3aa258fe0d4de26ab2a6fba7bc0026d2bccfa83b6369e0f"
+      "bytes": 45098,
+      "sha256": "9b0c52de5c21e7b30d0b27fe27ddbbe2acd50d538e48f8dd8f0ccb80c232ba72"
     },
     {
       "path": "ModCarrerMode/source/club_browser/native/room_prop_shadow.h",
@@ -13818,8 +13818,8 @@
     },
     {
       "path": "ModCarrerMode/source/club_browser/test_native.cmd",
-      "bytes": 5679,
-      "sha256": "537d5af00e7b0e1b126bdf9ed289a4cd7e7245d2769a23678e78c4ed00420aca"
+      "bytes": 6283,
+      "sha256": "ebcf7f0f074896cbd60ba1f33da819ed7ad1ad200efc72310ea7549e010f88a9"
     },
     {
       "path": "ModCarrerMode/source/club_browser/test_native_assets.py",
@@ -13923,8 +13923,8 @@
     },
     {
       "path": "ModCarrerMode/source/club_browser/world_catalog.py",
-      "bytes": 10146,
-      "sha256": "ffac7949f64064623aef0b48b62a01c98258d024fa397ecb41218bf37ad67f4c"
+      "bytes": 14075,
+      "sha256": "d35470781396e54124539a5be91811f11d3bd4976fc3a698477c7fe6159775d3"
     },
     {
       "path": "ModCarrerMode/source/club_environment/assets-manifest.json",
@@ -18878,8 +18878,8 @@
     },
     {
       "path": "ModCarrerMode/source/server16_py/d3d_overlay/test_ultrawide.cpp",
-      "bytes": 12638,
-      "sha256": "1df35723ab0f87abe0d02c9117a6dfd2bbadaa285296825487a0ac0956d3b0d2"
+      "bytes": 12920,
+      "sha256": "5a17266334a86e75da680931313fb2d487e9404fd566f05b5f91dfd846041675"
     },
     {
       "path": "ModCarrerMode/source/server16_py/d3d_overlay/test_ultrawide_background.cpp",
@@ -18933,8 +18933,8 @@
     },
     {
       "path": "ModCarrerMode/source/server16_py/d3d_overlay/ultrawide_bridge.cpp",
-      "bytes": 22466,
-      "sha256": "7f4db63414cddff072d65cc7861279e3363cae14e5febec468f94e6d0a15fbb1"
+      "bytes": 22476,
+      "sha256": "f3ebf92e77aabba800fa2a5a81e713a6da3f7aaa48e9114fce8482eaee74dd70"
     },
     {
       "path": "ModCarrerMode/source/server16_py/d3d_overlay/ultrawide_bridge.h",
@@ -20019,7 +20019,7 @@
     {
       "path": "ModCarrerMode/source/tests/test_career_transfer_cards_layout.py",
       "bytes": 6284,
-      "sha256": "d65e76d23bfa64835ab19c37485c190f6eb2a815a3f28a2d3d32f20045966590"
+      "sha256": "66e3f4bae88e2a6dfc75f976ad0ef0367680b7871272fb94fd888cb7c44c6363"
     },
     {
       "path": "ModCarrerMode/source/tests/test_career_transfer_catalog.py",
@@ -20508,8 +20508,8 @@
     },
     {
       "path": "ModCarrerMode/source/tools/expand_career_transfer_cards.py",
-      "bytes": 6095,
-      "sha256": "24204bfd188b345bd9947e92352fd7dd5d5cc25a23a120094ca1cc6df24d03d8"
+      "bytes": 6875,
+      "sha256": "728456aaf29112d1cf725c0ade724b50b215326b69ef7ef11a812d603fae624c"
     },
     {
       "path": "ModCarrerMode/source/tools/install_career_job_offer.py",
@@ -20919,7 +20919,7 @@
     {
       "path": "bin/cgfs16_overlay.dll",
       "bytes": 308736,
-      "sha256": "df1b0522839588f3bf68ff57c46cea1dc7eb4b389c170d184d35514fe9c0b4aa"
+      "sha256": "21ecac51290e19f84c9a78d87502088d98e84617d67da3193fc92d070ac338cd"
     },
     {
       "path": "bin/server16_first_person_v14.dll",
@@ -28489,7 +28489,7 @@
     {
       "path": "data/ui/game/components/fluxcomponents/career/transferinfo.big",
       "bytes": 4800,
-      "sha256": "79e1db92ba4347c487fe34564e70ef061592a0ef4fe5c5639d4094d9fe4b9f9a"
+      "sha256": "0a425f0ed59ab9be3ab3f89db3d367462d3f14d30615e46172e74a972c09b22a"
     },
     {
       "path": "data/ui/game/components/fluxcore/togglemenu.big",
@@ -48725,6 +48725,81 @@
       "path": "winmm.dll",
       "bytes": 276392,
       "sha256": "a142a367d62f5bbe85a0d2349eb801c03e2e6710dab987d0abcbb615a3487c56"
+    },
+    {
+      "path": "ModCarrerMode/data/club_browser/catalog_overrides.ini",
+      "bytes": 11258,
+      "sha256": "32d7f68b021a73c7132f2b2978e66aab1059553cae553cdd4271dcc3f015cf0d"
+    },
+    {
+      "path": "ModCarrerMode/source/club_browser/catalog_overrides.py",
+      "bytes": 2362,
+      "sha256": "c4e719e1acbc4a100dda187c84b6a1a5bf2e2947980f22860aaa8ebee8e8f0a4"
+    },
+    {
+      "path": "ModCarrerMode/source/club_browser/test_catalog_overrides.py",
+      "bytes": 6417,
+      "sha256": "adc66c1d29ecb2af9570d55504b4f2e73f28a79576ff4a7559df7cefe6db87aa"
+    },
+    {
+      "path": "ModCarrerMode/source/club_browser/native/test_catalog_metadata.cpp",
+      "bytes": 2102,
+      "sha256": "33c45084f5771a84ebbf2e2997d0be19866fc82690c293630afa1236e050a49a"
+    },
+    {
+      "path": "data/ui/imgAssets/flags512x512/f_8.dds",
+      "bytes": 262272,
+      "sha256": "f78c905380c00981141f30618e081c0511c1f311fa50e4d85c34572e497717a3"
+    },
+    {
+      "path": "data/ui/imgAssets/flags512x512/f_50.dds",
+      "bytes": 262272,
+      "sha256": "e8154fd5d320a7ccf3ece391bb99417b96dbeda46fe47c738cdaa9a358975504"
+    },
+    {
+      "path": "data/ui/imgAssets/flags512x512/f_195.dds",
+      "bytes": 65664,
+      "sha256": "243a22a9f372ea8dcaa36c14f8fbb937886782ce8ecfc5c86e14b2644a294107"
+    },
+    {
+      "path": "data/ui/imgAssets/flags512x512/f_198.dds",
+      "bytes": 65728,
+      "sha256": "eaef97aec587c5ad006ec56e47a24c2705c1039a85af6c377f921235234a3ca9"
+    },
+    {
+      "path": "ModCarrerMode/data/club_browser/assets/flags/LICENSE.txt",
+      "bytes": 1087,
+      "sha256": "8f1195d55a2fd315a07d812328470ca9ba2abb78c8d317ff19619d5125e00cea"
+    },
+    {
+      "path": "ModCarrerMode/data/club_browser/assets/flags/sources.json",
+      "bytes": 380,
+      "sha256": "818ce86e7a2d5a6402ab443ae2fc7f1c61607486cd690e56be04fcdeb82051e5"
+    },
+    {
+      "path": "ModCarrerMode/source/bin/cgfs16_overlay.dll",
+      "bytes": 308736,
+      "sha256": "21ecac51290e19f84c9a78d87502088d98e84617d67da3193fc92d070ac338cd"
+    },
+    {
+      "path": "ModCarrerMode/source/club_browser/native/competition_scroll.h",
+      "bytes": 1710,
+      "sha256": "f69c66cade2006b2c64578b456e94ed295df4150eb47598684d57ec1caf73881"
+    },
+    {
+      "path": "ModCarrerMode/source/club_browser/native/test_competition_scroll.cpp",
+      "bytes": 1908,
+      "sha256": "748b620ed9f11507e835430b3da2059c1f5555e4fc6bd4af8cdbc5c3aab289a3"
+    },
+    {
+      "path": "ModCarrerMode/source/club_browser/native/test_competition_scroll_view.cpp",
+      "bytes": 5820,
+      "sha256": "3a2e000f1c8d5c68f94a0ae5b996c97a46285a6523291010fdcf7879c5a442af"
+    },
+    {
+      "path": "ModCarrerMode/source/runtime/cgfs16_overlay.dll",
+      "bytes": 308736,
+      "sha256": "21ecac51290e19f84c9a78d87502088d98e84617d67da3193fc92d070ac338cd"
     }
   ],
   "local_revision": "Mercado em background, tÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â©cnicos 3D por identidade, histÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â³rico da carreira, vestiÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¡rio ampliado e recursos do Server16",
@@ -48769,5 +48844,8 @@
   "cup_title_capture_revision": "Saved cup final outcomes and durable final results, including verified penalty winners and season rollover",
   "room_panorama_light_revision": "20261112 idle panorama light gain 0.72; career background and interactive room retain shared base lighting",
   "financial_incorporation": "Disabled by default; native creation budget and saved budget synchronized; choices through 500 million.",
-  "finance_overview_layout": "Stacked label/value rows preserve full currency amounts in season budget and weekly wage cards."
+  "finance_overview_layout": "Stacked label/value rows preserve full currency amounts in season budget and weekly wage cards.",
+  "globe_catalog_revision": "Editable per-club INI; native domestic membership, canonical countries, cross-border leagues, Brazilian state federations and corrected flag/geography assets.",
+  "competition_scroll_revision": "Focused group/league card wheel and scrollbar/content dragging; continuous right stick, bounded easing and shared pointer/render offsets.",
+  "ultrawide_mouse_revision": "Mouse polling and messages keep native coordinates when disabled; inverse centred UI mapping only while ultrawide is enabled."
 }
