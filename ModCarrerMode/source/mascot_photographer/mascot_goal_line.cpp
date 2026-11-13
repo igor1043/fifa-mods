@@ -13,7 +13,7 @@
 #include "mascot_pose_policy.h"
 #include "mascot_placement_policy.h"
 #include "../common/scene_lua.h"
-#include "../common/scene_startup.h"
+#include "../common/scene_startup_probe.h"
 #include "scene_actor_api.h"
 
 static uintptr_t image;

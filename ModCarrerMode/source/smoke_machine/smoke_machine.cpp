@@ -10,7 +10,7 @@
 #include "loading_policy.h"
 #include "../common/scene_lua.h"
 #include "../common/scene_resource_cycle.h"
-#include "../common/scene_startup.h"
+#include "../common/scene_startup_probe.h"
 using BuildFn=void(__fastcall*)(void*);
 static uintptr_t image;
 static BuildFn nextBuild;

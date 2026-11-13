@@ -12,7 +12,8 @@
 #include "entrance_bounds.h"
 #include "entrance_selection.h"
 #include "../common/scene_lua.h"
-#include "../common/scene_startup.h"
+#include "../common/frontend_startup_gate.h"
+#include "../common/scene_startup_probe.h"
 #include "../common/scene_resource_cycle.h"
 #include "../common/field_prop_shadow.h"
 #include "../common/live_competition.h"
@@ -963,6 +964,7 @@ static bool patch_call(){
 static DWORD WINAPI worker(void*){
     if(!enabled){event("disabled no_hook_or_reserved_model");return 0;}
     for(unsigned i=0;i<600&&!stopping;++i){
+        if(!fifa_frontend_startup_current(image)){Sleep(200);continue;}
         if(!signatures()){Sleep(200);continue;}
         auto relay=(unsigned char*)allocate_near(image+0x43ac173);if(!relay){event("no_near_relay");return 0;}
         const unsigned char jmp[6]={0xff,0x25,0,0,0,0};

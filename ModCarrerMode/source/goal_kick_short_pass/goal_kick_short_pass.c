@@ -7,6 +7,7 @@
 #include <string.h>
 #include <wchar.h>
 #include "core.h"
+#include "../common/frontend_startup_gate.h"
 
 #define PATH_CAP 4096
 #define GOAL_HOOK_COUNT 5
@@ -134,6 +135,10 @@ static int target_ready(char *reason, size_t cap) {
     const Signature *signature = NULL;
     uint64_t target = 0;
     unsigned char *actual = NULL;
+    if (!fifa_frontend_startup_current((uintptr_t)image_base)) {
+        _snprintf_s(reason, cap, _TRUNCATE, "native frontend is still initializing");
+        return 0;
+    }
     for (size_t n = 0; n < sizeof(required_signatures) / sizeof(required_signatures[0]); ++n) {
         signature = NULL;
         for (size_t i = 0; i < f16_nsignatures; ++i) {

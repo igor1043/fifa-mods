@@ -14,6 +14,7 @@
 #include <string>
 #include "country_policy.h"
 #include "scene_policy.h"
+#include "../common/frontend_startup_gate.h"
 
 static HMODULE ownModule;
 static uintptr_t image;
@@ -321,6 +322,7 @@ static bool install_hooks(unsigned char* relay) {
 static DWORD WINAPI worker(void*) {
     unsigned char* relay = nullptr;
     for (unsigned attempt = 0; attempt < 600; ++attempt) {
+        if (!fifa_frontend_startup_current(image)) { Sleep(100); continue; }
         if (!code_ready()) { Sleep(100); continue; }
         if (!relay) {
             relay = (unsigned char*)allocate_near();

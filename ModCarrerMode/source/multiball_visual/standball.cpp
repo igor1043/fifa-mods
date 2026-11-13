@@ -10,6 +10,7 @@
 #include "stand_layout.h"
 #include "stand_assets.h"
 #include "../common/scene_lua.h"
+#include "../common/frontend_startup_gate.h"
 #include "../common/scene_resource_cycle.h"
 #include "../common/field_prop_shadow.h"
 #include "../common/competition_identity.h"
@@ -318,6 +319,7 @@ static bool signatures(){
 }
 static DWORD WINAPI worker(void*){
  for(unsigned i=0;i<600&&!stopping;++i){
+  if(!fifa_frontend_startup_current(image)){Sleep(200);continue;}
   if(!signatures()){Sleep(200);continue;}
   auto relay=(unsigned char*)allocateNear(image+0x43ac173);if(!relay){event("relay_allocation_failed");return 0;}
   const unsigned char jump[6]={0xff,0x25,0,0,0,0};const uintptr_t target=(uintptr_t)buildHook;

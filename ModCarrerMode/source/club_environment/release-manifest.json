@@ -11163,8 +11163,8 @@
     },
     {
       "path": "ModCarrerMode/mods/crowd_ultra_kits/crowd_ultra_kits.dll",
-      "bytes": 220160,
-      "sha256": "ed15c407dda4d5cec79442156c2545bf5cd77584dee51d7fa4960109564dccc2"
+      "bytes": 220672,
+      "sha256": "23c88f90554036e94dc0607cfa7cfa4366b18fe6980e8c90154479993c493166"
     },
     {
       "path": "ModCarrerMode/mods/crowd_ultra_kits/crowd_ultra_kits.ini",
@@ -11178,8 +11178,8 @@
     },
     {
       "path": "ModCarrerMode/mods/entrance_props/entrance_props.dll",
-      "bytes": 374272,
-      "sha256": "c896d0a1a61e57cbada81ea93fe34cd45ecf445a074175b09cf3542116687c4f"
+      "bytes": 376320,
+      "sha256": "a206e9b029c13fcf3aafecd57baea727d97035f2d63baf80d44fd8ddb3a81fab"
     },
     {
       "path": "ModCarrerMode/mods/entrance_props/entrance_props.ini",
@@ -11203,8 +11203,8 @@
     },
     {
       "path": "ModCarrerMode/mods/goal_kick_short_pass/goal_kick_short_pass.dll",
-      "bytes": 264704,
-      "sha256": "c41f163c77f645bcef3a2ec3fb7569f471e1075e63f43d43138697da35c1062f"
+      "bytes": 265728,
+      "sha256": "f2a6142bfa8d33d46fe8ffa048256d288553f7b05fa0055a66325f6d830825c4"
     },
     {
       "path": "ModCarrerMode/mods/goal_kick_short_pass/goal_kick_short_pass.ini",
@@ -11243,8 +11243,8 @@
     },
     {
       "path": "ModCarrerMode/mods/multiball_visual/multiball_visual.dll",
-      "bytes": 289792,
-      "sha256": "b1ffb709236d83ba5446c094d69ca2b37ca0c96c12ceba96cfdc16d73f6a0419"
+      "bytes": 291328,
+      "sha256": "77a16536786c226e860fcf0b69fe6d028fad0c9812279b41a963195054770235"
     },
     {
       "path": "ModCarrerMode/mods/multiball_visual/standball.ini",
@@ -11303,8 +11303,8 @@
     },
     {
       "path": "ModCarrerMode/mods/stadium_pyrotechnics/stadium_pyrotechnics.dll",
-      "bytes": 225792,
-      "sha256": "7a7cdf25c27b4d4734368881c04a345c413769c73da0a6234e1a4dbb053f0382"
+      "bytes": 226304,
+      "sha256": "aaeacfa61e802e94e655c375cf3bf4cc50bca1e25f46dd98e7fd014e6d2c2eec"
     },
     {
       "path": "ModCarrerMode/mods/subson/subson_bridge.dll",
@@ -16383,8 +16383,8 @@
     },
     {
       "path": "ModCarrerMode/source/crowd_ultra_kits/crowd_ultra_kits.cpp",
-      "bytes": 22169,
-      "sha256": "579e9bb99c7f3bafe9836b95dd7bb3ab313f1f58563f78309fc825ac10d76b36"
+      "bytes": 22291,
+      "sha256": "29bfd72a69f3b89c33182b444f7ad4379b3106f7c7f5ade2b764b84476b7c314"
     },
     {
       "path": "ModCarrerMode/source/crowd_ultra_kits/crowd_ultra_kits.ini",
@@ -16468,8 +16468,8 @@
     },
     {
       "path": "ModCarrerMode/source/entrance_props/entrance_props.cpp",
-      "bytes": 67578,
-      "sha256": "8cc385dea1c4d5a787b8d3eef1099f50c0be44c693196e784845114cbed1173d"
+      "bytes": 67701,
+      "sha256": "d4b9ea1a6e3a42194825ab9e160ac48515cb62a803d56bdb7ebde8f8f7b657cb"
     },
     {
       "path": "ModCarrerMode/source/entrance_props/entrance_selection.h",
@@ -16523,8 +16523,8 @@
     },
     {
       "path": "ModCarrerMode/source/goal_kick_short_pass/goal_kick_short_pass.c",
-      "bytes": 22422,
-      "sha256": "113e8d3111584cde5661689f22f71535ef0fa967160e3045229a198df33115a0"
+      "bytes": 22642,
+      "sha256": "270d7b2ff07cba121f6833e61b287aaaba24c944f70041b226e71c86cd05e212"
     },
     {
       "path": "ModCarrerMode/source/goal_kick_short_pass/goal_kick_short_pass.ini",
@@ -16788,8 +16788,8 @@
     },
     {
       "path": "ModCarrerMode/source/mascot_photographer/mascot_goal_line.cpp",
-      "bytes": 44903,
-      "sha256": "1594ce47d947e7f5f084ade7f66aa4f932d7941bafb0b0641d2eea44d099759e"
+      "bytes": 44909,
+      "sha256": "c67475925689b89fc892fccc1c4a31058e37d8c9a9b6ef3b30a3befd2f58e28e"
     },
     {
       "path": "ModCarrerMode/source/mascot_photographer/mascot_locomotion_math.h",
@@ -16988,8 +16988,8 @@
     },
     {
       "path": "ModCarrerMode/source/multiball_visual/multiball_visual.c",
-      "bytes": 7301,
-      "sha256": "244458813f5f906c6bf2e5e40a9c7586ae67a9032b98186f75421d390fa74938"
+      "bytes": 7401,
+      "sha256": "c5eeb875668db2d2e591db76e2510ac7d1a233a117163dc5a3065565d1124287"
     },
     {
       "path": "ModCarrerMode/source/multiball_visual/render_stands.py",
@@ -17008,8 +17008,8 @@
     },
     {
       "path": "ModCarrerMode/source/multiball_visual/standball.cpp",
-      "bytes": 27012,
-      "sha256": "3790147251fb51dd850a94d31f07f14dd2cc7fc334eb0a2578de5ab5bac31b29"
+      "bytes": 27125,
+      "sha256": "aa6162a32195f842d98dd75bbfb55ef222d744d276242b0585a02ced92499809"
     },
     {
       "path": "ModCarrerMode/source/multiball_visual/standball.ini",
@@ -19458,8 +19458,8 @@
     },
     {
       "path": "ModCarrerMode/source/smoke_machine/smoke_machine.cpp",
-      "bytes": 24059,
-      "sha256": "ef8b86b56ba2e20259ed58dc1371dec9de78a579aa09353c7e5f7c42f8bed0d3"
+      "bytes": 24065,
+      "sha256": "02bf1f359d2b950cc8cb6e32b570690c01abd1327e729d370c6a75a17bbcfa55"
     },
     {
       "path": "ModCarrerMode/source/smoke_machine/smoke_machine.lua",
@@ -19658,8 +19658,8 @@
     },
     {
       "path": "ModCarrerMode/source/stadium_pyrotechnics/stadium_pyrotechnics.cpp",
-      "bytes": 41882,
-      "sha256": "8fb6700fb193f4492acda461dafd68e03d14cfba4dd19f77d1644fb235c81bb2"
+      "bytes": 41999,
+      "sha256": "502797c47bb2072451be35cca93818babd23d143c3fa784405366089ed9cb5f4"
     },
     {
       "path": "ModCarrerMode/source/stadium_pyrotechnics/team_palettes.h",
@@ -20693,8 +20693,8 @@
     },
     {
       "path": "ModCarrerMode/source/var_cabin/var_cabin.cpp",
-      "bytes": 22883,
-      "sha256": "df9e0c08964721d7f6c1050bb41ee0ed00d275962f0305e428d120e6ba0b2b23"
+      "bytes": 22889,
+      "sha256": "d9f3bb7612951ea1cf1333ca62c8edf4491b836d07002db05254d349fffdfce4"
     },
     {
       "path": "ModCarrerMode/source/var_cabin/var_cabin.lua",
@@ -48800,6 +48800,21 @@
       "path": "ModCarrerMode/source/runtime/cgfs16_overlay.dll",
       "bytes": 308736,
       "sha256": "21ecac51290e19f84c9a78d87502088d98e84617d67da3193fc92d070ac338cd"
+    },
+    {
+      "path": "ModCarrerMode/source/common/frontend_startup_gate.h",
+      "bytes": 2236,
+      "sha256": "eecaa64bdb1603e84d33c5fd8ba5bbdacee298ce01166e4d918b0430d3c23ea1"
+    },
+    {
+      "path": "ModCarrerMode/source/common/scene_startup_probe.h",
+      "bytes": 2009,
+      "sha256": "5718f10792c874531ad23ea473691e5804b79e0782b5c146b35df2fcf1ca55ce"
+    },
+    {
+      "path": "ModCarrerMode/source/common/test_frontend_startup_gate.c",
+      "bytes": 2240,
+      "sha256": "8848a0aab32e9ef2a30e8366776d9b544d527c08d25501e2cd35c10f2c118d7a"
     }
   ],
   "local_revision": "Mercado em background, tÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â©cnicos 3D por identidade, histÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â³rico da carreira, vestiÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¡rio ampliado e recursos do Server16",
@@ -48847,5 +48862,6 @@
   "finance_overview_layout": "Stacked label/value rows preserve full currency amounts in season budget and weekly wage cards.",
   "globe_catalog_revision": "Editable per-club INI; native domestic membership, canonical countries, cross-border leagues, Brazilian state federations and corrected flag/geography assets.",
   "competition_scroll_revision": "Focused group/league card wheel and scrollbar/content dragging; continuous right stick, bounded easing and shared pointer/render offsets.",
-  "ultrawide_mouse_revision": "Mouse polling and messages keep native coordinates when disabled; inverse centred UI mapping only while ultrawide is enabled."
+  "ultrawide_mouse_revision": "Mouse polling and messages keep native coordinates when disabled; inverse centred UI mapping only while ultrawide is enabled.",
+  "field_mod_startup_revision": "native-frontend-ready-before-field-hooks"
 }

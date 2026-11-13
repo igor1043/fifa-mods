@@ -3,6 +3,7 @@
 #include <stdint.h>
 #include <stdio.h>
 #include "ball_layout.h"
+#include "../common/frontend_startup_gate.h"
 extern float standball_height(void);
 extern unsigned char standball_start(const char *root);
 extern void standball_stop(void);
@@ -87,6 +88,7 @@ static BOOL render_compatible(uintptr_t actual) {
 }
 static BOOL ready(void) {
  unsigned int i;uintptr_t actual;
+ if(!fifa_frontend_startup_current(base))return FALSE;
  for(i=0;i<3;i++)if(!read_at(base+slots[i],&actual,8) || (i==0?!render_compatible(actual):actual!=base+native[i]))return FALSE;
  return TRUE;
 }

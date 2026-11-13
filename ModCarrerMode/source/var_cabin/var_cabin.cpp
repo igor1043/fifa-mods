@@ -7,7 +7,7 @@
 #include <math.h>
 #include "../common/scene_lua.h"
 #include "../common/scene_resource_cycle.h"
-#include "../common/scene_startup.h"
+#include "../common/scene_startup_probe.h"
 #include "../common/field_prop_shadow.h"
 using BuildFn=void(__fastcall*)(void*);
 static uintptr_t image;
